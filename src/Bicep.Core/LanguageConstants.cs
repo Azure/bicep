@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -148,6 +149,7 @@ namespace Bicep.Core
         public const string ImportMetadataOriginalIdentifierPropertyName = "originalIdentifier";
         public const string BatchSizePropertyName = "batchSize";
         public const string ExportPropertyName = "export";
+        public const string TypeDiscriminatorDecoratorName = "discriminator";
 
         // module properties
         public const string ModuleParamsPropertyName = "params";

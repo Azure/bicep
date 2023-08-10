@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -315,6 +316,7 @@ namespace Bicep.Core.Semantics
                 .Concat(GetAnalyzerDiagnostics())
                 // TODO: This could be eliminated if we change the params type checking code to operate more on symbols
                 .Concat(GetAdditionalParamsSemanticDiagnostics())
+                .Distinct()
                 .OrderBy(diag => diag.Span.Position);
             var filteredDiagnostics = new List<IDiagnostic>();
 

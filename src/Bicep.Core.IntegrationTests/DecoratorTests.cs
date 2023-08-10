@@ -30,7 +30,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 template.Should().NotHaveValue();
                 diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                    ("BCP147", DiagnosticLevel.Error, "Expected a parameter declaration after the decorator."),
+                    ("BCP290", DiagnosticLevel.Error, "Expected a parameter or type declaration after the decorator."),
                 });
             }
         }

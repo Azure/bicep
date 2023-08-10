@@ -574,8 +574,14 @@ namespace Bicep.Core.TypeSystem
 
                 base.VisitUnionTypeSyntax(syntax);
 
+                if (declaredType is DiscriminatedObjectType or ErrorType)
+                {
+                    return declaredType;
+                }
+
                 var memberTypes = syntax.Members.Select(memberSyntax => (GetTypeInfo(memberSyntax), memberSyntax))
-                    .SelectMany(t => FlattenUnionMemberType(t.Item1, t.memberSyntax)).ToImmutableArray();
+                    .SelectMany(t => FlattenUnionMemberType(t.Item1, t.memberSyntax))
+                    .ToImmutableArray();
 
                 switch (TypeHelper.CreateTypeUnion(memberTypes.Select(t => GetNonLiteralType(t.memberType)).WhereNotNull()))
                 {
@@ -1824,12 +1830,8 @@ namespace Bicep.Core.TypeSystem
                 {
                     FunctionFlags.MetadataDecorator => builder.ExpectedMetadataDeclarationAfterDecorator(),
                     FunctionFlags.ParameterDecorator => builder.ExpectedParameterDeclarationAfterDecorator(),
-                    FunctionFlags.ParameterOutputOrTypeDecorator => features.UserDefinedTypesEnabled
-                        ? builder.ExpectedParameterOutputOrTypeDeclarationAfterDecorator()
-                        : builder.ExpectedParameterOrOutputDeclarationAfterDecorator(),
-                    FunctionFlags.ParameterOrTypeDecorator => features.UserDefinedTypesEnabled
-                        ? builder.ExpectedParameterOrTypeDeclarationAfterDecorator()
-                        : builder.ExpectedParameterDeclarationAfterDecorator(),
+                    FunctionFlags.ParameterOutputOrTypeDecorator => builder.ExpectedParameterOutputOrTypeDeclarationAfterDecorator(),
+                    FunctionFlags.ParameterOrTypeDecorator => builder.ExpectedParameterOrTypeDeclarationAfterDecorator(),
                     FunctionFlags.VariableDecorator => builder.ExpectedVariableDeclarationAfterDecorator(),
                     FunctionFlags.ResourceDecorator => builder.ExpectedResourceDeclarationAfterDecorator(),
                     FunctionFlags.ModuleDecorator => builder.ExpectedModuleDeclarationAfterDecorator(),

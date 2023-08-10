@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -36,6 +37,9 @@ namespace Bicep.Core.TypeSystem
         public ITypeReference? AdditionalPropertiesType { get; }
 
         public TypePropertyFlags AdditionalPropertiesFlags { get; }
+
+        public bool HasExplicitAdditionalPropertiesType =>
+            AdditionalPropertiesType != null && !AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty);
 
         public FunctionResolver MethodResolver { get; }
 

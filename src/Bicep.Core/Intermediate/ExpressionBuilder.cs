@@ -271,6 +271,11 @@ public class ExpressionBuilder
                 GetTypeInfo<ArrayType>(syntax),
                 ConvertTypeWithoutLowering(arrayTypeSyntax.Item.Value)),
             NullableTypeSyntax nullableTypeSyntax => new NullableTypeExpression(syntax, ConvertTypeWithoutLowering(nullableTypeSyntax.Base)),
+            UnionTypeSyntax unionTypeSyntax when Context.SemanticModel.GetTypeInfo(unionTypeSyntax) is DiscriminatedObjectType discriminatedObjectType =>
+                new DiscriminatedObjectTypeExpression(
+                    syntax,
+                    discriminatedObjectType,
+                    unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)).ToImmutableArray()),
             UnionTypeSyntax unionTypeSyntax when Context.SemanticModel.GetTypeInfo(unionTypeSyntax) is UnionType unionType
                 => new UnionTypeExpression(syntax, unionType, unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)).ToImmutableArray()),
             UnionTypeSyntax unionTypeSyntax => Context.SemanticModel.GetTypeInfo(unionTypeSyntax) switch

@@ -28,8 +28,6 @@ namespace Bicep.Core.Features
 
         public bool SourceMappingEnabled => this.configuration.ExperimentalFeaturesEnabled.SourceMapping;
 
-        public bool UserDefinedTypesEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedTypes;
-
         public bool UserDefinedFunctionsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedFunctions;
 
         public bool PrettyPrintingEnabled => this.configuration.ExperimentalFeaturesEnabled.PrettyPrinting;

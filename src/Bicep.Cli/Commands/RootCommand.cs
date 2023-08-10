@@ -118,6 +118,21 @@ Usage:
       bicep decompile file.json --force
       bicep decompile file.json --outfile file.bicep
 
+  {exeName} lint [options] <file>
+    Lints a .bicep file.
+
+    Arguments:
+      <file>        The input file
+
+    Options:
+      --no-restore                   Skips restoring external modules.
+      --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
+
+    Examples:
+      bicep lint file.bicep
+      bicep lint file.bicep --no-restore
+      bicep lint file.bicep --diagnostics-format sarif
+
   {exeName} decompile-params [options] <file>
     Attempts to decompile a parameters .json file to .bicepparam.
 
