@@ -1,21 +1,42 @@
 @description('The foo type')
+//@      "metadata": {
 //@        "description": "The foo type"
+//@      }
 @sealed()
+//@      "additionalProperties": false,
 type foo = {
 //@    "foo": {
 //@      "type": "object",
 //@      "properties": {
+//@      },
+//@    },
+  @minLength(3)
+//@          "minLength": 3,
+  @maxLength(10)
+//@          "maxLength": 10,
+  @description('A string property')
+//@          "metadata": {
+//@            "description": "A string property"
+//@          }
+  stringProp: string
 //@        "stringProp": {
 //@          "type": "string",
-//@          "metadata": {
-//@          },
 //@        },
+
+  objectProp: {
 //@        "objectProp": {
 //@          "type": "object",
 //@          "properties": {
+//@          }
+//@        },
+    @minValue(1)
+//@              "minValue": 1
+    intProp: int
 //@            "intProp": {
 //@              "type": "int",
 //@            },
+
+    intArrayArrayProp: int [] [] ?
 //@            "intArrayArrayProp": {
 //@              "type": "array",
 //@              "items": {
@@ -26,47 +47,26 @@ type foo = {
 //@              },
 //@              "nullable": true
 //@            }
-//@          }
-//@        },
+  }
+
+  typeRefProp: bar
 //@        "typeRefProp": {
 //@          "$ref": "#/definitions/bar"
 //@        },
+
+  literalProp: 'literal'
 //@        "literalProp": {
 //@          "type": "string",
 //@          "allowedValues": [
+//@            "literal"
 //@          ]
 //@        },
+
+  recursion: foo?
 //@        "recursion": {
 //@          "$ref": "#/definitions/foo",
 //@          "nullable": true
 //@        }
-//@      },
-//@      "additionalProperties": false,
-//@      "metadata": {
-//@      }
-//@    },
-  @minLength(3)
-//@          "minLength": 3
-  @maxLength(10)
-//@          "maxLength": 10,
-  @description('A string property')
-//@            "description": "A string property"
-  stringProp: string
-
-  objectProp: {
-    @minValue(1)
-//@              "minValue": 1
-    intProp: int
-
-    intArrayArrayProp: int [] [] ?
-  }
-
-  typeRefProp: bar
-
-  literalProp: 'literal'
-//@            "literal"
-
-  recursion: foo?
 }
 
 @minLength(3)
@@ -194,9 +194,13 @@ param inlineObjectParam {
 //@    "inlineObjectParam": {
 //@      "type": "object",
 //@      "properties": {
+//@      },
+//@    },
+  foo: string
 //@        "foo": {
 //@          "type": "string"
 //@        },
+  bar: 100|200|300|400|500
 //@        "bar": {
 //@          "type": "int",
 //@          "allowedValues": [
@@ -207,14 +211,10 @@ param inlineObjectParam {
 //@            500
 //@          ]
 //@        },
+  baz: sys.bool
 //@        "baz": {
 //@          "type": "bool"
 //@        }
-//@      },
-//@    },
-  foo: string
-  bar: 100|200|300|400|500
-  baz: sys.bool
 } = {
 //@      "defaultValue": {
 //@      }
@@ -257,42 +257,42 @@ type tuple = [
 //@    "tuple": {
 //@      "type": "array",
 //@      "prefixItems": [
-//@        {
-//@          "type": "string",
-//@          "metadata": {
-//@          }
-//@        },
-//@        {
-//@          "$ref": "#/definitions/bar",
-//@          "metadata": {
-//@          }
-//@        }
 //@      ],
 //@      "items": false
 //@    },
     @description('A leading string')
+//@          "metadata": {
 //@            "description": "A leading string"
+//@          }
     string
+//@        {
+//@          "type": "string",
+//@        },
 
     @description('A second element using a type alias')
+//@          "metadata": {
 //@            "description": "A second element using a type alias"
+//@          }
     bar
+//@        {
+//@          "$ref": "#/definitions/bar",
+//@        }
 ]
 
 type stringStringDictionary = {
 //@    "stringStringDictionary": {
 //@      "type": "object",
+//@    },
+    *: string
 //@      "additionalProperties": {
 //@        "type": "string"
 //@      }
-//@    },
-    *: string
 }
 
 @minValue(1)
-//@      "minValue": 1
+//@      "minValue": 1,
 @maxValue(10)
-//@      "maxValue": 10,
+//@      "maxValue": 10
 type constrainedInt = int
 //@    "constrainedInt": {
 //@      "type": "int",

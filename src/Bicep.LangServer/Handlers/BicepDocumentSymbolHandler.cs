@@ -78,7 +78,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private static SymbolKind SelectSymbolKind(DeclaredSymbol symbol) => symbol switch
         {
-            ImportedNamespaceSymbol => SymbolKind.Namespace,
+            ProviderNamespaceSymbol => SymbolKind.Namespace,
             ParameterSymbol => SymbolKind.Field,
             TypeAliasSymbol => SymbolKind.Field,
             VariableSymbol => SymbolKind.Variable,
@@ -87,6 +87,7 @@ namespace Bicep.LanguageServer.Handlers
             ModuleSymbol => SymbolKind.Module,
             OutputSymbol => SymbolKind.Interface,
             ParameterAssignmentSymbol => SymbolKind.Constant,
+            AssertSymbol => SymbolKind.Boolean,
             _ => SymbolKind.Key,
         };
 
@@ -100,6 +101,7 @@ namespace Bicep.LanguageServer.Handlers
             ModuleSymbol module => module.Type.Name,
             OutputSymbol output => output.Type.Name,
             ParameterAssignmentSymbol paramAssignment => paramAssignment.Type.Name,
+            AssertSymbol assert => assert.Type.Name,
             _ => string.Empty,
         };
 
@@ -109,4 +111,3 @@ namespace Bicep.LanguageServer.Handlers
         };
     }
 }
-

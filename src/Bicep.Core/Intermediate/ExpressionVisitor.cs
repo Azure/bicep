@@ -8,200 +8,335 @@ namespace Bicep.Core.Intermediate;
 
 public abstract class ExpressionVisitor : IExpressionVisitor
 {
-    public void VisitAccessChainExpression(AccessChainExpression expression)
+    public virtual void VisitAccessChainExpression(AccessChainExpression expression)
     {
         Visit(expression.FirstLink);
         Visit(expression.AdditionalProperties);
     }
 
-    public void VisitArrayAccessExpression(ArrayAccessExpression expression)
+    public virtual void VisitArrayAccessExpression(ArrayAccessExpression expression)
     {
         Visit(expression.Access);
         Visit(expression.Base);
     }
 
-    public void VisitArrayExpression(ArrayExpression expression)
+    public virtual void VisitArrayExpression(ArrayExpression expression)
     {
         Visit(expression.Items);
     }
 
-    public void VisitBinaryExpression(BinaryExpression expression)
+    public virtual void VisitBinaryExpression(BinaryExpression expression)
     {
         Visit(expression.Left);
         Visit(expression.Right);
     }
 
-    public void VisitBooleanLiteralExpression(BooleanLiteralExpression expression)
+    public virtual void VisitBooleanLiteralExpression(BooleanLiteralExpression expression)
     {
     }
 
-    public void VisitCopyIndexExpression(CopyIndexExpression expression)
+    public virtual void VisitCopyIndexExpression(CopyIndexExpression expression)
     {
     }
 
-    public void VisitForLoopExpression(ForLoopExpression expression)
-    {
-        Visit(expression.Expression);
-        Visit(expression.Body);
-    }
-
-    public void VisitConditionExpression(ConditionExpression expression)
+    public virtual void VisitForLoopExpression(ForLoopExpression expression)
     {
         Visit(expression.Expression);
         Visit(expression.Body);
     }
 
-    public void VisitFunctionCallExpression(FunctionCallExpression expression)
+    public virtual void VisitConditionExpression(ConditionExpression expression)
+    {
+        Visit(expression.Expression);
+        Visit(expression.Body);
+    }
+
+    public virtual void VisitFunctionCallExpression(FunctionCallExpression expression)
     {
         Visit(expression.Parameters);
     }
 
-    public void VisitResourceFunctionCallExpression(ResourceFunctionCallExpression expression)
+    public virtual void VisitResourceFunctionCallExpression(ResourceFunctionCallExpression expression)
     {
         Visit(expression.Resource);
         Visit(expression.Parameters);
     }
 
-    public void VisitIntegerLiteralExpression(IntegerLiteralExpression expression)
+    public virtual void VisitIntegerLiteralExpression(IntegerLiteralExpression expression)
     {
     }
 
-    public void VisitInterpolatedStringExpression(InterpolatedStringExpression expression)
+    public virtual void VisitInterpolatedStringExpression(InterpolatedStringExpression expression)
     {
         Visit(expression.Expressions);
     }
 
-    public void VisitLambdaExpression(LambdaExpression expression)
+    public virtual void VisitLambdaExpression(LambdaExpression expression)
     {
+        Visit(expression.ParameterTypes);
         Visit(expression.Body);
+        Visit(expression.OutputType);
     }
 
-    public void VisitLambdaVariableReferenceExpression(LambdaVariableReferenceExpression expression)
+    public virtual void VisitLambdaVariableReferenceExpression(LambdaVariableReferenceExpression expression)
     {
     }
 
-    public void VisitModuleOutputPropertyAccessExpression(ModuleOutputPropertyAccessExpression expression)
+    public virtual void VisitModuleOutputPropertyAccessExpression(ModuleOutputPropertyAccessExpression expression)
     {
         Visit(expression.Base);
     }
 
-    public void VisitModuleReferenceExpression(ModuleReferenceExpression expression)
+    public virtual void VisitModuleReferenceExpression(ModuleReferenceExpression expression)
     {
     }
 
-    public void VisitNullLiteralExpression(NullLiteralExpression expression)
+    public virtual void VisitNullLiteralExpression(NullLiteralExpression expression)
     {
     }
 
-    public void VisitObjectExpression(ObjectExpression expression)
+    public virtual void VisitObjectExpression(ObjectExpression expression)
     {
         Visit(expression.Properties);
     }
 
-    public void VisitObjectPropertyExpression(ObjectPropertyExpression expression)
+    public virtual void VisitObjectPropertyExpression(ObjectPropertyExpression expression)
     {
         Visit(expression.Key);
         Visit(expression.Value);
     }
 
-    public void VisitParametersReferenceExpression(ParametersReferenceExpression expression)
+    public virtual void VisitParametersReferenceExpression(ParametersReferenceExpression expression)
     {
     }
 
-    public void VisitParametersAssignmentReferenceExpression(ParametersAssignmentReferenceExpression expression)
+    public virtual void VisitParametersAssignmentReferenceExpression(ParametersAssignmentReferenceExpression expression)
     {
     }
 
-    public void VisitPropertyAccessExpression(PropertyAccessExpression expression)
+    public virtual void VisitPropertyAccessExpression(PropertyAccessExpression expression)
     {
         Visit(expression.Base);
     }
 
-    public void VisitResourceReferenceExpression(ResourceReferenceExpression expression)
+    public virtual void VisitResourceReferenceExpression(ResourceReferenceExpression expression)
     {
     }
 
-    public void VisitStringLiteralExpression(StringLiteralExpression expression)
+    public virtual void VisitStringLiteralExpression(StringLiteralExpression expression)
     {
     }
 
-    public void VisitTernaryExpression(TernaryExpression expression)
+    public virtual void VisitTernaryExpression(TernaryExpression expression)
     {
         Visit(expression.Condition);
         Visit(expression.True);
         Visit(expression.False);
     }
 
-    public void VisitUnaryExpression(UnaryExpression expression)
+    public virtual void VisitUnaryExpression(UnaryExpression expression)
     {
         Visit(expression.Expression);
     }
 
-    public void VisitVariableReferenceExpression(VariableReferenceExpression expression)
+    public virtual void VisitVariableReferenceExpression(VariableReferenceExpression expression)
     {
     }
 
-    public void VisitSynthesizedVariableReferenceExpression(SynthesizedVariableReferenceExpression expression)
+    public virtual void VisitSynthesizedVariableReferenceExpression(SynthesizedVariableReferenceExpression expression)
     {
     }
 
-    public void VisitDeclaredMetadataExpression(DeclaredMetadataExpression expression)
+    public virtual void VisitDeclaredMetadataExpression(DeclaredMetadataExpression expression)
     {
+        VisitDescribableExpression(expression);
         Visit(expression.Value);
     }
 
-    public void VisitDeclaredImportExpression(DeclaredImportExpression expression)
+    private void VisitDescribableExpression(DescribableExpression expression)
     {
+        Visit(expression.Description);
+    }
+
+    public virtual void VisitDeclaredProviderExpression(DeclaredProviderExpression expression)
+    {
+        VisitDescribableExpression(expression);
         Visit(expression.Config);
     }
 
-    public void VisitDeclaredParameterExpression(DeclaredParameterExpression expression)
+    public virtual void VisitDeclaredParameterExpression(DeclaredParameterExpression expression)
     {
+        VisitTypeDeclaringExpression(expression);
+        Visit(expression.Type);
         Visit(expression.DefaultValue);
     }
 
-    public void VisitDeclaredVariableExpression(DeclaredVariableExpression expression)
+    private void VisitTypeDeclaringExpression(TypeDeclaringExpression expression)
     {
+        VisitDescribableExpression(expression);
+        Visit(expression.Metadata);
+        Visit(expression.Secure);
+        Visit(expression.MinLength);
+        Visit(expression.MaxLength);
+        Visit(expression.MinValue);
+        Visit(expression.MaxValue);
+        Visit(expression.Sealed);
+    }
+
+    public virtual void VisitDeclaredVariableExpression(DeclaredVariableExpression expression)
+    {
+        VisitDescribableExpression(expression);
         Visit(expression.Value);
     }
 
-    public void VisitDeclaredOutputExpression(DeclaredOutputExpression expression)
+    public virtual void VisitDeclaredOutputExpression(DeclaredOutputExpression expression)
     {
+        Visit(expression.Type);
         Visit(expression.Value);
     }
 
-    public void VisitDeclaredResourceExpression(DeclaredResourceExpression expression)
+    public virtual void VisitDeclaredResourceExpression(DeclaredResourceExpression expression)
     {
+        VisitDescribableExpression(expression);
         Visit(expression.Body);
         Visit(expression.DependsOn);
     }
 
-    public void VisitDeclaredModuleExpression(DeclaredModuleExpression expression)
+    public virtual void VisitDeclaredAssertExpression(DeclaredAssertExpression expression)
     {
+        VisitDescribableExpression(expression);
+        Visit(expression.Value);
+    }
+
+    public virtual void VisitDeclaredModuleExpression(DeclaredModuleExpression expression)
+    {
+        VisitDescribableExpression(expression);
         Visit(expression.Body);
         Visit(expression.Parameters);
         Visit(expression.DependsOn);
     }
 
-    public void VisitResourceDependencyExpression(ResourceDependencyExpression expression)
+    public virtual void VisitResourceDependencyExpression(ResourceDependencyExpression expression)
     {
         Visit(expression.Reference);
     }
 
-    public void VisitDeclaredFunctionExpression(DeclaredFunctionExpression expression)
+    public virtual void VisitDeclaredFunctionExpression(DeclaredFunctionExpression expression)
     {
+        VisitDescribableExpression(expression);
         Visit(expression.Lambda);
     }
 
-    public void VisitUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
+    public virtual void VisitUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
     {
         Visit(expression.Parameters);
     }
 
-    public void VisitProgramExpression(ProgramExpression expression)
+    public virtual void VisitDeclaredTypeExpression(DeclaredTypeExpression expression)
+    {
+        VisitTypeDeclaringExpression(expression);
+        Visit(expression.Value);
+    }
+
+    public virtual void VisitAmbientTypeReferenceExpression(AmbientTypeReferenceExpression expression)
+    {
+    }
+
+    public virtual void VisitFullyQualifiedAmbientTypeReferenceExpression(FullyQualifiedAmbientTypeReferenceExpression expression)
+    {
+    }
+
+    public virtual void VisitTypeAliasReferenceExpression(TypeAliasReferenceExpression expression)
+    {
+    }
+
+    public virtual void VisitStringLiteralTypeExpression(StringLiteralTypeExpression expression)
+    {
+    }
+
+    public virtual void VisitIntegerLiteralTypeExpression(IntegerLiteralTypeExpression expression)
+    {
+    }
+
+    public virtual void VisitBooleanLiteralTypeExpression(BooleanLiteralTypeExpression expression)
+    {
+    }
+
+    public virtual void VisitNullLiteralTypeExpression(NullLiteralTypeExpression expression)
+    {
+    }
+
+    public virtual void VisitResourceTypeExpression(ResourceTypeExpression expression)
+    {
+    }
+
+    public virtual void VisitObjectTypePropertyExpression(ObjectTypePropertyExpression expression)
+    {
+        VisitTypeDeclaringExpression(expression);
+        Visit(expression.Value);
+    }
+
+    public virtual void VisitObjectTypeAdditionalPropertiesExpression(ObjectTypeAdditionalPropertiesExpression expression)
+    {
+        VisitTypeDeclaringExpression(expression);
+        Visit(expression.Value);
+    }
+
+    public virtual void VisitObjectTypeExpression(ObjectTypeExpression expression)
+    {
+        Visit(expression.PropertyExpressions);
+        Visit(expression.AdditionalPropertiesExpression);
+    }
+
+    public virtual void VisitTupleTypeItemExpression(TupleTypeItemExpression expression)
+    {
+        VisitTypeDeclaringExpression(expression);
+        Visit(expression.Value);
+    }
+
+    public virtual void VisitTupleTypeExpression(TupleTypeExpression expression)
+    {
+        Visit(expression.ItemExpressions);
+    }
+
+    public virtual void VisitArrayTypeExpression(ArrayTypeExpression expression)
+    {
+        Visit(expression.BaseExpression);
+    }
+
+    public virtual void VisitNullableTypeExpression(NullableTypeExpression expression)
+    {
+        Visit(expression.BaseExpression);
+    }
+
+    public virtual void VisitNonNullableTypeExpression(NonNullableTypeExpression expression)
+    {
+        Visit(expression.BaseExpression);
+    }
+
+    public virtual void VisitUnionTypeExpression(UnionTypeExpression expression)
+    {
+        Visit(expression.MemberExpressions);
+    }
+
+    public void VisitImportedTypeReferenceExpression(ImportedTypeReferenceExpression expression)
+    {
+    }
+
+    public void VisitWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression)
+    {
+    }
+
+    public virtual void VisitDiscriminatedObjectTypeExpression(DiscriminatedObjectTypeExpression expression)
+    {
+        Visit(expression.MemberExpressions);
+    }
+
+    public virtual void VisitProgramExpression(ProgramExpression expression)
     {
         Visit(expression.Metadata);
-        Visit(expression.Imports);
+        Visit(expression.Providers);
+        Visit(expression.Types);
         Visit(expression.Parameters);
         Visit(expression.Variables);
         Visit(expression.Functions);

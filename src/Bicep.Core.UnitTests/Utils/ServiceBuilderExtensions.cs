@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
@@ -35,12 +34,6 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithDisabledAnalyzersConfiguration(this ServiceBuilder serviceBuilder)
         => serviceBuilder.WithRegistration(x => x.WithDisabledAnalyzersConfiguration());
 
-    public static ServiceBuilder WithApiVersionProviderFactory(this ServiceBuilder serviceBuilder, IApiVersionProviderFactory apiVersionProviderFactory)
-        => serviceBuilder.WithRegistration(x => x.WithApiVersionProviderFactory(apiVersionProviderFactory));
-
-    public static ServiceBuilder WithApiVersionProvider(this ServiceBuilder serviceBuilder, IApiVersionProvider apiVersionProvider)
-        => serviceBuilder.WithRegistration(x => x.WithApiVersionProvider(apiVersionProvider));
-
     public static ServiceBuilder WithBicepAnalyzer(this ServiceBuilder serviceBuilder, IBicepAnalyzer bicepAnalyzer)
         => serviceBuilder.WithRegistration(x => x.WithBicepAnalyzer(bicepAnalyzer));
 
@@ -48,7 +41,7 @@ public static class ServiceBuilderExtensions
         => serviceBuilder.WithRegistration(x => x.WithAzResources(resourceTypes));
 
     public static ServiceBuilder WithAzResourceTypeLoader(this ServiceBuilder serviceBuilder, IAzResourceTypeLoader azResourceTypeLoader)
-        => serviceBuilder.WithRegistration(x => x.WithAzResourceTypeLoader(azResourceTypeLoader));
+        => serviceBuilder.WithRegistration(x => x.WithAzResourceTypeLoaderFactory(azResourceTypeLoader));
 
     public static ServiceBuilder WithEmptyAzResources(this ServiceBuilder serviceBuilder)
         => serviceBuilder.WithRegistration(x => x.WithEmptyAzResources());

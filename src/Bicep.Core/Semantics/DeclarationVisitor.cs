@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -12,7 +11,6 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
-using Newtonsoft.Json.Schema;
 
 namespace Bicep.Core.Semantics
 {
@@ -34,7 +32,7 @@ namespace Bicep.Core.Semantics
             this.targetScope = targetScope;
             this.context = context;
             this.localScopes = localScopes;
-            this.sourceFileKind=sourceFileKind;
+            this.sourceFileKind = sourceFileKind;
         }
 
         // Returns the list of top level declarations as well as top level scopes.
@@ -129,6 +127,14 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
+        public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
+        {
+            base.VisitTestDeclarationSyntax(syntax);
+
+            var symbol = new TestSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             base.VisitOutputDeclarationSyntax(syntax);
@@ -137,9 +143,17 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
-        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
         {
-            base.VisitImportDeclarationSyntax(syntax);
+            base.VisitAssertDeclarationSyntax(syntax);
+
+            var symbol = new AssertSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
+        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
+        {
+            base.VisitProviderDeclarationSyntax(syntax);
 
             TypeSymbol declaredType;
             if (!features.ExtensibilityEnabled)
@@ -156,16 +170,16 @@ namespace Bicep.Core.Semantics
                     ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification())
                     : ErrorType.Empty();
             }
-            else if (namespaceProvider.TryGetNamespace(syntax.Specification.Name, syntax.Alias?.IdentifierName ?? syntax.Specification.Name, targetScope, features, sourceFileKind) is not { } namespaceType)
+            else if (namespaceProvider.TryGetNamespace(syntax.Specification.Name, syntax.Alias?.IdentifierName ?? syntax.Specification.Name, targetScope, features, sourceFileKind, syntax.Specification?.Version) is not { } namespaceType)
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification.Name));
+                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification!.Name));
             }
             else
             {
                 declaredType = namespaceType;
             }
 
-            var symbol = new ImportedNamespaceSymbol(this.context, syntax, declaredType);
+            var symbol = new ProviderNamespaceSymbol(this.context, syntax, declaredType);
             DeclareSymbol(symbol);
         }
 
@@ -249,6 +263,24 @@ namespace Bicep.Core.Semantics
             base.VisitForSyntax(syntax);
 
             this.PopScope();
+        }
+
+        public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
+        {
+            base.VisitCompileTimeImportDeclarationSyntax(syntax);
+
+            switch (syntax.ImportExpression)
+            {
+                case WildcardImportSyntax wildcardImport:
+                    DeclareSymbol(new WildcardImportSymbol(context, wildcardImport, syntax));
+                    break;
+                case ImportedSymbolsListSyntax importedSymbolsList:
+                    foreach (var item in importedSymbolsList.ImportedSymbols)
+                    {
+                        DeclareSymbol(new ImportedTypeSymbol(context, item, syntax));
+                    }
+                    break;
+            }
         }
 
         private void DeclareSymbol(DeclaredSymbol symbol)

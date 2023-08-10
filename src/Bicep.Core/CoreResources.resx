@@ -434,4 +434,46 @@
   <data name="DecompilerImperfectionsRule_Variable" xml:space="preserve">
     <value>The name of variable '{0}' appears to have originated from a naming conflict during a decompilation from JSON.</value>
   </data>
+  <data name="MaxNumberAssertsRuleDescription" xml:space="preserve">
+    <value>Maximum number of 'assert' statements used.</value>
+  </data>
+  <data name="MaxNumberAssertsRuleMessageFormat" xml:space="preserve">
+    <value>Too many predeployment conditions. Number of 'assert' statements is limited to {0}.</value>
+  </data>
+  <data name="NoConflictingMetadataRuleDescription" xml:space="preserve">
+    <value>Metadata properties whose value is set by a separate decorator should not be set via the '@metadata()' decorator.</value>
+  </data>
+  <data name="NoConflictingMetadataRuleMessageFormat" xml:space="preserve">
+    <value>The "{0}" metadata property conflicts with the "{1}" decorator and will be overwritten.</value>
+  </data>
+  <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
+    <value>Asserts</value>
+  </data>
+  <data name="ExperimentalFeatureNames_DynamicTypeLoading" xml:space="preserve">
+    <value>Dynamic type loading</value>
+  </data>
+  <data name="ExperimentalFeatureNames_Extensibility" xml:space="preserve">
+    <value>Extensibility</value>
+  </data>
+  <data name="ExperimentalFeatureNames_ResourceTypedParamsAndOutputs" xml:space="preserve">
+    <value>Resource-typed parameters and outputs</value>
+  </data>
+  <data name="ExperimentalFeatureNames_SourceMapping" xml:space="preserve">
+    <value>Source mapping</value>
+  </data>
+  <data name="ExperimentalFeatureNames_UserDefinedFunctions" xml:space="preserve">
+    <value>User-defined functions</value>
+  </data>
+  <data name="ExperimentalFeatureNames_CompileTimeImports" xml:space="preserve">
+    <value>Compile-time imports</value>
+  </data>
+  <data name="ExperimentalFeatureNames_PrettyPrinting" xml:space="preserve">
+    <value>Pretty printing</value>
+  </data>
+  <data name="ExperimentalFeatureNames_SymbolicNameCodegen" xml:space="preserve">
+    <value>Symbolic name code generation</value>
+  </data>
+  <data name="ExperimentalFeatureNames_TestFramework" xml:space="preserve">
+    <value>Test framework</value>
+  </data>
 </root>

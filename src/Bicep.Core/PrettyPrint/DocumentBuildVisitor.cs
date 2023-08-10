@@ -97,7 +97,7 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Value);
             });
 
-        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) =>
+        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) =>
             this.BuildStatement(syntax, () =>
             {
                 this.VisitNodes(syntax.LeadingNodes);
@@ -184,6 +184,18 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Value);
             });
 
+        public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax) =>
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Path);
+                this.Visit(syntax.Assignment);
+                this.Visit(syntax.Value);
+            });
+
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax) =>
             this.BuildStatement(syntax, () =>
             {
@@ -192,6 +204,17 @@ namespace Bicep.Core.PrettyPrint
                 this.documentStack.Push(Nil);
                 this.Visit(syntax.Name);
                 this.Visit(syntax.Type);
+                this.Visit(syntax.Assignment);
+                this.Visit(syntax.Value);
+            });
+
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax) =>
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
                 this.Visit(syntax.Assignment);
                 this.Visit(syntax.Value);
             });

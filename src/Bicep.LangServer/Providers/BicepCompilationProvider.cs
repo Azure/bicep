@@ -24,15 +24,13 @@ namespace Bicep.LanguageServer.Providers
         private readonly IConfigurationManager configurationManager;
         private readonly IBicepAnalyzer bicepAnalyzer;
         private readonly IFeatureProviderFactory featureProviderFactory;
-        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
 
-        public BicepCompilationProvider(IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProviderFactory apiVersionProviderFactory, IConfigurationManager configurationManager, IBicepAnalyzer bicepAnalyzer)
+        public BicepCompilationProvider(IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IBicepAnalyzer bicepAnalyzer)
         {
             this.featureProviderFactory = featureProviderFactory;
-            this.apiVersionProviderFactory = apiVersionProviderFactory;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
@@ -54,7 +52,7 @@ namespace Bicep.LanguageServer.Providers
 
         private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
-            var compilation = new Compilation(featureProviderFactory, namespaceProvider, syntaxTreeGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer, modelLookup);
+            var compilation = new Compilation(featureProviderFactory, namespaceProvider, syntaxTreeGrouping, configurationManager, bicepAnalyzer, moduleDispatcher, modelLookup);
             return new CompilationContext(compilation);
         }
     }

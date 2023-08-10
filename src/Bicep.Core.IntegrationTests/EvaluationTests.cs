@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Azure.Deployments.Core.Definitions.Identifiers;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -14,6 +16,9 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class EvaluationTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [TestMethod]
         public void Basic_arithmetic_expressions_are_evaluated_successfully()
         {
@@ -86,14 +91,14 @@ output multiline string = multiline
         [TestMethod]
         public void ResourceId_expressions_are_evaluated_successfully()
         {
-          var bicepparamText = @"
+            var bicepparamText = @"
 using 'main.bicep'
 
 param parentName = 'myParent'
 param childName = 'myChild'
 ";
 
-          var bicepTemplateText =  @"
+            var bicepTemplateText = @"
 param parentName string
 param childName string
 
@@ -362,7 +367,7 @@ output joined3 string = join([
 
         [TestMethod]
         public void indexof_contains_function_evaluation_works()
-        {            
+        {
             var bicepparamText = @"
 using 'main.bicep'
 
@@ -437,7 +442,7 @@ output containsArr123 bool = contains(inputArray, 123)
 
         [TestMethod]
         public void List_comprehension_function_evaluation_works()
-        {            
+        {
             var bicepparamText = @"
 using 'main.bicep'
 
@@ -763,7 +768,7 @@ output testFor array = [for record in testArray: {
         /// </summary>
         [TestMethod]
         public void Issue8782_2()
-        {            
+        {
             var bicepparamText = @"
 using 'main.bicep'
 
@@ -872,12 +877,12 @@ output iDogs array = filter(dogs, dog =>  (contains(dog.name, 'C') || contains(d
 
         [TestMethod]
         public void Module_with_unknown_resourcetype_as_parameter_and_output_has_diagnostics()
-        {            
+        {
             var bicepparamText = @"
 using 'main.bicep'
 
 param useMod1 = true
-"; 
+";
 
             var bicepTemplateText = @"
 param useMod1 bool
@@ -917,12 +922,13 @@ output foo object = {
 
             var result = CompilationHelper.Compile(("main.bicep", bicepTemplateText), ("module.bicep", bicepModuleText));
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters, config => config with {
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters, config => config with
+            {
                 OnReferenceFunc = (resourceId, apiVersion, fullBody) =>
                 {
-                  var id = ResourceGroupLevelResourceId.Parse(resourceId);
-                  var barVal = id.FormatName() == "test" ? "abc" : "def";
-                  return JToken.Parse(@"{
+                    var id = ResourceGroupLevelResourceId.Parse(resourceId);
+                    var barVal = id.FormatName() == "test" ? "abc" : "def";
+                    return JToken.Parse(@"{
   ""outputs"": {
     ""foo"": {
       ""value"": {
@@ -939,6 +945,33 @@ output foo object = {
             evaluated.Should().HaveValueAtPath("$.outputs['test3'].value", "abc");
             evaluated.Should().HaveValueAtPath("$.outputs['test4'].value", "abc");
             evaluated.Should().HaveValueAtPath("$.outputs['test5'].value", "abc");
+        }
+
+        [TestMethod]
+        public void Az_getsecret_functions_are_evaluated_successfully()
+        {
+          var bicepTemplateText =  @"
+param param1 object
+output output1 object = param1
+";
+
+          var bicepparamText = @"
+using 'main.bicep'
+param param1 = { reference: 'param1' }
+";
+
+            var (parameters, _, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            var (template, diagnostics, _) = CompilationHelper.Compile(bicepTemplateText);
+
+            using (new AssertionScope())
+            {
+                var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+
+                diagnostics.Should().NotHaveAnyDiagnostics();
+
+                evaluated.Should().HaveValueAtPath("$.outputs['output1'].value.reference", $"param1");
+            }
         }
 
         [TestMethod]
@@ -975,6 +1008,69 @@ output properties object = {
                 evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.existsArrayAccess", "baz");
                 evaluated.Should().HaveValueAtPath("$.outputs['properties'].value.doesntExistArrayAccess", JValue.CreateNull());
             }
+        }
+
+        [TestMethod]
+        public void Assertions_are_evaluated_correctly()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, AssertsEnabled: true));
+            var bicepFile = @"
+param accountName string
+param environment string
+param location string
+
+resource stgAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: toLower(accountName)
+  location: resourceGroup().location
+  kind: 'Storage'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+var myInt = 24
+
+assert a1 = length(accountName) < myInt
+assert a2 = contains(location, 'us')
+assert a3 = environment == 'dev'
+";
+
+
+            var paramsFile = @"
+using 'main.bicep'
+
+// long string to trigger the assertion
+param accountName = 'asdgkbauskfabdsfibasdogbnasdognbaosdingoaisdngoisdangoinbdsaoigbsadoibgodsiabgos'
+param environment = 'dev'
+param location = 'westus'
+";
+
+            var (parameters, _, _) = CompilationHelper.CompileParams(services, ("parameters.bicepparam", paramsFile), ("main.bicep", bicepFile));
+            var (template, _, _) = CompilationHelper.Compile(services, bicepFile);
+
+            using (new AssertionScope())
+            {
+                var evaluated = TemplateEvaluator.Evaluate(template, parameters);
+
+                evaluated.Should().HaveValueAtPath("$.asserts['a1']", false);
+                evaluated.Should().HaveValueAtPath("$.asserts['a2']", true);
+                evaluated.Should().HaveValueAtPath("$.asserts['a3']", true);
+            }
+        }
+
+        [TestMethod]
+        public void Type_syntax_is_evaluated_correctly()
+        {
+            var (template, _, _) = CompilationHelper.Compile("""
+                param foo string?
+
+                output foo string = foo ?? 'not specified'
+                """);
+
+            var evaluated = TemplateEvaluator.Evaluate(template);
+
+            evaluated.Should().HaveValueAtPath("$.languageVersion", "2.0");
+            evaluated.Should().HaveValueAtPath("$.outputs.foo.value", "not specified");
         }
     }
 }

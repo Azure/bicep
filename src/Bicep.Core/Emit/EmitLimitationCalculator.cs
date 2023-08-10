@@ -7,14 +7,15 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
-using Bicep.Core.Extensions;
-using Bicep.Core.Syntax.Visitors;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
@@ -49,7 +50,10 @@ namespace Bicep.Core.Emit
             BlockSafeDereferenceOfModuleOrResourceCollectionMember(model, diagnostics);
             BlockCyclicAggregateTypeReferences(model, diagnostics);
             BlockUserDefinedFunctionsWithoutExperimentalFeaure(model, diagnostics);
+            BlockTestFrameworkWithoutExperimentalFeaure(model, diagnostics);
             BlockUserDefinedTypesWithUserDefinedFunctions(model, diagnostics);
+            BlockAssertsWithoutExperimentalFeatures(model, diagnostics);
+            BlockNamesDistinguishedOnlyByCase(model, diagnostics);
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
@@ -533,6 +537,17 @@ namespace Bicep.Core.Emit
             }
         }
 
+        private static void BlockTestFrameworkWithoutExperimentalFeaure(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var test in model.Root.TestDeclarations)
+            {
+                if (!model.Features.TestFrameworkEnabled)
+                {
+                    diagnostics.Write(test.DeclaringTest, x => x.TestDeclarationStatementsUnsupported());
+                }
+            }
+        }
+
         private static void BlockUserDefinedTypesWithUserDefinedFunctions(SemanticModel model, IDiagnosticWriter diagnostics)
         {
             foreach (var function in model.Root.FunctionDeclarations)
@@ -556,6 +571,66 @@ namespace Bicep.Core.Emit
                 {
                     diagnostics.Write(lambda.ReturnType, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
                 }
+            }
+        }
+
+        private static void BlockAssertsWithoutExperimentalFeatures(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var assert in model.Root.AssertDeclarations)
+            {
+                if (!model.Features.AssertsEnabled)
+                {
+                    diagnostics.Write(assert.DeclaringAssert, x => x.AssertsUnsupported());
+                }
+            }
+            foreach (var resourceDeclarationSymbol in model.Root.ResourceDeclarations)
+            {
+
+                if (resourceDeclarationSymbol.TryGetBodyProperty(LanguageConstants.ResourceAssertPropertyName)?.Value is SyntaxBase value && !model.Features.AssertsEnabled)
+                {
+                    diagnostics.Write(value, x => x.AssertsUnsupported());
+                }
+            }
+        }
+
+        private static void BlockNamesDistinguishedOnlyByCase(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var (symbolTypePluralName, symbolsOfType) in new (string, IEnumerable<DeclaredSymbol>)[]
+            {
+                ("parameters", model.Root.ParameterDeclarations),
+                ("variables", model.Root.VariableDeclarations),
+                ("outputs", model.Root.OutputDeclarations),
+                ("types", model.Root.TypeDeclarations),
+                ("asserts", model.Root.AssertDeclarations),
+            })
+            {
+                BlockCaseInsensitiveNameClashes(symbolTypePluralName, symbolsOfType, s => s.Name, s => s.NameSource, diagnostics);
+            }
+
+            foreach (var objectTypeDeclaration in SyntaxAggregator.AggregateByType<ObjectTypeSyntax>(model.SourceFile.ProgramSyntax))
+            {
+                BlockCaseInsensitiveNameClashes("type properties",
+                    objectTypeDeclaration.Properties.SelectMany(p => p.TryGetKeyText() is string key ? (key, p.Key).AsEnumerable() : Enumerable.Empty<(string, SyntaxBase)>()),
+                    t => t.Item1,
+                    t => t.Item2,
+                    diagnostics);
+            }
+        }
+
+        private static void BlockCaseInsensitiveNameClashes<T>(string itemTypePluralName, IEnumerable<T> itemsOfType, Func<T, string> nameExtractor, Func<T, IPositionable> nameSyntaxExtractor, IDiagnosticWriter diagnostics)
+        {
+            foreach (var grouping in itemsOfType.ToLookup(nameExtractor, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1))
+            {
+                var clashingNames = grouping.Select(nameExtractor).ToArray();
+
+                // if any symbols are exact matches, a different diagnostic about multiple declarations will have already been raised
+                if (clashingNames.Distinct().Count() != clashingNames.Length)
+                {
+                    continue;
+                }
+
+                diagnostics.WriteMultiple(grouping.Select(
+                    item => DiagnosticBuilder.ForPosition(nameSyntaxExtractor(item)).ItemsMustBeCaseInsensitivelyUnique(itemTypePluralName, clashingNames)));
             }
         }
     }

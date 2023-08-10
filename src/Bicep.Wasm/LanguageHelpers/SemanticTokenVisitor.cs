@@ -293,7 +293,7 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitTargetScopeSyntax(syntax);
         }
 
-        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             this.Visit(syntax.SpecificationString);
@@ -301,16 +301,60 @@ namespace Bicep.Wasm.LanguageHelpers
             this.Visit(syntax.AsClause);
         }
 
-        public override void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        public override void VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             this.Visit(syntax.Config);
         }
-        
-        public override void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+
+        public override void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Alias, SemanticTokenType.Variable);
+        }
+
+        public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            base.VisitCompileTimeImportDeclarationSyntax(syntax);
+        }
+
+        public override void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
+        {
+            AddTokenType(syntax.OriginalSymbolName, SemanticTokenType.Variable);
+            base.VisitImportedSymbolsListItemSyntax(syntax);
+        }
+
+        public override void VisitWildcardImportSyntax(WildcardImportSyntax syntax)
+        {
+            AddTokenType(syntax.Wildcard, SemanticTokenType.Variable);
+            base.VisitWildcardImportSyntax(syntax);
+        }
+
+        public override void VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            base.VisitCompileTimeImportFromClauseSyntax(syntax);
+        }
+
+        public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitParameterAssignmentSyntax(syntax);
+        }
+
+        public override void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            base.VisitUsingDeclarationSyntax(syntax);
+        }
+
+        public override void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitAssertDeclarationSyntax(syntax);
         }
     }
 }

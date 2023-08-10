@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -1744,7 +1745,7 @@ output vmExtNames array = [for vmExtName in vm::vmExts: {
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.")
+            ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression.")
         });
     }
 
@@ -4401,9 +4402,9 @@ resource CertificateVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
 output vaultId string = CertificateVault.id
 ";
 
-        var (parameters, _, _) = CompilationHelper.CompileParams(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), ("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+        var (parameters, _, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
 
-        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), bicepTemplateText);
+        var result = CompilationHelper.Compile(bicepTemplateText);
 
         result.Should().GenerateATemplate();
 
@@ -4798,7 +4799,7 @@ var foo = map([], resourceGroup => resourceGroup('test'))
     [TestMethod]
     public void Typed_lambda_variable_declarations_should_overwrite_globally_scoped_functions()
     {
-        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedTypesEnabled: true, UserDefinedFunctionsEnabled: true));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true));
 
         var result = CompilationHelper.Compile(services, @"
 func foo(resourceGroup string) string => resourceGroup('test')
@@ -4814,7 +4815,7 @@ func foo(resourceGroup string) string => resourceGroup('test')
     [TestMethod]
     public void Test_Issue10884()
     {
-        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(
 ("main.bicep", @"
 module mod 'mod.bicep' = {
   name: 'mod'
@@ -4851,7 +4852,7 @@ param resourceGroups resourceGroup[]
     [TestMethod]
     public void Test_Issue10098()
     {
-        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(
 ("mod.bicep", @"
 @allowed([0, 1, 2, 3 ])
 param availabilityZone int = 0
@@ -4874,6 +4875,26 @@ module mod 'mod.bicep' = [for i in range(0, count): {
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
+    // https://github.com/Azure/bicep/issues/11437
+    [TestMethod]
+    public void Test_Issue11437()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param foo = 'asdf'
+param foo = 'asdf'
+"""),
+            ("main.bicep", """param foo string"""));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP028", DiagnosticLevel.Error, """Identifier "foo" is declared multiple times. Remove or rename the duplicates."""),
+            ("BCP028", DiagnosticLevel.Error, """Identifier "foo" is declared multiple times. Remove or rename the duplicates."""),
+        });
+    }
+
     // https://github.com/Azure/bicep/issues/10994
     [TestMethod]
     public void Test_Issue10994()
@@ -4881,6 +4902,87 @@ module mod 'mod.bicep' = [for i in range(0, count): {
         var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)), """
             param ir resource 'Microsoft.DataFactory/factories/integrationRuntimes@2018-06-01'
             output authkeys string = ir.listAuthKeys().authKey1
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/502
+    [TestMethod]
+    public void Test_Issue502()
+    {
+        var result = CompilationHelper.Compile("""
+            var foo = 1
+            var FoO = 2
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The variables \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The variables \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile("""
+            param foo int = 1
+            param FoO int = 2
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The parameters \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The parameters \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile("""
+            output foo int = 1
+            output FoO int = 2
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The outputs \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The outputs \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile("""
+            type foo = string
+            type FoO = int
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The types \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The types \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile("""
+            param x {
+              foo: string
+              FoO: int
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The type properties \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The type properties \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(AssertsEnabled: true)), """
+            assert foo = true
+            assert FoO = true
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The asserts \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The asserts \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        // if the two symbols are of different types, ARM will be able to distinguish between them
+        result = CompilationHelper.Compile("""
+            param foo int = 1
+            var FoO = 2
             """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();

@@ -4,33 +4,39 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 
 namespace Bicep.Core.Semantics
 {
-    public class Compilation
+    public class Compilation : ISemanticModelLookup
     {
         // Stores semantic model for each source file (map exists for all source files, but semantic model created only when indexed)
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
         private readonly IConfigurationManager configurationManager;
         private readonly IFeatureProviderFactory featureProviderFactory;
-        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
         private readonly IBicepAnalyzer linterAnalyzer;
 
-        public Compilation(IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, IConfigurationManager configurationManager, IApiVersionProviderFactory apiVersionProviderFactory, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(IFeatureProviderFactory featureProviderFactory,
+            INamespaceProvider namespaceProvider,
+            SourceFileGrouping sourceFileGrouping,
+            IConfigurationManager configurationManager,
+            IBicepAnalyzer linterAnalyzer,
+            IModuleReferenceFactory moduleReferenceFactory,
+            ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
             this.featureProviderFactory = featureProviderFactory;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
             this.configurationManager = configurationManager;
-            this.apiVersionProviderFactory = apiVersionProviderFactory;
             this.linterAnalyzer = linterAnalyzer;
+            this.ModuleReferenceFactory = moduleReferenceFactory;
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
@@ -49,6 +55,8 @@ namespace Bicep.Core.Semantics
         public SourceFileGrouping SourceFileGrouping { get; }
 
         public INamespaceProvider NamespaceProvider { get; }
+
+        public IModuleReferenceFactory ModuleReferenceFactory { get; }
 
         public SemanticModel GetEntrypointSemanticModel()
             // entry point semantic models are guaranteed to cast successfully
@@ -77,7 +85,6 @@ namespace Bicep.Core.Semantics
             SourceFileGrouping.FileResolver,
             linterAnalyzer,
             configurationManager.GetConfiguration(bicepFile.FileUri),
-            featureProviderFactory.GetFeatureProvider(bicepFile.FileUri),
-            apiVersionProviderFactory.GetApiVersionProvider(bicepFile.FileUri));
+            featureProviderFactory.GetFeatureProvider(bicepFile.FileUri));
     }
 }

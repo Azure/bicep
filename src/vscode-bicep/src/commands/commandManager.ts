@@ -64,7 +64,7 @@ export class CommandManager extends Disposable {
         return await command.execute(context, documentUri, ...args);
       },
       undefined,
-      telemetryId
+      telemetryId,
     );
   }
 
@@ -80,27 +80,27 @@ export class CommandManager extends Disposable {
     assert(!!activationEvents, "Missing activationEvents in package.json");
     const activationKey = `onCommand:${command.id}`;
     const activation: string | undefined = activationEvents.find(
-      (a) => a === activationKey
+      (a) => a === activationKey,
     );
     assert(
       !!activation,
-      `Internal error: Add an entry for '${activationKey}' to package.json's activationEvents array. This ensures that the command will be functional even if the extension is not yet activated.`
+      `Internal error: Add an entry for '${activationKey}' to package.json's activationEvents array. This ensures that the command will be functional even if the extension is not yet activated.`,
     );
 
     assert(
       command.id.startsWith("bicep."),
-      `Command ID doesn't start with 'bicep.': ${command.id}`
+      `Command ID doesn't start with 'bicep.': ${command.id}`,
     );
 
     // Walkthrough commands shouldn't be shown in the command palette
     if (command.id.match(/gettingStarted/i)) {
       const commandPaletteWhen: string | undefined =
         this._packageJson.contributes?.menus?.commandPalette?.find(
-          (m) => m.command === command.id
+          (m) => m.command === command.id,
         )?.when;
       assert(
         commandPaletteWhen === "never",
-        `Internal error: Add an entry for '${command.id}' to package.json's contributes/menus/commandPalette array with a 'when' value of 'never'.`
+        `Internal error: Add an entry for '${command.id}' to package.json's contributes/menus/commandPalette array with a 'when' value of 'never'.`,
       );
     }
   }

@@ -1,13 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10329130755894462167"
+      "templateHash": "8766450146642797131"
     }
   },
   "parameters": {
@@ -105,13 +104,13 @@
     },
     "storageName": {
       "type": "string",
-      "maxLength": 24,
-      "minLength": 3
+      "minLength": 3,
+      "maxLength": 24
     },
     "someArray": {
       "type": "array",
-      "maxLength": 24,
-      "minLength": 3
+      "minLength": 3,
+      "maxLength": 24
     },
     "emptyMetadata": {
       "type": "string",
@@ -143,16 +142,16 @@
     },
     "someParameter": {
       "type": "securestring",
-      "metadata": {
-        "description": "Name of the storage account"
-      },
       "allowedValues": [
         "one",
         "two",
         "three"
       ],
-      "maxLength": 24,
-      "minLength": 3
+      "metadata": {
+        "description": "Name of the storage account"
+      },
+      "minLength": 3,
+      "maxLength": 24
     },
     "defaultExpression": {
       "type": "bool",
@@ -180,8 +179,8 @@
         "Apple",
         "Banana"
       ],
-      "maxLength": 10,
-      "minLength": 2
+      "minLength": 2,
+      "maxLength": 10
     },
     "decoratedInt": {
       "type": "int",
@@ -190,8 +189,8 @@
     },
     "negativeValues": {
       "type": "int",
-      "maxValue": -3,
-      "minValue": -10
+      "minValue": -10,
+      "maxValue": -3
     },
     "decoratedBool": {
       "type": "bool",

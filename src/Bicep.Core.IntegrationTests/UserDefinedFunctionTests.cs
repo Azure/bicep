@@ -82,7 +82,7 @@ func getAbcDef() string => '${getAbc()}def'
     [TestMethod]
     public void User_defined_functions_unsupported_custom_types()
     {
-        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedTypesEnabled: true, UserDefinedFunctionsEnabled: true));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true));
 
         var result = CompilationHelper.Compile(services, @"
 func getAOrB(aOrB ('a' | 'b')) bool => (aOrB == 'a')

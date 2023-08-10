@@ -68,8 +68,8 @@ describe("surveys-unittests", () => {
 
     expect(
       mocks.workspaceConfigurationFake.get<boolean>(
-        bicepConfigurationKeys.enableSurveys
-      )
+        bicepConfigurationKeys.enableSurveys,
+      ),
     ).toBeUndefined();
 
     // Show and respond with "Never"
@@ -82,8 +82,8 @@ describe("surveys-unittests", () => {
     expect(mocks.showInformationMessageMock).toHaveBeenCalledTimes(1);
     expect(
       mocks.workspaceConfigurationFake.get<boolean>(
-        bicepConfigurationKeys.enableSurveys
-      )
+        bicepConfigurationKeys.enableSurveys,
+      ),
     ).toBe(false);
 
     // Try again, should not show
@@ -140,11 +140,11 @@ describe("surveys-unittests", () => {
     expect(mocks.showInformationMessageMock).toHaveBeenCalledTimes(1);
     expect(
       mocks.globalStorageFake.get<IPersistedSurveyState>("testSurvey")
-        ?.postponedUntilMs
+        ?.postponedUntilMs,
     ).toBeFalsy();
     expect(
       mocks.globalStorageFake.get<IPersistedSurveyState>("testSurvey")
-        ?.lastTakenMs
+        ?.lastTakenMs,
     ).toBe(now.valueOf());
 
     // Try again, right before the postponement date
@@ -199,7 +199,7 @@ describe("surveys-unittests", () => {
     expect(mocks.showInformationMessageMock).toHaveBeenCalledTimes(1);
     expect(
       mocks.globalStorageFake.get<IPersistedSurveyState>("testSurvey")
-        ?.postponedUntilMs
+        ?.postponedUntilMs,
     ).toBe(now.valueOf() + daysToMs(postponeLaterDays));
 
     // Try again, a day before the postponement date

@@ -1,13 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9856405096334599827"
+      "templateHash": "10125636983786354172"
     }
   },
   "parameters": {
@@ -22,17 +21,17 @@
   "outputs": {
     "myStr": {
       "type": "string",
-      "value": "hello",
       "metadata": {
         "description": "string output description"
-      }
+      },
+      "value": "hello"
     },
     "myInt": {
       "type": "int",
-      "value": 7,
       "metadata": {
         "description": "int output description"
-      }
+      },
+      "value": 7
     },
     "myOtherInt": {
       "type": "int",
@@ -40,10 +39,10 @@
     },
     "myBool": {
       "type": "bool",
-      "value": "[not(false())]",
       "metadata": {
         "description": "bool output description"
-      }
+      },
+      "value": "[not(false())]"
     },
     "myOtherBool": {
       "type": "bool",
@@ -51,10 +50,10 @@
     },
     "suchEmpty": {
       "type": "array",
-      "value": [],
       "metadata": {
         "description": "object array description"
-      }
+      },
+      "value": []
     },
     "suchEmpty2": {
       "type": "object",
@@ -62,6 +61,9 @@
     },
     "obj": {
       "type": "object",
+      "metadata": {
+        "description": "object output description"
+      },
       "value": {
         "a": "a",
         "b": 12,
@@ -79,9 +81,6 @@
             "hello"
           ]
         }
-      },
-      "metadata": {
-        "description": "object output description"
       }
     },
     "myArr": {

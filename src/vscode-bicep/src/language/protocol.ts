@@ -41,6 +41,24 @@ export const deploymentGraphRequestType = new ProtocolRequestType<
   void
 >("textDocument/deploymentGraph");
 
+export interface GetDeploymentDataRequest {
+  textDocument: TextDocumentIdentifier;
+}
+
+export interface GetDeploymentDataResponse {
+  templateJson?: string;
+  parametersJson?: string;
+  errorMessage?: string;
+}
+
+export const getDeploymentDataRequestType = new ProtocolRequestType<
+  GetDeploymentDataRequest,
+  GetDeploymentDataResponse,
+  never,
+  void,
+  void
+>("bicep/getDeploymentData");
+
 export interface BicepCacheParams {
   textDocument: TextDocumentIdentifier;
   target: string;
@@ -58,7 +76,7 @@ export interface BicepDeploymentScopeResponse {
 
 export interface BicepDeploymentStartParams {
   documentPath: string;
-  parametersFilePath: string;
+  parametersFilePath: string | undefined;
   id: string;
   deploymentScope: string;
   location: string;
@@ -68,7 +86,7 @@ export interface BicepDeploymentStartParams {
   deployId: string;
   deploymentName: string;
   portalUrl: string;
-  parametersFileName: string | null;
+  parametersFileName: string | undefined;
   parametersFileUpdateOption: ParametersFileUpdateOption;
   updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
   resourceManagerEndpointUrl: string;

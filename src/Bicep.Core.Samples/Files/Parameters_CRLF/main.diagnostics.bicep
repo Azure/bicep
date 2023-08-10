@@ -170,6 +170,7 @@ param negativeValues int
 @sys.description('A boolean.')
 @metadata({
     description: 'I will be overrode.'
+//@[04:015) [no-conflicting-metadata (Warning)] The "description" metadata property conflicts with the "description" decorator and will be overwritten. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-conflicting-metadata)) |description|
     foo: 'something'
     bar: [
         {          }
@@ -207,10 +208,11 @@ param decoratedObject object = {
 }
 
 @sys.metadata({
-    description: 'An array.'
+    description: 'I will be overrode.'
+//@[04:015) [no-conflicting-metadata (Warning)] The "description" metadata property conflicts with the "description" decorator and will be overwritten. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-conflicting-metadata)) |description|
 })
 @sys.maxLength(20)
-@sys.description('I will be overrode.')
+@sys.description('An array.')
 param decoratedArray array = [
 //@[06:020) [no-unused-params (Warning)] Parameter "decoratedArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedArray|
     utcNow()

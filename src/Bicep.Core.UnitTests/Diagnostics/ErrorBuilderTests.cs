@@ -104,6 +104,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return new List<string> { $"<value_{index}" };
             }
 
+            if (parameter.ParameterType == typeof(string[]))
+            {
+                return new[] { $"<value_{index}" };
+            }
+
             if (parameter.ParameterType == typeof(IDiagnosticLookup))
             {
                 return new DiagnosticTree();

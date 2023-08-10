@@ -57,11 +57,13 @@ module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscriptio
 
 output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
 //@[000:0077) ├─DeclaredOutputExpression { Name = myManagementGroupOutput }
+//@[031:0037) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[040:0077) | └─ModuleOutputPropertyAccessExpression { PropertyName = myOutput }
 //@[040:0068) |   └─PropertyAccessExpression { PropertyName = outputs }
 //@[040:0060) |     └─ModuleReferenceExpression
 output mySubscriptionOutput string = mySubscriptionMod.outputs.myOutput
 //@[000:0071) └─DeclaredOutputExpression { Name = mySubscriptionOutput }
+//@[028:0034)   ├─AmbientTypeReferenceExpression { Name = string }
 //@[037:0071)   └─ModuleOutputPropertyAccessExpression { PropertyName = myOutput }
 //@[037:0062)     └─PropertyAccessExpression { PropertyName = outputs }
 //@[037:0054)       └─ModuleReferenceExpression

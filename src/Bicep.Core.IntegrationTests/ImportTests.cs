@@ -9,6 +9,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -36,9 +37,9 @@ namespace Bicep.Core.IntegrationTests
 
             public static bool AllowImportStatements => true;
 
-            public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new [] { SystemNamespaceType.BuiltInName });
+            public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new[] { SystemNamespaceType.BuiltInName });
 
-            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind) => providerName switch
+            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind, string? providerVersion = null) => providerName switch
             {
                 SystemNamespaceType.BuiltInName => SystemNamespaceType.Create(aliasName, features, sourceFileKind),
                 { } _ when builderDict.TryGetValue(providerName) is { } builderFunc => builderFunc(aliasName),
@@ -69,7 +70,7 @@ import 'az@1.0.0'
 import
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string. Specify a valid provider of format \"<providerName>@<providerVersion>\"."),
+                ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\", the \"*\" character, or the \"{\" character at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"

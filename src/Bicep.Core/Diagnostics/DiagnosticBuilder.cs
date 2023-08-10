@@ -897,10 +897,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP143",
                 "For-expressions cannot be used with properties whose names are also expressions.");
 
-            public ErrorDiagnostic DirectAccessToCollectionNotSupported() => new(
-                TextSpan,
-                "BCP144",
-                "Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression.");
+            public ErrorDiagnostic DirectAccessToCollectionNotSupported(IEnumerable<string>? accessChain = null)
+            {
+                var accessChainClause = accessChain?.Any() ?? false
+                    ? $"The collection was accessed by the chain of \"{string.Join("\" -> \"", accessChain)}\". "
+                    : "";
+
+                return new(
+                    TextSpan,
+                    "BCP144",
+                    $"Directly referencing a resource or module collection is not currently supported here. {accessChainClause}Apply an array indexer to the expression.");
+            }
 
             public ErrorDiagnostic OutputMultipleDeclarations(string identifier) => new(
                 TextSpan,
@@ -1210,10 +1217,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedProviderSpecification() => new(
+            public ErrorDiagnostic ExpectedProviderSpecificationOrCompileTimeImportExpression() => new(
                 TextSpan,
                 "BCP201",
-                "Expected a provider specification string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
+                "Expected a provider specification string of format \"<providerName>@<providerVersion>\", the \"*\" character, or the \"{\" character at this location.");
 
             public ErrorDiagnostic ExpectedImportAliasName() => new(
                 TextSpan,
@@ -1426,7 +1433,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP243",
                 "Parentheses must contain exactly one expression.");
 
-            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new (
+            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new(
                 TextSpan,
                 "BCP244",
                 $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
@@ -1466,7 +1473,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP250",
                 $"Parameter \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
 
-            public ErrorDiagnostic TemplatePathHasNotBeenSpecified() => new(
+            public ErrorDiagnostic UsingPathHasNotBeenSpecified() => new(
                 TextSpan,
                 "BCP256",
                 "The using declaration is missing a bicep template file path reference.");
@@ -1893,7 +1900,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnrecognizedParamsFileDeclaration() => new(
                 TextSpan,
                 "BCP337",
-                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"" or ""{LanguageConstants.ParameterKeyword}"" declaration.");
+                $@"This declaration type is not valid for a Bicep Parameters file. Specify a ""{LanguageConstants.UsingKeyword}"", ""{LanguageConstants.ParameterKeyword}"" or ""{LanguageConstants.VariableKeyword}"" declaration.");
 
             public ErrorDiagnostic FailedToEvaluateParameter(string parameterName, string message) => new(
                 TextSpan,
@@ -1920,9 +1927,9 @@ namespace Bicep.Core.Diagnostics
                     "BCP341",
                     $"This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment.{variableDependencyChainClause}{accessiblePropertiesClause}");
             }
-                
+
             public ErrorDiagnostic UserDefinedTypesNotAllowedInFunctionDeclaration() => new(
-                TextSpan, 
+                TextSpan,
                 "BCP342",
                 $"""User-defined types are not supported in user-defined function parameters or outputs.""");
 
@@ -1930,6 +1937,125 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP343",
                 $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
+
+            public ErrorDiagnostic ExpectedAssertIdentifier() => new(
+                TextSpan,
+                "BCP344",
+                "Expected an assert identifier at this location.");
+
+            public ErrorDiagnostic TestDeclarationMustReferenceBicepTest() => new(
+                TextSpan,
+                "BCP345",
+                "A test declaration can only reference a Bicep File");
+
+            public ErrorDiagnostic ExpectedTestIdentifier() => new(
+                TextSpan,
+                "BCP0346",
+                "Expected a test identifier at this location.");
+
+            public ErrorDiagnostic ExpectedTestPathString() => new(
+                TextSpan,
+                "BCP0347",
+                "Expected a test path string at this location.");
+            public ErrorDiagnostic TestDeclarationStatementsUnsupported() => new(
+                TextSpan,
+                "BCP348",
+                $@"Using a test declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.TestFramework)}"".");
+
+            public ErrorDiagnostic AssertsUnsupported() => new(
+                TextSpan,
+                "BCP349",
+                $@"Using an assert declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Assertions)}"".");
+
+            public ErrorDiagnostic InvalidAssertAssignment(TypeSymbol valueType) => new(
+                TextSpan,
+                "BCP350",
+                $"Value of type \"{valueType}\" cannot be assigned to an assert. Asserts can take values of type 'bool' only.");
+
+            public ErrorDiagnostic FunctionOnlyValidWithDirectAssignment(string functionName) => new(
+                TextSpan,
+                "BCP351",
+                $"Function \"{functionName}\" is not valid at this location. It can only be used when directly assigning to a parameter.");
+
+            public ErrorDiagnostic FailedToEvaluateVariable(string name, string message) => new(
+                TextSpan,
+                "BCP352",
+                $"Failed to evaluate variable \"{name}\": {message}");
+
+            public ErrorDiagnostic ItemsMustBeCaseInsensitivelyUnique(string itemTypePluralName, IEnumerable<string> itemNames) => new(
+                TextSpan,
+                "BCP353",
+                $"The {itemTypePluralName} {ToQuotedString(itemNames)} differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them.");
+
+            public ErrorDiagnostic ExpectedSymbolListOrWildcard() => new(
+                TextSpan,
+                "BCP354",
+                "Expected left brace ('{') or asterisk ('*') character at this location.");
+
+            public ErrorDiagnostic ExpectedExportedSymbolName() => new(
+                TextSpan,
+                "BCP355",
+                "Expected the name of an exported symbol at this location.");
+
+            public ErrorDiagnostic ExpectedNamespaceIdentifier() => new(
+                TextSpan,
+                "BCP356",
+                "Expected a valid namespace identifier at this location.");
+
+            public ErrorDiagnostic CompileTimeImportsNotSupported() => new(
+                TextSpan,
+                "BCP357",
+                $@"Using compile-time import statements requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.CompileTimeImports)}"".");
+
+            public ErrorDiagnostic PathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP358",
+                "This declaration is missing a template file path reference.");
+
+            public ErrorDiagnostic CompileTimeImportDeclarationMustReferenceTemplate() => new(
+                TextSpan,
+                "BCP359",
+                "A compile-time import can only reference a Bicep file, an ARM template, a registry artifact, or a template spec.");
+
+            public ErrorDiagnostic ImportedSymbolNotFound(string symbolName) => new(
+                TextSpan,
+                "BCP360",
+                $"The '{symbolName}' symbol was not found in (or was not exported by) the imported template.");
+
+            public ErrorDiagnostic ExportDecoratorMustTargetStatement() => new(
+                TextSpan,
+                "BCP361",
+                @"The ""@export()"" decorator must target a top-level statement.");
+
+            public ErrorDiagnostic SymbolImportedMultipleTimes(params string[] importedAs) => new(
+                TextSpan,
+                "BCP362",
+                $"This symbol is imported multiple times under the names {string.Join(", ", importedAs.Select(identifier => $"'{identifier}'"))}.");
+
+            public ErrorDiagnostic DiscriminatorDecoratorOnlySupportedForObjectUnions() => new(
+                TextSpan,
+                "BCP363",
+                $"The \"{LanguageConstants.TypeDiscriminatorDecoratorName}\" decorator can only be applied to object-only union types with unique member types.");
+
+            public ErrorDiagnostic DiscriminatorPropertyMustBeRequiredStringLiteral(string discriminatorPropertyName) => new(
+                TextSpan,
+                "BCP364",
+                $"The property \"{discriminatorPropertyName}\" must be a required string literal on all union member types.");
+
+            public ErrorDiagnostic DiscriminatorPropertyMemberDuplicatedValue(string discriminatorPropertyName, string discriminatorPropertyValue) => new(
+                TextSpan,
+                "BCP365",
+                $"The value \"{discriminatorPropertyValue}\" for discriminator property \"{discriminatorPropertyName}\" is duplicated across multiple union member types. The value must be unique across all union member types.");
+
+            public ErrorDiagnostic DiscriminatorPropertyNameMustMatch(string acceptablePropertyName) => new(
+                TextSpan,
+                "BCP366",
+                $"The discriminator property name must be \"{acceptablePropertyName}\" on all union member types.");
+
+            public ErrorDiagnostic FeatureIsTemporarilyDisabled(string featureName) => new(
+                TextSpan,
+                "BCP367",
+                $"The \"{featureName}\" feature is temporarily disabled.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

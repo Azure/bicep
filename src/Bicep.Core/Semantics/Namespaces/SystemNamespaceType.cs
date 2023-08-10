@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -8,24 +9,20 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Modules;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
-using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using SharpYaml.Serialization;
-using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 using Bicep.Core.Workspaces;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json.Linq;
+using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -1363,13 +1360,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static IEnumerable<Decorator> GetSystemDecorators(IFeatureProvider featureProvider)
         {
-            static DecoratorEvaluator MergeToTargetObject(string propertyName, Func<FunctionCallExpression, Expression> propertyValueSelector) =>
-                (functionCall, _, targetObject) =>
-                    targetObject.MergeProperty(propertyName, propertyValueSelector(functionCall));
-
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
-
-            static Expression SingleParameterSelector(FunctionCallExpression functionCall) => functionCall.Parameters.Single();
 
             static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
             {
@@ -1437,19 +1428,33 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                 .WithValidator(ValidateNotTargetingAlias)
-                .WithEvaluator((_, targetType, targetObject) =>
+                .WithEvaluator((functionCall, decorated) =>
                 {
-                    if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.String))
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression)
                     {
-                        return targetObject.MergeProperty("type", new StringLiteralExpression(null, "securestring"));
+                        return typeDeclaringExpression with { Secure = functionCall };
                     }
 
-                    if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Object))
-                    {
-                        return targetObject.MergeProperty("type", new StringLiteralExpression(null, "secureObject"));
-                    }
+                    return decorated;
+                })
+                .Build();
 
-                    return targetObject;
+            yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
+                .WithDescription("Allows the type to be imported into other templates.")
+                .WithFlags(FunctionFlags.TypeDecorator)
+                .WithEvaluator(static (functionCall, decorated) => decorated switch
+                {
+                    DeclaredTypeExpression declaredType => declaredType with { Exported = functionCall },
+                    _ => decorated,
+                })
+                .WithValidator(static (decoratorName, decoratorSyntax, _, _, binder, _, diagnosticWriter) =>
+                {
+                    var decoratorTarget = binder.GetParent(decoratorSyntax);
+
+                    if (decoratorTarget is not ITopLevelNamedDeclarationSyntax)
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ExportDecoratorMustTargetStatement());
+                    }
                 })
                 .Build();
 
@@ -1484,7 +1489,16 @@ namespace Bicep.Core.Semantics.Namespaces
                         SingleArgumentSelector(decoratorSyntax),
                         new TypedArrayType(targetType, TypeSymbolValidationFlags.Default));
                 })
-                .WithEvaluator(MergeToTargetObject("allowedValues", SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is DeclaredParameterExpression declaredParameterExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} allowedValues)
+                    {
+                        return declaredParameterExpression with { AllowedValues = allowedValues };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMinValuePropertyName)
@@ -1493,7 +1507,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
                 .WithValidator(ValidateNotTargetingAlias)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinValuePropertyName, SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} minValue)
+                    {
+                        return typeDeclaringExpression with { MinValue = minValue };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMaxValuePropertyName)
@@ -1502,7 +1525,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
                 .WithValidator(ValidateNotTargetingAlias)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxValuePropertyName, SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} maxValue)
+                    {
+                        return typeDeclaringExpression with { MaxValue = maxValue };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMinLengthPropertyName)
@@ -1511,7 +1543,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinLengthPropertyName, SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} minLength)
+                    {
+                        return typeDeclaringExpression with { MinLength = minLength };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMaxLengthPropertyName)
@@ -1520,7 +1561,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxLengthPropertyName, SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} maxLength)
+                    {
+                        return typeDeclaringExpression with { MaxLength = maxLength };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterMetadataPropertyName)
@@ -1529,15 +1579,32 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithValidator((_, decoratorSyntax, _, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
                     TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, parsingErrorLookup, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMetadataPropertyName, SingleParameterSelector))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
+                        functionCall.Parameters.FirstOrDefault() is {} metadata)
+                    {
+                        return typeDeclaringExpression with { Metadata = metadata };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.MetadataDescriptionPropertyName)
                 .WithDescription("Describes the parameter.")
                 .WithRequiredParameter("text", LanguageConstants.String, "The description.")
                 .WithFlags(FunctionFlags.AnyDecorator)
-                .WithEvaluator(MergeToTargetObject("metadata", functionCall => ExpressionFactory.CreateObject(
-                    ExpressionFactory.CreateObjectProperty("description", SingleParameterSelector(functionCall), functionCall.SourceSyntax).AsEnumerable())))
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is DescribableExpression describable &&
+                        functionCall.Parameters.FirstOrDefault() is {} description)
+                    {
+                        return describable with { Description = description };
+                    }
+
+                    return decorated;
+                })
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.BatchSizePropertyName)
@@ -1563,18 +1630,49 @@ namespace Bicep.Core.Semantics.Namespaces
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(batchSizeSyntax).BatchSizeTooSmall(batchSize.Value, minimumBatchSize));
                     }
                 })
-                .WithEvaluator(MergeToTargetObject(LanguageConstants.BatchSizePropertyName, SingleParameterSelector))
                 .Build();
 
-            if (featureProvider.UserDefinedTypesEnabled)
+            yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
+                .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
+                .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
+                .WithAttachableType(LanguageConstants.Object)
+                .WithValidator(ValidateNotTargetingAlias)
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression)
+                    {
+                        return typeDeclaringExpression with { Sealed = functionCall };
+                    }
+
+                    return decorated;
+                })
+                .Build();
+
+            yield return new DecoratorBuilder(LanguageConstants.TypeDiscriminatorDecoratorName)
+                .WithDescription("Defines the discriminator property to use for a tagged union that is shared between all union members")
+                .WithRequiredParameter("value", LanguageConstants.String, "The discriminator property name.")
+                .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
+                .WithValidator(ValidateTypeDiscriminator)
+                .Build();
+        }
+
+        private static void ValidateTypeDiscriminator(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
+        {
+            if (targetType is not DiscriminatedObjectType && targetType is not ErrorType)
             {
-                yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
-                    .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
-                    .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
-                    .WithAttachableType(LanguageConstants.Object)
-                    .WithValidator(ValidateNotTargetingAlias)
-                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false)))
-                    .Build();
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorDecoratorOnlySupportedForObjectUnions());
+            }
+
+            if (targetType is DiscriminatedObjectType discriminatedObjectType)
+            {
+                var discriminatorPropertyName = (decoratorSyntax.Arguments.FirstOrDefault()?.Expression as StringSyntax)?.TryGetLiteralValue();
+
+                if (discriminatorPropertyName != null &&
+                    discriminatorPropertyName != discriminatedObjectType.DiscriminatorKey)
+                {
+                    // case when a decorator is applied to type that is already a valid discriminated union
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorPropertyNameMustMatch(discriminatorPropertyName));
+                }
             }
         }
 

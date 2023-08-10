@@ -132,7 +132,7 @@ public class ExpressionBuilder
                 return new LambdaExpression(
                     lambda,
                     variables.Select(x => x.Name.IdentifierName).ToImmutableArray(),
-                    variables.Select<LocalVariableSyntax, SyntaxBase?>(x => null).ToImmutableArray(),
+                    variables.Select<LocalVariableSyntax, TypeExpression?>(x => null).ToImmutableArray(),
                     ConvertWithoutLowering(lambda.Body),
                     null);
             case TypedLambdaSyntax lambda:
@@ -141,9 +141,9 @@ public class ExpressionBuilder
                 return new LambdaExpression(
                     lambda,
                     typedVariables.Select(x => x.Name.IdentifierName).ToImmutableArray(),
-                    typedVariables.Select<TypedLocalVariableSyntax, SyntaxBase?>(x => x.Type).ToImmutableArray(),
+                    typedVariables.Select(x => ConvertTypeWithoutLowering(x.Type)).ToImmutableArray<TypeExpression?>(),
                     ConvertWithoutLowering(lambda.Body),
-                    lambda.ReturnType);
+                    ConvertTypeWithoutLowering(lambda.ReturnType));
 
             case ForSyntax forSyntax:
                 return new ForLoopExpression(
@@ -160,50 +160,73 @@ public class ExpressionBuilder
                     ConvertWithoutLowering(conditionSyntax.Body));
 
             case MetadataDeclarationSyntax metadata:
-                return new DeclaredMetadataExpression(
+                return EvaluateDecorators(metadata, new DeclaredMetadataExpression(
                     metadata,
                     metadata.Name.IdentifierName,
-                    ConvertWithoutLowering(metadata.Value));
+                    ConvertWithoutLowering(metadata.Value)));
 
-            case ImportDeclarationSyntax import:
-                var symbol = GetDeclaredSymbol<ImportedNamespaceSymbol>(import);
-                return new DeclaredImportExpression(
-                    import,
+            case ProviderDeclarationSyntax provider:
+                var symbol = GetDeclaredSymbol<ProviderNamespaceSymbol>(provider);
+                return EvaluateDecorators(provider, new DeclaredProviderExpression(
+                    provider,
                     symbol.Name,
-                    GetTypeInfo<NamespaceType>(import),
-                    import.Config is not null ? ConvertWithoutLowering(import.Config) : null);
+                    GetTypeInfo<NamespaceType>(provider),
+                    provider.Config is not null ? ConvertWithoutLowering(provider.Config) : null));
 
             case ParameterDeclarationSyntax parameter:
-                return new DeclaredParameterExpression(
+                return EvaluateDecorators(parameter, new DeclaredParameterExpression(
                     parameter,
                     parameter.Name.IdentifierName,
-                    GetDeclaredSymbol<ParameterSymbol>(parameter),
-                    parameter.Modifier is ParameterDefaultValueSyntax defaultValue ? ConvertWithoutLowering(defaultValue.DefaultValue) : null);
+                    ConvertTypeWithoutLowering(parameter.Type),
+                    parameter.Modifier is ParameterDefaultValueSyntax defaultValue ? ConvertWithoutLowering(defaultValue.DefaultValue) : null));
 
             case VariableDeclarationSyntax variable:
-                return new DeclaredVariableExpression(
+                return EvaluateDecorators(variable, new DeclaredVariableExpression(
                     variable,
                     variable.Name.IdentifierName,
-                    ConvertWithoutLowering(variable.Value));
+                    ConvertWithoutLowering(variable.Value)));
 
             case FunctionDeclarationSyntax function:
-                return new DeclaredFunctionExpression(
+                return EvaluateDecorators(function, new DeclaredFunctionExpression(
                     function,
                     function.Name.IdentifierName,
-                    ConvertWithoutLowering(function.Lambda));
+                    ConvertWithoutLowering(function.Lambda)));
 
             case OutputDeclarationSyntax output:
-                return new DeclaredOutputExpression(
+                return EvaluateDecorators(output, new DeclaredOutputExpression(
                     output,
                     output.Name.IdentifierName,
-                    GetDeclaredSymbol<OutputSymbol>(output),
-                    ConvertWithoutLowering(output.Value));
+                    ConvertTypeWithoutLowering(output.Type),
+                    ConvertWithoutLowering(output.Value)));
+
+            case AssertDeclarationSyntax assert:
+                return EvaluateDecorators(assert, new DeclaredAssertExpression(
+                    assert,
+                    assert.Name.IdentifierName,
+                    ConvertWithoutLowering(assert.Value)));
 
             case ResourceDeclarationSyntax resource:
-                return ConvertResource(resource);
+                return EvaluateDecorators(resource, ConvertResource(resource));
 
             case ModuleDeclarationSyntax module:
-                return ConvertModule(module);
+                return EvaluateDecorators(module, ConvertModule(module));
+
+            case TypeDeclarationSyntax typeDeclaration:
+                return EvaluateDecorators(typeDeclaration, new DeclaredTypeExpression(typeDeclaration,
+                    typeDeclaration.Name.IdentifierName,
+                    ConvertTypeWithoutLowering(typeDeclaration.Value)));
+
+            case ObjectTypePropertySyntax typeProperty:
+                return EvaluateDecorators(typeProperty, new ObjectTypePropertyExpression(typeProperty,
+                    typeProperty.TryGetKeyText() ?? throw new ArgumentException("Unable to resolve name of object type property"),
+                    ConvertTypeWithoutLowering(typeProperty.Value)));
+
+            case ObjectTypeAdditionalPropertiesSyntax typeAdditionalProperties:
+                return EvaluateDecorators(typeAdditionalProperties, new ObjectTypeAdditionalPropertiesExpression(typeAdditionalProperties,
+                    ConvertTypeWithoutLowering(typeAdditionalProperties.Value)));
+
+            case TupleTypeItemSyntax tupleItem:
+                return EvaluateDecorators(tupleItem, new TupleTypeItemExpression(tupleItem, ConvertTypeWithoutLowering(tupleItem.Value)));
 
             case ProgramSyntax program:
                 return ConvertProgram(program);
@@ -211,6 +234,98 @@ public class ExpressionBuilder
             default:
                 throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}");
         }
+    }
+
+    private TypeExpression ConvertTypeWithoutLowering(SyntaxBase syntax)
+        => syntax switch
+        {
+            VariableAccessSyntax variableAccess => Context.SemanticModel.Binder.GetSymbolInfo(syntax) switch
+            {
+                AmbientTypeSymbol ambientType => new AmbientTypeReferenceExpression(syntax, ambientType.Name, ambientType.Type),
+                TypeAliasSymbol typeAlias => new TypeAliasReferenceExpression(syntax, typeAlias.Name, typeAlias.Type),
+                ImportedTypeSymbol importedType => new ImportedTypeReferenceExpression(syntax, importedType, importedType.Type),
+                Symbol otherwise => throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression."),
+                _ => throw new ArgumentException($"Unable to locate symbol for name '{variableAccess.Name.IdentifierName}'.")
+            },
+            StringSyntax @string => new StringLiteralTypeExpression(@string, GetTypeInfo<StringLiteralType>(@string)),
+            IntegerLiteralSyntax @int => new IntegerLiteralTypeExpression(@int, GetTypeInfo<IntegerLiteralType>(@int)),
+            BooleanLiteralSyntax @bool => new BooleanLiteralTypeExpression(@bool, GetTypeInfo<BooleanLiteralType>(@bool)),
+            UnaryOperationSyntax unaryOperation => Context.SemanticModel.GetTypeInfo(unaryOperation) switch
+            {
+                IntegerLiteralType intOperation => new IntegerLiteralTypeExpression(syntax, intOperation),
+                BooleanLiteralType boolOperation => new BooleanLiteralTypeExpression(syntax, boolOperation),
+                _ => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
+            },
+            NullLiteralSyntax @null => new NullLiteralTypeExpression(@null, GetTypeInfo<NullType>(@null)),
+            ResourceTypeSyntax resource => new ResourceTypeExpression(resource, GetTypeInfo<ResourceType>(resource)),
+            ObjectTypeSyntax objectTypeSyntax => new ObjectTypeExpression(syntax,
+                GetTypeInfo<ObjectType>(syntax),
+                objectTypeSyntax.Properties.Select(p => ConvertWithoutLowering<ObjectTypePropertyExpression>(p)).ToImmutableArray(),
+                objectTypeSyntax.AdditionalProperties is SyntaxBase addlPropertiesSyntax
+                    ? ConvertWithoutLowering<ObjectTypeAdditionalPropertiesExpression>(addlPropertiesSyntax)
+                    : null),
+            TupleTypeSyntax tupleTypeSyntax => new TupleTypeExpression(syntax,
+                GetTypeInfo<TupleType>(syntax),
+                tupleTypeSyntax.Items.Select(i => ConvertWithoutLowering<TupleTypeItemExpression>(i)).ToImmutableArray()),
+            ArrayTypeSyntax arrayTypeSyntax => new ArrayTypeExpression(syntax,
+                GetTypeInfo<ArrayType>(syntax),
+                ConvertTypeWithoutLowering(arrayTypeSyntax.Item.Value)),
+            NullableTypeSyntax nullableTypeSyntax => new NullableTypeExpression(syntax, ConvertTypeWithoutLowering(nullableTypeSyntax.Base)),
+            UnionTypeSyntax unionTypeSyntax when Context.SemanticModel.GetTypeInfo(unionTypeSyntax) is DiscriminatedObjectType discriminatedObjectType =>
+                new DiscriminatedObjectTypeExpression(
+                    syntax,
+                    discriminatedObjectType,
+                    unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)).ToImmutableArray()),
+            UnionTypeSyntax unionTypeSyntax when Context.SemanticModel.GetTypeInfo(unionTypeSyntax) is UnionType unionType
+                => new UnionTypeExpression(syntax, unionType, unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)).ToImmutableArray()),
+            UnionTypeSyntax unionTypeSyntax => Context.SemanticModel.GetTypeInfo(unionTypeSyntax) switch
+            {
+                ErrorType errorType => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
+                UnionType unionType => new UnionTypeExpression(syntax, unionType, ImmutableArray.CreateRange(unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)))),
+                // If a union type expression's members all refer to the same literal value, the type of the expression will be a single literal rather than a union
+                TypeSymbol otherwise => new UnionTypeExpression(syntax,
+                    new UnionType(string.Empty, ImmutableArray.Create<ITypeReference>(otherwise)),
+                    ImmutableArray.CreateRange(unionTypeSyntax.Members.Select(m => ConvertTypeWithoutLowering(m.Value)))),
+            },
+            ParenthesizedExpressionSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
+            NonNullAssertionSyntax nonNullAssertion => new NonNullableTypeExpression(nonNullAssertion, ConvertTypeWithoutLowering(nonNullAssertion.BaseExpression)),
+            PropertyAccessSyntax propertyAccess => ConvertPropertyAccessInTypeExpression(propertyAccess),
+            ArrayAccessSyntax arrayAccess => ConvertPropertyAccessInTypeExpression(arrayAccess),
+            _ => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
+        };
+
+    private TypeExpression ConvertPropertyAccessInTypeExpression(PropertyAccessSyntax syntax)
+        => ConvertPropertyAccessInTypeExpression(syntax, syntax.PropertyName.IdentifierName);
+
+    private TypeExpression ConvertPropertyAccessInTypeExpression(ArrayAccessSyntax syntax)
+        => Context.SemanticModel.GetTypeInfo(syntax.IndexExpression) is StringLiteralType @string
+            ? ConvertPropertyAccessInTypeExpression(syntax, @string.RawStringValue)
+            : throw new ArgumentException("Array access syntax is not permitted in type expressions unless the indexing expression can be folded to a constant string at compile time.");
+
+    private TypeExpression ConvertPropertyAccessInTypeExpression(AccessExpressionSyntax syntax, string propertyName)
+        => Context.SemanticModel.GetSymbolInfo(syntax.BaseExpression) switch
+        {
+            BuiltInNamespaceSymbol builtIn when TryGetTypeProperty(builtIn, propertyName) is {} property
+                => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, property.TypeReference.Type),
+            WildcardImportSymbol wildcardImport when TryGetTypeProperty(wildcardImport, propertyName) is {} property
+                => new WildcardImportPropertyReferenceExpression(syntax, wildcardImport, propertyName, property.TypeReference.Type),
+            var otherwise => throw new ArgumentException($"Failed to convert property access on symbol of type {otherwise?.GetType()}"),
+        };
+
+    private TypeTypeProperty? TryGetTypeProperty(INamespaceSymbol namespaceSymbol, string propertyName)
+        => namespaceSymbol.TryGetNamespaceType() is NamespaceType type && type.TryGetTypeProperty(propertyName) is {} property
+            ? property
+            : null;
+
+    private TExpression ConvertWithoutLowering<TExpression>(SyntaxBase syntax)
+        where TExpression : Expression
+    {
+        if (ConvertWithoutLowering(syntax) is not TExpression converted)
+        {
+            throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()} to expression of type {nameof(TExpression)}.");
+        }
+
+        return converted;
     }
 
     private TSymbol GetDeclaredSymbol<TSymbol>(SyntaxBase syntax)
@@ -236,6 +351,29 @@ public class ExpressionBuilder
         return typeSymbol;
     }
 
+    private Expression EvaluateDecorators(DecorableSyntax decorable, Expression target)
+    {
+        var result = target;
+        foreach (var decoratorSyntax in decorable.Decorators)
+        {
+            var symbol = Context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
+
+            if (symbol is FunctionSymbol decoratorSymbol && decoratorSymbol.DeclaringObject is NamespaceType namespaceType)
+            {
+                var argumentTypes = decoratorSyntax.Arguments
+                    .Select(argument => Context.SemanticModel.TypeManager.GetTypeInfo(argument))
+                    .ToArray();
+
+                // There should be exact one matching decorator since there's no errors.
+                var decorator = namespaceType.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes).Single();
+
+                result = decorator.Evaluate(ConvertWithoutLowering<FunctionCallExpression>(decoratorSyntax.Expression), result);
+            }
+        }
+
+        return result;
+    }
+
     private ProgramExpression ConvertProgram(ProgramSyntax syntax)
     {
         var metadataArray = Context.SemanticModel.Root.MetadataDeclarations
@@ -243,9 +381,14 @@ public class ExpressionBuilder
             .OfType<DeclaredMetadataExpression>()
             .ToImmutableArray();
 
-        var imports = Context.SemanticModel.Root.ImportDeclarations
+        var providers = Context.SemanticModel.Root.ProviderDeclarations
             .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
-            .OfType<DeclaredImportExpression>()
+            .OfType<DeclaredProviderExpression>()
+            .ToImmutableArray();
+
+        var typeDefinitions = Context.SemanticModel.Root.TypeDeclarations
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredTypeExpression>()
             .ToImmutableArray();
 
         var parameters = Context.SemanticModel.Root.ParameterDeclarations
@@ -279,6 +422,11 @@ public class ExpressionBuilder
             .OfType<DeclaredOutputExpression>()
             .ToImmutableArray();
 
+        var asserts = Context.SemanticModel.Root.AssertDeclarations
+            .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
+            .OfType<DeclaredAssertExpression>()
+            .ToImmutableArray();
+
         var functions = Context.SemanticModel.Root.FunctionDeclarations
             .Select(x => ConvertWithoutLowering(x.DeclaringSyntax))
             .OfType<DeclaredFunctionExpression>()
@@ -287,13 +435,15 @@ public class ExpressionBuilder
         return new ProgramExpression(
             syntax,
             metadataArray,
-            imports,
+            providers,
+            typeDefinitions,
             parameters,
             functionVariables.AddRange(variables),
             functions,
             resources,
             modules,
-            outputs);
+            outputs,
+            asserts);
     }
 
     private record LoopExpressionContext(string Name, SyntaxBase SourceSyntax, Expression LoopExpression);

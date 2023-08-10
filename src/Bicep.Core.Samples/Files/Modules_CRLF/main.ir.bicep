@@ -24,11 +24,14 @@
 //@[000:0000) |   └─ResourceReferenceExpression [UNPARENTED]
 @sys.description('this is deployTimeSuffix param')
 //@[000:0093) ├─DeclaredParameterExpression { Name = deployTimeSuffix }
+//@[017:0049) | ├─StringLiteralExpression { Value = this is deployTimeSuffix param }
 param deployTimeSuffix string = newGuid()
+//@[023:0029) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[032:0041) | └─FunctionCallExpression { Name = newGuid }
 
 @sys.description('this module a')
 //@[000:0252) ├─DeclaredModuleExpression
+//@[017:0032) | ├─StringLiteralExpression { Value = this module a }
 module modATest './modulea.bicep' = {
 //@[036:0217) | ├─ObjectExpression
   name: 'modATest'
@@ -70,6 +73,7 @@ module modATest './modulea.bicep' = {
 
 @sys.description('this module b')
 //@[000:0136) ├─DeclaredModuleExpression
+//@[017:0032) | ├─StringLiteralExpression { Value = this module b }
 module modB './child/moduleb.bicep' = {
 //@[038:0101) | ├─ObjectExpression
   name: 'modB'
@@ -87,6 +91,7 @@ module modB './child/moduleb.bicep' = {
 
 @sys.description('this is just module b with a condition')
 //@[000:0203) ├─DeclaredModuleExpression
+//@[017:0057) | ├─StringLiteralExpression { Value = this is just module b with a condition }
 module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
 //@[055:0065) | ├─ConditionExpression
 //@[055:0065) | | ├─BinaryExpression { Operator = Equals }
@@ -342,26 +347,31 @@ resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 
 output stringOutputA string = modATest.outputs.stringOutputA
 //@[000:0060) ├─DeclaredOutputExpression { Name = stringOutputA }
+//@[021:0027) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[030:0060) | └─ModuleOutputPropertyAccessExpression { PropertyName = stringOutputA }
 //@[030:0046) |   └─PropertyAccessExpression { PropertyName = outputs }
 //@[030:0038) |     └─ModuleReferenceExpression
 output stringOutputB string = modATest.outputs.stringOutputB
 //@[000:0060) ├─DeclaredOutputExpression { Name = stringOutputB }
+//@[021:0027) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[030:0060) | └─ModuleOutputPropertyAccessExpression { PropertyName = stringOutputB }
 //@[030:0046) |   └─PropertyAccessExpression { PropertyName = outputs }
 //@[030:0038) |     └─ModuleReferenceExpression
 output objOutput object = modATest.outputs.objOutput
 //@[000:0052) ├─DeclaredOutputExpression { Name = objOutput }
+//@[017:0023) | ├─AmbientTypeReferenceExpression { Name = object }
 //@[026:0052) | └─ModuleOutputPropertyAccessExpression { PropertyName = objOutput }
 //@[026:0042) |   └─PropertyAccessExpression { PropertyName = outputs }
 //@[026:0034) |     └─ModuleReferenceExpression
 output arrayOutput array = modATest.outputs.arrayOutput
 //@[000:0055) ├─DeclaredOutputExpression { Name = arrayOutput }
+//@[019:0024) | ├─AmbientTypeReferenceExpression { Name = array }
 //@[027:0055) | └─ModuleOutputPropertyAccessExpression { PropertyName = arrayOutput }
 //@[027:0043) |   └─PropertyAccessExpression { PropertyName = outputs }
 //@[027:0035) |     └─ModuleReferenceExpression
 output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputObj
 //@[000:0082) └─DeclaredOutputExpression { Name = modCalculatedNameOutput }
+//@[031:0037)   ├─AmbientTypeReferenceExpression { Name = object }
 //@[040:0082)   └─ModuleOutputPropertyAccessExpression { PropertyName = outputObj }
 //@[040:0072)     └─PropertyAccessExpression { PropertyName = outputs }
 //@[040:0064)       └─ModuleReferenceExpression
@@ -372,6 +382,7 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 
 @sys.description('this is myModules')
 //@[000:0162) ├─DeclaredVariableExpression { Name = myModules }
+//@[017:0036) | ├─StringLiteralExpression { Value = this is myModules }
 var myModules = [
 //@[016:0123) | └─ArrayExpression
   {

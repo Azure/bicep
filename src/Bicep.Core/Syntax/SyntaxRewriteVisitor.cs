@@ -227,6 +227,22 @@ namespace Bicep.Core.Syntax
         }
 
         void ISyntaxVisitor.VisitLocalVariableSyntax(LocalVariableSyntax syntax) => ReplaceCurrent(syntax, ReplaceLocalVariableSyntax);
+        protected virtual SyntaxBase ReplaceAssertDeclarationSyntax(AssertDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new AssertDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
+        }
+        void ISyntaxVisitor.VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceAssertDeclarationSyntax);
 
         protected virtual SyntaxBase ReplaceTargetScopeSyntax(TargetScopeSyntax syntax)
         {
@@ -283,6 +299,24 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceModuleDeclarationSyntax);
 
+        protected virtual SyntaxBase ReplaceTestDeclarationSyntax(TestDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Path, out var path);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new TestDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
+        }
+        void ISyntaxVisitor.VisitTestDeclarationSyntax(TestDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceTestDeclarationSyntax);
+        
         protected virtual SyntaxBase ReplaceOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
@@ -301,7 +335,7 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceOutputDeclarationSyntax);
 
-        protected virtual SyntaxBase ReplaceImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        protected virtual SyntaxBase ReplaceProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
@@ -314,11 +348,11 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ImportDeclarationSyntax(leadingNodes, keyword, specification, withClause, asClause);
+            return new ProviderDeclarationSyntax(leadingNodes, keyword, specification, withClause, asClause);
         }
-        void ISyntaxVisitor.VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportDeclarationSyntax);
+        void ISyntaxVisitor.VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceProviderDeclarationSyntax);
 
-        protected virtual SyntaxBase ReplaceImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        protected virtual SyntaxBase ReplaceProviderWithClauseSyntax(ProviderWithClauseSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Config, out var config);
@@ -328,11 +362,11 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ImportWithClauseSyntax(keyword, config);
+            return new ProviderWithClauseSyntax(keyword, config);
         }
-        void ISyntaxVisitor.VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportWithClauseSyntax);
+        void ISyntaxVisitor.VisitProviderWithClauseSyntax(ProviderWithClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceProviderWithClauseSyntax);
 
-        protected virtual SyntaxBase ReplaceImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+        protected virtual SyntaxBase ReplaceAliasAsClauseSyntax(AliasAsClauseSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.Alias, out var alias);
@@ -342,9 +376,9 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ImportAsClauseSyntax(keyword, alias);
+            return new AliasAsClauseSyntax(keyword, alias);
         }
-        void ISyntaxVisitor.VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportAsClauseSyntax);
+        void ISyntaxVisitor.VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceAliasAsClauseSyntax);
 
         protected virtual SyntaxBase ReplaceIdentifierSyntax(IdentifierSyntax syntax)
         {
@@ -1033,5 +1067,78 @@ namespace Bicep.Core.Syntax
             return new FunctionDeclarationSyntax(leadingNodes, keyword, name, lambda);
         }
         void ISyntaxVisitor.VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceFunctionDeclarationSyntax);
+
+        protected virtual SyntaxBase ReplaceCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewrite(syntax.ImportExpression, out var importExpression);
+            hasChanges |= TryRewrite(syntax.FromClause, out var fromClause);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new CompileTimeImportDeclarationSyntax(leadingNodes, keyword, importExpression, fromClause);
+        }
+        void ISyntaxVisitor.VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceCompileTimeImportDeclarationSyntax);
+
+        protected virtual SyntaxBase ReplaceImportedSymbolsListSyntax(ImportedSymbolsListSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.OpenBrace, out var openBrace);
+            hasChanges |= TryRewrite(syntax.Children, out var children);
+            hasChanges |= TryRewriteStrict(syntax.CloseBrace, out var closeBrace);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ImportedSymbolsListSyntax(openBrace, children, closeBrace);
+        }
+        void ISyntaxVisitor.VisitImportedSymbolsListSyntax(ImportedSymbolsListSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportedSymbolsListSyntax);
+
+        protected virtual SyntaxBase ReplaceImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.OriginalSymbolName, out var originalSymbolName);
+            hasChanges |= TryRewrite(syntax.AsClause, out var asClause);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ImportedSymbolsListItemSyntax(originalSymbolName, asClause);
+        }
+        void ISyntaxVisitor.VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportedSymbolsListItemSyntax);
+
+        protected virtual SyntaxBase ReplaceWildcardImportSyntax(WildcardImportSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Wildcard, out var wildcard);
+            hasChanges |= TryRewriteStrict(syntax.AliasAsClause, out var aliasAsClause);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new WildcardImportSyntax(wildcard, aliasAsClause);
+        }
+        void ISyntaxVisitor.VisitWildcardImportSyntax(WildcardImportSyntax syntax) => ReplaceCurrent(syntax, ReplaceWildcardImportSyntax);
+
+        protected virtual SyntaxBase ReplaceCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewrite(syntax.Path, out var path);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new CompileTimeImportFromClauseSyntax(keyword, path);
+        }
+        void ISyntaxVisitor.VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceCompileTimeImportFromClauseSyntax);
     }
 }

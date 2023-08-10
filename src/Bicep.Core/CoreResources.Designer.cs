@@ -169,6 +169,96 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Asserts.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_Asserts {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_Asserts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compile-time imports.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_CompileTimeImports {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_CompileTimeImports", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dynamic type loading.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_DynamicTypeLoading {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_DynamicTypeLoading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Extensibility.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_Extensibility {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_Extensibility", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pretty printing.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_PrettyPrinting {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_PrettyPrinting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource-typed parameters and outputs.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_ResourceTypedParamsAndOutputs {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_ResourceTypedParamsAndOutputs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source mapping.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_SourceMapping {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_SourceMapping", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Symbolic name code generation.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_SymbolicNameCodegen {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_SymbolicNameCodegen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Test framework.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_TestFramework {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_TestFramework", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to User-defined functions.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_UserDefinedFunctions {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_UserDefinedFunctions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Use string interpolation: {0}.
         /// </summary>
         internal static string InterpolateNotConcatFixTitle {
@@ -210,6 +300,24 @@ namespace Bicep.Core {
         internal static string LocationSetByParameterRuleDescription {
             get {
                 return ResourceManager.GetString("LocationSetByParameterRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maximum number of &apos;assert&apos; statements used..
+        /// </summary>
+        internal static string MaxNumberAssertsRuleDescription {
+            get {
+                return ResourceManager.GetString("MaxNumberAssertsRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many predeployment conditions. Number of &apos;assert&apos; statements is limited to {0}..
+        /// </summary>
+        internal static string MaxNumberAssertsRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("MaxNumberAssertsRuleMessageFormat", resourceCulture);
             }
         }
         
@@ -282,6 +390,24 @@ namespace Bicep.Core {
         internal static string MaxNumberVariablesRuleMessageFormat {
             get {
                 return ResourceManager.GetString("MaxNumberVariablesRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Metadata properties whose value is set by a separate decorator should not be set via the &apos;@metadata()&apos; decorator..
+        /// </summary>
+        internal static string NoConflictingMetadataRuleDescription {
+            get {
+                return ResourceManager.GetString("NoConflictingMetadataRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The &quot;{0}&quot; metadata property conflicts with the &quot;{1}&quot; decorator and will be overwritten..
+        /// </summary>
+        internal static string NoConflictingMetadataRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("NoConflictingMetadataRuleMessageFormat", resourceCulture);
             }
         }
         

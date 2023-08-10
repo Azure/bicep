@@ -28,7 +28,7 @@ export class WalkthroughOpenBicepFileCommand implements Command {
 }
 
 async function queryAndOpenBicepFile(
-  context: IActionContext
+  context: IActionContext,
 ): Promise<TextEditor> {
   const uri: Uri = await queryUserForBicepFile(context);
   const document: TextDocument = await workspace.openTextDocument(uri);
@@ -56,7 +56,7 @@ async function queryUserForBicepFile(context: IActionContext): Promise<Uri> {
         label: relativePath,
         data: u,
       };
-    }
+    },
   );
   const browse: IAzureQuickPickItem<Uri | undefined> = {
     label: "Browse...",
@@ -75,7 +75,7 @@ async function queryUserForBicepFile(context: IActionContext): Promise<Uri> {
       return response.data;
     } else {
       throw new Error(
-        "Internal error: queryUserForBicepFile: response.data should be truthy"
+        "Internal error: queryUserForBicepFile: response.data should be truthy",
       );
     }
   }

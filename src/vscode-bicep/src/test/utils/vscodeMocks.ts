@@ -18,7 +18,7 @@ export function createWithProgressMock<T>(): WithProgress<T> {
         {
           report: jest.fn(),
         },
-        createCancellationTokenMock()
+        createCancellationTokenMock(),
       ).then(resolve, reject);
     });
   });

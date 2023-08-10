@@ -1,5 +1,23 @@
 [
   {
+    "label": "asserts",
+    "kind": "property",
+    "detail": "asserts",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ResourceAsserts`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_asserts",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "asserts"
+    }
+  },
+  {
     "label": "dependsOn",
     "kind": "property",
     "detail": "dependsOn",

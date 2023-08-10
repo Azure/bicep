@@ -46,16 +46,20 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 #disable-next-line no-unused-params
 param storageAccount1 string = 'testStorageAccount'
 //@[00:051) ├─DeclaredParameterExpression { Name = storageAccount1 }
+//@[22:028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[31:051) | └─StringLiteralExpression { Value = testStorageAccount }
 #disable-next-line          no-unused-params
 param storageAccount2 string = 'testStorageAccount'
 //@[00:051) ├─DeclaredParameterExpression { Name = storageAccount2 }
+//@[22:028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[31:051) | └─StringLiteralExpression { Value = testStorageAccount }
 #disable-next-line   no-unused-params                /* Test comment 1 */
 param storageAccount3 string = 'testStorageAccount'
 //@[00:051) ├─DeclaredParameterExpression { Name = storageAccount3 }
+//@[22:028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[31:051) | └─StringLiteralExpression { Value = testStorageAccount }
          #disable-next-line   no-unused-params                // Test comment 2
 param storageAccount5 string = 'testStorageAccount'
 //@[00:051) ├─DeclaredParameterExpression { Name = storageAccount5 }
+//@[22:028) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[31:051) | └─StringLiteralExpression { Value = testStorageAccount }

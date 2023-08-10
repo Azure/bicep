@@ -73,6 +73,9 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
+        private static string? TryGetDescriptionMarkdown(SymbolResolutionResult result, WildcardImportSymbol symbol)
+            => DescriptionHelper.TryGetFromDecorator(result.Context.Compilation.GetEntrypointSemanticModel(), symbol.EnclosingDeclaration);
+
         private static async Task<MarkedStringsOrMarkupContent?> GetMarkdown(
             HoverParams request,
             SymbolResolutionResult result,
@@ -83,14 +86,13 @@ namespace Bicep.LanguageServer.Handlers
             // with multiple borders
             switch (result.Symbol)
             {
-                case ImportedNamespaceSymbol import:
+                case ProviderNamespaceSymbol provider:
                     return AsMarkdown(CodeBlockWithDescription(
-                        $"import {import.Name}", TryGetDescriptionMarkdown(result, import)));
+                        $"import {provider.Name}", TryGetDescriptionMarkdown(result, provider)));
 
                 case MetadataSymbol metadata:
                     return AsMarkdown(CodeBlockWithDescription(
                         $"metadata {metadata.Name}: {metadata.Type}", TryGetDescriptionMarkdown(result, metadata)));
-
 
                 case ParameterSymbol parameter:
                     return AsMarkdown(CodeBlockWithDescription(
@@ -99,6 +101,13 @@ namespace Bicep.LanguageServer.Handlers
                 case TypeAliasSymbol declaredType:
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"type {declaredType.Name}: {declaredType.Type}", declaredType.Type), TryGetDescriptionMarkdown(result, declaredType)));
+
+                case ImportedTypeSymbol importedType:
+                    return AsMarkdown(CodeBlockWithDescription(
+                        WithTypeModifiers($"type {importedType.Name}: {importedType.Type}", importedType.Type),
+                        importedType.TryGetSemanticModel(out var model, out _) && model.ExportedTypes.TryGetValue(importedType.OriginalSymbolName, out var exportedTypeMetadata)
+                            ? exportedTypeMetadata.Description
+                            : null));
 
                 case AmbientTypeSymbol ambientType:
                     return AsMarkdown(CodeBlock(WithTypeModifiers($"type {ambientType.Name}: {ambientType.Type}", ambientType.Type)));
@@ -116,13 +125,18 @@ namespace Bicep.LanguageServer.Handlers
 
                 case ModuleSymbol module:
                     return await GetModuleMarkdown(request, result, moduleDispatcher, moduleRegistryProvider, module);
-
+                
+                case TestSymbol test:
+                    return AsMarkdown(CodeBlockWithDescription($"test {test.Name}", TryGetDescriptionMarkdown(result, test)));
                 case OutputSymbol output:
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"output {output.Name}: {output.Type}", output.Type), TryGetDescriptionMarkdown(result, output)));
 
                 case BuiltInNamespaceSymbol builtInNamespace:
                     return AsMarkdown(CodeBlock($"{builtInNamespace.Name} namespace"));
+
+                case WildcardImportSymbol wildcardImport:
+                    return AsMarkdown(CodeBlockWithDescription($"{wildcardImport.Name} namespace", TryGetDescriptionMarkdown(result, wildcardImport)));
 
                 case IFunctionSymbol function when result.Origin is FunctionCallSyntaxBase functionCall:
                     // it's not possible for a non-function call syntax to resolve to a function symbol
@@ -132,8 +146,9 @@ namespace Bicep.LanguageServer.Handlers
                 case DeclaredFunctionSymbol function:
                     // A declared function can only have a single overload!
                     return AsMarkdown(GetFunctionOverloadMarkdown(function.Overloads.Single()));
+
                 case PropertySymbol property:
-                    return AsMarkdown(CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description));
+                    return AsMarkdown(CodeBlockWithDescription(WithTypeModifiers($"{property.Name}: {property.Type}", property.Type), property.Description));
 
                 case LocalVariableSymbol local:
                     return AsMarkdown(CodeBlock($"{local.Name}: {local.Type}"));
@@ -147,6 +162,9 @@ namespace Bicep.LanguageServer.Handlers
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"param {parameterAssignment.Name}: {declaredParamMetadata.TypeReference.Type}", declaredParamMetadata.TypeReference.Type), declaredParamMetadata.Description));
 
+                case AssertSymbol assert:
+                    return AsMarkdown(CodeBlockWithDescription($"assert {assert.Name}: {assert.Type}", TryGetDescriptionMarkdown(result, assert)));
+
                 default:
                     return null;
             }
@@ -154,7 +172,10 @@ namespace Bicep.LanguageServer.Handlers
 
         private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(HoverParams request, SymbolResolutionResult result, IModuleDispatcher moduleDispatcher, IModuleRegistryProvider moduleRegistryProvider, ModuleSymbol module)
         {
-            var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _) ?? string.Empty;
+            if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule, out var filePath, out _))
+            {
+                filePath = string.Empty;
+            }
             var descriptionLines = new List<string?>();
             descriptionLines.Add(TryGetDescriptionMarkdown(result, module));
 

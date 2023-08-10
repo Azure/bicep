@@ -2,11 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
-using Bicep.Core.Parsing;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 using Newtonsoft.Json.Linq;
-
 
 namespace Bicep.Core.UnitTests.Assertions
 {

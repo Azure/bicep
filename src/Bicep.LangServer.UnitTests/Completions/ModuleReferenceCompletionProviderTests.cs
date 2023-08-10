@@ -36,6 +36,8 @@ namespace Bicep.LangServer.UnitTests.Completions
         private static IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>().Object;
         private ISettingsProvider settingsProvider = StrictMock.Of<ISettingsProvider>().Object;
 
+        // TODO: We need improved assertions for all the completion item tests
+
         [DataTestMethod]
         [DataRow("module test |''", 14)]
         [DataRow("module test ''|", 14)]
@@ -54,7 +56,19 @@ namespace Bicep.LangServer.UnitTests.Completions
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext, CancellationToken.None);
 
-            completions.Count().Should().Be(3);
+            completions.Count().Should().Be(4);
+
+            completions.Should().Contain(
+                c => c.Label == "br/public:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Public Bicep registry" &&
+                c.TextEdit!.TextEdit!.NewText == "'br/public:$0'" &&
+                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
+                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
+                c.TextEdit.TextEdit.Range.End.Line == 0 &&
+                c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
 
             completions.Should().Contain(
                 c => c.Label == "br:" &&
@@ -69,12 +83,12 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c.TextEdit.TextEdit.Range.End.Character == expectedEnd);
 
             completions.Should().Contain(
-                c => c.Label == "br/" &&
+                c => c.Label == "ts/" &&
                 c.Kind == CompletionItemKind.Reference &&
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
-                c.Detail == "Bicep registry (alias)" &&
-                c.TextEdit!.TextEdit!.NewText == "'br/$0'" &&
+                c.Detail == "Template spec (alias)" &&
+                c.TextEdit!.TextEdit!.NewText == "'ts/$0'" &&
                 c.TextEdit.TextEdit.Range.Start.Line == 0 &&
                 c.TextEdit.TextEdit.Range.Start.Character == 12 &&
                 c.TextEdit.TextEdit.Range.End.Line == 0 &&
@@ -121,7 +135,19 @@ namespace Bicep.LangServer.UnitTests.Completions
                 BicepTestConstants.CreateMockTelemetryProvider().Object);
             var completions = await moduleReferenceCompletionProvider.GetFilteredCompletions(documentUri.ToUri(), completionContext, CancellationToken.None);
 
-            completions.Count().Should().Be(4);
+            completions.Count().Should().Be(5);
+
+            foreach ( var c in completions) {
+                c.Label.Should().MatchRegex("^(.*/)|(.*:)$");
+                c.Kind.Should().Be(CompletionItemKind.Reference);
+                c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                c.InsertText.Should().BeNull();
+                c.TextEdit!.TextEdit!.NewText.Should().MatchRegex("^'.*\\$0'$");
+                c.TextEdit.TextEdit.Range.Start.Line.Should().Be(0);
+                c.TextEdit.TextEdit.Range.Start.Character.Should().Be(12);
+                c.TextEdit.TextEdit.Range.End.Line.Should().Be(0);
+                c.TextEdit.TextEdit.Range.End.Character.Should().Be(14);
+            }
 
             completions.Should().Contain(
                 c => c.Label == "br:" &&
@@ -129,23 +155,23 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
                 c.Detail == "Bicep registry" &&
-                c.TextEdit!.TextEdit!.NewText == "'br:$0'" &&
-                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
-                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
-                c.TextEdit.TextEdit.Range.End.Line == 0 &&
-                c.TextEdit.TextEdit.Range.End.Character == 14);
+                c.TextEdit!.TextEdit!.NewText == "'br:$0'");
 
             completions.Should().Contain(
-                c => c.Label == "br/" &&
+                c => c.Label == "br/test:" &&
                 c.Kind == CompletionItemKind.Reference &&
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
-                c.Detail == "Bicep registry (alias)" &&
-                c.TextEdit!.TextEdit!.NewText == "'br/$0'" &&
-                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
-                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
-                c.TextEdit.TextEdit.Range.End.Line == 0 &&
-                c.TextEdit.TextEdit.Range.End.Character == 14);
+                c.Detail == "Alias for br:testacr.azurecr.io/bicep/modules/" &&
+                c.TextEdit!.TextEdit!.NewText == "'br/test:$0'");
+
+            completions.Should().Contain(
+                c => c.Label == "br/public:" &&
+                c.Kind == CompletionItemKind.Reference &&
+                c.InsertTextFormat == InsertTextFormat.Snippet &&
+                c.InsertText == null &&
+                c.Detail == "Public Bicep registry" &&
+                c.TextEdit!.TextEdit!.NewText == "'br/public:$0'");
 
             completions.Should().Contain(
                 c => c.Label == "ts:" &&
@@ -153,23 +179,15 @@ namespace Bicep.LangServer.UnitTests.Completions
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
                 c.Detail == "Template spec" &&
-                c.TextEdit!.TextEdit!.NewText == "'ts:$0'" &&
-                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
-                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
-                c.TextEdit.TextEdit.Range.End.Line == 0 &&
-                c.TextEdit.TextEdit.Range.End.Character == 14);
+                c.TextEdit!.TextEdit!.NewText == "'ts:$0'");
 
             completions.Should().Contain(
-                c => c.Label == "ts/" &&
+                c => c.Label == "ts/mySpecRG:" &&
                 c.Kind == CompletionItemKind.Reference &&
                 c.InsertTextFormat == InsertTextFormat.Snippet &&
                 c.InsertText == null &&
-                c.Detail == "Template spec (alias)" &&
-                c.TextEdit!.TextEdit!.NewText == "'ts/$0'" &&
-                c.TextEdit.TextEdit.Range.Start.Line == 0 &&
-                c.TextEdit.TextEdit.Range.Start.Character == 12 &&
-                c.TextEdit.TextEdit.Range.End.Line == 0 &&
-                c.TextEdit.TextEdit.Range.End.Character == 14);
+                c.Detail == "Template spec" &&
+                c.TextEdit!.TextEdit!.NewText == "'ts/mySpecRG:$0'");
         }
 
         [TestMethod]
@@ -541,7 +559,7 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             completions.Should().Contain(
                 x => x.Label == expectedLabel &&
-                x.Kind == CompletionItemKind.Snippet &&
+                x.Kind == CompletionItemKind.Reference &&
                 x.InsertText == null &&
                 x.TextEdit!.TextEdit!.NewText == expectedCompletionText &&
                 x.TextEdit!.TextEdit!.Range.Start.Line == startLine &&
@@ -581,7 +599,7 @@ namespace Bicep.LangServer.UnitTests.Completions
   }
 }";
             var publicRegistryModuleMetadataProvider = StrictMock.Of<IPublicRegistryModuleMetadataProvider>();
-            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<PublicRegistryModuleVersion> { new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help2") });
+            publicRegistryModuleMetadataProvider.Setup(x => x.GetVersions("app/dapr-containerapp")).ReturnsAsync(new List<PublicRegistryModuleVersion> { new("1.0.2", null, null), new("1.0.1", "d2", "contoso.com/help%20page.html") });
 
             var completionContext = GetBicepCompletionContext(inputWithCursors, bicepConfigFileContents, out DocumentUri documentUri);
             var moduleReferenceCompletionProvider = new ModuleReferenceCompletionProvider(
@@ -611,7 +629,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 x.InsertText == null &&
                 x.SortText == expectedSortText2 &&
                 x.Detail == "d2" &&
-                x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help2)" &&
+                x.Documentation!.MarkupContent!.Value == "[View Documentation](contoso.com/help%20page.html)" &&
                 x.TextEdit!.TextEdit!.NewText == expectedCompletionText2 &&
                 x.TextEdit!.TextEdit!.Range.Start.Line == 0 &&
                 x.TextEdit!.TextEdit!.Range.Start.Character == 12 &&
@@ -673,7 +691,7 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             completions.Should().Contain(
                 x => x.Label == expectedLabel &&
-                x.Kind == CompletionItemKind.Snippet &&
+                x.Kind == CompletionItemKind.Reference &&
                 x.InsertText == null &&
                 x.TextEdit!.TextEdit!.NewText == expectedCompletionText &&
                 x.TextEdit!.TextEdit!.Range.Start.Line == startLine &&

@@ -19,7 +19,7 @@ public class ParametersJsonWriter
     }
 
     public void Write(JsonTextWriter writer) => GenerateTemplate().WriteTo(writer);
-    
+
     public JToken GenerateTemplate()
     {
         using var stringWriter = new StringWriter();
@@ -36,16 +36,50 @@ public class ParametersJsonWriter
         jsonWriter.WritePropertyName("parameters");
         jsonWriter.WriteStartObject();
 
-        foreach (var parameter in model.Root.ParameterAssignments)
+        foreach (var assignment in model.Root.ParameterAssignments)
         {
-            jsonWriter.WritePropertyName(parameter.Name);
+            jsonWriter.WritePropertyName(assignment.Name);
 
-            jsonWriter.WriteStartObject();
+            var parameter = model.EmitLimitationInfo.ParameterAssignments[assignment];
 
-            jsonWriter.WritePropertyName("value");
-            model.EmitLimitationInfo.ParameterAssignments[parameter].WriteTo(jsonWriter);
-            jsonWriter.WriteEndObject();
+            var propertyName = parameter.Type switch
+            {
+                JTokenType.Object => (parameter?.First as JProperty)?.Name,
+                JTokenType.Array => (parameter as JArray).ToJson(),
+                _ => parameter.Value<string>()
+            };
+            var isReferenceProperty = propertyName == "reference";
+            var isObjectType = assignment.Type.TypeKind == TypeSystem.TypeKind.Object;
+
+            if (parameter?.Type == JTokenType.Object)
+            {
+                if (!isReferenceProperty || (isReferenceProperty && isObjectType))
+                {
+                    jsonWriter.WriteStartObject();
+                    jsonWriter.WritePropertyName("value");
+                }
+            }
+            else
+            {
+                jsonWriter.WriteStartObject();
+                jsonWriter.WritePropertyName("value");
+            }
+
+            parameter?.WriteTo(jsonWriter);
+
+            if (parameter?.Type == JTokenType.Object)
+            {
+                if (!isReferenceProperty || (isReferenceProperty && isObjectType))
+                {
+                    jsonWriter.WriteEndObject();
+                }
+            }
+            else
+            {
+                jsonWriter.WriteEndObject();
+            }
         }
+
         jsonWriter.WriteEndObject();
 
         jsonWriter.WriteEndObject();

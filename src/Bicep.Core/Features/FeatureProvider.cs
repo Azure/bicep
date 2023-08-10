@@ -28,17 +28,21 @@ namespace Bicep.Core.Features
 
         public bool SourceMappingEnabled => this.configuration.ExperimentalFeaturesEnabled.SourceMapping;
 
-        public bool UserDefinedTypesEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedTypes;
-
         public bool UserDefinedFunctionsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedFunctions;
 
         public bool PrettyPrintingEnabled => this.configuration.ExperimentalFeaturesEnabled.PrettyPrinting;
-        
+
         public bool TestFrameworkEnabled => this.configuration.ExperimentalFeaturesEnabled.TestFramework;
+
+        public bool AssertsEnabled => configuration.ExperimentalFeaturesEnabled.Assertions;
+
+        public bool CompileTimeImportsEnabled => configuration.ExperimentalFeaturesEnabled.CompileTimeImports;
 
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
+
+        public bool DynamicTypeLoadingEnabled => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoading;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;

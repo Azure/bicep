@@ -297,6 +297,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             var singleFileResolver = new SingleFileResolver(JsonDummyUri, json);
 
+            // Is it valid JSON that we can convert into Bicep?
             var decompiler = new BicepDecompiler(this.bicepCompiler, singleFileResolver);
             var pasteType = PasteType_JsonValue;
             var options = GetDecompileOptions(pasteType);
@@ -306,20 +307,39 @@ namespace Bicep.LanguageServer.Handlers
                 // Technically we've already converted, but we only want to show this message if we think the pasted text is convertible
                 Log(output, String.Format(LangServerResources.Decompile_DecompilationStartMsg, "clipboard text"));
 
-                // Is the input already a valid Bicep expression?
-                var parser = new Parser("var v = " + json);
-                var program = parser.Program();
+                // Even though it's valid JSON, it might also be valid Bicep, in which case we want to leave it alone if we're
+                //   doing an automatic copy/paste conversion.
 
+                // Is the input already a valid Bicep expression with comments removed?
+                var parser = new Parser("var v = " + json);
+                _ = parser.Program();
                 if (!parser.LexingErrorLookup.Any() && !parser.ParsingErrorLookup.Any())
                 {
+                    // We still want to have the converted bicep available (via the "bicep" output) in the case
+                    //   that the user is explicitly doing a Paste as Bicep command, so allow "bicep" to keep its value.
                     pasteType = PasteType_BicepValue;
+                }
+                else
+                {
+                    // An edge case - it could be a valid Bicep expression with comments and newlines.  This would be
+                    //   valid if pasting inside a multi-line array.  We don't want to convert it in this case because the
+                    //   comments would be removed by the decompiler.
+                    parser = new Parser("var v = [\n" + json + "\n]");
+                    _ = parser.Program();
+
+                    if (!parser.LexingErrorLookup.Any() && !parser.ParsingErrorLookup.Any())
+                    {
+                        // We still want to have the converted bicep available (via the "bicep" output) in the case
+                        //   that the user is explicitly doing a Paste as Bicep command, so allow "bicep" to keep its value.
+                        pasteType = PasteType_BicepValue;
+                    }
                 }
 
                 return new ResultAndTelemetry(
                     new BicepDecompileForPasteCommandResult(
                         decompileId, output.ToString(), PasteContextAsString(pasteContext), pasteType,
                         ErrorMessage: null, bicep, Disclaimer: null),
-                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType, bicep: null));
+                    GetSuccessTelemetry(queryCanPaste, decompileId, json, pasteContext, pasteType, bicep));
             }
 
             return null;

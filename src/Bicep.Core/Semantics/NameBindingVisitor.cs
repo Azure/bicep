@@ -151,6 +151,17 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Value);
             allowedFlags = FunctionFlags.Default;
         }
+        public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Path);
+            this.Visit(syntax.Assignment);
+            allowedFlags = FunctionFlags.RequiresInlining;
+            this.Visit(syntax.Value);
+            allowedFlags = FunctionFlags.Default;
+        }
 
         public override void VisitIfConditionSyntax(IfConditionSyntax syntax)
         {
@@ -215,9 +226,9 @@ namespace Bicep.Core.Semantics
             allowedFlags = FunctionFlags.Default;
         }
 
-        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
         {
-            allowedFlags = FunctionFlags.ImportDecorator;
+            allowedFlags = FunctionFlags.ProviderDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.SpecificationString);

@@ -15,21 +15,21 @@ export class TreeManager extends Disposable {
 
   get azLocationTree(): AzExtTreeDataProvider {
     const azLocationTreeItem: AzLocationTreeItem = this.register(
-      new AzLocationTreeItem()
+      new AzLocationTreeItem(),
     );
     return new AzExtTreeDataProvider(azLocationTreeItem, "");
   }
 
   get azManagementGroupTreeItem(): AzExtTreeDataProvider {
     const azManagementGroupTreeItem: AzManagementGroupTreeItem = this.register(
-      new AzManagementGroupTreeItem()
+      new AzManagementGroupTreeItem(),
     );
     return new AzExtTreeDataProvider(azManagementGroupTreeItem, "");
   }
 
   get azResourceGroupTreeItem(): AzExtTreeDataProvider {
     const azResourceGroupTreeItem: AzResourceGroupTreeItem = this.register(
-      new AzResourceGroupTreeItem(this.outputChannelManager)
+      new AzResourceGroupTreeItem(this.outputChannelManager),
     );
     return new AzExtTreeDataProvider(azResourceGroupTreeItem, "");
   }

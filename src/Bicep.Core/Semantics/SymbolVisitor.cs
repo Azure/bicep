@@ -56,7 +56,17 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
+        public virtual void VisitTestSymbol(TestSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+        
         public virtual void VisitOutputSymbol(OutputSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
+        public virtual void VisitAssertSymbol(AssertSymbol symbol)
         {
             VisitDescendants(symbol);
         }
@@ -81,7 +91,7 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
-        public virtual void VisitImportedNamespaceSymbol(ImportedNamespaceSymbol symbol)
+        public virtual void VisitProviderNamespaceSymbol(ProviderNamespaceSymbol symbol)
         {
             VisitDescendants(symbol);
         }
@@ -107,6 +117,16 @@ namespace Bicep.Core.Semantics
         }
 
         public virtual void VisitErrorSymbol(ErrorSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
+        public virtual void VisitWildcardImportSymbol(WildcardImportSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
+        public virtual void VisitImportedTypeSymbol(ImportedTypeSymbol symbol)
         {
             VisitDescendants(symbol);
         }

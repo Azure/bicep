@@ -31,7 +31,7 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
   constructor(
     parent: AzExtParentTreeItem,
     subscription: ISubscriptionContext,
-    outputChannelManager: OutputChannelManager
+    outputChannelManager: OutputChannelManager,
   ) {
     super(parent, subscription);
     this._outputChannelManager = outputChannelManager;
@@ -39,7 +39,7 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
 
   public readonly childTypeLabel: string = localize(
     "resourceGroup",
-    "Resource Group"
+    "Resource Group",
   );
 
   private _nextLink: string | undefined;
@@ -52,7 +52,7 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
   // Loads resource group
   public async loadMoreChildrenImpl(
     clearCache: boolean,
-    context: IActionContext
+    context: IActionContext,
   ): Promise<AzExtTreeItem[]> {
     if (clearCache) {
       this._nextLink = undefined;
@@ -60,13 +60,13 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     const client: ResourceManagementClient =
       await createResourceManagementClient([context, this]);
     const rgs: ResourceGroup[] = await uiUtils.listAllIterator(
-      client.resourceGroups.list()
+      client.resourceGroups.list(),
     );
     const resourceGroupItems = await this.createTreeItemsWithErrorHandling(
       rgs,
       "invalidResourceGroup",
       (rg) => new GenericAzExtTreeItem(this, rg.id, rg.name),
-      (rg) => rg.name
+      (rg) => rg.name,
     );
 
     return resourceGroupItems;
@@ -74,11 +74,11 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
 
   // Adds 'create' option in the resource group tree picker
   public async createChildImpl(
-    context: ICreateChildImplContext
+    context: ICreateChildImplContext,
   ): Promise<AzExtTreeItem> {
     const title: string = localize(
       "createResourceGroup",
-      "Create Resource Group"
+      "Create Resource Group",
     );
     const wizardContext: IResourceGroupWizardContext = {
       ...context,
@@ -94,11 +94,11 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
 
     const wizard: AzureWizard<IResourceGroupWizardContext> = new AzureWizard(
       wizardContext,
-      { title, promptSteps, executeSteps }
+      { title, promptSteps, executeSteps },
     );
     await wizard.prompt();
     context.showCreatingTreeItem(
-      nonNullProp(wizardContext, "newResourceGroupName")
+      nonNullProp(wizardContext, "newResourceGroupName"),
     );
     await wizard.execute();
 
@@ -107,11 +107,11 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     const newResourceGroupItem = new GenericAzExtTreeItem(
       this,
       azTreeItem.id,
-      newResourceGroupItemName
+      newResourceGroupItemName,
     );
 
     this._outputChannelManager.appendToOutputChannel(
-      `Created resource group -> ${newResourceGroupItemName}`
+      `Created resource group -> ${newResourceGroupItemName}`,
     );
 
     return newResourceGroupItem;

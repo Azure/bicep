@@ -36,6 +36,16 @@ namespace Bicep.Core.Parsing
 
         public IDiagnosticLookup ParsingErrorLookup => ParsingErrorTree;
 
+        protected SyntaxBase VariableDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.VariableKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
+            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
+
+            return new VariableDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
+        }
+
         private static bool CheckKeyword(Token? token, string keyword) => token?.Type == TokenType.Identifier && token.Text == keyword;
 
         private static int GetOperatorPrecedence(TokenType tokenType) => tokenType switch
@@ -444,7 +454,7 @@ namespace Bicep.Core.Parsing
             return new VariableBlockSyntax(openParen, rewritten, closeParen);
         }
 
-        private IEnumerable<SyntaxBase> HandleArrayOrObjectElements(TokenType closingTokenType, Func<SyntaxBase> parseChildElement)
+        protected IEnumerable<SyntaxBase> HandleArrayOrObjectElements(TokenType closingTokenType, Func<SyntaxBase> parseChildElement)
         {
             if (Check(closingTokenType))
             {
@@ -1197,6 +1207,9 @@ namespace Bicep.Core.Parsing
             }
         }
 
+        protected SkippedTriviaSyntax Skip(SyntaxBase syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+            => Skip(syntax.AsEnumerable(), errorFunc);
+
         private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {
             var syntaxArray = syntax.ToImmutableArray();
@@ -1215,7 +1228,7 @@ namespace Bicep.Core.Parsing
         protected SkippedTriviaSyntax SkipEmpty()
             => SkipEmpty(this.reader.Peek().Span.Position, null);
 
-        private SkippedTriviaSyntax SkipEmpty(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected SkippedTriviaSyntax SkipEmpty(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
             => SkipEmpty(this.reader.Peek().Span.Position, errorFunc);
 
         private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc)

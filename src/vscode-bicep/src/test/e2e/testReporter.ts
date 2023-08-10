@@ -33,10 +33,10 @@ export default class TestReporter
   onRunComplete(contexts: Set<Context>, results: AggregatedResult): void {
     console.log("");
     console.log(
-      `Test Suites: ${results.numPassedTestSuites} passed, ${results.numTotalTestSuites} total`
+      `Test Suites: ${results.numPassedTestSuites} passed, ${results.numTotalTestSuites} total`,
     );
     console.log(
-      `Tests:       ${results.numPassedTestSuites} passed, ${results.numTotalTestSuites} total`
+      `Tests:       ${results.numPassedTestSuites} passed, ${results.numTotalTestSuites} total`,
     );
   }
 }

@@ -1,13 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14328234599741086766"
+      "templateHash": "1852734786185809313"
     }
   },
   "parameters": {
@@ -35,11 +34,11 @@
     "agentCount": {
       "type": "int",
       "defaultValue": 1,
+      "minValue": 1,
+      "maxValue": 50,
       "metadata": {
         "description": "The number of nodes for the cluster. 1 Node is enough for Dev/Test and minimum 3 nodes, is recommended for Production"
-      },
-      "maxValue": 50,
-      "minValue": 1
+      }
     },
     "agentVMSize": {
       "type": "string",

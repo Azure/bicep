@@ -41,6 +41,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDocumentSymbolHandler>()
                     .WithHandler<BicepDefinitionHandler>()
                     .WithHandler<BicepDeploymentGraphHandler>()
+                    .WithHandler<GetDeploymentDataHandler>()
                     .WithHandler<BicepReferencesHandler>()
                     .WithHandler<BicepDocumentHighlightHandler>()
                     .WithHandler<BicepDocumentFormattingHandler>()
@@ -124,6 +125,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<IArmClientProvider, ArmClientProvider>()
+                .AddSingleton<IDeploymentHelper, DeploymentHelper>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
                 .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
                 .AddSingleton<IPublicRegistryModuleMetadataProvider>(sp => new PublicRegistryModuleMetadataProvider(initializeCacheInBackground: true));

@@ -215,5 +215,30 @@ namespace Bicep.LanguageServer.Completions
         /// Cursor is on a typed lambda output type.
         /// </summary>
         TypedLambdaOutputType = 1UL << 39,
+
+        /// <summary>
+        /// The current location needs a module path (local or remote)
+        /// </summary>
+        TestPath = 1UL << 40,
+
+        /// <summary>
+        /// The current location needs an assert value.
+        /// </summary>
+        AssertValue = 1UL << 41,
+
+        /// <summary>
+        /// The current location will accept an import identifier ('{}' or '* as foo')
+        /// </summary>
+        ImportIdentifier = 1UL << 42,
+
+        /// <summary>
+        /// The current location in an import statement can be completed with a symbol that can be imported from the statement target.
+        /// </summary>
+        ImportedSymbolIdentifier = 1UL << 43,
+
+        /// <summary>
+        /// The current location in an import statement requires the <code>from</code> contextual keyword
+        /// </summary>
+        ExpectingImportFromKeyword = 1UL << 44,
     }
 }

@@ -4,6 +4,7 @@
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
+using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System;
@@ -89,12 +90,10 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public bool TryGetModuleReference(ModuleDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public bool TryGetModuleReference(IForeignTemplateReference module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var moduleReferenceString = SyntaxHelper.TryGetModulePath(module, out var getModulePathFailureBuilder);
-            if (moduleReferenceString is null)
+            if (!SyntaxHelper.TryGetForeignTemplatePath(module, out var moduleReferenceString, out failureBuilder))
             {
-                failureBuilder = getModulePathFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(SyntaxHelper.TryGetModulePath)} to provide failure diagnostics.");
                 moduleReference = null;
                 return false;
             }

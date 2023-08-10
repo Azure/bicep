@@ -255,6 +255,16 @@
                     }
                   ]
                 },
+                "max-asserts": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of 'assert' statements used. See https://aka.ms/bicep/linter/max-asserts"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
                 "max-outputs": {
                   "allOf": [
                     {
@@ -292,6 +302,16 @@
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
+                "no-conflicting-metadata": {
+                  "allOf": [
+                    {
+                      "description": "Metadata properties whose value is set by a separate decorator should not be set via the '@metadata()' decorator. See https://aka.ms/bicep/linter/no-conflicting-metadata"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -603,6 +623,15 @@
           "type": "boolean"
         },
         "testFramework": {
+          "type": "boolean"
+        },
+        "asserts": {
+          "type": "boolean"
+        },
+        "dynamicTypeLoading": {
+          "type": "boolean"
+        },
+        "compileTimeImports": {
           "type": "boolean"
         }
       }

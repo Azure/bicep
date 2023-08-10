@@ -190,6 +190,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         #endregion
 
+        [DataTestMethod]
         [DataRow(
             jsonFullTemplate,
             PasteType.FullTemplate,
@@ -306,7 +307,6 @@ random characters
             }}",
             DisplayName = "Schema not a string"
         )]
-        [DataTestMethod]
         public async Task FullTemplate(string json, PasteType expectedPasteType, string expectedBicep, string? errorMessage = null)
         {
             await TestDecompileForPaste(
@@ -398,6 +398,7 @@ name: 'Premium_LRS'
                     expectedBicep: null);
         }
 
+        [DataTestMethod]
         [DataRow(
             @"
                 {
@@ -439,7 +440,6 @@ name: 'Premium_LRS'
             "[6:46]: The language expression 'bad-expression' is not valid: the string character 'x' at position '5' is not expected.",
             DisplayName = "Bad expression"
             )]
-        [DataTestMethod]
         public async Task Errors(string json, PasteType pasteType, string? expectedBicep, string? expectedErrorMessage)
         {
             await TestDecompileForPaste(json, pasteType, expectedBicep, expectedErrorMessage);
@@ -1278,6 +1278,7 @@ name: 'Premium_LRS'
 ");
         }
 
+        [DataTestMethod]
         [DataRow(
             @"""just a string with double quotes""",
             @"'just a string with double quotes'",
@@ -1397,7 +1398,6 @@ name: 'Premium_LRS'
             "\"2012-03-21T05:40Z\"",
             "'2012-03-21T05:40Z'",
             DisplayName = "datetime string")]
-        [DataTestMethod]
         public async Task JsonValue_Valid_ShouldSucceed(string json, string expectedBicep)
         {
             await TestDecompileForPaste(
@@ -1470,7 +1470,6 @@ name: 'Premium_LRS'
         [DataRow(
             "2012-03-21T05:40Z",
             DisplayName = "datetime")]
-        [DataTestMethod]
         public async Task JsonValue_Invalid_CantConvert(string json)
         {
             await TestDecompileForPaste(
@@ -1480,55 +1479,119 @@ name: 'Premium_LRS'
                     expectedBicep: null);
         }
 
+        [DataTestMethod]
         [DataRow(
             @"{ abc: 1, def: 'def' }", // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"{
                 abc: 1
                 def: 'def'
             }")]
         [DataRow(
             @"{ abc: 1, /*hi*/ def: 'def' }", // this is not technically valid JSON but the Newtonsoft parser accepts it anyway and it is already valid Bicep
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"{
                 abc: 1
                 def: 'def'
             }")]
         [DataRow(
             "[1]",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"[
                 1
             ]")]
         [DataRow(
             "[1, 1]",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"[
                 1
                 1
             ]")]
-        [DataRow("[      /* */  ]", "[]")]
+        [DataRow(
+            "[      /* */  ]",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
+            "[]")]
         [DataRow(
             @"[
 /* */  ]",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
         "[]")]
         [DataRow(
             @"[
   1]",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"[
                 1
             ]")]
         [DataRow(
             "null",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             "null",
             DisplayName = "null")]
         [DataRow(
             @"'just a string with single quotes'",
+            PasteType.BicepValue, // Valid json and valid Bicep expression
             @"'just a string with single quotes'",
             DisplayName = "String with single quotes"
         )]
-        [DataTestMethod]
-        public async Task JsonValue_IsAlreadyLegalBicep(string json, string expectedBicep)
+        [DataRow(
+            @"// comment that shouldn't get removed because code is already valid Bicep
+
+                /* another comment
+
+                */
+                '123' // yet another comment
+
+                /* and another
+                */
+
+                ",
+            PasteType.BicepValue, // Valid json and valid Bicep expression (will get pasted as original for copy/paste, as '123' for "paste as Bicep" command)
+            "'123'",
+            DisplayName = "Regress #10940 Paste removes comments when copying/pasting Bicep"
+        )]
+        [DataRow(
+            @"param p1 string
+              param p2 string",
+            PasteType.None, // Valid Bicep, but not as a single expression
+            null,
+            DisplayName = "multiple valid Bicep statements - shouldn't be changed"
+        )]
+        [DataRow(
+            @"param p1 string // comment 1
+              // comment 2
+              param p2 string /* comment 3 */",
+            PasteType.None, // Valid Bicep, but not as a single expression
+            null,
+            DisplayName = "multiple valid Bicep statements with comments - shouldn't be changed"
+        )]
+        [DataRow(
+            @"[
+                1
+                2
+            ]",
+            PasteType.None, // Valid Bicep but not valid JSON, therefore not converted
+            null,
+            DisplayName = "multi-line valid Bicep expression - shouldn't be changed"
+        )]
+        [DataRow(
+            @"[
+                1 // comment 1
+                // comment 2
+                2 /* comment 3
+                3
+                /*
+                4
+            ]",
+            PasteType.None, // Valid Bicep but not valid JSON, therefore not converted
+            null,
+            DisplayName = "multi-line valid Bicep expression with comments - shouldn't be changed"
+        )]
+        public async Task IsAlreadyLegalBicep(string pasted, PasteType expectedPasteType, string expectedBicep)
         {
             await TestDecompileForPaste(
-                    json,
-                    PasteType.BicepValue,
+                    pasted,
+                    expectedPasteType,
                     expectedBicep,
                     expectedErrorMessage: null);
         }
@@ -1552,6 +1615,7 @@ name: 'Premium_LRS'
                     expectedBicep: null);
         }
 
+        [DataTestMethod]
         [DataRow(
             @"|@description('bicep string')
                 param s string",
@@ -1769,7 +1833,6 @@ name: 'Premium_LRS'
             PasteContext.String,
             DisplayName = "resources: inside resource property value"
         )]
-        [DataTestMethod]
         public async Task DontPasteIntoStrings(string editorContentsWithCursor, PasteContext expectedPasteContext)
         {
             await TestDecompileForPaste(new Options(

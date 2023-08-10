@@ -337,10 +337,13 @@ jobs:
         include:
           - os: windows-latest
             rid: win-x64
+            runTests: true
           - os: ubuntu-latest
             rid: linux-x64
+            runTests: true
           - os: macos-latest
             rid: osx-x64
+            runTests: true
           - os: ubuntu-latest
             rid: win-arm64
             runTests: false
@@ -436,7 +439,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 16
 
       - name: npm ci
         run: npm ci
