@@ -142,7 +142,7 @@
     <comment>{0} input file path</comment>
   </data>
   <data name="ExperimentalFeaturesDisclaimerMessage" xml:space="preserve">
-    <value>ntal Bicep features have been enabled: {0}. Experimental features should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!</value>
+    <value>WARNING: The following experimental Bicep features have been enabled: {0}. Experimental features should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!</value>
     <comment>{0} comma-separated list of enabled experimental features</comment>
   </data>
 </root>

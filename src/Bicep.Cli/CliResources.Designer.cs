@@ -79,7 +79,7 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ntal Bicep features have been enabled: {0}. Experimental features should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!.
+        ///   Looks up a localized string similar to WARNING: The following experimental Bicep features have been enabled: {0}. Experimental features should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!.
         /// </summary>
         internal static string ExperimentalFeaturesDisclaimerMessage {
             get {
