@@ -117,16 +117,43 @@ Usage:
       bicep decompile file.json --outdir dir1
       bicep decompile file.json --force
       bicep decompile file.json --outfile file.bicep
-      
-  {exeName} lint [options] <file>
-    Lints a .bicep file. Similar to build command but will return an error exit code on any warnings.
+
+    {exeName} format [options] <file>
+    Formats a .bicep file.
+
     Arguments:
       <file>        The input file
+
     Options:
-      --ignore-warnings  Exit code will only consider errors. Warnings will be ignored.
+      --outdir <dir>        Saves the output at the specified directory.
+      --outfile <file>      Saves the output as the specified file path.
+      --stdout              Prints the output to stdout.
+      --newline             Set newline char. Valid values are ( Auto | LF | CRLF | CR ).
+      --indentKind          Set indentation kind. Valid values are ( Space | Tab ).
+      --indentSize          Number of spaces to indent with (Only valid with --indentKind set to Space).
+      --insertFinalNewline  Insert a final newline.
+
+    Examples:
+      bicep format file.bicep
+      bicep format file.bicep --stdout
+      bicep format file.bicep --outdir dir1
+      bicep format file.bicep --outfile file.json
+      bicep format file.bicep --indentKind Tab
+
+  {exeName} lint [options] <file>
+    Lints a .bicep file.
+
+    Arguments:
+      <file>        The input file
+
+    Options:
+      --no-restore                   Skips restoring external modules.
+      --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
+
     Examples:
       bicep lint file.bicep
-      bicep lint file.bicep --ignore-warnings
+      bicep lint file.bicep --no-restore
+      bicep lint file.bicep --diagnostics-format sarif
 
   {exeName} decompile-params [options] <file>
     Attempts to decompile a parameters .json file to .bicepparam.

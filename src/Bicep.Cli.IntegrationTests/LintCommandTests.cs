@@ -17,8 +17,11 @@ using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.IntegrationTests;
 
@@ -27,6 +30,31 @@ public class LintCommandTests : TestBase
 {
     [NotNull]
     public TestContext? TestContext { get; set; }
+
+    [TestMethod]
+    public async Task Help_should_output_lint_usage_information()
+    {
+        var (output, error, result) = await Bicep("--help");
+
+        result.Should().Be(0);
+        error.Should().BeEmpty();
+        output.Should().Contain("""
+  bicep lint [options] <file>
+    Lints a .bicep file.
+
+    Arguments:
+      <file>        The input file
+
+    Options:
+      --no-restore                   Skips restoring external modules.
+      --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( Default | Sarif ).
+
+    Examples:
+      bicep lint file.bicep
+      bicep lint file.bicep --no-restore
+      bicep lint file.bicep --diagnostics-format sarif
+""");
+    }
 
     [TestMethod]
     public async Task Lint_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
@@ -165,25 +193,33 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
     }
 
     [TestMethod]
-    public async Task Lint_Invalid_WithIgnoreWarningsFlag_ShouldSucceed()
+    public async Task Lint_with_warnings_should_log_warnings_and_return_0_exit_code()
     {
-        var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
-        Directory.CreateDirectory(tempDirectory);
-
-        var bicep = $@"
+        var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", $@"
 @minValue(1)
 @maxValue(50)
 param notUsedParam int = 3
-";
+");
 
-        var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
-        File.WriteAllText(bicepFilePath, bicep);
+        var (output, error, result) = await Bicep("lint", inputFile);
 
-        var (_, _, result) = await Bicep("lint", "--ignore-warnings", bicepFilePath);
-        using (new AssertionScope())
-        {
-            result.Should().Be(0);
-        }
+        result.Should().Be(0);
+        output.Should().BeEmpty();
+        error.Should().StartWith($"{inputFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+    }
+
+    [TestMethod]
+    public async Task Lint_with_sarif_diagnostics_format_should_output_valid_sarif()
+    {
+        var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'");
+
+        var (output, error, result) = await Bicep("lint", inputFile, "--diagnostics-format", "sarif");
+
+        result.Should().Be(0);
+        output.Should().BeEmpty();
+        var errorLog = error.FromJson<SarifLog>();
+        errorLog.Runs[0].Results[0].RuleId.Should().Be("no-unused-params");
+        errorLog.Runs[0].Results[0].Message.Text.Should().Contain("is declared but never used");
     }
 
     private static IEnumerable<object[]> GetValidDataSetsWithoutWarnings() => DataSets

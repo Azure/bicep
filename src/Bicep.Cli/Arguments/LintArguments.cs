@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO;
+using Bicep.Cli.Helpers;
 using Bicep.Core.FileSystem;
 
 namespace Bicep.Cli.Arguments;
@@ -15,10 +16,22 @@ public class LintArguments : ArgumentsBase
         {
             switch (args[i].ToLowerInvariant())
             {
-                case "--ignore-warnings":
-                    IgnoreWarnings = true;
+                case "--no-restore":
+                    NoRestore = true;
                     break;
 
+                case "--diagnostics-format":
+                    if (args.Length == i + 1)
+                    {
+                        throw new CommandLineException($"The --diagnostics-format parameter expects an argument");
+                    }
+                    if (DiagnosticsFormat is not null)
+                    {
+                        throw new CommandLineException($"The --diagnostics-format parameter cannot be specified twice");
+                    }
+                    DiagnosticsFormat = ArgumentHelper.ToDiagnosticsFormat(args[i + 1]);
+                    i++;
+                    break;
                 default:
                     if (args[i].StartsWith("--"))
                     {
@@ -37,9 +50,16 @@ public class LintArguments : ArgumentsBase
         {
             throw new CommandLineException($"The input file path was not specified");
         }
+
+        if (DiagnosticsFormat is null)
+        {
+            DiagnosticsFormat = Arguments.DiagnosticsFormat.Default;
+        }
     }
 
     public string InputFile { get; }
 
-    public bool IgnoreWarnings { get; }
+    public DiagnosticsFormat? DiagnosticsFormat { get; }
+
+    public bool NoRestore { get; }
 }
