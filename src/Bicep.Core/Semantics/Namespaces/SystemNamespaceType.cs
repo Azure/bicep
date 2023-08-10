@@ -1632,31 +1632,28 @@ namespace Bicep.Core.Semantics.Namespaces
                 })
                 .Build();
 
-            if (featureProvider.UserDefinedTypesEnabled)
-            {
-                yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
-                    .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
-                    .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
-                    .WithAttachableType(LanguageConstants.Object)
-                    .WithValidator(ValidateNotTargetingAlias)
-                    .WithEvaluator((functionCall, decorated) =>
+            yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
+                .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
+                .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
+                .WithAttachableType(LanguageConstants.Object)
+                .WithValidator(ValidateNotTargetingAlias)
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression)
                     {
-                        if (decorated is TypeDeclaringExpression typeDeclaringExpression)
-                        {
-                            return typeDeclaringExpression with { Sealed = functionCall };
-                        }
+                        return typeDeclaringExpression with { Sealed = functionCall };
+                    }
 
-                        return decorated;
-                    })
-                    .Build();
+                    return decorated;
+                })
+                .Build();
 
-                yield return new DecoratorBuilder(LanguageConstants.TypeDiscriminatorDecoratorName)
-                    .WithDescription("Defines the discriminator property to use for a tagged union that is shared between all union members")
-                    .WithRequiredParameter("value", LanguageConstants.String, "The discriminator property name.")
-                    .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
-                    .WithValidator(ValidateTypeDiscriminator)
-                    .Build();
-            }
+            yield return new DecoratorBuilder(LanguageConstants.TypeDiscriminatorDecoratorName)
+                .WithDescription("Defines the discriminator property to use for a tagged union that is shared between all union members")
+                .WithRequiredParameter("value", LanguageConstants.String, "The discriminator property name.")
+                .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
+                .WithValidator(ValidateTypeDiscriminator)
+                .Build();
         }
 
         private static void ValidateTypeDiscriminator(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)

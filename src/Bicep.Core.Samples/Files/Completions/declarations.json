@@ -3594,6 +3594,20 @@
     }
   },
   {
+    "label": "type",
+    "kind": "keyword",
+    "detail": "Type keyword",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_type",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "type"
+    }
+  },
+  {
     "label": "var",
     "kind": "keyword",
     "detail": "Variable keyword",

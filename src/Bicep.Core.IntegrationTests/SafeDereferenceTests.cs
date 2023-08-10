@@ -15,8 +15,6 @@ public class SafeDereferenceTests
 {
     private ServiceBuilder ServicesWithResourceTypedParamsAndOutputsEnabled => new ServiceBuilder()
         .WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
-    private ServiceBuilder ServicesWithUserDefinedTypes => new ServiceBuilder()
-        .WithFeatureOverrides(new(TestContext, UserDefinedTypesEnabled: true));
 
     [NotNull]
     public TestContext? TestContext { get; set; }
@@ -227,7 +225,7 @@ output outputData object = {
     [TestMethod]
     public void Access_chains_consider_safe_dereference_in_type_assignment()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 @minLength(1)
 param foo (null
   | {
@@ -252,7 +250,7 @@ output deeplyNested string = foo[0].?nested.deeplyNested
     [TestMethod]
     public void Safe_dereference_of_unknown_property_should_be_warning_not_error()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 var foo = {
   bar: 'present'
 }

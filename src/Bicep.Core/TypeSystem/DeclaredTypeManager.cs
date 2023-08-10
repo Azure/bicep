@@ -235,11 +235,6 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetTypeType(TypeDeclarationSyntax syntax)
         {
-            if (!features.UserDefinedTypesEnabled)
-            {
-                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeDeclarationStatementsUnsupported()), syntax);
-            }
-
             var type = binder.GetSymbolInfo(syntax) switch
             {
                 TypeAliasSymbol declaredType => userDefinedTypeReferences.GetOrAdd(declaredType, GetUserDefinedTypeType),
@@ -538,11 +533,6 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetArrayTypeType(ArrayTypeSyntax syntax)
         {
-            if (!features.UserDefinedTypesEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedArrayDeclarationsUnsupported());
-            }
-
             var memberType = GetDeclaredTypeAssignment(syntax.Item)?.Reference ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Item).InvalidTypeDefinition());
             var flags = TypeSymbolValidationFlags.Default;
 
@@ -553,11 +543,6 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetObjectTypeType(ObjectTypeSyntax syntax)
         {
-            if (!features.UserDefinedTypesEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedObjectDeclarationsUnsupported());
-            }
-
             HashSet<string> propertyNamesEncountered = new();
             List<TypeProperty> properties = new();
             List<ErrorDiagnostic> diagnostics = new();
@@ -638,11 +623,6 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference GetTupleTypeType(TupleTypeSyntax syntax)
         {
-            if (!features.UserDefinedTypesEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedTupleDeclarationsUnsupported());
-            }
-
             List<ITypeReference> items = new();
             TupleTypeNameBuilder nameBuilder = new();
 
@@ -661,11 +641,6 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol ConvertTypeExpressionToType(StringSyntax syntax)
         {
-            if (!features.UserDefinedTypesEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
-            }
-
             if (typeManager.GetTypeInfo(syntax) is StringLiteralType literal)
             {
                 return literal;
@@ -676,11 +651,6 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol ConvertTypeExpressionToType(IntegerLiteralSyntax syntax)
         {
-            if (!features.UserDefinedTypesEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
-            }
-
             if (typeManager.GetTypeInfo(syntax) is IntegerLiteralType literal)
             {
                 return literal;
@@ -691,21 +661,11 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol ConvertTypeExpressionToType(BooleanLiteralSyntax syntax)
         {
-            if (!features.UserDefinedTypesEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
-            }
-
             return syntax.Value ? LanguageConstants.True : LanguageConstants.False;
         }
 
         private ITypeReference GetUnaryOperationType(UnaryOperationSyntax syntax)
         {
-            if (!features.UserDefinedTypesEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
-            }
-
             if (RequiresDeferral(syntax))
             {
                 return new DeferredTypeReference(() => FinalizeUnaryType(syntax));
@@ -751,11 +711,6 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference GetUnionTypeType(UnionTypeSyntax syntax)
         {
-            if (!features.UserDefinedTypesEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeUnionDeclarationsUnsupported());
-            }
-
             if (RequiresDeferral(syntax))
             {
                 return new DeferredTypeReference(() => FinalizeUnionType(syntax));
@@ -927,11 +882,6 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference ConvertTypeExpressionToType(NullableTypeSyntax syntax)
         {
-            if (!features.UserDefinedTypesEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NullableTypesUnsupported());
-            }
-
             var baseExpressionType = GetTypeFromTypeSyntax(syntax.Base, allowNamespaceReferences: false);
 
             return baseExpressionType is DeferredTypeReference
@@ -947,11 +897,6 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference ConvertTypeExpressionToType(NonNullAssertionSyntax syntax)
         {
-            if (!features.UserDefinedTypesEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NullableTypesUnsupported());
-            }
-
             var baseExpressionType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: false);
 
             return baseExpressionType is DeferredTypeReference

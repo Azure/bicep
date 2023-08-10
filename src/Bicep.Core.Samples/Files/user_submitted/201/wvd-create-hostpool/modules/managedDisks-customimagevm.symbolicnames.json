@@ -1,13 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5228748956448808827"
+      "templateHash": "125226703777134323"
     }
   },
   "parameters": {
@@ -21,14 +20,14 @@
     "availabilityOption": {
       "type": "string",
       "defaultValue": "None",
-      "metadata": {
-        "description": "The availability option for the VMs."
-      },
       "allowedValues": [
         "None",
         "AvailabilitySet",
         "AvailabilityZone"
-      ]
+      ],
+      "metadata": {
+        "description": "The availability option for the VMs."
+      }
     },
     "availabilitySetName": {
       "type": "string",
@@ -40,14 +39,14 @@
     "availabilityZone": {
       "type": "int",
       "defaultValue": 1,
-      "metadata": {
-        "description": "The number of availability zone to be used when create the VMs."
-      },
       "allowedValues": [
         1,
         2,
         3
-      ]
+      ],
+      "metadata": {
+        "description": "The number of availability zone to be used when create the VMs."
+      }
     },
     "vmImageVhdUri": {
       "type": "string",
@@ -97,14 +96,14 @@
     },
     "rdshVMDiskType": {
       "type": "string",
-      "metadata": {
-        "description": "The VM disk type for the VM: HDD or SSD."
-      },
       "allowedValues": [
         "Premium_LRS",
         "StandardSSD_LRS",
         "Standard_LRS"
-      ]
+      ],
+      "metadata": {
+        "description": "The VM disk type for the VM: HDD or SSD."
+      }
     },
     "rdshVmSize": {
       "type": "string",
@@ -498,14 +497,13 @@
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.10-experimental",
+          "languageVersion": "2.0",
           "contentVersion": "1.0.0.0",
           "metadata": {
-            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4892198028949632780"
+              "templateHash": "9234716042270822601"
             }
           },
           "parameters": {

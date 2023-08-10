@@ -1830,12 +1830,8 @@ namespace Bicep.Core.TypeSystem
                 {
                     FunctionFlags.MetadataDecorator => builder.ExpectedMetadataDeclarationAfterDecorator(),
                     FunctionFlags.ParameterDecorator => builder.ExpectedParameterDeclarationAfterDecorator(),
-                    FunctionFlags.ParameterOutputOrTypeDecorator => features.UserDefinedTypesEnabled
-                        ? builder.ExpectedParameterOutputOrTypeDeclarationAfterDecorator()
-                        : builder.ExpectedParameterOrOutputDeclarationAfterDecorator(),
-                    FunctionFlags.ParameterOrTypeDecorator => features.UserDefinedTypesEnabled
-                        ? builder.ExpectedParameterOrTypeDeclarationAfterDecorator()
-                        : builder.ExpectedParameterDeclarationAfterDecorator(),
+                    FunctionFlags.ParameterOutputOrTypeDecorator => builder.ExpectedParameterOutputOrTypeDeclarationAfterDecorator(),
+                    FunctionFlags.ParameterOrTypeDecorator => builder.ExpectedParameterOrTypeDeclarationAfterDecorator(),
                     FunctionFlags.VariableDecorator => builder.ExpectedVariableDeclarationAfterDecorator(),
                     FunctionFlags.ResourceDecorator => builder.ExpectedResourceDeclarationAfterDecorator(),
                     FunctionFlags.ModuleDecorator => builder.ExpectedModuleDeclarationAfterDecorator(),
