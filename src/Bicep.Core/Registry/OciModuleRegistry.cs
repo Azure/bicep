@@ -243,7 +243,7 @@ namespace Bicep.Core.Registry
         }
 
         // Writes the contents of the downloaded module into the local cache
-        protected override void DownloadToCache(OciArtifactModuleReference reference, OciArtifactResult result)
+        protected override void WriteModuleContentToCache(OciArtifactModuleReference reference, OciArtifactResult result)
         {
             /*
              * this should be kept in sync with the IsModuleRestoreRequired() implementation

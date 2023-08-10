@@ -31,7 +31,7 @@ namespace Bicep.Core.Registry
         protected IFileResolver FileResolver { get; }
 
         // Writes the contents of the downloaded module into the local cache folder
-        protected abstract void DownloadToCache(TModuleReference reference, TModuleEntity entity);
+        protected abstract void WriteModuleContentToCache(TModuleReference reference, TModuleEntity entity);
 
         protected abstract string GetModuleDirectoryPath(TModuleReference reference);
 
@@ -72,7 +72,7 @@ namespace Bicep.Core.Registry
                         }
 
                         // write the contents to disk
-                        this.DownloadToCache(reference, entity);
+                        this.WriteModuleContentToCache(reference, entity);
                         return;
                     }
                 }

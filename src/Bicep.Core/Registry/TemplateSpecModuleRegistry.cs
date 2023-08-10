@@ -106,7 +106,7 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        protected override void DownloadToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
+        protected override void WriteModuleContentToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
             File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.Content);
 
         protected override string GetModuleDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(
