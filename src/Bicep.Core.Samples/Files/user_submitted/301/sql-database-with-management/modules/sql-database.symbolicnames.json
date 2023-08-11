@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6449296172144959788"
+      "templateHash": "2334572005318909582"
     }
   },
   "parameters": {
@@ -101,6 +101,7 @@
       "dependsOn": [
         "azureDefender",
         "sqlDb",
+        "storageAccountVulnerabilityAssessments",
         "transparentDataEncryption"
       ]
     },
@@ -130,6 +131,7 @@
       },
       "dependsOn": [
         "auditSettings",
+        "logAnalyticsWorkspace",
         "sqlDb",
         "transparentDataEncryption"
       ]
@@ -162,6 +164,7 @@
         "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('sqlDatabase').diagnosticLogsAndMetrics.subscriptionId, parameters('sqlDatabase').diagnosticLogsAndMetrics.resourceGroupName), 'Microsoft.OperationalInsights/workspaces', parameters('sqlDatabase').diagnosticLogsAndMetrics.name)]"
       },
       "dependsOn": [
+        "logAnalyticsWorkspace",
         "sqlDb",
         "transparentDataEncryption"
       ]

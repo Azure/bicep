@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13851089608436625807"
+      "templateHash": "13086160146120413117"
     }
   },
   "parameters": {
@@ -1801,7 +1801,10 @@
             }
           }
         }
-      }
+      },
+      "dependsOn": [
+        "kv"
+      ]
     },
     "secureModule2": {
       "type": "Microsoft.Resources/deployments",
@@ -1859,7 +1862,10 @@
             }
           }
         }
-      }
+      },
+      "dependsOn": [
+        "scopedKv"
+      ]
     },
     "secureModuleLooped": {
       "copy": {
@@ -1921,7 +1927,11 @@
             }
           }
         }
-      }
+      },
+      "dependsOn": [
+        "[format('loopedKv[{0}]', copyIndex())]",
+        "[format('loopedKv[{0}]', copyIndex())]"
+      ]
     },
     "secureModuleCondition": {
       "type": "Microsoft.Resources/deployments",
@@ -1964,7 +1974,10 @@
             }
           }
         }
-      }
+      },
+      "dependsOn": [
+        "kv"
+      ]
     },
     "withSpace": {
       "type": "Microsoft.Resources/deployments",

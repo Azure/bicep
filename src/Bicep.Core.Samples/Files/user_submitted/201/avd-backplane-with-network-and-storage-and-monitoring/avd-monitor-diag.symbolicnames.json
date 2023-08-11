@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7397250722142967265"
+      "templateHash": "15977740014990001438"
     }
   },
   "parameters": {
@@ -62,7 +62,10 @@
             "enabled": true
           }
         ]
-      }
+      },
+      "dependsOn": [
+        "hostPool"
+      ]
     },
     "avdwsds": {
       "type": "Microsoft.Insights/diagnosticSettings",
@@ -89,7 +92,10 @@
             "enabled": true
           }
         ]
-      }
+      },
+      "dependsOn": [
+        "workspace"
+      ]
     }
   }
 }
