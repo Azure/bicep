@@ -54,7 +54,7 @@ namespace Bicep.Cli.Services
             var configuration = this.configurationManager.GetConfiguration(inputUri);
 
             var compilation = await bicepCompiler.CreateCompilation(inputUri, this.workspace, skipRestore: true, forceModulesRestore: forceModulesRestore);
-            var originalModulesToRestore = compilation.SourceFileGrouping.GetArtifactsToRestore().ToImmutableHashSet();
+            var originalModulesToRestore = compilation.SourceFileGrouping.GetModulesToRestore().ToImmutableHashSet();
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in processing and logging
             var modulesToRestoreReferences = this.moduleDispatcher.GetValidModuleReferences(originalModulesToRestore)
@@ -131,14 +131,14 @@ namespace Bicep.Cli.Services
             return decompilation;
         }
 
-        private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<IArtifactResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
+        private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ArtifactResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
         {
-            static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, IForeignTemplateReference module)
+            static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, IForeignArtifactReference module)
                 => grouping.TryGetErrorDiagnostic(module) is { } errorBuilder ? errorBuilder(DiagnosticBuilder.ForPosition(module.ReferenceSourceSyntax)) : null;
 
-            static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<IArtifactResolutionInfo> originalArtifactsToRestore)
+            static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ArtifactResolutionInfo> originalArtifactsToRestore)
             {
-                var originalModulesToRestore = originalArtifactsToRestore.OfType<ModuleSourceResolutionInfo>();
+                var originalModulesToRestore = originalArtifactsToRestore.OfType<ArtifactResolutionInfo>();
                 foreach (var (module, sourceFile) in originalModulesToRestore)
                 {
                     if (sourceFile is BicepFile bicepFile &&

@@ -46,7 +46,7 @@ namespace Bicep.LanguageServer.Registry
         /// <param name="compilationManager"></param>
         /// <param name="modules">The module references</param>
         /// <param name="documentUri">The document URI that needs to be recompiled once restore completes asynchronously</param>
-        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ModuleSourceResolutionInfo> modules)
+        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ArtifactResolutionInfo> modules)
         {
             this.CheckDisposed();
 

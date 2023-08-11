@@ -49,7 +49,7 @@ public class BicepCompiler
             // however we still want to surface as many errors as we can for the module refs that are valid
             // so we will try to restore modules with valid refs and skip everything else
             // (the diagnostics will be collected during compilation)
-            if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.GetArtifactsToRestore())))
+            if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.GetModulesToRestore())))
             {
                 // modules had to be restored - recompile
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, sourceFileGrouping);

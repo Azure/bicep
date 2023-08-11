@@ -24,7 +24,7 @@ namespace Bicep.Core.Workspaces
         private readonly IReadOnlyWorkspace workspace;
 
         private readonly Dictionary<Uri, FileResolutionResult> fileResultByUri;
-        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IForeignTemplateReference, UriResolutionResult>> uriResultByModule;
+        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IForeignArtifactReference, UriResolutionResult>> uriResultByModule;
 
         private readonly bool forceModulesRestore;
 
@@ -68,7 +68,10 @@ namespace Bicep.Core.Workspaces
 
             // Rebuild source files that contain external module references restored during the inital build.
             var sourceFilesToRebuild = current.SourceFiles
-                .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => modulesToRestore.Contains(new(moduleDeclaration, sourceFile))))
+                .Where(sourceFile
+                    => GetModuleDeclarations(sourceFile)
+                        .Any(moduleDeclaration
+                            => modulesToRestore.Contains(new ArtifactResolutionInfo(moduleDeclaration, sourceFile))))
                 .ToImmutableHashSet()
                 .SelectMany(sourceFile => current.GetFilesDependingOn(sourceFile))
                 .ToImmutableHashSet();
@@ -136,17 +139,17 @@ namespace Bicep.Core.Workspaces
             {
                 case BicepFile bicepFile:
                     {
-                        foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IForeignTemplateReference>())
+                        foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IForeignArtifactReference>())
                         {
                             var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, restorable);
-                            
+
                             uriResultByModule.GetOrAdd(bicepFile, f => new())[restorable] = uriResult;
 
                             if (uriResult.FileUri is null)
                             {
                                 continue;
                             }
-                            
+
                             if (!fileResultByUri.TryGetValue(uriResult.FileUri, out var childResult) ||
                                 (childResult.File is not null && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childResult.File)))
                             {
@@ -191,7 +194,7 @@ namespace Bicep.Core.Workspaces
             return fileResult;
         }
 
-        private (ModuleReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, IForeignTemplateReference foreignTemplateReference)
+        private (ModuleReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, IForeignArtifactReference foreignTemplateReference)
         {
             if (!moduleDispatcher.TryGetModuleReference(foreignTemplateReference, parentFileUri, out var moduleReference, out var referenceResolutionError))
             {
@@ -273,11 +276,11 @@ namespace Bicep.Core.Workspaces
         /// This method only looks at top-level statements. If nested syntax nodes can be foreign template references at any point in the future,
         /// a SyntaxAggregator will need to be used in place of the <code>sourceFile.ProgramSyntax.Children</code> expressions.
         /// </remarks>
-        private static IEnumerable<IForeignTemplateReference> GetReferenceSourceNodes(ISourceFile sourceFile) => sourceFile switch
+        private static IEnumerable<IForeignArtifactReference> GetReferenceSourceNodes(ISourceFile sourceFile) => sourceFile switch
         {
-            BicepFile bicepFile => bicepFile.ProgramSyntax.Children.OfType<IForeignTemplateReference>(),
-            BicepParamFile paramsFile => paramsFile.ProgramSyntax.Children.OfType<IForeignTemplateReference>(),
-            _ => Enumerable.Empty<IForeignTemplateReference>(),
+            BicepFile bicepFile => bicepFile.ProgramSyntax.Children.OfType<IForeignArtifactReference>(),
+            BicepParamFile paramsFile => paramsFile.ProgramSyntax.Children.OfType<IForeignArtifactReference>(),
+            _ => Enumerable.Empty<IForeignArtifactReference>(),
         };
 
         private static IEnumerable<ModuleDeclarationSyntax> GetModuleDeclarations(ISourceFile sourceFile) => sourceFile is BicepFile bicepFile

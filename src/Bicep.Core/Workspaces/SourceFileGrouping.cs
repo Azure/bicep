@@ -12,26 +12,11 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Workspaces
 {
-    public interface IArtifactResolutionInfo
-    {
-        IForeignTemplateReference ForeignTemplateReference { get; }
-        ISourceFile ParentTemplateFile { get; }
-    }
-    public record ModuleSourceResolutionInfo(
-        IForeignTemplateReference ModuleDeclaration,
-        ISourceFile ModuleParentTemplateFile) : IArtifactResolutionInfo
-    {
-        public IForeignTemplateReference ForeignTemplateReference => ModuleDeclaration;
-        public ISourceFile ParentTemplateFile => ModuleParentTemplateFile;
-    }
+    
+    public record ArtifactResolutionInfo(
+        IForeignArtifactReference DeclarationSyntax,
+        ISourceFile ParentTemplateFile);
 
-    public record ProviderSourceResolutionInfo(
-        IForeignTemplateReference ProviderDeclaration,
-        ISourceFile ProviderParentTemplateFile) : IArtifactResolutionInfo
-    {
-        public IForeignTemplateReference ForeignTemplateReference => ProviderDeclaration;
-        public ISourceFile ParentTemplateFile => ProviderParentTemplateFile;
-    };
     public record FileResolutionResult(
         Uri FileUri,
         ErrorBuilderDelegate? ErrorBuilder,
@@ -46,24 +31,20 @@ namespace Bicep.Core.Workspaces
         IFileResolver FileResolver,
         Uri EntryFileUri,
         ImmutableDictionary<Uri, FileResolutionResult> FileResultByUri,
-        ImmutableDictionary<ISourceFile, ImmutableDictionary<IForeignTemplateReference, UriResolutionResult>> UriResultByModule,
+        ImmutableDictionary<ISourceFile, ImmutableDictionary<IForeignArtifactReference, UriResolutionResult>> UriResultByModule,
         ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup) : ISourceFileLookup
     {
-        public IEnumerable<ModuleSourceResolutionInfo> GetModulesToRestore()
+        public IEnumerable<ArtifactResolutionInfo> GetModulesToRestore()
             => UriResultByModule.SelectMany(
                 kvp => kvp.Value
                     .Where(entry => entry.Value.RequiresRestore)
-                    .Select(entry => new ModuleSourceResolutionInfo(entry.Key, kvp.Key)));
-
-
-        public IEnumerable<IArtifactResolutionInfo> GetArtifactsToRestore() =>
-            GetModulesToRestore().AsEnumerable<IArtifactResolutionInfo>();
+                    .Select(entry => new ArtifactResolutionInfo(entry.Key, kvp.Key)));
 
         public BicepSourceFile EntryPoint => (FileResultByUri[EntryFileUri].File as BicepSourceFile)!;
 
         public IEnumerable<ISourceFile> SourceFiles => FileResultByUri.Values.Select(x => x.File).WhereNotNull();
 
-        public ErrorBuilderDelegate? TryGetErrorDiagnostic(IForeignTemplateReference foreignTemplateReference)
+        public ErrorBuilderDelegate? TryGetErrorDiagnostic(IForeignArtifactReference foreignTemplateReference)
         {
             var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
             if (uriResult.ErrorBuilder is not null)
@@ -75,7 +56,7 @@ namespace Bicep.Core.Workspaces
             return fileResult.ErrorBuilder;
         }
 
-        public ISourceFile? TryGetSourceFile(IForeignTemplateReference foreignTemplateReference)
+        public ISourceFile? TryGetSourceFile(IForeignArtifactReference foreignTemplateReference)
         {
             var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
             if (uriResult.FileUri is null)

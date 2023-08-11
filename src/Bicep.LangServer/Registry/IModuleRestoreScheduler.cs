@@ -12,6 +12,6 @@ namespace Bicep.LanguageServer.Registry
     {
         void Start();
 
-        void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ModuleSourceResolutionInfo> references);
+        void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ArtifactResolutionInfo> references);
     }
 }

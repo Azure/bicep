@@ -90,7 +90,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public bool TryGetModuleReference(IForeignTemplateReference module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public bool TryGetModuleReference(IForeignArtifactReference module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             if (!SyntaxHelper.TryGetForeignTemplatePath(module, out var moduleReferenceString, out failureBuilder))
             {
