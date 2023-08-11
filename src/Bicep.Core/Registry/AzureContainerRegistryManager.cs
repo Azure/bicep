@@ -239,8 +239,9 @@ namespace Bicep.Core.Registry
                    "artifactType":"application/vnd.ms.bicep.module.source",
                    "config": {
                        "mediaType":"application/vnd.ms.bicep.module.source.config.v1+json",
-                       "digest":"sha256:...",
-                       "size": 2
+                       // This digest points to "{}" as the config blob, ACR doesn't like an empty config here
+                       "digest":"sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+                       "size": 2      
                     },
                    "layers": [
                         {
