@@ -18,7 +18,7 @@ namespace Bicep.Core.Registry.Oci
 
         public const int MaxRepositoryLength = 255;
 
-         // the registry component is equivalent to a host in a URI, which are case-insensitive
+        // the registry component is equivalent to a host in a URI, which are case-insensitive
         public static readonly IEqualityComparer<string> RegistryComparer = StringComparer.OrdinalIgnoreCase;
 
         // repository component is case-sensitive (although regex blocks upper case)
@@ -33,28 +33,28 @@ namespace Bicep.Core.Registry.Oci
         /// <summary>
         /// Gets the registry URI.
         /// </summary>
-        public string Registry { get; }
+        string Registry { get; }
 
         /// <summary>
         /// Gets the repository name. The repository name is the path to an artifact in the registry without the tag.
         /// </summary>
-        public string Repository { get; }
+        string Repository { get; }
 
         /// <summary>
         /// Gets the tag. Either tag or digest is set but not both.
         /// </summary>
-        public string? Tag { get; }
+        string? Tag { get; }
 
         /// <summary>
         /// Gets the digest. Either tag or digest is set but not both.
         /// </summary>
-        public string? Digest { get; }
+        string? Digest { get; }
 
         /// <summary>
         /// Gets the artifact ID.
         /// </summary>
-        public string ArtifactId { get; }
+        string ArtifactId { get; }
 
-        public string FullyQualifiedReference { get; }
+        string FullyQualifiedReference { get; }
     }
 }

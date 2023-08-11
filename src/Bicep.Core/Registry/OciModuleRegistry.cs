@@ -156,7 +156,7 @@ namespace Bicep.Core.Registry
             var layer = manifest.Layers.Single();
             if (!allowedLayerMediaTypes.Contains(layer.MediaType, MediaTypeComparer))
             {
-                new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+                throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
             }
         }
 

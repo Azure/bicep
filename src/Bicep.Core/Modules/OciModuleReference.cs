@@ -15,27 +15,21 @@ namespace Bicep.Core.Modules
     /// </summary>
     public class OciModuleReference : ModuleReference, IOciArtifactReference
     {
-        public string Registry => this.ociArtifactRef.Registry;
-        public string Repository => this.ociArtifactRef.Repository;
-        public string? Tag => this.ociArtifactRef.Tag;
-        public string? Digest => this.ociArtifactRef.Digest;
-        public string ArtifactId => this.ociArtifactRef.ArtifactId;
-
+        private readonly IOciArtifactReference ociArtifactRef;
         public OciModuleReference(IOciArtifactReference ociArtifactReference, Uri parentModuleUri)
              : base(ModuleReferenceSchemes.Oci, parentModuleUri)
         {
             this.ociArtifactRef = ociArtifactReference;
         }
-
-        private IOciArtifactReference ociArtifactRef;
-
         public override string UnqualifiedReference => this.ArtifactId;
-
         public override bool IsExternal => true;
-
         public override bool Equals(object? obj) => obj is OciModuleReference other && this.ociArtifactRef.Equals(other.ociArtifactRef);
-
         public override int GetHashCode() => this.ociArtifactRef.GetHashCode();
+        public string Registry => this.ociArtifactRef.Registry;
+        public string Repository => this.ociArtifactRef.Repository;
+        public string? Tag => this.ociArtifactRef.Tag;
+        public string? Digest => this.ociArtifactRef.Digest;
+        public string ArtifactId => this.ociArtifactRef.ArtifactId;
 
         public static bool TryParse(
             string? aliasName,
