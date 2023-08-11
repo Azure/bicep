@@ -158,14 +158,12 @@ namespace Bicep.Cli.IntegrationTests
             using (var compiledStream = new BufferedMemoryStream())
             {
                 OciModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep"), out var artifactReference, out _).Should().BeTrue();
-                artifactReference.Should().NotBeNull();
-
                 compiledStream.Write(TemplateEmitter.UTF8EncodingWithoutBom.GetBytes(dataSet.Compiled!));
                 compiledStream.Position = 0;
 
                 await containerRegistryManager.PushArtifactAsync(
                     configuration: configuration,
-                    artifactReference: artifactReference,
+                    artifactReference: artifactReference!,
                     // intentionally setting artifactType to null to simulate a publish done by an older version of Bicep
                     artifactType: null,
                     config: new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1),
@@ -220,7 +218,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             Directory.CreateDirectory(tempDirectory);
 
             var publishedBicepFilePath = Path.Combine(tempDirectory, "module.bicep");
-            File.WriteAllText(publishedBicepFilePath,@"
+            File.WriteAllText(publishedBicepFilePath, @"
 param p1 string
 output o1 string = p1");
 
