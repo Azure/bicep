@@ -17,7 +17,7 @@ namespace Bicep.Core.Registry.Oci
         private const int BitsInHexDigit = 4;
 
         // this should be equivalent to ceil(OciArtifactReference.MaxTagLength / 64.0) but without floating point conversion
-        private const int MaskComponents = (OciArtifactReference.MaxTagLength + BitsInUnsignedLong - 1) / BitsInUnsignedLong;
+        private const int MaskComponents = (IOciArtifactReference.MaxTagLength + BitsInUnsignedLong - 1) / BitsInUnsignedLong;
 
         private const string HexFormat = "x";
 
@@ -30,9 +30,9 @@ namespace Bicep.Core.Registry.Oci
         /// <param name="tag">The tag value. The tag should be validated to match the OCI spec before calling this function.</param>
         public static string Encode(string tag)
         {
-            if (tag.Length > OciArtifactReference.MaxTagLength)
+            if (tag.Length > IOciArtifactReference.MaxTagLength)
             {
-                throw new ArgumentException($"The specified tag '{tag}' exceeds max length of {OciArtifactReference.MaxTagLength}.");
+                throw new ArgumentException($"The specified tag '{tag}' exceeds max length of {IOciArtifactReference.MaxTagLength}.");
             }
 
             var mask = new ulong[MaskComponents];

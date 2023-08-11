@@ -15,35 +15,13 @@ namespace Bicep.Core.Registry.Oci
 
     public class OciArtifactReference : IOciArtifactReference
     {
-        public const string Scheme = "br";
-
-        public const int MaxRegistryLength = 255;
-
-        // must be kept in sync with the tag name regex
-        public const int MaxTagLength = 128;
-
-        public const int MaxRepositoryLength = 255;
-
         // obtained from https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pull
         private static readonly Regex ModulePathSegmentRegex = new(@"^[a-z0-9]+([._-][a-z0-9]+)*$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
 
         // must be kept in sync with the tag max length
-        private static readonly Regex TagRegex = new(@"^[a-zA-Z0-9_][a-zA-Z0-9._-]{0,127}$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+        private static readonly Regex TagRegex = new(@$"^[a-zA-Z0-9_][a-zA-Z0-9._-]{{0,{IOciArtifactReference.MaxTagLength - 1}}}$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
 
         private static readonly Regex DigestRegex = new(@"^sha256:[a-f0-9]{64}$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
-
-        // the registry component is equivalent to a host in a URI, which are case-insensitive
-        public static readonly IEqualityComparer<string> RegistryComparer = StringComparer.OrdinalIgnoreCase;
-
-        // repository component is case-sensitive (although regex blocks upper case)
-        public static readonly IEqualityComparer<string> RepositoryComparer = StringComparer.Ordinal;
-
-        // tags are case-sensitive and may contain upper and lowercase characters
-        public static readonly IEqualityComparer<string?> TagComparer = StringComparer.Ordinal;
-
-        // digests are case sensitive
-        public static readonly IEqualityComparer<string?> DigestComparer = StringComparer.Ordinal;
-
 
         private OciArtifactReference(string registry, string repository, string? tag, string? digest)
         {
@@ -87,6 +65,8 @@ namespace Bicep.Core.Registry.Oci
             ? $"{this.Registry}/{this.Repository}:{this.Tag}"
             : $"{this.Registry}/{this.Repository}@{this.Digest}";
 
+        public string FullyQualifiedReference => ArtifactId;
+
         public static bool TryParse(
             string? aliasName,
             string rawValue,
@@ -94,7 +74,7 @@ namespace Bicep.Core.Registry.Oci
             [NotNullWhen(true)] out OciArtifactReference? artifactReference,
             [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            static string GetBadReference(string referenceValue) => $"{OciArtifactReference.Scheme}:{referenceValue}";
+            static string GetBadReference(string referenceValue) => $"{IOciArtifactReference.Scheme}:{referenceValue}";
 
             static string DecodeSegment(string segment) => HttpUtility.UrlDecode(segment);
 
@@ -111,7 +91,7 @@ namespace Bicep.Core.Registry.Oci
 
             // the set of valid OCI artifact refs is a subset of the set of valid URIs if you remove the scheme portion from each URI
             // manually prepending any valid URI scheme allows to get free validation via the built-in URI parser
-            if (!Uri.TryCreate($"{OciArtifactReference.Scheme}://{rawValue}", UriKind.Absolute, out var artifactUri) ||
+            if (!Uri.TryCreate($"{IOciArtifactReference.Scheme}://{rawValue}", UriKind.Absolute, out var artifactUri) ||
                 artifactUri.Segments.Length <= 1 ||
                 !string.Equals(artifactUri.Segments[0], "/", StringComparison.Ordinal))
             {
@@ -121,9 +101,13 @@ namespace Bicep.Core.Registry.Oci
             }
 
             string registry = artifactUri.Authority;
-            if (registry.Length > MaxRegistryLength)
+            if (registry.Length > IOciArtifactReference.MaxRegistryLength)
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceRegistryTooLong(aliasName, GetBadReference(rawValue), registry, MaxRegistryLength);
+                failureBuilder = x => x.InvalidOciArtifactReferenceRegistryTooLong(
+                    aliasName,
+                    GetBadReference(rawValue),
+                    registry,
+                    IOciArtifactReference.MaxRegistryLength);
                 artifactReference = null;
                 return false;
             }
@@ -138,7 +122,7 @@ namespace Bicep.Core.Registry.Oci
                 var pathMatch = ModulePathSegmentRegex.Match(current, 0, current.Length - 1);
                 if (!pathMatch.Success)
                 {
-                    var invalidSegment = DecodeSegment(current.Substring(0, current.Length - 1));
+                    var invalidSegment = DecodeSegment(current[..^1]);
                     failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), invalidSegment);
                     artifactReference = null;
                     return false;
@@ -175,9 +159,13 @@ namespace Bicep.Core.Registry.Oci
             repoBuilder.Append(name);
 
             string repository = repoBuilder.ToString();
-            if (repository.Length > MaxRepositoryLength)
+            if (repository.Length > IOciArtifactReference.MaxRepositoryLength)
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceRepositoryTooLong(aliasName, GetBadReference(rawValue), repository, MaxRepositoryLength);
+                failureBuilder = x => x.InvalidOciArtifactReferenceRepositoryTooLong(
+                    aliasName, 
+                    GetBadReference(rawValue), 
+                    repository, 
+                    IOciArtifactReference.MaxRepositoryLength);
                 artifactReference = null;
                 return false;
             }
@@ -202,16 +190,23 @@ namespace Bicep.Core.Registry.Oci
             {
                 case ':':
                     var tag = tagOrDigest;
-                    if (tag.Length > MaxTagLength)
+                    if (tag.Length > IOciArtifactReference.MaxTagLength)
                     {
-                        failureBuilder = x => x.InvalidOciArtifactReferenceTagTooLong(aliasName, GetBadReference(rawValue), tag, MaxTagLength);
+                        failureBuilder = x => x.InvalidOciArtifactReferenceTagTooLong(
+                            aliasName, 
+                            GetBadReference(rawValue), 
+                            tag, 
+                            IOciArtifactReference.MaxTagLength);
                         artifactReference = null;
                         return false;
                     }
 
                     if (!TagRegex.IsMatch(tag))
                     {
-                        failureBuilder = x => x.InvalidOciArtifactReferenceInvalidTag(aliasName, GetBadReference(rawValue), tag);
+                        failureBuilder = x => x.InvalidOciArtifactReferenceInvalidTag(
+                            aliasName, 
+                            GetBadReference(rawValue), 
+                            tag);
                         artifactReference = null;
                         return false;
                     }
@@ -248,19 +243,19 @@ namespace Bicep.Core.Registry.Oci
 
             return
                 // TODO: Are all of these case-sensitive?
-                RegistryComparer.Equals(this.Registry, other.Registry) &&
-                RepositoryComparer.Equals(this.Repository, other.Repository) &&
-                TagComparer.Equals(this.Tag, other.Tag) &&
-                DigestComparer.Equals(this.Digest, other.Digest);
+                IOciArtifactReference.RegistryComparer.Equals(this.Registry, other.Registry) &&
+                IOciArtifactReference.RepositoryComparer.Equals(this.Repository, other.Repository) &&
+                IOciArtifactReference.TagComparer.Equals(this.Tag, other.Tag) &&
+                IOciArtifactReference.DigestComparer.Equals(this.Digest, other.Digest);
         }
 
         public override int GetHashCode()
         {
             var hash = new HashCode();
-            hash.Add(this.Registry, RegistryComparer);
-            hash.Add(this.Repository, RepositoryComparer);
-            hash.Add(this.Tag, TagComparer);
-            hash.Add(this.Digest, DigestComparer);
+            hash.Add(this.Registry, IOciArtifactReference.RegistryComparer);
+            hash.Add(this.Repository, IOciArtifactReference.RepositoryComparer);
+            hash.Add(this.Tag, IOciArtifactReference.TagComparer);
+            hash.Add(this.Digest, IOciArtifactReference.DigestComparer);
 
             return hash.ToHashCode();
         }

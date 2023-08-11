@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry.Oci;
 using System;
 using System.Collections.Generic;
 
@@ -41,7 +41,7 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax? Alias => (this.AsClause as AliasAsClauseSyntax)?.Alias;
 
-        private StringSyntax ProviderPath => SyntaxFactory.CreateStringLiteral($@"{ModuleReferenceSchemes.Oci}:{LanguageConstants.BicepPublicMcrRegistry}/bicep/providers/{this.Specification.Name}:{this.Specification.Version}");
+        private StringSyntax ProviderPath => SyntaxFactory.CreateStringLiteral($@"{IOciArtifactReference.Scheme}:{LanguageConstants.BicepPublicMcrRegistry}/bicep/providers/{this.Specification.Name}:{this.Specification.Version}");
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(this.SpecificationString, this.WithClause, this.AsClause));
 

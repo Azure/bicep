@@ -9,7 +9,7 @@ namespace Bicep.Core.Modules
     {
         public const string Local = "";
 
-        public const string Oci = OciArtifactReference.Scheme;
+        public const string Oci = IOciArtifactReference.Scheme;
 
         public const string TemplateSpecs = "ts";
     }

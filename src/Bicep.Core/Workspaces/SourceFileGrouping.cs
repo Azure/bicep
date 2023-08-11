@@ -55,15 +55,9 @@ namespace Bicep.Core.Workspaces
                     .Where(entry => entry.Value.RequiresRestore)
                     .Select(entry => new ModuleSourceResolutionInfo(entry.Key, kvp.Key)));
 
-        public IEnumerable<ProviderSourceResolutionInfo> GetProvidersToRestore()
-        {
-            return SourceFiles.OfType<BicepSourceFile>()
-                .SelectMany(sourceFile => sourceFile.ProgramSyntax.Children.OfType<ProviderDeclarationSyntax>()
-                .Select(import => new ProviderSourceResolutionInfo(import, sourceFile)));
-        }
 
         public IEnumerable<IArtifactResolutionInfo> GetArtifactsToRestore() =>
-            GetModulesToRestore().AsEnumerable<IArtifactResolutionInfo>().Concat(GetProvidersToRestore());
+            GetModulesToRestore().AsEnumerable<IArtifactResolutionInfo>();
 
         public BicepSourceFile EntryPoint => (FileResultByUri[EntryFileUri].File as BicepSourceFile)!;
 

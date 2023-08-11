@@ -1,8 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace Bicep.Core.Registry.Oci
 {
@@ -29,5 +32,10 @@ namespace Bicep.Core.Registry.Oci
         /// Additional information provided through arbitrary metadata.
         /// </summary>
         public ImmutableDictionary<string, string> Annotations { get; }
+
+        internal static OciManifest? FromBinaryData(BinaryData d)
+        {
+            return JsonConvert.DeserializeObject<OciManifest>(d.ToString());
+        }
     }
 }

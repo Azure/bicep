@@ -12,6 +12,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -113,18 +114,18 @@ namespace Bicep.Cli.IntegrationTests
             var myClient = blobClients[(registryUri, repository)];
 
             // 2. upload a manifest and its blob layer
-            var manifestStr = """
-                                {
+            var manifestStr = $$"""
+                {
                   "schemaVersion": 2,
-                  "mediaType": "application/vnd.oci.image.manifest.v1+json",
+                  "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
                   "config": {
-                    "mediaType": "application/vnd.ms.bicep.provider.config.v1+json",
+                    "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
                     "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
                     "size": 2
                   },
                   "layers": [
                     {
-                      "mediaType": "application/vnd.ms.bicep.provider.layer.v1.tar+gzip",
+                      "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
                       "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
                       "size": 0
                     }

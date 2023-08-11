@@ -43,7 +43,7 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public void EncodingFullyCapitalizedStringOfMaxLengthShouldNotExceedMaxLinuxFileNameLength()
         {
-            var fullyCapitalizedTag = new string('A', OciArtifactReference.MaxTagLength);
+            var fullyCapitalizedTag = new string('A', IOciArtifactReference.MaxTagLength);
             var encoded = TagEncoder.Encode(fullyCapitalizedTag);
 
             encoded.Length.Should().BeLessOrEqualTo(255);

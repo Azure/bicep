@@ -138,19 +138,15 @@ namespace Bicep.Core.Workspaces
                     {
                         foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IForeignTemplateReference>())
                         {
-                            if (restorable is ProviderDeclarationSyntax)
-                            {
-                                continue;
-                            }
-
                             var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, restorable);
+                            
                             uriResultByModule.GetOrAdd(bicepFile, f => new())[restorable] = uriResult;
 
                             if (uriResult.FileUri is null)
                             {
                                 continue;
                             }
-
+                            
                             if (!fileResultByUri.TryGetValue(uriResult.FileUri, out var childResult) ||
                                 (childResult.File is not null && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childResult.File)))
                             {

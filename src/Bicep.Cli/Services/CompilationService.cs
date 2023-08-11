@@ -142,8 +142,7 @@ namespace Bicep.Cli.Services
                 foreach (var (module, sourceFile) in originalModulesToRestore)
                 {
                     if (sourceFile is BicepFile bicepFile &&
-                        module is ModuleDeclarationSyntax moduleDeclaration &&
-                        DiagnosticForModule(grouping, moduleDeclaration) is { } diagnostic)
+                        DiagnosticForModule(grouping, module) is { } diagnostic)
                     {
                         yield return (bicepFile, diagnostic);
                     }
