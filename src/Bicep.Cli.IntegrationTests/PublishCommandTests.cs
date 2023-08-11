@@ -5,6 +5,7 @@ using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -249,7 +250,7 @@ namespace Bicep.Cli.IntegrationTests
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
-            var client = StrictMock.Of<ContainerRegistryContentClient>();
+            var client = StrictMock.Of<IOciRegistryContentClient>();
             client
                 .Setup(m => m.UploadBlobAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
@@ -281,7 +282,7 @@ namespace Bicep.Cli.IntegrationTests
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
-            var client = StrictMock.Of<ContainerRegistryContentClient>();
+            var client = StrictMock.Of<IOciRegistryContentClient>();
             client
                 .Setup(m => m.UploadBlobAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new AggregateException(new RequestFailedException("Mock registry request failure 1."), new RequestFailedException("Mock registry request failure 2.")));
@@ -372,7 +373,7 @@ namespace Bicep.Cli.IntegrationTests
 
             await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory.Object, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, documentationUri);
 
-            var manifest = Encoding.Default.GetString(blobClient.Manifests.Single().Value.ToBuilder().ToArray());
+            var manifest = blobClient.Manifests.Single().Value.Text;
 
             if (expectedDescription is null)
             {

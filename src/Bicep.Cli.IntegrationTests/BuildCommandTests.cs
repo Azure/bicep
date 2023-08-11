@@ -125,7 +125,7 @@ namespace Bicep.Cli.IntegrationTests
 
             if (dataSet.HasExternalModules)
             {
-                settings.FeatureOverrides.Should().HaveValidModules();
+                settings.FeatureOverrides.Should().HaveValidCachedModules();
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);

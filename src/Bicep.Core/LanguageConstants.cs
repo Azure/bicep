@@ -116,6 +116,8 @@ namespace Bicep.Core
         public const string ListFunctionPrefix = "list";
 
         public const string McrRepositoryPrefix = "bicep/";
+
+        // See https://github.com/opencontainers/image-spec/blob/main/annotations.md
         public const string OciOpenContainerImageDocumentationAnnotation = "org.opencontainers.image.documentation";
         public const string OciOpenContainerImageDescriptionAnnotation = "org.opencontainers.image.description";
 

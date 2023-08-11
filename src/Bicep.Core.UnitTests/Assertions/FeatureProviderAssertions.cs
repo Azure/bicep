@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         protected override string Identifier => "FeatureProvider";
 
-        public AndConstraint<FeatureProviderAssertions> HaveValidModules()
+        public AndConstraint<FeatureProviderAssertions> HaveValidCachedModules()
         {
             // ensure something got restored
             var cacheDir = new DirectoryInfo(this.Subject.CacheRootDirectory!);

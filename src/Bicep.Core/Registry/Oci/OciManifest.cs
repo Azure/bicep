@@ -4,30 +4,37 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace Bicep.Core.Registry.Oci
+namespace Bicep.Core.Registry.Oci;
+
+public class OciManifest
 {
-    public class OciManifest
+    public OciManifest(int schemaVersion, string? mediaType, string? artifactType, OciDescriptor config, IEnumerable<OciDescriptor> layers, OciDescriptor? subject = null, IDictionary<string, string>? annotations = null)
     {
-        public OciManifest(int schemaVersion, string? artifactType, OciDescriptor config, IEnumerable<OciDescriptor> layers, IDictionary<string, string>? annotations = null)
-        {
-            this.Annotations = annotations?.ToImmutableDictionary() ?? ImmutableDictionary<string, string>.Empty;
-            this.SchemaVersion = schemaVersion;
-            this.ArtifactType = artifactType;
-            this.Config = config;
-            this.Layers = layers.ToImmutableArray();
-        }
-
-        public int SchemaVersion { get; }
-
-        public string? ArtifactType { get; }
-
-        public OciDescriptor Config { get; }
-
-        public ImmutableArray<OciDescriptor> Layers { get; }
-
-        /// <summary>
-        /// Additional information provided through arbitrary metadata.
-        /// </summary>
-        public ImmutableDictionary<string, string> Annotations { get; }
+        this.Annotations = (annotations?.Count > 0) ? annotations.ToImmutableDictionary() : null;
+        this.SchemaVersion = schemaVersion;
+        this.MediaType = mediaType;
+        this.ArtifactType = artifactType;
+        this.Config = config;
+        this.Subject = subject;
+        this.Layers = layers.ToImmutableArray();
     }
+
+    public int SchemaVersion { get; }
+
+    public string? MediaType { get; }
+    public string? ArtifactType { get; }
+
+    public OciDescriptor Config { get; }
+
+    public ImmutableArray<OciDescriptor> Layers { get; }
+
+    /// <summary>
+    /// Reference to a separate manfest that this manifest is being attached to
+    /// </summary>
+    public OciDescriptor? Subject { get; }
+
+    /// <summary>
+    /// Additional information provided through arbitrary metadata.
+    /// </summary>
+    public ImmutableDictionary<string, string>? Annotations { get; }
 }

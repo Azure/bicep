@@ -81,7 +81,7 @@ namespace Bicep.Core.Registry
                     var repository = this.repositoryFactory.CreateRepository(configuration, reference.SubscriptionId);
                     var templateSpecEntity = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
 
-                    await this.TryWriteModuleContentAsync(reference, templateSpecEntity);
+                    await this.TryWriteModuleContentToCacheAsync(reference, templateSpecEntity);
                 }
                 catch (ExternalModuleException templateSpecException)
                 {
@@ -106,7 +106,7 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        protected override void WriteModuleContent(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
+        protected override void WriteModuleContentToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
             File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.Content);
 
         protected override string GetModuleDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(

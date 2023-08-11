@@ -28,6 +28,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Memory;
 using System.Text;
 using Bicep.Core.Emit;
 using Azure.Identity;
+ using System.Reflection;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -77,7 +78,7 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                settings.FeatureOverrides.Should().HaveValidModules();
+                settings.FeatureOverrides.Should().HaveValidCachedModules();
             }
         }
 
@@ -93,7 +94,7 @@ namespace Bicep.Cli.IntegrationTests
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             // create client that mocks missing az or PS login
-            var clientWithCredentialUnavailable = StrictMock.Of<ContainerRegistryContentClient>();
+            var clientWithCredentialUnavailable = StrictMock.Of<IOciRegistryContentClient>();
             clientWithCredentialUnavailable
                 .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new CredentialUnavailableException("Mock credential unavailable exception"));
@@ -124,7 +125,7 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                settings.FeatureOverrides.Should().HaveValidModules();
+                settings.FeatureOverrides.Should().HaveValidCachedModules();
             }
         }
 
@@ -162,13 +163,15 @@ namespace Bicep.Cli.IntegrationTests
                 compiledStream.Write(TemplateEmitter.UTF8EncodingWithoutBom.GetBytes(dataSet.Compiled!));
                 compiledStream.Position = 0;
 
-                await containerRegistryManager.PushArtifactAsync(
+                await containerRegistryManager.PushModuleAsync(
                     configuration: configuration,
                     moduleReference: moduleReference!,
                     // intentionally setting artifactType to null to simulate a publish done by an older version of Bicep
                     artifactType: null,
                     config: new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1),
-                    layers: new StreamDescriptor(compiledStream, BicepMediaTypes.BicepModuleLayerV1Json));
+                    description: null,
+                    documentationUri: null,
+                    layers: new StreamDescriptor[] { new StreamDescriptor(compiledStream, BicepMediaTypes.BicepModuleLayerV1Json) });
             }
 
             /*
@@ -219,7 +222,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             Directory.CreateDirectory(tempDirectory);
 
             var publishedBicepFilePath = Path.Combine(tempDirectory, "module.bicep");
-            File.WriteAllText(publishedBicepFilePath,@"
+            File.WriteAllText(publishedBicepFilePath, @"
 param p1 string
 output o1 string = p1");
 
@@ -355,7 +358,7 @@ output o1 string = '${p1}${p2}'");
             string digest = client.Manifests.Single().Key;
 
             var bicep = $@"
-module empty 'br:{registry}/{repository}@{digest}' = {{
+ module empty 'br:{registry}/{repository}@{digest}' = {{
   name: 'empty'
 }}
 ";
@@ -406,7 +409,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var compiledFilePath = Path.Combine(outputDirectory, "main.bicep");
             File.WriteAllText(compiledFilePath, @"module foo 'br:fake/fake:v1'");
 
-            var client = StrictMock.Of<ContainerRegistryContentClient>();
+            var client = StrictMock.Of<IOciRegistryContentClient>();
             client
                 .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new AggregateException(new RequestFailedException("Mock registry request failure 1."), new RequestFailedException("Mock registry request failure 2.")));
@@ -438,7 +441,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var compiledFilePath = Path.Combine(outputDirectory, "main.bicep");
             File.WriteAllText(compiledFilePath, @"module foo 'br:fake/fake:v1'");
 
-            var client = StrictMock.Of<ContainerRegistryContentClient>();
+            var client = StrictMock.Of<IOciRegistryContentClient>();
             client
                 .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
