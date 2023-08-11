@@ -28,8 +28,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using DataSet = Bicep.Core.Samples.DataSet;
 
-#pragma warning disable RS0030 // Do not use banned APIs
-
 namespace Bicep.Cli.IntegrationTests
 {
     [TestClass]
@@ -154,7 +152,7 @@ namespace Bicep.Cli.IntegrationTests
                 return;
             }
 
-            Console.WriteLine(testName);
+            TestContext.WriteLine(testName);
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
@@ -240,7 +238,7 @@ namespace Bicep.Cli.IntegrationTests
         [DynamicData(nameof(GetValidDataSetsWithSourcesFlag), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
         public async Task Publish_ValidArmTemplateFile_AllDataSets_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
         {
-            Console.WriteLine(testName);
+            TestContext.WriteLine(testName);
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
