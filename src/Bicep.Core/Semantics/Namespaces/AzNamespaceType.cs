@@ -324,23 +324,19 @@ namespace Bicep.Core.Semantics.Namespaces
                         {
                             return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[3]).CompileTimeConstantRequired()));
                         }
-                        var kvResourceId = ResourceGroupLevelResourceId.Create(subscriptionId, resourceGroupName, "Microsoft.KeyVault", new[] { "vaults" }, new[] { keyVaultName });
-                        var referenceList = new List<ObjectPropertyExpression>() {
-                            ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new[] { ExpressionFactory.CreateObjectProperty("id", ExpressionFactory.CreateStringLiteral(kvResourceId.FullyQualifiedId)) })),
-                            ExpressionFactory.CreateObjectProperty("secretName", ExpressionFactory.CreateStringLiteral(secretName))
-                        };
+
+                        string? secretVersion = null;
                         if (func.Arguments.Length > 4)
                         {
-                            if ((argumentTypes[4] as StringLiteralType)?.RawStringValue is not { } secretVersion)
+                            if ((argumentTypes[4] as StringLiteralType)?.RawStringValue is not { } sv)
                             {
                                 return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[4]).CompileTimeConstantRequired()));
                             }
-                            referenceList.Add(ExpressionFactory.CreateObjectProperty("secretVersion", ExpressionFactory.CreateStringLiteral(secretVersion)));
+                            secretVersion = sv;
                         }
-                        var expression = ExpressionFactory.CreateObject(new[] {
-                            ExpressionFactory.CreateObjectProperty("reference", ExpressionFactory.CreateObject(referenceList), func),
-                        }, func);
-                        return new(LanguageConstants.SecureString, expression);
+
+                        var kvResourceId = ResourceGroupLevelResourceId.Create(subscriptionId, resourceGroupName, "Microsoft.KeyVault", new[] { "vaults" }, new[] { keyVaultName });
+                        return new(LanguageConstants.SecureString, new ParameterKeyVaultReferenceExpression(func, kvResourceId.FullyQualifiedId, secretName, secretVersion));
                     }, LanguageConstants.SecureString)
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "Id of the Subscription that has the target KeyVault")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "Name of the Resource Group that has the target KeyVault")

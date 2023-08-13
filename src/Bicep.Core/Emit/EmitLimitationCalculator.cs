@@ -2,16 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Comparers;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -497,14 +500,38 @@ namespace Bicep.Core.Emit
             }));
         }
 
-        private static ImmutableDictionary<ParameterAssignmentSymbol, JToken> CalculateParameterAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
+        private static ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> CalculateParameterAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
         {
-            var generated = new Dictionary<ParameterAssignmentSymbol, JToken>();
+            ImmutableDictionary<ParameterAssignmentSymbol, ImmutableDictionary<ParameterAssignmentSymbol, ImmutableSortedSet<VariableAccessSyntax>>> parameterReferencesInParameterAssignmentValues
+                = model.Root.ParameterAssignments.ToImmutableDictionary(p => p, p => ReferenceGatheringVisitor.GatherReferences(model, p));
+            var generated = ImmutableDictionary.CreateBuilder<ParameterAssignmentSymbol, ParameterAssignmentValue>();
             var evaluator = new ParameterAssignmentEvaluator(model);
-            foreach (var parameter in model.Root.ParameterAssignments)
+
+            foreach (var parameter in GetTopologicallySortedParameterAssignments(model, parameterReferencesInParameterAssignmentValues))
             {
-                var type = model.GetTypeInfo(parameter.DeclaringSyntax);
-                if (type is ErrorType)
+                var referencedParamValueHasError = false;
+                foreach (var referenced in parameterReferencesInParameterAssignmentValues[parameter])
+                {
+                    if (!generated.TryGetValue(referenced.Key, out var value))
+                    {
+                        referencedParamValueHasError = true;
+                        break;
+                    }
+
+                    if (value.KeyVaultReferenceExpression is not null)
+                    {
+                        diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesKeyVaultSuppliedParameter(syntax.Name.IdentifierName)));
+                        referencedParamValueHasError = true;
+                    }
+
+                    if (value.Value is JToken evaluated && evaluated.Type == JTokenType.Null)
+                    {
+                        diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesDefaultedParameter(syntax.Name.IdentifierName)));
+                        referencedParamValueHasError = true;
+                    }
+                }
+
+                if (parameter.Type is ErrorType || referencedParamValueHasError)
                 {
                     // no point evaluating if we're already reporting an error
                     continue;
@@ -517,13 +544,75 @@ namespace Bicep.Core.Emit
                 {
                     diagnostics.Write(result.Diagnostic);
                 }
-                if (result.Value is {})
+                if (result.Value is not null || result.KeyVaultReference is not null)
                 {
-                    generated[parameter] = result.Value;
+                    generated[parameter] = new(result.Value, result.KeyVaultReference);
                 }
             }
 
             return generated.ToImmutableDictionary();
+        }
+
+        private static IEnumerable<ParameterAssignmentSymbol> GetTopologicallySortedParameterAssignments(SemanticModel model,
+            ImmutableDictionary<ParameterAssignmentSymbol, ImmutableDictionary<ParameterAssignmentSymbol, ImmutableSortedSet<VariableAccessSyntax>>>  parameterReferencesInParameterAssignmentValues)
+        {
+            List<ParameterAssignmentSymbol> sorted = new();
+            HashSet<(ParameterAssignmentSymbol from, ParameterAssignmentSymbol to)> edges = new();
+            Dictionary<ParameterAssignmentSymbol, HashSet<ParameterAssignmentSymbol>> outstandingDependencies = model.Root.ParameterAssignments.ToDictionary(p => p, _ => new HashSet<ParameterAssignmentSymbol>());
+            foreach (var (to, dependsOn) in parameterReferencesInParameterAssignmentValues)
+            {
+                foreach (var (from, _) in dependsOn)
+                {
+                    outstandingDependencies[from].Add(to);
+                    edges.Add((from, to));
+                }
+            }
+
+            Queue<ParameterAssignmentSymbol> toProcess = new(model.Root.ParameterAssignments.Where(p => !edges.Any(edge => edge.to == p)));
+            while (toProcess.TryDequeue(out var p))
+            {
+                sorted.Add(p);
+                var targetsOfEdgesFromP = edges.Where(edge => edge.from == p).Select(edge => edge.to).ToHashSet();
+                edges.RemoveWhere(edge => edge.from == p);
+
+                foreach (var target in targetsOfEdgesFromP)
+                {
+                    if (!edges.Any(edge => edge.to == target))
+                    {
+                        toProcess.Enqueue(target);
+                    }
+                }
+            }
+
+            return sorted;
+        }
+
+        private class ReferenceGatheringVisitor : AstVisitor
+        {
+            private readonly SemanticModel model;
+            private readonly ConcurrentDictionary<ParameterAssignmentSymbol, ImmutableSortedSet<VariableAccessSyntax>.Builder> references = new();
+
+            private ReferenceGatheringVisitor(SemanticModel model)
+            {
+                this.model = model;
+            }
+
+            internal static ImmutableDictionary<ParameterAssignmentSymbol, ImmutableSortedSet<VariableAccessSyntax>> GatherReferences(SemanticModel model, ParameterAssignmentSymbol parameterAssignment)
+            {
+                var visitor = new ReferenceGatheringVisitor(model);
+                parameterAssignment.DeclaringParameterAssignment.Accept(visitor);
+
+                return visitor.references.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutable());
+            }
+
+            public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
+            {
+                if (model.GetSymbolInfo(syntax) is ParameterAssignmentSymbol parameterRef)
+                {
+                    references.GetOrAdd(parameterRef, _ => ImmutableSortedSet.CreateBuilder<VariableAccessSyntax>(SyntaxSourceOrderComparer.Instance))
+                        .Add(syntax);
+                }
+            }
         }
 
         private static void BlockUserDefinedFunctionsWithoutExperimentalFeaure(SemanticModel model, IDiagnosticWriter diagnostics)

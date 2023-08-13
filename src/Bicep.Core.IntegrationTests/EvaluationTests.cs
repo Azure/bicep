@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Azure.Deployments.Core.Definitions.Identifiers;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -952,12 +953,15 @@ output foo object = {
         {
           var bicepTemplateText =  @"
 param param1 object
+param param2 object
 output output1 object = param1
+output output2 object = param2
 ";
 
           var bicepparamText = @"
 using 'main.bicep'
 param param1 = { reference: 'param1' }
+param param2 = union(param1, { reference: 'param2' })
 ";
 
             var (parameters, _, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
@@ -971,7 +975,30 @@ param param1 = { reference: 'param1' }
                 diagnostics.Should().NotHaveAnyDiagnostics();
 
                 evaluated.Should().HaveValueAtPath("$.outputs['output1'].value.reference", $"param1");
+                evaluated.Should().HaveValueAtPath("$.outputs['output2'].value.reference", $"param2");
             }
+        }
+
+        [TestMethod]
+        public void Az_getsecret_params_cannot_be_used_in_other_param_values()
+        {
+          var bicepTemplateText =  @"
+param param1 string
+param param2 string
+";
+
+          var bicepparamText = @"
+using 'main.bicep'
+param param1 = getSecret('<subscriptionId>', '<resourceGroupName>', '<keyVaultName>', '<secretName>')
+param param2 = 'foo_${param1}'
+";
+
+            var (_, diagnostics, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            diagnostics.Should().HaveDiagnostics(new[]
+            {
+                ("BCP368", DiagnosticLevel.Error, "The value of the \"param1\" parameter cannot be known until the template deployment has started because it uses a reference to a secret value in Azure Key Vault. Expressions that refer to the \"param1\" parameter may be used in .bicep files but not in .bicepparam files."),
+            });
         }
 
         [TestMethod]
@@ -1051,7 +1078,7 @@ param location = 'westus'
             using (new AssertionScope())
             {
                 var evaluated = TemplateEvaluator.Evaluate(template, parameters);
-                
+
                 evaluated.Should().HaveValueAtPath("$.asserts['a1']", false);
                 evaluated.Should().HaveValueAtPath("$.asserts['a2']", true);
                 evaluated.Should().HaveValueAtPath("$.asserts['a3']", true);
