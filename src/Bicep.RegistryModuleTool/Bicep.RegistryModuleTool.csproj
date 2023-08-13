@@ -22,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="DiffPlex" Version="1.7.1" />
     <PackageReference Include="FluentAssertions" Version="6.11.0" />
-    <PackageReference Include="JsonPath.Net" Version="0.6.3" />
+    <PackageReference Include="JsonPath.Net" Version="0.6.4" />
     <PackageReference Include="JsonSchema.Net" Version="4.1.8" />
     <PackageReference Include="Markdig" Version="0.31.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
