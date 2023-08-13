@@ -1002,6 +1002,28 @@ param param2 = 'foo_${param1}'
         }
 
         [TestMethod]
+        public void Nulled_params_cannot_be_used_in_other_param_values()
+        {
+          var bicepTemplateText =  @"
+param param1 string = 'defaultValue'
+param param2 string
+";
+
+          var bicepparamText = @"
+using 'main.bicep'
+param param1 = null
+param param2 = 'foo_${param1}'
+";
+
+            var (_, diagnostics, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+
+            diagnostics.Should().HaveDiagnostics(new[]
+            {
+                ("BCP369", DiagnosticLevel.Error, "The value of the \"param1\" parameter cannot be known until the template deployment has started because it uses the default value defined in the template. Expressions that refer to the \"param1\" parameter may be used in .bicep files but not in .bicepparam files."),
+            });
+        }
+
+        [TestMethod]
         public void Safe_dereferences_are_evaluated_successfully()
         {
             var (template, _, _) = CompilationHelper.Compile(@"

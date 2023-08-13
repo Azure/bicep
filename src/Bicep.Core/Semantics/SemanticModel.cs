@@ -66,36 +66,36 @@ namespace Bicep.Core.Semantics
             // allow type queries now
             symbolContext.Unlock();
 
-            this.emitLimitationInfoLazy = new Lazy<EmitLimitationInfo>(() => EmitLimitationCalculator.Calculate(this));
-            this.symbolHierarchyLazy = new Lazy<SymbolHierarchy>(() =>
+            this.emitLimitationInfoLazy = new(() => EmitLimitationCalculator.Calculate(this));
+            this.symbolHierarchyLazy = new(() =>
             {
                 var hierarchy = new SymbolHierarchy();
                 hierarchy.AddRoot(this.Root);
 
                 return hierarchy;
             });
-            this.resourceAncestorsLazy = new Lazy<ResourceAncestorGraph>(() => ResourceAncestorGraph.Compute(this));
+            this.resourceAncestorsLazy = new(() => ResourceAncestorGraph.Compute(this));
             this.ResourceMetadata = new ResourceMetadataCache(this);
 
             LinterAnalyzer = linterAnalyzer;
 
-            this.allResourcesLazy = new Lazy<ImmutableArray<ResourceMetadata>>(() => GetAllResourceMetadata());
-            this.declaredResourcesLazy = new Lazy<ImmutableArray<DeclaredResourceMetadata>>(() => this.AllResources.OfType<DeclaredResourceMetadata>().ToImmutableArray());
+            this.allResourcesLazy = new(GetAllResourceMetadata);
+            this.declaredResourcesLazy = new(() => this.AllResources.OfType<DeclaredResourceMetadata>().ToImmutableArray());
 
-            this.assignmentsByDeclaration = new Lazy<ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>>(InitializeDeclarationToAssignmentDictionary);
-            this.declarationsByAssignment = new Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>>(InitializeAssignmentToDeclarationDictionary);
+            this.assignmentsByDeclaration = new(InitializeDeclarationToAssignmentDictionary);
+            this.declarationsByAssignment = new(InitializeAssignmentToDeclarationDictionary);
 
             // lazy load single use diagnostic set
-            this.allDiagnostics = new Lazy<ImmutableArray<IDiagnostic>>(() => AssembleDiagnostics());
+            this.allDiagnostics = new(AssembleDiagnostics);
 
-            this.parametersLazy = new Lazy<ImmutableDictionary<string, ParameterMetadata>>(() =>
+            this.parametersLazy = new(() =>
             {
                 var parameters = ImmutableDictionary.CreateBuilder<string, ParameterMetadata>();
 
                 foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
                 {
                     var description = DescriptionHelper.TryGetFromDecorator(this, param.DeclaringParameter);
-                    var isRequired = SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null;
+                    var isRequired = TypeHelper.IsNullable(param.Type) || SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null;
                     if (param.Type is ResourceType resourceType)
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated
@@ -121,7 +121,7 @@ namespace Bicep.Core.Semantics
                 .ToImmutableDictionary(t => t.Name,
                     t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType))));
 
-            this.outputsLazy = new Lazy<ImmutableArray<OutputMetadata>>(() =>
+            this.outputsLazy = new(() =>
             {
                 var outputs = new List<OutputMetadata>();
 
@@ -494,61 +494,57 @@ namespace Bicep.Core.Semantics
                 return failureDiagnostic.AsEnumerable<IDiagnostic>();
             }
 
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-
-            var parameters = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
-            var parameterAssignments = SourceFile.ProgramSyntax.Children.OfType<ParameterAssignmentSyntax>().Where(x => this.Binder.GetSymbolInfo(x) is not null);
-
-            // get diagnostics relating to missing parameter assignments or declarations
-            WriteParameterMismatchDiagnostics(bicepSemanticModel, diagnosticWriter, parameters, parameterAssignments);
-
-            // get diagnostics relating to type mismatch of params between Bicep and params files
-            WriteTypeMismatchDiagnostics(diagnosticWriter, parameterAssignments);
-
-            return diagnosticWriter.GetDiagnostics();
+            return
+                // get diagnostics relating to missing parameter assignments or declarations
+                GatherParameterMismatchDiagnostics(bicepSemanticModel)
+                // get diagnostics relating to type mismatch of params between Bicep and params files
+                .Concat(GatherTypeMismatchDiagnostics());
         }
 
-        private void WriteParameterMismatchDiagnostics(SemanticModel bicepSemanticModel, IDiagnosticWriter diagnosticWriter, IEnumerable<ParameterDeclarationSyntax> parameters, IEnumerable<ParameterAssignmentSyntax> parameterAssignments)
+        private IEnumerable<IDiagnostic> GatherParameterMismatchDiagnostics(SemanticModel bicepSemanticModel)
         {
             // parameters that are assigned but not declared
             // var missingAssignedParams = new List<ParameterAssignmentSyntax>();
-            var missingAssignedParams = parameterAssignments
-                .Where(x => this.Binder.GetSymbolInfo(x) is ParameterAssignmentSymbol symbol && this.TryGetParameterDeclaration(symbol) is null);
+            var missingAssignedParams = Root.ParameterAssignments.Where(s => TryGetParameterDeclaration(s) is null);
 
             // parameters that are declared but not assigned
-            var missingRequiredParams = new List<string>();
-
-            foreach (var parameter in parameters)
-            {
-                if (bicepSemanticModel.Binder.GetSymbolInfo(parameter) is ParameterSymbol symbol && TryGetParameterAssignment(symbol) is null &&
-                    bicepSemanticModel.Parameters[parameter.Name.IdentifierName].IsRequired)
+            var missingRequiredParams = bicepSemanticModel.Root.ParameterDeclarations
+                .Where(declaration =>
                 {
-                    missingRequiredParams.Add(parameter.Name.IdentifierName);
-                }
-            }
+                    if (!bicepSemanticModel.Parameters.TryGetValue(declaration.Name, out var md) || !md.IsRequired)
+                    {
+                        return false;
+                    }
+
+                    // consider a parameter to be absent if there was no assignment statement OR if the value `null` was assigned
+                    return TryGetParameterAssignment(declaration) is not {} assignment || assignment.Type is NullType;
+                })
+                .Select(declaration => declaration.Name)
+                .ToImmutableArray();
 
             // emit diagnostic only if there is a using statement
             var usingDeclarationSyntax = this.Root.UsingDeclarationSyntax;
             if (usingDeclarationSyntax is not null && missingRequiredParams.Any())
             {
-                diagnosticWriter.Write(usingDeclarationSyntax.Path, x => x.MissingParameterAssignment(missingRequiredParams));
+                yield return DiagnosticBuilder.ForPosition(usingDeclarationSyntax.Path).MissingParameterAssignment(missingRequiredParams);
             }
 
             foreach (var assignedParam in missingAssignedParams)
             {
-                diagnosticWriter.Write(assignedParam.Span, x => x.MissingParameterDeclaration(this.Binder.GetSymbolInfo(assignedParam)?.Name));
+                yield return DiagnosticBuilder.ForPosition(assignedParam.DeclaringSyntax).MissingParameterDeclaration(assignedParam.Name);
             }
         }
 
-        private void WriteTypeMismatchDiagnostics(IDiagnosticWriter diagnosticWriter, IEnumerable<ParameterAssignmentSyntax> parameterAssignments)
+        private IEnumerable<IDiagnostic> GatherTypeMismatchDiagnostics()
         {
-            foreach (var syntax in parameterAssignments)
+            foreach (var assignmentSymbol in Root.ParameterAssignments)
             {
-                if (TypeManager.GetTypeInfo(syntax) is not ErrorType &&
-                    TypeManager.GetDeclaredType(syntax) is { } declaredType &&
-                    !TypeValidator.AreTypesAssignable(TypeManager.GetTypeInfo(syntax), declaredType))
+                if (assignmentSymbol.Type is not ErrorType &&
+                    assignmentSymbol.Type is not NullType && // `param x = null` is equivalent to skipping the assignment altogether
+                    TypeManager.GetDeclaredType(assignmentSymbol.DeclaringSyntax) is { } declaredType &&
+                    !TypeValidator.AreTypesAssignable(assignmentSymbol.Type, declaredType))
                 {
-                    diagnosticWriter.Write(syntax.Span, x => x.ParameterTypeMismatch(this.Binder.GetSymbolInfo(syntax)?.Name, declaredType, TypeManager.GetTypeInfo(syntax)));
+                    yield return DiagnosticBuilder.ForPosition(assignmentSymbol.DeclaringSyntax).ParameterTypeMismatch(assignmentSymbol.Name, declaredType, assignmentSymbol.Type);
                 }
             }
         }

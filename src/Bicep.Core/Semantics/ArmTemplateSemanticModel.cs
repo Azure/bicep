@@ -22,11 +22,8 @@ namespace Bicep.Core.Semantics
     public class ArmTemplateSemanticModel : ISemanticModel
     {
         private readonly Lazy<ResourceScope> targetScopeLazy;
-
         private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
-
         private readonly Lazy<ImmutableDictionary<string, ExportedTypeMetadata>> exportedTypesLazy;
-
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
 
         public ArmTemplateSemanticModel(ArmTemplateFile sourceFile)
@@ -47,7 +44,7 @@ namespace Bicep.Core.Semantics
                     return ResourceScope.None;
                 }
 
-                return (schemaUri.AbsolutePath) switch
+                return schemaUri.AbsolutePath switch
                 {
                     "/schemas/2019-08-01/tenantDeploymentTemplate.json" => ResourceScope.Tenant,
                     "/schemas/2019-08-01/managementGroupDeploymentTemplate.json" => ResourceScope.ManagementGroup,
@@ -75,11 +72,16 @@ namespace Bicep.Core.Semantics
                 return this.SourceFile.Template.Parameters
                     .ToImmutableDictionary(
                         parameterProperty => parameterProperty.Key,
-                        parameterProperty => new ParameterMetadata(
-                            parameterProperty.Key,
-                            GetType(parameterProperty.Value),
-                            parameterProperty.Value.DefaultValue is null,
-                            GetMostSpecificDescription(parameterProperty.Value)),
+                        parameterProperty =>
+                        {
+                            var type = GetType(parameterProperty.Value);
+
+                            return new ParameterMetadata(
+                                parameterProperty.Key,
+                                type,
+                                parameterProperty.Value.DefaultValue is null && !TypeHelper.IsNullable(type),
+                                GetMostSpecificDescription(parameterProperty.Value));
+                        },
                         LanguageConstants.IdentifierComparer);
             });
 

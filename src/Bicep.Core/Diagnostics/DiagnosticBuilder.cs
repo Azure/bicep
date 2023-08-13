@@ -2061,6 +2061,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP368",
                 $"The value of the \"{targetName}\" parameter cannot be known until the template deployment has started because it uses a reference to a secret value in Azure Key Vault. Expressions that refer to the \"{targetName}\" parameter may be used in {LanguageConstants.LanguageFileExtension} files but not in {LanguageConstants.ParamsFileExtension} files.");
+
+            public ErrorDiagnostic ParameterReferencesDefaultedParameter(string targetName) => new(
+                TextSpan,
+                "BCP369",
+                $"The value of the \"{targetName}\" parameter cannot be known until the template deployment has started because it uses the default value defined in the template. Expressions that refer to the \"{targetName}\" parameter may be used in {LanguageConstants.LanguageFileExtension} files but not in {LanguageConstants.ParamsFileExtension} files.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
