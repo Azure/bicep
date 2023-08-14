@@ -1985,6 +1985,12 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP353",
                 $"The {symbolTypePluralName} {ToQuotedString(symbolNames)} differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them.");
+
+            public ErrorDiagnostic TestPathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP354",
+                "This test declaration is missing a file path reference.");
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
