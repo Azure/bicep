@@ -502,38 +502,53 @@ namespace Bicep.Core.Emit
 
         private static ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> CalculateParameterAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
         {
-            ImmutableDictionary<ParameterAssignmentSymbol, ImmutableDictionary<ParameterAssignmentSymbol, ImmutableSortedSet<VariableAccessSyntax>>> parameterReferencesInParameterAssignmentValues
-                = model.Root.ParameterAssignments.ToImmutableDictionary(p => p, p => ReferenceGatheringVisitor.GatherReferences(model, p));
+            var referencesInValues = model.Root.ParameterAssignments.Concat<DeclaredSymbol>(model.Root.VariableDeclarations)
+                .ToImmutableDictionary(p => p as Symbol, p => ReferenceGatheringVisitor.GatherReferences(model, p));
             var generated = ImmutableDictionary.CreateBuilder<ParameterAssignmentSymbol, ParameterAssignmentValue>();
             var evaluator = new ParameterAssignmentEvaluator(model);
+            HashSet<Symbol> erroredSymbols = new();
 
-            foreach (var parameter in GetTopologicallySortedParameterAssignments(model, parameterReferencesInParameterAssignmentValues))
+            foreach (var symbol in GetTopologicallySortedSymbols(model, referencesInValues))
             {
-                var referencedParamValueHasError = false;
-                foreach (var referenced in parameterReferencesInParameterAssignmentValues[parameter])
+                var referencedValueHasError = false;
+                foreach (var referenced in referencesInValues[symbol])
                 {
-                    if (!generated.TryGetValue(referenced.Key, out var value))
+                    if (erroredSymbols.Contains(referenced.Key))
                     {
-                        referencedParamValueHasError = true;
-                        break;
+                        referencedValueHasError = true;
                     }
 
-                    if (value.KeyVaultReferenceExpression is not null)
+                    if (referenced.Key is ParameterAssignmentSymbol parameterAssignment)
                     {
-                        diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesKeyVaultSuppliedParameter(syntax.Name.IdentifierName)));
-                        referencedParamValueHasError = true;
-                    }
+                        if (generated[parameterAssignment].KeyVaultReferenceExpression is not null)
+                        {
+                            diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesKeyVaultSuppliedParameter(syntax.Name.IdentifierName)));
+                            referencedValueHasError = true;
+                        }
 
-                    if (value.Value is JToken evaluated && evaluated.Type == JTokenType.Null)
-                    {
-                        diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesDefaultedParameter(syntax.Name.IdentifierName)));
-                        referencedParamValueHasError = true;
+                        if (generated[parameterAssignment].Value is JToken evaluated && evaluated.Type == JTokenType.Null)
+                        {
+                            diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesDefaultedParameter(syntax.Name.IdentifierName)));
+                            referencedValueHasError = true;
+                        }
                     }
                 }
 
-                if (parameter.Type is ErrorType || referencedParamValueHasError)
+                if (referencedValueHasError)
+                {
+                    erroredSymbols.Add(symbol);
+                    continue;
+                }
+
+                if (symbol is not ParameterAssignmentSymbol parameter)
+                {
+                    continue;
+                }
+
+                if (parameter.Type is ErrorType)
                 {
                     // no point evaluating if we're already reporting an error
+                    erroredSymbols.Add(parameter);
                     continue;
                 }
 
@@ -553,22 +568,21 @@ namespace Bicep.Core.Emit
             return generated.ToImmutableDictionary();
         }
 
-        private static IEnumerable<ParameterAssignmentSymbol> GetTopologicallySortedParameterAssignments(SemanticModel model,
-            ImmutableDictionary<ParameterAssignmentSymbol, ImmutableDictionary<ParameterAssignmentSymbol, ImmutableSortedSet<VariableAccessSyntax>>>  parameterReferencesInParameterAssignmentValues)
+        private static IEnumerable<Symbol> GetTopologicallySortedSymbols(SemanticModel model,
+            ImmutableDictionary<Symbol, ImmutableDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>>>  referencesInValues)
         {
-            List<ParameterAssignmentSymbol> sorted = new();
-            HashSet<(ParameterAssignmentSymbol from, ParameterAssignmentSymbol to)> edges = new();
-            Dictionary<ParameterAssignmentSymbol, HashSet<ParameterAssignmentSymbol>> outstandingDependencies = model.Root.ParameterAssignments.ToDictionary(p => p, _ => new HashSet<ParameterAssignmentSymbol>());
-            foreach (var (to, dependsOn) in parameterReferencesInParameterAssignmentValues)
+            List<Symbol> sorted = new();
+            HashSet<(Symbol from, Symbol to)> edges = new();
+            foreach (var (to, dependsOn) in referencesInValues)
             {
                 foreach (var (from, _) in dependsOn)
                 {
-                    outstandingDependencies[from].Add(to);
                     edges.Add((from, to));
                 }
             }
 
-            Queue<ParameterAssignmentSymbol> toProcess = new(model.Root.ParameterAssignments.Where(p => !edges.Any(edge => edge.to == p)));
+            Queue<Symbol> toProcess = new(model.Root.ParameterAssignments.Concat<Symbol>(model.Root.VariableDeclarations)
+                .Where(s => !edges.Any(edge => edge.to == s)));
             while (toProcess.TryDequeue(out var p))
             {
                 sorted.Add(p);
@@ -590,26 +604,29 @@ namespace Bicep.Core.Emit
         private class ReferenceGatheringVisitor : AstVisitor
         {
             private readonly SemanticModel model;
-            private readonly ConcurrentDictionary<ParameterAssignmentSymbol, ImmutableSortedSet<VariableAccessSyntax>.Builder> references = new();
+            private readonly HashSet<Symbol> topLevelSymbols;
+            private readonly ConcurrentDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>.Builder> references = new();
 
             private ReferenceGatheringVisitor(SemanticModel model)
             {
                 this.model = model;
+                this.topLevelSymbols = model.Root.Declarations.ToHashSet<Symbol>();
             }
 
-            internal static ImmutableDictionary<ParameterAssignmentSymbol, ImmutableSortedSet<VariableAccessSyntax>> GatherReferences(SemanticModel model, ParameterAssignmentSymbol parameterAssignment)
+            internal static ImmutableDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>> GatherReferences(SemanticModel model, DeclaredSymbol parameterAssignment)
             {
                 var visitor = new ReferenceGatheringVisitor(model);
-                parameterAssignment.DeclaringParameterAssignment.Accept(visitor);
+                parameterAssignment.DeclaringSyntax.Accept(visitor);
 
                 return visitor.references.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutable());
             }
 
             public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
             {
-                if (model.GetSymbolInfo(syntax) is ParameterAssignmentSymbol parameterRef)
+                // Record an outgoing reference if this syntax refers to a top-level symbol (i.e., *not* to a lambda-local variable)
+                if (model.GetSymbolInfo(syntax) is Symbol signified && topLevelSymbols.Contains(signified))
                 {
-                    references.GetOrAdd(parameterRef, _ => ImmutableSortedSet.CreateBuilder<VariableAccessSyntax>(SyntaxSourceOrderComparer.Instance))
+                    references.GetOrAdd(signified, _ => ImmutableSortedSet.CreateBuilder<VariableAccessSyntax>(SyntaxSourceOrderComparer.Instance))
                         .Add(syntax);
                 }
             }

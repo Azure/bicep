@@ -980,45 +980,55 @@ param param2 = union(param1, { reference: 'param2' })
         }
 
         [TestMethod]
-        public void Az_getsecret_params_cannot_be_used_in_other_param_values()
+        public void Az_getsecret_params_cannot_be_dereferenced()
         {
           var bicepTemplateText =  @"
 param param1 string
-param param2 string
+param param2 object
 ";
 
           var bicepparamText = @"
 using 'main.bicep'
 param param1 = getSecret('<subscriptionId>', '<resourceGroupName>', '<keyVaultName>', '<secretName>')
-param param2 = 'foo_${param1}'
+var var1 = 'foo_${param1}'
+param param2 = {
+  property: param1
+  property2: var1
+}
 ";
 
-            var (_, diagnostics, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+            var result = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
 
-            diagnostics.Should().HaveDiagnostics(new[]
+            result.Should().HaveDiagnostics(new[]
             {
+                ("BCP368", DiagnosticLevel.Error, "The value of the \"param1\" parameter cannot be known until the template deployment has started because it uses a reference to a secret value in Azure Key Vault. Expressions that refer to the \"param1\" parameter may be used in .bicep files but not in .bicepparam files."),
                 ("BCP368", DiagnosticLevel.Error, "The value of the \"param1\" parameter cannot be known until the template deployment has started because it uses a reference to a secret value in Azure Key Vault. Expressions that refer to the \"param1\" parameter may be used in .bicep files but not in .bicepparam files."),
             });
         }
 
         [TestMethod]
-        public void Nulled_params_cannot_be_used_in_other_param_values()
+        public void Nulled_params_cannot_be_dereferenced()
         {
           var bicepTemplateText =  @"
-param param1 string = 'defaultValue'
-param param2 string
+param param1 string = newGuid()
+param param2 object
 ";
 
           var bicepparamText = @"
 using 'main.bicep'
 param param1 = null
-param param2 = 'foo_${param1}'
+var var1 = 'foo_${param1}'
+param param2 = {
+  property: param1
+  property2: var1
+}
 ";
 
-            var (_, diagnostics, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+            var result = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
 
-            diagnostics.Should().HaveDiagnostics(new[]
+            result.Should().HaveDiagnostics(new[]
             {
+                ("BCP369", DiagnosticLevel.Error, "The value of the \"param1\" parameter cannot be known until the template deployment has started because it uses the default value defined in the template. Expressions that refer to the \"param1\" parameter may be used in .bicep files but not in .bicepparam files."),
                 ("BCP369", DiagnosticLevel.Error, "The value of the \"param1\" parameter cannot be known until the template deployment has started because it uses the default value defined in the template. Expressions that refer to the \"param1\" parameter may be used in .bicep files but not in .bicepparam files."),
             });
         }
