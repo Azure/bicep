@@ -14,7 +14,6 @@ namespace Bicep.Core.IntegrationTests.Emit
     [TestClass]
     public class ParamsFileWriterTests
     {
-
         [DataTestMethod]
         [DataRow(@"
 using 'main.bicep'
@@ -70,6 +69,30 @@ param myParam = getSecret('<subscriptionId>', '<resourceGroupName>', '<keyVaultN
 }", @"
 param myParam string
 ")]
+        [DataRow("""
+          using 'main.bicep'
+          param myParam = getSecret('<subscription${toUpper('i')}d>', '<resourceGroup${toUpper('n')}ame>', '<keyVault${toUpper('n')}ame>', '<secret${toUpper('n')}ame>', '<secret${toUpper('v')}ersion>')
+          """,
+          """
+          {
+            "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+            "contentVersion": "1.0.0.0",
+            "parameters": {
+              "myParam": {
+                "reference": {
+                  "keyVault": {
+                    "id": "/subscriptions/<subscriptionId>/resourceGroups/<resourceGroupName>/providers/Microsoft.KeyVault/vaults/<keyVaultName>"
+                  },
+                  "secretName": "<secretName>",
+                  "secretVersion": "<secretVersion>"
+                }
+              }
+            }
+          }
+          """,
+          """
+          param myParam string
+          """)]
         [DataRow(@"
 using 'main.bicep'
 param myParam = 1", @"

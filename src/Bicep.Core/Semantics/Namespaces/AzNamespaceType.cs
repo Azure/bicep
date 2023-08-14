@@ -306,21 +306,21 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new FunctionOverloadBuilder(GetSecretFunctionName)
                     .WithReturnType(LanguageConstants.SecureString)
                     .WithGenericDescription("Retrieve a value from an Azure Key Vault at the start of a deployment. All arguments must be compile-time constants.")
-                    .WithReturnResultBuilder((_, _, _, func, _) =>
+                    .WithReturnResultBuilder((_, _, _, func, argumentTypes) =>
                     {
-                        if ((func.Arguments[0].Expression as StringSyntax)?.TryGetLiteralValue() is not { } subscriptionId)
+                        if ((argumentTypes[0] as StringLiteralType)?.RawStringValue is not { } subscriptionId)
                         {
                             return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[0]).CompileTimeConstantRequired()));
                         }
-                        if ((func.Arguments[1].Expression as StringSyntax)?.TryGetLiteralValue() is not { } resourceGroupName)
+                        if ((argumentTypes[1] as StringLiteralType)?.RawStringValue is not { } resourceGroupName)
                         {
                             return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[1]).CompileTimeConstantRequired()));
                         }
-                        if ((func.Arguments[2].Expression as StringSyntax)?.TryGetLiteralValue() is not { } keyVaultName)
+                        if ((argumentTypes[2] as StringLiteralType)?.RawStringValue is not { } keyVaultName)
                         {
                             return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[2]).CompileTimeConstantRequired()));
                         }
-                        if ((func.Arguments[3].Expression as StringSyntax)?.TryGetLiteralValue() is not { } secretName)
+                        if ((argumentTypes[3] as StringLiteralType)?.RawStringValue is not { } secretName)
                         {
                             return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[3]).CompileTimeConstantRequired()));
                         }
@@ -331,7 +331,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         };
                         if (func.Arguments.Length > 4)
                         {
-                            if ((func.Arguments[4].Expression as StringSyntax)?.TryGetLiteralValue() is not { } secretVersion)
+                            if ((argumentTypes[4] as StringLiteralType)?.RawStringValue is not { } secretVersion)
                             {
                                 return new(ErrorType.Create(DiagnosticBuilder.ForPosition(func.Arguments[4]).CompileTimeConstantRequired()));
                             }
