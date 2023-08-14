@@ -16,7 +16,7 @@ namespace Bicep.Cli.UnitTests
 
             await action(writer);
 
-            writer.Flush();
+            await writer.FlushAsync();
 
             return buffer.ToString();
         }
@@ -31,8 +31,8 @@ namespace Bicep.Cli.UnitTests
 
             var result = await action(firstWriter, secondWriter);
 
-            firstWriter.Flush();
-            secondWriter.Flush();
+            await firstWriter.FlushAsync();
+            await secondWriter.FlushAsync();
 
             return (firstBuffer.ToString(), secondBuffer.ToString(), result);
         }
