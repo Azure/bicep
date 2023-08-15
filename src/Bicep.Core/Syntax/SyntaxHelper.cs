@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
@@ -30,63 +32,35 @@ namespace Bicep.Core.Syntax
             return null;
         }
 
-        public static string? TryGetModulePath(ModuleDeclarationSyntax moduleDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static bool TryGetForeignTemplatePath(IForeignTemplateReference foreignTemplateReference,
+            [NotNullWhen(true)] out string? path,
+            [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var pathSyntax = moduleDeclarationSyntax.TryGetPath();
-            if (pathSyntax == null)
+            if (foreignTemplateReference.TryGetPath() is not StringSyntax pathSyntax)
             {
-                failureBuilder = x => x.ModulePathHasNotBeenSpecified();
-                return null;
+                path = null;
+                failureBuilder = OnMissingPathSyntaxErrorBuilder(foreignTemplateReference);
+                return false;
             }
 
-            var pathValue = pathSyntax.TryGetLiteralValue();
-            if (pathValue == null)
+            if (pathSyntax.TryGetLiteralValue() is not string pathValue)
             {
+                path = null;
                 failureBuilder = x => x.FilePathInterpolationUnsupported();
-                return null;
+                return false;
             }
 
+            path = pathValue;
             failureBuilder = null;
-            return pathValue;
+            return true;
         }
-        public static string? TryGetModulePath(TestDeclarationSyntax moduleDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+
+        private static DiagnosticBuilder.ErrorBuilderDelegate OnMissingPathSyntaxErrorBuilder(IForeignTemplateReference syntax) => syntax switch
         {
-            var pathSyntax = moduleDeclarationSyntax.TryGetPath();
-            if (pathSyntax == null)
-            {
-                failureBuilder = x => x.TestPathHasNotBeenSpecified();
-                return null;
-            }
-
-            var pathValue = pathSyntax.TryGetLiteralValue();
-            if (pathValue == null)
-            {
-                failureBuilder = x => x.FilePathInterpolationUnsupported();
-                return null;
-            }
-
-            failureBuilder = null;
-            return pathValue;
-        }
-        public static string? TryGetUsingPath(UsingDeclarationSyntax usingDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
-        {
-            var pathSyntax = usingDeclarationSyntax.TryGetPath();
-            if (pathSyntax == null)
-            {
-                failureBuilder = x => x.TemplatePathHasNotBeenSpecified();
-                return null;
-            }
-
-            var pathValue = pathSyntax.TryGetLiteralValue();
-            if (pathValue == null)
-            {
-                failureBuilder = x => x.FilePathInterpolationUnsupported();
-                return null;
-            }
-
-            failureBuilder = null;
-            return pathValue;
-        }
+            ModuleDeclarationSyntax => x => x.ModulePathHasNotBeenSpecified(),
+            UsingDeclarationSyntax => x => x.UsingPathHasNotBeenSpecified(),
+            _ => x => x.PathHasNotBeenSpecified(),
+        };
 
         public static ResourceScope GetTargetScope(TargetScopeSyntax targetScopeSyntax)
         {

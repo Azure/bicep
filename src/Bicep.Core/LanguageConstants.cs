@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -65,6 +66,7 @@ namespace Bicep.Core
         public const string AssertKeyword = "assert";
         public const string WithKeyword = "with";
         public const string AsKeyword = "as";
+        public const string FromKeyword = "from";
 
         public const string IfKeyword = "if";
         public const string ForKeyword = "for";
@@ -105,7 +107,8 @@ namespace Bicep.Core
             .Add(TargetScopeKeyword)
             .Add(IfKeyword)
             .Add(ForKeyword)
-            .Add(InKeyword);
+            .Add(InKeyword)
+            .Add(FromKeyword);
 
         public const string TrueKeyword = "true";
         public const string FalseKeyword = "false";
@@ -137,7 +140,13 @@ namespace Bicep.Core
         public const string ParameterSealedPropertyName = "sealed";
         public const string MetadataDescriptionPropertyName = "description";
         public const string MetadataResourceTypePropertyName = "resourceType";
+        public const string MetadataExportedPropertyName = "__bicep_export!";
+        public const string MetadataImportedFromPropertyName = "__bicep_imported_from!";
+        public const string ImportMetadataSourceTemplatePropertyName = "sourceTemplate";
+        public const string ImportMetadataOriginalIdentifierPropertyName = "originalIdentifier";
         public const string BatchSizePropertyName = "batchSize";
+        public const string ExportPropertyName = "export";
+        public const string TypeDiscriminatorDecoratorName = "discriminator";
 
         // module properties
         public const string ModuleParamsPropertyName = "params";

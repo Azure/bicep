@@ -1,5 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
@@ -7,11 +13,6 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -1117,7 +1118,7 @@ namespace Bicep.Core.TypeSystem
             var extraProperties = expression.Properties
                 .Where(p => p.TryGetKeyText() is not string keyName || !targetType.Properties.ContainsKey(keyName));
 
-            if (targetType.AdditionalPropertiesType == null || targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
+            if (!targetType.HasExplicitAdditionalPropertiesType)
             {
                 // extra properties are not allowed by the type
 
@@ -1182,7 +1183,7 @@ namespace Bicep.Core.TypeSystem
                         isResourceDeclaration: config.IsResourceDeclaration);
 
                     // append "| null" to the type on non-required properties
-                    var (additionalPropertiesAssignmentType, _) = AddImplicitNull(targetType.AdditionalPropertiesType.Type, targetType.AdditionalPropertiesFlags);
+                    var (additionalPropertiesAssignmentType, _) = AddImplicitNull(targetType.AdditionalPropertiesType!.Type, targetType.AdditionalPropertiesFlags);
 
                     // although we don't use the result here, it's important to call NarrowType to collect diagnostics
                     var narrowedType = NarrowType(newConfig, extraProperty.Value, additionalPropertiesAssignmentType);
@@ -1204,8 +1205,8 @@ namespace Bicep.Core.TypeSystem
                 // for properties, put it on the property name in the parent object
                 ObjectPropertySyntax objectPropertyParent => (objectPropertyParent.Key, "object"),
 
-                // for import declarations, mark the entire configuration object
-                ImportWithClauseSyntax importParent => (expression, "object"),
+                // for provider declarations, mark the entire configuration object
+                ProviderWithClauseSyntax providerParent => (expression, "object"),
 
                 // for declaration bodies, put it on the declaration identifier
                 ITopLevelNamedDeclarationSyntax declarationParent => (declarationParent.Name, declarationParent.Keyword.Text),

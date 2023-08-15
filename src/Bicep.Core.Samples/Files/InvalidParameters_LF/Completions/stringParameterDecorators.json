@@ -42,6 +42,27 @@
     }
   },
   {
+    "label": "discriminator",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndiscriminator(value: string): any\n\n```\n\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_discriminator",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "discriminator($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "maxLength",
     "kind": "function",
     "documentation": {

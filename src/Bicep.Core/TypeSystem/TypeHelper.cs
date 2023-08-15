@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -42,6 +43,13 @@ namespace Bicep.Core.TypeSystem
                 _ => new UnionType(FormatName(normalizedMembers), normalizedMembers)
             };
         }
+
+        /// <summary>
+        /// Returns an ordered enumerable of type names.
+        /// </summary>
+        /// <param name="types">The types to get ordered names for.</param>
+        public static IEnumerable<string> GetOrderedTypeNames(IEnumerable<ITypeReference> types) =>
+            types.Select(t => t.Type).Order(typeComparer).Select(t => t.Name);
 
         /// <summary>
         /// Collapses multiple types into either:

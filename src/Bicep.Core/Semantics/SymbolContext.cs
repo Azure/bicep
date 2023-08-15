@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -21,6 +22,8 @@ namespace Bicep.Core.Semantics
         public Compilation Compilation => WithLockCheck(() => this.compilation);
 
         public IBinder Binder => WithLockCheck(() => this.semanticModel.Binder);
+
+        public ISourceFile SourceFile => WithLockCheck(() => this.semanticModel.SourceFile);
 
         public void Unlock() => this.unlocked = true;
 

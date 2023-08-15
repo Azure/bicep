@@ -220,15 +220,30 @@ namespace Bicep.LanguageServer.Completions
         /// The current location needs a module path (local or remote)
         /// </summary>
         TestPath = 1UL << 40,
-        
+
         /// <summary>
         /// The current location needs an assert value.
         /// </summary>
         AssertValue = 1UL << 41,
 
         /// <summary>
-        /// The current location needs a module path (local or remote)
+        /// The current location will accept an import identifier ('{}' or '* as foo')
         /// </summary>
-        TestBody = 1UL << 42,
+        ImportIdentifier = 1UL << 42,
+
+        /// <summary>
+        /// The current location in an import statement can be completed with a symbol that can be imported from the statement target.
+        /// </summary>
+        ImportedSymbolIdentifier = 1UL << 43,
+
+        /// <summary>
+        /// The current location in an import statement requires the <code>from</code> contextual keyword
+        /// </summary>
+        ExpectingImportFromKeyword = 1UL << 44,
+
+        /// <summary>
+        /// The current location needs a test body.
+        /// </summary>
+        TestBody = 1UL << 10,
     }
 }

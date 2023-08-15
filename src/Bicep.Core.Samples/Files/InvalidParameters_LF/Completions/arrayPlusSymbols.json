@@ -1111,7 +1111,7 @@
     "detail": "malformedModifier",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: error"
+      "value": "Type: 44"
     },
     "deprecated": false,
     "preselect": false,
@@ -1129,7 +1129,7 @@
     "detail": "malformedType",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: error"
+      "value": "Type: 44"
     },
     "deprecated": false,
     "preselect": false,
@@ -1147,7 +1147,7 @@
     "detail": "malformedType2",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: error"
+      "value": "Type: 44"
     },
     "deprecated": false,
     "preselect": false,

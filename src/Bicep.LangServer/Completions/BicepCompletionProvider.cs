@@ -19,6 +19,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
@@ -82,7 +83,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetOutputValueCompletions(model, context))
                 .Concat(GetOutputTypeFollowerCompletions(context))
                 .Concat(GetTargetScopeCompletions(model, context))
-                .Concat(GetImportCompletions(model, context))
+                .Concat(GetProviderImportCompletions(model, context))
+                .Concat(GetCompileTimeImportCompletions(model, context))
                 .Concat(GetFunctionParamCompletions(model, context))
                 .Concat(GetExpressionCompletions(model, context))
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCompletion(context))
@@ -171,8 +173,9 @@ namespace Bicep.LanguageServer.Completions
                         yield return CreateKeywordCompletion(LanguageConstants.OutputKeyword, "Output keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
+                        yield return CreateKeywordCompletion(LanguageConstants.TypeKeyword, "Type keyword", context.ReplacementRange);
 
-                        if (model.Features.ExtensibilityEnabled)
+                        if (model.Features.ExtensibilityEnabled || model.Features.CompileTimeImportsEnabled)
                         {
                             yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
                         }
@@ -301,13 +304,10 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
             {
-                var completions = GetAmbientTypeCompletions(model, context).Concat(GetParameterTypeSnippets(model.Compilation, context));
-
-                // Only show the aggregate type completions if the feature is enabled
-                if (model.Features.UserDefinedTypesEnabled)
-                {
-                    completions = completions.Concat(GetUserDefinedTypeCompletions(model, context));
-                }
+                var completions = GetAmbientTypeCompletions(model, context)
+                    .Concat(GetParameterTypeSnippets(model.Compilation, context))
+                    .Concat(GetUserDefinedTypeCompletions(model, context))
+                    .Concat(GetImportedTypeCompletions(model, context));
 
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 if (model.Features.ResourceTypedParamsAndOutputsEnabled)
@@ -320,12 +320,16 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.TypeDeclarationValue))
             {
-                return GetAmbientTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context, declaredType => !ReferenceEquals(declaredType.DeclaringType, context.EnclosingDeclaration)));
+                return GetAmbientTypeCompletions(model, context)
+                    .Concat(GetUserDefinedTypeCompletions(model, context, declaredType => !ReferenceEquals(declaredType.DeclaringType, context.EnclosingDeclaration)))
+                    .Concat(GetImportedTypeCompletions(model, context));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ObjectTypePropertyValue))
             {
-                return GetAmbientTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context));
+                return GetAmbientTypeCompletions(model, context)
+                    .Concat(GetUserDefinedTypeCompletions(model, context))
+                    .Concat(GetImportedTypeCompletions(model, context));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.UnionTypeMember))
@@ -344,13 +348,9 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
             {
-                var completions = GetAmbientTypeCompletions(model, context);
-
-                // Only show the aggregate type completions if the feature is enabled
-                if (model.Features.UserDefinedTypesEnabled)
-                {
-                    completions = completions.Concat(GetUserDefinedTypeCompletions(model, context));
-                }
+                var completions = GetAmbientTypeCompletions(model, context)
+                    .Concat(GetUserDefinedTypeCompletions(model, context))
+                    .Concat(GetImportedTypeCompletions(model, context));
 
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 if (model.Features.ResourceTypedParamsAndOutputsEnabled)
@@ -373,15 +373,23 @@ namespace Bicep.LanguageServer.Completions
 
         private static IEnumerable<CompletionItem> GetUserDefinedTypeCompletions(SemanticModel model, BicepCompletionContext context, Func<TypeAliasSymbol, bool>? filter = null)
         {
-            IEnumerable<TypeAliasSymbol> declarationsForCompletions = model.Binder.FileSymbol.TypeDeclarations;
+            IEnumerable<TypeAliasSymbol> declarationsForCompletions = model.Root.TypeDeclarations;
 
             if (filter is not null)
             {
                 declarationsForCompletions = declarationsForCompletions.Where(filter);
             }
 
-            return declarationsForCompletions.Select(declaredType => CreateDeclaredTypeCompletion(declaredType, context.ReplacementRange, CompletionPriority.High));
+            return declarationsForCompletions.Select(declaredType => CreateDeclaredTypeCompletion(model, declaredType, context.ReplacementRange, CompletionPriority.High));
         }
+
+        private static IEnumerable<CompletionItem> GetImportedTypeCompletions(SemanticModel model, BicepCompletionContext context)
+            => model.Root.TypeImports.Select(importedType => CreateImportedTypeCompletion(importedType, context.ReplacementRange, CompletionPriority.High))
+                .Concat(model.Root.WildcardImports
+                    .SelectMany(wildcardImport => wildcardImport.TryGetSemanticModel(out var importedModel, out _)
+                        ? importedModel.ExportedTypes.Values.Select(typeMetadata => (wildcardImport, typeMetadata))
+                        : Enumerable.Empty<(WildcardImportSymbol, ExportedTypeMetadata)>())
+                    .Select(t => CreateWildcardTypePropertyCompletion(t.Item1, t.Item2, context.ReplacementRange, CompletionPriority.High)));
 
         private static bool IsTypeLiteralSyntax(SyntaxBase syntax) => syntax is BooleanLiteralSyntax
             || syntax is IntegerLiteralSyntax
@@ -749,7 +757,7 @@ namespace Bicep.LanguageServer.Completions
 
             // Local functions.
 
-            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);      
+            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
         }
 
         private bool IsOciModuleRegistryReference(BicepCompletionContext context)
@@ -1712,12 +1720,53 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(typeName, priority))
                 .Build();
 
-        private static CompletionItem CreateDeclaredTypeCompletion(TypeAliasSymbol declaredType, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
-            CompletionItemBuilder.Create(CompletionItemKind.Class, declaredType.Name)
+        private static CompletionItem CreateDeclaredTypeCompletion(SemanticModel model, TypeAliasSymbol declaredType, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        {
+            var builder = CompletionItemBuilder.Create(CompletionItemKind.Class, declaredType.Name)
                 .WithPlainTextEdit(replacementRange, declaredType.Name)
                 .WithDetail(declaredType.Type.Name)
-                .WithSortText(GetSortText(declaredType.Name, priority))
-                .Build();
+                .WithSortText(GetSortText(declaredType.Name, priority));
+
+            if (DescriptionHelper.TryGetFromDecorator(model, declaredType.DeclaringType) is string documentation)
+            {
+                builder = builder.WithDocumentation(documentation);
+            }
+
+            return builder.Build();
+        }
+
+        private static CompletionItem CreateImportedTypeCompletion(ImportedTypeSymbol importedType, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        {
+            var builder = CompletionItemBuilder.Create(CompletionItemKind.Class, importedType.Name)
+                .WithPlainTextEdit(replacementRange, importedType.Name)
+                .WithDetail(importedType.Type.Name)
+                .WithSortText(GetSortText(importedType.Name, priority));
+
+            if (importedType.TryGetSemanticModel(out var model, out _) &&
+                model.ExportedTypes.TryGetValue(importedType.OriginalSymbolName, out var typeMetadata) &&
+                typeMetadata.Description is string documentation)
+            {
+                builder = builder.WithDocumentation(documentation);
+            }
+
+            return builder.Build();
+        }
+
+        private static CompletionItem CreateWildcardTypePropertyCompletion(WildcardImportSymbol wildcardImport, ExportedTypeMetadata exportedTypeMetadata, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        {
+            var replacement = $"{wildcardImport.Name}.{exportedTypeMetadata.Name}";
+            var builder = CompletionItemBuilder.Create(CompletionItemKind.Class, replacement)
+                .WithPlainTextEdit(replacementRange, replacement)
+                .WithDetail(exportedTypeMetadata.TypeReference.Type.Name)
+                .WithSortText(GetSortText(replacement, priority));
+
+            if (exportedTypeMetadata.Description is string documentation)
+            {
+                builder = builder.WithDocumentation(documentation);
+            }
+
+            return builder.Build();
+        }
 
         private static CompletionItem CreateResourceTypeKeywordCompletion(Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
             CompletionItemBuilder.Create(CompletionItemKind.Class, LanguageConstants.ResourceKeyword)
@@ -1902,7 +1951,7 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private IEnumerable<CompletionItem> GetImportCompletions(SemanticModel model, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetProviderImportCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportSpecification))
             {
@@ -1934,9 +1983,9 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportConfig))
             {
-                if (context.EnclosingDeclaration is ImportDeclarationSyntax importSyntax &&
-                    model.GetSymbolInfo(importSyntax) is ImportedNamespaceSymbol importSymbol &&
-                    importSymbol.TryGetNamespaceType() is { } namespaceType)
+                if (context.EnclosingDeclaration is ProviderDeclarationSyntax importSyntax &&
+                    model.GetSymbolInfo(importSyntax) is ProviderNamespaceSymbol providerSymbol &&
+                    providerSymbol.TryGetNamespaceType() is { } namespaceType)
                 {
                     foreach (var completion in GetValueCompletionsForType(model, context, namespaceType.ConfigurationType, loopsAllowed: false))
                     {
@@ -1948,6 +1997,59 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportAsKeyword))
             {
                 yield return CreateKeywordCompletion(LanguageConstants.AsKeyword, "As keyword", context.ReplacementRange);
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetCompileTimeImportCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportIdentifier))
+            {
+                yield return CompletionItemBuilder.Create(CompletionItemKind.Value, "{}")
+                    .WithSortText(GetSortText("{}", CompletionPriority.High))
+                    .WithDetail("Import symbols individually from another template")
+                    .WithPlainTextEdit(context.ReplacementRange, "{}")
+                    .Build();
+
+                yield return CompletionItemBuilder.Create(CompletionItemKind.Value, "* as")
+                    .WithSortText(GetSortText("* as", CompletionPriority.High))
+                    .WithDetail("Import all symbols from another template under a new namespace")
+                    .WithPlainTextEdit(context.ReplacementRange, "* as")
+                    .Build();
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportFromKeyword))
+            {
+                yield return CreateKeywordCompletion(LanguageConstants.FromKeyword, "From keyword", context.ReplacementRange);
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportedSymbolIdentifier))
+            {
+                if (context.EnclosingDeclaration is CompileTimeImportDeclarationSyntax compileTimeImportDeclaration &&
+                    compileTimeImportDeclaration.ImportExpression.Span.ContainsInclusive(context.ReplacementTarget.Span.Position))
+                {
+                    if (SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(model.Compilation.SourceFileGrouping,
+                        compileTimeImportDeclaration,
+                        b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
+                        model.Compilation,
+                        out var importedModel,
+                        out _))
+                    {
+                        var claimedNames = model.Root.Declarations.Select(d => d.Name).ToImmutableHashSet();
+
+                        foreach (var exported in importedModel.ExportedTypes)
+                        {
+                            var edit = claimedNames.Contains(exported.Key)
+                                ? $"{exported.Key} as "
+                                : exported.Key;
+
+                            yield return CompletionItemBuilder.Create(CompletionItemKind.Variable, exported.Key)
+                                .WithSortText(GetSortText(exported.Key, CompletionPriority.High))
+                                .WithDetail(exported.Value.Description)
+                                .WithPlainTextEdit(context.ReplacementRange, edit)
+                                .Build();
+                        }
+                    }
+                }
             }
         }
 

@@ -1,21 +1,20 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5012794014945376665"
+      "templateHash": "3337566769506476349"
     }
   },
   "parameters": {
     "responseTimeThreshold": {
       "type": "int",
       "defaultValue": 3,
-      "maxValue": 10000,
       "minValue": 1,
+      "maxValue": 10000,
       "metadata": {
         "description": "Enter response time threshold in seconds."
       }

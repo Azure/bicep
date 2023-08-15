@@ -66,11 +66,11 @@ namespace Bicep.LanguageServer.Handlers
                     new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken("string"))),
                     null),
 
-                new ImportDeclarationSyntax(
+                new ProviderDeclarationSyntax(
                     Enumerable.Empty<SyntaxBase>(),
                     SyntaxFactory.CreateIdentifierToken("import"),
                     SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
-                    new ImportWithClauseSyntax(
+                    new ProviderWithClauseSyntax(
                         SyntaxFactory.CreateToken(TokenType.WithKeyword),
                         SyntaxFactory.CreateObject(new[]
                         {

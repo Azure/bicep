@@ -454,7 +454,7 @@ namespace Bicep.Core.Parsing
             return new VariableBlockSyntax(openParen, rewritten, closeParen);
         }
 
-        private IEnumerable<SyntaxBase> HandleArrayOrObjectElements(TokenType closingTokenType, Func<SyntaxBase> parseChildElement)
+        protected IEnumerable<SyntaxBase> HandleArrayOrObjectElements(TokenType closingTokenType, Func<SyntaxBase> parseChildElement)
         {
             if (Check(closingTokenType))
             {
@@ -1207,6 +1207,9 @@ namespace Bicep.Core.Parsing
             }
         }
 
+        protected SkippedTriviaSyntax Skip(SyntaxBase syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+            => Skip(syntax.AsEnumerable(), errorFunc);
+
         private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {
             var syntaxArray = syntax.ToImmutableArray();
@@ -1225,7 +1228,7 @@ namespace Bicep.Core.Parsing
         protected SkippedTriviaSyntax SkipEmpty()
             => SkipEmpty(this.reader.Peek().Span.Position, null);
 
-        private SkippedTriviaSyntax SkipEmpty(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected SkippedTriviaSyntax SkipEmpty(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
             => SkipEmpty(this.reader.Peek().Span.Position, errorFunc);
 
         private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc)

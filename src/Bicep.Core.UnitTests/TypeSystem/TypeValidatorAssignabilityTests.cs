@@ -958,7 +958,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             parsingErrorLookup ??= EmptyDiagnosticLookup.Instance;
 
-            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object, parsingErrorLookup, Core.Workspaces.BicepSourceFileKind.BicepFile);
+            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object, parsingErrorLookup, StrictMock.Of<ISourceFileLookup>().Object, StrictMock.Of<ISemanticModelLookup>().Object, Core.Workspaces.BicepSourceFileKind.BicepFile);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, parsingErrorLookup, diagnosticWriter, expression, targetType);

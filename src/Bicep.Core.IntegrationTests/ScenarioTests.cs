@@ -4402,9 +4402,9 @@ resource CertificateVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
 output vaultId string = CertificateVault.id
 ";
 
-        var (parameters, _, _) = CompilationHelper.CompileParams(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), ("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
+        var (parameters, _, _) = CompilationHelper.CompileParams(("parameters.bicepparam", bicepparamText), ("main.bicep", bicepTemplateText));
 
-        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), bicepTemplateText);
+        var result = CompilationHelper.Compile(bicepTemplateText);
 
         result.Should().GenerateATemplate();
 
@@ -4799,7 +4799,7 @@ var foo = map([], resourceGroup => resourceGroup('test'))
     [TestMethod]
     public void Typed_lambda_variable_declarations_should_overwrite_globally_scoped_functions()
     {
-        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedTypesEnabled: true, UserDefinedFunctionsEnabled: true));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true));
 
         var result = CompilationHelper.Compile(services, @"
 func foo(resourceGroup string) string => resourceGroup('test')
@@ -4815,7 +4815,7 @@ func foo(resourceGroup string) string => resourceGroup('test')
     [TestMethod]
     public void Test_Issue10884()
     {
-        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(
 ("main.bicep", @"
 module mod 'mod.bicep' = {
   name: 'mod'
@@ -4852,7 +4852,7 @@ param resourceGroups resourceGroup[]
     [TestMethod]
     public void Test_Issue10098()
     {
-        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(
 ("mod.bicep", @"
 @allowed([0, 1, 2, 3 ])
 param availabilityZone int = 0
@@ -4944,7 +4944,7 @@ param foo = 'asdf'
             ("BCP353", DiagnosticLevel.Error, "The outputs \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
         });
 
-        result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)), """
+        result = CompilationHelper.Compile("""
             type foo = string
             type FoO = int
             """);
@@ -4953,6 +4953,19 @@ param foo = 'asdf'
         {
             ("BCP353", DiagnosticLevel.Error, "The types \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
             ("BCP353", DiagnosticLevel.Error, "The types \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+        });
+
+        result = CompilationHelper.Compile("""
+            param x {
+              foo: string
+              FoO: int
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP353", DiagnosticLevel.Error, "The type properties \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
+            ("BCP353", DiagnosticLevel.Error, "The type properties \"foo\", \"FoO\" differ only in casing. The ARM deployments engine is not case sensitive and will not be able to distinguish between them."),
         });
 
         result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(AssertsEnabled: true)), """
