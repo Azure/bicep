@@ -95,7 +95,7 @@ namespace Bicep.Core.Semantics
                 foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
                 {
                     var description = DescriptionHelper.TryGetFromDecorator(this, param.DeclaringParameter);
-                    var isRequired = TypeHelper.IsNullable(param.Type) || SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null;
+                    var isRequired = SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null && !TypeHelper.IsNullable(param.Type);
                     if (param.Type is ResourceType resourceType)
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated
