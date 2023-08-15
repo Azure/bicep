@@ -502,13 +502,18 @@ namespace Bicep.Core.Emit
 
         private static ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> CalculateParameterAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
         {
+            if (model.Root.ParameterAssignments.IsEmpty)
+            {
+                return ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty;
+            }
+
             var referencesInValues = model.Root.ParameterAssignments.Concat<DeclaredSymbol>(model.Root.VariableDeclarations)
                 .ToImmutableDictionary(p => p as Symbol, p => ReferenceGatheringVisitor.GatherReferences(model, p));
             var generated = ImmutableDictionary.CreateBuilder<ParameterAssignmentSymbol, ParameterAssignmentValue>();
             var evaluator = new ParameterAssignmentEvaluator(model);
             HashSet<Symbol> erroredSymbols = new();
 
-            foreach (var symbol in GetTopologicallySortedSymbols(model, referencesInValues))
+            foreach (var symbol in GetTopologicallySortedSymbols(referencesInValues))
             {
                 var referencedValueHasError = false;
                 foreach (var referenced in referencesInValues[symbol])
@@ -568,37 +573,26 @@ namespace Bicep.Core.Emit
             return generated.ToImmutableDictionary();
         }
 
-        private static IEnumerable<Symbol> GetTopologicallySortedSymbols(SemanticModel model,
-            ImmutableDictionary<Symbol, ImmutableDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>>>  referencesInValues)
+        private static IEnumerable<Symbol> GetTopologicallySortedSymbols(ImmutableDictionary<Symbol, ImmutableDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>>>  referencesInValues)
         {
-            List<Symbol> sorted = new();
-            HashSet<(Symbol from, Symbol to)> edges = new();
-            foreach (var (to, dependsOn) in referencesInValues)
+            HashSet<Symbol> processed = new();
+            IEnumerable<Symbol> YieldSymbolAndUnprocessedPredecessors(Symbol n)
             {
-                foreach (var (from, _) in dependsOn)
+                if (processed.Contains(n))
                 {
-                    edges.Add((from, to));
+                    yield break;
                 }
+                processed.Add(n);
+
+                foreach (var predecessor in referencesInValues[n].Keys.SelectMany(YieldSymbolAndUnprocessedPredecessors))
+                {
+                    yield return predecessor;
+                }
+
+                yield return n;
             }
 
-            Queue<Symbol> toProcess = new(model.Root.ParameterAssignments.Concat<Symbol>(model.Root.VariableDeclarations)
-                .Where(s => !edges.Any(edge => edge.to == s)));
-            while (toProcess.TryDequeue(out var p))
-            {
-                sorted.Add(p);
-                var targetsOfEdgesFromP = edges.Where(edge => edge.from == p).Select(edge => edge.to).ToHashSet();
-                edges.RemoveWhere(edge => edge.from == p);
-
-                foreach (var target in targetsOfEdgesFromP)
-                {
-                    if (!edges.Any(edge => edge.to == target))
-                    {
-                        toProcess.Enqueue(target);
-                    }
-                }
-            }
-
-            return sorted;
+            return referencesInValues.Keys.SelectMany(YieldSymbolAndUnprocessedPredecessors);
         }
 
         private class ReferenceGatheringVisitor : AstVisitor
