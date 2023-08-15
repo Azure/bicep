@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -17,25 +16,20 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class UserDefinedTypeTests
 {
-    private ServiceBuilder ServicesWithUserDefinedTypes => new ServiceBuilder()
-        .WithFeatureOverrides(new(TestContext, UserDefinedTypesEnabled: true));
-
     [NotNull]
     public TestContext? TestContext { get; set; }
 
     [TestMethod]
-    public void Type_declarations_are_disabled_unless_feature_is_enabled()
+    public void Type_declarations_are_enabled()
     {
         var result = CompilationHelper.Compile(@"
 type myString = string
 ");
-        result.Should().HaveDiagnostics(new[] {
-            ("BCP280", DiagnosticLevel.Error, "Using a type declaration statement requires enabling EXPERIMENTAL feature \"UserDefinedTypes\"."),
-        });
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
-    public void Inline_object_types_are_disabled_unless_feature_is_enabled()
+    public void Inline_object_types_are_enabled()
     {
         var result = CompilationHelper.Compile(@"
 param complexParam {
@@ -43,40 +37,40 @@ param complexParam {
     property2: string
 }
 ");
-        result.Should().ContainDiagnostic("BCP282", DiagnosticLevel.Error, "Using a strongly-typed object type declaration requires enabling EXPERIMENTAL feature \"UserDefinedTypes\".");
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
-    public void Inline_type_literals_are_disabled_unless_feature_is_enabled()
+    public void Inline_type_literals_are_enabled()
     {
         var result = CompilationHelper.Compile(@"
 param thirtyThreeParam 33
 ");
-        result.Should().ContainDiagnostic("BCP283", DiagnosticLevel.Error, "Using a literal value as a type requires enabling EXPERIMENTAL feature \"UserDefinedTypes\".");
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
-    public void Inline_union_types_are_disabled_unless_feature_is_enabled()
+    public void Inline_union_types_are_enabled()
     {
         var result = CompilationHelper.Compile(@"
 param oneOfSeveralStrings 'this one'|'that one'|'perhaps this one instead'
 ");
-        result.Should().ContainDiagnostic("BCP284", DiagnosticLevel.Error, "Using a type union declaration requires enabling EXPERIMENTAL feature \"UserDefinedTypes\".");
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
-    public void Nullable_types_are_disabled_unless_feature_is_enabled()
+    public void Nullable_types_are_enabled()
     {
         var result = CompilationHelper.Compile(@"
 param nullableString string?
 ");
-        result.Should().ContainDiagnostic("BCP324", DiagnosticLevel.Error, "Using nullable types requires enabling EXPERIMENTAL feature \"UserDefinedTypes\".");
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
     public void Namespaces_cannot_be_used_as_types()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 param azParam az
 ");
         result.Should().ContainDiagnostic("BCP306", DiagnosticLevel.Error, "The name \"az\" refers to a namespace, not to a type.");
@@ -85,7 +79,7 @@ param azParam az
     [TestMethod]
     public void Namespaces_cannot_be_assigned_to_types()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 type sysAlias = sys
 ");
         result.Should().ContainDiagnostic("BCP306", DiagnosticLevel.Error, "The name \"sys\" refers to a namespace, not to a type.");
@@ -94,7 +88,7 @@ type sysAlias = sys
     [TestMethod]
     public void Masked_types_still_accessible_via_qualified_reference()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 type string = int
 
 param stringParam string = 'foo'
@@ -106,7 +100,7 @@ param stringParam string = 'foo'
         });
 
         // fix by fully-qualifying
-        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        result = CompilationHelper.Compile(@"
 type string = int
 
 param stringParam sys.string = 'foo'
@@ -120,7 +114,7 @@ param stringParam sys.string = 'foo'
     [TestMethod]
     public void Constraint_decorators_prohibited_on_type_refs()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 @minLength(3)
 @maxLength(5)
 @description('A string with a bunch of constraints')
@@ -175,7 +169,7 @@ param intParam constrainedInt
     [TestMethod]
     public void Allowed_decorator_may_not_be_used_on_literal_and_union_typed_parameters()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 @allowed([true])
 param trueParam true
 
@@ -219,7 +213,7 @@ param fizzBuzzPopParam 'fizz'|'buzz'|'pop'
     [TestMethod]
     public void Unions_that_incorporate_their_parent_object_do_not_blow_the_stack()
     {
-        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var blockedBecauseOfCycle = CompilationHelper.Compile(@"
 type anObject = {
     recur: {foo: 'bar'}|anObject
 }
@@ -230,7 +224,7 @@ type anObject = {
             ("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values."),
         });
 
-        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(@"
 type anObject = {
     recur: {foo: 'bar'}|anObject?
 }
@@ -244,7 +238,7 @@ type anObject = {
     [TestMethod]
     public void Unary_operations_that_incorporate_their_parent_object_do_not_blow_the_stack()
     {
-        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var blockedBecauseOfCycle = CompilationHelper.Compile(@"
 type anObject = {
     recur: !anObject
 }
@@ -258,7 +252,7 @@ type anObject = {
     [TestMethod]
     public void Arrays_that_incorporate_their_parent_object_do_not_blow_the_stack()
     {
-        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var blockedBecauseOfCycle = CompilationHelper.Compile(@"
 type anObject = {
     recur: anObject[]
 }
@@ -268,7 +262,7 @@ type anObject = {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
         });
 
-        var permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var permitted = CompilationHelper.Compile(@"
 type anObject = {
     recur: (anObject?)[]
 }
@@ -276,13 +270,13 @@ type anObject = {
 
         permitted.Should().NotHaveAnyDiagnostics();
 
-        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        permitted = CompilationHelper.Compile(@"
 type anArray = (anArray?)[]
 ");
 
         permitted.Should().NotHaveAnyDiagnostics();
 
-        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        permitted = CompilationHelper.Compile(@"
 type anArray = anArray[]?
 ");
 
@@ -292,7 +286,7 @@ type anArray = anArray[]?
     [TestMethod]
     public void Cyclic_nullables_do_not_blow_the_stack()
     {
-        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var blockedBecauseOfCycle = CompilationHelper.Compile(@"
 type nullable = nullable?
 ");
 
@@ -304,7 +298,7 @@ type nullable = nullable?
     [TestMethod]
     public void Tuples_that_incorporate_their_parent_object_do_not_blow_the_stack()
     {
-        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var blockedBecauseOfCycle = CompilationHelper.Compile(@"
 type anObject = {
     recur: [anObject]
 }
@@ -314,7 +308,7 @@ type anObject = {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
         });
 
-        var permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var permitted = CompilationHelper.Compile(@"
 type anObject = {
     recur: [anObject]?
 }
@@ -322,7 +316,7 @@ type anObject = {
 
         permitted.Should().NotHaveAnyDiagnostics();
 
-        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        permitted = CompilationHelper.Compile(@"
 type anObject = {
     recur: [anObject?]
 }
@@ -330,13 +324,13 @@ type anObject = {
 
         permitted.Should().NotHaveAnyDiagnostics();
 
-        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        permitted = CompilationHelper.Compile(@"
 type aTuple = [aTuple?]
 ");
 
         permitted.Should().NotHaveAnyDiagnostics();
 
-        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        permitted = CompilationHelper.Compile(@"
 type aTuple = [aTuple]?
 ");
 
@@ -346,7 +340,7 @@ type aTuple = [aTuple]?
     [TestMethod]
     public void Objects_that_incorporate_their_parent_object_do_not_blow_the_stack()
     {
-        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var blockedBecauseOfCycle = CompilationHelper.Compile(@"
 type anObject = {
     recurEventually: {
         recurNow: anObject
@@ -358,7 +352,7 @@ type anObject = {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
         });
 
-        var permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var permitted = CompilationHelper.Compile(@"
 type anObject = {
     recurEventually: {
         recurNow: anObject?
@@ -368,7 +362,7 @@ type anObject = {
 
         permitted.Should().NotHaveAnyDiagnostics();
 
-        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        permitted = CompilationHelper.Compile(@"
 type anObject = {
     recurEventually: {
         recurNow: anObject
@@ -378,7 +372,7 @@ type anObject = {
 
         permitted.Should().NotHaveAnyDiagnostics();
 
-        permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        permitted = CompilationHelper.Compile(@"
 type anObject = {
     recurEventually: {
         recurNow: anObject
@@ -392,7 +386,7 @@ type anObject = {
     [TestMethod]
     public void Cyclic_check_understands_nullability_modifiers()
     {
-        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var blockedBecauseOfCycle = CompilationHelper.Compile(@"
 type anObject = {
     recurEventually: {
         recurNow: anObject!
@@ -404,7 +398,7 @@ type anObject = {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
         });
 
-        blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        blockedBecauseOfCycle = CompilationHelper.Compile(@"
 type anObject = {
     recurEventually: {
         recurNow: anObject
@@ -416,7 +410,7 @@ type anObject = {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
         });
 
-        var permitted = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var permitted = CompilationHelper.Compile(@"
 type anObject = {
     recurEventually: {
         recurNow: anObject!?
@@ -430,7 +424,7 @@ type anObject = {
     [TestMethod]
     public void Warning_should_be_shown_when_reading_unknown_properties_on_unsealed_objects()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 param anObject {}
 
 output prop string = anObject.prop
@@ -444,7 +438,7 @@ output prop string = anObject.prop
     [TestMethod]
     public void Warning_should_be_shown_when_setting_unknown_properties_on_unsealed_objects()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 #disable-next-line no-unused-params
 param anObject {} = {prop: 'someVal'}
 
@@ -460,7 +454,7 @@ param anotherObject object = {prop: 'someVal'}
     [TestMethod]
     public void Error_should_be_shown_when_setting_unknown_properties_that_do_not_match_additional_properties_type()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 #disable-next-line no-unused-params
 param aDict {
   *: int
@@ -471,7 +465,7 @@ param aDict {
             ("BCP036", DiagnosticLevel.Error, @"The property ""prop"" expected a value of type ""int"" but the provided value is of type ""'someVal'""."),
         });
 
-        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        result = CompilationHelper.Compile(@"
 #disable-next-line no-unused-params
 param aDict {
   *: string
@@ -484,7 +478,7 @@ param aDict {
     [TestMethod]
     public void Additional_properties_may_be_used_alongside_named_properties()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 #disable-next-line no-unused-params
 param aDict {
   knownProp: int
@@ -501,7 +495,7 @@ param aDict {
     [TestMethod]
     public void Constraint_decorators_can_be_used_on_nullably_typed_params()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 @minLength(3)
 @maxLength(10)
 @secure()
@@ -544,7 +538,7 @@ param foos (null | { bar: { baz: { quux: 'quux' } } })[]
 output quux string = foos[0].?bar.baz.quux
 ";
 
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, templateWithPossiblyNullDeref);
+        var result = CompilationHelper.Compile(templateWithPossiblyNullDeref);
         result.Should().HaveDiagnostics(new []
         {
           ("BCP318", DiagnosticLevel.Warning, @"The value of type ""null | { bar: { baz: { quux: 'quux' } } }"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail."),
@@ -565,7 +559,7 @@ output quux string = foos[0].?bar.baz.quux
 
         fixAlternatives.Should().BeEmpty();
 
-        result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, templateWithNonNullAssertion);
+        result = CompilationHelper.Compile(templateWithNonNullAssertion);
         result.Should().NotHaveAnyDiagnostics();
         result.Should().HaveTemplateWithOutput("quux", "[parameters('foos')[0].bar.baz.quux]");
     }
@@ -573,7 +567,7 @@ output quux string = foos[0].?bar.baz.quux
     [TestMethod]
     public void Error_should_be_emitted_when_setting_a_default_value_on_a_nullable_parameter()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 #disable-next-line no-unused-params
 param myParam string? = 'foo'
 ");
@@ -586,7 +580,7 @@ param myParam string? = 'foo'
     [TestMethod]
     public void Tuples_with_a_literal_index_use_type_at_index()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes,
+        var result = CompilationHelper.Compile(
 ("main.bicep", @"
 var myArray = ['foo', 'bar']
 
@@ -608,7 +602,7 @@ param myParam 'foo'
     [TestMethod]
     public void Tuples_with_a_literal_union_index_use_type_at_indices()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes,
+        var result = CompilationHelper.Compile(
 ("main.bicep", @"
 param index 0 | 1
 
@@ -645,7 +639,7 @@ output foo string = 'foo'
     [TestMethod]
     public void User_defined_types_may_be_used_with_outputs()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 @minLength(3)
 @maxLength(4)
 type constrainedString = string
@@ -658,7 +652,7 @@ output arrayOfConstrainedStrings constrainedString[] = ['fizz', 'buzz', 'pop']
 
     public void Type_aliases_incorporate_modifiers_into_type()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 @maxLength(2)
 type shortString = string
 
@@ -689,7 +683,7 @@ param myParam int
     [TestMethod]
     public void Impossible_array_length_domains_raise_descriptive_error()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 @minLength(1)
 @maxLength(0)
 param myParam array
@@ -704,7 +698,7 @@ param myParam array
     [TestMethod]
     public void Impossible_string_length_domains_raise_descriptive_error()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+        var result = CompilationHelper.Compile(@"
 @minLength(1)
 @maxLength(0)
 param myParam string
@@ -719,8 +713,7 @@ param myParam string
     [TestMethod]
     public void Duplicate_property_names_should_raise_descriptive_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes,
-            """
+        var result = CompilationHelper.Compile("""
             type foo = {
                 bar: bool
                 bar: string
@@ -736,7 +729,7 @@ param myParam string
     [TestMethod]
     public void Union_types_with_single_normalized_member_raise_diagnostics()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, """
+        var result = CompilationHelper.Compile("""
             type union = 'a' | 'a'
             """);
 

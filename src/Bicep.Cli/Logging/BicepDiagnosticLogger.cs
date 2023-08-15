@@ -39,7 +39,7 @@ namespace Bicep.Cli.Logging
 
             // build a a code description link if the Uri is assigned
             var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
-            if (Format == DiagnosticsFormat.Default) 
+            if (Format == DiagnosticsFormat.Default)
             {
                 var message = $"{fileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}";
                 this.logger.Log(ToLogLevel(diagnostic.Level), message);
@@ -93,15 +93,16 @@ namespace Bicep.Cli.Logging
 
         public void SetupFormat(DiagnosticsFormat? format)
         {
-            if(format is null)
+            if (format is null)
             {
                 throw new ArgumentException($"Diagnostics Format should not be null");
             }
-            else{
+            else
+            {
                 Format = format.Value;
             }
 
-            if(Format == DiagnosticsFormat.Sarif)
+            if (Format == DiagnosticsFormat.Sarif)
             {
                 // setup an empty run on the sarif log to add results to.
                 sarifLog.Runs = new List<Run>();
@@ -117,7 +118,7 @@ namespace Bicep.Cli.Logging
 
         public void FlushLog()
         {
-            if(Format == DiagnosticsFormat.Sarif)
+            if (Format == DiagnosticsFormat.Sarif)
             {
                 // Add the results from the run to the sarif log, serialize and write to stderr.
                 sarifLog.Runs[0].Results = sarifResults;

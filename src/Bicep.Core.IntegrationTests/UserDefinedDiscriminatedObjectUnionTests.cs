@@ -19,15 +19,10 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private ServiceBuilder ServicesWithUserDefinedTypes => new ServiceBuilder()
-            .WithFeatureOverrides(new(TestContext, UserDefinedTypesEnabled: true));
-
         [TestMethod]
         public void DiscriminatedObjectUnions_Basic()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 type typeA = {
                   type: 'a'
                   value: string
@@ -81,9 +76,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("typeUnionABC | typeD")]
         public void DiscriminatedObjectUnions_AliasedMembers(string typeTest)
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                $$"""
+            var result = CompilationHelper.Compile($$"""
                   type typeA = {
                     type: 'a'
                     value: string
@@ -151,9 +144,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void DiscriminatedObjectUnions_LiteralTypes()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 @discriminator('type')
                 type typeUnion = { type: 'a', value: int } | { type: 'b', value: string }
                 """);
@@ -208,9 +199,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void DiscriminatedObjectUnions_Nullable()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 type typeA = {
                   type: 'a'
                   value: string
@@ -270,9 +259,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void DiscriminatedObjectUnions_Nested()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 type typeA = {
                   type: 'a'
                   value: string
@@ -327,9 +314,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void DiscriminatedObjectUnions_SelfCycle_Optional()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 type typeA = {
                   type: 'a'
                   value: string
@@ -382,9 +367,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void DiscriminatedObjectUnions_Error_NonLiteralObjectTypes_NoDiscriminatorDecorator()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 type typeA = {
                   type: 'a'
                   value: string
@@ -404,9 +387,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void DiscriminatedObjectUnions_Error_Discriminator_MissingOnMember()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 type typeA = {
                   type: 'a'
                   value: string
@@ -429,9 +410,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("'a'?")]
         public void DiscriminatedObjectUnions_Error_Discriminator_PropertyTypeViolation(string typeTest)
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                $$"""
+            var result = CompilationHelper.Compile($$"""
                   type typeA = {
                     type: {{typeTest}}
                     value: string
@@ -454,9 +433,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("typeA | typeA")]
         public void DiscriminatedObjectUnions_Error_Discriminator_DuplicatedAcrossMembers(string typeTest)
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                $$"""
+            var result = CompilationHelper.Compile($$"""
                   type typeA = {
                     type: 'a'
                     value: string
@@ -483,9 +460,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("(typeA | typeB)[]")]
         public void DiscriminatedObjectUnions_Error_DiscriminatorAppliedToNonObjectOnlyUnion(string typeTest)
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                $$"""
+            var result = CompilationHelper.Compile($$"""
                   type typeA = {
                     type: 'a'
                     value: string
@@ -508,9 +483,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("0", "BCP070")]
         public void DiscriminatedObjectUnions_Error_Discriminator_InvalidArgument(string decoratorArgument, string expectedDiagnosticCode)
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                $$"""
+            var result = CompilationHelper.Compile($$"""
                   type typeA = {
                     type: 'a'
                     value: string
@@ -538,9 +511,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void DiscriminatedObjectUnions_Error_InnerCycle()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 type typeA = {
                   type: 'a'
                   value: string
@@ -565,9 +536,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void DiscriminatedObjectUnions_Error_TopLevelCycle()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 type typeA = {
                   type: 'a'
                   value: string
@@ -592,9 +561,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void DiscriminatedObjectUnions_Error_SelfCycle()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 type typeA = {
                   type: 'a'
                   value: string
@@ -615,9 +582,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void DiscriminatedObjectUnions_Error_InlineSelfCycle()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 type typeA = {
                   type: 'a'
                   value: string
@@ -636,9 +601,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void DiscriminatedObjectUnions_SelfCycle_Inline_Optional()
         {
-            var result = CompilationHelper.Compile(
-                ServicesWithUserDefinedTypes,
-                """
+            var result = CompilationHelper.Compile("""
                 type typeA = {
                   type: 'a'
                   value: string

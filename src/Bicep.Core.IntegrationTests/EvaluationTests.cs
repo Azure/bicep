@@ -1116,5 +1116,20 @@ param location = 'westus'
                 evaluated.Should().HaveValueAtPath("$.asserts['a3']", true);
             }
         }
+
+        [TestMethod]
+        public void Type_syntax_is_evaluated_correctly()
+        {
+            var (template, _, _) = CompilationHelper.Compile("""
+                param foo string?
+
+                output foo string = foo ?? 'not specified'
+                """);
+
+            var evaluated = TemplateEvaluator.Evaluate(template);
+
+            evaluated.Should().HaveValueAtPath("$.languageVersion", "2.0");
+            evaluated.Should().HaveValueAtPath("$.outputs.foo.value", "not specified");
+        }
     }
 }

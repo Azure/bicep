@@ -36,6 +36,7 @@ namespace Bicep.Cli.Services
                 Constants.Command.DecompileParams => new DecompileParamsArguments(args[1..]),
                 Constants.Command.Publish => new PublishArguments(args[1..]),
                 Constants.Command.Restore => new RestoreArguments(args[1..]),
+                Constants.Command.Lint => new LintArguments(args[1..]),
                 _ => null,
             };
         }
