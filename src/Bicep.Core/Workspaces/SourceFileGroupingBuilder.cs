@@ -13,6 +13,8 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
+using Bicep.Core.Features;
+using Bicep.Core.Semantics.Namespaces;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Workspaces
@@ -28,7 +30,11 @@ namespace Bicep.Core.Workspaces
 
         private readonly bool forceModulesRestore;
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, bool forceModulesRestore = false)
+        private SourceFileGroupingBuilder(
+            IFileResolver fileResolver,
+            IModuleDispatcher moduleDispatcher,
+            IReadOnlyWorkspace workspace,
+            bool forceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
@@ -38,7 +44,12 @@ namespace Bicep.Core.Workspaces
             this.forceModulesRestore = forceModulesRestore;
         }
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, bool forceforceModulesRestore = false)
+        private SourceFileGroupingBuilder(
+            IFileResolver fileResolver,
+            IModuleDispatcher moduleDispatcher,
+            IReadOnlyWorkspace workspace,
+            SourceFileGrouping current,
+            bool forceforceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
@@ -48,14 +59,14 @@ namespace Bicep.Core.Workspaces
             this.forceModulesRestore = forceforceModulesRestore;
         }
 
-        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, IFeatureProviderFactory featuresFactory, bool forceModulesRestore = false)
         {
             var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, forceModulesRestore);
 
-            return builder.Build(entryFileUri);
+            return builder.Build(entryFileUri, featuresFactory);
         }
 
-        public static SourceFileGrouping Rebuild(IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(IFeatureProviderFactory featuresFactory, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current)
         {
             var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current);
             var isParamsFile = current.FileResultByUri[current.EntryFileUri].File is BicepParamFile;
@@ -76,12 +87,12 @@ namespace Bicep.Core.Workspaces
                 .SelectMany(sourceFile => current.GetFilesDependingOn(sourceFile))
                 .ToImmutableHashSet();
 
-            return builder.Build(current.EntryPoint.FileUri, sourceFilesToRebuild);
+            return builder.Build(current.EntryPoint.FileUri, featuresFactory, sourceFilesToRebuild);
         }
 
-        private SourceFileGrouping Build(Uri entryFileUri, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild = null)
+        private SourceFileGrouping Build(Uri entryFileUri, IFeatureProviderFactory featuresFactory, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild = null)
         {
-            var fileResult = this.PopulateRecursive(entryFileUri, null, sourceFilesToRebuild);
+            var fileResult = this.PopulateRecursive(entryFileUri, null, sourceFilesToRebuild, featuresFactory);
 
             if (fileResult.File is null)
             {
@@ -131,16 +142,23 @@ namespace Bicep.Core.Workspaces
             return resolutionResult;
         }
 
-        private FileResolutionResult PopulateRecursive(Uri fileUri, ModuleReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild)
+        private FileResolutionResult PopulateRecursive(Uri fileUri, ModuleReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild, IFeatureProviderFactory featuresFactory)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, moduleReference);
-
+            var features = featuresFactory.GetFeatureProvider(fileUri);
             switch (fileResult.File)
             {
                 case BicepFile bicepFile:
                     {
                         foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IForeignArtifactReference>())
                         {
+                            // NOTE(asilverman): The below check is ugly but temporary until we have a better way to
+                            // handle dynamic type loading in a way that is decoupled from modules.
+                            if (restorable is ProviderDeclarationSyntax providerImport &&
+                                (providerImport.Specification.Name != AzNamespaceType.BuiltInName || !features.DynamicTypeLoadingEnabled))
+                            {
+                                continue;
+                            }
                             var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, restorable);
 
                             uriResultByModule.GetOrAdd(bicepFile, f => new())[restorable] = uriResult;
@@ -154,7 +172,7 @@ namespace Bicep.Core.Workspaces
                                 (childResult.File is not null && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childResult.File)))
                             {
                                 // only recurse if we've not seen this file before - to avoid infinite loops
-                                childResult = PopulateRecursive(uriResult.FileUri, childModuleReference, sourceFileToRebuild);
+                                childResult = PopulateRecursive(uriResult.FileUri, childModuleReference, sourceFileToRebuild, featuresFactory);
                             }
 
                             fileResultByUri[uriResult.FileUri] = childResult;
@@ -182,7 +200,7 @@ namespace Bicep.Core.Workspaces
                             if (!fileResultByUri.TryGetValue(usingFileUri, out var childResult))
                             {
                                 // only recurse if we've not seen this file before - to avoid infinite loops
-                                childResult = PopulateRecursive(usingFileUri, null, sourceFileToRebuild);
+                                childResult = PopulateRecursive(usingFileUri, null, sourceFileToRebuild, featuresFactory);
                             }
 
                             fileResultByUri[usingFileUri] = childResult;

@@ -11,7 +11,12 @@ namespace Bicep.Core.Registry.Oci
 {
     public class OciManifest
     {
-        public OciManifest(int schemaVersion, string? artifactType, OciDescriptor config, IEnumerable<OciDescriptor> layers, IDictionary<string, string>? annotations = null)
+        public OciManifest(
+            int schemaVersion,
+            string? artifactType,
+            OciDescriptor config,
+            IEnumerable<OciDescriptor> layers,
+            IDictionary<string, string>? annotations = null)
         {
             this.Annotations = annotations?.ToImmutableDictionary() ?? ImmutableDictionary<string, string>.Empty;
             this.SchemaVersion = schemaVersion;
@@ -33,9 +38,9 @@ namespace Bicep.Core.Registry.Oci
         /// </summary>
         public ImmutableDictionary<string, string> Annotations { get; }
 
-        internal static OciManifest? FromBinaryData(BinaryData d)
+        internal static OciManifest? FromBinaryData(BinaryData data)
         {
-            return JsonConvert.DeserializeObject<OciManifest>(d.ToString());
+            return JsonConvert.DeserializeObject<OciManifest>(data.ToString());
         }
     }
 }

@@ -65,10 +65,10 @@ namespace Bicep.Core.IntegrationTests
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(EmptyServiceProvider, BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, featuresFactory, BicepTestConstants.ConfigurationManager), BicepTestConstants.ConfigurationManager);
 
             var workspace = new Workspace();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri, featuresFactory);
             if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.GetModulesToRestore())))
             {
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
+                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featuresFactory, dispatcher, workspace, sourceFileGrouping);
             }
 
             var compilation = Services.WithFeatureOverrides(featureOverrides).Build().BuildCompilation(sourceFileGrouping);

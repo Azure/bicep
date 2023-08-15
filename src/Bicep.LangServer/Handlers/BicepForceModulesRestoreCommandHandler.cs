@@ -13,6 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using System.Text;
 using Bicep.Core.Syntax;
+using Bicep.Core.Features;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -23,13 +24,20 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IWorkspace workspace;
+        private readonly IFeatureProviderFactory featureProviderFactory;
 
-        public BicepForceModulesRestoreCommandHandler(ISerializer serializer, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IWorkspace workspace)
+        public BicepForceModulesRestoreCommandHandler(
+            ISerializer serializer,
+            IFileResolver fileResolver,
+            IModuleDispatcher moduleDispatcher,
+            IWorkspace workspace,
+            IFeatureProviderFactory featureProviderFactory)
             : base(LangServerConstants.ForceModulesRestoreCommand, serializer)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.workspace = workspace;
+            this.featureProviderFactory = featureProviderFactory;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -49,7 +57,12 @@ namespace Bicep.LanguageServer.Handlers
         {
             var fileUri = documentUri.ToUri();
 
-            SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, workspace, fileUri);
+            SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(
+                this.fileResolver,
+                this.moduleDispatcher,
+                workspace,
+                fileUri,
+                featureProviderFactory);
 
             // Ignore modules to restore logic, include all modules to be restored
             var modulesToRestore = sourceFileGrouping.UriResultByModule

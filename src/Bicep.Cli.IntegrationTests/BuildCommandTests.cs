@@ -150,7 +150,7 @@ import 'az@2.0.0'
             File.WriteAllText(bicepFilePath, bicepFile);
 
             // 4. create a settings object with the mock registry client and relevant features enabled
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, ExtensibilityEnabled: true), clientFactory.Object, Repository.Create<ITemplateSpecRepositoryFactory>().Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, ExtensibilityEnabled: true, DynamicTypeLoading: true), clientFactory.Object, Repository.Create<ITemplateSpecRepositoryFactory>().Object);
 
             // TEST
             // 5. run bicep build

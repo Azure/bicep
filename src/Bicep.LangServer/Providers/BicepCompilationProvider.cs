@@ -52,7 +52,8 @@ namespace Bicep.LanguageServer.Providers
                 fileResolver,
                 moduleDispatcher,
                 workspace,
-                documentUri.ToUri());
+                documentUri.ToUri(),
+                featureProviderFactory);
             return this.CreateContext(sourceFileGrouping, modelLookup);
         }
 
@@ -62,6 +63,7 @@ namespace Bicep.LanguageServer.Providers
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(
+                featureProviderFactory,
                 moduleDispatcher,
                 workspace,
                 current.Compilation.SourceFileGrouping);

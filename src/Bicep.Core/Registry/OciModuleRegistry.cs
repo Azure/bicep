@@ -320,7 +320,7 @@ namespace Bicep.Core.Registry
         // media types are case-insensitive (they are lowercase by convention only)
         public static readonly IEqualityComparer<string> MediaTypeComparer = StringComparer.OrdinalIgnoreCase;
 
-        protected override async void WriteModuleContent(OciModuleReference reference, OciArtifactResult result)
+        protected override void WriteModuleContent(OciModuleReference reference, OciArtifactResult result)
         {
             /*
              * this should be kept in sync with the IsModuleRestoreRequired() implementation
@@ -339,19 +339,21 @@ namespace Bicep.Core.Registry
             {
                 switch (mediaType)
                 {
+                    // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
+                    // but this may change in the future if we chose to publish providers in multiple layers. 
                     case BicepMediaTypes.BicepModuleLayerV1Json:
                         {
                             // write module.json
-                            var moduleData = await result.PullLayerAsync(result.Manifest.Layers.Single());
-                            using var moduleStream = moduleData.ToStream();
+                            var moduleData = result.Layers.Single();
+                            using var moduleStream = moduleData!.ToStream();
                             this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain), moduleStream);
                             break;
                         }
                     case BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip:
                         {
                             // write provider.tar.gz
-                            var providerData = await result.PullLayerAsync(result.Manifest.Layers.Single());
-                            using var providerStream = providerData.ToStream();
+                            var providerData = result.Layers.Single();
+                            using var providerStream = providerData!.ToStream();
                             this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Provider), providerStream);
                             break;
                         }

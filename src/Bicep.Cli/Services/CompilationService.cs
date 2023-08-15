@@ -6,6 +6,7 @@ using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
@@ -29,6 +30,7 @@ namespace Bicep.Cli.Services
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IConfigurationManager configurationManager;
+        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly Workspace workspace;
 
         public CompilationService(
@@ -37,7 +39,8 @@ namespace Bicep.Cli.Services
             BicepparamDecompiler paramDecompiler,
             IDiagnosticLogger diagnosticLogger,
             IModuleDispatcher moduleDispatcher,
-            IConfigurationManager configurationManager)
+            IConfigurationManager configurationManager,
+            IFeatureProviderFactory featureProviderFactory)
         {
             this.bicepCompiler = bicepCompiler;
             this.decompiler = decompiler;
@@ -46,6 +49,7 @@ namespace Bicep.Cli.Services
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
             this.workspace = new Workspace();
+            this.featureProviderFactory = featureProviderFactory;
         }
 
         public async Task RestoreAsync(string inputPath, bool forceModulesRestore)
@@ -65,7 +69,7 @@ namespace Bicep.Cli.Services
             await moduleDispatcher.RestoreModules(modulesToRestoreReferences, forceModulesRestore);
 
             // update the errors based on restore status
-            var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(this.moduleDispatcher, this.workspace, compilation.SourceFileGrouping);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, this.moduleDispatcher, this.workspace, compilation.SourceFileGrouping);
 
             LogDiagnostics(GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceModulesRestore));
         }

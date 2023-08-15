@@ -41,7 +41,7 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax? Alias => (this.AsClause as AliasAsClauseSyntax)?.Alias;
 
-        private StringSyntax ProviderPath => SyntaxFactory.CreateStringLiteral($@"{IOciArtifactReference.Scheme}:{LanguageConstants.BicepPublicMcrRegistry}/bicep/providers/{this.Specification.Name}:{this.Specification.Version}");
+        private StringSyntax ProviderPath => SyntaxFactory.CreateStringLiteral($@"{OciArtifactReferenceFacts.Scheme}:{LanguageConstants.BicepPublicMcrRegistry}/bicep/providers/{this.Specification.Name}:{this.Specification.Version}");
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(this.SpecificationString, this.WithClause, this.AsClause));
 

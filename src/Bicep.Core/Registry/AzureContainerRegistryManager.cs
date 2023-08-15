@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
@@ -148,7 +149,49 @@ namespace Bicep.Core.Registry
             // BUG: The SDK internally consumed the stream for validation purposes and left position at the end
             stream.Position = 0;
             ValidateManifestResponse(manifestResponse);
-            return new OciArtifactResult(client, manifestResponse.Value.Manifest, manifestResponse.Value.Digest);
+
+            var deserializedManifest = OciManifest.FromBinaryData(manifestResponse.Value.Manifest) ?? throw new InvalidOperationException("the manifest is not a valid OCI manifest");
+            var layers = deserializedManifest.Layers
+                .Select(layer => new KeyValuePair<string, BinaryData>(layer.Digest, PullLayerAsync(client, layer).Result))
+                .ToImmutableDictionary(pair => pair.Key, pair => pair.Value);
+
+            return new(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers);
+        }
+
+        private static async Task<BinaryData> PullLayerAsync(ContainerRegistryContentClient client, OciDescriptor layer, CancellationToken cancellationToken = default)
+        {
+            Response<DownloadRegistryBlobResult> blobResult;
+            try
+            {
+                blobResult = await client.DownloadBlobContentAsync(layer.Digest, cancellationToken);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 404)
+            {
+                throw new InvalidModuleException($"Module manifest refers to a non-existent blob with digest \"{layer.Digest}\".", exception);
+            }
+
+            ValidateBlobResponse(blobResult, layer);
+
+            return blobResult.Value.Content;
+        }
+
+        private static void ValidateBlobResponse(Response<DownloadRegistryBlobResult> blobResponse, OciDescriptor descriptor)
+        {
+            using var stream = blobResponse.Value.Content.ToStream();
+
+            if (descriptor.Size != stream.Length)
+            {
+                throw new InvalidModuleException($"Expected blob size of {descriptor.Size} bytes but received {stream.Length} bytes from the registry.");
+            }
+
+            stream.Position = 0;
+            string digestFromContents = DescriptorFactory.ComputeDigest(DescriptorFactory.AlgorithmIdentifierSha256, stream);
+            stream.Position = 0;
+
+            if (!string.Equals(descriptor.Digest, digestFromContents, StringComparison.Ordinal))
+            {
+                throw new InvalidModuleException($"There is a mismatch in the layer digests. Received content digest = {digestFromContents}, Requested digest = {descriptor.Digest}");
+            }
         }
 
         private static void ValidateManifestResponse(Response<GetManifestResult> manifestResponse)
