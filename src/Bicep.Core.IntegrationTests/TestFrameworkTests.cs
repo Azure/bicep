@@ -60,7 +60,7 @@ test test1
             result.Should().HaveDiagnostics(new[] {
                 ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
                 ("BCP0347", DiagnosticLevel.Error,  "Expected a test path string at this location."),
-                ("BCP354", DiagnosticLevel.Error, "This test declaration is missing a file path reference.")
+                ("BCP358", DiagnosticLevel.Error, "This declaration is missing a template file path reference.")
             });
             result = CompilationHelper.Compile(@"
 test
@@ -68,7 +68,7 @@ test
             result.Should().HaveDiagnostics(new[] {
                 ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
                 ("BCP0346", DiagnosticLevel.Error,  "Expected a test identifier at this location."),
-                ("BCP354", DiagnosticLevel.Error, "This test declaration is missing a file path reference.")
+                ("BCP358", DiagnosticLevel.Error, "This declaration is missing a template file path reference.")
             });
         }
 
@@ -80,7 +80,7 @@ test
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP0346", DiagnosticLevel.Error,  "Expected a test identifier at this location."),
-                ("BCP354", DiagnosticLevel.Error, "This test declaration is missing a file path reference.")
+                ("BCP358", DiagnosticLevel.Error,  "This declaration is missing a template file path reference.")
 
             });
 
@@ -89,7 +89,7 @@ test test1
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP0347", DiagnosticLevel.Error,  "Expected a test path string at this location."),
-                ("BCP354", DiagnosticLevel.Error, "This test declaration is missing a file path reference.")
+                ("BCP358", DiagnosticLevel.Error, "This declaration is missing a template file path reference.")
             });
 
             result = CompilationHelper.Compile(ServicesWithTestFramework, @"
