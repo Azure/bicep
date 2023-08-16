@@ -73,7 +73,7 @@ describe("hover", (): void => {
       contents: [
         codeblockWithDescription(
           "resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01'",
-          "[View Documentation](https://learn.microsoft.com/azure/templates/microsoft.network/virtualnetworks?tabs=bicep&pivots=deployment-language-bicep)",
+          "[View Documentation](https://learn.microsoft.com/azure/templates/microsoft.network/virtualnetworks?pivots=deployment-language-bicep)",
         ),
       ],
     });
