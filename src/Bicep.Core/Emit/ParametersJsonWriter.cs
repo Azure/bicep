@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.IO;
+using Bicep.Core.Intermediate;
+using Bicep.Core.Semantics;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.IO;
-using Bicep.Core.Semantics;
 
 namespace Bicep.Core.Emit;
 
@@ -18,13 +20,8 @@ public class ParametersJsonWriter
         this.model = model;
     }
 
-    public void Write(JsonTextWriter writer) => GenerateTemplate().WriteTo(writer);
-
-    public JToken GenerateTemplate()
+    public void Write(JsonTextWriter jsonWriter)
     {
-        using var stringWriter = new StringWriter();
-        using var jsonWriter = new JsonTextWriter(stringWriter);
-
         jsonWriter.WriteStartObject();
 
         jsonWriter.WritePropertyName("$schema");
@@ -39,53 +36,54 @@ public class ParametersJsonWriter
         foreach (var assignment in model.Root.ParameterAssignments)
         {
             jsonWriter.WritePropertyName(assignment.Name);
+            jsonWriter.WriteStartObject();
 
             var parameter = model.EmitLimitationInfo.ParameterAssignments[assignment];
 
-            var propertyName = parameter.Type switch
+            if (parameter.KeyVaultReferenceExpression is {} keyVaultReference)
             {
-                JTokenType.Object => (parameter?.First as JProperty)?.Name,
-                JTokenType.Array => (parameter as JArray).ToJson(),
-                _ => parameter.Value<string>()
-            };
-            var isReferenceProperty = propertyName == "reference";
-            var isObjectType = assignment.Type.TypeKind == TypeSystem.TypeKind.Object;
-
-            if (parameter?.Type == JTokenType.Object)
-            {
-                if (!isReferenceProperty || (isReferenceProperty && isObjectType))
-                {
-                    jsonWriter.WriteStartObject();
-                    jsonWriter.WritePropertyName("value");
-                }
+                WriteKeyVaultReference(jsonWriter, keyVaultReference);
             }
-            else
+            else if (parameter.Value is {} value)
             {
-                jsonWriter.WriteStartObject();
                 jsonWriter.WritePropertyName("value");
-            }
-
-            parameter?.WriteTo(jsonWriter);
-
-            if (parameter?.Type == JTokenType.Object)
-            {
-                if (!isReferenceProperty || (isReferenceProperty && isObjectType))
-                {
-                    jsonWriter.WriteEndObject();
-                }
+                value.WriteTo(jsonWriter);
             }
             else
             {
-                jsonWriter.WriteEndObject();
+                throw new InvalidOperationException($"The '{assignment.Name}' parameter assignment defined neither a concrete value nor a key vault reference");
             }
+
+            jsonWriter.WriteEndObject();
         }
 
         jsonWriter.WriteEndObject();
 
         jsonWriter.WriteEndObject();
+    }
 
-        var content = stringWriter.ToString();
+    private static void WriteKeyVaultReference(JsonWriter jsonWriter, ParameterKeyVaultReferenceExpression expression)
+    {
+        jsonWriter.WritePropertyName("reference");
+        jsonWriter.WriteStartObject();
 
-        return content.FromJson<JToken>();
+        jsonWriter.WritePropertyName("keyVault");
+        jsonWriter.WriteStartObject();
+
+        jsonWriter.WritePropertyName("id");
+        jsonWriter.WriteValue(expression.KeyVaultId);
+
+        jsonWriter.WriteEndObject();
+
+        jsonWriter.WritePropertyName("secretName");
+        jsonWriter.WriteValue(expression.SecretName);
+
+        if (expression.SecretVersion is string secretVersion)
+        {
+            jsonWriter.WritePropertyName("secretVersion");
+            jsonWriter.WriteValue(secretVersion);
+        }
+
+        jsonWriter.WriteEndObject();
     }
 }

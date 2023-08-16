@@ -810,3 +810,14 @@ public record DiscriminatedObjectTypeExpression(
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitDiscriminatedObjectTypeExpression(this);
 }
+
+public record ParameterKeyVaultReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    string KeyVaultId,
+    string SecretName,
+    string? SecretVersion
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitParameterKeyVaultReferenceExpression(this);
+}

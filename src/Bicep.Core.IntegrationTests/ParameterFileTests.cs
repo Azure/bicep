@@ -156,4 +156,42 @@ param foo string
             ("BCP062", DiagnosticLevel.Error, """The referenced declaration with name "abc" is not valid."""),
         });
     }
+
+    [TestMethod]
+    public void Parameters_file_permits_omission_of_optional_params()
+    {
+        var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", @"
+using 'foo.bicep'
+
+param foo = 'foo'
+"),
+("foo.bicep", @"
+param foo string
+param optionalBecauseNullable string?
+param optionalBecauseDefault string = 'default'
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Parameters_file_permits_nulling_out_of_optional_params()
+    {
+        var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", @"
+using 'foo.bicep'
+
+param foo = 'foo'
+param optionalBecauseNullable = null
+param optionalBecauseDefault = null
+"),
+("foo.bicep", @"
+param foo string
+param optionalBecauseNullable string?
+param optionalBecauseDefault string = 'default'
+"));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }

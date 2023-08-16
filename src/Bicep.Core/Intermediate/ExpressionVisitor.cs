@@ -319,17 +319,21 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.MemberExpressions);
     }
 
-    public void VisitImportedTypeReferenceExpression(ImportedTypeReferenceExpression expression)
+    public virtual void VisitImportedTypeReferenceExpression(ImportedTypeReferenceExpression expression)
     {
     }
 
-    public void VisitWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression)
+    public virtual void VisitWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression)
     {
     }
 
     public virtual void VisitDiscriminatedObjectTypeExpression(DiscriminatedObjectTypeExpression expression)
     {
         Visit(expression.MemberExpressions);
+    }
+
+    public virtual void VisitParameterKeyVaultReferenceExpression(ParameterKeyVaultReferenceExpression expression)
+    {
     }
 
     public virtual void VisitProgramExpression(ProgramExpression expression)

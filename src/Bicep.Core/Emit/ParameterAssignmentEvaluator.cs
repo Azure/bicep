@@ -1,26 +1,44 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Newtonsoft.Json.Linq;
+using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using Bicep.Core.Semantics;
+using System;
+using System.Linq;
 using Azure.Deployments.Templates.Expressions;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
-using System.Collections.Concurrent;
-using System;
-using System.Linq;
+using Bicep.Core.Intermediate;
+using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
     public class ParameterAssignmentEvaluator
     {
-        public record Result(
-            JToken? Value,
-            IDiagnostic? Diagnostic);
+        public class Result
+        {
+            private Result(JToken? value, ParameterKeyVaultReferenceExpression? keyVaultReference, IDiagnostic? diagnostic)
+            {
+                Value = value;
+                KeyVaultReference = keyVaultReference;
+                Diagnostic = diagnostic;
+            }
 
-        private ConcurrentDictionary<ParameterAssignmentSymbol, Result> Results = new();
-        private ConcurrentDictionary<VariableSymbol, Result> VarResults = new();
+            public JToken? Value { get; }
+            public ParameterKeyVaultReferenceExpression? KeyVaultReference { get; }
+            public IDiagnostic? Diagnostic { get; }
+
+            public static Result For(JToken value) => new(value, null, null);
+
+            public static Result For(ParameterKeyVaultReferenceExpression expression) => new(null, expression, null);
+
+            public static Result For(IDiagnostic diagnostic) => new(null, null, diagnostic);
+        }
+
+        private readonly ConcurrentDictionary<ParameterAssignmentSymbol, Result> Results = new();
+        private readonly ConcurrentDictionary<VariableSymbol, Result> VarResults = new();
         private readonly SemanticModel model;
         private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
         private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
@@ -40,20 +58,24 @@ namespace Bicep.Core.Emit
             => Results.GetOrAdd(
                 parameter,
                 parameter => {
+                    var context = GetExpressionEvaluationContext();
+                    var converter = new ExpressionConverter(new(model));
+
+                    var intermediate = converter.ConvertToIntermediateExpression(parameter.DeclaringParameterAssignment.Value);
+
+                    if (intermediate is ParameterKeyVaultReferenceExpression keyVaultReferenceExpression)
+                    {
+                        return Result.For(keyVaultReferenceExpression);
+                    }
+
                     try
                     {
-                        var context = GetExpressionEvaluationContext();
-                        var converter = new ExpressionConverter(new(model));
-                        var expression = converter.ConvertExpression(parameter.DeclaringParameterAssignment.Value);
-
-                        return new(expression.EvaluateExpression(context), null);
+                        return Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
                     }
                     catch (Exception ex)
                     {
-                        var diagnostic = DiagnosticBuilder.ForPosition(parameter.DeclaringParameterAssignment.Value)
-                            .FailedToEvaluateParameter(parameter.Name, ex.Message);
-
-                        return new(null, diagnostic);
+                        return Result.For(DiagnosticBuilder.ForPosition(parameter.DeclaringParameterAssignment.Value)
+                            .FailedToEvaluateParameter(parameter.Name, ex.Message));
                     }
                 });
 
@@ -67,14 +89,12 @@ namespace Bicep.Core.Emit
                         var converter = new ExpressionConverter(new(model));
                         var expression = converter.ConvertExpression(variable.DeclaringVariable.Value);
 
-                        return new(expression.EvaluateExpression(context), null);
+                        return Result.For(expression.EvaluateExpression(context));
                     }
                     catch (Exception ex)
                     {
-                        var diagnostic = DiagnosticBuilder.ForPosition(variable.DeclaringVariable.Value)
-                            .FailedToEvaluateVariable(variable.Name, ex.Message);
-
-                        return new(null, diagnostic);
+                        return Result.For(DiagnosticBuilder.ForPosition(variable.DeclaringVariable.Value)
+                            .FailedToEvaluateVariable(variable.Name, ex.Message));
                     }
                 });
 
