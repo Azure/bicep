@@ -1,3 +1,73 @@
+test testShouldIgnoreAdditionalProperties 'samples/main.bicep' = {
+//@[42:62) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/samples/main.bicep'. (CodeDescription: none) |'samples/main.bicep'|
+  additionalProp: {}
+}
+
+test testShouldIgnoreAdditionalProperties2 'samples/main.bicep' = {
+//@[43:63) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/samples/main.bicep'. (CodeDescription: none) |'samples/main.bicep'|
+  params: {
+    env: 'dev'
+    suffix: 10
+  }
+  additionalProp: {}
+}
+
+// Skipped tests
+test testNoParams 'samples/main.bicep' ={
+//@[18:38) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/samples/main.bicep'. (CodeDescription: none) |'samples/main.bicep'|
+  params:{}
+}
+
+test testMissingParams 'samples/main.bicep' ={
+//@[23:43) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/samples/main.bicep'. (CodeDescription: none) |'samples/main.bicep'|
+  params:{
+    env: 'NotMain'
+  }
+}
+
+test testWrongParamsType 'samples/main.bicep' ={
+//@[25:45) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/samples/main.bicep'. (CodeDescription: none) |'samples/main.bicep'|
+  params:{
+    env: 1
+    suffix: 10
+  }
+}
+
+test testWrongParamsType2 'samples/main.bicep' ={
+//@[26:46) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/samples/main.bicep'. (CodeDescription: none) |'samples/main.bicep'|
+  params:{
+    env: 'dev'
+    suffix: '10'
+  }
+}
+
+test testWrongParamsType3 'samples/main.bicep' ={
+//@[26:46) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/samples/main.bicep'. (CodeDescription: none) |'samples/main.bicep'|
+  params:{
+    env: 'dev'
+    suffix: 10
+    location: 'westus2'
+  }
+}
+
+test testInexitentParam 'samples/main.bicep' ={
+//@[24:44) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/samples/main.bicep'. (CodeDescription: none) |'samples/main.bicep'|
+  params:{
+    env: 'dev'
+    suffix: 10
+    location: 1
+  }
+}
+
+test testEmptyBody 'samples/main.bicep' = {}
+//@[19:39) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/samples/main.bicep'. (CodeDescription: none) |'samples/main.bicep'|
+
+// Test inexistent file
+
+test testInexistentFile 'samples/inexistent.bicep' = {}
+//@[24:50) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/samples/inexistent.bicep'. (CodeDescription: none) |'samples/inexistent.bicep'|
+
+
 test sample 'samples/sample1.bicep' = {
 //@[05:11) [BCP028 (Error)] Identifier "sample" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |sample|
   params: {
@@ -113,5 +183,7 @@ test sample 'samples/sample1.bicep' = {
 //@[05:11) [BCP028 (Error)] Identifier "sample" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |sample|
 
 test sample '' = {
+
+
 
 //@[00:00) [BCP018 (Error)] Expected the "}" character at this location. (CodeDescription: none) ||

@@ -942,6 +942,7 @@ namespace Bicep.Core.TypeSystem
                 syntax.Value is ForSyntax ? new TypedArrayType(declaredModuleType, TypeSymbolValidationFlags.Default) : declaredModuleType,
                 syntax);
         }
+
         private DeclaredTypeAssignment GetTestType(TestDeclarationSyntax syntax)
         {
             var declaredTestType = GetDeclaredTestType(syntax);
@@ -950,6 +951,7 @@ namespace Bicep.Core.TypeSystem
                 declaredTestType,
                 syntax);
         }
+        
         private DeclaredTypeAssignment? GetVariableAccessType(VariableAccessSyntax syntax)
         {
             // because all variable access nodes are normally bound to something, this should always return true
@@ -1802,7 +1804,7 @@ namespace Bicep.Core.TypeSystem
 
             return LanguageConstants.CreateTestType(
                 parameters,
-                LanguageConstants.TypeNameModule);
+                LanguageConstants.TypeNameTest);
         }
         
         private TypeSymbol GetResourceTypeFromString(TextSpan span, string stringContent, ResourceTypeGenerationFlags typeGenerationFlags, ResourceType? parentResourceType)

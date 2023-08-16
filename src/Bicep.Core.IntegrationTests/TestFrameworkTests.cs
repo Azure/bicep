@@ -32,26 +32,26 @@ namespace Bicep.Core.IntegrationTests
         public void TestFramework_is_disabled_unless_feature_is_enabled()
         {
             var result = CompilationHelper.Compile(@"
-test test1 'test1.bicep' = {}
+test test1 '' = {}
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
-                ("BCP091", DiagnosticLevel.Error, @"An error occurred reading file. Could not find file 'C:\path\to\test1.bicep'.")
+                ("BCP050", DiagnosticLevel.Error, @"The specified path is empty."),
             });
             result = CompilationHelper.Compile(@"
-test test1 'test1.bicep' =
+test test1 '' =
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
-                ("BCP091", DiagnosticLevel.Error, @"An error occurred reading file. Could not find file 'C:\path\to\test1.bicep'."),
+                ("BCP050", DiagnosticLevel.Error, @"The specified path is empty."),
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
             });
             result = CompilationHelper.Compile(@"
-test test1 'test1.bicep'
+test test1 ''
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP348", DiagnosticLevel.Error, "Using a test declaration statement requires enabling EXPERIMENTAL feature \"TestFramework\"."),
-                ("BCP091", DiagnosticLevel.Error, @"An error occurred reading file. Could not find file 'C:\path\to\test1.bicep'."),
+                ("BCP050", DiagnosticLevel.Error, @"The specified path is empty."),
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location."),
             });
             result = CompilationHelper.Compile(@"
@@ -93,10 +93,10 @@ test test1
             });
 
             result = CompilationHelper.Compile(ServicesWithTestFramework, @"
-test test1 'test1.bicep'
+test test1 ''
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP091", DiagnosticLevel.Error, @"An error occurred reading file. Could not find file 'C:\path\to\test1.bicep'."),
+                ("BCP050", DiagnosticLevel.Error, @"The specified path is empty."),
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location."),
             });
                
