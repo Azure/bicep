@@ -340,7 +340,7 @@ namespace Bicep.LanguageServer.Handlers
                 var provider = resourceType.TypeReference.TypeSegments.First().ToLowerInvariant();
                 var typePath = resourceType.TypeReference.TypeSegments.Skip(1).Select(x => x.ToLowerInvariant());
 
-                return $"https://docs.microsoft.com/azure/templates/{provider}/{string.Join('/', typePath)}?tabs=bicep";
+                return $"https://learn.microsoft.com/azure/templates/{provider}/{string.Join('/', typePath)}?pivots=deployment-language-bicep";
             }
 
             return null;
