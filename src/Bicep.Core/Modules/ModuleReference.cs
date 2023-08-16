@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Modules
 {
@@ -16,8 +15,6 @@ namespace Bicep.Core.Modules
             this.Scheme = scheme;
             this.ParentModuleUri = parentModuleUri;
         }
-
-        protected static Regex ModuleAliasNameRegex { get; } = new(@"[\w-]");
 
         public string Scheme { get; }
 

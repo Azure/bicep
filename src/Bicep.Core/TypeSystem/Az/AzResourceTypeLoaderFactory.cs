@@ -6,6 +6,7 @@ using System.IO;
 using Bicep.Core.Registry.Oci;
 using Newtonsoft.Json;
 using Bicep.Core.Features;
+using Bicep.Core.Modules;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -31,15 +32,19 @@ namespace Bicep.Core.TypeSystem.Az
             return resourceTypeLoaders[BuiltInLoaderKey];
         }
 
-        public IAzResourceTypeLoader? GetResourceTypeLoader(string? version, IFeatureProvider features)
+        public IAzResourceTypeLoader? GetResourceTypeLoader(string? providerVersion, IFeatureProvider features)
         {
-            if (!features.DynamicTypeLoadingEnabled || version is null)
+            if (!features.DynamicTypeLoadingEnabled || providerVersion is null)
             {
                 return resourceTypeLoaders[BuiltInLoaderKey];
             }
 
-            //TODO(asilverman): The magic strings below are temporary and will be changed to use variables fetched at restore time
-            var azProviderDir = Path.Combine(features.CacheRootDirectory, "br", "mcr.microsoft.com", @"bicep$providers$az", version);
+            // compose the path to the OCI manifest based on the cache root directory and provider version
+            var azProviderDir = Path.Combine(
+                features.CacheRootDirectory,
+                ModuleReferenceSchemes.Oci,
+                LanguageConstants.BicepPublicMcrRegistry,
+                $"bicep$providers$az{providerVersion}$");
             var ociManifestPath = Path.Combine(azProviderDir, "manifest");
             if (!File.Exists(ociManifestPath))
             {

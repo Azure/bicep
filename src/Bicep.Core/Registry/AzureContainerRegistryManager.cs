@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
@@ -23,7 +23,6 @@ namespace Bicep.Core.Registry
     public class AzureContainerRegistryManager
     {
         // media types are case-insensitive (they are lowercase by convention only)
-        private const StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
         private const StringComparison DigestComparison = StringComparison.Ordinal;
 
         private readonly IContainerRegistryClientFactory clientFactory;
@@ -33,51 +32,50 @@ namespace Bicep.Core.Registry
             this.clientFactory = clientFactory;
         }
 
-        public async Task<OciArtifactResult> PullArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference)
+        public async Task<OciArtifactResult> PullArtifactAsync(
+            RootConfiguration configuration,
+            IOciArtifactReference artifactReference)
         {
-            ContainerRegistryContentClient client;
-            OciManifest manifest;
-            Stream manifestStream;
-            string manifestDigest;
-
-            async Task<(ContainerRegistryContentClient, OciManifest, Stream, string)> DownloadManifestInternalAsync(bool anonymousAccess)
+            async Task<OciArtifactResult> DownloadManifestInternalAsync(bool anonymousAccess)
             {
-                var client = this.CreateBlobClient(configuration, moduleReference, anonymousAccess);
-                var (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
-                return (client, manifest, manifestStream, manifestDigest);
+                var client = CreateBlobClient(configuration, artifactReference, anonymousAccess);
+                return await DownloadManifestAsync(artifactReference, client);
             }
 
             try
             {
                 // Try authenticated client first.
-                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference}.");
-                (client, manifest, manifestStream, manifestDigest) = await DownloadManifestInternalAsync(anonymousAccess: false);
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {artifactReference.FullyQualifiedReference}.");
+                return await DownloadManifestInternalAsync(anonymousAccess: false);
             }
             catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
             {
                 // Fall back to anonymous client.
-                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
-                (client, manifest, manifestStream, manifestDigest) = await DownloadManifestInternalAsync(anonymousAccess: true);
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {artifactReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
+                return await DownloadManifestInternalAsync(anonymousAccess: true);
             }
             catch (CredentialUnavailableException)
             {
                 // Fall back to anonymous client.
-                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed due to missing login step. Fallback to anonymous pull.");
-                (client, manifest, manifestStream, manifestDigest) = await DownloadManifestInternalAsync(anonymousAccess: true);
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {artifactReference.FullyQualifiedReference} failed due to missing login step. Fallback to anonymous pull.");
+                return await DownloadManifestInternalAsync(anonymousAccess: true);
             }
-
-            var moduleStream = await ProcessManifest(client, manifest);
-
-            return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
         }
 
-        public async Task PushArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference, string? artifactType, StreamDescriptor config, string? documentationUri = null, string? description = null, params StreamDescriptor[] layers)
+        public async Task PushArtifactAsync(
+            RootConfiguration configuration,
+            IOciArtifactReference artifactReference,
+            string? artifactType,
+            StreamDescriptor config,
+            string? documentationUri = null,
+            string? description = null,
+            params StreamDescriptor[] layers)
         {
             // TODO: How do we choose this? Does it ever change?
             var algorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
 
             // push is not supported anonymously
-            var blobClient = this.CreateBlobClient(configuration, moduleReference, anonymousAccess: false);
+            var blobClient = this.CreateBlobClient(configuration, artifactReference, anonymousAccess: false);
 
             config.ResetStream();
             var configDescriptor = DescriptorFactory.CreateDescriptor(algorithmIdentifier, config);
@@ -115,47 +113,85 @@ namespace Bicep.Core.Registry
 
             manifestStream.Position = 0;
             var manifestBinaryData = await BinaryData.FromStreamAsync(manifestStream);
-            var manifestUploadResult = await blobClient.SetManifestAsync(manifestBinaryData, moduleReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
+            var manifestUploadResult = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
         }
 
-        private static Uri GetRegistryUri(OciArtifactModuleReference moduleReference) => new($"https://{moduleReference.Registry}");
+        private static Uri GetRegistryUri(IOciArtifactReference artifactReference) => new($"https://{artifactReference.Registry}");
 
-        private ContainerRegistryContentClient CreateBlobClient(RootConfiguration configuration, OciArtifactModuleReference moduleReference, bool anonymousAccess) => anonymousAccess
-            ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository)
-            : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository);
+        private ContainerRegistryContentClient CreateBlobClient(
+            RootConfiguration configuration,
+            IOciArtifactReference artifactReference,
+            bool anonymousAccess) => anonymousAccess
+            ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository)
+            : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository);
 
-        private static async Task<(OciManifest, Stream, string)> DownloadManifestAsync(OciArtifactModuleReference moduleReference, ContainerRegistryContentClient client)
+        private static async Task<OciArtifactResult> DownloadManifestAsync(IOciArtifactReference artifactReference, ContainerRegistryContentClient client)
         {
             Response<GetManifestResult> manifestResponse;
             try
             {
                 // either Tag or Digest is null (enforced by reference parser)
-                var tagOrDigest = moduleReference.Tag
-                    ?? moduleReference.Digest
-                    ?? throw new ArgumentNullException(nameof(moduleReference), $"The specified module reference has both {nameof(moduleReference.Tag)} and {nameof(moduleReference.Digest)} set to null.");
+                var tagOrDigest = artifactReference.Tag
+                    ?? artifactReference.Digest
+                    ?? throw new ArgumentNullException(nameof(artifactReference), $"The specified artifact reference has both {nameof(artifactReference.Tag)} and {nameof(artifactReference.Digest)} set to null.");
 
                 manifestResponse = await client.GetManifestAsync(tagOrDigest);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
                 // manifest does not exist
-                throw new OciModuleRegistryException("The module does not exist in the registry.", exception);
+                throw new OciModuleRegistryException("The artifact does not exist in the registry.", exception);
             }
 
             // the Value is disposable, but we are not calling it because we need to pass the stream outside of this scope
-            var stream = manifestResponse.Value.Manifest.ToStream();
+            using var stream = manifestResponse.Value.Manifest.ToStream();
 
             // BUG: The SDK internally consumed the stream for validation purposes and left position at the end
             stream.Position = 0;
             ValidateManifestResponse(manifestResponse);
 
-            // the SDK doesn't expose all the manifest properties we need
-            // so we need to deserialize the manifest ourselves to get everything
+            var deserializedManifest = OciManifest.FromBinaryData(manifestResponse.Value.Manifest) ?? throw new InvalidOperationException("the manifest is not a valid OCI manifest");
+            var layers = deserializedManifest.Layers
+                .Select(layer => new KeyValuePair<string, BinaryData>(layer.Digest, PullLayerAsync(client, layer).Result))
+                .ToImmutableDictionary(pair => pair.Key, pair => pair.Value);
+
+            return new(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers);
+        }
+
+        private static async Task<BinaryData> PullLayerAsync(ContainerRegistryContentClient client, OciDescriptor layer, CancellationToken cancellationToken = default)
+        {
+            Response<DownloadRegistryBlobResult> blobResult;
+            try
+            {
+                blobResult = await client.DownloadBlobContentAsync(layer.Digest, cancellationToken);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 404)
+            {
+                throw new InvalidModuleException($"Module manifest refers to a non-existent blob with digest \"{layer.Digest}\".", exception);
+            }
+
+            ValidateBlobResponse(blobResult, layer);
+
+            return blobResult.Value.Content;
+        }
+
+        private static void ValidateBlobResponse(Response<DownloadRegistryBlobResult> blobResponse, OciDescriptor descriptor)
+        {
+            using var stream = blobResponse.Value.Content.ToStream();
+
+            if (descriptor.Size != stream.Length)
+            {
+                throw new InvalidModuleException($"Expected blob size of {descriptor.Size} bytes but received {stream.Length} bytes from the registry.");
+            }
+
             stream.Position = 0;
-            var deserialized = DeserializeManifest(stream);
+            string digestFromContents = DescriptorFactory.ComputeDigest(DescriptorFactory.AlgorithmIdentifierSha256, stream);
             stream.Position = 0;
 
-            return (deserialized, stream, manifestResponse.Value.Digest);
+            if (!string.Equals(descriptor.Digest, digestFromContents, StringComparison.Ordinal))
+            {
+                throw new InvalidModuleException($"There is a mismatch in the layer digests. Received content digest = {digestFromContents}, Requested digest = {descriptor.Digest}");
+            }
         }
 
         private static void ValidateManifestResponse(Response<GetManifestResult> manifestResponse)
@@ -169,93 +205,6 @@ namespace Bicep.Core.Registry
             if (!string.Equals(digestFromRegistry, digestFromContent, DigestComparison))
             {
                 throw new OciModuleRegistryException($"There is a mismatch in the manifest digests. Received content digest = {digestFromContent}, Digest in registry response = {digestFromRegistry}");
-            }
-        }
-
-        private static async Task<Stream> ProcessManifest(ContainerRegistryContentClient client, OciManifest manifest)
-        {
-            // Bicep versions before 0.14 used to publish modules without the artifactType field set in the OCI manifest,
-            // so we must allow null here
-            if (manifest.ArtifactType is not null && !string.Equals(manifest.ArtifactType, BicepMediaTypes.BicepModuleArtifactType, MediaTypeComparison))
-            {
-                throw new InvalidModuleException($"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{manifest.ArtifactType}'.", InvalidModuleExceptionKind.WrongArtifactType);
-            }
-
-            ProcessConfig(manifest.Config);
-            if (manifest.Layers.Length != 1)
-            {
-                throw new InvalidModuleException("Expected a single layer in the OCI artifact.");
-            }
-
-            var layer = manifest.Layers.Single();
-
-            return await ProcessLayer(client, layer);
-        }
-
-        private static void ValidateBlobResponse(Response<DownloadRegistryBlobResult> blobResponse, OciDescriptor descriptor)
-        {
-            var stream = blobResponse.Value.Content.ToStream();
-
-            if (descriptor.Size != stream.Length)
-            {
-                throw new InvalidModuleException($"Expected blob size of {descriptor.Size} bytes but received {stream.Length} bytes from the registry.");
-            }
-
-            stream.Position = 0;
-            string digestFromContents = DescriptorFactory.ComputeDigest(DescriptorFactory.AlgorithmIdentifierSha256, stream);
-            stream.Position = 0;
-
-            if (!string.Equals(descriptor.Digest, digestFromContents, DigestComparison))
-            {
-                throw new InvalidModuleException($"There is a mismatch in the layer digests. Received content digest = {digestFromContents}, Requested digest = {descriptor.Digest}");
-            }
-        }
-
-        private static async Task<Stream> ProcessLayer(ContainerRegistryContentClient client, OciDescriptor layer)
-        {
-            if (!string.Equals(layer.MediaType, BicepMediaTypes.BicepModuleLayerV1Json, MediaTypeComparison))
-            {
-                throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
-            }
-
-            Response<DownloadRegistryBlobResult> blobResult;
-            try
-            {
-                blobResult = await client.DownloadBlobContentAsync(layer.Digest);
-            }
-            catch (RequestFailedException exception) when (exception.Status == 404)
-            {
-                throw new InvalidModuleException($"Module manifest refers to a non-existent blob with digest \"{layer.Digest}\".", exception);
-            }
-
-            ValidateBlobResponse(blobResult, layer);
-
-            return blobResult.Value.Content.ToStream();
-        }
-
-        private static void ProcessConfig(OciDescriptor config)
-        {
-            // media types are case insensitive
-            if (!string.Equals(config.MediaType, BicepMediaTypes.BicepModuleConfigV1, MediaTypeComparison))
-            {
-                throw new InvalidModuleException($"Did not expect config media type \"{config.MediaType}\".");
-            }
-
-            if (config.Size != 0)
-            {
-                throw new InvalidModuleException("Expected an empty config blob.");
-            }
-        }
-
-        private static OciManifest DeserializeManifest(Stream stream)
-        {
-            try
-            {
-                return OciSerialization.Deserialize<OciManifest>(stream);
-            }
-            catch (Exception exception)
-            {
-                throw new InvalidModuleException("Unable to deserialize the module manifest.", exception);
             }
         }
     }

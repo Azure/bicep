@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Modules;
 using FluentAssertions;
@@ -44,7 +43,7 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public void EncodingFullyCapitalizedStringOfMaxLengthShouldNotExceedMaxLinuxFileNameLength()
         {
-            var fullyCapitalizedTag = new string('A', OciArtifactModuleReference.MaxTagLength);
+            var fullyCapitalizedTag = new string('A', OciArtifactReferenceFacts.MaxTagLength);
             var encoded = TagEncoder.Encode(fullyCapitalizedTag);
 
             encoded.Length.Should().BeLessOrEqualTo(255);

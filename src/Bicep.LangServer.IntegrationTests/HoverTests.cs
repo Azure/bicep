@@ -995,7 +995,13 @@ param foo|bar = true
                 tag);
 
             SharedLanguageHelperManager sharedLanguageHelperManager = new();
-            sharedLanguageHelperManager.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureProviderFactory(featureProviderFactory).WithModuleDispatcher(moduleDispatcher).WithCompilationManager(compilationManager)));
+            sharedLanguageHelperManager.Initialize(
+                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+                    TestContext, 
+                    services => services
+                        .WithFeatureProviderFactory(featureProviderFactory)
+                        .WithModuleDispatcher(moduleDispatcher)
+                        .WithCompilationManager(compilationManager)));
 
             var multiFileLanguageServerHelper = await sharedLanguageHelperManager.GetAsync();
             return multiFileLanguageServerHelper.Client;

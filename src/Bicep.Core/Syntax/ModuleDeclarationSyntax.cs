@@ -9,7 +9,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class ModuleDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax, IForeignTemplateReference
+    public class ModuleDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax, IForeignArtifactReference
     {
         public ModuleDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, ImmutableArray<Token> newlines, SyntaxBase value)
             : base(leadingNodes)
@@ -48,7 +48,7 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 
-        SyntaxBase IForeignTemplateReference.ReferenceSourceSyntax => Path;
+        SyntaxBase IForeignArtifactReference.ReferenceSourceSyntax => Path;
 
         public ObjectSyntax? TryGetBody() =>
             this.Value switch

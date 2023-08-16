@@ -65,7 +65,9 @@ namespace Bicep.LanguageServer.Handlers
         private static string? TryGetDescriptionMarkdown(SymbolResolutionResult result, DeclaredSymbol symbol)
         {
             if (symbol.DeclaringSyntax is DecorableSyntax decorableSyntax &&
-                DescriptionHelper.TryGetFromDecorator(result.Context.Compilation.GetEntrypointSemanticModel(), decorableSyntax) is { } description)
+                DescriptionHelper.TryGetFromDecorator(
+                    result.Context.Compilation.GetEntrypointSemanticModel(), 
+                    decorableSyntax) is { } description)
             {
                 return description;
             }
@@ -170,7 +172,12 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(HoverParams request, SymbolResolutionResult result, IModuleDispatcher moduleDispatcher, IModuleRegistryProvider moduleRegistryProvider, ModuleSymbol module)
+        private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(
+            HoverParams request, 
+            SymbolResolutionResult result, 
+            IModuleDispatcher moduleDispatcher, 
+            IModuleRegistryProvider moduleRegistryProvider, 
+            ModuleSymbol module)
         {
             if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule, out var filePath, out _))
             {

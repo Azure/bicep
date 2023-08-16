@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.Registry
 {
-    public sealed class OciModuleRegistry : ExternalModuleRegistry<OciArtifactModuleReference, OciArtifactResult>
+    public sealed class OciModuleRegistry : ExternalModuleRegistry<OciModuleReference, OciArtifactResult>
     {
         private readonly AzureContainerRegistryManager client;
 
@@ -30,7 +30,7 @@ namespace Bicep.Core.Registry
 
         private readonly RootConfiguration configuration;
 
-        private readonly Uri parentModuleUri;        
+        private readonly Uri parentModuleUri;
 
         public OciModuleRegistry(IFileResolver FileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features, RootConfiguration configuration, Uri parentModuleUri)
             : base(FileResolver)
@@ -43,7 +43,7 @@ namespace Bicep.Core.Registry
 
         public override string Scheme => ModuleReferenceSchemes.Oci;
 
-        public override RegistryCapabilities GetCapabilities(OciArtifactModuleReference reference)
+        public override RegistryCapabilities GetCapabilities(OciModuleReference reference)
         {
             // cannot publish without tag
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
@@ -51,7 +51,7 @@ namespace Bicep.Core.Registry
 
         public override bool TryParseModuleReference(string? aliasName, string reference, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            if (OciArtifactModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri, out var @ref, out failureBuilder))
+            if (OciModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri, out var @ref, out failureBuilder))
             {
                 moduleReference = @ref;
                 return true;
@@ -61,7 +61,7 @@ namespace Bicep.Core.Registry
             return false;
         }
 
-        public override bool IsModuleRestoreRequired(OciArtifactModuleReference reference)
+        public override bool IsModuleRestoreRequired(OciModuleReference reference)
         {
             /*
              * this should be kept in sync with the WriteModuleContent() implementation
@@ -78,7 +78,7 @@ namespace Bicep.Core.Registry
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Metadata));
         }
 
-        public override async Task<bool> CheckModuleExists(OciArtifactModuleReference reference)
+        public override async Task<bool> CheckModuleExists(OciModuleReference reference)
         {
             try
             {
@@ -113,14 +113,61 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public override bool TryGetLocalModuleEntryPointUri(OciArtifactModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private readonly ImmutableArray<string> allowedArtifactMediaTypes = ImmutableArray.Create(
+            BicepMediaTypes.BicepModuleArtifactType,
+            BicepMediaTypes.BicepProviderArtifactType);
+
+        private readonly ImmutableArray<string> allowedConfigMediaTypes = ImmutableArray.Create(
+            BicepMediaTypes.BicepModuleConfigV1,
+            BicepMediaTypes.BicepProviderConfigV1);
+
+        private readonly ImmutableArray<string> allowedLayerMediaTypes = ImmutableArray.Create(
+            BicepMediaTypes.BicepModuleLayerV1Json,
+            BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip);
+        private void ValidateModule(OciArtifactResult artifactResult)
+        {
+            var manifest = artifactResult.Manifest;
+            var artifactType = manifest.ArtifactType;
+            if (artifactType is not null &&
+                !allowedArtifactMediaTypes.Contains(artifactType, MediaTypeComparer))
+            {
+                throw new InvalidModuleException(
+                    $"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{artifactType}'.",
+                    InvalidModuleExceptionKind.WrongArtifactType);
+            }
+            var config = manifest.Config;
+            var configMediaType = config.MediaType;
+            if (configMediaType is not null &&
+                !allowedConfigMediaTypes.Contains(configMediaType, MediaTypeComparer))
+            {
+                throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\".");
+            }
+
+            if (config.Size > 2)
+            {
+                throw new InvalidModuleException("Expected an empty config blob.");
+            }
+
+            if (manifest.Layers.Length != 1)
+            {
+                throw new InvalidModuleException("Expected a single layer in the OCI artifact.");
+            }
+
+            var layer = manifest.Layers.Single();
+            if (!allowedLayerMediaTypes.Contains(layer.MediaType, MediaTypeComparer))
+            {
+                throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+            }
+        }
+
+        public override bool TryGetLocalModuleEntryPointUri(OciModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             failureBuilder = null;
             localUri = this.GetModuleFileUri(reference, ModuleFileType.ModuleMain);
             return true;
         }
 
-        public override string? TryGetDocumentationUri(OciArtifactModuleReference ociArtifactModuleReference)
+        public override string? TryGetDocumentationUri(OciModuleReference ociArtifactModuleReference)
         {
             var ociAnnotations = TryGetOciAnnotations(ociArtifactModuleReference);
             if (ociAnnotations is null ||
@@ -151,13 +198,43 @@ namespace Bicep.Core.Registry
             return $"https://github.com/Azure/bicep-registry-modules/tree/{publicModuleName}/{tag}/modules/{publicModuleName}/README.md";
         }
 
-        public override Task<string?> TryGetDescription(OciArtifactModuleReference ociArtifactModuleReference)
+        public override Task<string?> TryGetDescription(OciModuleReference ociArtifactModuleReference)
         {
             var ociAnnotations = TryGetOciAnnotations(ociArtifactModuleReference);
             return Task.FromResult(DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations));
         }
 
-        private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciArtifactModuleReference ociArtifactModuleReference)
+        private string? TryGetModuleLayerMediaType(OciModuleReference ociArtifactReference)
+        {
+            try
+            {
+                string manifestFilePath = this.GetModuleFilePath(ociArtifactReference, ModuleFileType.Manifest);
+                if (!File.Exists(manifestFilePath))
+                {
+                    return null;
+                }
+
+                string manifestFileContents = File.ReadAllText(manifestFilePath);
+                if (string.IsNullOrWhiteSpace(manifestFileContents))
+                {
+                    return null;
+                }
+
+                OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
+                if (ociManifest is null)
+                {
+                    return null;
+                }
+
+                return ociManifest.Layers.Single().MediaType;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciModuleReference ociArtifactModuleReference)
         {
             try
             {
@@ -187,7 +264,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<OciArtifactModuleReference> references)
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<OciModuleReference> references)
         {
             var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 
@@ -214,12 +291,12 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(IEnumerable<OciArtifactModuleReference> references)
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(IEnumerable<OciModuleReference> references)
         {
             return await base.InvalidateModulesCacheInternal(references);
         }
 
-        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled, string? documentationUri, string? description)
+        public override async Task PublishModule(OciModuleReference moduleReference, Stream compiled, string? documentationUri, string? description)
         {
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
@@ -240,19 +317,50 @@ namespace Bicep.Core.Registry
             }
         }
 
-        protected override void WriteModuleContent(OciArtifactModuleReference reference, OciArtifactResult result)
+        // media types are case-insensitive (they are lowercase by convention only)
+        public static readonly IEqualityComparer<string> MediaTypeComparer = StringComparer.OrdinalIgnoreCase;
+
+        protected override void WriteModuleContent(OciModuleReference reference, OciArtifactResult result)
         {
             /*
              * this should be kept in sync with the IsModuleRestoreRequired() implementation
              */
 
-            // write main.bicep
-            this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain), result.ModuleStream);
 
             // write manifest
             // it's important to write the original stream here rather than serialize the manifest object
             // this way we guarantee the manifest hash will match
-            this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Manifest), result.ManifestStream);
+            var manifestFileUri = this.GetModuleFileUri(reference, ModuleFileType.Manifest);
+            using var manifestStream = result.ToStream();
+            this.FileResolver.Write(manifestFileUri, manifestStream);
+
+            var mediaType = TryGetModuleLayerMediaType(reference);
+            if (mediaType is not null)
+            {
+                switch (mediaType)
+                {
+                    // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
+                    // but this may change in the future if we chose to publish providers in multiple layers. 
+                    case BicepMediaTypes.BicepModuleLayerV1Json:
+                        {
+                            // write module.json
+                            var moduleData = result.Layers.Single();
+                            using var moduleStream = moduleData!.ToStream();
+                            this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain), moduleStream);
+                            break;
+                        }
+                    case BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip:
+                        {
+                            // write provider.tar.gz
+                            var providerData = result.Layers.Single();
+                            using var providerStream = providerData!.ToStream();
+                            this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Provider), providerStream);
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
 
             // write metadata
             var metadata = new ModuleMetadata(result.ManifestDigest);
@@ -262,7 +370,7 @@ namespace Bicep.Core.Registry
             this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Metadata), metadataStream);
         }
 
-        protected override string GetModuleDirectoryPath(OciArtifactModuleReference reference)
+        protected override string GetModuleDirectoryPath(OciModuleReference reference)
         {
             // cachePath is already set to %userprofile%\.bicep\br or ~/.bicep/br by default depending on OS
             // we need to split each component of the reference into a sub directory to fit within the max file name length limit on linux and mac
@@ -303,13 +411,14 @@ namespace Bicep.Core.Registry
             return Path.Combine(this.cachePath, registry, repository, tagOrDigest);
         }
 
-        protected override Uri GetModuleLockFileUri(OciArtifactModuleReference reference) => this.GetModuleFileUri(reference, ModuleFileType.Lock);
+        protected override Uri GetModuleLockFileUri(OciModuleReference reference) => this.GetModuleFileUri(reference, ModuleFileType.Lock);
 
-        private async Task<(OciArtifactResult?, string? errorMessage)> TryPullArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference reference)
+        private async Task<(OciArtifactResult?, string? errorMessage)> TryPullArtifactAsync(RootConfiguration configuration, OciModuleReference reference)
         {
             try
             {
                 var result = await this.client.PullArtifactAsync(configuration, reference);
+                ValidateModule(result);
 
                 await this.TryWriteModuleContentAsync(reference, result);
 
@@ -340,7 +449,7 @@ namespace Bicep.Core.Registry
         private static bool CheckAllInnerExceptionsAreRequestFailures(AggregateException exception) =>
             exception.InnerExceptions.All(inner => inner is RequestFailedException);
 
-        private Uri GetModuleFileUri(OciArtifactModuleReference reference, ModuleFileType fileType)
+        private Uri GetModuleFileUri(OciModuleReference reference, ModuleFileType fileType)
         {
             string localFilePath = this.GetModuleFilePath(reference, fileType);
             if (Uri.TryCreate(localFilePath, UriKind.Absolute, out var uri))
@@ -351,7 +460,7 @@ namespace Bicep.Core.Registry
             throw new NotImplementedException($"Local module file path is malformed: \"{localFilePath}\"");
         }
 
-        private string GetModuleFilePath(OciArtifactModuleReference reference, ModuleFileType fileType)
+        private string GetModuleFilePath(OciModuleReference reference, ModuleFileType fileType)
         {
             var fileName = fileType switch
             {
@@ -359,6 +468,7 @@ namespace Bicep.Core.Registry
                 ModuleFileType.Lock => "lock",
                 ModuleFileType.Manifest => "manifest",
                 ModuleFileType.Metadata => "metadata",
+                ModuleFileType.Provider => "types.tgz",
                 _ => throw new NotImplementedException($"Unexpected module file type '{fileType}'.")
             };
 
@@ -370,7 +480,8 @@ namespace Bicep.Core.Registry
             ModuleMain,
             Manifest,
             Lock,
-            Metadata
+            Metadata,
+            Provider
         };
     }
 }
