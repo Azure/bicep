@@ -245,6 +245,20 @@ public class SnippetsProvider : ISnippetsProvider
             }
         }
     }
+    public IEnumerable<Snippet> GetTestBodyCompletionSnippets(TypeSymbol typeSymbol)
+    {
+        yield return GetEmptySnippet();
+
+        if (typeSymbol is TestType testType && testType.Body is ObjectType objectType)
+        {
+            Snippet? snippet = GetRequiredPropertiesSnippet(objectType, RequiredPropertiesLabel, RequiredPropertiesDescription);
+
+            if (snippet is not null)
+            {
+                yield return snippet;
+            }
+        }
+    }
 
     public IEnumerable<Snippet> GetObjectBodyCompletionSnippets(TypeSymbol typeSymbol)
     {

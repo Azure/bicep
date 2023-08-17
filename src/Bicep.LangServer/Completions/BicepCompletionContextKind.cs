@@ -240,5 +240,10 @@ namespace Bicep.LanguageServer.Completions
         /// The current location in an import statement requires the <code>from</code> contextual keyword
         /// </summary>
         ExpectingImportFromKeyword = 1UL << 44,
+
+        /// <summary>
+        /// The current location needs a test body.
+        /// </summary>
+        TestBody = 1UL << 10,
     }
 }

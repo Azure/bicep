@@ -15,6 +15,7 @@ namespace Bicep.LanguageServer.Telemetry
             public const string TopLevelDeclarationSnippetInsertion = "snippet/toplevel";
             public const string ResourceBodySnippetInsertion = "snippet/resourcebody";
             public const string ModuleBodySnippetInsertion = "snippet/modulebody";
+            public const string TestBodySnippetInsertion = "snippet/testbody";
             public const string ObjectBodySnippetInsertion = "snippet/object";
 
             public const string DecompileSuccess = "decompile/success";
