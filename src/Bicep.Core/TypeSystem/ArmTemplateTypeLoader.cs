@@ -67,6 +67,13 @@ public static class ArmTemplateTypeLoader
         List<TypeSymbol> literalTypeTargets = new();
         foreach (var element in allowedValues)
         {
+            if (element.Type == JTokenType.Null)
+            {
+                // The compiler was erroneously including `null` in the allowedValues array if the overall type was nullable (e.g., `type foo = ('bar' | 'baz')?`)
+                // This error has been corrected, but some of those compiled templates may still be out in the wild, so just skip over any `null`s encountered
+                continue;
+            }
+
             if (!validator(element) || TypeHelper.TryCreateTypeLiteral(element) is not { } literal)
             {
                 return ErrorType.Create(diagnosticOnMismatch(DiagnosticBuilder.ForDocumentStart()));
@@ -121,7 +128,7 @@ public static class ArmTemplateTypeLoader
 
         if (schemaNode.Items?.SchemaNode is { } items)
         {
-            if (items.Ref?.Value is { } @ref)
+            if (items.Ref?.Value is not null)
             {
                 var (type, typeName) = GetDeferrableTypeInfo(context, items);
                 return new TypedArrayType($"{typeName}[]", type, default, schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
@@ -198,8 +205,7 @@ public static class ArmTemplateTypeLoader
                 // depending on the language version, either only properties included in schemaNode.Required are required,
                 // or all of them are (but some may be nullable)
                 var required = context.TemplateLanguageVersion?.HasFeature(TemplateLanguageFeature.NullableParameters) == true
-                    ? true
-                    : schemaNode.Required?.Value.Contains(propertyName) ?? false;
+                    || (schemaNode.Required?.Value.Contains(propertyName) ?? false);
                 var propertyFlags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
                 var description = schema.Metadata?.Value is JObject metadataObject &&
                     metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
