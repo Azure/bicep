@@ -219,6 +219,13 @@ test testInexitentParam 'samples/main.bicep' ={
 //@[00:01) RightBrace |}|
 //@[01:05) NewLine |\r\n\r\n|
 
+var tryToAssign = testInexitentParam
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |tryToAssign|
+//@[16:17) Assignment |=|
+//@[18:36) Identifier |testInexitentParam|
+//@[36:40) NewLine |\r\n\r\n|
+
 test testEmptyBody 'samples/main.bicep' = {}
 //@[00:04) Identifier |test|
 //@[05:18) Identifier |testEmptyBody|

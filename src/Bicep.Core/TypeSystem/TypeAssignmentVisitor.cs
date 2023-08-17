@@ -1907,6 +1907,7 @@ namespace Bicep.Core.TypeSystem
 
                     case ModuleSymbol module:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, module));
+                        
                     case TestSymbol test:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, test));
 

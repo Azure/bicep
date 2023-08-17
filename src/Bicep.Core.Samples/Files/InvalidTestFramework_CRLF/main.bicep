@@ -51,6 +51,8 @@ test testInexitentParam 'samples/main.bicep' ={
   }
 }
 
+var tryToAssign = testInexitentParam
+
 test testEmptyBody 'samples/main.bicep' = {}
 
 // Test inexistent file

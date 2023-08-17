@@ -1,5 +1,5 @@
 test testShouldIgnoreAdditionalProperties 'samples/main.bicep' = {
-//@[00:1852) ProgramSyntax
+//@[00:1892) ProgramSyntax
 //@[00:0091) ├─TestDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |test|
 //@[05:0041) | ├─IdentifierSyntax
@@ -317,6 +317,17 @@ test testInexitentParam 'samples/main.bicep' ={
 }
 //@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0005) ├─Token(NewLine) |\r\n\r\n|
+
+var tryToAssign = testInexitentParam
+//@[00:0036) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |tryToAssign|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0036) | └─VariableAccessSyntax
+//@[18:0036) |   └─IdentifierSyntax
+//@[18:0036) |     └─Token(Identifier) |testInexitentParam|
+//@[36:0040) ├─Token(NewLine) |\r\n\r\n|
 
 test testEmptyBody 'samples/main.bicep' = {}
 //@[00:0044) ├─TestDeclarationSyntax

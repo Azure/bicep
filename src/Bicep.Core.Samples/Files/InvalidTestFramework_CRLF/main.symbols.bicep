@@ -59,6 +59,9 @@ test testInexitentParam 'samples/main.bicep' ={
   }
 }
 
+var tryToAssign = testInexitentParam
+//@[4:15) Variable tryToAssign. Type: error. Declaration start char: 0, length: 36
+
 test testEmptyBody 'samples/main.bicep' = {}
 //@[5:18) Test testEmptyBody. Type: error. Declaration start char: 0, length: 44
 

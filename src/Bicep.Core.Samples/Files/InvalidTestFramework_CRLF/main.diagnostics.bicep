@@ -59,6 +59,10 @@ test testInexitentParam 'samples/main.bicep' ={
   }
 }
 
+var tryToAssign = testInexitentParam
+//@[04:15) [no-unused-vars (Warning)] Variable "tryToAssign" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |tryToAssign|
+//@[18:36) [BCP062 (Error)] The referenced declaration with name "testInexitentParam" is not valid. (CodeDescription: none) |testInexitentParam|
+
 test testEmptyBody 'samples/main.bicep' = {}
 //@[19:39) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/samples/main.bicep'. (CodeDescription: none) |'samples/main.bicep'|
 

@@ -1802,9 +1802,27 @@ namespace Bicep.Core.TypeSystem
                 parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
             }
 
-            return LanguageConstants.CreateTestType(
+            return CreateTestType(
                 parameters,
                 LanguageConstants.TypeNameTest);
+        }
+
+        private TypeSymbol CreateTestType(IEnumerable<TypeProperty> paramsProperties, string typeName)
+        {
+            var paramsType = new ObjectType(LanguageConstants.TestParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
+            // If none of the params are reqired, we can allow the 'params' declaration to be omitted entirely
+            var paramsRequiredFlag = paramsProperties.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None;
+
+            var testBody = new ObjectType(
+                typeName,
+                TypeSymbolValidationFlags.Default,
+                new[]
+                {
+                    new TypeProperty(LanguageConstants.TestParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
+                },
+                null);
+
+            return new TestType(typeName, testBody);
         }
         
         private TypeSymbol GetResourceTypeFromString(TextSpan span, string stringContent, ResourceTypeGenerationFlags typeGenerationFlags, ResourceType? parentResourceType)

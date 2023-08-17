@@ -314,24 +314,6 @@ namespace Bicep.Core
 
             return new ModuleType(typeName, moduleScope, moduleBody);
         }
-
-        public static TypeSymbol CreateTestType(IEnumerable<TypeProperty> paramsProperties, string typeName)
-        {
-            var paramsType = new ObjectType(TestParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
-            // If none of the params are reqired, we can allow the 'params' declaration to be omitted entirely
-            var paramsRequiredFlag = paramsProperties.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None;
-
-            var testBody = new ObjectType(
-                typeName,
-                TypeSymbolValidationFlags.Default,
-                new[]
-                {
-                    new TypeProperty(TestParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
-                },
-                null);
-
-            return new TestType(typeName, testBody);
-        }
     }
 
     
