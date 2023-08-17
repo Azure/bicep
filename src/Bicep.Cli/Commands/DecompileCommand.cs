@@ -58,7 +58,7 @@ namespace Bicep.Cli.Commands
             }
             catch (Exception exception)
             {
-                io.Error.WriteLine(string.Format(CliResources.DecompilationFailedFormat, PathHelper.ResolvePath(args.InputFile), exception.Message));
+                await io.Error.WriteLineAsync(string.Format(CliResources.DecompilationFailedFormat, PathHelper.ResolvePath(args.InputFile), exception.Message));
                 return 1;
             }
 

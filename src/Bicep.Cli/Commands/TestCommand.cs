@@ -50,7 +50,7 @@ namespace Bicep.Cli.Commands
 
             if(!features.TestFrameworkEnabled)
             {
-                errorWriter.WriteLine("TestFrameWork not enabled");
+                await errorWriter.WriteLineAsync("TestFrameWork not enabled");
 
                 return 1;
             }
@@ -68,7 +68,7 @@ namespace Bicep.Cli.Commands
                 return testResults.Success? 0 : 1;
             }
 
-            errorWriter.WriteLine(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath);
+            await errorWriter.WriteLineAsync(string.Format(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath));
             return 1;
         }
 

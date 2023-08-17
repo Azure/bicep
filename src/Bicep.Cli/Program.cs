@@ -105,13 +105,13 @@ namespace Bicep.Cli
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 
                     default:
-                        io.Error.WriteLine(string.Format(CliResources.UnrecognizedArgumentsFormat, string.Join(' ', args), ThisAssembly.AssemblyName)); // should probably print help here??
+                        await io.Error.WriteLineAsync(string.Format(CliResources.UnrecognizedArgumentsFormat, string.Join(' ', args), ThisAssembly.AssemblyName)); // should probably print help here??
                         return 1;
                 }
             }
             catch (BicepException exception)
             {
-                io.Error.WriteLine(exception.Message);
+                await io.Error.WriteLineAsync(exception.Message);
                 return 1;
             }
         }
