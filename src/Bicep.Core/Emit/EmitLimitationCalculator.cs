@@ -54,7 +54,6 @@ namespace Bicep.Core.Emit
             BlockCyclicAggregateTypeReferences(model, diagnostics);
             BlockUserDefinedFunctionsWithoutExperimentalFeaure(model, diagnostics);
             BlockTestFrameworkWithoutExperimentalFeaure(model, diagnostics);
-            BlockUserDefinedTypesWithUserDefinedFunctions(model, diagnostics);
             BlockAssertsWithoutExperimentalFeatures(model, diagnostics);
             BlockNamesDistinguishedOnlyByCase(model, diagnostics);
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
@@ -644,32 +643,6 @@ namespace Bicep.Core.Emit
                 if (!model.Features.TestFrameworkEnabled)
                 {
                     diagnostics.Write(test.DeclaringTest, x => x.TestDeclarationStatementsUnsupported());
-                }
-            }
-        }
-
-        private static void BlockUserDefinedTypesWithUserDefinedFunctions(SemanticModel model, IDiagnosticWriter diagnostics)
-        {
-            foreach (var function in model.Root.FunctionDeclarations)
-            {
-                if (function.DeclaringFunction.Lambda is not TypedLambdaSyntax lambda)
-                {
-                    continue;
-                }
-
-                foreach (var localVariable in lambda.GetLocalVariables())
-                {
-                    var argTypeSymbol = model.GetSymbolInfo(localVariable.Type);
-                    if (argTypeSymbol is not AmbientTypeSymbol and not ErrorSymbol)
-                    {
-                        diagnostics.Write(localVariable, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
-                    }
-                }
-
-                var outputTypeSymbol = model.GetSymbolInfo(lambda.ReturnType);
-                if (outputTypeSymbol is not AmbientTypeSymbol and not ErrorSymbol)
-                {
-                    diagnostics.Write(lambda.ReturnType, x => x.UserDefinedTypesNotAllowedInFunctionDeclaration());
                 }
             }
         }
