@@ -31,33 +31,33 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Validate_params_with_correct_parameter_values_runs_successfully()
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", """
-param intParam int
+                param intParam int
 
-@allowed([
-    'foo'
-    'bar'
-])
-param strParam string
+                @allowed([
+                    'foo'
+                    'bar'
+                ])
+                param strParam string
 
-param boolParam bool
+                param boolParam bool
 
-param arrParam array
+                param arrParam array
 
-param objParam object
-""");
+                param objParam object
+                """);
 
             var paramsInput = """
-{
-  "intParam": 1,
-  "strParam": "foo",
-  "boolParam": true,
-  "arrParam": [1, 2, 3],
-  "objParam": {
-    "firstProp": "foobar",
-    "secondProp": [1, 2, 3] 
-  }
-}
-""";       
+                {
+                  "intParam": 1,
+                  "strParam": "foo",
+                  "boolParam": true,
+                  "arrParam": [1, 2, 3],
+                  "objParam": {
+                    "firstProp": "foobar",
+                    "secondProp": [1, 2, 3] 
+                  }
+                }
+                """;       
             Environment.SetEnvironmentVariable("BICEP_PARAMETER_INPUT", paramsInput);
 
             var(output, error, result) = await Bicep("validate-params", bicepPath);
