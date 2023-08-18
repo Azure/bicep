@@ -157,7 +157,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            var uri = documentUri.ToUri();
+            var uri = documentUri.ToUriEscaped();
 
             var files = new Dictionary<Uri, string>
             {

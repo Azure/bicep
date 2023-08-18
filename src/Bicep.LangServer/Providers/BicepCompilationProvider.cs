@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Providers
                 fileResolver,
                 moduleDispatcher,
                 workspace,
-                documentUri.ToUri(),
+                documentUri.ToUriEscaped(),
                 featureProviderFactory);
             return this.CreateContext(sourceFileGrouping, modelLookup);
         }

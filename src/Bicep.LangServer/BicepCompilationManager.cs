@@ -73,7 +73,7 @@ namespace Bicep.LanguageServer
                 // When errors are fixed in bicepconfig.json and file is saved, we'll get called into this
                 // method again. CompilationContext will be null. We'll get the souceFile from workspace and
                 // upsert compilation.
-                if (workspace.TryGetSourceFile(documentUri.ToUri(), out ISourceFile? sourceFile) && sourceFile is BicepFile)
+                if (workspace.TryGetSourceFile(documentUri.ToUriEscaped(), out ISourceFile? sourceFile) && sourceFile is BicepFile)
                 {
                     UpsertCompilationInternal(documentUri, null, sourceFile);
                 }
@@ -117,13 +117,13 @@ namespace Bicep.LanguageServer
         private ISourceFile CreateSourceFile(DocumentUri documentUri, string fileContents, string? languageId)
         {
             if (languageId is not null &&
-                SourceFileFactory.TryCreateSourceFileByBicepLanguageId(documentUri.ToUri(), fileContents, languageId) is { } sourceFileViaLanguageId)
+                SourceFileFactory.TryCreateSourceFileByBicepLanguageId(documentUri.ToUriEscaped(), fileContents, languageId) is { } sourceFileViaLanguageId)
             {
                 return sourceFileViaLanguageId;
             }
 
             // try creating the file using the URI (like in the SourceFileGroupingBuilder)
-            if (SourceFileFactory.TryCreateSourceFile(documentUri.ToUri(), fileContents) is { } sourceFileViaUri)
+            if (SourceFileFactory.TryCreateSourceFile(documentUri.ToUriEscaped(), fileContents) is { } sourceFileViaUri)
             {
                 // this handles *.bicep, *.bicepparam, *.jsonc, *.json, and *.arm files
                 return sourceFileViaUri;
@@ -133,12 +133,12 @@ namespace Bicep.LanguageServer
             // this means we're dealing with an untitled file
             // however the language ID was made available to us on file open
             if (this.GetCompilationUnsafe(documentUri) is { } potentiallyUnsafeContext &&
-                SourceFileFactory.TryCreateSourceFileByFileKind(documentUri.ToUri(), fileContents, potentiallyUnsafeContext.SourceFileKind) is { } sourceFileViaFileKind)
+                SourceFileFactory.TryCreateSourceFileByFileKind(documentUri.ToUriEscaped(), fileContents, potentiallyUnsafeContext.SourceFileKind) is { } sourceFileViaFileKind)
             {
                 return sourceFileViaFileKind;
             }
 
-            throw new InvalidOperationException($"Unable to create source file for uri '{documentUri.ToUri()}'.");
+            throw new InvalidOperationException($"Unable to create source file for uri '{documentUri.ToUriEscaped()}'.");
         }
 
         private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool triggeredByFileOpenEvent = false)
@@ -225,7 +225,7 @@ namespace Bicep.LanguageServer
             // We should only upsert compilation when languageId is bicep or the file is already tracked in workspace.
             // When the file is in workspace but languageId is null, the file can be a bicep file or a JSON template
             // being referenced as a bicep module.
-            return LanguageConstants.IsBicepOrParamsLanguage(languageId) || this.workspace.TryGetSourceFile(documentUri.ToUri(), out var _);
+            return LanguageConstants.IsBicepOrParamsLanguage(languageId) || this.workspace.TryGetSourceFile(documentUri.ToUriEscaped(), out var _);
         }
 
         private ImmutableArray<ISourceFile> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)
@@ -258,7 +258,7 @@ namespace Bicep.LanguageServer
             }
             catch (Exception exception)
             {
-                if (!workspace.TryGetSourceFile(documentUri.ToUri(), out var sourceFile))
+                if (!workspace.TryGetSourceFile(documentUri.ToUriEscaped(), out var sourceFile))
                 {
                     // the document is somehow missing from the workspace,
                     // which should not happen since we upsert into the workspace before creating the compilation
@@ -340,7 +340,7 @@ namespace Bicep.LanguageServer
                         if (triggeredByFileOpenEvent)
                         {
                             var model = context.Compilation.GetEntrypointSemanticModel();
-                            SendTelemetryOnBicepFileOpen(model, documentUri.ToUri(), model.Configuration, sourceFiles, diagnostics);
+                            SendTelemetryOnBicepFileOpen(model, documentUri.ToUriEscaped(), model.Configuration, sourceFiles, diagnostics);
                         }
 
                         // publish all the diagnostics
@@ -379,7 +379,7 @@ namespace Bicep.LanguageServer
             TelemetryProvider.PostEvent(telemetryEvent);
 
             // Telemetry on open bicep file and the referenced modules
-            telemetryEvent = GetTelemetryAboutSourceFiles(semanticModel, documentUri.ToUri(), sourceFiles, diagnostics);
+            telemetryEvent = GetTelemetryAboutSourceFiles(semanticModel, documentUri.ToUriEscaped(), sourceFiles, diagnostics);
 
             if (telemetryEvent is not null)
             {
