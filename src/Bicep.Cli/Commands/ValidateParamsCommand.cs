@@ -48,7 +48,7 @@ namespace Bicep.Cli.Commands
             }
             var paramsInput = Environment.GetEnvironmentVariable("BICEP_PARAMETER_INPUT");
 
-            if(paramsInput is not {})
+            if(paramsInput is null)
             {
                 throw new CommandLineException("No value is set for BICEP_PARAMETER_INPUT environment variable");
             }
@@ -63,7 +63,7 @@ namespace Bicep.Cli.Commands
 
             foreach(var parameter in parametersJson.Properties())
             {   
-                //we will skip the type check value is null
+                //Skip type check if parameter value is null (as those treated as being omitted by ARM Engine)
                 if(parameterDeclarations.TryGetValue(parameter.Name, out var parameterMetadata) 
                     && parameter.Value.Type != JTokenType.Null)
                 {
