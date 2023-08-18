@@ -1440,11 +1440,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
-                .WithDescription("Allows the type to be imported into other templates.")
-                .WithFlags(FunctionFlags.TypeDecorator)
+                .WithDescription("Allows a type or variable to be imported into other templates.")
+                .WithFlags(FunctionFlags.TypeOrVariableDecorator)
                 .WithEvaluator(static (functionCall, decorated) => decorated switch
                 {
                     DeclaredTypeExpression declaredType => declaredType with { Exported = functionCall },
+                    DeclaredVariableExpression declaredVariable => declaredVariable with { Exported = functionCall },
                     _ => decorated,
                 })
                 .WithValidator(static (decoratorName, decoratorSyntax, _, _, binder, _, diagnosticWriter) =>

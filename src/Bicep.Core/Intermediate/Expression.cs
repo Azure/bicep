@@ -414,7 +414,8 @@ public record DeclaredVariableExpression(
     SyntaxBase? SourceSyntax,
     string Name,
     Expression Value,
-    Expression? Description = null
+    Expression? Description = null,
+    Expression? Exported = null
 ) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
