@@ -516,4 +516,63 @@ public class CompileTimeImportTests
             ("BCP362", DiagnosticLevel.Error, "This symbol is imported multiple times under the names 'foo', 'fizz'."), // The same diagnostic should be raised on each import
         });
     }
+
+    [TestMethod]
+    public void Exporting_a_variable_that_references_a_parameter_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports, """
+            param foo string
+            var bar = 'x${foo}x'
+            var baz = bar
+
+            @export()
+            var quux = baz
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP372", DiagnosticLevel.Error, "The \"@export()\" decorator may not be applied to variables that refer to parameters, modules, or resource, either directly or indirectly. The target of this decorator contains direct or transitive references to the following unexportable symbols: \"foo\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Exporting_a_variable_that_references_a_resource_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports, """
+            resource foo 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+                location: 'westus'
+                name: 'myVNet'
+                properties:{
+                    addressSpace: {
+                        addressPrefixes: [
+                            '10.0.0.0/20'
+                        ]
+                    }
+                }
+            }
+            var bar = [
+                {vnetName: foo.name, addressSpace: foo.properties.addressSpace}
+            ]
+            var baz = bar
+
+            @export()
+            var quux = baz
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP372", DiagnosticLevel.Error, "The \"@export()\" decorator may not be applied to variables that refer to parameters, modules, or resource, either directly or indirectly. The target of this decorator contains direct or transitive references to the following unexportable symbols: \"foo\"."),
+        });
+    }
+
+    [TestMethod]
+    public void Exporting_a_variable_that_references_a_local_variable_should_not_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports, """
+            @export()
+            var foo = map(range(1, 10), x => x * x)
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }

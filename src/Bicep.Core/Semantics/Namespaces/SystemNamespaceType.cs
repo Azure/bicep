@@ -1456,6 +1456,24 @@ namespace Bicep.Core.Semantics.Namespaces
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ExportDecoratorMustTargetStatement());
                     }
+
+                    if (decoratorTarget is not null && binder.GetSymbolInfo(decoratorTarget) is DeclaredSymbol targetedDeclaration)
+                    {
+                        var nonExportableSymbolsInClosure = SymbolicReferenceCollector.CollectSymbolsReferencedRecursive(binder, targetedDeclaration)
+                            .Where(s => s is not VariableSymbol &&
+                                s is not TypeAliasSymbol &&
+                                s is not ImportedTypeSymbol &&
+                                s is not WildcardImportSymbol &&
+                                s is not LocalVariableSymbol)
+                            .Select(s => s.Name)
+                            .Order()
+                            .ToImmutableArray();
+
+                        if (nonExportableSymbolsInClosure.Any())
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ClosureContainsNonExportableSymbols(nonExportableSymbolsInClosure));
+                        }
+                    }
                 })
                 .Build();
 
