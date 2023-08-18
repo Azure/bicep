@@ -48,7 +48,7 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderDeclarationSyntax(this);
 
-        private StringSyntax ProviderPath => SyntaxFactory.CreateStringLiteral($@"{OciArtifactReferenceFacts.Scheme}:{FeatureProvider.ReadEnvVar("BICEP_REGISTRY_FQDN", LanguageConstants.BicepPublicMcrRegistry)}/bicep/providers/{this.Specification.Name}:{this.Specification.Version}");
+        private StringSyntax ProviderPath => SyntaxFactory.CreateStringLiteral($@"{OciArtifactReferenceFacts.Scheme}:{FeatureProvider.ReadEnvVar("__EXPERIMENTAL_BICEP_REGISTRY_FQDN", LanguageConstants.BicepPublicMcrRegistry)}/bicep/providers/{this.Specification.Name}:{this.Specification.Version}");
 
         public StringSyntax? TryGetPath() => ProviderPath;
     }
