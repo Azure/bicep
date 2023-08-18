@@ -65,7 +65,9 @@ namespace Bicep.LanguageServer.Handlers
         private static string? TryGetDescriptionMarkdown(SymbolResolutionResult result, DeclaredSymbol symbol)
         {
             if (symbol.DeclaringSyntax is DecorableSyntax decorableSyntax &&
-                DescriptionHelper.TryGetFromDecorator(result.Context.Compilation.GetEntrypointSemanticModel(), decorableSyntax) is { } description)
+                DescriptionHelper.TryGetFromDecorator(
+                    result.Context.Compilation.GetEntrypointSemanticModel(), 
+                    decorableSyntax) is { } description)
             {
                 return description;
             }
@@ -170,7 +172,12 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(HoverParams request, SymbolResolutionResult result, IModuleDispatcher moduleDispatcher, IModuleRegistryProvider moduleRegistryProvider, ModuleSymbol module)
+        private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(
+            HoverParams request, 
+            SymbolResolutionResult result, 
+            IModuleDispatcher moduleDispatcher, 
+            IModuleRegistryProvider moduleRegistryProvider, 
+            ModuleSymbol module)
         {
             if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule, out var filePath, out _))
             {
@@ -333,7 +340,7 @@ namespace Bicep.LanguageServer.Handlers
                 var provider = resourceType.TypeReference.TypeSegments.First().ToLowerInvariant();
                 var typePath = resourceType.TypeReference.TypeSegments.Skip(1).Select(x => x.ToLowerInvariant());
 
-                return $"https://docs.microsoft.com/azure/templates/{provider}/{string.Join('/', typePath)}?tabs=bicep";
+                return $"https://learn.microsoft.com/azure/templates/{provider}/{string.Join('/', typePath)}?pivots=deployment-language-bicep";
             }
 
             return null;

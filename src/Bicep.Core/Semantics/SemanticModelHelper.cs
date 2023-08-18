@@ -45,7 +45,7 @@ namespace Bicep.Core.Semantics
         }
 
         public static bool TryGetSemanticModelForForeignTemplateReference(ISourceFileLookup sourceFileLookup,
-            IForeignTemplateReference reference,
+            IForeignArtifactReference reference,
             DiagnosticBuilder.ErrorBuilderDelegate onInvalidSourceFileType,
             ISemanticModelLookup semanticModelLookup,
             [NotNullWhen(true)] out ISemanticModel? semanticModel,

@@ -142,14 +142,14 @@ namespace Bicep.Core.UnitTests.Registry
             badValidationBuilder!.Should().HaveCode("BCPMock");
             badValidationBuilder!.Should().HaveMessage("Bad ref error");
 
-            dispatcher.GetModuleRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ModuleRestoreStatus.Unknown);
+            dispatcher.GetModuleRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ArtifactRestoreStatus.Unknown);
             goodAvailabilityBuilder!.Should().HaveCode("BCP190");
             goodAvailabilityBuilder!.Should().HaveMessage("The module with reference \"mock:validRef\" has not been restored.");
 
-            dispatcher.GetModuleRestoreStatus(validRef2, out var goodAvailabilityBuilder2).Should().Be(ModuleRestoreStatus.Succeeded);
+            dispatcher.GetModuleRestoreStatus(validRef2, out var goodAvailabilityBuilder2).Should().Be(ArtifactRestoreStatus.Succeeded);
             goodAvailabilityBuilder2!.Should().BeNull();
 
-            dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3).Should().Be(ModuleRestoreStatus.Unknown);
+            dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3).Should().Be(ArtifactRestoreStatus.Unknown);
             goodAvailabilityBuilder3!.Should().HaveCode("BCP190");
             goodAvailabilityBuilder3!.Should().HaveMessage("The module with reference \"mock:validRef3\" has not been restored.");
 
@@ -163,14 +163,14 @@ namespace Bicep.Core.UnitTests.Registry
 
             (await dispatcher.RestoreModules(new[] { validRef, validRef3 })).Should().BeTrue();
 
-            dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ModuleRestoreStatus.Failed);
+            dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ArtifactRestoreStatus.Failed);
             goodAvailabilityBuilder3AfterRestore!.Should().HaveCode("RegFail");
             goodAvailabilityBuilder3AfterRestore!.Should().HaveMessage("Failed to restore module");
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetConfigurationData), DynamicDataSourceType.Method)]
-        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(RootConfiguration changedConfiguration, ModuleRestoreStatus expectedStatus)
+        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(RootConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
         {
             // Arrange.
             var badReferenceUri = RandomFileUri();
@@ -214,7 +214,7 @@ namespace Bicep.Core.UnitTests.Registry
                     ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "HTTPS://EXAMPLE.INVALID",
                     ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid/",
                 }),
-                ModuleRestoreStatus.Failed
+                ArtifactRestoreStatus.Failed
             };
 
             yield return new object[]
@@ -226,7 +226,7 @@ namespace Bicep.Core.UnitTests.Registry
                     ["cloud.profiles.MyCloud.resourceManagerEndpoint"] = "HTTPS://EXAMPLE.INVALID",
                     ["cloud.profiles.MyCloud.activeDirectoryAuthority"] = "https://example.invalid/",
                 }),
-                ModuleRestoreStatus.Failed
+                ArtifactRestoreStatus.Failed
             };
 
             yield return new object[]
@@ -238,7 +238,7 @@ namespace Bicep.Core.UnitTests.Registry
                     ["cloud.profiles.MyCloud.resourceManagerEndpoint"] = "https://example.invalid",
                     ["cloud.profiles.MyCloud.activeDirectoryAuthority"] = "https://foo.bar.com",
                 }),
-                ModuleRestoreStatus.Unknown
+                ArtifactRestoreStatus.Unknown
             };
 
             yield return new object[]
@@ -248,7 +248,7 @@ namespace Bicep.Core.UnitTests.Registry
                 {
                     ["cloud.credentialPrecedence"] = new[] { "VisualStudioCode" },
                 }),
-                ModuleRestoreStatus.Unknown
+                ArtifactRestoreStatus.Unknown
             };
         }
 

@@ -501,6 +501,13 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { MemberExpressions = memberExpressions } : expression;
     }
 
+    void IExpressionVisitor.VisitParameterKeyVaultReferenceExpression(ParameterKeyVaultReferenceExpression expression) => ReplaceCurrent(expression, ReplaceParameterKeyVaultReferenceExpression);
+
+    public virtual Expression ReplaceParameterKeyVaultReferenceExpression(ParameterKeyVaultReferenceExpression expression)
+    {
+        return expression;
+    }
+
     void IExpressionVisitor.VisitProgramExpression(ProgramExpression expression) => ReplaceCurrent(expression, ReplaceProgramExpression);
     public virtual Expression ReplaceProgramExpression(ProgramExpression expression)
     {

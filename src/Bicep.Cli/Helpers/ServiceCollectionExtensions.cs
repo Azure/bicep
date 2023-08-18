@@ -49,6 +49,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<GenerateParametersFileCommand>()
             .AddSingleton<PublishCommand>()
             .AddSingleton<RestoreCommand>()
+            .AddSingleton<LintCommand>()
             .AddSingleton<RootCommand>();
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services

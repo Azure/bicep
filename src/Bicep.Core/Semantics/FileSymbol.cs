@@ -71,6 +71,7 @@ namespace Bicep.Core.Semantics
             .Concat(this.OutputDeclarations)
             .Concat(this.AssertDeclarations)
             .Concat(this.ParameterAssignments)
+            .Concat(this.TestDeclarations)
             .Concat(this.TypeImports)
             .Concat(this.WildcardImports);
 

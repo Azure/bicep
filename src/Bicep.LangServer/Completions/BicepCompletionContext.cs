@@ -184,6 +184,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsArrayItemContext(matchingNodes, arrayInfo, offset), BicepCompletionContextKind.ArrayItem | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsResourceBodyContext(matchingNodes, offset), BicepCompletionContextKind.ResourceBody) |
                        ConvertFlag(IsModuleBodyContext(matchingNodes, offset), BicepCompletionContextKind.ModuleBody) |
+                       ConvertFlag(IsTestBodyContext(matchingNodes, offset), BicepCompletionContextKind.TestBody) |
                        ConvertFlag(IsParameterDefaultValueContext(matchingNodes, offset), BicepCompletionContextKind.ParameterDefaultValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsVariableValueContext(matchingNodes, offset), BicepCompletionContextKind.VariableValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsOutputValueContext(matchingNodes, offset), BicepCompletionContextKind.OutputValue | BicepCompletionContextKind.Expression) |
@@ -846,6 +847,16 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ForSyntax>(matchingNodes, (module, @for) => module.Value == @for) ||
             // [for x in y:|]
             SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ForSyntax, Token>(matchingNodes, (module, @for, token) => module.Value == @for && @for.Colon == token && token.Type == TokenType.Colon && offset == token.Span.GetEndPosition());
+        
+        private static bool IsTestBodyContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // tests only allow {} as the body so we don't need to worry about
+            // providing completions for a partially-typed identifier
+            SyntaxMatcher.IsTailMatch<TestDeclarationSyntax>(matchingNodes, test =>
+                !test.Path.Span.ContainsInclusive(offset) &&
+                !test.Assignment.Span.ContainsInclusive(offset) &&
+                test.Value is SkippedTriviaSyntax && offset == test.Value.Span.Position) ||
+            // cursor is after the = token
+            SyntaxMatcher.IsTailMatch<TestDeclarationSyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Assignment && offset == token.GetEndPosition());
 
         private static bool IsDecoratorNameContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<DecoratorSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||

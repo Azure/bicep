@@ -13,6 +13,8 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
+using Bicep.Core.Features;
+using Bicep.Core.Semantics.Namespaces;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Workspaces
@@ -24,11 +26,15 @@ namespace Bicep.Core.Workspaces
         private readonly IReadOnlyWorkspace workspace;
 
         private readonly Dictionary<Uri, FileResolutionResult> fileResultByUri;
-        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IForeignTemplateReference, UriResolutionResult>> uriResultByModule;
+        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IForeignArtifactReference, UriResolutionResult>> uriResultByModule;
 
         private readonly bool forceModulesRestore;
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, bool forceModulesRestore = false)
+        private SourceFileGroupingBuilder(
+            IFileResolver fileResolver,
+            IModuleDispatcher moduleDispatcher,
+            IReadOnlyWorkspace workspace,
+            bool forceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
@@ -38,7 +44,12 @@ namespace Bicep.Core.Workspaces
             this.forceModulesRestore = forceModulesRestore;
         }
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, bool forceforceModulesRestore = false)
+        private SourceFileGroupingBuilder(
+            IFileResolver fileResolver,
+            IModuleDispatcher moduleDispatcher,
+            IReadOnlyWorkspace workspace,
+            SourceFileGrouping current,
+            bool forceforceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
@@ -48,14 +59,14 @@ namespace Bicep.Core.Workspaces
             this.forceModulesRestore = forceforceModulesRestore;
         }
 
-        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, IFeatureProviderFactory featuresFactory, bool forceModulesRestore = false)
         {
             var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, forceModulesRestore);
 
-            return builder.Build(entryFileUri);
+            return builder.Build(entryFileUri, featuresFactory);
         }
 
-        public static SourceFileGrouping Rebuild(IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(IFeatureProviderFactory featuresFactory, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current)
         {
             var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current);
             var isParamsFile = current.FileResultByUri[current.EntryFileUri].File is BicepParamFile;
@@ -68,17 +79,20 @@ namespace Bicep.Core.Workspaces
 
             // Rebuild source files that contain external module references restored during the inital build.
             var sourceFilesToRebuild = current.SourceFiles
-                .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => modulesToRestore.Contains(new(moduleDeclaration, sourceFile))))
+                .Where(sourceFile
+                    => GetModuleDeclarations(sourceFile)
+                        .Any(moduleDeclaration
+                            => modulesToRestore.Contains(new ArtifactResolutionInfo(moduleDeclaration, sourceFile))))
                 .ToImmutableHashSet()
                 .SelectMany(sourceFile => current.GetFilesDependingOn(sourceFile))
                 .ToImmutableHashSet();
 
-            return builder.Build(current.EntryPoint.FileUri, sourceFilesToRebuild);
+            return builder.Build(current.EntryPoint.FileUri, featuresFactory, sourceFilesToRebuild);
         }
 
-        private SourceFileGrouping Build(Uri entryFileUri, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild = null)
+        private SourceFileGrouping Build(Uri entryFileUri, IFeatureProviderFactory featuresFactory, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild = null)
         {
-            var fileResult = this.PopulateRecursive(entryFileUri, null, sourceFilesToRebuild);
+            var fileResult = this.PopulateRecursive(entryFileUri, null, sourceFilesToRebuild, featuresFactory);
 
             if (fileResult.File is null)
             {
@@ -128,69 +142,77 @@ namespace Bicep.Core.Workspaces
             return resolutionResult;
         }
 
-        private FileResolutionResult PopulateRecursive(Uri fileUri, ModuleReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild)
+        private FileResolutionResult PopulateRecursive(Uri fileUri, ModuleReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild, IFeatureProviderFactory featuresFactory)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, moduleReference);
-
+            var features = featuresFactory.GetFeatureProvider(fileUri);
             switch (fileResult.File)
             {
                 case BicepFile bicepFile:
-                {
-                    foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IForeignTemplateReference>())
                     {
-                        var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, restorable);
-
-                        uriResultByModule.GetOrAdd(bicepFile, f => new())[restorable] = uriResult;
-                        if (uriResult.FileUri is null)
+                        foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IForeignArtifactReference>())
                         {
-                            continue;
-                        }
+                            // NOTE(asilverman): The below check is ugly but temporary until we have a better way to
+                            // handle dynamic type loading in a way that is decoupled from modules.
+                            if (restorable is ProviderDeclarationSyntax providerImport &&
+                                (providerImport.Specification.Name != AzNamespaceType.BuiltInName || !features.DynamicTypeLoadingEnabled))
+                            {
+                                continue;
+                            }
+                            var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, restorable);
 
-                        if (!fileResultByUri.TryGetValue(uriResult.FileUri, out var childResult) ||
-                            (childResult.File is not null && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childResult.File)))
-                        {
-                            // only recurse if we've not seen this file before - to avoid infinite loops
-                            childResult = PopulateRecursive(uriResult.FileUri, childModuleReference, sourceFileToRebuild);
-                        }
+                            uriResultByModule.GetOrAdd(bicepFile, f => new())[restorable] = uriResult;
 
-                        fileResultByUri[uriResult.FileUri] = childResult;
+                            if (uriResult.FileUri is null)
+                            {
+                                continue;
+                            }
+
+                            if (!fileResultByUri.TryGetValue(uriResult.FileUri, out var childResult) ||
+                                (childResult.File is not null && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childResult.File)))
+                            {
+                                // only recurse if we've not seen this file before - to avoid infinite loops
+                                childResult = PopulateRecursive(uriResult.FileUri, childModuleReference, sourceFileToRebuild, featuresFactory);
+                            }
+
+                            fileResultByUri[uriResult.FileUri] = childResult;
+                        }
+                        break;
                     }
-                    break;
-                }
                 case BicepParamFile paramsFile:
-                {
-                    foreach (var usingDeclaration in paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>())
                     {
-                        if (!SyntaxHelper.TryGetForeignTemplatePath(usingDeclaration, out var usingFilePath, out var errorBuilder))
+                        foreach (var usingDeclaration in paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>())
                         {
-                            uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(null, false, errorBuilder);
-                            continue;
+                            if (!SyntaxHelper.TryGetForeignTemplatePath(usingDeclaration, out var usingFilePath, out var errorBuilder))
+                            {
+                                uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(null, false, errorBuilder);
+                                continue;
+                            }
+
+                            if (fileResolver.TryResolveFilePath(fileUri, usingFilePath) is not { } usingFileUri)
+                            {
+                                uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(null, false, x => x.FilePathCouldNotBeResolved(usingFilePath, fileUri.LocalPath));
+                                continue;
+                            }
+
+                            uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(usingFileUri, false, null);
+
+                            if (!fileResultByUri.TryGetValue(usingFileUri, out var childResult))
+                            {
+                                // only recurse if we've not seen this file before - to avoid infinite loops
+                                childResult = PopulateRecursive(usingFileUri, null, sourceFileToRebuild, featuresFactory);
+                            }
+
+                            fileResultByUri[usingFileUri] = childResult;
                         }
-
-                        if (fileResolver.TryResolveFilePath(fileUri, usingFilePath) is not {} usingFileUri)
-                        {
-                            uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(null, false, x => x.FilePathCouldNotBeResolved(usingFilePath, fileUri.LocalPath));
-                            continue;
-                        }
-
-                        uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(usingFileUri, false, null);
-
-                        if (!fileResultByUri.TryGetValue(usingFileUri, out var childResult))
-                        {
-                            // only recurse if we've not seen this file before - to avoid infinite loops
-                            childResult = PopulateRecursive(usingFileUri, null, sourceFileToRebuild);
-                        }
-
-                        fileResultByUri[usingFileUri] = childResult;
+                        break;
                     }
-                    break;
-                }
             }
 
             return fileResult;
         }
 
-        private (ModuleReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, IForeignTemplateReference foreignTemplateReference)
+        private (ModuleReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, IForeignArtifactReference foreignTemplateReference)
         {
             if (!moduleDispatcher.TryGetModuleReference(foreignTemplateReference, parentFileUri, out var moduleReference, out var referenceResolutionError))
             {
@@ -212,10 +234,10 @@ namespace Bicep.Core.Workspaces
             var restoreStatus = moduleDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
             switch (restoreStatus)
             {
-                case ModuleRestoreStatus.Unknown:
+                case ArtifactRestoreStatus.Unknown:
                     // we have not yet attempted to restore the module, so let's do it
                     return (moduleReference, new(moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
-                case ModuleRestoreStatus.Failed:
+                case ArtifactRestoreStatus.Failed:
                     // the module has not yet been restored or restore failed
                     // in either case, set the error
                     return (moduleReference, new(null, false, restoreErrorBuilder));
@@ -245,7 +267,7 @@ namespace Bicep.Core.Workspaces
                 foreach (var (statement, urlResult) in uriResultByModuleForFile)
                 {
                     if (urlResult.FileUri is not null &&
-                        fileResultByUri[urlResult.FileUri].File is {} sourceFile &&
+                        fileResultByUri[urlResult.FileUri].File is { } sourceFile &&
                         cycles.TryGetValue(sourceFile, out var cycle))
                     {
                         if (cycle.Length == 1)
@@ -272,11 +294,11 @@ namespace Bicep.Core.Workspaces
         /// This method only looks at top-level statements. If nested syntax nodes can be foreign template references at any point in the future,
         /// a SyntaxAggregator will need to be used in place of the <code>sourceFile.ProgramSyntax.Children</code> expressions.
         /// </remarks>
-        private static IEnumerable<IForeignTemplateReference> GetReferenceSourceNodes(ISourceFile sourceFile) => sourceFile switch
+        private static IEnumerable<IForeignArtifactReference> GetReferenceSourceNodes(ISourceFile sourceFile) => sourceFile switch
         {
-            BicepFile bicepFile => bicepFile.ProgramSyntax.Children.OfType<IForeignTemplateReference>(),
-            BicepParamFile paramsFile => paramsFile.ProgramSyntax.Children.OfType<IForeignTemplateReference>(),
-            _ => Enumerable.Empty<IForeignTemplateReference>(),
+            BicepFile bicepFile => bicepFile.ProgramSyntax.Children.OfType<IForeignArtifactReference>(),
+            BicepParamFile paramsFile => paramsFile.ProgramSyntax.Children.OfType<IForeignArtifactReference>(),
+            _ => Enumerable.Empty<IForeignArtifactReference>(),
         };
 
         private static IEnumerable<ModuleDeclarationSyntax> GetModuleDeclarations(ISourceFile sourceFile) => sourceFile is BicepFile bicepFile

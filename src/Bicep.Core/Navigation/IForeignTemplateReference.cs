@@ -4,7 +4,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Navigation;
 
-public interface IForeignTemplateReference
+public interface IForeignArtifactReference
 {
     public SyntaxBase ReferenceSourceSyntax { get; }
 

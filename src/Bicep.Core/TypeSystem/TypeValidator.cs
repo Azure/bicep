@@ -124,6 +124,10 @@ namespace Bicep.Core.TypeSystem
                 case (ModuleType sourceModuleType, _):
                     // When assigning a module, we're really assigning the value of the module body.
                     return AreTypesAssignable(sourceModuleType.Body.Type, targetType);
+                
+                case (TestType sourceTestType, _):
+                    // When assigning a module, we're really assigning the value of the test body.
+                    return AreTypesAssignable(sourceTestType.Body.Type, targetType);
 
                 case (StringLiteralType, StringLiteralType):
                     // The name *is* the escaped string value, so we must have an exact match.
@@ -263,6 +267,12 @@ namespace Bicep.Core.TypeSystem
                         var narrowedBody = NarrowType(config, expression, targetModuleType.Body.Type);
 
                         return new ModuleType(targetModuleType.Name, targetModuleType.ValidParentScopes, narrowedBody);
+                    }
+                case TestType targetTestType:
+                    {
+                        var narrowedBody = NarrowType(config, expression, targetTestType.Body.Type);
+
+                        return new TestType(targetTestType.Name, narrowedBody);
                     }
                 case ArrayType loopArrayType when expression is ForSyntax @for:
                     {

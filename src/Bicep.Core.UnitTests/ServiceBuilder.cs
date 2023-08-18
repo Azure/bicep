@@ -39,6 +39,7 @@ public static class IDependencyHelperExtensions
             helper.Construct<IModuleDispatcher>(),
             helper.Construct<IWorkspace>(),
             entryFileUri,
+            helper.Construct<IFeatureProviderFactory>(),
             forceModulesRestore);
 
     public static BicepCompiler GetCompiler(this IDependencyHelper helper)

@@ -98,8 +98,8 @@ param strParam string
             result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().NotBeEmpty();
-            error.Should().Contain($"Error BCP368: Assigned type of parameter \"intParam\" does not match the declared type \"int\" in the bicep template");
-            error.Should().Contain($"Error BCP368: Assigned type of parameter \"strParam\" does not match the declared type \"'bar' | 'foo'\" in the bicep template");        
+            error.Should().Contain($"Error BCP370: Assigned type of parameter \"intParam\" does not match the declared type \"int\" in the bicep template");
+            error.Should().Contain($"Error BCP370: Assigned type of parameter \"strParam\" does not match the declared type \"'bar' | 'foo'\" in the bicep template");        
         }
 
         [TestMethod]
@@ -120,7 +120,7 @@ param strParam string
             result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().NotBeEmpty();
-            error.Should().Contain($"Error BCP369: A value for parameter \"anotherStrParam\" is provided but it is not declared in the bicep template \"{bicepPath}\"");
+            error.Should().Contain($"Error BCP371: A value for parameter \"anotherStrParam\" is provided but it is not declared in the bicep template \"{bicepPath}\"");
         }
     }
 }

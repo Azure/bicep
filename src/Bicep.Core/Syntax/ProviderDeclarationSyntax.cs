@@ -3,12 +3,13 @@
 
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry.Oci;
 using System;
 using System.Collections.Generic;
 
 namespace Bicep.Core.Syntax
 {
-    public class ProviderDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax
+    public class ProviderDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IForeignArtifactReference
     {
         private readonly Lazy<ImportSpecification> lazySpecification;
 
@@ -40,8 +41,14 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax? Alias => (this.AsClause as AliasAsClauseSyntax)?.Alias;
 
+        private StringSyntax ProviderPath => SyntaxFactory.CreateStringLiteral($@"{OciArtifactReferenceFacts.Scheme}:{LanguageConstants.BicepPublicMcrRegistry}/bicep/providers/{this.Specification.Name}:{this.Specification.Version}");
+
         public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(this.SpecificationString, this.WithClause, this.AsClause));
 
+        SyntaxBase IForeignArtifactReference.ReferenceSourceSyntax => ProviderPath;
+
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderDeclarationSyntax(this);
+
+        public StringSyntax? TryGetPath() => ProviderPath;
     }
 }
