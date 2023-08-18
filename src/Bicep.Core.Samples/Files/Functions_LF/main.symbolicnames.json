@@ -6,7 +6,13 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2327335471823045349"
+      "templateHash": "15606847128001230479"
+    }
+  },
+  "definitions": {
+    "positiveInt": {
+      "type": "int",
+      "minValue": 0
     }
   },
   "functions": [
@@ -86,6 +92,21 @@
               "asdf",
               "[parameters('name')]"
             ]
+          }
+        },
+        "typedArg": {
+          "parameters": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "name": "input"
+            }
+          ],
+          "output": {
+            "$ref": "#/definitions/positiveInt",
+            "value": "[length(parameters('input'))]"
           }
         }
       }

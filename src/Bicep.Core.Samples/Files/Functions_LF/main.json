@@ -1,11 +1,18 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10926110834786320167"
+      "templateHash": "15606847128001230479"
+    }
+  },
+  "definitions": {
+    "positiveInt": {
+      "type": "int",
+      "minValue": 0
     }
   },
   "functions": [
@@ -86,11 +93,26 @@
               "[parameters('name')]"
             ]
           }
+        },
+        "typedArg": {
+          "parameters": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "name": "input"
+            }
+          ],
+          "output": {
+            "$ref": "#/definitions/positiveInt",
+            "value": "[length(parameters('input'))]"
+          }
         }
       }
     }
   ],
-  "resources": [],
+  "resources": {},
   "outputs": {
     "foo": {
       "type": "string",
