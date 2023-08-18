@@ -46,18 +46,26 @@ namespace Bicep.Cli.Commands
                 logger.LogError(CliResources.UnrecognizedBicepFileExtensionMessage, bicepFilePath);
                 return 1;
             }
+            var paramsInput = Environment.GetEnvironmentVariable("BICEP_PARAMETER_INPUT");
+
+            if(paramsInput is not {})
+            {
+                throw new CommandLineException("No value is set for BICEP_PARAMETER_INPUT environment variable");
+            }
 
             var bicepCompilation = await compilationService.CompileAsync(bicepFilePath, false);
 
             var parameterDeclarations = bicepCompilation.GetEntrypointSemanticModel().Parameters;
 
-            var parametersJson = JObject.Parse(args.Parameters);
+            var parametersJson = JObject.Parse(paramsInput);
 
             var validationDiagnostics = ToListDiagnosticWriter.Create();
 
             foreach(var parameter in parametersJson.Properties())
             {   
-                if(parameterDeclarations.TryGetValue(parameter.Name, out var parameterMetadata))
+                //we will skip the type check value is null
+                if(parameterDeclarations.TryGetValue(parameter.Name, out var parameterMetadata) 
+                    && parameter.Value.Type != JTokenType.Null)
                 {
                     var declaredType = parameterMetadata.TypeReference.Type;
                     var assignedType = SystemNamespaceType.ConvertJsonToBicepType(parameter.Value);

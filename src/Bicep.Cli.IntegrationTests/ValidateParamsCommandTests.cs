@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
@@ -26,9 +27,10 @@ namespace Bicep.Cli.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
+        [DoNotParallelize]
         public async Task Validate_params_with_correct_parameter_values_runs_successfully()
         {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", """
 param intParam int
 
 @allowed([
@@ -42,21 +44,23 @@ param boolParam bool
 param arrParam array
 
 param objParam object
-");
+""");
 
-            var paramsInput = @"
+            var paramsInput = """
 {
-  ""intParam"": 1,
-  ""strParam"": ""foo"",
-  ""boolParam"": true,
-  ""arrParam"": [1, 2, 3],
-  ""objParam"": {
-    ""firstProp"": ""foobar"",
-    ""secondProp"": [1, 2, 3] 
+  "intParam": 1,
+  "strParam": "foo",
+  "boolParam": true,
+  "arrParam": [1, 2, 3],
+  "objParam": {
+    "firstProp": "foobar",
+    "secondProp": [1, 2, 3] 
   }
-}";
+}
+""";       
+            Environment.SetEnvironmentVariable("BICEP_PARAMETER_INPUT", paramsInput);
 
-            var(output, error, result) = await Bicep("validate-params", bicepPath,"--params", paramsInput);
+            var(output, error, result) = await Bicep("validate-params", bicepPath);
 
             result.Should().Be(0);
             output.Should().BeEmpty();
@@ -65,9 +69,10 @@ param objParam object
 
 
         [TestMethod]
+        [DoNotParallelize]
         public async Task Validate_params_with_type_mismatch_fails_with_errors()
         {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", """
 param intParam int
 
 @allowed(
@@ -77,16 +82,18 @@ param intParam int
   ]
 )
 param strParam string
+""");
 
-");
-
-            var paramsInput = @"
+            var paramsInput = """
 {
-  ""intParam"": ""foo"",
-  ""strParam"": ""baz""
-}";
+  "intParam": "foo",
+  "strParam": "baz"
+}
+""";
 
-            var(output, error, result) = await Bicep("validate-params", bicepPath,"--params", paramsInput);
+            Environment.SetEnvironmentVariable("BICEP_PARAMETER_INPUT", paramsInput);
+
+            var(output, error, result) = await Bicep("validate-params", bicepPath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
@@ -96,17 +103,19 @@ param strParam string
         }
 
         [TestMethod]
+        [DoNotParallelize]
         public async Task Validate_params_with_extra_parameters_fails_with_error()
         {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
-param strParam string");
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", "param strParam string");
 
-            var paramsInput = @"
+            var paramsInput = """
 {
-  ""anotherStrParam"": ""foo"",
-}";
+  "anotherStrParam": "foo",
+}
+""";
+            Environment.SetEnvironmentVariable("BICEP_PARAMETER_INPUT", paramsInput);
 
-            var(output, error, result) = await Bicep("validate-params", bicepPath,"--params", paramsInput);
+            var(output, error, result) = await Bicep("validate-params", bicepPath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
