@@ -638,7 +638,7 @@ namespace Bicep.LanguageServer.Completions
                     replacementRange,
                     CompletionItemKind.Folder,
                     priority)
-                .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "file path completion" })
+                .WithFollowupCompletion("file path completion")
                 .Build();
             }
         }
@@ -1803,7 +1803,7 @@ namespace Bicep.LanguageServer.Completions
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                     .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}@$0'")
                     .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}`")
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "resource type completion" })
+                    .WithFollowupCompletion("resource type completion")
                     // 8 hex digits is probably overkill :)
                     .WithSortText(index.ToString("x8"))
                     .Build();
@@ -1936,7 +1936,7 @@ namespace Bicep.LanguageServer.Completions
                 return completion
                     .WithDetail(insertText)
                     .WithPlainTextEdit(replacementRange, insertText + ".")
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "symbol completion" })
+                    .WithFollowupCompletion("symbol completion")
                     .Build();
             }
 
