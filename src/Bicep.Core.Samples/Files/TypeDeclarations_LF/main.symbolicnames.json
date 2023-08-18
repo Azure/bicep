@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16291890447027761634"
+      "templateHash": "5965466150058061323"
     }
   },
   "definitions": {
@@ -253,7 +253,8 @@
   },
   "variables": {
     "nonNull": "[parameters('mightIncludeNull')[0].key]",
-    "maybeNull": "[tryGet(parameters('mightIncludeNull')[0], 'key')]"
+    "maybeNull": "[tryGet(parameters('mightIncludeNull')[0], 'key')]",
+    "maybeNull2": "[tryGet(parameters('mightIncludeNull')[0], 'key')]"
   },
   "resources": {},
   "outputs": {

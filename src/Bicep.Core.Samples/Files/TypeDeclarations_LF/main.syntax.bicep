@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1534) ProgramSyntax
+//@[00:1580) ProgramSyntax
 //@[00:0299) ├─TypeDeclarationSyntax
 //@[00:0028) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
@@ -815,6 +815,28 @@ var maybeNull = mightIncludeNull[0].?key
 //@[37:0040) |   └─IdentifierSyntax
 //@[37:0040) |     └─Token(Identifier) |key|
 //@[40:0042) ├─Token(NewLine) |\n\n|
+
+var maybeNull2 = mightIncludeNull[0][?'key']
+//@[00:0044) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0014) | ├─IdentifierSyntax
+//@[04:0014) | | └─Token(Identifier) |maybeNull2|
+//@[15:0016) | ├─Token(Assignment) |=|
+//@[17:0044) | └─ArrayAccessSyntax
+//@[17:0036) |   ├─ArrayAccessSyntax
+//@[17:0033) |   | ├─VariableAccessSyntax
+//@[17:0033) |   | | └─IdentifierSyntax
+//@[17:0033) |   | |   └─Token(Identifier) |mightIncludeNull|
+//@[33:0034) |   | ├─Token(LeftSquare) |[|
+//@[34:0035) |   | ├─IntegerLiteralSyntax
+//@[34:0035) |   | | └─Token(Integer) |0|
+//@[35:0036) |   | └─Token(RightSquare) |]|
+//@[36:0037) |   ├─Token(LeftSquare) |[|
+//@[37:0038) |   ├─Token(Question) |?|
+//@[38:0043) |   ├─StringSyntax
+//@[38:0043) |   | └─Token(StringComplete) |'key'|
+//@[43:0044) |   └─Token(RightSquare) |]|
+//@[44:0046) ├─Token(NewLine) |\n\n|
 
 output maybeNull string? = maybeNull
 //@[00:0036) ├─OutputDeclarationSyntax

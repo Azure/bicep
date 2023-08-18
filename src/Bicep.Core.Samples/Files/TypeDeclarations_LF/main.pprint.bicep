@@ -81,7 +81,9 @@ var nonNull = mightIncludeNull[0]!.key
 
 output nonNull string = nonNull
 
-var maybeNull = mightIncludeNull[0].key
+var maybeNull = mightIncludeNull[0].?key
+
+var maybeNull2 = mightIncludeNull[0][?'key']
 
 output maybeNull string? = maybeNull
 

@@ -99,6 +99,9 @@ output nonNull string = nonNull
 var maybeNull = mightIncludeNull[0].?key
 //@[4:13) Variable maybeNull. Type: 'value' | null. Declaration start char: 0, length: 40
 
+var maybeNull2 = mightIncludeNull[0][?'key']
+//@[4:14) Variable maybeNull2. Type: 'value' | null. Declaration start char: 0, length: 44
+
 output maybeNull string? = maybeNull
 //@[7:16) Output maybeNull. Type: null | string. Declaration start char: 0, length: 36
 

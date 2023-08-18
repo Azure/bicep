@@ -26,11 +26,18 @@ namespace Bicep.Core.PrettyPrintV2
     public partial class SyntaxLayouts
     {
         private IEnumerable<Document> LayoutArrayAccessSyntax(ArrayAccessSyntax syntax) =>
-            this.Glue(
-                syntax.BaseExpression,
-                syntax.OpenSquare,
-                syntax.IndexExpression,
-                syntax.CloseSquare);
+            syntax.SafeAccessMarker is not null
+                ? this.Glue(
+                    syntax.BaseExpression,
+                    syntax.OpenSquare,
+                    syntax.SafeAccessMarker,
+                    syntax.IndexExpression,
+                    syntax.CloseSquare)
+                : this.Glue(
+                    syntax.BaseExpression,
+                    syntax.OpenSquare,
+                    syntax.IndexExpression,
+                    syntax.CloseSquare);
 
         private IEnumerable<Document> LayoutArraySyntax(ArraySyntax syntax) =>
             this.Bracket(
@@ -279,10 +286,16 @@ namespace Bicep.Core.PrettyPrintV2
                 .SeparatedByNewline();
 
         private IEnumerable<Document> LayoutPropertyAccessSyntax(PropertyAccessSyntax syntax) =>
-            this.Glue(
-                syntax.BaseExpression,
-                syntax.Dot,
-                syntax.PropertyName);
+            syntax.SafeAccessMarker is not null
+                ? this.Glue(
+                    syntax.BaseExpression,
+                    syntax.Dot,
+                    syntax.SafeAccessMarker,
+                    syntax.PropertyName)
+                : this.Glue(
+                    syntax.BaseExpression,
+                    syntax.Dot,
+                    syntax.PropertyName);
 
         private IEnumerable<Document> LayoutResourceAccessSyntax(ResourceAccessSyntax syntax) =>
             this.Glue(

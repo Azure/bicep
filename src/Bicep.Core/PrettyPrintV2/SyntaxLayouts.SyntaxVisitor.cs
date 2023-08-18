@@ -19,7 +19,7 @@ namespace Bicep.Core.PrettyPrintV2
 {
     public partial class SyntaxLayouts : ISyntaxVisitor
     {
-        private delegate IEnumerable<Document> DocumentLayoutSpecifier<TSyntax>(TSyntax syntax)
+        private delegate IEnumerable<Document> SyntaxLayoutSpecifier<TSyntax>(TSyntax syntax)
             where TSyntax : SyntaxBase;
 
         private readonly PrettyPrinterV2Context context;
@@ -178,7 +178,7 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutMany(IEnumerable<SyntaxBase> syntaxes) => syntaxes.SelectMany(this.Layout);
 
-        private void Apply<TSyntax>(TSyntax syntax, DocumentLayoutSpecifier<TSyntax> layoutSpecifier)
+        private void Apply<TSyntax>(TSyntax syntax, SyntaxLayoutSpecifier<TSyntax> layoutSpecifier)
             where TSyntax : SyntaxBase
         {
             this.current = syntax is ITopLevelDeclarationSyntax && this.context.HasSyntaxError(syntax)
