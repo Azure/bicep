@@ -73,23 +73,23 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Validate_params_with_type_mismatch_fails_with_errors()
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", """
-param intParam int
+                param intParam int
 
-@allowed(
-  [
-    'foo'
-    'bar'
-  ]
-)
-param strParam string
-""");
+                @allowed(
+                  [
+                    'foo'
+                    'bar'
+                  ]
+                )
+                param strParam string
+                """);
 
             var paramsInput = """
-{
-  "intParam": "foo",
-  "strParam": "baz"
-}
-""";
+                {
+                  "intParam": "foo",
+                  "strParam": "baz"
+                }
+                """;
 
             Environment.SetEnvironmentVariable("BICEP_PARAMETER_INPUT", paramsInput);
 
@@ -109,10 +109,10 @@ param strParam string
             var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", "param strParam string");
 
             var paramsInput = """
-{
-  "anotherStrParam": "foo",
-}
-""";
+                {
+                  "anotherStrParam": "foo",
+                }
+                """;
             Environment.SetEnvironmentVariable("BICEP_PARAMETER_INPUT", paramsInput);
 
             var(output, error, result) = await Bicep("validate-params", bicepPath);
