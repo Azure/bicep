@@ -140,6 +140,7 @@ namespace Bicep.Core.Registry
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
                 // manifest does not exist
+                Trace.WriteLine($"Manifest for module {artifactReference.FullyQualifiedReference} could not be found in the registry.");
                 throw new OciModuleRegistryException("The artifact does not exist in the registry.", exception);
             }
 
