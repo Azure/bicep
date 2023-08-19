@@ -95,7 +95,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
                 End = new VSPosition(end.Line, end.Character)
             };
 
-            return new VSLocation() { Uri = documentUri.ToUri(), Range = vsRange };
+            return new VSLocation() { Uri = documentUri.ToUriEscaped(), Range = vsRange };
         }
     }
 }
