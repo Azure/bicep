@@ -31,7 +31,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string ExpectedSubstringInReplacedBicep
         );
 
-        private static void CompileAndTestWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null)
+        private static void CompileAndTestWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null, bool? preferStableVersions = null)
         {
             AssertLinterRuleDiagnostics(UseRecentApiVersionRule.Code,
                 bicep,
@@ -39,13 +39,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 new Options(
                     OnCompileErrors: onCompileErrors,
                     IncludePosition.LineNumber,
-                    ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays),
+                    ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays, preferStableVersions),
                     // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
                     // Note: The compiler does not know about these fake types, only the linter.
                     AzResourceTypeLoader: resourceTypes.Any() ? FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object : null));
         }
 
-        private static void CompileAndTestFixWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, DiagnosticAndFixes[] expectedDiagnostics, int? maxAgeInDays = null)
+        private static void CompileAndTestFixWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, DiagnosticAndFixes[] expectedDiagnostics, int? maxAgeInDays = null, bool? preferStableVersions = null)
         {
             AssertLinterRuleDiagnostics(
                 UseRecentApiVersionRule.Code,
@@ -79,13 +79,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 new Options(
                     OnCompileErrors.IncludeErrors,
                     IncludePosition.LineNumber,
-                    ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays),
+                    ConfigurationPatch: c => CreateConfigurationWithFakeToday(c, fakeToday, maxAgeInDays, preferStableVersions),
                     // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
                     // Note: The compiler does not know about these fake types, only the linter.
                     AzResourceTypeLoader: FakeResourceTypes.GetAzResourceTypeLoaderWithInjectedTypes(resourceTypes).Object));
         }
 
-        private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null)
+        private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null, bool? preferStableVersions = null)
         {
             return new RootConfiguration(
                 original.Cloud,
@@ -101,11 +101,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                     ""test-today"": ""<TESTING_TODAY_DATE>"",
                                     ""test-warn-not-found"": true
                                     <MAX_AGE_PROP>
+                                    <PREFER_STABLE_VERSIONS>
                                 }
                             }
                         }
                     }".Replace("<TESTING_TODAY_DATE>", today)
-                    .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : ""))),
+                    .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : "")
+                    .Replace("<PREFER_STABLE_VERSIONS>", preferStableVersions.HasValue ? $", \"preferStableVersions\": {preferStableVersions}" : "")
+                )),
                 original.CacheRootDirectory,
                 original.ExperimentalFeaturesEnabled,
                 original.Formatting,
@@ -116,13 +119,23 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestClass]
         public class GetAcceptableApiVersionsTests
         {
-            private static void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAgeInDays = UseRecentApiVersionRule.DefaultMaxAgeInDays)
+            private static void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAgeInDays = UseRecentApiVersionRule.DefaultMaxAgeInDays, bool? preferStableVersions = null)
             {
                 var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, Enumerable.Empty<ResourceTypeReference>());
                 apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
                 var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, ApiVersionHelper.ParseDateFromApiVersion(today), maxAgeInDays, scope, fullyQualifiedResourceType);
                 var allowedVersionsStrings = allowedVersions.Select(v => v.Formatted).ToArray();
                 allowedVersionsStrings.Should().BeEquivalentTo(expectedApiVersions, options => options.WithStrictOrdering());
+            }
+
+            private static bool PreferStableVersions(bool? preferStableVersions)
+            {
+                return preferStableVersions switch
+                {
+                    true => true,
+                    false => false,
+                    null => true, // defaults to true
+                };
             }
 
             [TestMethod]
@@ -172,8 +185,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     });
             }
 
-            [TestMethod]
-            public void NoStable_OldPreview_PickOnlyMostRecentPreview()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void NoStable_OldPreview_PickOnlyMostRecentPreview(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -186,12 +202,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     "2421-07-07",
                     new string[]
                     {
-                        "2413-09-07-alpha",
-                    });
+                        "2413-09-07-alpha", // preferStableVersions makes no difference here
+                    },
+                    preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void NoStable_OldPreview_PickOnlyMostRecentPreview_MultiplePreviewWithSameDate()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void NoStable_OldPreview_PickOnlyMostRecentPreview_MultiplePreviewWithSameDate(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -203,15 +224,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2413-09-07-beta
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2413-09-07-alpha",
                         "2413-09-07-beta",
-                    });
+                    },
+                    preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void NoStable_NewPreview_PickAllNewPreview()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void NoStable_NewPreview_PickAllNewPreview(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -222,16 +248,21 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2419-09-07-alpha
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2419-09-07-alpha",
                         "2419-08-15-beta",
                         "2419-07-21-preview",
-                    });
+                    },
+                    preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void NoStable_NewPreview_PickNewPreview_MultiplePreviewHaveSameDate()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void NoStable_NewPreview_PickNewPreview_MultiplePreviewHaveSameDate(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -246,7 +277,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2419-09-07-privatepreview
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2419-09-07-alpha",
                         "2419-09-07-beta",
@@ -255,10 +286,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2419-08-15-privatepreview",
                         "2419-07-21-beta",
                         "2419-07-21-preview",
-                    });
+                    },
+                    preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
             public void NoStable_OldAndNewPreview_PickNewPreview()
             {
                 TestGetAcceptableApiVersions(
@@ -281,8 +313,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     });
             }
 
-            [TestMethod]
-            public void OldStable_NoPreview_PickOnlyMostRecentStable()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void OldStable_NoPreview_PickOnlyMostRecentStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -297,14 +332,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2500-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2420-09-18",
-                    });
+                    },
+                    preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OldStable_OldPreview_NewestPreviewIsOlderThanNewestStable_PickOnlyNewestStable()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void OldStable_OldPreview_NewestPreviewIsOlderThanNewestStable_PickOnlyNewestStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -316,14 +356,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2413-09-07
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2413-09-07",
-                    });
+                    },
+                    preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OldStable_OldPreview_NewestPreviewIsSameAgeAsNewestStable_PickOnlyNewestStable()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void OldStable_OldPreview_NewestPreviewIsSameAgeAsNewestStable_PickOnlyNewestStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -336,14 +381,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2413-06-15-beta
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2413-06-15",
-                    });
+                    },
+                    preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OldStable_OldPreview_NewestPreviewIsNewThanNewestStable_PickJustNewestStable()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void OldStable_OldPreview_NewestPreviewIsNewThanNewestStable_PickJustNewestStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -358,14 +408,18 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2413-09-08-beta
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
-                        "2413-06-15",
-                    });
+                    PreferStableVersions(preferStableVersions)
+                        ? new string[] { "2413-06-15" }
+                        : new string[] { "2413-06-15", "2413-09-07-preview", "2413-09-07-beta", "2413-09-08-beta" },
+                    preferStableVersions: preferStableVersions
+                 );
             }
 
-            [TestMethod]
-            public void OldStable_NewPreview_PickNewestStableAndNewPreview()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void OldStable_NewPreview_PickNewestStableAndNewPreview(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -379,17 +433,29 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2419-09-08-beta
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
-                        "2419-09-08-beta",
-                        "2419-09-07-beta",
-                        "2419-09-07-preview",
-                        "2413-06-15",
-                    });
+                    PreferStableVersions(preferStableVersions)
+                        ? new string[]
+                            {
+                                "2419-09-08-beta",
+                                "2419-09-07-beta",
+                                "2419-09-07-preview",
+                                "2413-06-15",
+                            }
+                        : new string[]
+                            {
+                                "2419-09-08-beta",
+                                "2419-09-07-beta",
+                                "2419-09-07-preview",
+                            },
+                     preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OldStable_OldAndNewPreview_PickNewestStableAndNewPreview()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void OldStable_OldAndNewPreview_PickNewestStableAndNewPreview(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -402,16 +468,27 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2419-09-07-beta
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
-                        "2419-09-07-beta",
-                        "2419-09-07-preview",
-                        "2413-05-15",
-                    });
+                    PreferStableVersions(preferStableVersions)
+                        ? new string[]
+                            {
+                                "2419-09-07-beta",
+                                "2419-09-07-preview",
+                                "2413-05-15",
+                            }
+                        : new string[]
+                            {
+                                "2419-09-07-beta",
+                                "2419-09-07-preview",
+                            },
+                    preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void NewStable_NoPreview_PickNewStable()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void NewStable_NoPreview_PickNewStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -422,16 +499,21 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2420-09-18",
                         "2419-08-15",
                         "2419-07-21",
-                    });
+                    },
+                    preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OnlyPickPreviewThatAreNewerThanNewestStable_NoPreviewAreNewer()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void OnlyPickPreviewThatAreNewerThanNewestStable_NoPreviewAreNewer(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                    "Fake.Kusto/clusters",
@@ -444,15 +526,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                    "2421-07-07",
-                   new string[]
+                   new string[] // preferStableVersions makes no difference here
                    {
                         "2420-09-18",
                         "2419-07-21",
-                   });
+                   },
+                   preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OnlyPickPreviewThatAreNewerThanNewestStable_OnePreviewIsOlder()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            public void OnlyPickPreviewThatAreNewerThanNewestStable_OnePreviewIsOlder(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -464,16 +550,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-07-16-beta
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2421-07-16-beta",
                         "2420-09-18",
                         "2419-07-21",
-                    });
+                    },
+                   preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OnlyPickPreviewThatAreNewerThanNewestStable_MultiplePreviewsAreNewer()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            public void OnlyPickPreviewThatAreNewerThanNewestStable_MultiplePreviewsAreNewer(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -487,17 +577,21 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-07-17-preview
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2421-07-17-preview",
                         "2421-07-16-beta",
                         "2420-09-18",
                         "2419-07-21",
-                    });
+                    },
+                   preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OnlyPickPreviewThatAreNewerThanNewestStable_MultiplePreviewsAreNewer_AllAreOld()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            public void OnlyPickPreviewThatAreNewerThanNewestStable_MultiplePreviewsAreNewer_AllAreOld(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -512,12 +606,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     "2421-07-07",
                     new string[]
                     {
-                        "2416-09-18",
-                    });
+                        PreferStableVersions(preferStableVersions) ? "2416-09-18" : "2417-07-17-preview",
+                    },
+                   preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OnlyPickPreviewThatAreNewerThanNewestStable_MultiplePreviewsAreNewer_AllStableAreOld()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            public void OnlyPickPreviewThatAreNewerThanNewestStable_MultiplePreviewsAreNewer_AllStableAreOld(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -530,16 +628,26 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-07-17-preview
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
-                        "2421-07-17-preview",
-                        "2421-07-16-beta",
-                        "2416-09-18",
-                    });
+                    PreferStableVersions(preferStableVersions)
+                        ? new string[]
+                            {
+                                "2421-07-17-preview",
+                                "2421-07-16-beta",
+                                "2416-09-18",
+                            }
+                        : new string[]
+                            {
+                                "2421-07-17-preview",
+                                "2421-07-16-beta",
+                            },
+                   preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OnlyPickPreviewThatAreNewerThanNewestStable_AllAreNew_NoPreviewAreNewerThanStable()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            public void OnlyPickPreviewThatAreNewerThanNewestStable_AllAreNew_NoPreviewAreNewerThanStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -552,15 +660,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2420-09-18",
                         "2419-07-11",
-                    });
+                    },
+                   preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OldAndNewStable_NoPreview_PickNewStable()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            public void OldAndNewStable_NoPreview_PickNewStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -573,16 +685,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2425-01-01
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2425-01-01",
                         "2421-01-01",
                         "2419-09-07",
-                    });
+                    },
+                   preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OldAndNewStable_OldPreview_PickNewStable()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            public void OldAndNewStable_OldPreview_PickNewStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -599,15 +715,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2420-09-18",
                         "2420-06-14",
-                    });
+                    },
+                   preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OldAndNewStable_NewPreviewButOlderThanNewestStable_PickNewStableOnly()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            public void OldAndNewStable_NewPreviewButOlderThanNewestStable_PickNewStableOnly(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -624,15 +744,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2420-09-18",
                         "2420-06-14",
-                    });
+                    },
+                   preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OldAndNewStable_OldAndNewPreview_PickNewStableAndPreviewNewestThanNewestStable()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            public void OldAndNewStable_OldAndNewPreview_PickNewStableAndPreviewNewerThanNewestStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -651,16 +775,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2421-09-07-privatepreview",
                         "2420-09-18",
                         "2420-06-14",
-                    });
+                    },
+                   preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void OnlyPreviewVersionsAvailable_AcceptAllRecentPreviews()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            public void OnlyPreviewVersionsAvailable_AcceptAllRecentPreviews(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -676,7 +804,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-04-02-preview
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2421-04-02-preview",
                         "2421-04-01-preview",
@@ -684,11 +812,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2421-01-03-preview",
                         "2421-01-02-preview",
                         "2421-01-01-preview",
-                    });
+                    },
+                   preferStableVersions: preferStableVersions
+                );
             }
 
-            [TestMethod]
-            public void LotsOfPreviewVersions_AndOneRecentGA_Available_AllowOnlyPreviewsMoreRecentThanGA()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            public void LotsOfPreviewVersions_AndOneRecentGA_Available_AllowOnlyPreviewsMoreRecentThanGA(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -705,13 +837,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-04-02-preview
                     ",
                     "2421-07-07",
-                    new string[]
+                    new string[] // preferStableVersions makes no difference here
                     {
                         "2421-04-02-preview",
                         "2421-04-01-beta",
                         "2421-03-01-preview",
                         "2421-02-01", // No previews older than this allowed, even if < 2 years old
-                    });
+                    },
+                   preferStableVersions: preferStableVersions
+                );
             }
         }
 
@@ -912,7 +1046,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 DateTime[] gaVersionDates,
                 DateTime[] previewVersionDates,
                 (string message, string acceptableVersions, string replacement)? expectedFix,
-                int maxAllowedAgeInDays = 730)
+                int maxAllowedAgeInDays = 730,
+                bool preferStableVersions = true)
             {
                 string currentVersion = ApiVersionHelper.Format(currentVersionDate) + currentVersionSuffix;
                 string[] gaVersions = gaVersionDates.Select(d => "Whoever.whatever/whichever@" + ApiVersionHelper.Format(d)).ToArray();
@@ -923,6 +1058,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     apiVersionProvider,
                     DateTime.Today,
                     maxAllowedAgeInDays,
+                    preferStableVersions,
                     new TextSpan(17, 47),
                     new TextSpan(17, 47),
                     ResourceScope.ResourceGroup,
@@ -966,7 +1102,25 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "", new DateTime[] { currentVersionDate, recentGAVersionDate }, new DateTime[] { },
                     (
-                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {3 * 365} days old, should be no more than 730 days old, or the most recent.",
+                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {3 * 365} days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available.",
+                        acceptableVersions: recentGAVersion,
+                        replacement: recentGAVersion
+                    ),
+                    preferStableVersions: false);
+            }
+
+            //asdfg
+            [TestMethod]
+            public void WithCurrentVersionMoreThanTwoYearsOldAndRecentApiVersionIsAvailable_NotPreferStable_ShouldAddDiagnostics()
+            {
+                DateTime currentVersionDate = DateTime.Today.AddDays(-3 * 365);
+                string currentVersion = ApiVersionHelper.Format(currentVersionDate);
+                DateTime recentGAVersionDate = DateTime.Today.AddDays(-5 * 30);
+                string recentGAVersion = ApiVersionHelper.Format(recentGAVersionDate);
+
+                Test(currentVersionDate, "", new DateTime[] { currentVersionDate, recentGAVersionDate }, new DateTime[] { },
+                    (
+                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {3 * 365} days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available.",
                         acceptableVersions: recentGAVersion,
                         replacement: recentGAVersion
                     ));
@@ -983,7 +1137,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "", new DateTime[] { currentVersionDate, recentGAVersionDate }, new DateTime[] { },
                      (
-                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {4 * 365} days old, should be no more than 730 days old, or the most recent.",
+                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {4 * 365} days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available.",
                         acceptableVersions: recentGAVersion,
                         replacement: recentGAVersion
                      ));
@@ -1000,7 +1154,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "", new DateTime[] { currentVersionDate, recentGAVersionDate }, new DateTime[] { },
                      (
-                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {4 * 365} days old, should be no more than 20 days old, or the most recent.",
+                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {4 * 365} days old, should be no more than 20 days old, or the most recent. Must use a non-preview version if available.",
                         acceptableVersions: recentGAVersion,
                         replacement: recentGAVersion
                      ),
@@ -1018,7 +1172,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "", new DateTime[] { currentVersionDate, recentGAVersionDate }, new DateTime[] { },
                      (
-                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {4 * 365} days old, should be no more than 0 days old, or the most recent.",
+                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {4 * 365} days old, should be no more than 0 days old, or the most recent. Must use a non-preview version if available.",
                         acceptableVersions: recentGAVersion,
                         replacement: recentGAVersion
                      ),
@@ -1061,7 +1215,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate, recentPreviewVersionDate },
                     (
-                       $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {5 * 365} days old, should be no more than 730 days old, or the most recent.",
+                       $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {5 * 365} days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available.",
                        acceptableVersions: recentGAVersion,
                        replacement: recentGAVersion
                     ));
@@ -1082,7 +1236,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate, recentPreviewVersionDate },
                     (
 
-                       $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {5 * 365} days old, should be no more than 730 days old, or the most recent.",
+                       $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {5 * 365} days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available.",
                        acceptableVersions: $"{recentPreviewVersion}, {recentGAVersion}",
                        replacement: recentPreviewVersion // TODO recommend most recent, or just most recent GA version? Right now we always suggest the most recent
                     ));
@@ -1101,7 +1255,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate, recentPreviewVersionDate },
                   (
-                     $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}-preview' is {5 * 365} days old, should be no more than 730 days old, or the most recent.",
+                     $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}-preview' is {5 * 365} days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available.",
                      acceptableVersions: recentGAVersion,
                      replacement: recentGAVersion
                   ));
@@ -1118,7 +1272,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate },
                   (
-                     $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}-preview' is a preview version and there is a more recent non-preview version available.",
+                     $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}-preview' is a preview version and there is a more recent non-preview version available. Must use a non-preview version if available.",
                      acceptableVersions: recentGAVersion,
                      replacement: recentGAVersion
                   ));
@@ -1135,7 +1289,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate },
                  (
-                    $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is a preview version and there is a non-preview version available with the same date.",
+                    $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is a preview version and there is a non-preview version available with the same date. Must use a non-preview version if available.",
                     acceptableVersions: recentGAVersion,
                     replacement: recentGAVersion
                  ));
@@ -1152,7 +1306,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "-preview", new DateTime[] { }, new DateTime[] { recentPreviewVersionDate, currentVersionDate },
                     (
-                       $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {3 * 365} days old, should be no more than 730 days old, or the most recent.",
+                       $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {3 * 365} days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available.",
                        acceptableVersions: recentPreviewVersion,
                       replacement: recentPreviewVersion
                     ));
@@ -1242,10 +1396,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
                     new string[] {
-                        "[4] Use more recent API version for 'fake.ServiceBus/namespaces'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                        "[18] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                        "[29] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                        "[35] Could not find apiVersion 4017-04-01 for fake.ServiceBus/namespaces/queues/authorizationRules. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                        "[4] Use more recent API version for 'fake.ServiceBus/namespaces'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                        "[18] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                        "[29] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                        "[35] Could not find apiVersion 4017-04-01 for fake.ServiceBus/namespaces/queues/authorizationRules. Must use a non-preview version if available. Acceptable  versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
                     });
             }
 
@@ -1287,11 +1441,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
                     new[] {
-                        "[5] Use more recent API version for 'fake.ServiceBus/namespaces'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                        "[9] Use more recent API version for 'fake.ServiceBus/namespaces/queues'. '2415-08-01' is 2529 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                        "[13] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                        "[20] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                        "[25] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                        "[5] Use more recent API version for 'fake.ServiceBus/namespaces'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                        "[9] Use more recent API version for 'fake.ServiceBus/namespaces/queues'. '2415-08-01' is 2529 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                        "[13] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                        "[20] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                        "[25] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
                     });
             }
 
@@ -1349,7 +1503,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     },
                     fakeToday: "2422-07-04",
                     new[] {
-                        "[2] Use more recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2417-12-01",
+                        "[2] Use more recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2417-12-01",
                     });
             }
 
@@ -1380,7 +1534,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     },
                     fakeToday: "2422-07-04",
                     new[] {
-                        "[2] Use more recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2417-12-02",
+                        "[2] Use more recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2417-12-02",
                     });
             }
 
@@ -1411,7 +1565,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     },
                     fakeToday: "2422-07-04",
                     new[] {
-                        "[2] Use more recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2417-11-30",
+                        "[2] Use more recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2417-11-30",
                     });
             }
 
@@ -1457,7 +1611,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     },
                     fakeToday: "2422-07-04",
                     new[] {
-                        "[2] Use more recent API version for 'Fake.MachineLearningCompute/operationalizationClusters'. '2417-06-01-preview' is 1859 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2417-08-01-preview",
+                        "[2] Use more recent API version for 'Fake.MachineLearningCompute/operationalizationClusters'. '2417-06-01-preview' is 1859 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2417-08-01-preview",
                     });
             }
 
@@ -1506,7 +1660,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         FakeResourceTypes.SubscriptionScopeTypes,
                        fakeToday: "2422-07-04",
                        new String[] {
-                           "[21] Use more recent API version for 'fake.Authorization/roleAssignments'. '2420-04-01-preview' is 824 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2420-10-01-preview, 2420-08-01-preview, 2417-09-01"
+                           "[21] Use more recent API version for 'fake.Authorization/roleAssignments'. '2420-04-01-preview' is 824 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2420-10-01-preview, 2420-08-01-preview, 2417-09-01"
                        });
             }
 
@@ -1601,7 +1755,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         FakeResourceTypes.SubscriptionScopeTypes,
                         "2422-07-04",
                         new[] {
-                            "[21] Use more recent API version for 'fake.Authorization/roleAssignments'. '2417-10-01-preview' is 1737 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2420-10-01-preview, 2420-08-01-preview, 2417-09-01",
+                            "[21] Use more recent API version for 'fake.Authorization/roleAssignments'. '2417-10-01-preview' is 1737 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2420-10-01-preview, 2420-08-01-preview, 2417-09-01",
                         }
                     );
             }
@@ -1656,8 +1810,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
                     new[] {
-                        "[24] Use more recent API version for 'fake.Storage/storageAccounts'. '2420-08-01-preview' is a preview version and there is a more recent non-preview version available. Acceptable versions: 2421-06-01, 2421-04-01, 2421-02-01, 2421-01-01",
-                        "[35] Use more recent API version for 'fake.Authorization/roleAssignments'. '2420-04-01-preview' is 824 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2420-10-01-preview, 2420-08-01-preview, 2415-07-01",
+                        "[24] Use more recent API version for 'fake.Storage/storageAccounts'. '2420-08-01-preview' is a preview version and there is a more recent non-preview version available. Must use a non-preview version if available. Acceptable  versions: 2421-06-01, 2421-04-01, 2421-02-01, 2421-01-01",
+                        "[35] Use more recent API version for 'fake.Authorization/roleAssignments'. '2420-04-01-preview' is 824 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2420-10-01-preview, 2420-08-01-preview, 2415-07-01",
                     });
             }
 
@@ -1682,7 +1836,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                      FakeResourceTypes.ResourceScopeTypes,
                      "2422-07-04",
                      new[] {
-                        "[6] Use more recent API version for 'fake.Authorization/locks'. '2416-09-01' is 2132 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2420-05-01",
+                        "[6] Use more recent API version for 'fake.Authorization/locks'. '2416-09-01' is 2132 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2420-05-01",
                      });
             }
 
@@ -1703,7 +1857,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     FakeResourceTypes.SubscriptionScopeTypes,
                     "2422-07-04",
                     new[] {
-                        "[7] Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-05-01, 2421-04-01, 2421-01-01, 2420-10-01, 2420-08-01"
+                        "[7] Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-05-01, 2421-04-01, 2421-01-01, 2420-10-01, 2420-08-01"
                     });
             }
 
@@ -1760,7 +1914,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
                     new string[] {
-                        "[2] Could not find apiVersion 2417-06-01-beta for Fake.MachineLearningCompute/operationalizationClusters. Acceptable versions: 2417-08-01-preview"
+                        "[2] Could not find apiVersion 2417-06-01-beta for Fake.MachineLearningCompute/operationalizationClusters. Must use a non-preview version if available. Acceptable  versions: 2417-08-01-preview"
                     });
             }
 
@@ -1782,7 +1936,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     "2422-07-04",
                     new[] {
                         new DiagnosticAndFixes(
-                            "Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-05-01, 2421-04-01, 2421-01-01, 2420-10-01, 2420-08-01",
+                            "Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 730 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-05-01, 2421-04-01, 2421-01-01, 2420-10-01, 2420-08-01",
                             "Replace with 2421-05-01",
                             "resource newRG 'fake.Resources/resourceGroups@2421-05-01'"
                             )
@@ -1808,7 +1962,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     "2422-07-04",
                     new[] {
                         new DiagnosticAndFixes(
-                            "Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 459 days old, or the most recent. Acceptable versions: 2421-05-01, 2421-04-01",
+                            "Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 459 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-05-01, 2421-04-01",
                             "Replace with 2421-05-01",
                             "resource newRG 'fake.Resources/resourceGroups@2421-05-01'"
                             )
@@ -1833,7 +1987,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     "2422-07-04",
                     new[] {
                         new DiagnosticAndFixes(
-                            "Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 458 days old, or the most recent. Acceptable versions: 2421-05-01",
+                            "Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 458 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-05-01",
                             "Replace with 2421-05-01",
                             "resource newRG 'fake.Resources/resourceGroups@2421-05-01'"
                             )
@@ -1883,7 +2037,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     "2422-07-04",
                     new[] {
                         new DiagnosticAndFixes(
-                            "Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 0 days old, or the most recent. Acceptable versions: 2421-05-01",
+                            "Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 0 days old, or the most recent. Must use a non-preview version if available. Acceptable  versions: 2421-05-01",
                             "Replace with 2421-05-01",
                             "resource newRG 'fake.Resources/resourceGroups@2421-05-01'"
                             )
