@@ -123,7 +123,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, Enumerable.Empty<ResourceTypeReference>());
                 apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
-                var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, ApiVersionHelper.ParseDateFromApiVersion(today), maxAgeInDays, scope, fullyQualifiedResourceType);
+                var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, ApiVersionHelper.ParseDateFromApiVersion(today), maxAgeInDays, PreferStableVersions(preferStableVersions), scope, fullyQualifiedResourceType);
                 var allowedVersionsStrings = allowedVersions.Select(v => v.Formatted).ToArray();
                 allowedVersionsStrings.Should().BeEquivalentTo(expectedApiVersions, options => options.WithStrictOrdering());
             }
@@ -368,7 +368,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataRow(true)]
             [DataRow(false)]
             [DataRow(null)]
-            public void OldStable_OldPreview_NewestPreviewIsSameAgeAsNewestStable_PickOnlyNewestStable(bool? preferStableVersions)
+            public void OldStable_OldPreview_NewestPreviewIsSameAgeAsNewestStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -381,10 +381,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2413-06-15-beta
                     ",
                     "2421-07-07",
-                    new string[] // preferStableVersions makes no difference here
-                    {
-                        "2413-06-15",
-                    },
+                    PreferStableVersions(preferStableVersions) ?
+                        new string[] // preferStableVersions makes no difference here
+                        {
+                            // pick only the recent stable
+                            "2413-06-15",
+                        }
+                        : new string[] // preferStableVersions makes no difference here
+                        {
+                            // pick only the most recent (there are three with the same age)
+                            "2413-06-15",
+                            "2413-06-15-beta",
+                            "2413-06-15-preview",
+                        },
                     preferStableVersions: preferStableVersions
                 );
             }
@@ -393,7 +402,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataRow(true)]
             [DataRow(false)]
             [DataRow(null)]
-            public void OldStable_OldPreview_NewestPreviewIsNewThanNewestStable_PickJustNewestStable(bool? preferStableVersions)
+            public void OldStable_OldPreview_NewestPreviewIsNewerThanNewestStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -409,9 +418,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ",
                     "2421-07-07",
                     PreferStableVersions(preferStableVersions)
-                        ? new string[] { "2413-06-15" }
-                        : new string[] { "2413-06-15", "2413-09-07-preview", "2413-09-07-beta", "2413-09-08-beta" },
-                    preferStableVersions: preferStableVersions
+                        ? new string[] { "2413-06-15" } // pick just newest stable
+                        : new string[] { "2413-09-08-beta" }, // all are old, so pick just newest (which happens to be preview)
+                    preferStableVersions : preferStableVersions
                  );
             }
 
@@ -419,7 +428,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataRow(true)]
             [DataRow(false)]
             [DataRow(null)]
-            public void OldStable_NewPreview_PickNewestStableAndNewPreview(bool? preferStableVersions)
+            public void OldStable_NewPreview(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -436,6 +445,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     PreferStableVersions(preferStableVersions)
                         ? new string[]
                             {
+                                // pick newest stable and new preview
                                 "2419-09-08-beta",
                                 "2419-09-07-beta",
                                 "2419-09-07-preview",
@@ -443,6 +453,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                             }
                         : new string[]
                             {
+                                // pick only recent (which are all preview)
                                 "2419-09-08-beta",
                                 "2419-09-07-beta",
                                 "2419-09-07-preview",
@@ -455,7 +466,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataRow(true)]
             [DataRow(false)]
             [DataRow(null)]
-            public void OldStable_OldAndNewPreview_PickNewestStableAndNewPreview(bool? preferStableVersions)
+            public void OldStable_OldAndNewPreview(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -471,12 +482,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     PreferStableVersions(preferStableVersions)
                         ? new string[]
                             {
+                                // pick newest stable and recent previews
                                 "2419-09-07-beta",
                                 "2419-09-07-preview",
                                 "2413-05-15",
                             }
                         : new string[]
                             {
+                                // pick only recent (which are all preview)
                                 "2419-09-07-beta",
                                 "2419-09-07-preview",
                             },
@@ -526,11 +539,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                    "2421-07-07",
-                   new string[] // preferStableVersions makes no difference here
-                   {
-                        "2420-09-18",
-                        "2419-07-21",
-                   },
+                   PreferStableVersions(preferStableVersions) ?
+                       new string[]
+                       {
+                            "2420-09-18",
+                            "2419-07-21",
+                       }
+                       : new string[]
+                       {
+                           // Pick all recent
+                            "2420-09-18",
+                            "2419-07-21",
+                            "2419-07-16-beta",
+                            "2419-07-15-alpha",
+                       },
                    preferStableVersions: preferStableVersions
                 );
             }
@@ -550,12 +572,21 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-07-16-beta
                     ",
                     "2421-07-07",
-                    new string[] // preferStableVersions makes no difference here
-                    {
-                        "2421-07-16-beta",
-                        "2420-09-18",
-                        "2419-07-21",
-                    },
+                    PreferStableVersions(preferStableVersions) ?
+                        new string[]
+                        {
+                            "2421-07-16-beta",
+                            "2420-09-18",
+                            "2419-07-21",
+                        }
+                        : new string[]
+                        {
+                            // Pick all recent
+                            "2421-07-16-beta",
+                            "2420-09-18",
+                            "2419-07-21",
+                            "2419-07-15-alpha",
+                        },
                    preferStableVersions: preferStableVersions
                 );
             }
@@ -563,6 +594,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataTestMethod]
             [DataRow(true)]
             [DataRow(false)]
+            [DataRow(null)]
             public void OnlyPickPreviewThatAreNewerThanNewestStable_MultiplePreviewsAreNewer(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
@@ -577,13 +609,24 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-07-17-preview
                     ",
                     "2421-07-07",
-                    new string[] // preferStableVersions makes no difference here
-                    {
-                        "2421-07-17-preview",
-                        "2421-07-16-beta",
-                        "2420-09-18",
-                        "2419-07-21",
-                    },
+                    PreferStableVersions(preferStableVersions) ?
+                        new string[]
+                        {
+                            // Pick all recent stable, plus previews that are newer than the most recent stable
+                            "2421-07-17-preview",
+                            "2421-07-16-beta",
+                            "2420-09-18",
+                            "2419-07-21",
+                        }
+                        : new string[]
+                        {
+                            // Pick all recent
+                            "2421-07-17-preview",
+                            "2421-07-16-beta",
+                            "2420-09-18",
+                            "2419-07-21",
+                            "2419-07-15-alpha",
+                        },
                    preferStableVersions: preferStableVersions
                 );
             }
@@ -591,6 +634,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataTestMethod]
             [DataRow(true)]
             [DataRow(false)]
+            [DataRow(null)]
             public void OnlyPickPreviewThatAreNewerThanNewestStable_MultiplePreviewsAreNewer_AllAreOld(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
@@ -615,6 +659,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataTestMethod]
             [DataRow(true)]
             [DataRow(false)]
+            [DataRow(null)]
             public void OnlyPickPreviewThatAreNewerThanNewestStable_MultiplePreviewsAreNewer_AllStableAreOld(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
@@ -631,12 +676,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     PreferStableVersions(preferStableVersions)
                         ? new string[]
                             {
+                                // pick all recent, plus most recent stable
                                 "2421-07-17-preview",
                                 "2421-07-16-beta",
                                 "2416-09-18",
                             }
                         : new string[]
                             {
+                                // pick just all recent
                                 "2421-07-17-preview",
                                 "2421-07-16-beta",
                             },
@@ -647,6 +694,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataTestMethod]
             [DataRow(true)]
             [DataRow(false)]
+            [DataRow(null)]
             public void OnlyPickPreviewThatAreNewerThanNewestStable_AllAreNew_NoPreviewAreNewerThanStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
@@ -660,13 +708,23 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[] // preferStableVersions makes no difference here
-                    {
-                        "2420-09-18",
-                        "2419-07-11",
-                    },
+                    PreferStableVersions(preferStableVersions) ?
+                        new string[]
+                        {
+                            // Pick just the recent stables
+                            "2420-09-18",
+                            "2419-07-11",
+                        }
+                        : new string[]
+                        {
+                            // Pick all recent
+                            "2420-09-18",
+                            "2419-07-16-beta",
+                            "2419-07-15-alpha",
+                            "2419-07-11",
+                        },
                    preferStableVersions: preferStableVersions
-                );
+                );;
             }
 
             [DataTestMethod]
@@ -727,7 +785,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataTestMethod]
             [DataRow(true)]
             [DataRow(false)]
-            public void OldAndNewStable_NewPreviewButOlderThanNewestStable_PickNewStableOnly(bool? preferStableVersions)
+            [DataRow(null)]
+            public void OldAndNewStable_NewPreviewButOlderThanNewestStable(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -744,11 +803,21 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[] // preferStableVersions makes no difference here
-                    {
-                        "2420-09-18",
-                        "2420-06-14",
-                    },
+                    PreferStableVersions(preferStableVersions) ?
+                        new string[]
+                            {
+                                // pick new stable only
+                                "2420-09-18",
+                                "2420-06-14",
+                            }
+                        : new string[]
+                            {
+                                // allow all recent versions, stable or not
+                                "2420-09-18",
+                                "2420-06-14",
+                                "2419-09-07-preview",
+                                "2419-09-07-privatepreview",
+                            },
                    preferStableVersions: preferStableVersions
                 );
             }
@@ -756,7 +825,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataTestMethod]
             [DataRow(true)]
             [DataRow(false)]
-            public void OldAndNewStable_OldAndNewPreview_PickNewStableAndPreviewNewerThanNewestStable(bool? preferStableVersions)
+            [DataRow(null)]
+            public void OldAndNewStable_OldAndNewPreview(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -775,12 +845,22 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[] // preferStableVersions makes no difference here
-                    {
-                        "2421-09-07-privatepreview",
-                        "2420-09-18",
-                        "2420-06-14",
-                    },
+                    PreferStableVersions(preferStableVersions) ?
+                        new string[]
+                        {
+                            // pick recent stables, plus previews more recent than most recent stable
+                            "2421-09-07-privatepreview",
+                            "2420-09-18",
+                            "2420-06-14",
+                        }
+                        : new string[]
+                        {
+                            // pick all recent, whether stable or not
+                            "2421-09-07-privatepreview",
+                            "2420-09-18",
+                            "2420-06-14",
+                            "2419-09-07-preview",
+                        },
                    preferStableVersions: preferStableVersions
                 );
             }
@@ -788,6 +868,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataTestMethod]
             [DataRow(true)]
             [DataRow(false)]
+            [DataRow(null)]
             public void OnlyPreviewVersionsAvailable_AcceptAllRecentPreviews(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
@@ -820,7 +901,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DataTestMethod]
             [DataRow(true)]
             [DataRow(false)]
-            public void LotsOfPreviewVersions_AndOneRecentGA_Available_AllowOnlyPreviewsMoreRecentThanGA(bool? preferStableVersions)
+            [DataRow(null)]
+            public void LotsOfPreviewVersions_AndOneRecentGA_Available(bool? preferStableVersions)
             {
                 TestGetAcceptableApiVersions(
                     "Fake.Kusto/clusters",
@@ -837,13 +919,26 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-04-02-preview
                     ",
                     "2421-07-07",
-                    new string[] // preferStableVersions makes no difference here
-                    {
-                        "2421-04-02-preview",
-                        "2421-04-01-beta",
-                        "2421-03-01-preview",
-                        "2421-02-01", // No previews older than this allowed, even if < 2 years old
-                    },
+                    PreferStableVersions(preferStableVersions)
+                        ? new string[]
+                            {
+                                // pick recent stable, plus all previews more recent than the stable
+                                "2421-04-02-preview",
+                                "2421-04-01-beta",
+                                "2421-03-01-preview",
+                                "2421-02-01",
+                            }
+                        : new string[]
+                            {
+                                // Allow all recent versions, preview or not
+                                "2421-04-02-preview",
+                                "2421-04-01-beta",
+                                "2421-03-01-preview",
+                                "2421-02-01",
+                                "2421-01-03-preview",
+                                "2421-01-02-preview",
+                                "2421-01-01-preview",
+                            },
                    preferStableVersions: preferStableVersions
                 );
             }
@@ -857,23 +952,25 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             public class TestData
             {
-                public TestData(ResourceScope resourceScope, string fullyQualifiedResourceType, DateTime today, int maxAgeInDays)
+                public TestData(ResourceScope resourceScope, string fullyQualifiedResourceType, DateTime today, int maxAgeInDays, bool preferStableVersions)
                 {
                     ResourceScope = resourceScope;
                     FullyQualifiedResourceType = fullyQualifiedResourceType;
                     MaxAgeInDays = maxAgeInDays;
                     Today = today;
+                    PreferStableVersions = preferStableVersions;
                 }
 
                 public string FullyQualifiedResourceType { get; }
                 public ResourceScope ResourceScope { get; }
                 public int MaxAgeInDays { get; }
+                public bool PreferStableVersions { get; }
                 public DateTime Today { get; }
 
                 public static string GetDisplayName(MethodInfo _, object[] data)
                 {
                     var me = ((TestData)data[0]);
-                    return $"{me.ResourceScope}:{me.FullyQualifiedResourceType} (max={me.MaxAgeInDays} days)";
+                    return $"{me.ResourceScope}:{me.FullyQualifiedResourceType} (max={me.MaxAgeInDays} days) (preferStable={me.PreferStableVersions})";
                 }
             }
 
@@ -923,7 +1020,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         datesToTest = datesToTest.Distinct().ToList();
                         foreach (var today in datesToTest)
                         {
-                            yield return new object[] { new TestData(scope, typeName, today, maxAgeInDays) };
+                            yield return new object[] { new TestData(scope, typeName, today, maxAgeInDays, preferStableVersions: true) };
+                            yield return new object[] { new TestData(scope, typeName, today, maxAgeInDays, preferStableVersions: false) };
                         }
                     }
                 }
@@ -959,11 +1057,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 return DateTime.Compare(dt, other) < 0;
             }
 
+            //asdfg
             [DataTestMethod]
             [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
             public void Invariants(TestData data)
             {
-                var (allVersions, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAgeInDays, data.ResourceScope, data.FullyQualifiedResourceType);
+                var (allVersions, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAgeInDays, data.PreferStableVersions, data.ResourceScope, data.FullyQualifiedResourceType);
 
                 allVersions.Should().NotBeNull();
                 allowedVersions.Should().NotBeNull();
@@ -1022,7 +1121,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 // COROLLARIES TO THE IMPLEMENTATION RULES
 
-                // If the most recent version is a preview version that’s > 2 years old, only that one preview version is allowed
+                // If the most recent version is a preview version that’s > max age, only that one preview version is allowed
                 var mostRecent = allVersions.OrderBy(v => v.Date).Last();
                 if (mostRecent.IsPreview && DateIsOld(mostRecent.Date, data.Today, data.MaxAgeInDays))
                 {

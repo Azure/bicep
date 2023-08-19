@@ -31,6 +31,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public const int DefaultMaxAgeInDays = 365 * 2;
         private const int MinimumValidMaxAgeInDays = 0; // Zero means all apiVersions must be the most recent possible
 
+        private const string PreferStableVersionsKey = "preferStableVersions";
+        public const bool DefaultPreferStableVersions = true;
+
         private static readonly Regex resourceTypeRegex = new(
             "^ [a-z]+\\.[a-z]+ (\\/ [a-z]+)+ $",
             RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
@@ -81,6 +84,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 maxAgeInDays = DefaultMaxAgeInDays;
             }
 
+            bool preferStableVersions = GetConfigurationValue(model.Configuration.Analyzers, PreferStableVersionsKey, DefaultPreferStableVersions);
+
             var today = DateTime.Today;
             // Today's date can be changed to enable testing/debug scenarios
             if (GetConfigurationValue<string?>(model.Configuration.Analyzers, "test-today", null) is string testToday)
@@ -92,7 +97,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var resource in model.DeclaredResources.Where(r => r.IsAzResource))
             {
-                if (AnalyzeResource(model, today, maxAgeInDays, resource.Symbol, warnIfNotFound: warnIfNotFound) is Failure failure)
+                if (AnalyzeResource(model, today, maxAgeInDays, preferStableVersions, resource.Symbol, warnIfNotFound: warnIfNotFound) is Failure failure)
                 {
                     yield return CreateFixableDiagnosticForSpan(
                         diagnosticLevel,
@@ -105,7 +110,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var callInfo in GetFunctionCallInfos(model))
             {
-                if (AnalyzeFunctionCall(model, today, maxAgeInDays, callInfo) is Failure failure)
+                if (AnalyzeFunctionCall(model, today, maxAgeInDays, preferStableVersions, callInfo) is Failure failure) //asdfg test
                 {
                     yield return CreateFixableDiagnosticForSpan(
                         diagnosticLevel,
@@ -117,7 +122,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private static Failure? AnalyzeFunctionCall(SemanticModel model, DateTime today, int maxAgeInDays, FunctionCallInfo functionCallInfo)
+        private static Failure? AnalyzeFunctionCall(SemanticModel model, DateTime today, int maxAgeInDays, bool preferStableVersions, FunctionCallInfo functionCallInfo)
         {
             if (functionCallInfo.ApiVersion.HasValue && functionCallInfo.ResourceType is not null)
             {
@@ -125,6 +130,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     model.ApiVersionProvider,
                     today,
                     maxAgeInDays,
+                    preferStableVersions,
                     errorSpan: functionCallInfo.FunctionCallSyntax.Span,
                     replacementSpan: TextSpan.Nil,
                     model.TargetScope,
@@ -316,7 +322,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return mostRecentValid;
         }
 
-        private static Failure? AnalyzeResource(SemanticModel model, DateTime today, int maxAgeInDays, ResourceSymbol resourceSymbol, bool warnIfNotFound)
+        private static Failure? AnalyzeResource(SemanticModel model, DateTime today, int maxAgeInDays, bool preferStableVersions, ResourceSymbol resourceSymbol, bool warnIfNotFound)
         {
             if (resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference &&
                 resourceTypeReference.ApiVersion is string apiVersionString &&
@@ -330,6 +336,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         model.ApiVersionProvider,
                         today,
                         maxAgeInDays,
+                        preferStableVersions,
                         replacementSpan,
                         replacementSpan,
                         model.TargetScope,
@@ -344,7 +351,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, DateTime today, int maxAgeInDays, bool preferStableVersions, TextSpan errorSpan, TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, ApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
         {
-            var (allApiVersions, acceptableApiVersions) = GetAcceptableApiVersions(apiVersionProvider, today, maxAgeInDays, scope, fullyQualifiedResourceType);
+            var (allApiVersions, acceptableApiVersions) = GetAcceptableApiVersions(apiVersionProvider, today, maxAgeInDays, preferStableVersions, scope, fullyQualifiedResourceType);
             if (!allApiVersions.Any())
             {
                 // Resource type not recognized
@@ -423,8 +430,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 acceptableApiVersions);
         }
 
-        public static (ApiVersion[] allApiVersions, ApiVersion[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateTime today, int maxAgeInDays, ResourceScope scope, string fullyQualifiedResourceType)
+        public static (ApiVersion[] allApiVersions, ApiVersion[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateTime today, int maxAgeInDays, bool preferStableVersions, ResourceScope scope, string fullyQualifiedResourceType)
         {
+            //asdfg don't need sorting?
             var allVersions = apiVersionProvider.GetApiVersions(scope, fullyQualifiedResourceType).ToArray();
             if (!allVersions.Any())
             {
@@ -432,39 +440,46 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return (allVersions, Array.Empty<ApiVersion>());
             }
 
-            var stableVersionsSorted = FilterStable(allVersions).OrderBy(v => v.Date).ToArray();
-            var previewVersionsSorted = FilterPreview(allVersions).OrderBy(v => v.Date).ToArray();
+            var stableVersions = FilterStable(allVersions);
+            var recentStableVersions = FilterRecent(stableVersions, today, maxAgeInDays).ToArray();
 
-            var recentStableVersionsSorted = FilterRecent(stableVersionsSorted, today, maxAgeInDays).ToArray();
-            var recentPreviewVersionsSorted = FilterRecent(previewVersionsSorted, today, maxAgeInDays).ToArray();
+            // Start with all recent stable versions (if stable preferred), or all recent versions (if stable not preferred)
+            var allPreferredVersions = preferStableVersions ? stableVersions : allVersions;
+            var recentPreferredVersions = FilterRecent(allPreferredVersions, today, maxAgeInDays).ToArray();
+            List<ApiVersion> acceptableVersions = recentPreferredVersions.ToList();
 
-            // Start with all recent stable versions
-            List<ApiVersion> acceptableVersions = recentStableVersionsSorted.ToList();
-
-            // If no recent stable versions, add the most recent stable version, if any
+            // If no recent preferred versions, add the preferred version(s) with the most recent date, if any
             if (!acceptableVersions.Any())
             {
-                acceptableVersions.AddRange(FilterMostRecentApiVersion(stableVersionsSorted));
+                acceptableVersions.AddRange(FilterMostRecentApiVersion(allPreferredVersions));
             }
 
-            // Add any recent (not old) preview versions that are newer than the newest stable version
-            var mostRecentStableDate = GetNewestDateOrNull(stableVersionsSorted);
-            if (mostRecentStableDate != null)
+            // If preferring stable veersions, we only added stable versions so far, we need to add appropriate preview versions
+            if (preferStableVersions)
             {
-                Debug.Assert(stableVersionsSorted.Any(), "There should have been at least one stable version since mostRecentStableDate != null");
-                var previewsNewerThanMostRecentStable = recentPreviewVersionsSorted.Where(v => IsMoreRecentThan(v.Date, mostRecentStableDate.Value));
-                acceptableVersions.AddRange(previewsNewerThanMostRecentStable);
-            }
-            else
-            {
-                // There are no stable versions available at all - add all preview versions that are recent enough
-                acceptableVersions.AddRange(recentPreviewVersionsSorted);
+                var previewVersions = FilterPreview(allVersions);
+                var recentPreviewVersions = FilterRecent(previewVersions, today, maxAgeInDays).ToArray();
 
-                // If there are no recent preview versions, add the newest preview only
-                if (!acceptableVersions.Any())
+
+                // Add any recent (not old) preview versions that are newer than the newest stable version
+                var mostRecentStableDate = GetNewestDateOrNull(stableVersions);
+                if (mostRecentStableDate != null)
                 {
-                    acceptableVersions.AddRange(FilterMostRecentApiVersion(previewVersionsSorted));
-                    Debug.Assert(acceptableVersions.Any(), "There should have been at least one preview version available to add");
+                    Debug.Assert(stableVersions.Any(), "There should have been at least one stable version since mostRecentStableDate != null");
+                    var previewsNewerThanMostRecentStable = recentPreviewVersions.Where(v => IsMoreRecentThan(v.Date, mostRecentStableDate.Value));
+                    acceptableVersions.AddRange(previewsNewerThanMostRecentStable);
+                }
+                else
+                {
+                    // There are no stable versions available at all - add all preview versions that are recent enough
+                    acceptableVersions.AddRange(recentPreviewVersions);
+
+                    // If there are no recent preview versions, add the newest preview only
+                    if (!acceptableVersions.Any())
+                    {
+                        acceptableVersions.AddRange(FilterMostRecentApiVersion(previewVersions));
+                        Debug.Assert(acceptableVersions.Any(), "There should have been at least one preview version available to add");
+                    }
                 }
             }
 
