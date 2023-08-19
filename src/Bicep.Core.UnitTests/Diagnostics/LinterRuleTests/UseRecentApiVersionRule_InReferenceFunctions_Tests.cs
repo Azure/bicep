@@ -1207,6 +1207,64 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "[8] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
                     });
             }
+
+            [TestMethod]
+            public void Reference_ResourceId_NotPreferStableVersions()
+            {
+                string bicep = @"
+                    param location string = resourceGroup().location
+                    var userAssignedIdentityName_var = 'msi'
+                    resource userAssignedIdentityName 'Fake.ManagedIdentity/userAssignedIdentities@2415-08-31-PREVIEW' = {
+                      name: userAssignedIdentityName_var
+                      location: location
+                    }
+                    output foo string = reference(userAssignedIdentityName.id, '2415-08-31-PREVIEW').principalId
+                ";
+                CompileAndTestWithFakeDateAndTypes(bicep,
+                    ResourceScope.ResourceGroup,
+                FakeResourceTypes.ResourceScopeTypes,
+                "2422-07-04",
+                    new string[] {
+                        "[4] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
+                        "[8] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
+                    });
+            }
+
+            [TestMethod]
+            public void Reference_ResourceId_NotPreferStableVersions()
+            {
+                string bicep = @"
+                    param location string = resourceGroup().location
+                    var userAssignedIdentityName_var = 'msi'
+                    resource userAssignedIdentityName 'Fake.ManagedIdentity/userAssignedIdentities@2415-08-31-PREVIEW' = {
+                      name: userAssignedIdentityName_var
+                      location: location
+                    }
+                    output foo string = reference(userAssignedIdentityName.id, '2415-08-31-PREVIEW').principalId
+                ";
+                CompileAndTestWithFakeDateAndTypes(bicep,
+                    ResourceScope.ResourceGroup,
+                FakeResourceTypes.ResourceScopeTypes,
+                "2422-07-04",
+                    new string[] {
+                        "[4] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
+                        "[8] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
+                    });
+            }
+            asdfg
+            /*
+            Fake.ApiManagement/service@2416-07-07
+            Fake.ApiManagement/service@2416-10-10
+            Fake.ApiManagement/service@2417-03-01
+            Fake.ApiManagement/service@2418-01-01
+            Fake.ApiManagement/service@2418-06-01-preview
+            Fake.ApiManagement/service@2419-01-01
+            Fake.ApiManagement/service@2419-12-01
+            Fake.ApiManagement/service@2419-12-01-preview
+            Fake.ApiManagement/service@2420-06-01-preview
+            Fake.ApiManagement/service@2420-12-01
+            Fake.ApiManagement/service@2421-01-01-preview
+            */
         }
     }
 }
