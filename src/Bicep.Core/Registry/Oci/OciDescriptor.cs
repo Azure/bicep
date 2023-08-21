@@ -17,14 +17,6 @@ namespace Bicep.Core.Registry.Oci
             this.Size = size;
             this.Annotations = annotations ?? ImmutableDictionary<string, string>.Empty;
         }
-        public OciDescriptor(string mediaType, string digest, long size, IDictionary<string, string>? annotations)
-        {
-            this.MediaType = mediaType;
-            this.Digest = digest;
-            this.Size = size;
-            this.Annotations = annotations?.ToImmutableDictionary() ?? ImmutableDictionary<string, string>.Empty;
-        }
-
         public string MediaType { get; }
 
         public string Digest { get; }
