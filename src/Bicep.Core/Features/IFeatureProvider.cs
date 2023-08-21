@@ -30,5 +30,7 @@ namespace Bicep.Core.Features
         bool AssertsEnabled { get; }
 
         bool CompileTimeImportsEnabled { get; }
+
+        bool MicrosoftGraphPreviewEnabled { get; }
     }
 }

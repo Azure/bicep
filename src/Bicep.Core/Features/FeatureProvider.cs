@@ -40,6 +40,8 @@ namespace Bicep.Core.Features
 
         public bool CompileTimeImportsEnabled => configuration.ExperimentalFeaturesEnabled.CompileTimeImports;
 
+        public bool MicrosoftGraphPreviewEnabled => this.configuration.ExperimentalFeaturesEnabled.MicrosoftGraphPreview;
+
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);

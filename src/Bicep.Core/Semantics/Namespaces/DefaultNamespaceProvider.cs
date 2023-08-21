@@ -55,6 +55,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
                 return AzNamespaceType.Create(alias, scope, provider, sourceFileKind);
             },
             [K8sNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind, version) => K8sNamespaceType.Create(alias),
+            [MicrosoftGraphNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind, version) => MicrosoftGraphNamespaceType.Create(alias),
         }.ToImmutableDictionary();
     }
 

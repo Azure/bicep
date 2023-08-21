@@ -8,9 +8,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -386,6 +388,23 @@ output length int =
             var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset), CancellationToken.None);
 
             completions.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task CompletionsShouldContainMicrosoftGraphWhenPreviewFeatureEnabled()
+        {
+            var codeFragment = @"import 'microsoftGraph@1.0.0' as graph";
+            var completionProvider = CreateProvider();
+            var offset = 7;
+            var featureOverrides = new FeatureProviderOverrides(ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: true);
+            var serviceWithGraph = new ServiceBuilder().WithFeatureOverrides(featureOverrides);
+
+            var compilationWithMSGraph = serviceWithGraph.BuildCompilation(codeFragment);
+            compilationWithMSGraph.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            var features = new OverriddenFeatureProvider(new FeatureProvider(BicepTestConstants.BuiltInConfiguration), featureOverrides);
+            var completionsWithMSGraph = await completionProvider.GetFilteredCompletions(compilationWithMSGraph, BicepCompletionContext.Create(features, compilationWithMSGraph, offset), CancellationToken.None);
+
+            completionsWithMSGraph.Should().Contain(c => c.Label.Contains("microsoftGraph"));
         }
 
         private static void AssertExpectedDeclarationTypeCompletions(List<CompletionItem> completions)

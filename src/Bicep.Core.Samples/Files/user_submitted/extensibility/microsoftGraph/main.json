@@ -1,0 +1,139 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.10-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16662285431486896347"
+    }
+  },
+  "parameters": {
+    "appRoleId": {
+      "type": "string",
+      "defaultValue": "bc76c90e-eb7f-4a29-943b-49e88762d09d"
+    },
+    "scopeId": {
+      "type": "string",
+      "defaultValue": "f761933c-643b-424f-a169-f9313d23a913"
+    }
+  },
+  "imports": {
+    "graph": {
+      "provider": "MicrosoftGraph",
+      "version": "1.0.0"
+    }
+  },
+  "resources": {
+    "resourceApp": {
+      "import": "graph",
+      "type": "Microsoft.Graph/applications@beta",
+      "properties": {
+        "name": "resourceApp",
+        "displayName": "My Resource App",
+        "appRoles": [
+          {
+            "id": "[parameters('appRoleId')]",
+            "allowedMemberTypes": [
+              "User",
+              "Application"
+            ],
+            "description": "Resource app role",
+            "displayName": "ResourceApp.Read.All",
+            "value": "ResourceApp.Read.All",
+            "isEnabled": true
+          }
+        ],
+        "api": {
+          "oauth2PermissionScopes": [
+            {
+              "id": "[parameters('scopeId')]",
+              "type": "Admin",
+              "adminConsentDescription": "Description of the resource scope",
+              "adminConsentDisplayName": "ResourceScope.Read.All",
+              "value": "ResourceScope.Read.All",
+              "isEnabled": true
+            }
+          ]
+        }
+      }
+    },
+    "resourceSp": {
+      "import": "graph",
+      "type": "Microsoft.Graph/servicePrincipals@beta",
+      "properties": {
+        "appId": "[reference('resourceApp').appId]"
+      },
+      "dependsOn": [
+        "resourceApp"
+      ]
+    },
+    "clientApp": {
+      "import": "graph",
+      "type": "Microsoft.Graph/applications@beta",
+      "properties": {
+        "name": "clientApp",
+        "displayName": "My Client App"
+      }
+    },
+    "clientSp": {
+      "import": "graph",
+      "type": "Microsoft.Graph/servicePrincipals@beta",
+      "properties": {
+        "appId": "[reference('clientApp').appId]"
+      },
+      "dependsOn": [
+        "clientApp"
+      ]
+    },
+    "permissionGrant": {
+      "import": "graph",
+      "type": "Microsoft.Graph/oauth2PermissionGrants@beta",
+      "properties": {
+        "clientId": "[reference('clientSp').id]",
+        "consentType": "AllPrincipals",
+        "resourceId": "[reference('resourceSp').id]",
+        "scope": "ResourceScope.Read.All"
+      },
+      "dependsOn": [
+        "clientSp",
+        "resourceSp"
+      ]
+    },
+    "appRoleAssignedTo": {
+      "import": "graph",
+      "type": "Microsoft.Graph/appRoleAssignedTo@beta",
+      "properties": {
+        "appRoleId": "[parameters('appRoleId')]",
+        "principalId": "[reference('clientSp').id]",
+        "resourceId": "[reference('resourceSp').id]"
+      },
+      "dependsOn": [
+        "clientSp",
+        "resourceSp"
+      ]
+    },
+    "group": {
+      "import": "graph",
+      "type": "Microsoft.Graph/groups@beta",
+      "properties": {
+        "name": "myGroup",
+        "displayName": "My Group",
+        "mailEnabled": false,
+        "mailNickName": "myGroupMailNickname",
+        "securityEnabled": false,
+        "groupTypes": [
+          "Unified"
+        ],
+        "owners": [
+          "[reference('resourceSp').id]"
+        ]
+      },
+      "dependsOn": [
+        "resourceSp"
+      ]
+    }
+  }
+}
