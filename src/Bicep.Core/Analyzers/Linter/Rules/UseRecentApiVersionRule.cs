@@ -486,7 +486,7 @@ ATTEMPT 2:  SIMPLIFIED: asdfg
             
               Corollary: There can be at most one allowed non-recent version date.
                 (There could be multiple suffixes or empty suffix with this date).
-
+              Corollary: If maxAgeInDays=0 and preferStableVersions=false, if there is any newer version of an apiVersion (whether preview or stable), the rule will fail.
 
             
             
