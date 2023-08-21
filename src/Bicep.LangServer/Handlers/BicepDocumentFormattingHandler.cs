@@ -14,6 +14,7 @@ using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using Bicep.Core.Features;
 using Bicep.Core.PrettyPrintV2;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Handlers
 {

@@ -16,6 +16,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
