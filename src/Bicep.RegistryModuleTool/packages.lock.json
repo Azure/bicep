@@ -587,7 +587,7 @@
       "Microsoft.Graph.Bicep.Types": {
         "type": "Transitive",
         "resolved": "0.1.0-preview.3",
-        "contentHash": "BsbXPv+P1CO5J8HUkWtNL8kl77NkAbufsBxF5NvhZf+eG9maGSQizxjfYP7ZyJiRWvUV97zgkHWskOEqVsWiTA==",
+        "contentHash": "9ga9EvphrWe0zUkw9Rxlpav3wGIJAl8K/MLPoNnS258+Wh3tLCYc/XOMMv6jS3nLlsah0jaF+tEaNZ7OJoIkkg==",
         "dependencies": {
           "Azure.Bicep.Types": "0.3.181"
         }
