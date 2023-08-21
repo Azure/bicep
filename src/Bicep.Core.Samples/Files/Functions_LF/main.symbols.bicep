@@ -34,3 +34,11 @@ func asdf(name string) array => [
   name
 ]
 
+@minValue(0)
+type positiveInt = int
+//@[05:16) TypeAlias positiveInt. Type: Type<int>. Declaration start char: 0, length: 35
+
+func typedArg(input string[]) positiveInt => length(input)
+//@[14:19) Local input. Type: string[]. Declaration start char: 14, length: 14
+//@[05:13) Function typedArg. Type: string[] => int. Declaration start char: 0, length: 58
+

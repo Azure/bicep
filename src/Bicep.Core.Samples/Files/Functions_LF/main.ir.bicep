@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:503) ProgramExpression
+//@[000:600) ProgramExpression
 //@[000:141) ├─DeclaredFunctionExpression { Name = buildUrl }
 //@[013:141) | └─LambdaExpression
 //@[020:024) |   ├─AmbientTypeReferenceExpression { Name = bool }
@@ -80,4 +80,19 @@ func asdf(name string) array => [
   name
 //@[002:006) |   | └─LambdaVariableReferenceExpression { Variable = name }
 ]
+
+@minValue(0)
+//@[000:035) ├─DeclaredTypeExpression { Name = positiveInt }
+//@[010:011) | ├─IntegerLiteralExpression { Value = 0 }
+type positiveInt = int
+//@[019:022) | └─AmbientTypeReferenceExpression { Name = int }
+
+func typedArg(input string[]) positiveInt => length(input)
+//@[000:058) ├─DeclaredFunctionExpression { Name = typedArg }
+//@[013:058) | └─LambdaExpression
+//@[020:028) |   ├─ArrayTypeExpression { Name = string[] }
+//@[020:026) |   | └─AmbientTypeReferenceExpression { Name = string }
+//@[045:058) |   ├─FunctionCallExpression { Name = length }
+//@[052:057) |   | └─LambdaVariableReferenceExpression { Variable = input }
+//@[030:041) |   └─TypeAliasReferenceExpression { Name = positiveInt }
 

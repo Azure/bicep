@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:503) ProgramSyntax
+//@[000:600) ProgramSyntax
 //@[000:141) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:013) | ├─IdentifierSyntax
@@ -274,6 +274,63 @@ func asdf(name string) array => [
 //@[006:007) |     ├─Token(NewLine) |\n|
 ]
 //@[000:001) |     └─Token(RightSquare) |]|
-//@[001:002) ├─Token(NewLine) |\n|
+//@[001:003) ├─Token(NewLine) |\n\n|
+
+@minValue(0)
+//@[000:035) ├─TypeDeclarationSyntax
+//@[000:012) | ├─DecoratorSyntax
+//@[000:001) | | ├─Token(At) |@|
+//@[001:012) | | └─FunctionCallSyntax
+//@[001:009) | |   ├─IdentifierSyntax
+//@[001:009) | |   | └─Token(Identifier) |minValue|
+//@[009:010) | |   ├─Token(LeftParen) |(|
+//@[010:011) | |   ├─FunctionArgumentSyntax
+//@[010:011) | |   | └─IntegerLiteralSyntax
+//@[010:011) | |   |   └─Token(Integer) |0|
+//@[011:012) | |   └─Token(RightParen) |)|
+//@[012:013) | ├─Token(NewLine) |\n|
+type positiveInt = int
+//@[000:004) | ├─Token(Identifier) |type|
+//@[005:016) | ├─IdentifierSyntax
+//@[005:016) | | └─Token(Identifier) |positiveInt|
+//@[017:018) | ├─Token(Assignment) |=|
+//@[019:022) | └─VariableAccessSyntax
+//@[019:022) |   └─IdentifierSyntax
+//@[019:022) |     └─Token(Identifier) |int|
+//@[022:024) ├─Token(NewLine) |\n\n|
+
+func typedArg(input string[]) positiveInt => length(input)
+//@[000:058) ├─FunctionDeclarationSyntax
+//@[000:004) | ├─Token(Identifier) |func|
+//@[005:013) | ├─IdentifierSyntax
+//@[005:013) | | └─Token(Identifier) |typedArg|
+//@[013:058) | └─TypedLambdaSyntax
+//@[013:029) |   ├─TypedVariableBlockSyntax
+//@[013:014) |   | ├─Token(LeftParen) |(|
+//@[014:028) |   | ├─TypedLocalVariableSyntax
+//@[014:019) |   | | ├─IdentifierSyntax
+//@[014:019) |   | | | └─Token(Identifier) |input|
+//@[020:028) |   | | └─ArrayTypeSyntax
+//@[020:026) |   | |   ├─ArrayTypeMemberSyntax
+//@[020:026) |   | |   | └─VariableAccessSyntax
+//@[020:026) |   | |   |   └─IdentifierSyntax
+//@[020:026) |   | |   |     └─Token(Identifier) |string|
+//@[026:027) |   | |   ├─Token(LeftSquare) |[|
+//@[027:028) |   | |   └─Token(RightSquare) |]|
+//@[028:029) |   | └─Token(RightParen) |)|
+//@[030:041) |   ├─VariableAccessSyntax
+//@[030:041) |   | └─IdentifierSyntax
+//@[030:041) |   |   └─Token(Identifier) |positiveInt|
+//@[042:044) |   ├─Token(Arrow) |=>|
+//@[045:058) |   └─FunctionCallSyntax
+//@[045:051) |     ├─IdentifierSyntax
+//@[045:051) |     | └─Token(Identifier) |length|
+//@[051:052) |     ├─Token(LeftParen) |(|
+//@[052:057) |     ├─FunctionArgumentSyntax
+//@[052:057) |     | └─VariableAccessSyntax
+//@[052:057) |     |   └─IdentifierSyntax
+//@[052:057) |     |     └─Token(Identifier) |input|
+//@[057:058) |     └─Token(RightParen) |)|
+//@[058:059) ├─Token(NewLine) |\n|
 
 //@[000:000) └─Token(EndOfFile) ||

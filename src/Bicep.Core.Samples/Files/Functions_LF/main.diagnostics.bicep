@@ -19,3 +19,8 @@ func asdf(name string) array => [
   name
 ]
 
+@minValue(0)
+type positiveInt = int
+
+func typedArg(input string[]) positiveInt => length(input)
+
