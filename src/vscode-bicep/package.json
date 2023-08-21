@@ -756,7 +756,7 @@
     "packagelocal": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net7.0 ./bicepLanguageServer && npm run package"
   },
   "devDependencies": {
-    "@types/cytoscape": "^3.19.9",
+    "@types/cytoscape": "^3.19.10",
     "@types/fs-extra": "^11.0.1",
     "@types/jest": "^27.5.1",
     "@types/mocha": "^10.0.1",
@@ -809,7 +809,7 @@
     "@microsoft/vscode-azext-azureutils": "^2.0.2",
     "@microsoft/vscode-azext-utils": "^2.0.1",
     "@vscode/webview-ui-toolkit": "^1.2.2",
-    "cytoscape": "^3.25.0",
+    "cytoscape": "^3.26.0",
     "cytoscape-elk": "^2.2.0",
     "fs-extra": "^11.1.1",
     "react": "^18.2.0",
