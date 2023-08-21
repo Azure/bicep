@@ -435,6 +435,76 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public static (ApiVersion[] allApiVersions, ApiVersion[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateTime today, int maxAgeInDays, bool preferStableVersions, ResourceScope scope, string fullyQualifiedResourceType)
         {
             //asdfg better summarize behavior for this rule
+            /*
+
+            Behavior of the rule:
+
+            "Recent" means the apiVersion is no more than maxAgeInDays days old.
+            "Stable" means an apiVersion with no "-*" suffix (e.g. "2023-08-21").
+            "Preview" means an apiVersion with any "-*" suffix (e.g. "2023-08-21-preview" or "2023-08-21-beta"). We do not prefer one preview suffix over another.
+
+            Simple summary:
+              - Recent versions if available, otherwise prefer the newest non-recent version
+              - If preferStableVersions = true, prefer stable versions over preview versions unless the preview versions are newer
+              - Prefer recent preview versions over old stable versions
+              - If there are no recent versions at all, prefer the newest non-recent version
+
+            Choose a recent version if available.
+            If there are no stable versions, choose 
+            If preferStableVersions=true, don't choose a preview version if there's a more recent stable version.
+            If 
+
+            If no recent stable versions are available, choose a recent preview version if possible.  If none are available, 
+            If no stable versions are available, choose a recent preview version.
+
+
+
+            All recent stable versions are acceptable.
+            If preferStableVersions = true, all preview versions newer than all stable versions are acceptable,
+              otherwise all recent preview versions are acceptable.
+            If there are no recent stable versions, the most recent older one is acceptable, as are all recent preview versions.
+              If there are also no recent preview versions, the newest preview version is acceptable if it's more recent than the newest stable version.
+            If preferStableVersions=true, all recent preview versions are acceptable,
+
+            If there are no recent stable versions, the most recent preview version is acceptable.
+
+
+
+ATTEMPT 2:  SIMPLIFIED: asdfg
+            If preferStableVersions = true:
+                Allow all recent stable versions.  If there are no recent stable versions, allow the newest stable version (even if there is a newer preview version).
+                Allow all preview versions that are recent *and* newer than the newest stable version (whether recent or not).
+                If there are no recent preview versions, allow the newest preview version *if* it is newer than all stable versions.
+                
+            Corollary: There can be at most one allowed non-recent stable version plus up to one allowed non-recent preview version date
+              (you could have multiple preview versions with the same date but different suffixes).
+            Corollary: There will always be at least one stable version allowed if any are available.
+            Corollary: No preview version is allowed unless it is newer than all stable versions.
+
+            If preferStableVersions = false:
+              Allow all recent versions (preview or stable).  If there are none, allow only the newest non-recent version date (preview or stable).
+            
+              Corollary: There can be at most one allowed non-recent version date.
+                (There could be multiple suffixes or empty suffix with this date).
+
+
+            
+            
+            , only preview versions that are newer than the newest stable version are allowed,
+
+            If a stable version is not recent, it is not allowed unless it's the newest stable version available.
+            If a preview version is not recent, it is not allowed unless it's the newest preview version available.
+
+            All recent stable versions are allowed. If no recent ones, the newest non-recent version is allowed.
+            - If preferStableVersions = true, only preview versions that are newer than the newest stable version are allowed,
+              otherwise all recent preview versions are allowed,
+              only preview versions that are newer than the newest stable version are allowed,
+
+              - Prefer recent preview versions over old stable versions
+
+
+            */
+
             var allVersions = apiVersionProvider.GetApiVersions(scope, fullyQualifiedResourceType).ToArray();
             if (!allVersions.Any())
             {
@@ -445,7 +515,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var stableVersions = FilterStable(allVersions);
             var recentStableVersions = FilterRecent(stableVersions, today, maxAgeInDays).ToArray();
 
-            // Start with all recent stable versions only (if stable preferred), or all recent versions (if stable not preferred)
+            // Start with all recent stable versions only (if stable preferred), or else all recent versions including preview
             var allPreferredVersions = preferStableVersions ? stableVersions : allVersions;
             var recentPreferredVersions = FilterRecent(allPreferredVersions, today, maxAgeInDays).ToArray();
             List<ApiVersion> acceptableVersions = recentPreferredVersions.ToList();
@@ -456,14 +526,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 acceptableVersions.AddRange(FilterMostRecentApiVersion(allPreferredVersions));
             }
 
-            // If preferring stable versions, we only added stable versions so far, we need to add appropriate preview versions
+            // If preferring stable versions, we only added stable versions so far, we might need to add some preview versions
             if (preferStableVersions)
             {
                 var previewVersions = FilterPreview(allVersions);
                 var recentPreviewVersions = FilterRecent(previewVersions, today, maxAgeInDays).ToArray();
 
-
-                // Add any recent (not old) preview versions that are newer than the newest stable version
+                // Add any preview versions that are recent but only if they're newer than the newest stable version (if any)
                 var mostRecentStableDate = GetNewestDateOrNull(stableVersions);
                 if (mostRecentStableDate != null)
                 {
@@ -473,10 +542,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
                 else
                 {
-                    // There are no stable versions available at all - add all preview versions that are not older than maxAge
+                    // There are no stable versions available at all - add all recent preview versions
                     acceptableVersions.AddRange(recentPreviewVersions);
 
-                    // If there are no recent preview versions, add the newest preview only
+                    // If there are no recent preview versions at all, add the newest (non-recent) preview version only
                     if (!acceptableVersions.Any())
                     {
                         acceptableVersions.AddRange(FilterMostRecentApiVersion(previewVersions));
