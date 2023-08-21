@@ -443,7 +443,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var stableVersions = FilterStable(allVersions);
             var recentStableVersions = FilterRecent(stableVersions, today, maxAgeInDays).ToArray();
 
-            // Start with all recent stable versions (if stable preferred), or all recent versions (if stable not preferred)
+            // Start with all recent stable versions only (if stable preferred), or all recent versions (if stable not preferred)
             var allPreferredVersions = preferStableVersions ? stableVersions : allVersions;
             var recentPreferredVersions = FilterRecent(allPreferredVersions, today, maxAgeInDays).ToArray();
             List<ApiVersion> acceptableVersions = recentPreferredVersions.ToList();
@@ -471,7 +471,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
                 else
                 {
-                    // There are no stable versions available at all - add all preview versions that are recent enough
+                    // There are no stable versions available at all - add all preview versions that are not older than maxAge
                     acceptableVersions.AddRange(recentPreviewVersions);
 
                     // If there are no recent preview versions, add the newest preview only

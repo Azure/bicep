@@ -1208,50 +1208,32 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     });
             }
 
-            [TestMethod]
-            public void Reference_ResourceId_NotPreferStableVersions()
+            [DataTestMethod]
+            [DataRow(true)]
+            [DataRow(false)]
+            [DataRow(null)]
+            public void Reference_ResourceId_NotPreferStableVersions(bool? preferStableVersions)//asdfg
             {
                 string bicep = @"
                     param location string = resourceGroup().location
                     var userAssignedIdentityName_var = 'msi'
-                    resource userAssignedIdentityName 'Fake.ManagedIdentity/userAssignedIdentities@2415-08-31-PREVIEW' = {
+                    resource userAssignedIdentityName 'Fake.ApiManagement/service@2416-07-07' = {
                       name: userAssignedIdentityName_var
                       location: location
                     }
-                    output foo string = reference(userAssignedIdentityName.id, '2415-08-31-PREVIEW').principalId
+                    output foo string = reference(userAssignedIdentityName.id, '2418-06-01-preview').principalId
                 ";
                 CompileAndTestWithFakeDateAndTypes(bicep,
                     ResourceScope.ResourceGroup,
                 FakeResourceTypes.ResourceScopeTypes,
                 "2422-07-04",
                     new string[] {
-                        "[4] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
-                        "[8] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
-                    });
+                        "[4] Use more recent API version for 'Fake.ApiManagement/service'. '2416-07-07' is 2188 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-01-01-preview, 2420-12-01",
+                        "[8] Use more recent API version for 'Fake.ApiManagement/service'. '2418-06-01-preview' is 1494 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-01-01-preview, 2420-12-01",
+                    },
+                preferStableVersions: preferStableVersions);
             }
 
-            [TestMethod]
-            public void Reference_ResourceId_NotPreferStableVersions()
-            {
-                string bicep = @"
-                    param location string = resourceGroup().location
-                    var userAssignedIdentityName_var = 'msi'
-                    resource userAssignedIdentityName 'Fake.ManagedIdentity/userAssignedIdentities@2415-08-31-PREVIEW' = {
-                      name: userAssignedIdentityName_var
-                      location: location
-                    }
-                    output foo string = reference(userAssignedIdentityName.id, '2415-08-31-PREVIEW').principalId
-                ";
-                CompileAndTestWithFakeDateAndTypes(bicep,
-                    ResourceScope.ResourceGroup,
-                FakeResourceTypes.ResourceScopeTypes,
-                "2422-07-04",
-                    new string[] {
-                        "[4] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
-                        "[8] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
-                    });
-            }
-            asdfg
             /*
             Fake.ApiManagement/service@2416-07-07
             Fake.ApiManagement/service@2416-10-10

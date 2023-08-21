@@ -107,7 +107,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                     }".Replace("<TESTING_TODAY_DATE>", today)
                     .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : "")
-                    .Replace("<PREFER_STABLE_VERSIONS>", preferStableVersions.HasValue ? $", \"preferStableVersions\": {preferStableVersions}" : "")
+                    .Replace("<PREFER_STABLE_VERSIONS>", preferStableVersions.HasValue ? $", \"preferStableVersions\": {(preferStableVersions.Value ? "true" : "false")}" : "")
                 )),
                 original.CacheRootDirectory,
                 original.ExperimentalFeaturesEnabled,
@@ -945,7 +945,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestClass]
-        public class GetAcceptableApiVersionsInvariantsTests
+        public class GetAcceptableApiVersionsInvariantsTests //asdfg
         {
             private static readonly ApiVersionProvider RealApiVersionProvider = new(BicepTestConstants.Features, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
             private static readonly bool Exhaustive = false;
