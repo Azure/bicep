@@ -22,7 +22,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ICompilationManager compilationManager;
         private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
 
-        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler) 
+        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler)
         {
             this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
@@ -35,7 +35,7 @@ namespace Bicep.LanguageServer.Handlers
                 return new TextDocumentAttributes(uri, LanguageConstants.JsoncLanguageId);
             }
 
-            if(PathHelper.HasBicepparamsExension(uri.ToUri()))
+            if(PathHelper.HasBicepparamsExension(uri.ToUriEncoded()))
             {
                 return new TextDocumentAttributes(uri, LanguageConstants.ParamsLanguageId);
             }

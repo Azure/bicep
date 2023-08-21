@@ -3850,7 +3850,7 @@ var file = " + functionName + @"(templ|)
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
                 .WithFileResolver(new FileResolver(new IOFileSystem())));
 
-            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(3);
@@ -3879,7 +3879,7 @@ var file = " + functionName + @"(templ|)
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
                 .WithFileResolver(new FileResolver(new IOFileSystem())));
 
-            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
@@ -3915,7 +3915,7 @@ var file = " + functionName + @"(templ|)
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
                 .WithFileResolver(new FileResolver(new IOFileSystem())));
 
-            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
@@ -3949,7 +3949,7 @@ var file = " + functionName + @"(templ|)
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
                 .WithFileResolver(new FileResolver(new IOFileSystem())));
 
-            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);

@@ -237,7 +237,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             string bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
-            fileSystemDict[bicepConfigUri.ToUri()] = bicepConfigFileContents;
+            fileSystemDict[bicepConfigUri.ToUriEncoded()] = bicepConfigFileContents;
 
             var compilation = Services.BuildCompilation(fileSystemDict, uri);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();

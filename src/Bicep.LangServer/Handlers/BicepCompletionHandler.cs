@@ -36,7 +36,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             var completions = Enumerable.Empty<CompletionItem>();
 
-            var featureProvider = featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUri());
+            var featureProvider = featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUriEncoded());
             var compilationContext = this.compilationManager.GetCompilation(request.TextDocument.Uri);
             if (compilationContext is null)
             {

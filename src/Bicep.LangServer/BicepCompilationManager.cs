@@ -182,7 +182,7 @@ namespace Bicep.LanguageServer
                 }
 
                 // We treat both updates and deletes as 'removes' to force the new SourceFile to be reloaded from disk
-                if (workspace.TryGetSourceFile(change.Uri.ToUri(), out var removedFile))
+                if (workspace.TryGetSourceFile(change.Uri.ToUriEncoded(), out var removedFile))
                 {
                     removedFiles.Add(removedFile);
                 }
@@ -190,7 +190,7 @@ namespace Bicep.LanguageServer
                 {
                     // If we don't know definitively that we're deleting a file, we have to assume it's a directory; the file system watcher does not give us any information to differentiate reliably.
                     // We could possibly assume that if the path ends in '.bicep', we've got a file, but this would discount directories ending in '.bicep', however unlikely.
-                    var subdirRemovedFiles = workspace.GetSourceFilesForDirectory(change.Uri.ToUri());
+                    var subdirRemovedFiles = workspace.GetSourceFilesForDirectory(change.Uri.ToUriEncoded());
                     removedFiles.UnionWith(subdirRemovedFiles);
                 }
             }

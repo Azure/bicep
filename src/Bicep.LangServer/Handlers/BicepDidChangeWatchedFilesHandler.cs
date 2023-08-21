@@ -35,10 +35,10 @@ namespace Bicep.LanguageServer.Handlers
                                                                                        LanguageConstants.BicepConfigurationFileName,
                                                                                        StringComparison.OrdinalIgnoreCase));
 
-            // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed 
+            // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed
             if (bicepConfigFileChangeEvents.Any())
             {
-                Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUri();
+                Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUriEncoded();
                 bicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace();
             }
 
