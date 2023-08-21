@@ -23,7 +23,7 @@ namespace Bicep.LanguageServer.Utils
         public async Task<Compilation> GetRefreshedCompilation(DocumentUri documentUri)
         {
             // Bicep file could contain load functions like loadTextContent(..). We'll refresh compilation to detect changes in files referenced in load functions.
-            var fileUri = documentUri.ToUriEscaped();
+            var fileUri = documentUri.ToUriEncoded();
             compilationManager.RefreshCompilation(fileUri);
             var context = compilationManager.GetCompilation(documentUri);
 

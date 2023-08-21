@@ -230,7 +230,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            var uri = documentUri.ToUriEscaped();
+            var uri = documentUri.ToUriEncoded();
 
             var fileSystemDict = new Dictionary<Uri, string>();
             fileSystemDict[uri] = bicepFileContents;
@@ -271,7 +271,7 @@ namespace Bicep.LangServer.IntegrationTests
 resource test";
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            var uri = documentUri.ToUriEscaped();
+            var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
             {
@@ -333,7 +333,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 }";
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            var uri = documentUri.ToUriEscaped();
+            var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
             {

@@ -219,7 +219,7 @@ namespace Bicep.LangServer.IntegrationTests
         private async Task<string> RequestSnippetCompletion(string bicepFileName, CompletionData completionData, string placeholderFile, int cursor)
         {
             var documentUri = DocumentUri.FromFileSystemPath(bicepFileName);
-            var bicepFile = SourceFileFactory.CreateBicepFile(documentUri.ToUriEscaped(), placeholderFile);
+            var bicepFile = SourceFileFactory.CreateBicepFile(documentUri.ToUriEncoded(), placeholderFile);
 
             var helper = await ServerWithNamespaceProvider.GetAsync();
             await helper.OpenFileOnceAsync(this.TestContext, placeholderFile, documentUri);
