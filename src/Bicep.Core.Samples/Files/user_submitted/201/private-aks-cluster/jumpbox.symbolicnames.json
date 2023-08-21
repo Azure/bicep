@@ -1,13 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3373423370772403079"
+      "templateHash": "3904421736177706194"
     }
   },
   "parameters": {
@@ -80,24 +79,24 @@
     "diskStorageAccounType": {
       "type": "string",
       "defaultValue": "Premium_LRS",
-      "metadata": {
-        "description": "Specifies the storage account type for OS and data disk."
-      },
       "allowedValues": [
         "Premium_LRS",
         "StandardSSD_LRS",
         "Standard_LRS",
         "UltraSSD_LRS"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the storage account type for OS and data disk."
+      }
     },
     "numDataDisks": {
       "type": "int",
       "defaultValue": 1,
+      "minValue": 0,
+      "maxValue": 64,
       "metadata": {
         "description": "Specifies the number of data disks of the virtual machine."
-      },
-      "maxValue": 64,
-      "minValue": 0
+      }
     },
     "osDiskSize": {
       "type": "int",

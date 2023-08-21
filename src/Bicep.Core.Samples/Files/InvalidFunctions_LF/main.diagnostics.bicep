@@ -6,12 +6,10 @@ func funcWithOtherFuncRef() string => constFunc()
 //@[38:47) [BCP057 (Error)] The name "constFunc" does not exist in the current context. (CodeDescription: none) |constFunc|
 
 func missingArgType(input) string => input
-//@[20:25) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |input|
 //@[25:26) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |)|
 
 func missingOutputType(input string) => input
 //@[37:39) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |=>|
-//@[37:45) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |=> input|
 //@[45:45) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 //@[45:45) [BCP018 (Error)] Expected the "=>" character at this location. (CodeDescription: none) ||
 
@@ -28,7 +26,6 @@ func madeUpTypeArgs(a notAType, b alsoNotAType) string => '${a}-${b}'
 
 func noLambda('foo') string => ''
 //@[14:14) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
-//@[14:19) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |'foo'|
 
 func noLambda2 = (sdf 'foo') string => ''
 //@[15:16) [BCP018 (Error)] Expected the "(" character at this location. (CodeDescription: none) |=|
@@ -56,14 +53,10 @@ func sayHelloBadNewlines(
 //@[25:25) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
 //@[25:25) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) ||
 //@[25:25) [BCP018 (Error)] Expected the "=>" character at this location. (CodeDescription: none) ||
-//@[25:25) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) ||
-//@[25:25) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) ||
   name string) string => 'Hi ${name}!'
 //@[02:06) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |name|
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 func invalidArgs(a validStringLiteralUnion, b string) string => a
-//@[17:42) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |a validStringLiteralUnion|
 func invalidOutput() validStringLiteralUnion => 'foo'
-//@[21:44) [BCP342 (Error)] User-defined types are not supported in user-defined function parameters or outputs. (CodeDescription: none) |validStringLiteralUnion|
 

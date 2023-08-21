@@ -168,6 +168,11 @@ namespace Bicep.LanguageServer.Completions
             return this;
         }
 
+        public CompletionItemBuilder WithFollowupCompletion(string nextTriggerCommandTitle)
+        {
+            return this.WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = nextTriggerCommandTitle });
+        }
+
         private void SetTextEditInternal(Range range, InsertTextFormat format, string text)
         {
             this.insertTextFormat = format;

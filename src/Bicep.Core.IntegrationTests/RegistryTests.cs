@@ -65,10 +65,10 @@ namespace Bicep.Core.IntegrationTests
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(EmptyServiceProvider, BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, featuresFactory, BicepTestConstants.ConfigurationManager), BicepTestConstants.ConfigurationManager);
 
             var workspace = new Workspace();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri, featuresFactory);
             if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.GetModulesToRestore())))
             {
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
+                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featuresFactory, dispatcher, workspace, sourceFileGrouping);
             }
 
             var compilation = Services.WithFeatureOverrides(featureOverrides).Build().BuildCompilation(sourceFileGrouping);
@@ -186,7 +186,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ModuleRestoreStatus.Unknown);
+                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
             const int ConcurrentTasks = 50;
@@ -202,7 +202,7 @@ namespace Bicep.Core.IntegrationTests
             // modules should now be in the cache
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ModuleRestoreStatus.Succeeded);
+                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
             }
         }
 
@@ -238,7 +238,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ModuleRestoreStatus.Unknown);
+                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
             dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0], out var moduleFileUri, out _).Should().BeTrue();
@@ -261,7 +261,7 @@ namespace Bicep.Core.IntegrationTests
             }
 
             // the first module should have failed due to a timeout
-            dispatcher.GetModuleRestoreStatus(moduleReferences[0], out var failureBuilder).Should().Be(ModuleRestoreStatus.Failed);
+            dispatcher.GetModuleRestoreStatus(moduleReferences[0], out var failureBuilder).Should().Be(ArtifactRestoreStatus.Failed);
             using (new AssertionScope())
             {
                 failureBuilder!.Should().HaveCode("BCP192");
@@ -271,7 +271,7 @@ namespace Bicep.Core.IntegrationTests
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences.Skip(1))
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ModuleRestoreStatus.Succeeded);
+                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
             }
         }
 
@@ -306,7 +306,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ModuleRestoreStatus.Unknown);
+                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
             dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0], out var moduleFileUri, out _).Should().BeTrue();
@@ -333,18 +333,18 @@ namespace Bicep.Core.IntegrationTests
             using (new AssertionScope())
             {
 #if WINDOWS_BUILD
-                dispatcher.GetModuleRestoreStatus(moduleReferences[0], out var failureBuilder).Should().Be(ModuleRestoreStatus.Failed);
+                dispatcher.GetModuleRestoreStatus(moduleReferences[0], out var failureBuilder).Should().Be(ArtifactRestoreStatus.Failed);
 
                 failureBuilder!.Should().HaveCode("BCP233");
                 failureBuilder!.Should().HaveMessageStartWith($"Unable to delete the module with reference \"{moduleReferences[0].FullyQualifiedReference}\" from cache: Exceeded the timeout of \"00:00:05\" for the lock on file \"{lockFileUri}\" to be released.");
 #else
-                dispatcher.GetModuleRestoreStatus(moduleReferences[0], out _).Should().Be(ModuleRestoreStatus.Succeeded);
+                dispatcher.GetModuleRestoreStatus(moduleReferences[0], out _).Should().Be(ArtifactRestoreStatus.Succeeded);
 #endif
 
                 // all other modules should have succeeded
                 foreach (var moduleReference in moduleReferences.Skip(1))
                 {
-                    dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ModuleRestoreStatus.Succeeded);
+                    dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
                 }
             }
 
@@ -382,7 +382,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ModuleRestoreStatus.Unknown);
+                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
             dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0], out var moduleFileUri, out _).Should().BeTrue();
@@ -397,7 +397,7 @@ namespace Bicep.Core.IntegrationTests
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ModuleRestoreStatus.Succeeded);
+                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
             }
         }
 

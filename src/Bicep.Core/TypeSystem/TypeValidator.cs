@@ -1,5 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
@@ -7,11 +13,6 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -123,6 +124,10 @@ namespace Bicep.Core.TypeSystem
                 case (ModuleType sourceModuleType, _):
                     // When assigning a module, we're really assigning the value of the module body.
                     return AreTypesAssignable(sourceModuleType.Body.Type, targetType);
+                
+                case (TestType sourceTestType, _):
+                    // When assigning a module, we're really assigning the value of the test body.
+                    return AreTypesAssignable(sourceTestType.Body.Type, targetType);
 
                 case (StringLiteralType, StringLiteralType):
                     // The name *is* the escaped string value, so we must have an exact match.
@@ -262,6 +267,12 @@ namespace Bicep.Core.TypeSystem
                         var narrowedBody = NarrowType(config, expression, targetModuleType.Body.Type);
 
                         return new ModuleType(targetModuleType.Name, targetModuleType.ValidParentScopes, narrowedBody);
+                    }
+                case TestType targetTestType:
+                    {
+                        var narrowedBody = NarrowType(config, expression, targetTestType.Body.Type);
+
+                        return new TestType(targetTestType.Name, narrowedBody);
                     }
                 case ArrayType loopArrayType when expression is ForSyntax @for:
                     {
@@ -1107,7 +1118,7 @@ namespace Bicep.Core.TypeSystem
             var extraProperties = expression.Properties
                 .Where(p => p.TryGetKeyText() is not string keyName || !targetType.Properties.ContainsKey(keyName));
 
-            if (targetType.AdditionalPropertiesType == null || targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
+            if (!targetType.HasExplicitAdditionalPropertiesType)
             {
                 // extra properties are not allowed by the type
 
@@ -1172,7 +1183,7 @@ namespace Bicep.Core.TypeSystem
                         isResourceDeclaration: config.IsResourceDeclaration);
 
                     // append "| null" to the type on non-required properties
-                    var (additionalPropertiesAssignmentType, _) = AddImplicitNull(targetType.AdditionalPropertiesType.Type, targetType.AdditionalPropertiesFlags);
+                    var (additionalPropertiesAssignmentType, _) = AddImplicitNull(targetType.AdditionalPropertiesType!.Type, targetType.AdditionalPropertiesFlags);
 
                     // although we don't use the result here, it's important to call NarrowType to collect diagnostics
                     var narrowedType = NarrowType(newConfig, extraProperty.Value, additionalPropertiesAssignmentType);

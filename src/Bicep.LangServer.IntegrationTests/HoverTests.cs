@@ -339,7 +339,7 @@ resource test|Output string = 'str'
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my module\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my param\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my var\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \nresource  \n[View Documentation](https://docs.microsoft.com/azure/templates/test.rp/discriminatortests?tabs=bicep)\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \nresource  \n[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/discriminatortests?pivots=deployment-language-bicep)\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my output  \n\n"));
         }
 
@@ -544,13 +544,13 @@ resource m|adeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01' = {}
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource foo 'Test.Rp/basicTests@2020-01-01'
 ```
-[View Documentation](https://docs.microsoft.com/azure/templates/test.rp/basictests?tabs=bicep)
+[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)
 "),
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource bar 'Test.Rp/basicTests@2020-01-01'
 ```
 This resource also has a description!  " + @"
-[View Documentation](https://docs.microsoft.com/azure/templates/test.rp/basictests?tabs=bicep)
+[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)
 "),
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource madeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01'
@@ -922,7 +922,7 @@ param foo|bar = true
             };
 
             using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, mainFile.FileUri,
-                services => services.WithFeatureOverrides(new(TestContext, UserDefinedTypesEnabled: true, CompileTimeImportsEnabled: true)));
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
             var client = helper.Client;
 
             var hovers = await RequestHovers(client, mainFile, cursors);
@@ -995,7 +995,13 @@ param foo|bar = true
                 tag);
 
             SharedLanguageHelperManager sharedLanguageHelperManager = new();
-            sharedLanguageHelperManager.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureProviderFactory(featureProviderFactory).WithModuleDispatcher(moduleDispatcher).WithCompilationManager(compilationManager)));
+            sharedLanguageHelperManager.Initialize(
+                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
+                    TestContext, 
+                    services => services
+                        .WithFeatureProviderFactory(featureProviderFactory)
+                        .WithModuleDispatcher(moduleDispatcher)
+                        .WithCompilationManager(compilationManager)));
 
             var multiFileLanguageServerHelper = await sharedLanguageHelperManager.GetAsync();
             return multiFileLanguageServerHelper.Client;
@@ -1096,7 +1102,7 @@ param foo|bar = true
                         // the hovers with errors don't appear in VS code and only occur in tests
                         tooltip.Should().ContainAny(new[] { $"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error" });
                         break;
-                    
+
                     case TestSymbol variable:
                         // the hovers with errors don't appear in VS code and only occur in tests
                         tooltip.Should().ContainAny(new[] { $"test {variable.Name}", $"var {variable.Name}" });

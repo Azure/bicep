@@ -6,7 +6,7 @@ namespace Bicep.Core.Registry
     /// <summary>
     /// Represents the restore status of a module
     /// </summary>
-    public enum ModuleRestoreStatus
+    public enum ArtifactRestoreStatus
     {
         /// <summary>
         /// We have not yet attempted to restore the module.

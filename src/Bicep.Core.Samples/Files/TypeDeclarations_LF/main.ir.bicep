@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1534) ProgramExpression
+//@[00:1580) ProgramExpression
 //@[00:0299) ├─DeclaredTypeExpression { Name = foo }
 //@[13:0027) | ├─StringLiteralExpression { Value = The foo type }
 @sealed()
@@ -258,6 +258,13 @@ var maybeNull = mightIncludeNull[0].?key
 //@[16:0035) |   └─ArrayAccessExpression
 //@[33:0034) |     ├─IntegerLiteralExpression { Value = 0 }
 //@[16:0032) |     └─ParametersReferenceExpression { Parameter = mightIncludeNull }
+
+var maybeNull2 = mightIncludeNull[0][?'key']
+//@[00:0044) ├─DeclaredVariableExpression { Name = maybeNull2 }
+//@[17:0044) | └─PropertyAccessExpression { PropertyName = key }
+//@[17:0036) |   └─ArrayAccessExpression
+//@[34:0035) |     ├─IntegerLiteralExpression { Value = 0 }
+//@[17:0033) |     └─ParametersReferenceExpression { Parameter = mightIncludeNull }
 
 output maybeNull string? = maybeNull
 //@[00:0036) └─DeclaredOutputExpression { Name = maybeNull }

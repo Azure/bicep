@@ -800,3 +800,24 @@ public record UnionTypeExpression(
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitUnionTypeExpression(this);
 }
+
+public record DiscriminatedObjectTypeExpression(
+    SyntaxBase? SourceSyntax,
+    DiscriminatedObjectType ExpressedDiscriminatedObjectType,
+    ImmutableArray<TypeExpression> MemberExpressions
+) : TypeExpression(SourceSyntax, ExpressedDiscriminatedObjectType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitDiscriminatedObjectTypeExpression(this);
+}
+
+public record ParameterKeyVaultReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    string KeyVaultId,
+    string SecretName,
+    string? SecretVersion
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitParameterKeyVaultReferenceExpression(this);
+}

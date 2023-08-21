@@ -1,13 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1177824650649973853"
+      "templateHash": "5965466150058061323"
     }
   },
   "definitions": {
@@ -16,11 +15,11 @@
       "properties": {
         "stringProp": {
           "type": "string",
+          "minLength": 3,
+          "maxLength": 10,
           "metadata": {
             "description": "A string property"
-          },
-          "maxLength": 10,
-          "minLength": 3
+          }
         },
         "objectProp": {
           "type": "object",
@@ -186,8 +185,8 @@
     },
     "constrainedInt": {
       "type": "int",
-      "maxValue": 10,
-      "minValue": 1
+      "minValue": 1,
+      "maxValue": 10
     },
     "nullable": {
       "type": "string",
@@ -254,7 +253,8 @@
   },
   "variables": {
     "nonNull": "[parameters('mightIncludeNull')[0].key]",
-    "maybeNull": "[tryGet(parameters('mightIncludeNull')[0], 'key')]"
+    "maybeNull": "[tryGet(parameters('mightIncludeNull')[0], 'key')]",
+    "maybeNull2": "[tryGet(parameters('mightIncludeNull')[0], 'key')]"
   },
   "resources": {},
   "outputs": {

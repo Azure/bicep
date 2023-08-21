@@ -1,20 +1,19 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12712385787057684688"
+      "templateHash": "12687362442739863866"
     }
   },
   "parameters": {
     "name": {
       "type": "string",
-      "maxLength": 60,
       "minLength": 2,
+      "maxLength": 60,
       "metadata": {
         "description": "Service name must only contain lowercase letters, digits or dashes, cannot use dash as the first two or last one characters, cannot contain consecutive dashes, and is limited between 2 and 60 characters in length."
       }
@@ -22,9 +21,6 @@
     "sku": {
       "type": "string",
       "defaultValue": "standard",
-      "metadata": {
-        "description": "The pricing tier of the search service you want to create (for example, basic or standard)."
-      },
       "allowedValues": [
         "free",
         "basic",
@@ -33,13 +29,16 @@
         "standard3",
         "storage_optimized_l1",
         "storage_optimized_l2"
-      ]
+      ],
+      "metadata": {
+        "description": "The pricing tier of the search service you want to create (for example, basic or standard)."
+      }
     },
     "replicaCount": {
       "type": "int",
       "defaultValue": 1,
-      "maxValue": 12,
       "minValue": 1,
+      "maxValue": 12,
       "metadata": {
         "description": "Replicas distribute search workloads across the service. You need at least two replicas to support high availability of query workloads (not applicable to the free tier)."
       }

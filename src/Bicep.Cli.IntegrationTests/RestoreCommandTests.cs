@@ -157,14 +157,13 @@ namespace Bicep.Cli.IntegrationTests
 
             using (var compiledStream = new BufferedMemoryStream())
             {
-                OciArtifactModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep"), out var moduleReference, out _).Should().BeTrue();
-
+                OciModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep"), out var artifactReference, out _).Should().BeTrue();
                 compiledStream.Write(TemplateEmitter.UTF8EncodingWithoutBom.GetBytes(dataSet.Compiled!));
                 compiledStream.Position = 0;
 
                 await containerRegistryManager.PushArtifactAsync(
                     configuration: configuration,
-                    moduleReference: moduleReference!,
+                    artifactReference: artifactReference!,
                     // intentionally setting artifactType to null to simulate a publish done by an older version of Bicep
                     artifactType: null,
                     config: new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1),
@@ -219,14 +218,14 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             Directory.CreateDirectory(tempDirectory);
 
             var publishedBicepFilePath = Path.Combine(tempDirectory, "module.bicep");
-            File.WriteAllText(publishedBicepFilePath,@"
+            File.WriteAllText(publishedBicepFilePath, @"
 param p1 string
 output o1 string = p1");
 
-            var (publishOutput, publishError, publishResult) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1");
+            var (publishOutput, publishError, exitCode) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1");
             using (new AssertionScope())
             {
-                publishResult.Should().Be(0);
+                exitCode.Should().Be(0);
                 publishOutput.Should().BeEmpty();
                 publishError.Should().BeEmpty();
             }
@@ -273,10 +272,10 @@ param p1 string
 param p2 string
 output o1 string = '${p1}${p2}'");
 
-            (publishOutput, publishError, publishResult) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1", "--force");
+            (publishOutput, publishError, exitCode) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1", "--force");
             using (new AssertionScope())
             {
-                publishResult.Should().Be(0);
+                exitCode.Should().Be(0);
                 publishOutput.Should().BeEmpty();
                 publishError.Should().BeEmpty();
             }
@@ -386,13 +385,15 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
-            var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
+            var (output, error, exitCode) = await Bicep(settings, "restore", bicepFilePath);
 
             using (new AssertionScope())
             {
-                result.Should().Be(1);
+                exitCode.Should().Be(1);
                 output.Should().BeEmpty();
-                error.Should().ContainAll(": Error BCP192: Unable to restore the module with reference ", "The module does not exist in the registry.");
+                error.Should().ContainAll(": Error BCP192: Unable to restore the module with reference ", "The artifact does not exist in the registry.");
+
+                
             }
         }
 

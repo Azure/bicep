@@ -76,20 +76,11 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to WARNING: Resource-typed parameters and outputs in ARM are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
+        ///   Looks up a localized string similar to WARNING: The following experimental Bicep features have been enabled: {0}. Experimental features should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!.
         /// </summary>
-        internal static string ResourceTypesDisclaimerMessage {
+        internal static string ExperimentalFeaturesDisclaimerMessage {
             get {
-                return ResourceManager.GetString("ResourceTypesDisclaimerMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to WARNING: Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
-        /// </summary>
-        internal static string SymbolicNamesDisclaimerMessage {
-            get {
-                return ResourceManager.GetString("SymbolicNamesDisclaimerMessage", resourceCulture);
+                return ResourceManager.GetString("ExperimentalFeaturesDisclaimerMessage", resourceCulture);
             }
         }
         

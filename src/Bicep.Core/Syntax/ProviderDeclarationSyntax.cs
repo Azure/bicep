@@ -1,14 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry.Oci;
 using System;
 using System.Collections.Generic;
 
 namespace Bicep.Core.Syntax
 {
-    public class ProviderDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax
+    public class ProviderDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IForeignArtifactReference
     {
         private readonly Lazy<ImportSpecification> lazySpecification;
 
@@ -42,6 +44,12 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(this.SpecificationString, this.WithClause, this.AsClause));
 
+        SyntaxBase IForeignArtifactReference.ReferenceSourceSyntax => ProviderPath;
+
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderDeclarationSyntax(this);
+
+        private StringSyntax ProviderPath => SyntaxFactory.CreateStringLiteral($@"{OciArtifactReferenceFacts.Scheme}:{FeatureProvider.ReadEnvVar("__EXPERIMENTAL_BICEP_REGISTRY_FQDN", LanguageConstants.BicepPublicMcrRegistry)}/bicep/providers/{this.Specification.Name}:{this.Specification.Version}");
+
+        public StringSyntax? TryGetPath() => ProviderPath;
     }
 }

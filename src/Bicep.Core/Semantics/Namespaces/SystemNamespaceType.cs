@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -19,7 +20,6 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
@@ -1632,23 +1632,47 @@ namespace Bicep.Core.Semantics.Namespaces
                 })
                 .Build();
 
-            if (featureProvider.UserDefinedTypesEnabled)
-            {
-                yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
-                    .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
-                    .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
-                    .WithAttachableType(LanguageConstants.Object)
-                    .WithValidator(ValidateNotTargetingAlias)
-                    .WithEvaluator((functionCall, decorated) =>
+            yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
+                .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
+                .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
+                .WithAttachableType(LanguageConstants.Object)
+                .WithValidator(ValidateNotTargetingAlias)
+                .WithEvaluator((functionCall, decorated) =>
+                {
+                    if (decorated is TypeDeclaringExpression typeDeclaringExpression)
                     {
-                        if (decorated is TypeDeclaringExpression typeDeclaringExpression)
-                        {
-                            return typeDeclaringExpression with { Sealed = functionCall };
-                        }
+                        return typeDeclaringExpression with { Sealed = functionCall };
+                    }
 
-                        return decorated;
-                    })
-                    .Build();
+                    return decorated;
+                })
+                .Build();
+
+            yield return new DecoratorBuilder(LanguageConstants.TypeDiscriminatorDecoratorName)
+                .WithDescription("Defines the discriminator property to use for a tagged union that is shared between all union members")
+                .WithRequiredParameter("value", LanguageConstants.String, "The discriminator property name.")
+                .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
+                .WithValidator(ValidateTypeDiscriminator)
+                .Build();
+        }
+
+        private static void ValidateTypeDiscriminator(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)
+        {
+            if (targetType is not DiscriminatedObjectType && targetType is not ErrorType)
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorDecoratorOnlySupportedForObjectUnions());
+            }
+
+            if (targetType is DiscriminatedObjectType discriminatedObjectType)
+            {
+                var discriminatorPropertyName = (decoratorSyntax.Arguments.FirstOrDefault()?.Expression as StringSyntax)?.TryGetLiteralValue();
+
+                if (discriminatorPropertyName != null &&
+                    discriminatorPropertyName != discriminatedObjectType.DiscriminatorKey)
+                {
+                    // case when a decorator is applied to type that is already a valid discriminated union
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DiscriminatorPropertyNameMustMatch(discriminatorPropertyName));
+                }
             }
         }
 

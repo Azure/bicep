@@ -77,6 +77,16 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
+        public static BicepTelemetryEvent CreateTestBodySnippetInsertion(string name)
+            => new BicepTelemetryEvent
+            (
+                eventName: TelemetryConstants.EventNames.TestBodySnippetInsertion,
+                properties: new()
+                {
+                    ["name"] = name,
+                }
+            );
+
         public static BicepTelemetryEvent CreateObjectBodySnippetInsertion(string name)
             => new BicepTelemetryEvent
             (

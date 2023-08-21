@@ -300,7 +300,7 @@ using 'bar.bicep'
                     x.Kind.Should().Be(CompletionItemKind.Keyword);
                 });
         }
-        
+
         [TestMethod]
         public async Task Parameter_type_description_should_be_shown_for_params_symbol_completions()
         {
@@ -336,8 +336,8 @@ param myArray array
             var fileTextsByUri = new Dictionary<Uri, string>
             {
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
-            }; 
-        
+            };
+
             var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Should().SatisfyRespectively(
@@ -389,8 +389,8 @@ param customParam customType
             var fileTextsByUri = new Dictionary<Uri, string>
             {
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
-            }; 
-        
+            };
+
             var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Should().SatisfyRespectively(
@@ -417,7 +417,7 @@ using './main.bicep'
 param customParam = [
     |
 ]
-"; 
+";
 
             var bicepText = @"
 type customType = {
@@ -430,8 +430,8 @@ param customParam customType[]
             var fileTextsByUri = new Dictionary<Uri, string>
             {
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
-            }; 
-        
+            };
+
             var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Any(x => x.Label == "required-properties");
@@ -449,8 +449,7 @@ param customParam customType[]
                 fileTextsByUri,
                 paramUri,
                 services => services
-                    .WithNamespaceProvider(BuiltInTestTypes.Create())
-                    .WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+                    .WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var paramFile = SourceFileFactory.CreateBicepParamFile(paramUri, paramFileTextNoCursor);
             var file = new FileRequestHelper(helper.Client, paramFile);

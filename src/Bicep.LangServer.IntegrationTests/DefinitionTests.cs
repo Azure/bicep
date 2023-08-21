@@ -284,7 +284,7 @@ param |foo| string
         public async Task Goto_definition_works_with_import_statement()
         {
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("""
@@ -309,7 +309,7 @@ param |foo| string
         public async Task Goto_definition_works_with_wildcard_import_statements()
         {
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursors) = ParserHelper.GetFileWithCursors("""
@@ -337,7 +337,7 @@ param |foo| string
         public async Task Goto_definition_works_with_wildcard_import_references()
         {
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursors) = ParserHelper.GetFileWithCursors("""
@@ -367,7 +367,7 @@ param |foo| string
         public async Task Goto_definition_works_with_wildcard_import_property_references()
         {
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursors) = ParserHelper.GetFileWithCursors("""
@@ -400,7 +400,7 @@ param |foo| string
         public async Task Goto_definition_works_with_cherrypick_import_statements_and_references()
         {
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursors) = ParserHelper.GetFileWithCursors("""
@@ -441,7 +441,7 @@ param |foo| string
                 {
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
-                    "languageVersion": "1.10-experimental",
+                    "languageVersion": "2.0",
                     "definitions": {
                         "foo": {||
                             "metadata": {
@@ -461,7 +461,7 @@ param |foo| string
                 """);
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true))
+                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},
@@ -492,7 +492,7 @@ param |foo| string
                 {
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
-                    "languageVersion": "1.10-experimental",
+                    "languageVersion": "2.0",
                     "definitions": {
                         "foo": {||
                             "metadata": {
@@ -512,7 +512,7 @@ param |foo| string
                 """);
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true))
+                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},

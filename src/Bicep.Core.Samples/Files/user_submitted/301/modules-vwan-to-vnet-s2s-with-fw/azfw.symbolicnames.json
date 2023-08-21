@@ -1,13 +1,12 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "1.10-experimental",
+  "languageVersion": "2.0",
   "contentVersion": "1.0.0.0",
   "metadata": {
-    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16431620072406623429"
+      "templateHash": "17023504318749958424"
     }
   },
   "parameters": {
@@ -20,13 +19,13 @@
     },
     "fwtype": {
       "type": "string",
-      "metadata": {
-        "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
-      },
       "allowedValues": [
         "VNet",
         "vWAN"
-      ]
+      ],
+      "metadata": {
+        "description": "Specify if the Azure Firewall should be deployed to VNet or Virtual WAN Hub"
+      }
     },
     "fwpolicyid": {
       "type": "string",

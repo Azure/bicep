@@ -124,6 +124,15 @@ namespace Bicep.LangServer.UnitTests
                 },
                 c =>
                 {
+                    c.Label.Should().Be("type");
+                    c.Kind.Should().Be(CompletionItemKind.Keyword);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Type keyword");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("type");
+                },
+                c =>
+                {
                     c.Label.Should().Be("var");
                     c.Kind.Should().Be(CompletionItemKind.Keyword);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
@@ -229,7 +238,7 @@ output length int =
             // outputs and assertions can't be referenced so they should not show up in completions
             completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
             completions.Where(c => c.Kind == SymbolKind.Assert.ToCompletionItemKind()).Should().BeEmpty();
-            
+
             const string expectedVariable = "resourceGroup";
             var variableCompletion = completions.Single(c => c.Kind == SymbolKind.Variable.ToCompletionItemKind());
             variableCompletion.Label.Should().Be(expectedVariable);

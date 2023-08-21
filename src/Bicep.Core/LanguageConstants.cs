@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -145,11 +146,15 @@ namespace Bicep.Core
         public const string ImportMetadataOriginalIdentifierPropertyName = "originalIdentifier";
         public const string BatchSizePropertyName = "batchSize";
         public const string ExportPropertyName = "export";
+        public const string TypeDiscriminatorDecoratorName = "discriminator";
 
         // module properties
         public const string ModuleParamsPropertyName = "params";
         public const string ModuleOutputsPropertyName = "outputs";
         public const string ModuleNamePropertyName = "name";
+
+        // test properties
+        public const string TestParamsPropertyName = "params";
 
         // resource properties
         public const string ResourceScopePropertyName = "scope";
@@ -164,6 +169,7 @@ namespace Bicep.Core
         public const string TypeNameBool = "bool";
         public const string TypeNameInt = "int";
         public const string TypeNameModule = "module";
+        public const string TypeNameTest = "test";
 
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
@@ -309,4 +315,6 @@ namespace Bicep.Core
             return new ModuleType(typeName, moduleScope, moduleBody);
         }
     }
+
+    
 }

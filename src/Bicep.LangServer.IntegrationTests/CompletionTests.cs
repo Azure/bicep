@@ -58,8 +58,6 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static readonly SharedLanguageHelperManager ServerWithExtensibilityEnabled = new();
 
-        private static readonly SharedLanguageHelperManager ServerWithTypesEnabled = new();
-
         private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
 
         private static readonly SharedLanguageHelperManager ServerWithUDFsEnabled = new();
@@ -99,11 +97,6 @@ namespace Bicep.LangServer.IntegrationTests
                     testContext,
                     services => services.WithFeatureOverrides(new(testContext, ExtensibilityEnabled: true))));
 
-            ServerWithTypesEnabled.Initialize(
-                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
-                    testContext,
-                    services => services.WithFeatureOverrides(new(testContext, UserDefinedTypesEnabled: true))));
-
             ServerWithUDFsEnabled.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
@@ -133,7 +126,6 @@ namespace Bicep.LangServer.IntegrationTests
             await ServerWithNamespaceAndTestResolver.DisposeAsync();
             await DefaultServer.DisposeAsync();
             await ServerWithExtensibilityEnabled.DisposeAsync();
-            await ServerWithTypesEnabled.DisposeAsync();
             await ServerWithBuiltInTypes.DisposeAsync();
             await ServerWithResourceTypedParamsEnabled.DisposeAsync();
             await ServerWithCompileTimeImportsEnabled.DisposeAsync();
@@ -684,7 +676,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -716,7 +708,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -872,7 +864,7 @@ var quux = foos[0]!.bar.baz.ǂ
 
             await RunCompletionScenarioTest(
                 this.TestContext,
-                ServerWithTypesEnabled,
+                DefaultServer,
                 fileWithCursors,
                 completions =>
                     completions.Should().SatisfyRespectively(
@@ -895,7 +887,7 @@ var quux = foos[?0].bar.baz.ǂ
 
             await RunCompletionScenarioTest(
                 this.TestContext,
-                ServerWithTypesEnabled,
+                DefaultServer,
                 fileWithCursors,
                 completions =>
                     completions.Should().SatisfyRespectively(
@@ -951,7 +943,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -1001,7 +993,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -1053,7 +1045,7 @@ module mod 'mod.bicep' = {
             };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithFeatureOverrides(new(UserDefinedTypesEnabled: true)));
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -1079,7 +1071,7 @@ module mod 'mod.bicep' = {
                 """;
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
 
@@ -1342,7 +1334,7 @@ output test string |
 
             await RunCompletionScenarioTest(
                 this.TestContext,
-                ServerWithTypesEnabled,
+                DefaultServer,
                 fileWithCursors,
                 completions =>
                     completions.Should().SatisfyRespectively(
@@ -1875,7 +1867,7 @@ import 'kubernetes@1.0.0' with {
 type a = ǂ
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "string");
             completions.Should().Contain(x => x.Label == "int");
@@ -1892,7 +1884,7 @@ type a = ǂ
 type b = string
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "b");
         }
@@ -1909,7 +1901,7 @@ type d = {
 }
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "b");
             completions.Should().Contain(x => x.Label == "c");
@@ -1924,7 +1916,7 @@ type a = 'fizz' | 'buzz' | ǂ
 type b = 'pop'
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "b");
         }
@@ -1943,7 +1935,7 @@ type e = {
 }
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "b");
             completions.Should().NotContain(x => x.Label == "c");
@@ -1963,7 +1955,7 @@ type e = {
 type a = ǂ
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().NotContain(x => x.Label == "a");
         }
@@ -1975,7 +1967,7 @@ type a = ǂ
 type a = 'fizz'|'buzz'|ǂ
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().NotContain(x => x.Label == "a");
         }
@@ -1987,7 +1979,7 @@ type a = 'fizz'|'buzz'|ǂ
 type a = -ǂ
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().NotContain(x => x.Label == "a");
         }
@@ -2000,7 +1992,7 @@ type myString = string
 param stringParam |
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "myString");
         }
@@ -2013,7 +2005,7 @@ type myString = string
 output stringOutput |
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "myString");
         }
@@ -4114,7 +4106,7 @@ var arr6 = [
                 this.TestContext,
                 files,
                 bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4172,7 +4164,7 @@ var arr6 = [
                 this.TestContext,
                 files,
                 bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4234,7 +4226,7 @@ var arr6 = [
                 this.TestContext,
                 files,
                 bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true, UserDefinedTypesEnabled: true)));
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 

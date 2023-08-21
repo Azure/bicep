@@ -1,12 +1,13 @@
 test sample 'samples/sample1.bicep' = {
+//@[5:11) Test sample. Type: test. Declaration start char: 0, length: 84
   params: {
     location: 'westus'
   }
 }
 
-
 // Test the main file
 test testMain 'samples/main.bicep' = {  
+//@[5:13) Test testMain. Type: test. Declaration start char: 0, length: 95
   params: {  
     env: 'prod'
     suffix: 1
@@ -14,13 +15,15 @@ test testMain 'samples/main.bicep' = {
 }
 
 test testMain2 'samples/main.bicep' = {  
+//@[5:14) Test testMain2. Type: test. Declaration start char: 0, length: 96
   params: {  
     env: 'dev'
     suffix: 10
   }
 }
 
-test testMain2 'samples/main.bicep' = {  
+test testMain21 'samples/main.bicep' = {  
+//@[5:15) Test testMain21. Type: test. Declaration start char: 0, length: 98
   params: {  
     env: 'main'
     suffix: 10
@@ -28,70 +31,16 @@ test testMain2 'samples/main.bicep' = {
 }
 
 test testMain3 'samples/main.bicep' = {  
+//@[5:14) Test testMain3. Type: test. Declaration start char: 0, length: 100
   params: {  
     env: 'NotMain'
     suffix: 10
   }
 }
 
-// Skipped tests
-test testNoParams 'samples/main.bicep' ={
-  params:{}
-}
-
-test testMissingParams 'samples/main.bicep' ={
-  params:{
-    env: 'NotMain'
-  }
-}
-
-test testWrongParamsType 'samples/main.bicep' ={
-  params:{
-    env: 1
-    suffix: 10
-  }
-}
-
-test testWrongParamsType2 'samples/main.bicep' ={
-  params:{
-    env: 'dev'
-    suffix: '10'
-  }
-}
-
-test testWrongParamsType3 'samples/main.bicep' ={
-  params:{
-    env: 'dev'
-    suffix: 10
-    location: 'westus2'
-  }
-}
-
-test testInexitentParam 'samples/main.bicep' ={
-  params:{
-    env: 'dev'
-    suffix: 10
-    location: 1
-  }
-}
-
-test testEmptyBody 'samples/main.bicep' = {}
-
-test testShouldIgnoreAdditionalProperties 'samples/main.bicep' = {
-  additionalProp: {}
-}
-
-test testShouldIgnoreAdditionalProperties2 'samples/main.bicep' = {
-  params: {
-    env: 'dev'
-    suffix: 10
-  }
-  additionalProp: {}
-}
-
 // Test the development file
-
 test testDev 'samples/development.bicep' = {
+//@[5:12) Test testDev. Type: test. Declaration start char: 0, length: 90
   params: {
     location: 'westus3'
   }
@@ -99,7 +48,8 @@ test testDev 'samples/development.bicep' = {
 
 // Test the file trying to access a resource
 
-test testResource2 'samples/AccessResource.bicep' = {
+test testResource2 'samples/AccessResources.bicep' = {
+//@[5:18) Test testResource2. Type: test. Declaration start char: 0, length: 100
   params: {
     location: 'westus2'
   }
@@ -108,8 +58,6 @@ test testResource2 'samples/AccessResource.bicep' = {
 
 // Test the file trying to access runtime functions
 test testRuntime 'samples/runtime.bicep' = {}
+//@[5:16) Test testRuntime. Type: test. Declaration start char: 0, length: 45
 
-// Test inexistent file
-
-test testInexistentFile 'samples/inexistent.bicep' = {}
 

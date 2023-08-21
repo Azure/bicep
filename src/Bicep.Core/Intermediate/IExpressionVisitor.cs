@@ -124,4 +124,8 @@ public interface IExpressionVisitor
     void VisitImportedTypeReferenceExpression(ImportedTypeReferenceExpression expression);
 
     void VisitWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression);
+
+    void VisitDiscriminatedObjectTypeExpression(DiscriminatedObjectTypeExpression expression);
+
+    void VisitParameterKeyVaultReferenceExpression(ParameterKeyVaultReferenceExpression expression);
 }

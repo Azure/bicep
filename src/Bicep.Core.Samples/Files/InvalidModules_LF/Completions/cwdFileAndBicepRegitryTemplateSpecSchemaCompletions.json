@@ -66,6 +66,10 @@
     "textEdit": {
       "range": {},
       "newText": "'br/public:$0'"
+    },
+    "command": {
+      "title": "module registry completion",
+      "command": "editor.action.triggerSuggest"
     }
   },
   {
@@ -81,6 +85,10 @@
     "textEdit": {
       "range": {},
       "newText": "'br:$0'"
+    },
+    "command": {
+      "title": "module registry completion",
+      "command": "editor.action.triggerSuggest"
     }
   },
   {
@@ -306,6 +314,10 @@
     "textEdit": {
       "range": {},
       "newText": "'ts/$0'"
+    },
+    "command": {
+      "title": "template spec alias completion",
+      "command": "editor.action.triggerSuggest"
     }
   },
   {
@@ -321,6 +333,10 @@
     "textEdit": {
       "range": {},
       "newText": "'ts:$0'"
+    },
+    "command": {
+      "title": "template spec completion",
+      "command": "editor.action.triggerSuggest"
     }
   }
 ]

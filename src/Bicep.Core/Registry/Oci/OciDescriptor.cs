@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 namespace Bicep.Core.Registry.Oci
 {
@@ -15,14 +16,17 @@ namespace Bicep.Core.Registry.Oci
             this.Size = size;
             this.Annotations = annotations?.ToImmutableDictionary() ?? ImmutableDictionary<string, string>.Empty;
         }
-
+        [JsonPropertyName("mediaType")]
         public string MediaType { get; }
 
+        [JsonPropertyName("digest")]
         public string Digest { get; }
 
+        [JsonPropertyName("size")]
         public long Size { get; }
 
         // TODO: Skip serialization for empty annotations
+        [JsonPropertyName("annotations")]
         public ImmutableDictionary<string, string> Annotations { get; }
     }
 }

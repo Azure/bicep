@@ -80,25 +80,21 @@ func getAbcDef() string => '${getAbc()}def'
     }
 
     [TestMethod]
-    public void User_defined_functions_unsupported_custom_types()
+    public void User_defined_functions_support_custom_types()
     {
-        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedTypesEnabled: true, UserDefinedFunctionsEnabled: true));
+        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true));
 
         var result = CompilationHelper.Compile(services, @"
 func getAOrB(aOrB ('a' | 'b')) bool => (aOrB == 'a')
 ");
 
-        result.Should().HaveDiagnostics(new [] {
-            ("BCP342", DiagnosticLevel.Error, "User-defined types are not supported in user-defined function parameters or outputs."),
-        });
+        result.Should().NotHaveAnyDiagnostics();
 
         result = CompilationHelper.Compile(services, @"
 func getAOrB(aOrB bool) ('a' | 'b') => aOrB ? 'a' : 'b'
 ");
 
-        result.Should().HaveDiagnostics(new [] {
-            ("BCP342", DiagnosticLevel.Error, "User-defined types are not supported in user-defined function parameters or outputs."),
-        });
+        result.Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]

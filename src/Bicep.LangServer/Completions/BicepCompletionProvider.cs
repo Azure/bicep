@@ -76,6 +76,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetLocalModulePathCompletions(model, context))
                 .Concat(GetLocalTestPathCompletions(model, context))
                 .Concat(GetModuleBodyCompletions(model, context))
+                .Concat(GetTestBodyCompletions(model, context))
                 .Concat(GetResourceBodyCompletions(model, context))
                 .Concat(GetParameterDefaultValueCompletions(model, context))
                 .Concat(GetVariableValueCompletions(context))
@@ -172,6 +173,7 @@ namespace Bicep.LanguageServer.Completions
                         yield return CreateKeywordCompletion(LanguageConstants.OutputKeyword, "Output keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
+                        yield return CreateKeywordCompletion(LanguageConstants.TypeKeyword, "Type keyword", context.ReplacementRange);
 
                         if (model.Features.ExtensibilityEnabled || model.Features.CompileTimeImportsEnabled)
                         {
@@ -195,11 +197,6 @@ namespace Bicep.LanguageServer.Completions
                         if (model.Features.AssertsEnabled)
                         {
                             yield return CreateKeywordCompletion(LanguageConstants.AssertKeyword, "Assert keyword", context.ReplacementRange);
-                        }
-
-                        if (model.Features.UserDefinedTypesEnabled)
-                        {
-                            yield return CreateKeywordCompletion(LanguageConstants.TypeKeyword, "Type keyword", context.ReplacementRange);
                         }
 
                         foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
@@ -307,13 +304,10 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
             {
-                var completions = GetAmbientTypeCompletions(model, context).Concat(GetParameterTypeSnippets(model.Compilation, context));
-
-                // Only show the aggregate type completions if the feature is enabled
-                if (model.Features.UserDefinedTypesEnabled)
-                {
-                    completions = completions.Concat(GetUserDefinedTypeCompletions(model, context)).Concat(GetImportedTypeCompletions(model, context));
-                }
+                var completions = GetAmbientTypeCompletions(model, context)
+                    .Concat(GetParameterTypeSnippets(model.Compilation, context))
+                    .Concat(GetUserDefinedTypeCompletions(model, context))
+                    .Concat(GetImportedTypeCompletions(model, context));
 
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 if (model.Features.ResourceTypedParamsAndOutputsEnabled)
@@ -354,14 +348,9 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
             {
-                var completions = GetAmbientTypeCompletions(model, context);
-
-                // Only show the aggregate type completions if the feature is enabled
-                if (model.Features.UserDefinedTypesEnabled)
-                {
-                    completions = completions.Concat(GetUserDefinedTypeCompletions(model, context))
-                        .Concat(GetImportedTypeCompletions(model, context));
-                }
+                var completions = GetAmbientTypeCompletions(model, context)
+                    .Concat(GetUserDefinedTypeCompletions(model, context))
+                    .Concat(GetImportedTypeCompletions(model, context));
 
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 if (model.Features.ResourceTypedParamsAndOutputsEnabled)
@@ -649,7 +638,7 @@ namespace Bicep.LanguageServer.Completions
                     replacementRange,
                     CompletionItemKind.Folder,
                     priority)
-                .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "file path completion" })
+                .WithFollowupCompletion("file path completion")
                 .Build();
             }
         }
@@ -928,6 +917,31 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
+        private IEnumerable<CompletionItem> CreateTestBodyCompletions(SemanticModel model, BicepCompletionContext context, TestDeclarationSyntax testDeclarationSyntax)
+        {
+            TypeSymbol typeSymbol = model.GetTypeInfo(testDeclarationSyntax);
+            IEnumerable<Snippet> snippets = SnippetsProvider.GetTestBodyCompletionSnippets(typeSymbol.UnwrapArrayType());
+
+            foreach (Snippet snippet in snippets)
+            {
+                string prefix = snippet.Prefix;
+                BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTestBodySnippetInsertion(prefix);
+                var command = TelemetryHelper.CreateCommand
+                (
+                    title: "test body completion snippet",
+                    name: TelemetryConstants.CommandName,
+                    args: JArray.FromObject(new List<object> { telemetryEvent })
+                );
+                yield return CreateContextualSnippetCompletion(prefix,
+                    snippet.Detail,
+                    snippet.Text,
+                    context.ReplacementRange,
+                    command,
+                    snippet.CompletionPriority,
+                    preselect: true);
+            }
+        }
+
         private IEnumerable<CompletionItem> GetAssertValueCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.AssertValue) || context.EnclosingDeclaration is not AssertDeclarationSyntax assert)
@@ -956,6 +970,17 @@ namespace Bicep.LanguageServer.Completions
                     {
                         yield return completion;
                     }
+                }
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetTestBodyCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.TestBody) && context.EnclosingDeclaration is TestDeclarationSyntax testDeclarationSyntax)
+            {
+                foreach (CompletionItem completionItem in CreateTestBodyCompletions(model, context, testDeclarationSyntax))
+                {
+                    yield return completionItem;
                 }
             }
         }
@@ -1257,6 +1282,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 ResourceType resourceType => GetProperties(resourceType.Body.Type),
                 ModuleType moduleType => GetProperties(moduleType.Body.Type),
+                TestType testType => GetProperties(testType.Body.Type),
                 ObjectType objectType => objectType.Properties.Values,
                 DiscriminatedObjectType discriminated => discriminated.DiscriminatorProperty.AsEnumerable(),
                 _ => Enumerable.Empty<TypeProperty>(),
@@ -1777,7 +1803,7 @@ namespace Bicep.LanguageServer.Completions
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                     .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}@$0'")
                     .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}`")
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "resource type completion" })
+                    .WithFollowupCompletion("resource type completion")
                     // 8 hex digits is probably overkill :)
                     .WithSortText(index.ToString("x8"))
                     .Build();
@@ -1910,7 +1936,7 @@ namespace Bicep.LanguageServer.Completions
                 return completion
                     .WithDetail(insertText)
                     .WithPlainTextEdit(replacementRange, insertText + ".")
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "symbol completion" })
+                    .WithFollowupCompletion("symbol completion")
                     .Build();
             }
 

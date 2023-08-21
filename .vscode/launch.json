@@ -33,7 +33,8 @@
                 "${file}"
             ],
             "env": {
-                "BICEP_TRACING_ENABLED": "true"
+                "BICEP_TRACING_ENABLED": "true",
+                // "BICEP_REGISTRY_FQDN": "your-registry-here.azurecr.io"
             },
             "cwd": "${workspaceFolder}/src/Bicep.Cli",
             "console": "internalConsole",
