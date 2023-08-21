@@ -21,6 +21,8 @@ using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
+//asdfg json schema
+
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class UseRecentApiVersionRule : LinterRuleBase
@@ -432,7 +434,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public static (ApiVersion[] allApiVersions, ApiVersion[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateTime today, int maxAgeInDays, bool preferStableVersions, ResourceScope scope, string fullyQualifiedResourceType)
         {
-            //asdfg don't need sorting?
+            //asdfg better summarize behavior for this rule
             var allVersions = apiVersionProvider.GetApiVersions(scope, fullyQualifiedResourceType).ToArray();
             if (!allVersions.Any())
             {
@@ -454,7 +456,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 acceptableVersions.AddRange(FilterMostRecentApiVersion(allPreferredVersions));
             }
 
-            // If preferring stable veersions, we only added stable versions so far, we need to add appropriate preview versions
+            // If preferring stable versions, we only added stable versions so far, we need to add appropriate preview versions
             if (preferStableVersions)
             {
                 var previewVersions = FilterPreview(allVersions);
