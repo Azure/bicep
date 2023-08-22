@@ -183,6 +183,15 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "7.0.0"
         }
       },
+      "Microsoft.Graph.Bicep.Types": {
+        "type": "Direct",
+        "requested": "[0.1.0-preview.3, )",
+        "resolved": "0.1.0-preview.3",
+        "contentHash": "9ga9EvphrWe0zUkw9Rxlpav3wGIJAl8K/MLPoNnS258+Wh3tLCYc/XOMMv6jS3nLlsah0jaF+tEaNZ7OJoIkkg==",
+        "dependencies": {
+          "Azure.Bicep.Types": "0.3.181"
+        }
+      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[1.1.1, )",

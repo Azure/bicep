@@ -1956,12 +1956,17 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportSpecification))
             {
                 // TODO: move to INamespaceProvider.
-                var availableNamespaceSettingsList = new[]
+                var availableNamespaceSettingsList = new List<NamespaceSettings>
                 {
                     SystemNamespaceType.Settings,
                     AzNamespaceType.Settings,
                     K8sNamespaceType.Settings,
                 };
+
+                if (model.Features.MicrosoftGraphPreviewEnabled)
+                {
+                    availableNamespaceSettingsList.Add(MicrosoftGraphNamespaceType.Settings);
+                }
 
                 foreach (var setting in availableNamespaceSettingsList.OrderBy(x => x.BicepProviderName, LanguageConstants.IdentifierComparer))
                 {
