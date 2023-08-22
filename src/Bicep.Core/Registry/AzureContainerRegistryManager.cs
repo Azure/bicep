@@ -106,7 +106,7 @@ namespace Bicep.Core.Registry
                 annotations[LanguageConstants.OciOpenContainerImageDescriptionAnnotation] = description;
             }
 
-            var manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors, annotations);
+            var manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors.ToImmutableArray(), annotations.ToImmutableDictionary());
 
             using var manifestStream = new MemoryStream();
             OciSerialization.Serialize(manifestStream, manifest);
