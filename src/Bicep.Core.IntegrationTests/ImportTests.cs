@@ -329,7 +329,7 @@ import 'mockNs@1.0.0' as ns2
         }
 
         [TestMethod]
-        public void MicrosoftGraph_imports_succeed_with_preview_feature_disabled()
+        public void MicrosoftGraph_imports_succeed_with_preview_feature_enabled()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"import 'microsoftGraph@1.0.0' as graph");
 

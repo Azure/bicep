@@ -36,8 +36,8 @@ namespace Bicep.Core.UnitTests.TypeSystem.MicrosoftGraph
             var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
-            var maxExpectedTypes = 5;
-            availableTypes.Should().HaveCountLessThanOrEqualTo(maxExpectedTypes);
+            var minExpectedTypes = 5;
+            availableTypes.Should().HaveCountGreaterThanOrEqualTo(minExpectedTypes);
 
             // verify there aren't any duplicates
             availableTypes.Select(x => x.FormatName().ToLowerInvariant()).Should().OnlyHaveUniqueItems();
