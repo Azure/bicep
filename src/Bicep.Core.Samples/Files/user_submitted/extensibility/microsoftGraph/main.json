@@ -5,12 +5,13 @@
   "metadata": {
     "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!",
     "_EXPERIMENTAL_FEATURES_ENABLED": [
-      "Extensibility"
+      "Extensibility",
+      "MicrosoftGraph Preview"
     ],
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3195515819168633684"
+      "templateHash": "1689963453626964497"
     }
   },
   "parameters": {

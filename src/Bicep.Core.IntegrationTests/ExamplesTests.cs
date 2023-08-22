@@ -91,7 +91,10 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetExtensibilityExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ExampleIsValid_extensibility(EmbeddedFile embeddedBicep)
-            => RunExampleTest(embeddedBicep, new(ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: true), ".json");
+            => RunExampleTest(
+                embeddedBicep,
+                new(ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: embeddedBicep.StreamPath.Contains("microsoftGraph")),
+                ".json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]
