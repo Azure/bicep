@@ -22,5 +22,7 @@ configuration:
       then:
       - approvePullRequest:
           comment: ':shipit:'
+      - addLabel:
+          label: auto-merge
 onFailure:
 onSuccess:
