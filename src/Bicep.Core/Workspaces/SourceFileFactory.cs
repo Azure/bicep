@@ -39,7 +39,7 @@ namespace Bicep.Core.Workspaces
             _ => throw new NotImplementedException($"Unexpected file kind '{fileKind}'.")
         };
 
-        public static ISourceFile? TryCreateSourceFile(Uri fileUri, string fileContents, ModuleReference? moduleReference = null)
+        public static ISourceFile? TryCreateSourceFile(Uri fileUri, string fileContents, ArtifactReference? moduleReference = null)
         {
             if (PathHelper.HasArmTemplateLikeExtension(fileUri))
             {
@@ -61,7 +61,7 @@ namespace Bicep.Core.Workspaces
             return null;
         }
 
-        public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, ModuleReference? moduleReference = null) =>
+        public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, ArtifactReference? moduleReference = null) =>
             TryCreateSourceFile(fileUri, fileContents, moduleReference) ?? CreateBicepFile(fileUri, fileContents);
 
         public static BicepParamFile CreateBicepParamFile(Uri fileUri, string fileContents)

@@ -19,7 +19,7 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Registry
 {
-    public class LocalModuleRegistry : ModuleRegistry<LocalModuleReference>
+    public class LocalModuleRegistry : ArtifactRegistry<LocalModuleReference>
     {
         private readonly IFileResolver fileResolver;
         private readonly Uri parentModuleUri;
@@ -36,7 +36,7 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities GetCapabilities(LocalModuleReference reference) => RegistryCapabilities.Default;
 
-        public override bool TryParseModuleReference(string? alias, string reference, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override bool TryParseArtifactReference(string? alias, string reference, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             if (LocalModuleReference.TryParse(reference, parentModuleUri, out var @ref, out failureBuilder))
             {
@@ -49,7 +49,7 @@ namespace Bicep.Core.Registry
         }
 
 
-        public override bool TryGetLocalModuleEntryPointUri(LocalModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override bool TryGetLocalArtifactEntryPointUri(LocalModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             localUri = fileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path);
             if (localUri is not null)
@@ -62,25 +62,25 @@ namespace Bicep.Core.Registry
             return false;
         }
 
-        public override Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<LocalModuleReference> references)
+        public override Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<LocalModuleReference> references)
         {
             // local modules are already present on the file system
             // and do not require init
-            return Task.FromResult<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>>(ImmutableDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>.Empty);
+            return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>>(ImmutableDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>.Empty);
         }
 
-        public override Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(IEnumerable<LocalModuleReference> references)
+        public override Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<LocalModuleReference> references)
         {
             // local modules are already present on the file system, there's no cache concept for this one
             // we do nothing
-            return Task.FromResult<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>>(ImmutableDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>.Empty);
+            return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>>(ImmutableDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>.Empty);
         }
 
-        public override bool IsModuleRestoreRequired(LocalModuleReference reference) => false;
+        public override bool IsArtifactRestoreRequired(LocalModuleReference reference) => false;
 
-        public override Task PublishModule(LocalModuleReference moduleReference, Stream compiled, string? documentationUri, string? description) => throw new NotSupportedException("Local modules cannot be published.");
+        public override Task PublishArtifact(LocalModuleReference moduleReference, Stream compiled, string? documentationUri, string? description) => throw new NotSupportedException("Local modules cannot be published.");
 
-        public override Task<bool> CheckModuleExists(LocalModuleReference reference) => throw new NotSupportedException("Local modules cannot be published.");
+        public override Task<bool> CheckArtifactExists(LocalModuleReference reference) => throw new NotSupportedException("Local modules cannot be published.");
 
         public override string? TryGetDocumentationUri(LocalModuleReference moduleReference) => null;
 
@@ -88,7 +88,7 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                if (this.TryGetLocalModuleEntryPointUri(moduleReference, out Uri? localUri, out _) && this.bicepCompiler is not null)
+                if (this.TryGetLocalArtifactEntryPointUri(moduleReference, out Uri? localUri, out _) && this.bicepCompiler is not null)
                 {
                     var compilation = await this.bicepCompiler.CreateCompilation(localUri, skipRestore: true);
                     if (compilation.SourceFileGrouping.FileResultByUri.TryGetValue(localUri, out var result)

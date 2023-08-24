@@ -172,7 +172,7 @@ namespace Bicep.LanguageServer.Handlers
             return new();
         }
 
-        private Uri GetDocumentLinkUri(ISourceFile sourceFile, ModuleReference moduleReference)
+        private Uri GetDocumentLinkUri(ISourceFile sourceFile, ArtifactReference moduleReference)
         {
             if (!this.CanSendRegistryContent() || !moduleReference.IsExternal)
             {

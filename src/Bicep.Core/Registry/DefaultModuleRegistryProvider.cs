@@ -30,11 +30,11 @@ namespace Bicep.Core.Registry
         }
 
         // The templateUri affects how module aliases are resolved (depending on whether the bicepconfig.json is located for the given template)
-        public ImmutableArray<IModuleRegistry> Registries(Uri templateUri)
+        public ImmutableArray<IArtifactRegistry> Registries(Uri templateUri)
         {
             var configuration = configurationManager.GetConfiguration(templateUri);
             var features = featureProviderFactory.GetFeatureProvider(templateUri);
-            var builder = ImmutableArray.CreateBuilder<IModuleRegistry>();
+            var builder = ImmutableArray.CreateBuilder<IArtifactRegistry>();
 
             // Using IServiceProvider instead of constructor injection due to a dependency cycle
             var compiler = this.serviceProvider.GetService<BicepCompiler>();

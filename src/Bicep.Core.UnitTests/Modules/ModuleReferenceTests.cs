@@ -44,9 +44,9 @@ namespace Bicep.Core.UnitTests.Modules
             getHashCode.GetParameters().Should().BeEmpty();
         }
 
-        private static IEnumerable<object[]> GetModuleRefSubClasses() => typeof(ModuleReference).Assembly
+        private static IEnumerable<object[]> GetModuleRefSubClasses() => typeof(ArtifactReference).Assembly
             .GetTypes()
-            .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(ModuleReference)))
+            .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(ArtifactReference)))
             .Select(type => new[] { type });
     }
 }

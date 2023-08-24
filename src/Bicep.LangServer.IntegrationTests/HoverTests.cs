@@ -1040,7 +1040,7 @@ param foo|bar = true
             var file = SourceFileFactory.CreateBicepFile(parentModuleUri, bicepFileContents);
             var moduleDeclarationSyntax = programSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
 
-            ModuleReference? ociArtifactModuleReference = OciArtifactModuleReferenceHelper.GetModuleReferenceAndSaveManifestFile(
+            ArtifactReference? ociArtifactModuleReference = OciArtifactModuleReferenceHelper.GetModuleReferenceAndSaveManifestFile(
                 TestContext,
                 registry,
                 repository,

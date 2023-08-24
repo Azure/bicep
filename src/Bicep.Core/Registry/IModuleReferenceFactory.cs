@@ -14,7 +14,7 @@ public interface IModuleReferenceFactory
 {
     ImmutableArray<string> AvailableSchemes(Uri parentModuleUri);
 
-    bool TryGetModuleReference(string reference, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+    bool TryGetModuleReference(string reference, Uri parentModuleUri, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
-    bool TryGetModuleReference(IForeignArtifactReference module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+    bool TryGetModuleReference(IForeignArtifactReference module, Uri parentModuleUri, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 }

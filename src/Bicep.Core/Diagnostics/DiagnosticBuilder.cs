@@ -1370,12 +1370,12 @@ namespace Bicep.Core.Diagnostics
                 "BCP231",
                 $@"Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceTypedParamsAndOutputs)}"".");
 
-            public ErrorDiagnostic ModuleDeleteFailed(string moduleRef) => new(
+            public ErrorDiagnostic ArtifactDeleteFailed(string moduleRef) => new(
                 TextSpan,
                 "BCP232",
                 $"Unable to delete the module with reference \"{moduleRef}\" from cache.");
 
-            public ErrorDiagnostic ModuleDeleteFailedWithMessage(string moduleRef, string message) => new(
+            public ErrorDiagnostic ArtifactDeleteFailedWithMessage(string moduleRef, string message) => new(
                 TextSpan,
                 "BCP233",
                 $"Unable to delete the module with reference \"{moduleRef}\" from cache: {message}");

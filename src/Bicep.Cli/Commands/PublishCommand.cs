@@ -76,7 +76,7 @@ namespace Bicep.Cli.Commands
             return 0;
         }
 
-        private async Task PublishModuleAsync(ModuleReference target, Stream stream, string? documentationUri, bool overwriteIfExists)
+        private async Task PublishModuleAsync(ArtifactReference target, Stream stream, string? documentationUri, bool overwriteIfExists)
         {
             try
             {
@@ -87,13 +87,13 @@ namespace Bicep.Cli.Commands
                 }
                 await this.moduleDispatcher.PublishModule(target, stream, documentationUri);
             }
-            catch (ExternalModuleException exception)
+            catch (ExternalArtifactException exception)
             {
                 throw new BicepException($"Unable to publish module \"{target.FullyQualifiedReference}\": {exception.Message}");
             }
         }
 
-        private ModuleReference ValidateReference(string targetModuleReference, Uri targetModuleUri)
+        private ArtifactReference ValidateReference(string targetModuleReference, Uri targetModuleUri)
         {
             if (!this.moduleDispatcher.TryGetModuleReference(targetModuleReference, targetModuleUri, out var moduleReference, out var failureBuilder))
             {
