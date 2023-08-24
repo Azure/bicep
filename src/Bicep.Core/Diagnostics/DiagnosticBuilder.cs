@@ -2066,6 +2066,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP369",
                 $"The value of the \"{targetName}\" parameter cannot be known until the template deployment has started because it uses the default value defined in the template. Expressions that refer to the \"{targetName}\" parameter may be used in {LanguageConstants.LanguageFileExtension} files but not in {LanguageConstants.ParamsFileExtension} files.");
+            
+            public ErrorDiagnostic InvalidParameterValueAssignmentType(string parameterName, TypeSymbol declaredType) => new(
+                TextSpan, 
+                "BCP370", 
+                $"Assigned type of parameter \"{parameterName}\" does not match the declared type \"{declaredType}\" in the bicep template");
+        
+            public ErrorDiagnostic ParameterNotPresentInTemplate(string parameterName, string bicepFilePath) => new(
+                TextSpan, 
+                "BCP371", 
+                $"A value for parameter \"{parameterName}\" is provided but it is not declared in the bicep template \"{bicepFilePath}\"");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

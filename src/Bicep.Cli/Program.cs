@@ -80,6 +80,9 @@ namespace Bicep.Cli
                     case BuildParamsArguments buildParamsArguments when buildParamsArguments.CommandName == Constants.Command.BuildParams: // bicep build-params [options]
                         return await services.GetRequiredService<BuildParamsCommand>().RunAsync(buildParamsArguments);
 
+                    case ValidateParamsArguments validateParamsArguments when validateParamsArguments.CommandName == Constants.Command.ValidateParams: //bicep validate-params [options]
+                        return await services.GetRequiredService<ValidateParamsCommand>().RunAsync(validateParamsArguments);
+
                     case FormatArguments formatArguments when formatArguments.CommandName == Constants.Command.Format: // bicep format [options]
                         return services.GetRequiredService<FormatCommand>().Run(formatArguments);
 
