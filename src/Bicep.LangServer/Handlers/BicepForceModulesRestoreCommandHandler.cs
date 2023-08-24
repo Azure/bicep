@@ -85,7 +85,7 @@ namespace Bicep.LanguageServer.Handlers
             var sbRestoreSummary = new StringBuilder();
             foreach (var module in modulesToRestoreReferences)
             {
-                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(module, out _);
+                var restoreStatus = this.moduleDispatcher.GetArtifactRestoreStatus(module, out _);
                 sbRestoreSummary.Append($"{Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
 

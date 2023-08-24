@@ -142,14 +142,14 @@ namespace Bicep.Core.UnitTests.Registry
             badValidationBuilder!.Should().HaveCode("BCPMock");
             badValidationBuilder!.Should().HaveMessage("Bad ref error");
 
-            dispatcher.GetModuleRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ArtifactRestoreStatus.Unknown);
+            dispatcher.GetArtifactRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ArtifactRestoreStatus.Unknown);
             goodAvailabilityBuilder!.Should().HaveCode("BCP190");
             goodAvailabilityBuilder!.Should().HaveMessage("The module with reference \"mock:validRef\" has not been restored.");
 
-            dispatcher.GetModuleRestoreStatus(validRef2, out var goodAvailabilityBuilder2).Should().Be(ArtifactRestoreStatus.Succeeded);
+            dispatcher.GetArtifactRestoreStatus(validRef2, out var goodAvailabilityBuilder2).Should().Be(ArtifactRestoreStatus.Succeeded);
             goodAvailabilityBuilder2!.Should().BeNull();
 
-            dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3).Should().Be(ArtifactRestoreStatus.Unknown);
+            dispatcher.GetArtifactRestoreStatus(validRef3, out var goodAvailabilityBuilder3).Should().Be(ArtifactRestoreStatus.Unknown);
             goodAvailabilityBuilder3!.Should().HaveCode("BCP190");
             goodAvailabilityBuilder3!.Should().HaveMessage("The module with reference \"mock:validRef3\" has not been restored.");
 
@@ -163,7 +163,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             (await dispatcher.RestoreModules(new[] { validRef, validRef3 })).Should().BeTrue();
 
-            dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ArtifactRestoreStatus.Failed);
+            dispatcher.GetArtifactRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ArtifactRestoreStatus.Failed);
             goodAvailabilityBuilder3AfterRestore!.Should().HaveCode("RegFail");
             goodAvailabilityBuilder3AfterRestore!.Should().HaveMessage("Failed to restore module");
         }
@@ -198,7 +198,7 @@ namespace Bicep.Core.UnitTests.Registry
             await dispatcher.RestoreModules(new[] { badReference });
 
             // Act.
-            var status = dispatcher.GetModuleRestoreStatus(badReference, out _);
+            var status = dispatcher.GetArtifactRestoreStatus(badReference, out _);
 
             // Assert.
             status.Should().Be(expectedStatus);

@@ -231,7 +231,7 @@ namespace Bicep.Core.Workspaces
                 return (moduleReference, new(moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
             }
 
-            var restoreStatus = moduleDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
+            var restoreStatus = moduleDispatcher.GetArtifactRestoreStatus(moduleReference, out var restoreErrorBuilder);
             switch (restoreStatus)
             {
                 case ArtifactRestoreStatus.Unknown:

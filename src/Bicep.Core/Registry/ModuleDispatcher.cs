@@ -101,30 +101,30 @@ namespace Bicep.Core.Registry
             return this.TryGetModuleReference(moduleReferenceString, parentModuleUri, out moduleReference, out failureBuilder);
         }
 
-        public RegistryCapabilities GetRegistryCapabilities(ArtifactReference moduleReference)
+        public RegistryCapabilities GetRegistryCapabilities(ArtifactReference artifactReference)
         {
-            var registry = this.GetRegistry(moduleReference);
-            return registry.GetCapabilities(moduleReference);
+            var registry = this.GetRegistry(artifactReference);
+            return registry.GetCapabilities(artifactReference);
         }
 
-        public ArtifactRestoreStatus GetModuleRestoreStatus(
-            ArtifactReference moduleReference, 
+        public ArtifactRestoreStatus GetArtifactRestoreStatus(
+            ArtifactReference artifactReference, 
             out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var registry = this.GetRegistry(moduleReference);
-            var configuration = configurationManager.GetConfiguration(moduleReference.ParentModuleUri);
+            var registry = this.GetRegistry(artifactReference);
+            var configuration = configurationManager.GetConfiguration(artifactReference.ParentModuleUri);
 
             // have we already failed to restore this module?
-            if (this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
+            if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
             {
                 failureBuilder = restoreFailureBuilder;
                 return ArtifactRestoreStatus.Failed;
             }
 
-            if (registry.IsArtifactRestoreRequired(moduleReference))
+            if (registry.IsArtifactRestoreRequired(artifactReference))
             {
                 // module is not present on the local file system
-                failureBuilder = x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference);
+                failureBuilder = x => x.ModuleRequiresRestore(artifactReference.FullyQualifiedReference);
                 return ArtifactRestoreStatus.Unknown;
             }
 
@@ -152,7 +152,7 @@ namespace Bicep.Core.Registry
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
             if (!forceModulesRestore && 
-                moduleReferences.All(module => this.GetModuleRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
+                moduleReferences.All(module => this.GetArtifactRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything
                 return false;
