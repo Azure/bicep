@@ -43,8 +43,9 @@ namespace Bicep.Core.TypeSystem.Az
             var azProviderDir = Path.Combine(
                 features.CacheRootDirectory,
                 ModuleReferenceSchemes.Oci,
-                LanguageConstants.BicepPublicMcrRegistry,
-                $"bicep$providers$az{providerVersion}$");
+                FeatureProvider.ReadEnvVar("__EXPERIMENTAL_BICEP_REGISTRY_FQDN", LanguageConstants.BicepPublicMcrRegistry),
+                "bicep$providers$az",
+                $"{providerVersion}$");
             var ociManifestPath = Path.Combine(azProviderDir, "manifest");
             if (!File.Exists(ociManifestPath))
             {
