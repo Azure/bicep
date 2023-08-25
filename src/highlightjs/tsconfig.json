@@ -19,8 +19,8 @@
       "esModuleInterop": true,
       "lib": ["es2020"],
       "newLine": "LF",
-      "outDir": "dist",
+      "outDir": "out",
       "rootDir": "."
     },
-    "exclude": ["dist", "node_modules", "**/*.d.ts"]
+    "exclude": ["out", "node_modules", "**/*.d.ts"]
   }
