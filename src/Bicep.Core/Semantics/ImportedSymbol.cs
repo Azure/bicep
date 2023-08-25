@@ -57,6 +57,14 @@ public class ImportedSymbol : DeclaredSymbol
         visitor.VisitImportedSymbol(this);
     }
 
+    public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
+    {
+        if (TryGetExportMetadata() is DuplicatedExportMetadata duplicatedExportMetadata)
+        {
+            yield return DiagnosticBuilder.ForPosition(DeclaringImportedSymbolsListItem.OriginalSymbolName).AmbiguousExportFromArmTemplate(duplicatedExportMetadata.Name, duplicatedExportMetadata.ExportKindsWithSameName);
+        }
+    }
+
     private ExportMetadata? TryGetExportMetadata() => TryGetSemanticModel()?.Exports.TryGetValue(OriginalSymbolName, out var exportMetadata) is true
         ? exportMetadata
         : null;

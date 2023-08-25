@@ -717,4 +717,85 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
-}
+
+    [TestMethod]
+    public void Importing_a_name_that_refers_to_mulitple_exports_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {foo} from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "2.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "foo",
+                                "description": "A lengthy, florid description"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "foo": "foo"
+                    },
+                    "definitions": {
+                        "foo": {
+                            "type": "string",
+                            "metadata": {
+                                "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                            }
+                        }
+                    },
+                    "resources": {}
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP373", DiagnosticLevel.Error, "The name \"foo\" is ambiguous because it refers to exports of the following kinds: Type, Variable."),
+        });
+    }
+
+    [TestMethod]
+    public void Wildcard_importing_a_target_with_multiple_exports_using_the_same_name_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import * as everything from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "2.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "foo",
+                                "description": "A lengthy, florid description"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "foo": "foo"
+                    },
+                    "definitions": {
+                        "foo": {
+                            "type": "string",
+                            "metadata": {
+                                "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                            }
+                        }
+                    },
+                    "resources": {}
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP374", DiagnosticLevel.Error, "The imported model cannot be loaded with a wildcard because it contains the following duplicated exports: \"foo\"."),
+        });
+    }

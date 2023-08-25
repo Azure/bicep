@@ -142,6 +142,10 @@ namespace Bicep.Core.Semantics
                     {
                         exportsBuilder.Add(exportsByName.Key, exportsByName.Single());
                     }
+                    else
+                    {
+                        exportsBuilder.Add(exportsByName.Key, new DuplicatedExportMetadata(exportsByName.Key, exportsByName.Select(e => e.Kind.ToString()).ToImmutableArray()));
+                    }
                 }
 
                 return exportsBuilder.ToImmutable();
