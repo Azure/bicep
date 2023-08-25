@@ -20,7 +20,7 @@ namespace Bicep.Core.Registry
 {
     public readonly record struct TemplateSpecEntity(string Content);
 
-    public class TemplateSpecModuleRegistry : ExternalModuleRegistry<TemplateSpecModuleReference, TemplateSpecEntity>
+    public class TemplateSpecModuleRegistry : ExternalArtifactRegistry<TemplateSpecModuleReference, TemplateSpecEntity>
     {
         private readonly ITemplateSpecRepositoryFactory repositoryFactory;
 
@@ -43,7 +43,7 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities GetCapabilities(TemplateSpecModuleReference reference) => RegistryCapabilities.Default;
 
-        public override bool TryParseModuleReference(string? aliasName, string reference, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override bool TryParseArtifactReference(string? aliasName, string reference, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             if (TemplateSpecModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri, out var @ref, out failureBuilder))
             {
@@ -55,23 +55,23 @@ namespace Bicep.Core.Registry
             return false;
         }
 
-        public override bool IsModuleRestoreRequired(TemplateSpecModuleReference reference) =>
+        public override bool IsArtifactRestoreRequired(TemplateSpecModuleReference reference) =>
             !this.FileResolver.FileExists(this.GetModuleEntryPointUri(reference));
 
-        public override Task PublishModule(TemplateSpecModuleReference reference, Stream compiled, string? documentationUri, string? description) => throw new NotSupportedException("Template Spec modules cannot be published.");
+        public override Task PublishArtifact(TemplateSpecModuleReference reference, Stream compiled, string? documentationUri, string? description) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
-        public override Task<bool> CheckModuleExists(TemplateSpecModuleReference reference) => throw new NotSupportedException("Template Spec modules cannot be published.");
+        public override Task<bool> CheckArtifactExists(TemplateSpecModuleReference reference) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
-        public override bool TryGetLocalModuleEntryPointUri(TemplateSpecModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override bool TryGetLocalArtifactEntryPointUri(TemplateSpecModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             failureBuilder = null;
             localUri = this.GetModuleEntryPointUri(reference);
             return true;
         }
 
-        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<TemplateSpecModuleReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<TemplateSpecModuleReference> references)
         {
-            var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+            var statuses = new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 
             foreach (var reference in references)
             {
@@ -81,9 +81,9 @@ namespace Bicep.Core.Registry
                     var repository = this.repositoryFactory.CreateRepository(configuration, reference.SubscriptionId);
                     var templateSpecEntity = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
 
-                    await this.TryWriteModuleContentAsync(reference, templateSpecEntity);
+                    await this.TryWriteArtifactContentAsync(reference, templateSpecEntity);
                 }
-                catch (ExternalModuleException templateSpecException)
+                catch (ExternalArtifactException templateSpecException)
                 {
                     statuses.Add(reference, x => x.ModuleRestoreFailedWithMessage(reference.FullyQualifiedReference, templateSpecException.Message));
                     timer.OnFail(templateSpecException.Message);
@@ -106,10 +106,10 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        protected override void WriteModuleContent(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
+        protected override void WriteArtifactContent(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
             File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.Content);
 
-        protected override string GetModuleDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(
+        protected override string GetArtifactDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(
             this.featureProvider.CacheRootDirectory,
             this.Scheme,
             reference.SubscriptionId.ToLowerInvariant(),
@@ -117,15 +117,15 @@ namespace Bicep.Core.Registry
             reference.TemplateSpecName.ToLowerInvariant(),
             reference.Version.ToLowerInvariant());
 
-        protected override Uri GetModuleLockFileUri(TemplateSpecModuleReference reference) => new(Path.Combine(this.GetModuleDirectoryPath(reference), "lock"), UriKind.Absolute);
+        protected override Uri GetArtifactLockFileUri(TemplateSpecModuleReference reference) => new(Path.Combine(this.GetArtifactDirectoryPath(reference), "lock"), UriKind.Absolute);
 
-        private string GetModuleEntryPointPath(TemplateSpecModuleReference reference) => Path.Combine(this.GetModuleDirectoryPath(reference), "main.json");
+        private string GetModuleEntryPointPath(TemplateSpecModuleReference reference) => Path.Combine(this.GetArtifactDirectoryPath(reference), "main.json");
 
         private Uri GetModuleEntryPointUri(TemplateSpecModuleReference reference) => new(this.GetModuleEntryPointPath(reference), UriKind.Absolute);
 
-        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(IEnumerable<TemplateSpecModuleReference> references)
+        public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<TemplateSpecModuleReference> references)
         {
-            return await base.InvalidateModulesCacheInternal(references);
+            return await base.InvalidateArtifactsCacheInternal(references);
         }
 
         public override string? TryGetDocumentationUri(TemplateSpecModuleReference moduleReference) => null;

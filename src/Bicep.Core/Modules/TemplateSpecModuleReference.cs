@@ -12,7 +12,7 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Modules
 {
-    public class TemplateSpecModuleReference : ModuleReference
+    public class TemplateSpecModuleReference : ArtifactReference
     {
         private const int ResourceNameMaximumLength = 90;
 

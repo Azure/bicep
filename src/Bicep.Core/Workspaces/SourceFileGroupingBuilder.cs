@@ -114,7 +114,7 @@ namespace Bicep.Core.Workspaces
                 sourceFileDependencies.InvertLookup().ToImmutableDictionary());
         }
 
-        private FileResolutionResult GetFileResolutionResult(Uri fileUri, ModuleReference? moduleReference)
+        private FileResolutionResult GetFileResolutionResult(Uri fileUri, ArtifactReference? moduleReference)
         {
             if (workspace.TryGetSourceFile(fileUri, out var sourceFile))
             {
@@ -131,7 +131,7 @@ namespace Bicep.Core.Workspaces
             return new(fileUri, null, sourceFile);
         }
 
-        private FileResolutionResult GetFileResolutionResultWithCaching(Uri fileUri, ModuleReference? moduleReference)
+        private FileResolutionResult GetFileResolutionResultWithCaching(Uri fileUri, ArtifactReference? moduleReference)
         {
             if (!fileResultByUri.TryGetValue(fileUri, out var resolutionResult))
             {
@@ -142,7 +142,7 @@ namespace Bicep.Core.Workspaces
             return resolutionResult;
         }
 
-        private FileResolutionResult PopulateRecursive(Uri fileUri, ModuleReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild, IFeatureProviderFactory featuresFactory)
+        private FileResolutionResult PopulateRecursive(Uri fileUri, ArtifactReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild, IFeatureProviderFactory featuresFactory)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, moduleReference);
             var features = featuresFactory.GetFeatureProvider(fileUri);
@@ -212,7 +212,7 @@ namespace Bicep.Core.Workspaces
             return fileResult;
         }
 
-        private (ModuleReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, IForeignArtifactReference foreignTemplateReference)
+        private (ArtifactReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, IForeignArtifactReference foreignTemplateReference)
         {
             if (!moduleDispatcher.TryGetModuleReference(foreignTemplateReference, parentFileUri, out var moduleReference, out var referenceResolutionError))
             {
@@ -231,7 +231,7 @@ namespace Bicep.Core.Workspaces
                 return (moduleReference, new(moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
             }
 
-            var restoreStatus = moduleDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
+            var restoreStatus = moduleDispatcher.GetArtifactRestoreStatus(moduleReference, out var restoreErrorBuilder);
             switch (restoreStatus)
             {
                 case ArtifactRestoreStatus.Unknown:

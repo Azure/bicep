@@ -73,7 +73,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
     private static ImportClosure CalculateImportClosure(SemanticModel model)
     {
-        Dictionary<ISemanticModel, ModuleReference> importedModuleReferences = new();
+        Dictionary<ISemanticModel, ArtifactReference> importedModuleReferences = new();
         Dictionary<IntraTemplateSymbolicTypeReference, SyntaxBase> typeSymbolsInImportClosure = new();
         Dictionary<ImportedTypeSymbol, IntraTemplateSymbolicTypeReference> importedTypeSymbolsToIntraTemplateSymbols = new();
         Dictionary<WildcardImportPropertyReference, IntraTemplateSymbolicTypeReference> wildcardImportPropertiesToIntraTemplateSymbols = new();
@@ -156,7 +156,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         return new(importedModuleReferences, typeSymbolsInImportClosure, importedTypeSymbolsToIntraTemplateSymbols, wildcardImportPropertiesToIntraTemplateSymbols, armSchemaContextsByFile);
     }
 
-    private static ModuleReference GetImportReference(ImportedTypeSymbol symbol)
+    private static ArtifactReference GetImportReference(ImportedTypeSymbol symbol)
     {
         if (symbol.TryGetModuleReference(out var moduleReference, out _))
         {
@@ -166,7 +166,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         throw new InvalidOperationException("Unable to load module reference for import statement");
     }
 
-    private static ModuleReference GetImportReference(WildcardImportSymbol symbol)
+    private static ArtifactReference GetImportReference(WildcardImportSymbol symbol)
     {
         if (symbol.TryGetModuleReference(out var moduleReference, out _))
         {
@@ -267,12 +267,12 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         return importedTypeSymbolMetadata;
     }
 
-    private static string TemplateIdentifier(SemanticModel entryPointModel, ISemanticModel modelToIdentify, ModuleReference reference)
+    private static string TemplateIdentifier(SemanticModel entryPointModel, ISemanticModel modelToIdentify, ArtifactReference reference)
         => reference switch
         {
             // for local modules, use the path on disk relative to the entry point template
             LocalModuleReference localModule => entryPointModel.SourceFile.FileUri.MakeRelativeUri(GetSourceFileUri(modelToIdentify)).ToString(),
-            ModuleReference otherwise => otherwise.FullyQualifiedReference,
+            ArtifactReference otherwise => otherwise.FullyQualifiedReference,
         };
 
     private static Uri GetSourceFileUri(ISemanticModel model) => model switch
@@ -297,9 +297,9 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
     private record SymbolicReference(ISemanticModel SourceModel) {}
     private record InterTemplateSymbolicReference(SemanticModel SourceBicepModule) : SymbolicReference(SourceBicepModule) {}
-    private record BicepWildcardImportSymbolicReference(WildcardImportSymbol Symbol, SemanticModel SourceBicepModel, ModuleReference ImportTarget)
+    private record BicepWildcardImportSymbolicReference(WildcardImportSymbol Symbol, SemanticModel SourceBicepModel, ArtifactReference ImportTarget)
         : InterTemplateSymbolicReference(SourceBicepModel) {}
-    private record BicepImportedTypeSymbolicReference(ImportedTypeSymbol Symbol, SemanticModel SourceBicepModel, ModuleReference ImportTarget)
+    private record BicepImportedTypeSymbolicReference(ImportedTypeSymbol Symbol, SemanticModel SourceBicepModel, ArtifactReference ImportTarget)
         : InterTemplateSymbolicReference(SourceBicepModel) {}
 
     private record IntraTemplateSymbolicTypeReference(ISemanticModel SourceModel) : SymbolicReference(SourceModel) {}
@@ -308,7 +308,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         : IntraTemplateSymbolicTypeReference(SourceModel) {}
 
     private record ImportClosure(
-        IReadOnlyDictionary<ISemanticModel, ModuleReference> ImportedModuleReferences,
+        IReadOnlyDictionary<ISemanticModel, ArtifactReference> ImportedModuleReferences,
         IReadOnlyDictionary<IntraTemplateSymbolicTypeReference, SyntaxBase> TypeSymbolsInImportClosure,
         IReadOnlyDictionary<ImportedTypeSymbol, IntraTemplateSymbolicTypeReference> ImportedTypeSymbolsToIntraTemplateSymbols,
         IReadOnlyDictionary<WildcardImportPropertyReference, IntraTemplateSymbolicTypeReference> WildcardImportPropertiesToIntraTemplateSymbols,

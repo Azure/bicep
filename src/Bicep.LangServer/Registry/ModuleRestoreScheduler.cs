@@ -17,7 +17,7 @@ namespace Bicep.LanguageServer.Registry
 {
     public sealed class ModuleRestoreScheduler : IModuleRestoreScheduler, IAsyncDisposable
     {
-        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ModuleReference> ModuleReferences);
+        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ArtifactReference> ModuleReferences);
 
         private record CompletionNotification(ICompilationManager CompilationManager, DocumentUri Uri);
 

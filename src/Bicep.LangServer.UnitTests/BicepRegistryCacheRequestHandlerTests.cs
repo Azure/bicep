@@ -37,7 +37,7 @@ namespace Bicep.LangServer.UnitTests
 
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
             DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
-            ModuleReference? @ref = null;
+            ArtifactReference? @ref = null;
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<Uri>(), out @ref, out failureBuilder)).Returns(false);
 
             var resolver = StrictMock.Of<IFileResolver>();
@@ -62,7 +62,7 @@ namespace Bicep.LangServer.UnitTests
             LocalModuleReference.TryParse(ModuleRefStr, new Uri("fake:///not/real.bicep"), out var localRef, out _).Should().BeTrue();
             localRef.Should().NotBeNull();
 
-            ModuleReference? outRef = localRef;
+            ArtifactReference? outRef = localRef;
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<Uri>(), out outRef, out failureBuilder)).Returns(true);
 
             var resolver = StrictMock.Of<IFileResolver>();
@@ -92,9 +92,9 @@ namespace Bicep.LangServer.UnitTests
             OciModuleReference.TryParse(null, UnqualifiedModuleRefStr, configuration, parentModuleUri, out var moduleReference, out _).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
-            ModuleReference? outRef = moduleReference;
+            ArtifactReference? outRef = moduleReference;
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, parentModuleUri, out outRef, out failureBuilder)).Returns(true);
-            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference!, out failureBuilder)).Returns(ArtifactRestoreStatus.Unknown);
+            dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out failureBuilder)).Returns(ArtifactRestoreStatus.Unknown);
 
             var resolver = StrictMock.Of<IFileResolver>();
 
@@ -122,9 +122,9 @@ namespace Bicep.LangServer.UnitTests
             OciModuleReference.TryParse(null, UnqualifiedModuleRefStr, configuration, parentModuleUri, out var moduleReference, out _).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
-            ModuleReference? outRef = moduleReference;
+            ArtifactReference? outRef = moduleReference;
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, parentModuleUri, out outRef, out failureBuilder)).Returns(true);
-            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference!, out failureBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
+            dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out failureBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             Uri? @null = null;
             dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(moduleReference!, out @null, out failureBuilder)).Returns(false);
 
@@ -158,9 +158,9 @@ namespace Bicep.LangServer.UnitTests
             OciModuleReference.TryParse(null, UnqualifiedModuleRefStr, configuration, fileUri, out var moduleReference, out _).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
-            ModuleReference? outRef = moduleReference;
+            ArtifactReference? outRef = moduleReference;
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<Uri>(), out outRef, out nullBuilder)).Returns(true);
-            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
+            dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(moduleReference!, out fileUri, out nullBuilder)).Returns(true);
 
             var resolver = StrictMock.Of<IFileResolver>();
@@ -195,9 +195,9 @@ namespace Bicep.LangServer.UnitTests
             OciModuleReference.TryParse(null, UnqualifiedModuleRefStr, configuration, fileUri, out var moduleReference, out _).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
-            ModuleReference? outRef = moduleReference;
+            ArtifactReference? outRef = moduleReference;
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<Uri>(), out outRef, out nullBuilder)).Returns(true);
-            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
+            dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(moduleReference!, out fileUri, out nullBuilder)).Returns(true);
 
             var resolver = StrictMock.Of<IFileResolver>();

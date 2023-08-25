@@ -80,43 +80,43 @@ namespace Bicep.Core.IntegrationTests
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:mock-registry-one.invalid/demo/plan:v2\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:mock-registry-one.invalid/demo/plan:v2\": Unable to create the local artifact directory \"");
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:mock-registry-one.invalid/demo/plan:v2\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:mock-registry-one.invalid/demo/plan:v2\": Unable to create the local artifact directory \"");
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:mock-registry-two.invalid/demo/site:v3\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:mock-registry-two.invalid/demo/site:v3\": Unable to create the local artifact directory \"");
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:mock-registry-two.invalid/demo/site:v3\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:mock-registry-two.invalid/demo/site:v3\": Unable to create the local artifact directory \"");
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0\": Unable to create the local artifact directory \"");
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0\": Unable to create the local artifact directory \"");
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2\": Unable to create the local artifact directory \"");
                 },
                 x =>
                 {
@@ -128,31 +128,31 @@ namespace Bicep.Core.IntegrationTests
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:localhost:5000/passthrough/port:v1\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:localhost:5000/passthrough/port:v1\": Unable to create the local artifact directory \"");
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:127.0.0.1/passthrough/ipv4:v1\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:127.0.0.1/passthrough/ipv4:v1\": Unable to create the local artifact directory \"");
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:127.0.0.1:5000/passthrough/ipv4port:v1\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:127.0.0.1:5000/passthrough/ipv4port:v1\": Unable to create the local artifact directory \"");
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:[::1]/passthrough/ipv6:v1\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:[::1]/passthrough/ipv6:v1\": Unable to create the local artifact directory \"");
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:[::1]:5000/passthrough/ipv6port:v1\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"br:[::1]:5000/passthrough/ipv6port:v1\": Unable to create the local artifact directory \"");
                 });
         }
 
@@ -186,7 +186,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
+                dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
             const int ConcurrentTasks = 50;
@@ -202,7 +202,7 @@ namespace Bicep.Core.IntegrationTests
             // modules should now be in the cache
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+                dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
             }
         }
 
@@ -238,7 +238,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
+                dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
             dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0], out var moduleFileUri, out _).Should().BeTrue();
@@ -261,7 +261,7 @@ namespace Bicep.Core.IntegrationTests
             }
 
             // the first module should have failed due to a timeout
-            dispatcher.GetModuleRestoreStatus(moduleReferences[0], out var failureBuilder).Should().Be(ArtifactRestoreStatus.Failed);
+            dispatcher.GetArtifactRestoreStatus(moduleReferences[0], out var failureBuilder).Should().Be(ArtifactRestoreStatus.Failed);
             using (new AssertionScope())
             {
                 failureBuilder!.Should().HaveCode("BCP192");
@@ -271,7 +271,7 @@ namespace Bicep.Core.IntegrationTests
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences.Skip(1))
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+                dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
             }
         }
 
@@ -306,7 +306,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
+                dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
             dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0], out var moduleFileUri, out _).Should().BeTrue();
@@ -333,18 +333,18 @@ namespace Bicep.Core.IntegrationTests
             using (new AssertionScope())
             {
 #if WINDOWS_BUILD
-                dispatcher.GetModuleRestoreStatus(moduleReferences[0], out var failureBuilder).Should().Be(ArtifactRestoreStatus.Failed);
+                dispatcher.GetArtifactRestoreStatus(moduleReferences[0], out var failureBuilder).Should().Be(ArtifactRestoreStatus.Failed);
 
                 failureBuilder!.Should().HaveCode("BCP233");
                 failureBuilder!.Should().HaveMessageStartWith($"Unable to delete the module with reference \"{moduleReferences[0].FullyQualifiedReference}\" from cache: Exceeded the timeout of \"00:00:05\" for the lock on file \"{lockFileUri}\" to be released.");
 #else
-                dispatcher.GetModuleRestoreStatus(moduleReferences[0], out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+                dispatcher.GetArtifactRestoreStatus(moduleReferences[0], out _).Should().Be(ArtifactRestoreStatus.Succeeded);
 #endif
 
                 // all other modules should have succeeded
                 foreach (var moduleReference in moduleReferences.Skip(1))
                 {
-                    dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+                    dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
                 }
             }
 
@@ -382,7 +382,7 @@ namespace Bicep.Core.IntegrationTests
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
+                dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
             dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0], out var moduleFileUri, out _).Should().BeTrue();
@@ -397,7 +397,7 @@ namespace Bicep.Core.IntegrationTests
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetModuleRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+                dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
             }
         }
 

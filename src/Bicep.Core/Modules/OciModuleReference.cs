@@ -13,7 +13,7 @@ namespace Bicep.Core.Modules
     /// <summary>
     /// Represents a reference to an artifact in an OCI registry.
     /// </summary>
-    public class OciModuleReference : ModuleReference, IOciArtifactReference
+    public class OciModuleReference : ArtifactReference, IOciArtifactReference
     {
         private readonly IOciArtifactReference ociArtifactRef;
         public OciModuleReference(IOciArtifactReference ociArtifactReference, Uri parentModuleUri)

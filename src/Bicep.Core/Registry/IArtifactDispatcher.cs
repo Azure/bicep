@@ -13,17 +13,17 @@ namespace Bicep.Core.Registry
 {
     public interface IModuleDispatcher : IModuleReferenceFactory
     {
-        RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference);
+        RegistryCapabilities GetRegistryCapabilities(ArtifactReference moduleReference);
 
-        ArtifactRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
+        ArtifactRestoreStatus GetArtifactRestoreStatus(ArtifactReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
 
-        bool TryGetLocalModuleEntryPointUri(ModuleReference moduleReference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        bool TryGetLocalModuleEntryPointUri(ArtifactReference moduleReference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
-        Task<bool> RestoreModules(IEnumerable<ModuleReference> moduleReferences, bool forceModulesRestore = false);
+        Task<bool> RestoreModules(IEnumerable<ArtifactReference> moduleReferences, bool forceModulesRestore = false);
 
-        Task<bool> CheckModuleExists(ModuleReference moduleReference);
+        Task<bool> CheckModuleExists(ArtifactReference moduleReference);
 
-        Task PublishModule(ModuleReference moduleReference, Stream compiled, string? documentationUri);
+        Task PublishModule(ArtifactReference moduleReference, Stream compiled, string? documentationUri);
 
         void PruneRestoreStatuses();
     }

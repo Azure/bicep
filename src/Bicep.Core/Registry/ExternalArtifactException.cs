@@ -5,14 +5,14 @@ using System;
 
 namespace Bicep.Core.Registry
 {
-    public class ExternalModuleException : Exception
+    public class ExternalArtifactException : Exception
     {
-        public ExternalModuleException(string message)
+        public ExternalArtifactException(string message)
             : base(message)
         {
         }
 
-        public ExternalModuleException(string message, Exception innerException)
+        public ExternalArtifactException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
