@@ -31,7 +31,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
         private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
-        private readonly Lazy<ImmutableDictionary<string, ExportedTypeMetadata>> exportedTypesLazy;
+        private readonly Lazy<ImmutableDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
         private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
 
@@ -112,14 +112,9 @@ namespace Bicep.Core.Semantics
                 return parameters.ToImmutable();
             });
 
-            this.exportedTypesLazy = new(() => Root.TypeDeclarations.DistinctBy(t => t.Name)
-                // skip over any type without an `@export()` decorator
-                .Where(t => SemanticModelHelper.TryGetDecoratorInNamespace(this,
-                    t.DeclaringType,
-                    SystemNamespaceType.BuiltInName,
-                    LanguageConstants.ExportPropertyName) is not null)
-                .ToImmutableDictionary(t => t.Name,
-                    t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType))));
+            this.exportsLazy = new(() => ExportedTypes.Concat(ExportedVariables)
+                .DistinctBy(export => export.Name)
+                .ToImmutableDictionary(export => export.Name));
 
             this.outputsLazy = new(() =>
             {
@@ -144,6 +139,17 @@ namespace Bicep.Core.Semantics
                 return outputs.ToImmutableArray();
             });
         }
+
+        private IEnumerable<ExportMetadata> ExportedTypes => Root.TypeDeclarations
+            .Where(t => IsExported(t.DeclaringType))
+            .Select(t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType)));
+
+        private IEnumerable<ExportMetadata> ExportedVariables => Root.VariableDeclarations
+            .Where(v => IsExported(v.DeclaringVariable))
+            .Select(v => new ExportedVariableMetadata(v.Name, v.Type, DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable)));
+
+        private bool IsExported(DecorableSyntax syntax)
+            => SemanticModelHelper.TryGetDecoratorInNamespace(this, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is not null;
 
         private static void TraceBuildOperation(BicepSourceFile sourceFile, RootConfiguration configuration)
         {
@@ -237,7 +243,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
 
-        public ImmutableDictionary<string, ExportedTypeMetadata> ExportedTypes => exportedTypesLazy.Value;
+        public ImmutableDictionary<string, ExportMetadata> Exports => exportsLazy.Value;
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 

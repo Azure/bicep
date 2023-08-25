@@ -13,7 +13,7 @@ namespace Bicep.Core.Semantics
 
         ImmutableDictionary<string, ParameterMetadata> Parameters { get; }
 
-        ImmutableDictionary<string, ExportedTypeMetadata> ExportedTypes { get; }
+        ImmutableDictionary<string, ExportMetadata> Exports { get; }
 
         ImmutableArray<OutputMetadata> Outputs { get; }
 

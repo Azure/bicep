@@ -76,7 +76,7 @@ namespace Bicep.LanguageServer.Handlers
                 { Origin: WildcardImportSyntax, Symbol: WildcardImportSymbol wildcardImport }
                     => HandleWildcardImportDeclaration(context, request, result, wildcardImport),
 
-                { Symbol: ImportedTypeSymbol importedType } => HandleImportedTypeSymbolLocation(request, result, context, importedType),
+                { Symbol: ImportedSymbol imported } => HandleImportedSymbolLocation(request, result, context, imported),
 
                 { Symbol: DeclaredSymbol declaration } => HandleDeclaredDefinitionLocation(request, result, declaration),
 
@@ -277,8 +277,7 @@ namespace Bicep.LanguageServer.Handlers
                 // The user should be redirected to the import target file if the symbol is a wildcard import
                 if (propertyAccesses.Count == 1 && ancestorSymbol is WildcardImportSymbol wildcardImport)
                 {
-                    if (wildcardImport.TryGetSemanticModel(out var importedTargetModel, out _) &&
-                        importedTargetModel is SemanticModel importedTargetBicepModel &&
+                    if (wildcardImport.TryGetSemanticModel() is SemanticModel importedTargetBicepModel &&
                         importedTargetBicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, propertyAccesses.Single().IdentifierName)).FirstOrDefault() is {} originalDeclaration)
                     {
                         var range = PositionHelper.GetNameRange(importedTargetBicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);
@@ -363,13 +362,12 @@ namespace Bicep.LanguageServer.Handlers
             }));
         }
 
-        private LocationOrLocationLinks HandleImportedTypeSymbolLocation(DefinitionParams request, SymbolResolutionResult result, CompilationContext context, ImportedTypeSymbol imported)
+        private LocationOrLocationLinks HandleImportedSymbolLocation(DefinitionParams request, SymbolResolutionResult result, CompilationContext context, ImportedSymbol imported)
         {
             // source of the link. Underline only the symbolic name
             var originSelectionRange = result.Origin.ToRange(context.LineStarts);
 
-            if (imported.TryGetSemanticModel(out var semanticModel, out _) &&
-                semanticModel is SemanticModel bicepModel &&
+            if (imported.TryGetSemanticModel() is SemanticModel bicepModel &&
                 bicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is {} originalDeclaration)
             {
                 // entire span of the declaredSymbol

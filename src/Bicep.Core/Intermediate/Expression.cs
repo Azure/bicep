@@ -252,10 +252,10 @@ public record VariableReferenceExpression(
     protected override object? GetDebugAttributes() => new { Variable = Variable.Name };
 }
 
-    /// <summary>
-    ///   Represents a variable which has been synthesized rather than explicitly declared by the user.
-    ///   This is used for example when in-lining JSON blocks for the loadJsonContent() function.
-    /// </summary>
+/// <summary>
+///   Represents a variable which has been synthesized rather than explicitly declared by the user.
+///   This is used for example when in-lining JSON blocks for the loadJsonContent() function.
+/// </summary>
 public record SynthesizedVariableReferenceExpression(
     SyntaxBase? SourceSyntax,
     string Name
@@ -265,6 +265,29 @@ public record SynthesizedVariableReferenceExpression(
         => visitor.VisitSynthesizedVariableReferenceExpression(this);
 
     protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record ImportedVariableReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    ImportedSymbol Variable
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitImportedVariableReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Variable = Variable.Name };
+}
+
+public record WildcardImportVariablePropertyReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    WildcardImportSymbol ImportSymbol,
+    string PropertyName
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitWildcardImportVariablePropertyReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Variable = $"{ImportSymbol.Name}.{PropertyName}" };
 }
 
 public record ParametersReferenceExpression(
@@ -617,17 +640,17 @@ public record TypeAliasReferenceExpression(
 
 public record ImportedTypeReferenceExpression(
     SyntaxBase? SourceSyntax,
-    ImportedTypeSymbol Symbol,
+    ImportedSymbol Symbol,
     TypeSymbol ExpressedType
 ) : TypeExpression(SourceSyntax, ExpressedType)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitImportedTypeReferenceExpression(this);
 
-    protected override object? GetDebugAttributes() => new { Name = Symbol.Name };
+    protected override object? GetDebugAttributes() => new { Symbol.Name };
 }
 
-public record WildcardImportPropertyReferenceExpression(
+public record WildcardImportTypePropertyReferenceExpression(
     SyntaxBase? SourceSyntax,
     WildcardImportSymbol ImportSymbol,
     string PropertyName,
@@ -635,7 +658,7 @@ public record WildcardImportPropertyReferenceExpression(
 ) : TypeExpression(SourceSyntax, ExpressedType)
 {
     public override void Accept(IExpressionVisitor visitor)
-        => visitor.VisitWildcardImportPropertyReferenceExpression(this);
+        => visitor.VisitWildcardImportTypePropertyReferenceExpression(this);
 
     protected override object? GetDebugAttributes() => new { Name = $"{ImportSymbol.Name}.{PropertyName}" };
 }

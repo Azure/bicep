@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -10,7 +11,10 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
+using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.TypeSystem;
@@ -23,7 +27,7 @@ namespace Bicep.Core.Semantics
     {
         private readonly Lazy<ResourceScope> targetScopeLazy;
         private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
-        private readonly Lazy<ImmutableDictionary<string, ExportedTypeMetadata>> exportedTypesLazy;
+        private readonly Lazy<ImmutableDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
 
         public ArmTemplateSemanticModel(ArmTemplateFile sourceFile)
@@ -85,21 +89,62 @@ namespace Bicep.Core.Semantics
                         LanguageConstants.IdentifierComparer);
             });
 
-            // TODO: we have discussed exporting variables and functions in addition to types, but ARM template semantics allow a variable and a type to use the
-            // same name, whereas Bicep requires symbols to be unique within a template. How should we handle naming conflicts on exported members?
-            this.exportedTypesLazy = new(() =>
+            this.exportsLazy = new(() =>
             {
-                if (SourceFile.Template?.Definitions is not {} typeDefinitions)
+                if (SourceFile.Template is not {} template || SourceFile.TemplateObject is not {} templateObject)
                 {
-                    return ImmutableDictionary<string, ExportedTypeMetadata>.Empty;
+                    return ImmutableDictionary<string, ExportMetadata>.Empty;
                 }
 
-                return typeDefinitions.Where(typeDefinition => IsExported(typeDefinition.Value))
-                    .ToImmutableDictionary(typeDefinition => typeDefinition.Key,
-                        typeDefinition => new ExportedTypeMetadata(typeDefinition.Key,
-                            GetType(typeDefinition.Value),
-                            GetMostSpecificDescription(typeDefinition.Value)),
-                        LanguageConstants.IdentifierComparer);
+                List<ExportMetadata> exports = new();
+
+                if (template.Definitions is {} typeDefinitions)
+                {
+                    exports.AddRange(typeDefinitions.Where(kvp => Lexer.IsValidIdentifier(kvp.Key) && IsExported(kvp.Value))
+                        .Select(kvp => new ExportedTypeMetadata(kvp.Key, GetType(kvp.Value), GetMostSpecificDescription(kvp.Value))));
+                }
+
+                if (template.Metadata?.TryGetValue(LanguageConstants.TemplateMetadataExportedVariablesName, out var exportedVariables) is true
+                    && exportedVariables.Value is JArray exportedVariablesList)
+                {
+                    TemplateVariablesEvaluator evaluator = new(template);
+
+                    foreach (var exportedVariable in exportedVariablesList)
+                    {
+                        if (exportedVariable is not JObject exportedVariableObject ||
+                            !exportedVariableObject.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out var nameToken) ||
+                            nameToken is not JValue { Value: string name } ||
+                            !Lexer.IsValidIdentifier(name) ||
+                            template.Variables?.TryGetValue(name, out var variableAssignment) is not true)
+                        {
+                            // the variable export is malformed, missing a name, has a name that is not a valid Bicep identifier, or refers to a non-existent variable
+                            continue;
+                        }
+
+                        if (evaluator[name] is TemplateVariablesEvaluator.EvaluatedValue evaluatedValue)
+                        {
+                            exports.Add(new ExportedVariableMetadata(name,
+                                TypeHelper.TryCreateTypeLiteral(evaluatedValue.Value) ?? LanguageConstants.Any,
+                                GetDescription(exportedVariableObject)));
+                        }
+                    }
+                }
+
+                var exportsBuilder = ImmutableDictionary.CreateBuilder<string, ExportMetadata>();
+
+                foreach (var exportsByName in exports.ToLookup(e => e.Name))
+                {
+                    // Each export needs a unique name, so if two or more exports of different types share a name, they are no longer uniquely identifiable by name
+                    // This will never come up for templates authored in Bicep, but it may for templates authored directly in ARM JSON.
+                    // A necessary consequence of skipping exports that share a name is that adding a second export of a given name (e.g., if there is already a
+                    // type export named 'foo' and the template author exports a variable named 'foo') is a **backwards incompatible change**.
+                    if (exportsByName.Count() == 1)
+                    {
+                        exportsBuilder.Add(exportsByName.Key, exportsByName.Single());
+                    }
+                }
+
+                return exportsBuilder.ToImmutable();
             });
 
             this.outputsLazy = new(() =>
@@ -126,7 +171,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
 
-        public ImmutableDictionary<string, ExportedTypeMetadata> ExportedTypes => exportedTypesLazy.Value;
+        public ImmutableDictionary<string, ExportMetadata> Exports => exportsLazy.Value;
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
@@ -262,7 +307,13 @@ namespace Bicep.Core.Semantics
         ///   type private = public
         /// </code>
         /// </remarks>
-        private static bool IsExported(TemplateTypeDefinition typeDefinition)
-            => typeDefinition.Metadata?.Value is JObject metadataDict && metadataDict[LanguageConstants.MetadataExportedPropertyName] is JValue { Value: true };
+        private static bool IsExported(TemplateTypeDefinition typeDefinition) => typeDefinition.Metadata?.Value is JObject metadataDict &&
+            metadataDict.TryGetValue(LanguageConstants.MetadataExportedPropertyName, out var exportMarkerToken) &&
+            exportMarkerToken is JValue { Value: true };
+
+        private static string? GetDescription(JObject jObject)
+            => jObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) && descriptionToken is JValue { Value: string description }
+                ? description
+                : null;
     }
 }

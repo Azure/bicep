@@ -66,7 +66,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             if (symbol.DeclaringSyntax is DecorableSyntax decorableSyntax &&
                 DescriptionHelper.TryGetFromDecorator(
-                    result.Context.Compilation.GetEntrypointSemanticModel(), 
+                    result.Context.Compilation.GetEntrypointSemanticModel(),
                     decorableSyntax) is { } description)
             {
                 return description;
@@ -104,12 +104,13 @@ namespace Bicep.LanguageServer.Handlers
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"type {declaredType.Name}: {declaredType.Type}", declaredType.Type), TryGetDescriptionMarkdown(result, declaredType)));
 
-                case ImportedTypeSymbol importedType:
+                case ImportedSymbol imported when imported.Kind == Bicep.Core.Semantics.SymbolKind.TypeAlias:
                     return AsMarkdown(CodeBlockWithDescription(
-                        WithTypeModifiers($"type {importedType.Name}: {importedType.Type}", importedType.Type),
-                        importedType.TryGetSemanticModel(out var model, out _) && model.ExportedTypes.TryGetValue(importedType.OriginalSymbolName, out var exportedTypeMetadata)
-                            ? exportedTypeMetadata.Description
-                            : null));
+                        WithTypeModifiers($"type {imported.Name}: {imported.Type}", imported.Type),
+                        imported.TryGetDescription()));
+
+                case ImportedSymbol imported:
+                    return AsMarkdown(CodeBlockWithDescription($"var {imported.Name}: {imported.Type}", imported.TryGetDescription()));
 
                 case AmbientTypeSymbol ambientType:
                     return AsMarkdown(CodeBlock(WithTypeModifiers($"type {ambientType.Name}: {ambientType.Type}", ambientType.Type)));
@@ -127,7 +128,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 case ModuleSymbol module:
                     return await GetModuleMarkdown(request, result, moduleDispatcher, moduleRegistryProvider, module);
-                
+
                 case TestSymbol test:
                     return AsMarkdown(CodeBlockWithDescription($"test {test.Name}", TryGetDescriptionMarkdown(result, test)));
                 case OutputSymbol output:
@@ -173,10 +174,10 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(
-            HoverParams request, 
-            SymbolResolutionResult result, 
-            IModuleDispatcher moduleDispatcher, 
-            IModuleRegistryProvider moduleRegistryProvider, 
+            HoverParams request,
+            SymbolResolutionResult result,
+            IModuleDispatcher moduleDispatcher,
+            IModuleRegistryProvider moduleRegistryProvider,
             ModuleSymbol module)
         {
             if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule, out var filePath, out _))

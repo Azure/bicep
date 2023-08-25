@@ -24,7 +24,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableDictionary<string, ParameterMetadata> Parameters => this.mainTemplateSemanticModel.Parameters;
 
-        public ImmutableDictionary<string, ExportedTypeMetadata> ExportedTypes => this.mainTemplateSemanticModel.ExportedTypes;
+        public ImmutableDictionary<string, ExportMetadata> Exports => this.mainTemplateSemanticModel.Exports;
 
         public ImmutableArray<OutputMetadata> Outputs => this.mainTemplateSemanticModel.Outputs;
 

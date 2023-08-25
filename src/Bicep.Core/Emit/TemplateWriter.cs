@@ -70,10 +70,12 @@ namespace Bicep.Core.Emit
         private EmitterContext Context => ExpressionBuilder.Context;
         private ExpressionBuilder ExpressionBuilder { get; }
         private ImportClosureInfo ImportClosureInfo { get; }
+        private SemanticModel Model { get; }
         private ImmutableDictionary<string, DeclaredTypeExpression> declaredTypesByName;
 
         public TemplateWriter(SemanticModel semanticModel)
         {
+            Model = semanticModel;
             ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
             ImportClosureInfo = ImportClosureInfo.Calculate(semanticModel);
             declaredTypesByName = ImmutableDictionary<string, DeclaredTypeExpression>.Empty;
@@ -130,7 +132,7 @@ namespace Bicep.Core.Emit
 
             this.EmitParametersIfPresent(emitter, program.Parameters);
 
-            this.EmitVariablesIfPresent(emitter, program.Variables);
+            this.EmitVariablesIfPresent(emitter, program.Variables.Concat(ImportClosureInfo.ImportedVariablesInClosure));
 
             this.EmitProviders(emitter, program.Providers);
 
@@ -342,8 +344,8 @@ namespace Bicep.Core.Emit
                 => TypePropertiesForQualifiedReference(fullyQualifiedAmbientTypeReference),
             TypeAliasReferenceExpression typeAliasReference => CreateRefSchemaNode(typeAliasReference.Name, typeAliasReference.SourceSyntax),
             ImportedTypeReferenceExpression importedTypeReference => CreateRefSchemaNode(importedTypeReference.Symbol.Name, importedTypeReference.SourceSyntax),
-            WildcardImportPropertyReferenceExpression wildcardProperty => CreateRefSchemaNode(
-                ImportClosureInfo.WildcardPropertyReferenceToImportedTypeName[new(wildcardProperty.ImportSymbol, wildcardProperty.PropertyName)],
+            WildcardImportTypePropertyReferenceExpression wildcardProperty => CreateRefSchemaNode(
+                ImportClosureInfo.WildcardPropertyReferenceToImportedSymbolName[new(wildcardProperty.ImportSymbol, wildcardProperty.PropertyName)],
                 wildcardProperty.SourceSyntax),
 
             // literals
@@ -638,7 +640,7 @@ namespace Bicep.Core.Emit
             _ => throw new ArgumentException("Unresolvable type name"),
         };
 
-        private void EmitVariablesIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredVariableExpression> variables)
+        private void EmitVariablesIfPresent(ExpressionEmitter emitter, IEnumerable<DeclaredVariableExpression> variables)
         {
             if (!variables.Any())
             {
@@ -1141,6 +1143,26 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("name", LanguageConstants.LanguageId);
                     emitter.EmitProperty("version", this.Context.SemanticModel.Features.AssemblyVersion);
                 });
+
+                var exportedVariables = Model.Exports.OfType<ExportedVariableMetadata>().ToImmutableArray();
+
+                if (exportedVariables.Length > 0)
+                {
+                    emitter.EmitArrayProperty(LanguageConstants.TemplateMetadataExportedVariablesName, () =>
+                    {
+                        foreach (var exportedVariable in exportedVariables)
+                        {
+                            emitter.EmitObject(() =>
+                            {
+                                emitter.EmitProperty("name", exportedVariable.Name);
+                                if (exportedVariable.Description is string description)
+                                {
+                                    emitter.EmitProperty(LanguageConstants.MetadataDescriptionPropertyName, description);
+                                }
+                            });
+                        }
+                    });
+                }
 
                 foreach (var item in metadata)
                 {

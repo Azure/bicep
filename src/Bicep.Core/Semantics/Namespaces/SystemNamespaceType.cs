@@ -1462,7 +1462,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         var nonExportableSymbolsInClosure = SymbolicReferenceCollector.CollectSymbolsReferencedRecursive(binder, targetedDeclaration)
                             .Where(s => s is not VariableSymbol &&
                                 s is not TypeAliasSymbol &&
-                                s is not ImportedTypeSymbol &&
+                                s is not ImportedSymbol &&
                                 s is not WildcardImportSymbol &&
                                 s is not LocalVariableSymbol)
                             .Select(s => s.Name)
@@ -1718,8 +1718,8 @@ namespace Bicep.Core.Semantics.Namespaces
             _ => false,
         };
 
-        private static IEnumerable<TypeTypeProperty> GetSystemAmbientSymbols()
-            => LanguageConstants.DeclarationTypes.Select(t => new TypeTypeProperty(t.Key, new(t.Value)));
+        private static IEnumerable<TypeProperty> GetSystemAmbientSymbols()
+            => LanguageConstants.DeclarationTypes.Select(t => new TypeProperty(t.Key, new TypeType(t.Value)));
 
         public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
         {

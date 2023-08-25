@@ -63,7 +63,7 @@ namespace Bicep.Core.TypeSystem
         /// Module type
         /// </summary>
         Module,
-        
+
         /// <summary>
         /// Test type
         /// </summary>
@@ -93,5 +93,10 @@ namespace Bicep.Core.TypeSystem
         /// A reference to a type symbol
         /// </summary>
         TypeReference,
+
+        /// <summary>
+        /// The absence of a type
+        /// </summary>
+        Void,
     }
 }

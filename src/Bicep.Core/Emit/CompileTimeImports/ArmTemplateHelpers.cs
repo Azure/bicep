@@ -4,13 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
+using Bicep.Core.ArmHelpers;
 using Bicep.Core.Workspaces;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
 
 internal static class ArmTemplateHelpers
 {
     private const string ArmTypeRefPrefix = "#/definitions/";
+
     internal static SchemaValidationContext ContextFor(ArmTemplateFile templateFile)
     {
         if (templateFile.Template is not {} template)
@@ -19,6 +22,16 @@ internal static class ArmTemplateHelpers
         }
 
         return SchemaValidationContext.ForTemplate(template);
+    }
+
+    internal static TemplateVariablesEvaluator VariablesEvaluatorFor(ArmTemplateFile templateFile)
+    {
+        if (templateFile.Template is not {} template)
+        {
+            throw new InvalidOperationException($"Source template of {templateFile.FileUri} is not valid");
+        }
+
+        return new(template);
     }
 
     internal static ITemplateSchemaNode DereferenceArmType(SchemaValidationContext context, string typePointer)
@@ -32,6 +45,16 @@ internal static class ArmTemplateHelpers
         }
 
         return typeDefinition;
+    }
+
+    internal static JToken DereferenceArmVariable(Template template, string name)
+    {
+        if (template.Variables?.TryGetValue(name, out var value) is true)
+        {
+            return value.Value;
+        }
+
+        throw new InvalidOperationException($"No variable named '{name}' was found in the template.");
     }
 
     internal static IEnumerable<string> EnumerateTypeReferencesUsedIn(SchemaValidationContext context, string typePointer)

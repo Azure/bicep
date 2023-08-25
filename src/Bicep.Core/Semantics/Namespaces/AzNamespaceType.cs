@@ -503,7 +503,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     ConfigurationType: null,
                     ArmTemplateProviderName: "AzureResourceManager",
                     ArmTemplateProviderVersion: resourceTypeProvider.Version),
-                ImmutableArray<TypeTypeProperty>.Empty,
+                ImmutableArray<TypeProperty>.Empty,
                 GetAzOverloads(resourceScope, bicepSourceFileKind),
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,

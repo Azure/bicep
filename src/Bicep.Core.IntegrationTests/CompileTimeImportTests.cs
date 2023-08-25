@@ -38,15 +38,17 @@ public class CompileTimeImportTests
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
             ("main.bicep", """
-                import {foo} from 'mod.bicep'
+                import {foo, bar} from 'mod.bicep'
                 """),
             ("mod.bicep", """
                 type foo = string[]
+                var bar = 'bar'
                 """));
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP360", DiagnosticLevel.Error, "The 'foo' symbol was not found in (or was not exported by) the imported template."),
+            ("BCP360", DiagnosticLevel.Error, "The 'bar' symbol was not found in (or was not exported by) the imported template."),
         });
     }
 
@@ -107,7 +109,7 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Imported_symbols_should_have_declarations_injected_into_compiled_template()
+    public void Imported_type_symbols_should_have_declarations_injected_into_compiled_template()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
             ("main.bicep", """
@@ -137,7 +139,28 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
+    public void Imported_variable_symbols_should_have_declarations_injected_into_compiled_template()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {foo} from 'mod.bicep'
+                """),
+            ("mod.bicep", """
+                @export()
+                @description('The foo variable')
+                var foo = 'foo'
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
+            {
+                "foo": "foo"
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Type_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
             ("main.bicep", """
@@ -188,6 +211,46 @@ public class CompileTimeImportTests
                         }
                     }
                 }
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Variable_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {foo} from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "foo",
+                                "description": "A lengthy, florid description"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "foo": {
+                            "property": "[variables('bar')]"
+                        },
+                        "bar": "barValue"
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
+            {
+                "foo": {
+                    "property": "[variables('1.bar')]"
+                },
+                "1.bar": "barValue"
             }
             """));
     }
@@ -261,6 +324,9 @@ public class CompileTimeImportTests
             ("mod.bicep", """
                 @export()
                 type foo = string[]
+
+                @export()
+                var squares = map(range(0, 100), x => x * x)
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -277,6 +343,12 @@ public class CompileTimeImportTests
                         }
                     }
                 }
+            }
+            """));
+
+        result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
+            {
+                "1.squares": "[map(range(0, 100), lambda('x', mul(lambdaVariables('x'), lambdaVariables('x'))))]"
             }
             """));
     }
@@ -330,7 +402,7 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Imported_symbols_with_a_lengthy_reference_chain_should_have_declarations_injected_into_compiled_template()
+    public void Imported_type_symbols_with_a_lengthy_reference_chain_should_have_declarations_injected_into_compiled_template()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
             ("main.bicep", """
@@ -461,6 +533,76 @@ public class CompileTimeImportTests
                         }
                     }
                 }
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Imported_variable_symbols_with_a_lengthy_reference_chain_should_have_declarations_injected_into_compiled_template()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {foo} from 'mod.bicep'
+                """),
+            ("mod.bicep", """
+                import {bar} from 'mod2.bicep'
+
+                @export()
+                var foo = {
+                    bar: bar
+                    anotherProperty: unexported
+                }
+
+                var unexported = 'unexported'
+                """),
+            ("mod2.bicep", """
+                import * as foo from 'mod3.bicep'
+
+                @export()
+                var bar = {
+                    foo: foo.bar
+                    prop: unexported
+                }
+
+                var unexported = {
+                    nested: alsoNotExported
+                }
+
+                var alsoNotExported = 45
+                """),
+            ("mod3.bicep", """
+                import {foo} from 'mod4.bicep'
+
+                @export()
+                var bar = foo
+                """),
+            ("mod4.bicep", """
+                @export()
+                var foo = ['snap', 'crackle', 'pop']
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
+            {
+                "foo": {
+                    "bar": "[variables('2.bar')]",
+                    "anotherProperty": "[variables('1.unexported')]"
+                },
+                "1.unexported": "unexported",
+                "2.bar": {
+                    "foo": "[variables('3.bar')]",
+                    "prop": "[variables('2.unexported')]"
+                },
+                "2.unexported": {
+                    "nested": "[variables('2.alsoNotExported')]"
+                },
+                "2.alsoNotExported": 45,
+                "3.bar": "[variables('4.foo')]",
+                "4.foo": [
+                    "snap",
+                    "crackle",
+                    "pop"
+                ]
             }
             """));
     }

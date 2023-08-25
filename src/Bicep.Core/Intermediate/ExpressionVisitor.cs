@@ -325,7 +325,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
-    public virtual void VisitWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression)
+    public virtual void VisitWildcardImportTypePropertyReferenceExpression(WildcardImportTypePropertyReferenceExpression expression)
     {
     }
 
@@ -335,6 +335,14 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     }
 
     public virtual void VisitParameterKeyVaultReferenceExpression(ParameterKeyVaultReferenceExpression expression)
+    {
+    }
+
+    public virtual void VisitImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression)
+    {
+    }
+
+    public virtual void VisitWildcardImportVariablePropertyReferenceExpression(WildcardImportVariablePropertyReferenceExpression expression)
     {
     }
 
