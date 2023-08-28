@@ -477,18 +477,18 @@ var maybeNull = mightIncludeNull[0].?key
 //@[040:042) NewLine |\n\n|
 
 var maybeNull2 = mightIncludeNull[0][?'key']
-//@[00:03) Identifier |var|
-//@[04:14) Identifier |maybeNull2|
-//@[15:16) Assignment |=|
-//@[17:33) Identifier |mightIncludeNull|
-//@[33:34) LeftSquare |[|
-//@[34:35) Integer |0|
-//@[35:36) RightSquare |]|
-//@[36:37) LeftSquare |[|
-//@[37:38) Question |?|
-//@[38:43) StringComplete |'key'|
-//@[43:44) RightSquare |]|
-//@[44:46) NewLine |\n\n|
+//@[000:003) Identifier |var|
+//@[004:014) Identifier |maybeNull2|
+//@[015:016) Assignment |=|
+//@[017:033) Identifier |mightIncludeNull|
+//@[033:034) LeftSquare |[|
+//@[034:035) Integer |0|
+//@[035:036) RightSquare |]|
+//@[036:037) LeftSquare |[|
+//@[037:038) Question |?|
+//@[038:043) StringComplete |'key'|
+//@[043:044) RightSquare |]|
+//@[044:046) NewLine |\n\n|
 
 output maybeNull string? = maybeNull
 //@[000:006) Identifier |output|

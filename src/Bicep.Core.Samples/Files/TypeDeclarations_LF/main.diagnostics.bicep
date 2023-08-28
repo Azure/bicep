@@ -210,21 +210,21 @@ type discriminatedUnionInlineTuple1 = [
 ]
 
 param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
-//@[6:39) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramDiscriminatedUnionTypeAlias1|
+//@[06:39) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramDiscriminatedUnionTypeAlias1|
 param paramDiscriminatedUnionTypeAlias2 discriminatedUnion5
-//@[6:39) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramDiscriminatedUnionTypeAlias2|
+//@[06:39) [no-unused-params (Warning)] Parameter "paramDiscriminatedUnionTypeAlias2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramDiscriminatedUnionTypeAlias2|
 
 @discriminator('type')
 param paramInlineDiscriminatedUnion1 typeA | typeB
-//@[6:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion1|
+//@[06:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion1|
 
 @discriminator('type')
 param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
-//@[6:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion2|
+//@[06:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion2|
 
 @discriminator('type')
 param paramInlineDiscriminatedUnion3 (typeA | typeB)?
-//@[6:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion3|
+//@[06:36) [no-unused-params (Warning)] Parameter "paramInlineDiscriminatedUnion3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramInlineDiscriminatedUnion3|
 
 output outputDiscriminatedUnionTypeAlias1 discriminatedUnion1 = { type: 'a', value: 'str' }
 @discriminator('type')
