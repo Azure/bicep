@@ -73,7 +73,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
                         .RewriteForMigration((DeclaredTypeExpression) bicepExpressionBuilders.GetOrAdd(bicepSymbolRef.SourceBicepModel, m => new(new(m))).Convert(importedType.DeclaringType)));
                     break;
                 case ArmSymbolicVariableReference armVariableRef:
-                    importedVariables.Add(name, new ArmVariableToExpressionConverter(armVariableRef.ArmTemplateFile.Template!, importedArmVariableNamesByFile[armVariableRef.ArmTemplateFile], closure.SymbolsInImportClosure[armVariableRef])
+                    importedVariables.Add(name, new ArmVariableToExpressionConverter(closure.ArmVariablesEvaluators[armVariableRef.ArmTemplateFile], importedArmVariableNamesByFile[armVariableRef.ArmTemplateFile], closure.SymbolsInImportClosure[armVariableRef])
                         .ConvertToExpression(closureMetadata[armVariableRef].UniqueNameWithinClosure, armVariableRef.VariableName));
                     break;
                 case BicepSymbolicReference bicepSymbolRef when bicepSymbolRef.Symbol is VariableSymbol importedVariable:
@@ -98,7 +98,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         Dictionary<ImportedSymbol, IntraTemplateSymbolicReference> importedSymbolsToIntraTemplateSymbols = new();
         Dictionary<WildcardImportPropertyReference, IntraTemplateSymbolicReference> wildcardImportPropertiesToIntraTemplateSymbols = new();
         ConcurrentDictionary<ArmTemplateFile, SchemaValidationContext> armSchemaContextsByFile = new();
-        ConcurrentDictionary<ArmTemplateFile, TemplateVariablesEvaluator> armVariablesEvaluators = new();
+        ConcurrentDictionary<ArmTemplateFile, TemplateVariablesEvaluator> armVariablesEvaluatorsByFile = new();
 
         Queue<SearchQueueItem> searchQueue = new(model.Root.ImportedSymbols
             .Select(importedSymbol => new SearchQueueItem(importedSymbol.DeclaringSyntax, new BicepImportedSymbolReference(importedSymbol, model, GetImportReference(importedSymbol))))
@@ -173,17 +173,9 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
             {
                 if (symbolsInImportClosure.TryAdd(armSymbolicVariableReference, item.InitiallyDeclaringSyntax))
                 {
-                    var evaluator = armVariablesEvaluators.GetOrAdd(armSymbolicVariableReference.ArmTemplateFile, ArmTemplateHelpers.VariablesEvaluatorFor);
-                    var parsed = ExpressionsEngine.ParseLanguageExpressionsRecursive(armSymbolicVariableReference.ArmTemplateFile.Template!.Variables[armSymbolicVariableReference.VariableName].Value);
-
-                    foreach (var variableReferenced in ExpressionsEngine.ParseLanguageExpressionsRecursive(armSymbolicVariableReference.ArmTemplateFile.Template!.Variables[armSymbolicVariableReference.VariableName].Value)
-                        .Select(kvp => kvp.Value switch
-                        {
-                            FunctionExpression expr when StringComparer.OrdinalIgnoreCase.Equals(expr.Function, "variables") &&
-                                evaluator.Evaluate(expr.Parameters.Single()) is TemplateVariablesEvaluator.EvaluatedValue { Value: JValue { Value: string variableName }} => variableName,
-                            _ => null,
-                        })
-                        .WhereNotNull())
+                    foreach (var variableReferenced in ArmTemplateHelpers.EnumerateVariableReferencesUsedIn(
+                        armVariablesEvaluatorsByFile.GetOrAdd(armSymbolicVariableReference.ArmTemplateFile, ArmTemplateHelpers.VariablesEvaluatorFor),
+                        armSymbolicVariableReference.VariableName))
                     {
                         searchQueue.Enqueue(new(item.InitiallyDeclaringSyntax,
                             new ArmSymbolicVariableReference(variableReferenced, armSymbolicVariableReference.ArmTemplateFile, armSymbolicVariableReference.SourceModel)));
@@ -196,7 +188,12 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
             }
         }
 
-        return new(importedModuleReferences, symbolsInImportClosure, importedSymbolsToIntraTemplateSymbols, wildcardImportPropertiesToIntraTemplateSymbols, armSchemaContextsByFile);
+        return new(importedModuleReferences,
+            symbolsInImportClosure,
+            importedSymbolsToIntraTemplateSymbols,
+            wildcardImportPropertiesToIntraTemplateSymbols,
+            armSchemaContextsByFile,
+            armVariablesEvaluatorsByFile);
     }
 
     private static ArtifactReference GetImportReference(ImportedSymbol symbol)
@@ -379,7 +376,8 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         IReadOnlyDictionary<IntraTemplateSymbolicReference, SyntaxBase> SymbolsInImportClosure,
         IReadOnlyDictionary<ImportedSymbol, IntraTemplateSymbolicReference> ImportedSymbolsToIntraTemplateSymbols,
         IReadOnlyDictionary<WildcardImportPropertyReference, IntraTemplateSymbolicReference> WildcardImportPropertiesToIntraTemplateSymbols,
-        IReadOnlyDictionary<ArmTemplateFile, SchemaValidationContext> ArmSchemaContexts) {}
+        IReadOnlyDictionary<ArmTemplateFile, SchemaValidationContext> ArmSchemaContexts,
+        IReadOnlyDictionary<ArmTemplateFile, TemplateVariablesEvaluator> ArmVariablesEvaluators) {}
 
     private record SearchQueueItem(SyntaxBase InitiallyDeclaringSyntax, SymbolicReference SymbolicReference) {}
 }

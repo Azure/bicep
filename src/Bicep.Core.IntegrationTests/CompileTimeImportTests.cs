@@ -799,3 +799,101 @@ public class CompileTimeImportTests
             ("BCP374", DiagnosticLevel.Error, "The imported model cannot be loaded with a wildcard because it contains the following duplicated exports: \"foo\"."),
         });
     }
+
+    [TestMethod]
+    public void Copy_variable_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {foo} from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "foo",
+                                "description": "A lengthy, florid description"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "fooCount": "[add(2, 3)]",
+                        "copy": [
+                            {
+                                "name": "foo",
+                                "count": "[variables('fooCount')]",
+                                "input": "[copyIndex('foo', 1)]"
+                            }
+                        ]
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
+            {
+                "1.fooCount": "[add(2, 3)]",
+                "copy": [
+                    {
+                        "name": "foo",
+                        "count": "[length(range(0, variables('1.fooCount')))]",
+                        "input": "[add(copyIndex('foo'), 1)]"
+                    }
+                ]
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Copy_variable_symbols_imported_from_ARM_json_as_part_of_import_closure_should_have_declarations_injected_into_compiled_template()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {bar} from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "bar"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "bar": "[variables('foo')[3]]",
+                        "fooCount": "[add(2, 3)]",
+                        "copy": [
+                            {
+                                "name": "foo",
+                                "count": "[variables('fooCount')]",
+                                "input": "[copyIndex('foo', 1)]"
+                            }
+                        ]
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
+            {
+                "bar": "[variables('1.foo')[3]]",
+                "1.fooCount": "[add(2, 3)]",
+                "copy": [
+                    {
+                        "name": "1.foo",
+                        "count": "[length(range(0, variables('1.fooCount')))]",
+                        "input": "[add(copyIndex('1.foo'), 1)]"
+                    }
+                ]
+            }
+            """));
+    }
+}

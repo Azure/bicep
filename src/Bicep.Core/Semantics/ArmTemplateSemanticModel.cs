@@ -115,18 +115,15 @@ namespace Bicep.Core.Semantics
                             !exportedVariableObject.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out var nameToken) ||
                             nameToken is not JValue { Value: string name } ||
                             !Lexer.IsValidIdentifier(name) ||
-                            template.Variables?.TryGetValue(name, out var variableAssignment) is not true)
+                            evaluator[name] is not TemplateVariablesEvaluator.EvaluatedValue evaluatedValue)
                         {
                             // the variable export is malformed, missing a name, has a name that is not a valid Bicep identifier, or refers to a non-existent variable
                             continue;
                         }
 
-                        if (evaluator[name] is TemplateVariablesEvaluator.EvaluatedValue evaluatedValue)
-                        {
-                            exports.Add(new ExportedVariableMetadata(name,
-                                TypeHelper.TryCreateTypeLiteral(evaluatedValue.Value) ?? LanguageConstants.Any,
-                                GetDescription(exportedVariableObject)));
-                        }
+                        exports.Add(new ExportedVariableMetadata(name,
+                            TypeHelper.TryCreateTypeLiteral(evaluatedValue.Value) ?? LanguageConstants.Any,
+                            GetDescription(exportedVariableObject)));
                     }
                 }
 

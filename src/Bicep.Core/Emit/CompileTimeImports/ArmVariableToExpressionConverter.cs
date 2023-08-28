@@ -7,6 +7,7 @@ using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.ArmHelpers;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
@@ -19,32 +20,50 @@ namespace Bicep.Core.Emit.CompileTimeImports;
 internal class ArmVariableToExpressionConverter
 {
     private const string VariablesFunctionName = "variables";
+    private const string CopyIndexFunctionName = "copyindex";
 
-    private readonly Template template;
+    private readonly TemplateVariablesEvaluator evaluator;
     private readonly ImmutableDictionary<string, string> variableNameToSymbolNameMapping;
     private readonly SyntaxBase? sourceSyntax;
+    private string? activeCopyLoopName;
 
-    internal ArmVariableToExpressionConverter(Template template, ImmutableDictionary<string, string> variableNameToSymbolNameMapping, SyntaxBase? sourceSyntax)
+    internal ArmVariableToExpressionConverter(TemplateVariablesEvaluator evaluator, ImmutableDictionary<string, string> variableNameToSymbolNameMapping, SyntaxBase? sourceSyntax)
     {
-        this.template = template;
+        this.evaluator = evaluator;
         this.variableNameToSymbolNameMapping = variableNameToSymbolNameMapping;
         this.sourceSyntax = sourceSyntax;
     }
 
     internal DeclaredVariableExpression ConvertToExpression(string convertedSymbolName, string originalName)
-        => ConvertToExpression(convertedSymbolName, ArmTemplateHelpers.DereferenceArmVariable(template, originalName));
-
-    private DeclaredVariableExpression ConvertToExpression(string convertedSymbolName, JToken assignedValue)
-    {
-        var parsedExpressions = ExpressionsEngine.ParseLanguageExpressionsRecursive(assignedValue);
-
-        return new(sourceSyntax,
+        => new(sourceSyntax,
             convertedSymbolName,
-            ConvertToExpression(parsedExpressions, assignedValue),
+            ConvertToExpression(originalName),
             // Variables cannot have descriptions in an ARM template -- this is only supported in Bicep
             Description: null,
             // An imported variable is never automatically re-exported
             Exported: null);
+
+    private Expression ConvertToExpression(string originalName)
+    {
+        if (evaluator.TryGetUnevaluatedDeclaringToken(originalName) is JToken singularDeclaration)
+        {
+            return ConvertToExpression(ExpressionsEngine.ParseLanguageExpressionsRecursive(singularDeclaration), singularDeclaration);
+        }
+
+        if (evaluator.TryGetUnevaluatedCopyDeclaration(originalName) is not {} copyDeclaration)
+        {
+            throw new InvalidOperationException($"Variable {originalName} was not found in template.");
+        }
+
+        this.activeCopyLoopName = originalName;
+        var expression = new ForLoopExpression(sourceSyntax,
+            new FunctionCallExpression(sourceSyntax, "range", ImmutableArray.Create(ExpressionFactory.CreateIntegerLiteral(0, sourceSyntax),
+                ConvertToExpression(ExpressionsEngine.ParseLanguageExpressionsRecursive(copyDeclaration.CountToken), copyDeclaration.CountToken))),
+            ConvertToExpression(ExpressionsEngine.ParseLanguageExpressionsRecursive(copyDeclaration.ValueItemToken), copyDeclaration.ValueItemToken),
+            null,
+            null);
+        this.activeCopyLoopName = null;
+        return expression;
     }
 
     private Expression ConvertToExpression(IReadOnlyDictionary<JToken, LanguageExpression> parsedExpressions, JToken toConvert)
@@ -110,6 +129,15 @@ internal class ArmVariableToExpressionConverter
                 // if the argument to variables() was itself a runtime-evaluated expression, just treat this as a function call
                 Expression otherwise => new FunctionCallExpression(sourceSyntax, VariablesFunctionName, ImmutableArray.Create(otherwise)),
             },
+            CopyIndexFunctionName when evaluator.Evaluate(func.Parameters[0]) is TemplateVariablesEvaluator.EvaluatedValue { Value: JValue { Value: string copyIndexName } } &&
+                StringComparer.OrdinalIgnoreCase.Equals(this.activeCopyLoopName, copyIndexName) => func.Parameters.Skip(1).FirstOrDefault() switch
+                {
+                    LanguageExpression startIndexExpression => new BinaryExpression(sourceSyntax,
+                        BinaryOperator.Add,
+                        new CopyIndexExpression(sourceSyntax, variableNameToSymbolNameMapping[activeCopyLoopName]),
+                        ConvertToExpression(startIndexExpression)),
+                    _ => new CopyIndexExpression(sourceSyntax, variableNameToSymbolNameMapping[activeCopyLoopName]),
+                },
             // this is less robust than decompilation analysis (e.g., the "add" function will not be transformed to a binary expression), but since this expression is produced only to be lightly manipulated and recompiled to ARM JSON, it's fine to be lax here
             // this choice should be revisited if this converter is used outside of the Bicep.Core.Emit namespace
             string otherwise => new FunctionCallExpression(sourceSyntax, otherwise, func.Parameters.Select(ConvertToExpression).ToImmutableArray()),
