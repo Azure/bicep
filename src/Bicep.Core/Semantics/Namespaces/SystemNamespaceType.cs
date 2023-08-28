@@ -1439,43 +1439,46 @@ namespace Bicep.Core.Semantics.Namespaces
                 })
                 .Build();
 
-            yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
-                .WithDescription("Allows a type or variable to be imported into other templates.")
-                .WithFlags(FunctionFlags.TypeOrVariableDecorator)
-                .WithEvaluator(static (functionCall, decorated) => decorated switch
-                {
-                    DeclaredTypeExpression declaredType => declaredType with { Exported = functionCall },
-                    DeclaredVariableExpression declaredVariable => declaredVariable with { Exported = functionCall },
-                    _ => decorated,
-                })
-                .WithValidator(static (decoratorName, decoratorSyntax, _, _, binder, _, diagnosticWriter) =>
-                {
-                    var decoratorTarget = binder.GetParent(decoratorSyntax);
-
-                    if (decoratorTarget is not ITopLevelNamedDeclarationSyntax)
+            if (featureProvider.CompileTimeImportsEnabled)
+            {
+                yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
+                    .WithDescription("Allows a type or variable to be imported into other templates.")
+                    .WithFlags(FunctionFlags.TypeOrVariableDecorator)
+                    .WithEvaluator(static (functionCall, decorated) => decorated switch
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ExportDecoratorMustTargetStatement());
-                    }
-
-                    if (decoratorTarget is not null && binder.GetSymbolInfo(decoratorTarget) is DeclaredSymbol targetedDeclaration)
+                        DeclaredTypeExpression declaredType => declaredType with { Exported = functionCall },
+                        DeclaredVariableExpression declaredVariable => declaredVariable with { Exported = functionCall },
+                        _ => decorated,
+                    })
+                    .WithValidator(static (decoratorName, decoratorSyntax, _, _, binder, _, diagnosticWriter) =>
                     {
-                        var nonExportableSymbolsInClosure = SymbolicReferenceCollector.CollectSymbolsReferencedRecursive(binder, targetedDeclaration)
-                            .Where(s => s is not VariableSymbol &&
-                                s is not TypeAliasSymbol &&
-                                s is not ImportedSymbol &&
-                                s is not WildcardImportSymbol &&
-                                s is not LocalVariableSymbol)
-                            .Select(s => s.Name)
-                            .Order()
-                            .ToImmutableArray();
+                        var decoratorTarget = binder.GetParent(decoratorSyntax);
 
-                        if (nonExportableSymbolsInClosure.Any())
+                        if (decoratorTarget is not ITopLevelNamedDeclarationSyntax)
                         {
-                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ClosureContainsNonExportableSymbols(nonExportableSymbolsInClosure));
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ExportDecoratorMustTargetStatement());
                         }
-                    }
-                })
-                .Build();
+
+                        if (decoratorTarget is not null && binder.GetSymbolInfo(decoratorTarget) is DeclaredSymbol targetedDeclaration)
+                        {
+                            var nonExportableSymbolsInClosure = SymbolicReferenceCollector.CollectSymbolsReferencedRecursive(binder, targetedDeclaration)
+                                .Where(s => s is not VariableSymbol &&
+                                    s is not TypeAliasSymbol &&
+                                    s is not ImportedSymbol &&
+                                    s is not WildcardImportSymbol &&
+                                    s is not LocalVariableSymbol)
+                                .Select(s => s.Name)
+                                .Order()
+                                .ToImmutableArray();
+
+                            if (nonExportableSymbolsInClosure.Any())
+                            {
+                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ClosureContainsNonExportableSymbols(nonExportableSymbolsInClosure));
+                            }
+                        }
+                    })
+                    .Build();
+            }
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterAllowedPropertyName)
                 .WithDescription("Defines the allowed values of the parameter.")
