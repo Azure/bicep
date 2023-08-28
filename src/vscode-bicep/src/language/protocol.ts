@@ -232,3 +232,36 @@ export interface BicepDecompileForPasteCommandResult {
   bicep?: string;
   disclaimer?: string;
 }
+
+interface TestEntry {
+  id: string;
+  range: Range;
+}
+
+export interface TestsDiscoveredParams {
+  textDocument: TextDocumentIdentifier;
+  tests: TestEntry[];
+}
+
+export const testsDiscoveredNotificationType = new ProtocolNotificationType<
+  TestsDiscoveredParams,
+  void
+>("bicep/testsDiscovered");
+
+export interface RunTestRequest {
+  textDocument: TextDocumentIdentifier;
+  testId: string;
+}
+
+export interface RunTestResponse {
+  success: boolean;
+  message?: string;
+}
+
+export const runTestRequestType = new ProtocolRequestType<
+  RunTestRequest,
+  RunTestResponse,
+  never,
+  void,
+  void
+>("bicep/runTest");

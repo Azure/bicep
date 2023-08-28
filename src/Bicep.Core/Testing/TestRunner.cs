@@ -14,7 +14,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Cli.Services
+namespace Bicep.Core.Testing
 {
     public record TestResult(TestSymbol Source, TestEvaluation Result);
 

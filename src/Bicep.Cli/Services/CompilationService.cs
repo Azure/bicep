@@ -11,6 +11,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Testing;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using System;

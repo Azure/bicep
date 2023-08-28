@@ -43,7 +43,11 @@ namespace Bicep.Cli.Commands
             {
                 diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
                 var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
-
+                var hasTests = compilation.HasTests();
+                if (hasTests)
+                {
+                     logger.LogError("Test declarations are not supported in the build command.");
+                }
                 if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is {} warningMessage)
                 {
                     logger.LogWarning(warningMessage);
@@ -67,7 +71,7 @@ namespace Bicep.Cli.Commands
                 diagnosticLogger.FlushLog();
 
                 // return non-zero exit code on errors
-                return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+                return diagnosticLogger.ErrorCount > 0 || hasTests ? 1 : 0;
             }
 
             logger.LogError(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath);

@@ -58,6 +58,10 @@ namespace Bicep.Core.Semantics
 
         public IModuleReferenceFactory ModuleReferenceFactory { get; }
 
+        public bool HasTests()
+        // Check if there are test declarations in the file
+        => GetSemanticModel(SourceFileGrouping.EntryPoint).Root.TestDeclarations.Any();
+
         public SemanticModel GetEntrypointSemanticModel()
             // entry point semantic models are guaranteed to cast successfully
             => GetSemanticModel(SourceFileGrouping.EntryPoint);

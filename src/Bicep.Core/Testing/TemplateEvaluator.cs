@@ -16,7 +16,7 @@ using System.Collections.Immutable;
 using Bicep.Core;
 using System.Text.RegularExpressions;
 
-namespace Bicep.Cli.Services
+namespace Bicep.Core.Testing
 {
     public partial class TemplateEvaluator
     {

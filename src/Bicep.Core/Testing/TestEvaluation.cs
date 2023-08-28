@@ -6,7 +6,7 @@ using System.Collections.Immutable;
 using Azure.Deployments.Core.Definitions.Schema;
 
 
-namespace Bicep.Cli.Services;
+namespace Bicep.Core.Testing;
 
 public record TestEvaluation(
     Template? Template,
@@ -18,6 +18,7 @@ public record TestEvaluation(
     public bool Success => Error == null && (FailedAssertions.Length == 0);
 
     public bool Skip => Error != null;
+
 }
 
 public record AssertionResult(string Source, bool Result)
