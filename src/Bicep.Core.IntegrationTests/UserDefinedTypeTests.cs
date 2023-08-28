@@ -727,7 +727,7 @@ param myParam string
     }
 
     [TestMethod]
-    public void Union_types_with_single_normalized_member_raise_diagnostics()
+    public void Union_types_with_single_normalized_member_compile_without_error()
     {
         var result = CompilationHelper.Compile("""
             type union = 'a' | 'a'
@@ -742,5 +742,62 @@ param myParam string
                 "allowedValues": ["a"]
             }
             """));
+    }
+
+    [TestMethod]
+    public void Nullable_union_types_do_not_include_null_in_allowed_values_constraint()
+    {
+        var result = CompilationHelper.Compile("""
+            type union = 'a' | 'b' | 'c' | null
+            type unionWithOneMember = null | 'a'
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+
+        result.Template.Should().NotBeNull();
+        result.Template!.Should().HaveValueAtPath("definitions.union", JToken.Parse("""
+            {
+                "type": "string",
+                "allowedValues": ["a", "b", "c"],
+                "nullable": true
+            }
+            """));
+        result.Template!.Should().HaveValueAtPath("definitions.unionWithOneMember", JToken.Parse("""
+            {
+                "type": "string",
+                "allowedValues": ["a"],
+                "nullable": true
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Param_with_null_in_allowedValues_constraint_can_be_loaded()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module mod 'mod.json' = {
+                    name: 'mod'
+                    params: {
+                        foo: 'foo'
+                    }
+                }
+                """),
+            ("mod.json", """
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "languageVersion": "2.0",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "foo": {
+                            "type": "string",
+                            "allowedValues": ["foo", "bar", "baz", null]
+                        }
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
     }
 }

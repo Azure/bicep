@@ -13,7 +13,7 @@ namespace Bicep.Core.Modules
     /// <summary>
     /// Represents a reference to a local module (by relative path).
     /// </summary>
-    public class LocalModuleReference : ModuleReference
+    public class LocalModuleReference : ArtifactReference
     {
         private static readonly IEqualityComparer<string> PathComparer = StringComparer.Ordinal;
 

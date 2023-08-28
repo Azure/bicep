@@ -95,10 +95,34 @@ func asdf(name string) array => [
 //@            "value": [
 //@            ]
 //@          }
-//@        }
+//@        },
   'asdf'
 //@              "asdf",
   name
 //@              "[parameters('name')]"
 ]
+
+@minValue(0)
+//@      "minValue": 0
+type positiveInt = int
+//@    "positiveInt": {
+//@      "type": "int",
+//@    }
+
+func typedArg(input string[]) positiveInt => length(input)
+//@        "typedArg": {
+//@          "parameters": [
+//@            {
+//@              "type": "array",
+//@              "items": {
+//@                "type": "string"
+//@              },
+//@              "name": "input"
+//@            }
+//@          ],
+//@          "output": {
+//@            "$ref": "#/definitions/positiveInt",
+//@            "value": "[length(parameters('input'))]"
+//@          }
+//@        }
 

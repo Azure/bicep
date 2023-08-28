@@ -104,6 +104,12 @@
           "System.Threading.Tasks.Dataflow": "6.0.0"
         }
       },
+      "Microsoft.VisualStudio.Threading.Analyzers": {
+        "type": "Direct",
+        "requested": "[17.6.40, )",
+        "resolved": "17.6.40",
+        "contentHash": "uU8vYr/Nx3ldEWcsbiHiyAX1G7od3eFK1+Aga6ZvgCvU+nQkcXYVkIMcSEkIDWkFaldx1dkoVvX3KRNQD0R7dw=="
+      },
       "Microsoft.VisualStudio.Workspace": {
         "type": "Direct",
         "requested": "[17.1.11-preview-0002, )",
@@ -579,20 +585,15 @@
       },
       "Microsoft.VisualStudio.Threading": {
         "type": "Transitive",
-        "resolved": "17.5.22",
-        "contentHash": "+HG6xvTfyHP4W/ltbNDKmbryp0V30nfsisDMVAc2JJ45TCK3dtJjWy1m9VJKBIAZmrwCJNpU+8ysNMkX8HyusQ==",
+        "resolved": "17.2.32",
+        "contentHash": "Sn73HwB0stbzlgug3Z61MHsBwWyUygUQd7s5fq3r1OOYgFJ+5EudhV3K4sO+v8UeBjKwSU7WqJTkoRmoVXFGFQ==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
-          "Microsoft.VisualStudio.Threading.Analyzers": "17.5.22",
-          "Microsoft.VisualStudio.Validation": "17.0.65",
+          "Microsoft.VisualStudio.Threading.Analyzers": "17.2.32",
+          "Microsoft.VisualStudio.Validation": "17.0.53",
           "Microsoft.Win32.Registry": "5.0.0",
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
-      },
-      "Microsoft.VisualStudio.Threading.Analyzers": {
-        "type": "Transitive",
-        "resolved": "17.5.22",
-        "contentHash": "WzCsniKpC6S9yAerB+Od8pK8RytxW+fFSZ+GjL0y0XdIb7H/os71bWFbKMXxB1omDLZHNm1IdBlcLQm4KmS/AQ=="
       },
       "Microsoft.VisualStudio.Utilities": {
         "type": "Transitive",
@@ -616,8 +617,8 @@
       },
       "Microsoft.VisualStudio.Validation": {
         "type": "Transitive",
-        "resolved": "17.0.65",
-        "contentHash": "h5s/Fx0hYYZIs2QQc6quuwXkXfV9mHD0RP+C5JhVgIySkbjY1MLRsKSP1js0DDgTyO6JSehprniT/Ej24LIzlw=="
+        "resolved": "17.0.53",
+        "contentHash": "YUDb/V5JpiEGRXBut8fRy1rFqDRfl5XX3MgBaLsc0YVYpRy+pXb3pnzbceL1YMQxjrOiJPn5WZEpJNSxZvPdgg=="
       },
       "Microsoft.VisualStudio.Workspace.Extensions": {
         "type": "Transitive",
@@ -959,7 +960,6 @@
           "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",
           "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.3.2180, )",
           "Microsoft.VisualStudio.Shell.Interop": "[17.2.32505.113, )",
-          "Microsoft.VisualStudio.Threading": "[17.5.22, )",
           "Microsoft.VisualStudio.Utilities": "[17.2.32505.113, )",
           "Microsoft.VisualStudio.Workspace.VSIntegration": "[17.1.11-preview-0002, )",
           "Microsoft.Visualstudio.Telemetry": "[16.5.6, )",

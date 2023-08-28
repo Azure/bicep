@@ -14,3 +14,8 @@ func objReturnType(name string) object => {
 func arrayReturnType(name string) array => [name]
 
 func asdf(name string) array => ['asdf', name]
+
+@minValue(0)
+type positiveInt = int
+
+func typedArg(input string[]) positiveInt => length(input)

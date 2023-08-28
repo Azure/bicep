@@ -3,7 +3,6 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -45,22 +44,26 @@ namespace Bicep.LanguageServer.Handlers
 
             if (!moduleDispatcher.TryGetModuleReference(request.Target, request.TextDocument.Uri.ToUri(), out var moduleReference, out _))
             {
-                throw new InvalidOperationException($"The client specified an invalid module reference '{request.Target}'.");
+                throw new InvalidOperationException(
+                    $"The client specified an invalid module reference '{request.Target}'.");
             }
 
             if (!moduleReference.IsExternal)
             {
-                throw new InvalidOperationException($"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepCacheLspMethod} requests.");
+                throw new InvalidOperationException(
+                    $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepCacheLspMethod} requests.");
             }
 
-            if (this.moduleDispatcher.GetModuleRestoreStatus(moduleReference, out _) != ModuleRestoreStatus.Succeeded)
+            if (this.moduleDispatcher.GetArtifactRestoreStatus(moduleReference, out _) != ArtifactRestoreStatus.Succeeded)
             {
-                throw new InvalidOperationException($"The module '{moduleReference.FullyQualifiedReference}' has not yet been successfully restored.");
+                throw new InvalidOperationException(
+                    $"The module '{moduleReference.FullyQualifiedReference}' has not yet been successfully restored.");
             }
 
             if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var uri, out _))
             {
-                throw new InvalidOperationException($"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
+                throw new InvalidOperationException(
+                    $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
             }
 
             if (!this.fileResolver.TryRead(uri, out var contents, out var failureBuilder))

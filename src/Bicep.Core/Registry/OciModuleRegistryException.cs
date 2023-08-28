@@ -5,7 +5,7 @@ using System;
 
 namespace Bicep.Core.Registry
 {
-    public class OciModuleRegistryException : ExternalModuleException
+    public class OciModuleRegistryException : ExternalArtifactException
     {
         public OciModuleRegistryException(string message) : base(message)
         {

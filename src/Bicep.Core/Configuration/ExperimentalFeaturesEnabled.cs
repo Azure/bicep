@@ -18,6 +18,7 @@ public record ExperimentalFeaturesEnabled(
     bool TestFramework,
     bool Assertions,
     bool DynamicTypeLoading,
+    bool MicrosoftGraphPreview,
     bool CompileTimeImports)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)

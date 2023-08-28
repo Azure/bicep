@@ -1,0 +1,73 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <!-- This is a copy+paste from bicep.min.js. You could alternatively self-host: e.g. <script src="assets/bice.min.js"></script> -->
+  <script>(() => { "use strict"; var e = { 223: (e, a) => { Object.defineProperty(a, "__esModule", { value: !0 }); const n = e => `\\b${e}\\b`, t = e => `(?=${e})`, s = e => `(?!${e})`, r = n("[_a-zA-Z][_a-zA-Z0-9]*"), i = n("[_a-zA-Z-0-9]+"), c = "(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*", o = { $pattern: "[A-Za-z$_][0-9A-Za-z$_]*", keyword: ["metadata", "targetScope", "resource", "module", "param", "var", "output", "for", "in", "if", "existing", "import", "as", "type", "with", "using", "func", "assert"], literal: ["true", "false", "null"], built_in: ["az", "sys"] }, l = { variants: [{ className: "comment", match: `//.*${t("$")}` }, { className: "comment", begin: "/\\*", end: "\\*/" }] }; function $(e) { return [...e, l] } const u = { variants: [] }, m = { className: "subst", begin: ("\\\\", "(?<!\\\\)(\\${)"), end: "(})", contains: $([u]) }; const d = { className: "string", begin: `'${s("''")}`, end: "'", contains: [{ match: "\\\\(u{[0-9A-Fa-f]+}|n|r|t|\\\\|'|\\${)" }, m] }, b = { className: "literal", match: n("(true|false|null)"), relevance: 0 }, f = { className: "variable", match: `${r}${s(`${c}\\(`)}`, keywords: o }, g = { begin: "{", end: "}", contains: $([{ className: "property", match: `${r}${t(`${c}:`)}`, relevance: 0 }, u]) }, p = { begin: `\\[${s(`${c}${n("for")}`)}`, end: "]", contains: $([u]) }, v = { className: "function", begin: `(${r})${c}\\(`, end: "\\)", contains: $([u]) }, _ = { className: "meta", begin: `@${c}${t(r)}`, end: "", contains: $([v]) }, N = { begin: `(\\(${c}${r}${c}(,${c}${r}${c})*\\)|\\(${c}\\)|${c}${r}${c})${t(`${c}=>`)}`, returnBegin: !0, end: `${c}=>`, contains: $([f]) }, h = { begin: `${(e => `(?<=${e})`)(`^${c}`)}#${i}`, end: "$", className: "meta", contains: $([{ className: "variable", match: i }]) }; u.variants = [d, { className: "string", begin: "'''", end: "'''" }, { className: "number", match: "[0-9]+" }, b, g, p, f, v, _, N, h], a.default = function (e) { return { aliases: ["bicep"], case_insensitive: !0, keywords: o, contains: $([u]) } } }, 45: function (e, a, n) { var t = this && this.__importDefault || function (e) { return e && e.__esModule ? e : { default: e } }; Object.defineProperty(a, "__esModule", { value: !0 }); const s = t(n(253)), r = t(n(223)); s.default.registerLanguage("bicep", r.default) }, 253: e => { e.exports = hljs } }, a = {}; !function n(t) { var s = a[t]; if (void 0 !== s) return s.exports; var r = a[t] = { exports: {} }; return e[t].call(r.exports, r, r.exports, n), r.exports }(45) })();</script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <pre><code class="language-bicep">
+// mandatory params
+param dnsPrefix string
+param linuxAdminUsername string
+param sshRSAPublicKey string
+param servicePrincipalClientId string
+
+@secure()
+param servicePrincipalClientSecret string
+
+// optional params
+param clusterName string = 'aks101cluster'
+param location string = resourceGroup().location
+
+@minValue(0)
+@maxValue(1023)
+param osDiskSizeGB int = 0
+
+@minValue(1)
+@maxValue(50)
+param agentCount int = 3
+
+param agentVMSize string = 'Standard_DS2_v2'
+// osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
+
+resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
+  name: clusterName
+  location: location
+  properties: {
+    dnsPrefix: dnsPrefix
+    agentPoolProfiles: [
+      {
+        name: 'agentpool'
+        osDiskSizeGB: osDiskSizeGB
+        count: agentCount
+        vmSize: agentVMSize
+        osType: 'Linux'
+        mode: 'System'
+      }
+    ]
+    linuxProfile: {
+      adminUsername: linuxAdminUsername
+      ssh: {
+        publicKeys: [
+          {
+            keyData: sshRSAPublicKey
+          }
+        ]
+      }
+    }
+    servicePrincipalProfile: {
+      clientId: servicePrincipalClientId
+      secret: servicePrincipalClientSecret
+    }
+  }
+}
+
+output controlPlaneFQDN string = aks.properties.fqdn
+</code></pre>
+</body>
+
+</html>

@@ -41,7 +41,7 @@ namespace Bicep.Core.IntegrationTests
 
             var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configManager);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath), BicepTestConstants.FeatureProviderFactory);
             var compilation = Services.WithFeatureOverrides(features).Build().BuildCompilation(sourceFileGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
@@ -91,7 +91,10 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetExtensibilityExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ExampleIsValid_extensibility(EmbeddedFile embeddedBicep)
-            => RunExampleTest(embeddedBicep, new(ExtensibilityEnabled: true), ".json");
+            => RunExampleTest(
+                embeddedBicep,
+                new(ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: embeddedBicep.StreamPath.Contains("microsoftGraph")),
+                ".json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]

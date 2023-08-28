@@ -29,6 +29,7 @@ module.exports = {
         "plugin:jest/all",
       ],
       rules: {
+        "jest/require-hook": "off",
         "jest/no-hooks": "off",
         "jest/prefer-expect-assertions": "off",
         "jest/expect-expect": [

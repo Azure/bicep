@@ -12,7 +12,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Configuration;

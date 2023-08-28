@@ -145,6 +145,37 @@ func asdf(name string) array => [
 //@[006:007) NewLine |\n|
 ]
 //@[000:001) RightSquare |]|
-//@[001:002) NewLine |\n|
+//@[001:003) NewLine |\n\n|
+
+@minValue(0)
+//@[000:001) At |@|
+//@[001:009) Identifier |minValue|
+//@[009:010) LeftParen |(|
+//@[010:011) Integer |0|
+//@[011:012) RightParen |)|
+//@[012:013) NewLine |\n|
+type positiveInt = int
+//@[000:004) Identifier |type|
+//@[005:016) Identifier |positiveInt|
+//@[017:018) Assignment |=|
+//@[019:022) Identifier |int|
+//@[022:024) NewLine |\n\n|
+
+func typedArg(input string[]) positiveInt => length(input)
+//@[000:004) Identifier |func|
+//@[005:013) Identifier |typedArg|
+//@[013:014) LeftParen |(|
+//@[014:019) Identifier |input|
+//@[020:026) Identifier |string|
+//@[026:027) LeftSquare |[|
+//@[027:028) RightSquare |]|
+//@[028:029) RightParen |)|
+//@[030:041) Identifier |positiveInt|
+//@[042:044) Arrow |=>|
+//@[045:051) Identifier |length|
+//@[051:052) LeftParen |(|
+//@[052:057) Identifier |input|
+//@[057:058) RightParen |)|
+//@[058:059) NewLine |\n|
 
 //@[000:000) EndOfFile ||

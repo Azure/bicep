@@ -31,7 +31,12 @@ npx http-server ./src/textmate/test/baselines
 ```
 
 ## Highlight.js
-Bicep has a [highlight.js](https://highlightjs.org/) plugin available at [bicep.ts](https://github.com/Azure/bicep/blob/main/src/highlightjs/src/bicep.ts).
+Bicep has a [highlight.js](https://highlightjs.org/) plugin available at [bicep.min.js](https://github.com/Azure/bicep/blob/main/src/highlightjs/dist/bicep.min.js). The source is available at [bicep.ts](https://github.com/Azure/bicep/blob/main/src/highlightjs/src/bicep.ts).
+
+### Usage
+1. Use [bicep.min.js](https://github.com/Azure/bicep/blob/main/src/highlightjs/dist/bicep.min.js) in a `<script>` tag.
+1. Use 'bicep' as the highlight.js language name.
+1. See [index.html](https://github.com/Azure/bicep/blob/main/src/highlightjs/example/index.html) for a usage example.
 
 ### Known uses
 * **MS Docs**: It's used to provide colorization for Bicep samples in [MS Docs](https://docs.microsoft.com/). This site is using a [fork](https://github.com/DuncanmaMSFT/highlight.js) of Highlight.js, so changes to the grammar must be compiled and submitted to [the fork repo](https://github.com/DuncanmaMSFT/highlight.js/blob/stable/src/languages/bicep.js) for integration.

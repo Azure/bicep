@@ -1,0 +1,6 @@
+{
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "microsoftGraphPreview": true
+  }
+}

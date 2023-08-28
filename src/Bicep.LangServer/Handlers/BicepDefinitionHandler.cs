@@ -172,7 +172,7 @@ namespace Bicep.LanguageServer.Handlers
             return new();
         }
 
-        private Uri GetDocumentLinkUri(ISourceFile sourceFile, ModuleReference moduleReference)
+        private Uri GetDocumentLinkUri(ISourceFile sourceFile, ArtifactReference moduleReference)
         {
             if (!this.CanSendRegistryContent() || !moduleReference.IsExternal)
             {
@@ -398,7 +398,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        private static (Template?, Uri?) GetArmSourceTemplateInfo(CompilationContext context, IForeignTemplateReference foreignTemplateReference)
+        private static (Template?, Uri?) GetArmSourceTemplateInfo(CompilationContext context, IForeignArtifactReference foreignTemplateReference)
             => context.Compilation.SourceFileGrouping.TryGetSourceFile(foreignTemplateReference) switch
             {
                 TemplateSpecFile templateSpecFile => (templateSpecFile.MainTemplateFile.Template, templateSpecFile.FileUri),

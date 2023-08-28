@@ -11,6 +11,6 @@ namespace Bicep.Core.Registry
     /// </summary>
     public interface IModuleRegistryProvider
     {
-        ImmutableArray<IModuleRegistry> Registries(Uri templateUri);
+        ImmutableArray<IArtifactRegistry> Registries(Uri templateUri);
     }
 }

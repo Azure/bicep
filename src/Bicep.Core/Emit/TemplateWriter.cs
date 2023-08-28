@@ -436,7 +436,7 @@ namespace Bicep.Core.Emit
 
             if (TryGetAllowedValues(expression.BaseExpression) is {} allowedValues)
             {
-                properties.Add(ExpressionFactory.CreateObjectProperty("allowedValues", allowedValues, expression.BaseExpression.SourceSyntax));
+                properties.Add(AllowedValuesProperty(allowedValues, expression.BaseExpression.SourceSyntax));
             }
             else
             {
@@ -500,25 +500,19 @@ namespace Bicep.Core.Emit
             ExpressionFactory.CreateObjectProperty("items", ExpressionFactory.CreateBooleanLiteral(false), expression.SourceSyntax),
         });
 
-        private static (bool Nullable, string NonLiteralTypeName) GetUnionTypeNullabilityAndType(UnionType unionType) =>
-            TypeHelper.TryRemoveNullability(unionType) switch
-            {
-                UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type)),
-                TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable)),
-                _ => (false, GetNonLiteralTypeName(unionType.Members.First().Type)),
-            };
-
         private ObjectExpression GetTypePropertiesForUnionTypeExpression(UnionTypeExpression expression)
         {
-            var (nullable, nonLiteralTypeName) = GetUnionTypeNullabilityAndType(expression.ExpressedUnionType);
+            var (nullable, nonLiteralTypeName, allowedValues) = TypeHelper.TryRemoveNullability(expression.ExpressedUnionType) switch
+            {
+                UnionType nonNullableUnion => (true, GetNonLiteralTypeName(nonNullableUnion.Members.First().Type), GetAllowedValuesForUnionType(nonNullableUnion, expression.SourceSyntax)),
+                TypeSymbol nonNullable => (true, GetNonLiteralTypeName(nonNullable), SingleElementArray(ToLiteralValue(nonNullable))),
+                _ => (false, GetNonLiteralTypeName(expression.ExpressedUnionType.Members.First().Type), GetAllowedValuesForUnionType(expression.ExpressedUnionType, expression.SourceSyntax)),
+            };
 
             var properties = new List<ObjectPropertyExpression>
             {
                 TypeProperty(nonLiteralTypeName, expression.SourceSyntax),
-                ExpressionFactory.CreateObjectProperty(
-                    "allowedValues",
-                    GetAllowedValuesForUnionType(expression.ExpressedUnionType, expression.SourceSyntax),
-                    expression.SourceSyntax),
+                AllowedValuesProperty(allowedValues, expression.SourceSyntax),
             };
 
             if (nullable)

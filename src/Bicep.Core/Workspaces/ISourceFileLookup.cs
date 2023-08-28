@@ -8,7 +8,7 @@ namespace Bicep.Core.Workspaces;
 
 public interface ISourceFileLookup
 {
-    public DiagnosticBuilder.ErrorBuilderDelegate? TryGetErrorDiagnostic(IForeignTemplateReference foreignTemplateReference);
+    public DiagnosticBuilder.ErrorBuilderDelegate? TryGetErrorDiagnostic(IForeignArtifactReference foreignTemplateReference);
 
-    public ISourceFile? TryGetSourceFile(IForeignTemplateReference foreignTemplateReference);
+    public ISourceFile? TryGetSourceFile(IForeignArtifactReference foreignTemplateReference);
 }

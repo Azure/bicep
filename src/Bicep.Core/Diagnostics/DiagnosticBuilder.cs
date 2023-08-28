@@ -1370,12 +1370,12 @@ namespace Bicep.Core.Diagnostics
                 "BCP231",
                 $@"Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceTypedParamsAndOutputs)}"".");
 
-            public ErrorDiagnostic ModuleDeleteFailed(string moduleRef) => new(
+            public ErrorDiagnostic ArtifactDeleteFailed(string moduleRef) => new(
                 TextSpan,
                 "BCP232",
                 $"Unable to delete the module with reference \"{moduleRef}\" from cache.");
 
-            public ErrorDiagnostic ModuleDeleteFailedWithMessage(string moduleRef, string message) => new(
+            public ErrorDiagnostic ArtifactDeleteFailedWithMessage(string moduleRef, string message) => new(
                 TextSpan,
                 "BCP233",
                 $"Unable to delete the module with reference \"{moduleRef}\" from cache: {message}");
@@ -2056,6 +2056,26 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP367",
                 $"The \"{featureName}\" feature is temporarily disabled.");
+
+            public ErrorDiagnostic ParameterReferencesKeyVaultSuppliedParameter(string targetName) => new(
+                TextSpan,
+                "BCP368",
+                $"The value of the \"{targetName}\" parameter cannot be known until the template deployment has started because it uses a reference to a secret value in Azure Key Vault. Expressions that refer to the \"{targetName}\" parameter may be used in {LanguageConstants.LanguageFileExtension} files but not in {LanguageConstants.ParamsFileExtension} files.");
+
+            public ErrorDiagnostic ParameterReferencesDefaultedParameter(string targetName) => new(
+                TextSpan,
+                "BCP369",
+                $"The value of the \"{targetName}\" parameter cannot be known until the template deployment has started because it uses the default value defined in the template. Expressions that refer to the \"{targetName}\" parameter may be used in {LanguageConstants.LanguageFileExtension} files but not in {LanguageConstants.ParamsFileExtension} files.");
+            
+            public ErrorDiagnostic InvalidParameterValueAssignmentType(string parameterName, TypeSymbol declaredType) => new(
+                TextSpan, 
+                "BCP370", 
+                $"Assigned type of parameter \"{parameterName}\" does not match the declared type \"{declaredType}\" in the bicep template");
+        
+            public ErrorDiagnostic ParameterNotPresentInTemplate(string parameterName, string bicepFilePath) => new(
+                TextSpan, 
+                "BCP371", 
+                $"A value for parameter \"{parameterName}\" is provided but it is not declared in the bicep template \"{bicepFilePath}\"");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

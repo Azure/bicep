@@ -153,6 +153,9 @@ namespace Bicep.Core
         public const string ModuleOutputsPropertyName = "outputs";
         public const string ModuleNamePropertyName = "name";
 
+        // test properties
+        public const string TestParamsPropertyName = "params";
+
         // resource properties
         public const string ResourceScopePropertyName = "scope";
         public const string ResourceParentPropertyName = "parent";
@@ -166,6 +169,7 @@ namespace Bicep.Core
         public const string TypeNameBool = "bool";
         public const string TypeNameInt = "int";
         public const string TypeNameModule = "module";
+        public const string TypeNameTest = "test";
 
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
@@ -311,4 +315,6 @@ namespace Bicep.Core
             return new ModuleType(typeName, moduleScope, moduleBody);
         }
     }
+
+    
 }

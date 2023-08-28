@@ -31,6 +31,8 @@ public interface IFeatureProvider
 
     bool CompileTimeImportsEnabled { get; }
 
+    bool MicrosoftGraphPreviewEnabled { get; }
+
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
         get {
@@ -48,6 +50,7 @@ public interface IFeatureProvider
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
                 (CompileTimeImportsEnabled, CoreResources.ExperimentalFeatureNames_CompileTimeImports, true, false),
+                (MicrosoftGraphPreviewEnabled, CoreResources.ExperimentalFeatureNames_MicrosoftGraphPreview, true, true),
             })
             {
                 if (enabled)

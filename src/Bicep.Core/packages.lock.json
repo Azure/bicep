@@ -183,6 +183,15 @@
           "Microsoft.Extensions.DependencyInjection.Abstractions": "7.0.0"
         }
       },
+      "Microsoft.Graph.Bicep.Types": {
+        "type": "Direct",
+        "requested": "[0.1.0-preview.3, )",
+        "resolved": "0.1.0-preview.3",
+        "contentHash": "9ga9EvphrWe0zUkw9Rxlpav3wGIJAl8K/MLPoNnS258+Wh3tLCYc/XOMMv6jS3nLlsah0jaF+tEaNZ7OJoIkkg==",
+        "dependencies": {
+          "Azure.Bicep.Types": "0.3.181"
+        }
+      },
       "Microsoft.SourceLink.GitHub": {
         "type": "Direct",
         "requested": "[1.1.1, )",
@@ -192,6 +201,12 @@
           "Microsoft.Build.Tasks.Git": "1.1.1",
           "Microsoft.SourceLink.Common": "1.1.1"
         }
+      },
+      "Microsoft.VisualStudio.Threading.Analyzers": {
+        "type": "Direct",
+        "requested": "[17.6.40, )",
+        "resolved": "17.6.40",
+        "contentHash": "uU8vYr/Nx3ldEWcsbiHiyAX1G7od3eFK1+Aga6ZvgCvU+nQkcXYVkIMcSEkIDWkFaldx1dkoVvX3KRNQD0R7dw=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",

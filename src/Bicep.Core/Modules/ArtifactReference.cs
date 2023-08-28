@@ -2,22 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Modules
 {
     /// <summary>
     /// Strongly typed representation of a module reference string.
     /// </summary>
-    public abstract class ModuleReference
+    public abstract class ArtifactReference
     {
-        protected ModuleReference(string scheme, Uri parentModuleUri)
+        protected ArtifactReference(string scheme, Uri parentModuleUri)
         {
             this.Scheme = scheme;
             this.ParentModuleUri = parentModuleUri;
         }
-
-        protected static Regex ModuleAliasNameRegex { get; } = new(@"[\w-]");
 
         public string Scheme { get; }
 

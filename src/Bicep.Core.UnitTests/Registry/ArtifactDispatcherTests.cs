@@ -65,10 +65,10 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public void MockRegistries_AvailableSchemes_ShouldReturnedConfiguredSchemes()
         {
-            var first = StrictMock.Of<IModuleRegistry>();
+            var first = StrictMock.Of<IArtifactRegistry>();
             first.Setup(m => m.Scheme).Returns("first");
 
-            var second = StrictMock.Of<IModuleRegistry>();
+            var second = StrictMock.Of<IArtifactRegistry>();
             second.Setup(m => m.Scheme).Returns("second");
 
             var dispatcher = CreateDispatcher(BicepTestConstants.ConfigurationManager, first.Object, second.Object);
@@ -78,49 +78,49 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public async Task MockRegistries_ModuleLifecycle()
         {
-            var fail = StrictMock.Of<IModuleRegistry>();
+            var fail = StrictMock.Of<IArtifactRegistry>();
             fail.Setup(m => m.Scheme).Returns("fail");
 
-            var mock = StrictMock.Of<IModuleRegistry>();
+            var mock = StrictMock.Of<IArtifactRegistry>();
             mock.Setup(m => m.Scheme).Returns("mock");
 
             ErrorBuilderDelegate? @null = null;
             var configuration = BicepTestConstants.BuiltInConfiguration;
 
             var validRefUri = RandomFileUri();
-            ModuleReference? validRef = new MockModuleReference("validRef", validRefUri);
-            mock.Setup(m => m.TryParseModuleReference(null, "validRef", out validRef, out @null))
+            ArtifactReference? validRef = new MockModuleReference("validRef", validRefUri);
+            mock.Setup(m => m.TryParseArtifactReference(null, "validRef", out validRef, out @null))
                 .Returns(true);
 
             var validRefUri2 = RandomFileUri();
-            ModuleReference? validRef2 = new MockModuleReference("validRef2", validRefUri2);
-            mock.Setup(m => m.TryParseModuleReference(null, "validRef2", out validRef2, out @null))
+            ArtifactReference? validRef2 = new MockModuleReference("validRef2", validRefUri2);
+            mock.Setup(m => m.TryParseArtifactReference(null, "validRef2", out validRef2, out @null))
                 .Returns(true);
 
             var validRefUri3 = RandomFileUri();
-            ModuleReference? validRef3 = new MockModuleReference("validRef3", validRefUri3);
-            mock.Setup(m => m.TryParseModuleReference(null, "validRef3", out validRef3, out @null))
+            ArtifactReference? validRef3 = new MockModuleReference("validRef3", validRefUri3);
+            mock.Setup(m => m.TryParseArtifactReference(null, "validRef3", out validRef3, out @null))
                 .Returns(true);
 
             var badRefUri = RandomFileUri();
-            ModuleReference? nullRef = null;
+            ArtifactReference? nullRef = null;
             ErrorBuilderDelegate? badRefError = x => new ErrorDiagnostic(x.TextSpan, "BCPMock", "Bad ref error");
-            mock.Setup(m => m.TryParseModuleReference(null, "badRef", out nullRef, out badRefError))
+            mock.Setup(m => m.TryParseArtifactReference(null, "badRef", out nullRef, out badRefError))
                 .Returns(false);
 
-            mock.Setup(m => m.IsModuleRestoreRequired(validRef)).Returns(true);
-            mock.Setup(m => m.IsModuleRestoreRequired(validRef2)).Returns(false);
-            mock.Setup(m => m.IsModuleRestoreRequired(validRef3)).Returns(true);
+            mock.Setup(m => m.IsArtifactRestoreRequired(validRef)).Returns(true);
+            mock.Setup(m => m.IsArtifactRestoreRequired(validRef2)).Returns(false);
+            mock.Setup(m => m.IsArtifactRestoreRequired(validRef3)).Returns(true);
 
             Uri? validRefLocalUri = new Uri("untitled://validRef");
-            mock.Setup(m => m.TryGetLocalModuleEntryPointUri(validRef, out validRefLocalUri, out @null))
+            mock.Setup(m => m.TryGetLocalArtifactEntryPointUri(validRef, out validRefLocalUri, out @null))
                 .Returns(true);
             Uri? validRef3LocalUri = new Uri("untitled://validRef3");
-            mock.Setup(m => m.TryGetLocalModuleEntryPointUri(validRef3, out validRef3LocalUri, out @null))
+            mock.Setup(m => m.TryGetLocalArtifactEntryPointUri(validRef3, out validRef3LocalUri, out @null))
                 .Returns(true);
 
-            mock.Setup(m => m.RestoreModules(It.IsAny<IEnumerable<ModuleReference>>()))
-                .ReturnsAsync(new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>
+            mock.Setup(m => m.RestoreArtifacts(It.IsAny<IEnumerable<ArtifactReference>>()))
+                .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>
                 {
                     [validRef3] = x => new ErrorDiagnostic(x.TextSpan, "RegFail", "Failed to restore module")
                 });
@@ -142,14 +142,14 @@ namespace Bicep.Core.UnitTests.Registry
             badValidationBuilder!.Should().HaveCode("BCPMock");
             badValidationBuilder!.Should().HaveMessage("Bad ref error");
 
-            dispatcher.GetModuleRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ModuleRestoreStatus.Unknown);
+            dispatcher.GetArtifactRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ArtifactRestoreStatus.Unknown);
             goodAvailabilityBuilder!.Should().HaveCode("BCP190");
             goodAvailabilityBuilder!.Should().HaveMessage("The module with reference \"mock:validRef\" has not been restored.");
 
-            dispatcher.GetModuleRestoreStatus(validRef2, out var goodAvailabilityBuilder2).Should().Be(ModuleRestoreStatus.Succeeded);
+            dispatcher.GetArtifactRestoreStatus(validRef2, out var goodAvailabilityBuilder2).Should().Be(ArtifactRestoreStatus.Succeeded);
             goodAvailabilityBuilder2!.Should().BeNull();
 
-            dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3).Should().Be(ModuleRestoreStatus.Unknown);
+            dispatcher.GetArtifactRestoreStatus(validRef3, out var goodAvailabilityBuilder3).Should().Be(ArtifactRestoreStatus.Unknown);
             goodAvailabilityBuilder3!.Should().HaveCode("BCP190");
             goodAvailabilityBuilder3!.Should().HaveMessage("The module with reference \"mock:validRef3\" has not been restored.");
 
@@ -163,27 +163,27 @@ namespace Bicep.Core.UnitTests.Registry
 
             (await dispatcher.RestoreModules(new[] { validRef, validRef3 })).Should().BeTrue();
 
-            dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ModuleRestoreStatus.Failed);
+            dispatcher.GetArtifactRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ArtifactRestoreStatus.Failed);
             goodAvailabilityBuilder3AfterRestore!.Should().HaveCode("RegFail");
             goodAvailabilityBuilder3AfterRestore!.Should().HaveMessage("Failed to restore module");
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetConfigurationData), DynamicDataSourceType.Method)]
-        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(RootConfiguration changedConfiguration, ModuleRestoreStatus expectedStatus)
+        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(RootConfiguration changedConfiguration, ArtifactRestoreStatus expectedStatus)
         {
             // Arrange.
             var badReferenceUri = RandomFileUri();
             var badReference = new MockModuleReference("bad", badReferenceUri);
 
-            var registryMock = StrictMock.Of<IModuleRegistry>();
+            var registryMock = StrictMock.Of<IArtifactRegistry>();
             registryMock.SetupGet(x => x.Scheme).Returns("mock");
-            registryMock.Setup(x => x.RestoreModules(It.IsAny<IEnumerable<ModuleReference>>()))
-                .ReturnsAsync(new Dictionary<ModuleReference, ErrorBuilderDelegate>
+            registryMock.Setup(x => x.RestoreArtifacts(It.IsAny<IEnumerable<ArtifactReference>>()))
+                .ReturnsAsync(new Dictionary<ArtifactReference, ErrorBuilderDelegate>
                 {
                     [badReference] = x => new ErrorDiagnostic(x.TextSpan, "RestoreFailure", "Failed to restore module.")
                 });
-            registryMock.Setup(x => x.IsModuleRestoreRequired(badReference))
+            registryMock.Setup(x => x.IsArtifactRestoreRequired(badReference))
                 .Returns(true);
 
             var configManagerMock = StrictMock.Of<IConfigurationManager>();
@@ -198,7 +198,7 @@ namespace Bicep.Core.UnitTests.Registry
             await dispatcher.RestoreModules(new[] { badReference });
 
             // Act.
-            var status = dispatcher.GetModuleRestoreStatus(badReference, out _);
+            var status = dispatcher.GetArtifactRestoreStatus(badReference, out _);
 
             // Assert.
             status.Should().Be(expectedStatus);
@@ -214,7 +214,7 @@ namespace Bicep.Core.UnitTests.Registry
                     ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "HTTPS://EXAMPLE.INVALID",
                     ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid/",
                 }),
-                ModuleRestoreStatus.Failed
+                ArtifactRestoreStatus.Failed
             };
 
             yield return new object[]
@@ -226,7 +226,7 @@ namespace Bicep.Core.UnitTests.Registry
                     ["cloud.profiles.MyCloud.resourceManagerEndpoint"] = "HTTPS://EXAMPLE.INVALID",
                     ["cloud.profiles.MyCloud.activeDirectoryAuthority"] = "https://example.invalid/",
                 }),
-                ModuleRestoreStatus.Failed
+                ArtifactRestoreStatus.Failed
             };
 
             yield return new object[]
@@ -238,7 +238,7 @@ namespace Bicep.Core.UnitTests.Registry
                     ["cloud.profiles.MyCloud.resourceManagerEndpoint"] = "https://example.invalid",
                     ["cloud.profiles.MyCloud.activeDirectoryAuthority"] = "https://foo.bar.com",
                 }),
-                ModuleRestoreStatus.Unknown
+                ArtifactRestoreStatus.Unknown
             };
 
             yield return new object[]
@@ -248,11 +248,11 @@ namespace Bicep.Core.UnitTests.Registry
                 {
                     ["cloud.credentialPrecedence"] = new[] { "VisualStudioCode" },
                 }),
-                ModuleRestoreStatus.Unknown
+                ArtifactRestoreStatus.Unknown
             };
         }
 
-        private static IModuleDispatcher CreateDispatcher(IConfigurationManager configurationManager, params IModuleRegistry[] registries)
+        private static IModuleDispatcher CreateDispatcher(IConfigurationManager configurationManager, params IArtifactRegistry[] registries)
         {
             var provider = StrictMock.Of<IModuleRegistryProvider>();
             provider.Setup(m => m.Registries(It.IsAny<Uri>())).Returns(registries.ToImmutableArray());
@@ -268,7 +268,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
 
-        private class MockModuleReference : ModuleReference
+        private class MockModuleReference : ArtifactReference
         {
             public MockModuleReference(string reference, Uri parentModuleUri)
                 : base("mock", parentModuleUri)

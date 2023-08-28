@@ -13,7 +13,6 @@
 		</PackageReference>
 		<PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="4.5.0-2.final" PrivateAssets="all" />
 		<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
-		<PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.5.22" />
 		<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.2.32505.113" />
 		<PackageReference Include="Moq" Version="4.16.1" />
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
