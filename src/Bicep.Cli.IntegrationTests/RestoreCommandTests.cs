@@ -203,7 +203,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         /// </summary>
         /// <returns></returns>
         [TestMethod]
-        public async Task Restore_ArtifactWithMultipleLayers_ShouldIgnoreAdditionalLayers()
+        public async Task Restore_Artifacts_ForwardsCompatibility()
         {
             var registry = "example.com";
             var registryUri = new Uri("https://" + registry);
@@ -227,17 +227,23 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             using (var compiledStream = new BufferedMemoryStream())
             {
-                OciArtifactModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep"), out var moduleReference, out _).Should().BeTrue();
+                OciModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep"), out var artifactReference, out _).Should().BeTrue();
 
                 compiledStream.Write(TemplateEmitter.UTF8EncodingWithoutBom.GetBytes(dataSet.Compiled!));
                 compiledStream.Position = 0;
 
+                // Intentionally using non-empty config
+                using var configStream = new BufferedMemoryStream();
+                using var configStreamWriter = new StreamWriter(configStream);
+                await configStreamWriter.WriteAsync("{\"whatever\": \"your heart desires\"}");
+                configStream.Position = 0;
+
                 await containerRegistryManager.PushArtifactAsync(
                     configuration: configuration,
-                    moduleReference: moduleReference!,
+                    artifactReference: artifactReference!,
                     // intentionally setting artifactType to null to simulate a publish done by an older version of Bicep
                     artifactType: null,
-                    config: new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1),
+                    config: new StreamDescriptor(configStream, BicepMediaTypes.BicepModuleConfigV1),
                     layers: new[] {
                         new StreamDescriptor(compiledStream, BicepMediaTypes.BicepModuleLayerV1Json),
                         new StreamDescriptor(compiledStream, "application/vnd.ms.bicep.module.layer.v2+json") // this extra layer should get ignored
