@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,7 +12,6 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
-    [Ignore] // TODO: remove this when tagged union backend updates go out
     public class UserDefinedDiscriminatedObjectUnionTests
     {
         [NotNull]
