@@ -22,6 +22,9 @@ This feature is currently experimental while we collect feedback, but can be eas
 1. (if using a `.bicepparam` file) Change the parameter values if necessary.
 1. Press either the `Validate`, `Deploy` or `WhatIf` buttons to submit your deployment to Azure and view results.
 
+### Switching Tenants
+Use the `Azure: Select Tenant` command from the VSCode Command Palette to change the tenant used by the deployment pane. If you need to log in to a different AAD account, then you may instead need to use the `Azure: Sign In` command.
+
 ## Limitations / Notes
 1. Only subscription & resource group scoped deployments are currently supported.
 1. Changes you make in the editor are picked up immediately - you do not need to save the file.
