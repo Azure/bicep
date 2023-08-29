@@ -61,7 +61,7 @@ namespace Bicep.Decompiler
             string content,
             DecompileOptions options)
         {
-            JObject templateObject = LoadJson(content, JObject.Load, options.IgnoreTrailingInput);
+            JObject templateObject = JTokenHelpers.LoadJson(content, JObject.Load, options.IgnoreTrailingInput);
 
             var instance = new TemplateConverter(
                 workspace,
@@ -81,7 +81,7 @@ namespace Bicep.Decompiler
             string jsonInput,
             DecompileOptions options)
         {
-            JToken jToken = LoadJson(jsonInput, JToken.Load, options.IgnoreTrailingInput);
+            JToken jToken = JTokenHelpers.LoadJson(jsonInput, JToken.Load, options.IgnoreTrailingInput);
 
             var instance = new TemplateConverter(
                 workspace,
@@ -92,28 +92,6 @@ namespace Bicep.Decompiler
                 options);
 
             return instance.ParseJToken(jToken);
-        }
-
-        private static T LoadJson<T>(string jsonInput, Func<JsonReader, JsonLoadSettings, T> load, bool ignoreTrailingContent) where T : JToken
-        {
-            T jToken;
-            using (var reader = new JsonTextReader(new StringReader(jsonInput)))
-            {
-                reader.DateParseHandling = DateParseHandling.None;
-
-                jToken = load(reader, new JsonLoadSettings
-                {
-                    CommentHandling = CommentHandling.Ignore,
-                    LineInfoHandling = LineInfoHandling.Load,
-                });
-
-                if (!ignoreTrailingContent)
-                {
-                    // Force an exception if there's additional input past the object/value that's been read
-                    reader.Read();
-                }
-            }
-            return jToken;
         }
 
         private void RegisterNames(IEnumerable<JProperty> parameters, IEnumerable<JToken> resources, IEnumerable<JProperty> variables, IEnumerable<JProperty> outputs)

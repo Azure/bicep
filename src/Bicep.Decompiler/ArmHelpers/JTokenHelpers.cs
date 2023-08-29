@@ -2,17 +2,41 @@
 // Licensed under the MIT License.
 
 using System;
+using System.IO;
 using System.Linq;
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Utilities;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler.ArmHelpers
 {
     public static class JTokenHelpers
     {
+        public static T LoadJson<T>(string jsonInput, Func<JsonReader, JsonLoadSettings, T> loadFunc, bool ignoreTrailingContent) where T : JToken
+        {
+            T jToken;
+            using (var reader = new JsonTextReader(new StringReader(jsonInput)))
+            {
+                reader.DateParseHandling = DateParseHandling.None;
+
+                jToken = loadFunc(reader, new JsonLoadSettings
+                {
+                    CommentHandling = CommentHandling.Ignore,
+                    LineInfoHandling = LineInfoHandling.Load,
+                });
+
+                if (!ignoreTrailingContent)
+                {
+                    // Force an exception if there's additional input past the object/value that's been read
+                    reader.Read();
+                }
+            }
+            return jToken;
+        }
+
         public static void VisitExpressions<TToken>(TToken input, Action<LanguageExpression> visitFunc)
             where TToken : JToken
         {
