@@ -123,7 +123,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
             
             yield return new FunctionOverloadBuilder("toLogicalZones")
-                .WithReturnType(LanguageConstants.Array)
+                .WithReturnType(new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default, minLength: 1))
                 .WithGenericDescription("Returns the logical zone array corresponding to the given array of physical zones.")
                 .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
                 .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
@@ -139,7 +139,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("toPhysicalZones")
-                .WithReturnType(LanguageConstants.Array)
+                .WithReturnType(new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default, minLength: 1))
                 .WithGenericDescription("Returns the physical zone array corresponding to the given array of logical zones.")
                 .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
                 .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")

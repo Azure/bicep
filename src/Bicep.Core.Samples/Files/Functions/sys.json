@@ -1516,7 +1516,7 @@
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
     "flags": "default",
-    "typeSignature": "(subscriptionId: string, location: string, physicalZones: array): array",
+    "typeSignature": "(subscriptionId: string, location: string, physicalZones: array): string[]",
     "parameterTypeSignatures": [
       "subscriptionId: string",
       "location: string",
@@ -1634,7 +1634,7 @@
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
     "flags": "default",
-    "typeSignature": "(subscriptionId: string, location: string, logicalZones: array): array",
+    "typeSignature": "(subscriptionId: string, location: string, logicalZones: array): string[]",
     "parameterTypeSignatures": [
       "subscriptionId: string",
       "location: string",

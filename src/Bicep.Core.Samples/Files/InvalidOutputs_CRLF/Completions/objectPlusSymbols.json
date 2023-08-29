@@ -1452,7 +1452,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\ntoLogicalZones(subscriptionId: string, location: string, physicalZones: array): array\n\n```\nReturns the logical zone array corresponding to the given array of physical zones.\n"
+      "value": "```bicep\ntoLogicalZones(subscriptionId: string, location: string, physicalZones: array): string[]\n\n```\nReturns the logical zone array corresponding to the given array of physical zones.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1536,7 +1536,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\ntoPhysicalZones(subscriptionId: string, location: string, logicalZones: array): array\n\n```\nReturns the physical zone array corresponding to the given array of logical zones.\n"
+      "value": "```bicep\ntoPhysicalZones(subscriptionId: string, location: string, logicalZones: array): string[]\n\n```\nReturns the physical zone array corresponding to the given array of logical zones.\n"
     },
     "deprecated": false,
     "preselect": false,
