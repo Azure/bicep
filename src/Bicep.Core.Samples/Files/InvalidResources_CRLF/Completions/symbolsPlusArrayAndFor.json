@@ -5898,6 +5898,48 @@
     }
   },
   {
+    "label": "toLogicalZone",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoLogicalZone(subscriptionId: string, location: string, physicalZone: string): string\n\n```\nReturns the logical zone corresponding to the given physical zone.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toLogicalZone",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toLogicalZone($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toLogicalZones",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoLogicalZones(subscriptionId: string, location: string, physicalZones: array): array\n\n```\nReturns the logical zone array corresponding to the given array of physical zones.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toLogicalZones",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toLogicalZones($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "toLower",
     "kind": "function",
     "documentation": {
@@ -5933,6 +5975,48 @@
     "textEdit": {
       "range": {},
       "newText": "toObject($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toPhysicalZone",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoPhysicalZone(subscriptionId: string, location: string, logicalZone: string): string\n\n```\nReturns the physical zone corresponding to the given logical zone.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toPhysicalZone",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toPhysicalZone($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "toPhysicalZones",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoPhysicalZones(subscriptionId: string, location: string, logicalZones: array): array\n\n```\nReturns the physical zone array corresponding to the given array of logical zones.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_toPhysicalZones",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "toPhysicalZones($0)"
     },
     "command": {
       "title": "signature help",

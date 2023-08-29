@@ -113,6 +113,38 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Combines multiple arrays and returns the concatenated array.")
                 .WithVariableParameter("arg", LanguageConstants.Array, minimumCount: 1, "The array for concatenation")
                 .Build();
+            
+            yield return new FunctionOverloadBuilder("toLogicalZone")
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription("Returns the logical zone corresponding to the given physical zone.")
+                .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                .WithRequiredParameter("physicalZone", LanguageConstants.String, "The physical zone to convert")
+                .Build();
+            
+            yield return new FunctionOverloadBuilder("toLogicalZones")
+                .WithReturnType(LanguageConstants.Array)
+                .WithGenericDescription("Returns the logical zone array corresponding to the given array of physical zones.")
+                .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                .WithRequiredParameter("physicalZones", LanguageConstants.Array, "An array of physical zones to convert")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("toPhysicalZone")
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription("Returns the physical zone corresponding to the given logical zone.")
+                .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                .WithRequiredParameter("logicalZone", LanguageConstants.String, "The logical zone to convert")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("toPhysicalZones")
+                .WithReturnType(LanguageConstants.Array)
+                .WithGenericDescription("Returns the physical zone array corresponding to the given array of logical zones.")
+                .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                .WithRequiredParameter("logicalZones", LanguageConstants.Array, "An array of logical zones to convert")
+                .Build();
 
             yield return new FunctionOverloadBuilder("cidrSubnet")
                 .WithReturnType(LanguageConstants.String)
@@ -1000,7 +1032,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
         }
-
+       
         private static ObjectType GetParseCidrReturnType()
         {
             return new ObjectType("parseCidr", TypeSymbolValidationFlags.Default, new[]
