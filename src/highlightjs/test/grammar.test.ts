@@ -24,6 +24,9 @@ describe('grammar tests', () => {
   });
 
   it('should be up-to-date', async () => {
+    // Invoking webpack can take some time
+    jest.setTimeout(60000);
+
     const savedGrammar = await readFile(grammarPath, { encoding: 'utf8' });
 
     const generatedGrammar = await generateGrammar();

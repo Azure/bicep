@@ -1,0 +1,9 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "mydate": {
+            "value": "2023-08-16T00:00:00.000Z"
+        }
+    }
+}
