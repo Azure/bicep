@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17701644499121587693"
+      "templateHash": "14611001828329396005"
     }
   },
   "parameters": {
@@ -227,7 +227,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16704253611176477253"
+              "templateHash": "16846926962182872904"
             }
           },
           "parameters": {
@@ -366,7 +366,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "6607063108355547742"
+                      "templateHash": "9356800282323307322"
                     }
                   },
                   "parameters": {
@@ -432,7 +432,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7397250722142967265"
+                              "templateHash": "15977740014990001438"
                             }
                           },
                           "parameters": {
@@ -488,7 +488,10 @@
                                     "enabled": true
                                   }
                                 ]
-                              }
+                              },
+                              "dependsOn": [
+                                "hostPool"
+                              ]
                             },
                             "avdwsds": {
                               "type": "Microsoft.Insights/diagnosticSettings",
@@ -515,7 +518,10 @@
                                     "enabled": true
                                   }
                                 ]
-                              }
+                              },
+                              "dependsOn": [
+                                "workspace"
+                              ]
                             }
                           }
                         }
@@ -1101,7 +1107,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14391111979564079728"
+              "templateHash": "9616745895991063718"
             }
           },
           "parameters": {
@@ -1194,7 +1200,10 @@
                     "replicationRegions": []
                   }
                 ]
-              }
+              },
+              "dependsOn": [
+                "managedidentity"
+              ]
             },
             "aibdef": {
               "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
@@ -1231,7 +1240,8 @@
                 "principalType": "ServicePrincipal"
               },
               "dependsOn": [
-                "aibdef"
+                "aibdef",
+                "managedidentity"
               ]
             },
             "miorole": {
@@ -1243,7 +1253,10 @@
                 "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830",
                 "principalId": "[reference('managedidentity').principalId]",
                 "principalType": "ServicePrincipal"
-              }
+              },
+              "dependsOn": [
+                "managedidentity"
+              ]
             },
             "scriptName_BuildVMImage": {
               "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",

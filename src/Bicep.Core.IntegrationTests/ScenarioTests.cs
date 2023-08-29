@@ -4987,4 +4987,30 @@ param foo = 'asdf'
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+    // https://github.com/Azure/bicep/issues/10343
+    [TestMethod]
+    public void Test_Issue10343()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)), ("main.bicep", @"
+resource foo1 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo'
+}
+
+resource foo2 'Microsoft.Authorization/roleAssignments@2022-04-01' existing = {
+  scope: foo1
+  name: 'blah'
+}
+
+resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo3'
+  properties: {
+    accessTier: foo2.id
+  }
+}
+"));
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo2"));
+    }
 }

@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14391111979564079728"
+      "templateHash": "9616745895991063718"
     }
   },
   "parameters": {
@@ -99,7 +99,10 @@
             "replicationRegions": []
           }
         ]
-      }
+      },
+      "dependsOn": [
+        "managedidentity"
+      ]
     },
     "aibdef": {
       "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
@@ -136,7 +139,8 @@
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
-        "aibdef"
+        "aibdef",
+        "managedidentity"
       ]
     },
     "miorole": {
@@ -148,7 +152,10 @@
         "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830",
         "principalId": "[reference('managedidentity').principalId]",
         "principalType": "ServicePrincipal"
-      }
+      },
+      "dependsOn": [
+        "managedidentity"
+      ]
     },
     "scriptName_BuildVMImage": {
       "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",

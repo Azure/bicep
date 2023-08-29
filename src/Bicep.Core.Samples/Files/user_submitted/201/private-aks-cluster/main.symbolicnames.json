@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1311540613243024145"
+      "templateHash": "8707549050900419912"
     }
   },
   "parameters": {
@@ -1110,7 +1110,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3904421736177706194"
+              "templateHash": "14798761027267387413"
             }
           },
           "parameters": {
@@ -1387,6 +1387,7 @@
                 }
               },
               "dependsOn": [
+                "logAnalyticsWorkspace",
                 "virtualMachines"
               ]
             },
@@ -1619,7 +1620,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15899882108574365379"
+              "templateHash": "17167772107049027399"
             }
           },
           "parameters": {
@@ -1948,7 +1949,10 @@
               "existing": true,
               "type": "Microsoft.Network/virtualNetworks/subnets",
               "apiVersion": "2020-08-01",
-              "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]"
+              "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]",
+              "dependsOn": [
+                "virtualNetwork"
+              ]
             },
             "aksCluster": {
               "type": "Microsoft.ContainerService/managedClusters",
@@ -2018,7 +2022,10 @@
                 "apiServerAccessProfile": {
                   "enablePrivateCluster": "[parameters('aksClusterEnablePrivateCluster')]"
                 }
-              }
+              },
+              "dependsOn": [
+                "aksSubnet"
+              ]
             }
           }
         }

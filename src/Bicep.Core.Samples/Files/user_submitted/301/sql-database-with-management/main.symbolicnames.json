@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17358364825362519405"
+      "templateHash": "6525915520291992178"
     }
   },
   "parameters": {
@@ -59,7 +59,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7193459125805440940"
+              "templateHash": "9981193661517957529"
             }
           },
           "parameters": {
@@ -172,7 +172,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "11297024240548375439"
+                      "templateHash": "4926441281649354787"
                     }
                   },
                   "parameters": {
@@ -318,7 +318,8 @@
                       },
                       "dependsOn": [
                         "azureDefender",
-                        "sqlLogicalServerRes"
+                        "sqlLogicalServerRes",
+                        "storageAccountVulnerabilityAssessments"
                       ]
                     },
                     "auditSettings": {
@@ -403,8 +404,9 @@
                       "dependsOn": [
                         "auditSettings",
                         "dummyDeployments",
-                        "sqlDatabases",
-                        "sqlLogicalServerRes"
+                        "logAnalyticsWorkspace",
+                        "masterDb",
+                        "sqlDatabases"
                       ]
                     },
                     "diagnosticSettings": {
@@ -436,8 +438,9 @@
                       },
                       "dependsOn": [
                         "dummyDeployments",
-                        "sqlDatabases",
-                        "sqlLogicalServerRes"
+                        "logAnalyticsWorkspace",
+                        "masterDb",
+                        "sqlDatabases"
                       ]
                     },
                     "sqlFirewallRules": {
@@ -535,7 +538,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "6449296172144959788"
+                              "templateHash": "2334572005318909582"
                             }
                           },
                           "parameters": {
@@ -630,6 +633,7 @@
                               "dependsOn": [
                                 "azureDefender",
                                 "sqlDb",
+                                "storageAccountVulnerabilityAssessments",
                                 "transparentDataEncryption"
                               ]
                             },
@@ -659,6 +663,7 @@
                               },
                               "dependsOn": [
                                 "auditSettings",
+                                "logAnalyticsWorkspace",
                                 "sqlDb",
                                 "transparentDataEncryption"
                               ]
@@ -691,6 +696,7 @@
                                 "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('sqlDatabase').diagnosticLogsAndMetrics.subscriptionId, parameters('sqlDatabase').diagnosticLogsAndMetrics.resourceGroupName), 'Microsoft.OperationalInsights/workspaces', parameters('sqlDatabase').diagnosticLogsAndMetrics.name)]"
                               },
                               "dependsOn": [
+                                "logAnalyticsWorkspace",
                                 "sqlDb",
                                 "transparentDataEncryption"
                               ]
@@ -880,7 +886,10 @@
                     }
                   }
                 }
-              }
+              },
+              "dependsOn": [
+                "[format('sqlPassKeyVaults[{0}]', copyIndex())]"
+              ]
             }
           }
         }

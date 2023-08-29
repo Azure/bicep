@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "746252077949181675"
+      "templateHash": "18250750169409311102"
     }
   },
   "parameters": {
@@ -217,7 +217,7 @@
       },
       "dependsOn": [
         "function",
-        "virtualNetwork"
+        "subnet"
       ]
     },
     "subnet": {
