@@ -817,7 +817,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
             var documentUri = DocumentUri.FromFileSystemPath(bicepPath);
-            var parentModuleUri = documentUri.ToUri();
+            var parentModuleUri = documentUri.ToUriEncoded();
 
             var client = await GetLanguageClientAsync(
                 documentUri,

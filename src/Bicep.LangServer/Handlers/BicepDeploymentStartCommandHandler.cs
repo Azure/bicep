@@ -88,15 +88,15 @@ namespace Bicep.LanguageServer.Handlers
 
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = armClientProvider.createArmClient(credential, default, options);
-            
-            //starting with empty valid json (that can be parsed) for deployments with no parameters 
+
+            //starting with empty valid json (that can be parsed) for deployments with no parameters
             string parametersFileJson = "{}";
-            
+
             if(request.parametersFilePath is { })
             {
-                if (PathHelper.HasBicepparamsExension(DocumentUri.FromFileSystemPath(request.parametersFilePath).ToUri()))
+                if (PathHelper.HasBicepparamsExension(DocumentUri.FromFileSystemPath(request.parametersFilePath).ToUriEncoded()))
                 {
-                    //params file validation 
+                    //params file validation
                     if (request.parametersFileUpdateOption != ParametersFileUpdateOption.None)
                     {
                         return new BicepDeploymentStartResponse(false, "Cannot create/overwrite/update parameter files when using a bicep parameters file", null);
@@ -121,7 +121,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
                 else
                 {
-                    //request.parametersFileName only exists for a json parameter file 
+                    //request.parametersFileName only exists for a json parameter file
                     //as it maybe need to create a file if none exits on disk
                     if (request.parametersFileName is { })
                     {
@@ -145,8 +145,8 @@ namespace Bicep.LanguageServer.Handlers
                     }
                 }
             }
-            
-            //stringified json for params passed here 
+
+            //stringified json for params passed here
             var bicepDeploymentStartResponse = await deploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider,
                 armClient,
@@ -207,7 +207,7 @@ namespace Bicep.LanguageServer.Handlers
             return new BicepparamCompilationResult(true, paramsOutputBuffer.ToString());
         }
 
-        public string ExtractParametersObjectValue(string JsonParametersContent) 
+        public string ExtractParametersObjectValue(string JsonParametersContent)
         {
             var jObject = JObject.Parse(JsonParametersContent);
             var parameters = jObject["parameters"];
@@ -215,8 +215,8 @@ namespace Bicep.LanguageServer.Handlers
             if (parameters is not null)
             {
                 return parameters.ToString();
-            }    
-            
+            }
+
             //return original JSON if no "parameters" property found
             return jObject.ToString();
         }

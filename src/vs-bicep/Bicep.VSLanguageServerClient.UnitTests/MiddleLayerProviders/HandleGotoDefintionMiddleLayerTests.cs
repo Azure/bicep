@@ -34,7 +34,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
             var vsLocation = handleGotoDefintionMiddleLayer.GetVSLocation(locationOrLocationLink);
 
             Assert.IsNotNull(vsLocation);
-            vsLocation.Uri.Should().Be(uri.ToUri());
+            vsLocation.Uri.Should().Be(uri.ToUriEncoded());
 
             var resultStart = vsLocation.Range.Start;
             var resultEnd = vsLocation.Range.End;
@@ -74,7 +74,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
             var vsLocation = handleGotoDefintionMiddleLayer.GetVSLocation(locationOrLocationLink);
 
             Assert.IsNotNull(vsLocation);
-            vsLocation.Uri.Should().Be(uri.ToUri());
+            vsLocation.Uri.Should().Be(uri.ToUriEncoded());
 
             var resultStart = vsLocation.Range.Start;
             var resultEnd = vsLocation.Range.End;

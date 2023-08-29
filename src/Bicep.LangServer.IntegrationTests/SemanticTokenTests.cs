@@ -54,7 +54,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task Overlapping_tokens_are_not_returned(DataSet dataSet)
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
-            var bicepFile = SourceFileFactory.CreateBicepFile(uri.ToUri(), dataSet.Bicep);
+            var bicepFile = SourceFileFactory.CreateBicepFile(uri.ToUriEncoded(), dataSet.Bicep);
 
             var helper = await DefaultServer.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);

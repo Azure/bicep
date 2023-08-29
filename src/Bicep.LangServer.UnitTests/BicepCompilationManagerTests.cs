@@ -65,7 +65,7 @@ namespace Bicep.LangServer.UnitTests
 
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             var server = BicepCompilationManagerHelper.CreateMockServer(document);
-            var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUri();
+            var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUriEncoded();
             var workspace = new Workspace();
             var manager = BicepCompilationManagerHelper.CreateCompilationManager(uri, string.Empty);
 
@@ -95,7 +95,7 @@ namespace Bicep.LangServer.UnitTests
             PublishDiagnosticsParams? receivedParams = null;
 
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
-            var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUri();
+            var uri = DocumentUri.File(this.TestContext.TestName + fileExtension).ToUriEncoded();
 
             var originalFile = SourceFileFactory.CreateArmTemplateFile(uri, "{}");
             var workspace = new Workspace();
@@ -558,7 +558,7 @@ module moduleB './moduleB.bicep' = {
                 compilationManager.OpenCompilation(uris.main, 1, fileDict[uris.main], "bicep");
 
                 diagsReceieved.Should().SatisfyRespectively(
-                    x => x.Uri.ToUri().Should().Be(uris.main)
+                    x => x.Uri.ToUriEncoded().Should().Be(uris.main)
                 );
                 diagsReceieved.Clear();
             }
@@ -578,8 +578,8 @@ module moduleB './moduleB.bicep' = {
                 compilationManager.OpenCompilation(uris.moduleA, 2, fileDict[uris.moduleA], "bicep");
 
                 diagsReceieved.Should().SatisfyRespectively(
-                    x => x.Uri.ToUri().Should().Be(uris.moduleA),
-                    x => x.Uri.ToUri().Should().Be(uris.main)
+                    x => x.Uri.ToUriEncoded().Should().Be(uris.moduleA),
+                    x => x.Uri.ToUriEncoded().Should().Be(uris.main)
                 );
                 diagsReceieved.Clear();
 
@@ -598,8 +598,8 @@ module moduleB './moduleB.bicep' = {
                 compilationManager.OpenCompilation(uris.moduleC, 2, fileDict[uris.moduleC], "bicep");
 
                 diagsReceieved.Should().SatisfyRespectively(
-                    x => x.Uri.ToUri().Should().Be(uris.moduleC),
-                    x => x.Uri.ToUri().Should().Be(uris.main)
+                    x => x.Uri.ToUriEncoded().Should().Be(uris.moduleC),
+                    x => x.Uri.ToUriEncoded().Should().Be(uris.main)
                 );
                 diagsReceieved.Clear();
 
@@ -611,7 +611,7 @@ module moduleB './moduleB.bicep' = {
                 compilationManager.OpenCompilation(uris.main, 3, fileDict[uris.main], "bicep");
 
                 diagsReceieved.Should().SatisfyRespectively(
-                    x => x.Uri.ToUri().Should().Be(uris.main)
+                    x => x.Uri.ToUriEncoded().Should().Be(uris.main)
                 );
                 diagsReceieved.Clear();
 
@@ -844,7 +844,7 @@ resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
 param location string = 'testLocation'";
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
-            var mainUri = DocumentUri.FromFileSystemPath(bicepFilePath).ToUri();
+            var mainUri = DocumentUri.FromFileSystemPath(bicepFilePath).ToUriEncoded();
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, bicepFileContents);
 
@@ -884,7 +884,7 @@ param location string = 'testLocation'";
             var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigContents, testOutputPath);
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
 
-            return configurationManager.GetConfiguration(bicepConfigUri.ToUri());
+            return configurationManager.GetConfiguration(bicepConfigUri.ToUriEncoded());
         }
 
         private BicepCompilationManager CreateBicepCompilationManager()

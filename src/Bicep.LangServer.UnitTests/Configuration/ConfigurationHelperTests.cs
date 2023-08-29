@@ -57,7 +57,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
 }";
 
             var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
-            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
+            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUriEncoded();
 
             bool result = ConfigurationHelper.TryGetConfiguration(new ConfigurationManager(new IOFileSystem()), bicepConfigUri, out RootConfiguration? rootConfiguration);
 

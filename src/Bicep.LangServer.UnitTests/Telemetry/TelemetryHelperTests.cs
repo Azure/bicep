@@ -531,7 +531,7 @@ namespace Bicep.LangServer.UnitTests.Telemetry
             var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigContents, testOutputPath);
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
 
-            return configurationManager.GetConfiguration(bicepConfigUri.ToUri());
+            return configurationManager.GetConfiguration(bicepConfigUri.ToUriEncoded());
         }
     }
 }

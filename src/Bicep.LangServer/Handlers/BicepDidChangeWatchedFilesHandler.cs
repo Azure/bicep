@@ -10,6 +10,7 @@ using Bicep.Core;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Configuration;
 using MediatR;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -35,10 +36,10 @@ namespace Bicep.LanguageServer.Handlers
                                                                                        LanguageConstants.BicepConfigurationFileName,
                                                                                        StringComparison.OrdinalIgnoreCase));
 
-            // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed 
+            // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed
             if (bicepConfigFileChangeEvents.Any())
             {
-                Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUri();
+                Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUriEncoded();
                 bicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace();
             }
 

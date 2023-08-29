@@ -16,6 +16,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -66,7 +67,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             if (symbol.DeclaringSyntax is DecorableSyntax decorableSyntax &&
                 DescriptionHelper.TryGetFromDecorator(
-                    result.Context.Compilation.GetEntrypointSemanticModel(), 
+                    result.Context.Compilation.GetEntrypointSemanticModel(),
                     decorableSyntax) is { } description)
             {
                 return description;
@@ -127,7 +128,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 case ModuleSymbol module:
                     return await GetModuleMarkdown(request, result, moduleDispatcher, moduleRegistryProvider, module);
-                
+
                 case TestSymbol test:
                     return AsMarkdown(CodeBlockWithDescription($"test {test.Name}", TryGetDescriptionMarkdown(result, test)));
                 case OutputSymbol output:
@@ -173,10 +174,10 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         private static async Task<MarkedStringsOrMarkupContent> GetModuleMarkdown(
-            HoverParams request, 
-            SymbolResolutionResult result, 
-            IModuleDispatcher moduleDispatcher, 
-            IModuleRegistryProvider moduleRegistryProvider, 
+            HoverParams request,
+            SymbolResolutionResult result,
+            IModuleDispatcher moduleDispatcher,
+            IModuleRegistryProvider moduleRegistryProvider,
             ModuleSymbol module)
         {
             if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule, out var filePath, out _))
@@ -186,7 +187,7 @@ namespace Bicep.LanguageServer.Handlers
             var descriptionLines = new List<string?>();
             descriptionLines.Add(TryGetDescriptionMarkdown(result, module));
 
-            var uri = request.TextDocument.Uri.ToUri();
+            var uri = request.TextDocument.Uri.ToUriEncoded();
             var registries = moduleRegistryProvider.Registries(uri);
 
             if (registries != null &&

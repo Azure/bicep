@@ -30,7 +30,7 @@ namespace Bicep.LanguageServer.Configuration
         {
             try
             {
-                rootConfiguration = configurationManager.GetConfiguration(documentUri.ToUri());
+                rootConfiguration = configurationManager.GetConfiguration(documentUri.ToUriEncoded());
                 return true;
             }
             catch(Exception e)

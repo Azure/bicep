@@ -14,6 +14,7 @@ using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using Bicep.Core.Features;
 using Bicep.Core.PrettyPrintV2;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -49,7 +50,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var lexingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.LexingErrorLookup;
             var parsingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.ParsingErrorLookup;
-            var featureProvider = this.featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUri());
+            var featureProvider = this.featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUriEncoded());
 
             if (featureProvider.PrettyPrintingEnabled)
             {
