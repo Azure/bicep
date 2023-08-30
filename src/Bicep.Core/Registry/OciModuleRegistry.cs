@@ -148,7 +148,7 @@ namespace Bicep.Core.Registry
 
             // Ignore the config contents for now, we're not currently doing anything with it but might in the future, but should remain backwards compatible
 
-            if (manifest.Layers.Length < 1)
+            if (manifest.Layers.Length == 0)
             {
                 throw new InvalidModuleException("Expected at least one layer in the OCI artifact.");
             }
