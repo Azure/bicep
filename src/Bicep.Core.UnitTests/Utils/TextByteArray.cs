@@ -13,24 +13,24 @@ using System.Text;
 namespace Bicep.Core.UnitTests.Utils;
 
 /// <summary>
-/// A byte array for UTF-8 text
+/// A byte array for data that is intended to represent UTF-8 text (but is still stored as binary)
 /// </summary>
 public class TextByteArray
 {
-    private readonly ImmutableArray<byte> _bytes;
+    private readonly ImmutableArray<byte> bytes;
 
-    public TextByteArray(string text) => _bytes = Encoding.UTF8.GetBytes(text).ToImmutableArray();
+    public TextByteArray(string text) => bytes = Encoding.UTF8.GetBytes(text).ToImmutableArray();
 
-    public TextByteArray(byte[] bytes) => _bytes = bytes.ToImmutableArray();
+    public TextByteArray(byte[] bytes) => this.bytes = bytes.ToImmutableArray();
 
-    public TextByteArray(ImmutableArray<byte> bytes) => _bytes = bytes;
+    public TextByteArray(ImmutableArray<byte> bytes) => this.bytes = bytes;
 
-    public ImmutableArray<byte> Bytes => _bytes;
+    public ImmutableArray<byte> Bytes => bytes;
 
-    public byte[] ToArray() => _bytes.ToArray();
+    public byte[] ToArray() => bytes.ToArray();
 
     // Left as property to make it easier to use in the debugger
-    public string Text => Encoding.UTF8.GetString(_bytes.ToArray());
+    public string Text => Encoding.UTF8.GetString(bytes.AsSpan());
 
     public Stream ToStream()
     {
@@ -45,16 +45,7 @@ public class TextByteArray
     public static string StreamToText(Stream stream)
     {
         stream.Position = 0;
-
-        int capacity;
-        checked
-        {
-            capacity = ((int)stream.Length);
-        }
-        var ms = new MemoryStream(capacity);
-        stream.CopyTo(ms);
-        ms.Position = 0;
-
-        return Encoding.UTF8.GetString(ms.ToArray());
+        var sr = new StreamReader(stream, Encoding.UTF8);
+        return sr.ReadToEnd();
     }
 }
