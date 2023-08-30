@@ -46,16 +46,6 @@ internal static class ArmTemplateHelpers
         return typeDefinition;
     }
 
-    internal static JToken DereferenceArmVariable(Template template, string name)
-    {
-        if (template.Variables?.TryGetValue(name, out var value) is true)
-        {
-            return value.Value;
-        }
-
-        throw new InvalidOperationException($"No variable named '{name}' was found in the template.");
-    }
-
     internal static IEnumerable<string> EnumerateTypeReferencesUsedIn(SchemaValidationContext context, string typePointer)
         => EnumerateTypeReferencesUsedIn(DereferenceArmType(context, typePointer));
 

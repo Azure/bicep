@@ -145,11 +145,11 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
                 IntraTemplateSymbolicReference target = targetModel switch
                 {
                     SemanticModel targetBicepModel
-                        => new BicepSymbolicReference(SymbolNamed(importedSymbolReference.Symbol.OriginalSymbolName, targetBicepModel), targetBicepModel),
+                        => new BicepSymbolicReference(FindSymbolNamed(name, targetBicepModel), targetBicepModel),
                     ArmTemplateSemanticModel targetArmModel
-                        => ReferenceForArmTarget(importedSymbolReference.Symbol.OriginalSymbolName, exportMetadata, targetArmModel.SourceFile, targetModel),
+                        => ReferenceForArmTarget(name, exportMetadata, targetArmModel.SourceFile, targetModel),
                     TemplateSpecSemanticModel targetTemplateSpecModel
-                        => ReferenceForArmTarget(importedSymbolReference.Symbol.OriginalSymbolName, exportMetadata, targetTemplateSpecModel.SourceFile.MainTemplateFile, targetModel),
+                        => ReferenceForArmTarget(name, exportMetadata, targetTemplateSpecModel.SourceFile.MainTemplateFile, targetModel),
                     _ => throw new InvalidOperationException($"Unrecognized module type {targetModel.GetType().Name} encountered"),
                 };
 
@@ -280,7 +280,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
             _ => throw new InvalidOperationException($"Unrecognized export metadata type: {md.GetType().Name}"),
         });
 
-    private static DeclaredSymbol SymbolNamed(string nameOfSymbolSought, SemanticModel model)
+    private static DeclaredSymbol FindSymbolNamed(string nameOfSymbolSought, SemanticModel model)
         => model.Root.Declarations.Where(t => LanguageConstants.IdentifierComparer.Equals(t.Name, nameOfSymbolSought)).Single();
 
     private static IntraTemplateSymbolicReference ReferenceForArmTarget(string targetName, ExportMetadata targetMetadata, ArmTemplateFile sourceTemplateFile, ISemanticModel sourceModel)

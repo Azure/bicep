@@ -176,7 +176,7 @@ internal class TemplateVariablesEvaluator
         return new EvaluationException(new InvalidOperationException($"Variable '{name}' was not found."));
     }
 
-    internal JObject? TryGetRawUnevaluatedCopyDeclaration(string name)
+    private JObject? TryGetRawUnevaluatedCopyDeclaration(string name)
     {
         if (template.Variables?.TryGetValue(CopyPropertyName, out var copyVariable) is true &&
             copyVariable.Value is JArray copiedVariables &&
