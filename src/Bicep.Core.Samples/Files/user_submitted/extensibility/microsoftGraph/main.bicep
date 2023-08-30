@@ -60,7 +60,7 @@ resource group 'Microsoft.Graph/groups@beta' = {
   name: 'myGroup'
   displayName: 'My Group'
   mailEnabled: false
-  mailNickName: 'myGroupMailNickname'
+  mailNickname: 'myGroupMailNickname'
   securityEnabled: false
   groupTypes: [
     'Unified'
