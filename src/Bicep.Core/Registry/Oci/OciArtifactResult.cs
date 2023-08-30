@@ -14,7 +14,7 @@ namespace Bicep.Core.Registry.Oci
 {
     public class OciArtifactResult
     {
-        public OciArtifactResult(BinaryData manifestBits, string manifestDigest, ImmutableDictionary<string, BinaryData> layers)
+        public OciArtifactResult(BinaryData manifestBits, string manifestDigest, ImmutableList<(string MediaType, BinaryData Data)> layers)
         {
             this.manifest = manifestBits;
             this.serializedManifest = OciManifest.FromBinaryData(manifestBits) ?? throw new InvalidOperationException("the manifest is not a valid OCI manifest");
@@ -25,7 +25,7 @@ namespace Bicep.Core.Registry.Oci
         private readonly BinaryData manifest;
         private readonly string manifestDigest;
         private readonly OciManifest serializedManifest;
-        private readonly ImmutableDictionary<string, BinaryData> layers;
+        private readonly ImmutableList<(string MediaType, BinaryData Data)> layers;
 
         public Stream ToStream() => manifest.ToStream();
 
@@ -33,6 +33,6 @@ namespace Bicep.Core.Registry.Oci
 
         public string ManifestDigest => manifestDigest;
 
-        public IEnumerable<BinaryData> Layers => layers.Values;
+        public IEnumerable<(string MediaType, BinaryData Data)> Layers => layers;
     }
 }

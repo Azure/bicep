@@ -8,8 +8,10 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
 using Azure;
+using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
@@ -131,6 +133,7 @@ namespace Bicep.Core.Registry
             if (artifactType is not null &&
                 !allowedArtifactMediaTypes.Contains(artifactType, MediaTypeComparer))
             {
+                // Bicep v0.20.0 and lower use null for this field
                 throw new InvalidModuleException(
                     $"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{artifactType}'.",
                     InvalidModuleExceptionKind.WrongArtifactType);
@@ -143,20 +146,18 @@ namespace Bicep.Core.Registry
                 throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\".");
             }
 
-            if (config.Size > 2)
+            // Ignore the config contents for now, we're not currently doing anything with it but might in the future, but should remain backwards compatible
+
+            if (manifest.Layers.Length < 1)
             {
-                throw new InvalidModuleException("Expected an empty config blob.");
+                throw new InvalidModuleException("Expected at least one layer in the OCI artifact.");
             }
 
-            if (manifest.Layers.Length != 1)
-            {
-                throw new InvalidModuleException("Expected a single layer in the OCI artifact.");
-            }
-
-            var layer = manifest.Layers.Single();
+            // Ignore all but the first layer for now. Might add more layers later but should remain backwards compatible
+            var layer = manifest.Layers.First();
             if (!allowedLayerMediaTypes.Contains(layer.MediaType, MediaTypeComparer))
             {
-                throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+                throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\". A newer version of Bicep might be required to reference this artifact.", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
             }
         }
 
@@ -202,36 +203,6 @@ namespace Bicep.Core.Registry
         {
             var ociAnnotations = TryGetOciAnnotations(ociArtifactModuleReference);
             return Task.FromResult(DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations));
-        }
-
-        private string? TryGetModuleLayerMediaType(OciModuleReference ociArtifactReference)
-        {
-            try
-            {
-                string manifestFilePath = this.GetModuleFilePath(ociArtifactReference, ModuleFileType.Manifest);
-                if (!File.Exists(manifestFilePath))
-                {
-                    return null;
-                }
-
-                string manifestFileContents = File.ReadAllText(manifestFilePath);
-                if (string.IsNullOrWhiteSpace(manifestFileContents))
-                {
-                    return null;
-                }
-
-                OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
-                if (ociManifest is null)
-                {
-                    return null;
-                }
-
-                return ociManifest.Layers.Single().MediaType;
-            }
-            catch
-            {
-                return null;
-            }
         }
 
         private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciModuleReference ociArtifactModuleReference)
@@ -298,12 +269,18 @@ namespace Bicep.Core.Registry
 
         public override async Task PublishArtifact(OciModuleReference moduleReference, Stream compiled, string? documentationUri, string? description)
         {
+            // Write out an empty config for now
+            // NOTE: Bicep v0.20 and earlier will throw if it finds a non-empty config
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
+
+            // Write out a single layer with the compiled JSON
+            // NOTE: Bicep v0.20 and earlier will throw if it finds more than one layer
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
             try
             {
-                await this.client.PushArtifactAsync(configuration, moduleReference, BicepMediaTypes.BicepModuleArtifactType, config, documentationUri, description, layer);
+                // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
+                await this.client.PushArtifactAsync(configuration, moduleReference, ManifestMediaType.OciImageManifest.ToString(), BicepMediaTypes.BicepModuleArtifactType, config, documentationUri, description, layer);
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {
@@ -320,7 +297,7 @@ namespace Bicep.Core.Registry
         // media types are case-insensitive (they are lowercase by convention only)
         public static readonly IEqualityComparer<string> MediaTypeComparer = StringComparer.OrdinalIgnoreCase;
 
-        protected override void WriteArtifactContent(OciModuleReference reference, OciArtifactResult result)
+        protected override void WriteArtifactContentToCache(OciModuleReference reference, OciArtifactResult result)
         {
             /*
              * this should be kept in sync with the IsModuleRestoreRequired() implementation
@@ -334,33 +311,23 @@ namespace Bicep.Core.Registry
             using var manifestStream = result.ToStream();
             this.FileResolver.Write(manifestFileUri, manifestStream);
 
-            var mediaType = TryGetModuleLayerMediaType(reference);
-            if (mediaType is not null)
+            // First layer is the main layer, we'll assue it's there. We shouldn't make any assumptions about other layers
+            //   that may or may not be there, to allow for future expansion.
+            var layer = result.Layers.First();
+            var layerMediaType = layer.MediaType;
+
+            // write data file
+
+            // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
+            // but this may change in the future if we chose to publish providers in multiple layers.
+            var moduleFileType = layerMediaType switch
             {
-                switch (mediaType)
-                {
-                    // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
-                    // but this may change in the future if we chose to publish providers in multiple layers. 
-                    case BicepMediaTypes.BicepModuleLayerV1Json:
-                        {
-                            // write module.json
-                            var moduleData = result.Layers.Single();
-                            using var moduleStream = moduleData!.ToStream();
-                            this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain), moduleStream);
-                            break;
-                        }
-                    case BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip:
-                        {
-                            // write provider.tar.gz
-                            var providerData = result.Layers.Single();
-                            using var providerStream = providerData!.ToStream();
-                            this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Provider), providerStream);
-                            break;
-                        }
-                    default:
-                        break;
-                }
-            }
+                BicepMediaTypes.BicepModuleLayerV1Json => ModuleFileType.ModuleMain,
+                BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip => ModuleFileType.Provider,
+                _ => throw new ArgumentException($"Unexpected layer mediaType \"{layerMediaType}\". This should have been caught in the {nameof(ValidateModule)} method.")
+            };
+            using var dataStream = layer.Data.ToStream();
+            this.FileResolver.Write(this.GetModuleFileUri(reference, moduleFileType), dataStream);
 
             // write metadata
             var metadata = new ModuleMetadata(result.ManifestDigest);

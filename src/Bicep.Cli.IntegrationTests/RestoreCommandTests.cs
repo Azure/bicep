@@ -129,11 +129,20 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         /// <summary>
-        /// Validates that we can restore a module published by an older version of Bicep that did not set artifactType in the OCI manifest.
+        /// Validates that we can restore a module published by an older version of Bicep that had artifactType as null in the OCI manifest,
+        ///   or mediaType as null, or an empty config, or newer versions that have a non-empty config
         /// </summary>
         /// <returns></returns>
-        [TestMethod]
-        public async Task Restore_ArtifactWithoutArtifactType_ShouldSucceed()
+        [DataTestMethod]
+        [DataRow(null, null, null)]
+        [DataRow(null, "application/vnd.ms.bicep.module.artifact", null)]
+        [DataRow("application/vnd.oci.image.manifest.v1+json", null, null)]
+        [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.artifact", null)]
+        [DataRow(null, null, "{}")]
+        [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.artifact", "{\"whatever\": \"your heart desires as long as it's JSON\"}")]
+        [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.unexpected", null,
+            ".*Unable to restore.*")]
+        public async Task Restore_Artifacts_BackwardsAndForwardsCompatibility(string? mediaType, string? artifactType, string? configContents, string? expectedErrorRegex = null)
         {
             var registry = "example.com";
             var registryUri = new Uri("https://" + registry);
@@ -158,16 +167,25 @@ namespace Bicep.Cli.IntegrationTests
             using (var compiledStream = new BufferedMemoryStream())
             {
                 OciModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep"), out var artifactReference, out _).Should().BeTrue();
+
                 compiledStream.Write(TemplateEmitter.UTF8EncodingWithoutBom.GetBytes(dataSet.Compiled!));
                 compiledStream.Position = 0;
+
+                using var configStream = new BufferedMemoryStream();
+                using var configStreamWriter = new StreamWriter(configStream);
+                await configStreamWriter.WriteAsync(configContents);
+                configStream.Position = 0;
 
                 await containerRegistryManager.PushArtifactAsync(
                     configuration: configuration,
                     artifactReference: artifactReference!,
-                    // intentionally setting artifactType to null to simulate a publish done by an older version of Bicep
-                    artifactType: null,
-                    config: new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1),
-                    layers: new StreamDescriptor(compiledStream, BicepMediaTypes.BicepModuleLayerV1Json));
+                    mediaType: mediaType,
+                    artifactType: artifactType,
+                    config: new StreamDescriptor(configStream, BicepMediaTypes.BicepModuleConfigV1),
+                    layers: new[] {
+                        new StreamDescriptor(compiledStream, BicepMediaTypes.BicepModuleLayerV1Json),
+                        new StreamDescriptor(compiledStream, "application/vnd.ms.bicep.module.layer.v2+json") // this extra layer should get ignored
+                    });
             }
 
             /*
@@ -192,9 +210,18 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var (output, error, result) = await Bicep(settings, "restore", restoreBicepFilePath);
             using (new AssertionScope())
             {
-                result.Should().Be(0);
                 output.Should().BeEmpty();
-                error.Should().BeEmpty();
+
+                if (expectedErrorRegex == null)
+                {
+                    result.Should().Be(0);
+                    error.Should().BeEmpty();
+                }
+                else
+                {
+                    result.Should().Be(1);
+                    error.Should().MatchRegex(expectedErrorRegex);
+                }
             }
         }
 
@@ -393,7 +420,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
                 output.Should().BeEmpty();
                 error.Should().ContainAll(": Error BCP192: Unable to restore the module with reference ", "The artifact does not exist in the registry.");
 
-                
+
             }
         }
 
