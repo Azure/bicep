@@ -26,7 +26,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-        .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
+        .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
         .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IFileSystem, IOFileSystem>()

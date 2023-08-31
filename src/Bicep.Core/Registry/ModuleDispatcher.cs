@@ -24,11 +24,11 @@ namespace Bicep.Core.Registry
 
         private readonly ConcurrentDictionary<RestoreFailureKey, RestoreFailureInfo> restoreFailures = new();
 
-        private readonly IModuleRegistryProvider registryProvider;
+        private readonly IArtifactRegistryProvider registryProvider;
 
         private readonly IConfigurationManager configurationManager;
 
-        public ModuleDispatcher(IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager)
+        public ModuleDispatcher(IArtifactRegistryProvider registryProvider, IConfigurationManager configurationManager)
         {
             this.registryProvider = registryProvider;
             this.configurationManager = configurationManager;

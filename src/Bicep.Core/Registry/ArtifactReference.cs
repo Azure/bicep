@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Bicep.Core.Modules
+namespace Bicep.Core.Registry
 {
     /// <summary>
     /// Strongly typed representation of a module reference string.
@@ -12,8 +12,8 @@ namespace Bicep.Core.Modules
     {
         protected ArtifactReference(string scheme, Uri parentModuleUri)
         {
-            this.Scheme = scheme;
-            this.ParentModuleUri = parentModuleUri;
+            Scheme = scheme;
+            ParentModuleUri = parentModuleUri;
         }
 
         public string Scheme { get; }
@@ -26,7 +26,7 @@ namespace Bicep.Core.Modules
         /// <summary>
         /// Gets the fully qualified module reference, which includes the scheme.
         /// </summary>
-        public virtual string FullyQualifiedReference => $"{this.Scheme}:{this.UnqualifiedReference}";
+        public virtual string FullyQualifiedReference => $"{Scheme}:{UnqualifiedReference}";
 
         /// <summary>
         /// Gets the unqualified module reference, which does not include the scheme.

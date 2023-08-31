@@ -8,7 +8,6 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
