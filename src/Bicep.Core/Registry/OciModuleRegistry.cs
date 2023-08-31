@@ -158,12 +158,13 @@ namespace Bicep.Core.Registry
         {
             var manifest = artifactResult.Manifest;
             var artifactType = manifest.ArtifactType;
+
+            // (Bicep v0.20.0 and lower use null for this field, so assume valid in that case
             if (artifactType is not null &&
                 !allowedArtifactMediaTypes.Contains(artifactType, MediaTypeComparer))
             {
-                // Bicep v0.20.0 and lower use null for this field
                 throw new InvalidModuleException(
-                    $"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{artifactType}'.",
+                    $"Expected OCI manifest artifactType value of '{BicepMediaTypes.BicepModuleArtifactType}' but found '{artifactType}'. {NewerVersionMightBeRequired}",
                     InvalidModuleExceptionKind.WrongArtifactType);
             }
             var config = manifest.Config;
@@ -177,13 +178,8 @@ namespace Bicep.Core.Registry
             // Verify nothing wrong with the layers we've been given
             _ = getMainLayer(artifactResult);
 
-            // We don't currently do anything with the mainfest config, but we could in the future.
-            // TODO: We're not currently writing out non-zero config for modules but expect to be soon. When it happens, it will be a breaking change and we should remove this check.
-            //   (https://github.com/Azure/bicep/issues/11482)
-            if (string.CompareOrdinal(getMainLayer(artifactResult).mediaType, BicepMediaTypes.BicepModuleLayerV1Json) == 0 && config.Size > 0)
-            {
-                throw new InvalidModuleException("This module is not compatible with this version of Bicep. Please upgrade Bicep to reference this module.");
-            }
+            // Note: We're not currently writing out non-zero config for modules but expect to soon (https://github.com/Azure/bicep/issues/11482).
+            // So ignore the field for now and don't do any validation.
         }
 
         public override bool TryGetLocalArtifactEntryPointUri(OciModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)

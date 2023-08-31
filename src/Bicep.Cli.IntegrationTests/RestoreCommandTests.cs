@@ -167,27 +167,26 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        /// <summary>
-        /// Validates that we can restore a module published by an older version of Bicep that had artifactType as null in the OCI manifest,
-        ///   or mediaType as null, or an empty config, or newer versions that have a non-empty config
-        /// </summary>
-        /// <returns></returns>
+        // Validates that we can restore a module published by an older version of Bicep that had artifactType as null in the OCI manifest,
+        //   or mediaType as null, or an empty config, or newer versions that have a non-empty config
+        //
+        //
+        // No errors
         [DataTestMethod]
         [DataRow(null, null, null)]
         [DataRow(null, "application/vnd.ms.bicep.module.artifact", null)]
         [DataRow("application/vnd.oci.image.manifest.v1+json", null, null)]
         [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.artifact", null)]
-        // Right now, we expect config to be empty and but plan to write JSON soon (https://github.com/Azure/bicep/issues/11482), along with adding a new
-        //   source layer, which will be breaking changes.
-        [DataRow(null, null, "{}",
-            // expected error:
-            "The OCI artifact is not a valid Bicep module. This module is not compatible with this version of Bicep. Please upgrade Bicep to reference this module.")]
-        [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.artifact", "{\"whatever\": \"your heart desires as long as it's JSON\"}",
-            // expected error:
-            "The OCI artifact is not a valid Bicep module. This module is not compatible with this version of Bicep. Please upgrade Bicep to reference this module.")]
+        // We should ignore any unrecognized layers and any data written into a module's config, for future compatibility
+        // Expecting no errors
+        [DataRow(null, null, "{}", null)]
+        [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.artifact", "{\"whatever\": \"your heart desires as long as it's JSON\"}")]
+        // These are just invalid. It's possible they might change in the future, but they would have to be breaking changes,
+        //   current clients can't be expected to ignore these.
+        // Expecting errors
         [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.unexpected", null,
             // expected error:
-            "Error BCP192: Unable to restore.*found 'application/vnd.ms.bicep.module.unexpected")]
+            "Error BCP192: Unable to restore.*but found 'application/vnd.ms.bicep.module.unexpected'.*newer version of Bicep might be required")]
         public async Task Restore_Artifacts_BackwardsAndForwardsCompatibility(string? mediaType, string? artifactType, string? configContents, string? expectedErrorRegex = null)
         {
             var registry = "example.com";
@@ -243,14 +242,17 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         }
 
         [DataTestMethod]
-        // Valid asdfg
+        // Valid
         [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json }, null)]
-        // TODO: doesn't work because provider doesn't write out main.json file: [DataRow(new string[] { BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip }, null)]
+        // TODO: doesn't work because provider doesn't write out main.json file:
+        //[DataRow(new string[] { BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip }, null)]
         [DataRow(new string[] { "unknown1", "unknown2", BicepMediaTypes.BicepModuleLayerV1Json }, null)]
         [DataRow(new string[] { "unknown1", BicepMediaTypes.BicepModuleLayerV1Json, "unknown2" }, null)]
         [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json, "unknown1", "unknown2" }, null)]
         [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json, "unknown1", "unknown1", "unknown2", "unknown2" }, null)]
-        // TODO: doesn't work because provider doesn't write out main.json file: [DataRow(new string[] { "unknown", BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip }, null)]
+        // TODO: doesn't work because provider doesn't write out main.json file:
+        // [DataRow(new string[] { "unknown", BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip }, null)]
+        //
         // Invalid
         [DataRow(new string[] { }, "Expected at least one layer")]
         [DataRow(new string[] { "unknown1", "unknown2" }, "Did not expect only layer media types unknown1, unknown2")]
