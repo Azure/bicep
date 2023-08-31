@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
@@ -33,6 +32,8 @@ namespace Bicep.Core.Registry
         private readonly RootConfiguration configuration;
 
         private readonly Uri parentModuleUri;
+
+        private const string NewerVersionMightBeRequired = "A newer version of Bicep might be required to reference this artifact.";
 
         public OciModuleRegistry(IFileResolver FileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features, RootConfiguration configuration, Uri parentModuleUri)
             : base(FileResolver)
@@ -66,7 +67,7 @@ namespace Bicep.Core.Registry
         public override bool IsArtifactRestoreRequired(OciModuleReference reference)
         {
             /*
-             * this should be kept in sync with the WriteModuleContent() implementation
+             * this should be kept in sync with the WriteArtifactContentToCache() implementation
              *
              * when we write content to the module cache, we attempt to get a lock so that no other writes happen in the directory
              * the code here appears to implement a lock-free read by checking existence of several files that are expected in a fully restored module
@@ -74,6 +75,11 @@ namespace Bicep.Core.Registry
              * this relies on the assumption that modules are never updated in-place in the cache
              * when we need to invalidate the cache, the module directory (or even a single file) should be deleted from the cache
              */
+
+            // TODO: Provider artifacts don't write a ModuleMain file, so this code is incorrect.  Also, as we add more layer types,
+            //  the list of files will grow, some of which may be optional.  Also, what if writing one of these additional layers
+            //  fails?  Does the cache get invalidated? It's probably better to have a sentinel file written that must exist for the
+            //  restore to be considered complete.
             return
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain)) ||
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Manifest)) ||
@@ -123,9 +129,31 @@ namespace Bicep.Core.Registry
             BicepMediaTypes.BicepModuleConfigV1,
             BicepMediaTypes.BicepProviderConfigV1);
 
-        private readonly ImmutableArray<string> allowedLayerMediaTypes = ImmutableArray.Create(
+        private readonly ImmutableArray<string> allowedMainLayerMediaTypes = ImmutableArray.Create(
             BicepMediaTypes.BicepModuleLayerV1Json,
             BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip);
+
+        private (string mediaType, BinaryData data) getMainLayer(OciArtifactResult result)
+        {
+            if (result.Layers.Count() == 0)
+            {
+                throw new InvalidModuleException("Expected at least one layer in the OCI artifact.");
+            }
+
+            // Ignore layers we don't recognize for now.
+            var mainLayers = result.Layers.Where(l => allowedMainLayerMediaTypes.Contains(l.MediaType, MediaTypeComparer)).ToArray();
+            if (mainLayers.Count() == 0)
+            {
+                throw new InvalidModuleException($"Did not expect only layer media types {string.Join(", ", result.Layers.Select(l => l.MediaType).ToArray())}", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+            }
+            else if (mainLayers.Count() > 1)
+            {
+                throw new InvalidModuleException($"Did not expect to find multiple layer media types of {string.Join(", ", mainLayers.Select(l => l.MediaType).ToArray())}", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+            }
+
+            return mainLayers.Single();
+        }
+
         private void ValidateModule(OciArtifactResult artifactResult)
         {
             var manifest = artifactResult.Manifest;
@@ -143,21 +171,18 @@ namespace Bicep.Core.Registry
             if (configMediaType is not null &&
                 !allowedConfigMediaTypes.Contains(configMediaType, MediaTypeComparer))
             {
-                throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\".");
+                throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\". {NewerVersionMightBeRequired}");
             }
 
-            // Ignore the config contents for now, we're not currently doing anything with it but might in the future, but should remain backwards compatible
+            // Verify nothing wrong with the layers we've been given
+            _ = getMainLayer(artifactResult);
 
-            if (manifest.Layers.Length == 0)
+            // We don't currently do anything with the mainfest config, but we could in the future.
+            // TODO: We're not currently writing out non-zero config for modules but expect to be soon. When it happens, it will be a breaking change and we should remove this check.
+            //   (https://github.com/Azure/bicep/issues/11482)
+            if (string.CompareOrdinal(getMainLayer(artifactResult).mediaType, BicepMediaTypes.BicepModuleLayerV1Json) == 0 && config.Size > 0)
             {
-                throw new InvalidModuleException("Expected at least one layer in the OCI artifact.");
-            }
-
-            // Ignore all but the first layer for now. Might add more layers later but should remain backwards compatible
-            var layer = manifest.Layers.First();
-            if (!allowedLayerMediaTypes.Contains(layer.MediaType, MediaTypeComparer))
-            {
-                throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\". A newer version of Bicep might be required to reference this artifact.", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+                throw new InvalidModuleException("This module is not compatible with this version of Bicep. Please upgrade Bicep to reference this module.");
             }
         }
 
@@ -311,22 +336,19 @@ namespace Bicep.Core.Registry
             using var manifestStream = result.ToStream();
             this.FileResolver.Write(manifestFileUri, manifestStream);
 
-            // First layer is the main layer, we'll assue it's there. We shouldn't make any assumptions about other layers
-            //   that may or may not be there, to allow for future expansion.
-            var layer = result.Layers.First();
-            var layerMediaType = layer.MediaType;
-
             // write data file
+            var mainLayer = getMainLayer(result);
 
             // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
             // but this may change in the future if we chose to publish providers in multiple layers.
-            var moduleFileType = layerMediaType switch
+            // TODO: IsArtifactRestoreRequired assumes there must be a ModuleMain file, which isn't true for provider artifacts
+            var moduleFileType = mainLayer.mediaType switch
             {
                 BicepMediaTypes.BicepModuleLayerV1Json => ModuleFileType.ModuleMain,
                 BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip => ModuleFileType.Provider,
-                _ => throw new ArgumentException($"Unexpected layer mediaType \"{layerMediaType}\". This should have been caught in the {nameof(ValidateModule)} method.")
+                _ => throw new ArgumentException($"Unexpected layer mediaType \"{mainLayer.mediaType}\". This should have been caught in the {nameof(ValidateModule)} method.")
             };
-            using var dataStream = layer.Data.ToStream();
+            using var dataStream = mainLayer.data.ToStream();
             this.FileResolver.Write(this.GetModuleFileUri(reference, moduleFileType), dataStream);
 
             // write metadata
