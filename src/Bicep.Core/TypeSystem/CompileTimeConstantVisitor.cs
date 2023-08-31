@@ -60,6 +60,15 @@ namespace Bicep.Core.TypeSystem
             this.AppendError(syntax);
         }
 
+        public override void VisitStringSyntax(StringSyntax syntax)
+        {
+            // Flag string interpolation since we don't support constant folding and constant propagation.
+            if (syntax.IsInterpolated())
+            {
+                this.AppendError(syntax);
+            }
+        }
+
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
         {
             this.AppendError(syntax);
