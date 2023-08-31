@@ -5,10 +5,6 @@ using Bicep.Core.Collections.Trees;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static FluentAssertions.FluentActions;
 
 namespace Bicep.Core.UnitTests.Collections.Trees

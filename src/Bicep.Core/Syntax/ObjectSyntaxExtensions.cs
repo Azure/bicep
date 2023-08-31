@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
+using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {

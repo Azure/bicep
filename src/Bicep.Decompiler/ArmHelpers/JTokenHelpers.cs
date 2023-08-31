@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
-using System.Linq;
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace Bicep.Decompiler.ArmHelpers
 {

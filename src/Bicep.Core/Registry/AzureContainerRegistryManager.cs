@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure;
+using Azure.Containers.ContainerRegistry;
+using Azure.Identity;
+using Bicep.Core.Configuration;
+using Bicep.Core.Registry.Oci;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -9,12 +14,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure;
-using Azure.Containers.ContainerRegistry;
-using Azure.Identity;
-using Bicep.Core.Configuration;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry.Oci;
 using OciDescriptor = Bicep.Core.Registry.Oci.OciDescriptor;
 using OciManifest = Bicep.Core.Registry.Oci.OciManifest;
 

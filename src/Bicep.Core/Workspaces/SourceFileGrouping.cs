@@ -1,18 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Navigation;
-using Bicep.Core.Syntax;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Workspaces
 {
-    
+
     public record ArtifactResolutionInfo(
         IForeignArtifactReference DeclarationSyntax,
         ISourceFile ParentTemplateFile);

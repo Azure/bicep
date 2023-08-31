@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Linq;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using static Bicep.Core.UnitTests.Diagnostics.LinterRuleTests.LinterRuleTestsBase;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {

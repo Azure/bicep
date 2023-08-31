@@ -128,7 +128,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_Not_DeploymentOrResourceGroup_OrWithIncorrectNamespace_ShouldPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
-            ExpectPass(text, new Options( onCompileErrors));
+            ExpectPass(text, new Options(onCompileErrors));
         }
 
         [DataRow(

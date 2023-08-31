@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Linq;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Completions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Linq;
 
 namespace Bicep.LangServer.UnitTests.Completions
 {

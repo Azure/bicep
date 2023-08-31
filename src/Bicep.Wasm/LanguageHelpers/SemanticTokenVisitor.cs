@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Wasm.LanguageHelpers
 {
@@ -252,7 +252,7 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitResourceTypeSyntax(ResourceTypeSyntax syntax)
         {
-             // This is intentional, we want 'resource' to look like 'object' or 'array'.
+            // This is intentional, we want 'resource' to look like 'object' or 'array'.
             AddTokenType(syntax.Keyword, SemanticTokenType.Type);
             base.VisitResourceTypeSyntax(syntax);
         }

@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
@@ -12,6 +10,8 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.UnitTests;
 
@@ -67,7 +67,7 @@ public class ServiceBuilder
 
     public static IDependencyHelper Create(Action<IServiceCollection>? registerAction = null)
     {
-        registerAction ??= services => {};
+        registerAction ??= services => { };
 
         return new ServiceBuilder().WithRegistration(registerAction).Build();
     }

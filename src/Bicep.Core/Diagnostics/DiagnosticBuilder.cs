@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
@@ -16,6 +11,11 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -2066,15 +2066,15 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP369",
                 $"The value of the \"{targetName}\" parameter cannot be known until the template deployment has started because it uses the default value defined in the template. Expressions that refer to the \"{targetName}\" parameter may be used in {LanguageConstants.LanguageFileExtension} files but not in {LanguageConstants.ParamsFileExtension} files.");
-            
+
             public ErrorDiagnostic InvalidParameterValueAssignmentType(string parameterName, TypeSymbol declaredType) => new(
-                TextSpan, 
-                "BCP370", 
+                TextSpan,
+                "BCP370",
                 $"Assigned type of parameter \"{parameterName}\" does not match the declared type \"{declaredType}\" in the bicep template");
-        
+
             public ErrorDiagnostic ParameterNotPresentInTemplate(string parameterName, string bicepFilePath) => new(
-                TextSpan, 
-                "BCP371", 
+                TextSpan,
+                "BCP371",
                 $"A value for parameter \"{parameterName}\" is provided but it is not declared in the bicep template \"{bicepFilePath}\"");
         }
 

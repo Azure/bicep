@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Linq;
-using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Syntax;
+using System;
+using System.Linq;
+using System.Text;
 
 namespace Bicep.Core.PrettyPrint
 {

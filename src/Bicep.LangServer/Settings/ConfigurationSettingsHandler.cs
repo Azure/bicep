@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading;
-using System.Threading.Tasks;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Settings
 {

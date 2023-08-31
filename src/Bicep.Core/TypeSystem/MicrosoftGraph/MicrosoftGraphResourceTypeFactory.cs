@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Resources;
 using System;
-using System.Linq;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Bicep.Core.Resources;
+using System.Linq;
 
 namespace Bicep.Core.TypeSystem.MicrosoftGraph
 {
@@ -56,7 +56,7 @@ namespace Bicep.Core.TypeSystem.MicrosoftGraph
             {
                 flags |= TypePropertyFlags.DeployTimeConstant;
             }
-            if(!input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.Required) && !input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.ReadOnly))
+            if (!input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.Required) && !input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.ReadOnly))
             {
                 // for non-required and non-readonly resource properties, we allow null assignment
                 flags |= TypePropertyFlags.AllowImplicitNull;
@@ -82,7 +82,7 @@ namespace Bicep.Core.TypeSystem.MicrosoftGraph
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch
                     {
-                        #pragma warning disable 618
+#pragma warning disable 618
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Any => LanguageConstants.Any,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Null => LanguageConstants.Null,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Bool => LanguageConstants.Bool,
@@ -91,32 +91,32 @@ namespace Bicep.Core.TypeSystem.MicrosoftGraph
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Object => LanguageConstants.Object,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Array => LanguageConstants.Array,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.ResourceRef => LanguageConstants.ResourceRef,
-                        #pragma warning restore 618
+#pragma warning restore 618
                         _ => throw new ArgumentException(),
                     };
                 case Azure.Bicep.Types.Concrete.ObjectType objectType:
-                {
-                    var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
-                    var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
+                    {
+                        var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
+                        var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
 
-                    return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties, TypePropertyFlags.None);
-                }
+                        return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties, TypePropertyFlags.None);
+                    }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
-                {
-                    return new TypedArrayType(GetTypeReference(arrayType.ItemType), GetValidationFlags(isResourceBodyType));
-                }
+                    {
+                        return new TypedArrayType(GetTypeReference(arrayType.ItemType), GetValidationFlags(isResourceBodyType));
+                    }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:
-                {
-                    return TypeHelper.CreateTypeUnion(unionType.Elements.Select(x => GetTypeReference(x)));
-                }
+                    {
+                        return TypeHelper.CreateTypeUnion(unionType.Elements.Select(x => GetTypeReference(x)));
+                    }
                 case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
                     return TypeFactory.CreateStringLiteralType(stringLiteralType.Value);
                 case Azure.Bicep.Types.Concrete.DiscriminatedObjectType discriminatedObjectType:
-                {
-                    var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));
+                    {
+                        var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));
 
-                    return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType), discriminatedObjectType.Discriminator, elementReferences);
-                }
+                        return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType), discriminatedObjectType.Discriminator, elementReferences);
+                    }
                 default:
                     throw new ArgumentException();
             }
@@ -155,7 +155,8 @@ namespace Bicep.Core.TypeSystem.MicrosoftGraph
         private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceFlags input)
         {
             var output = ResourceFlags.None;
-            if (input.HasFlag(Azure.Bicep.Types.Concrete.ResourceFlags.ReadOnly)) {
+            if (input.HasFlag(Azure.Bicep.Types.Concrete.ResourceFlags.ReadOnly))
+            {
                 output |= ResourceFlags.ReadOnly;
             }
 

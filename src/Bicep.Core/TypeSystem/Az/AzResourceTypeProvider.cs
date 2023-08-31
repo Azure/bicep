@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Bicep.Core.Emit;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Emit;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Bicep.Core.TypeSystem.Az

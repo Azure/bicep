@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Linq;
 using Bicep.Core.CodeAction;
 using FluentAssertions;
 using FluentAssertions.Primitives;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions;
 

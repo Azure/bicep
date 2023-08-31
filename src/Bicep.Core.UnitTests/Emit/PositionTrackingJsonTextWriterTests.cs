@@ -1,18 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Bicep.Core.Emit;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
-using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.Emit
 {

@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.FileSystem;
-using System.IO;
 using FluentAssertions;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.FileSystem
 {

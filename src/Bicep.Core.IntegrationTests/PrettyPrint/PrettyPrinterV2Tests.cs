@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Cli.Logging;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
@@ -14,8 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.IntegrationTests.PrettyPrint
 {

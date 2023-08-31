@@ -125,7 +125,7 @@ namespace Bicep.Cli.Services
             Uri inputUri = PathHelper.FilePathToFileUrl(inputPath);
             Uri outputUri = PathHelper.FilePathToFileUrl(outputPath);
 
-            var decompilation =  paramDecompiler.Decompile(inputUri, outputUri, bicepPath);
+            var decompilation = paramDecompiler.Decompile(inputUri, outputUri, bicepPath);
 
             foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
             {

@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Bicep.Core.Syntax
 {

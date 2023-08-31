@@ -1,22 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure.ResourceManager;
 using Bicep.Core;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
-using Bicep.Core.Semantics;
 using Bicep.Core.Tracing;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Deploy;
@@ -28,6 +17,14 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -92,7 +89,7 @@ namespace Bicep.LanguageServer.Handlers
             //starting with empty valid json (that can be parsed) for deployments with no parameters
             string parametersFileJson = "{}";
 
-            if(request.parametersFilePath is { })
+            if (request.parametersFilePath is { })
             {
                 if (PathHelper.HasBicepparamsExension(DocumentUri.FromFileSystemPath(request.parametersFilePath).ToUriEncoded()))
                 {

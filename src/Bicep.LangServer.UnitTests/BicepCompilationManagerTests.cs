@@ -1,10 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
@@ -25,6 +20,11 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests

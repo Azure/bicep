@@ -2,12 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.RegistryModuleTool.Exceptions;
-using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 

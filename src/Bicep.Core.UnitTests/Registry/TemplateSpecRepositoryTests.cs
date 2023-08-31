@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
@@ -13,6 +9,10 @@ using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using static FluentAssertions.FluentActions;
 
 namespace Bicep.Core.UnitTests.Registry

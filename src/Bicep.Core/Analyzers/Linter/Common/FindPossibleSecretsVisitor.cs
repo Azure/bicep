@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
@@ -12,12 +8,14 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Common
 {
     public sealed class FindPossibleSecretsVisitor : AstVisitor
     {
-        public record PossibleSecret(SyntaxBase Syntax, string FoundMessage) {}
+        public record PossibleSecret(SyntaxBase Syntax, string FoundMessage) { }
 
         private readonly SemanticModel semanticModel;
         private readonly List<PossibleSecret> possibleSecrets = new();

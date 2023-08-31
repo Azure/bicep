@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Linq;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Workspaces;
+using System.Linq;
 
 namespace Bicep.Core.Emit
 {
@@ -33,7 +33,7 @@ namespace Bicep.Core.Emit
                         syntax is UnionTypeSyntax ||
                         syntax is NullableTypeSyntax,
                     resultSelector: result => result,
-                    continuationFunction: (result, syntax) => !result) ;
+                    continuationFunction: (result, syntax) => !result);
         }
 
         /// <summary>

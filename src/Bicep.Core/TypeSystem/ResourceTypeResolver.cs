@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -120,7 +120,7 @@ namespace Bicep.Core.TypeSystem
                                 // Remove ReadableAtDeployTime flag from the name property.
                                 if (diagnosticWriter.HasDiagnostics())
                                 {
-                                    existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearReadableAtDeployTimeFlags(propertyName, existingResourceBodyType);;
+                                    existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearReadableAtDeployTimeFlags(propertyName, existingResourceBodyType); ;
                                 }
                             }
                         }

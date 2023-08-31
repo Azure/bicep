@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Extensions;
 
 namespace Bicep.Core.TypeSystem;
 
@@ -331,7 +331,7 @@ internal static class TypeCollapser
 
         private class CollapsesToAny : UnionCollapseState
         {
-            private CollapsesToAny() {}
+            private CollapsesToAny() { }
 
             internal static readonly CollapsesToAny Instance = new();
 
@@ -342,7 +342,7 @@ internal static class TypeCollapser
 
         private class Uncollapsable : UnionCollapseState
         {
-            private Uncollapsable() {}
+            private Uncollapsable() { }
 
             internal static readonly Uncollapsable Instance = new();
 

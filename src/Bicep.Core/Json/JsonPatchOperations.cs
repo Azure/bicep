@@ -5,7 +5,6 @@ using Json.More;
 using Json.Patch;
 using Json.Pointer;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace Bicep.Core.Json
 {

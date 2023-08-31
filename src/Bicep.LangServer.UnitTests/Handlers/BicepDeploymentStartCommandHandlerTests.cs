@@ -1,18 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Bicep.Core;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.LangServer.IntegrationTests;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Deploy;
@@ -21,9 +13,11 @@ using Bicep.LanguageServer.Providers;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -63,7 +57,7 @@ param foo = 'something'
 param bar = 1
             ";
 
-            var expectedParamJson = 
+            var expectedParamJson =
 @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -131,7 +125,7 @@ param bar = '1'
         [TestMethod]
         public void ExtractParametersObject_WithValidJsonReturns_ParametersPropertyValue()
         {
-            var paramJson = 
+            var paramJson =
 @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",

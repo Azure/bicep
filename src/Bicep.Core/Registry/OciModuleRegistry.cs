@@ -1,14 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -19,6 +11,13 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Tracing;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Bicep.Core.Registry
 {

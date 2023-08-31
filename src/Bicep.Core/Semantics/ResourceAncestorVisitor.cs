@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using System.Collections.Immutable;
 using static Bicep.Core.Semantics.ResourceAncestorGraph;
 
 namespace Bicep.Core.Semantics
@@ -31,7 +31,7 @@ namespace Bicep.Core.Semantics
                 return;
             }
 
-            if (semanticModel.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax) is {} nestedParentSyntax)
+            if (semanticModel.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax) is { } nestedParentSyntax)
             {
                 // nested resource parent syntax
                 if (semanticModel.ResourceMetadata.TryLookup(nestedParentSyntax) is DeclaredResourceMetadata parentResource)

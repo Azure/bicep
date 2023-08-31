@@ -2,15 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Extensions;
-using Newtonsoft.Json.Schema;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.Collections.Trees
 {
@@ -282,7 +276,7 @@ namespace Bicep.Core.Collections.Trees
             while (node.IsNotRoot && this.IsBlack(node))
             {
                 var indexer = node.IsLeft ? BinaryTreeIndexer.Default : BinaryTreeIndexer.Inverted;
-                var (leftIndex, rightIndex) = indexer; 
+                var (leftIndex, rightIndex) = indexer;
 
                 var sibling = node.Parent[rightIndex];
 

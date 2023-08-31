@@ -6,6 +6,6 @@ namespace Bicep.Core.Syntax
 {
     public abstract class StatementSyntax : DecorableSyntax
     {
-        protected StatementSyntax(IEnumerable<SyntaxBase> leadingNodes) : base(leadingNodes) {}
+        protected StatementSyntax(IEnumerable<SyntaxBase> leadingNodes) : base(leadingNodes) { }
     }
 }

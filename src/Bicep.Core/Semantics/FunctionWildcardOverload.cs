@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.TypeSystem;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {

@@ -1,11 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Text;
@@ -18,6 +12,12 @@ using Microsoft.VisualStudio.Threading;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -189,7 +189,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         public async Task<FileRequestHelper> OpenFile(Uri fileUri, string text)
         {
-            BicepSourceFile bicepFile = PathHelper.HasBicepparamsExension(fileUri) ? 
+            BicepSourceFile bicepFile = PathHelper.HasBicepparamsExension(fileUri) ?
                 SourceFileFactory.CreateBicepParamFile(fileUri, text) :
                 SourceFileFactory.CreateBicepFile(fileUri, text);
 

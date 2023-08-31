@@ -1,16 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using System.Threading.Tasks;
-using Bicep.Core;
 using Bicep.Core.Registry;
-using Bicep.Decompiler;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Threading.Tasks;
 
 namespace Bicep.Wasm;
 

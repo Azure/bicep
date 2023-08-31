@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using System;
-using Newtonsoft.Json.Linq;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions.Schema;
-using Azure.Deployments.Templates.Engines;
-using Azure.Deployments.Expression.Engines;
-using System.Linq;
-using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Core.ErrorResponses;
-using Bicep.Core.UnitTests.Utils;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
-using System.Collections.Immutable;
+using Azure.Deployments.Expression.Engines;
+using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Templates.Engines;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
+using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {

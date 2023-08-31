@@ -91,7 +91,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
                 //   name: '${AutomationAccountName}'   <<= a string literal with a single interpolated value
 
-                if (valueSyntax is StringSyntax strSyntax && TrySimplify(strSyntax) is {} expression)
+                if (valueSyntax is StringSyntax strSyntax && TrySimplify(strSyntax) is { } expression)
                 {
                     // We only want to trigger if the expression is of type string (because interpolation
                     // using non-string types can be a perfectly valid way to convert to string, e.g. '${intVar}')

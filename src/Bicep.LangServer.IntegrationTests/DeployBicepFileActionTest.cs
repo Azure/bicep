@@ -1,21 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Azure.Core;
 using Azure.ResourceManager;
-using Bicep.Core;
-using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Handlers;
@@ -25,11 +16,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
 using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using TextRange = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -51,27 +44,27 @@ namespace Bicep.LangServer.IntegrationTests
 
         [TestMethod]
         public async Task IncorrectUpdateOption_WithBicepparamFile_ReturnsError()
-        {   
+        {
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var bicepparamFileUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
 
-            var fileTextsByUri = new Dictionary<Uri, string>() 
+            var fileTextsByUri = new Dictionary<Uri, string>()
             {
                 [bicepFileUri] = "",
                 [bicepparamFileUri] = ""
             };
 
             using var helper = await LanguageServerHelper.StartServerWithText(
-                TestContext, 
+                TestContext,
                 fileTextsByUri,
-                bicepFileUri, 
+                bicepFileUri,
                 services => services
                 .WithArmClientProvider(new MockArmClientProvider()));
 
             var client = helper.Client;
             var bicepDeploymentStartParams = new BicepDeploymentStartParams(
-                bicepFileUri.AbsolutePath, 
-                bicepparamFileUri.AbsolutePath, 
+                bicepFileUri.AbsolutePath,
+                bicepparamFileUri.AbsolutePath,
                 string.Empty,
                 string.Empty,
                 string.Empty,
@@ -89,7 +82,8 @@ namespace Bicep.LangServer.IntegrationTests
                 "https://management.core.windows.net/");
 
             var deploymentStartResponse = await client.Workspace.ExecuteCommandWithResponse<BicepDeploymentStartResponse>(
-                new Command {
+                new Command
+                {
                     Name = "deploy/start",
                     Arguments = new JArray(
                         bicepDeploymentStartParams.ToJToken()
@@ -104,27 +98,27 @@ namespace Bicep.LangServer.IntegrationTests
 
         [TestMethod]
         public async Task ProvidingUpdateParameterValues_WithBicepparamFile_ReturnsError()
-        {   
+        {
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var bicepparamFileUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
 
-            var fileTextsByUri = new Dictionary<Uri, string>() 
+            var fileTextsByUri = new Dictionary<Uri, string>()
             {
                 [bicepFileUri] = "",
                 [bicepparamFileUri] = ""
             };
 
             using var helper = await LanguageServerHelper.StartServerWithText(
-                TestContext, 
+                TestContext,
                 fileTextsByUri,
-                bicepFileUri, 
+                bicepFileUri,
                 services => services
                 .WithArmClientProvider(new MockArmClientProvider()));
 
             var client = helper.Client;
             var bicepDeploymentStartParams = new BicepDeploymentStartParams(
-                bicepFileUri.AbsolutePath, 
-                bicepparamFileUri.AbsolutePath, 
+                bicepFileUri.AbsolutePath,
+                bicepparamFileUri.AbsolutePath,
                 string.Empty,
                 string.Empty,
                 string.Empty,
@@ -144,7 +138,8 @@ namespace Bicep.LangServer.IntegrationTests
                 "https://management.core.windows.net/");
 
             var deploymentStartResponse = await client.Workspace.ExecuteCommandWithResponse<BicepDeploymentStartResponse>(
-                new Command {
+                new Command
+                {
                     Name = "deploy/start",
                     Arguments = new JArray(
                         bicepDeploymentStartParams.ToJToken()
@@ -158,27 +153,27 @@ namespace Bicep.LangServer.IntegrationTests
 
         [TestMethod]
         public async Task NotProvidingParameterFileName_WithJsonParameterFile_ReturnsError()
-        {   
+        {
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var paramFileUri = InMemoryFileResolver.GetFileUri("/path/to/param.json");
 
-            var fileTextsByUri = new Dictionary<Uri, string>() 
+            var fileTextsByUri = new Dictionary<Uri, string>()
             {
                 [bicepFileUri] = "",
                 [paramFileUri] = ""
             };
 
             using var helper = await LanguageServerHelper.StartServerWithText(
-                TestContext, 
+                TestContext,
                 fileTextsByUri,
-                bicepFileUri, 
+                bicepFileUri,
                 services => services
                 .WithArmClientProvider(new MockArmClientProvider()));
 
             var client = helper.Client;
             var bicepDeploymentStartParams = new BicepDeploymentStartParams(
-                bicepFileUri.AbsolutePath, 
-                paramFileUri.AbsolutePath, 
+                bicepFileUri.AbsolutePath,
+                paramFileUri.AbsolutePath,
                 string.Empty,
                 string.Empty,
                 string.Empty,
@@ -196,7 +191,8 @@ namespace Bicep.LangServer.IntegrationTests
                 "https://management.core.windows.net/");
 
             var deploymentStartResponse = await client.Workspace.ExecuteCommandWithResponse<BicepDeploymentStartResponse>(
-                new Command {
+                new Command
+                {
                     Name = "deploy/start",
                     Arguments = new JArray(
                         bicepDeploymentStartParams.ToJToken()
@@ -214,22 +210,22 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var invalidParamFilePath = @"c:\parameter.json";
 
-            var fileTextsByUri = new Dictionary<Uri, string>() 
+            var fileTextsByUri = new Dictionary<Uri, string>()
             {
                 [bicepFileUri] = "",
             };
 
             using var helper = await LanguageServerHelper.StartServerWithText(
-                TestContext, 
+                TestContext,
                 fileTextsByUri,
-                bicepFileUri, 
+                bicepFileUri,
                 services => services
                 .WithArmClientProvider(new MockArmClientProvider()));
 
             var client = helper.Client;
             var bicepDeploymentStartParams = new BicepDeploymentStartParams(
-                bicepFileUri.AbsolutePath, 
-                invalidParamFilePath, 
+                bicepFileUri.AbsolutePath,
+                invalidParamFilePath,
                 string.Empty,
                 string.Empty,
                 string.Empty,
@@ -247,7 +243,8 @@ namespace Bicep.LangServer.IntegrationTests
                 "https://management.core.windows.net/");
 
             var deploymentStartResponse = await client.Workspace.ExecuteCommandWithResponse<BicepDeploymentStartResponse>(
-                new Command {
+                new Command
+                {
                     Name = "deploy/start",
                     Arguments = new JArray(
                         bicepDeploymentStartParams.ToJToken()
@@ -268,22 +265,22 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", "invalid_parameters_file");
 
-            var fileTextsByUri = new Dictionary<Uri, string>() 
+            var fileTextsByUri = new Dictionary<Uri, string>()
             {
                 [bicepFileUri] = "",
             };
 
             using var helper = await LanguageServerHelper.StartServerWithText(
-                TestContext, 
+                TestContext,
                 fileTextsByUri,
-                bicepFileUri, 
+                bicepFileUri,
                 services => services
                 .WithArmClientProvider(new MockArmClientProvider()));
 
             var client = helper.Client;
             var bicepDeploymentStartParams = new BicepDeploymentStartParams(
-                bicepFileUri.AbsolutePath, 
-                parametersFilePath, 
+                bicepFileUri.AbsolutePath,
+                parametersFilePath,
                 string.Empty,
                 string.Empty,
                 string.Empty,
@@ -301,7 +298,8 @@ namespace Bicep.LangServer.IntegrationTests
                 "https://management.core.windows.net/");
 
             var deploymentStartResponse = await client.Workspace.ExecuteCommandWithResponse<BicepDeploymentStartResponse>(
-                new Command {
+                new Command
+                {
                     Name = "deploy/start",
                     Arguments = new JArray(
                         bicepDeploymentStartParams.ToJToken()
@@ -323,7 +321,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", "invalid_parameters_file");
 
-            var fileTextsByUri = new Dictionary<Uri, string>() 
+            var fileTextsByUri = new Dictionary<Uri, string>()
             {
                 [bicepFileUri] = "",
             };
@@ -342,19 +340,19 @@ namespace Bicep.LangServer.IntegrationTests
                 It.IsAny<string>(),
                 It.IsAny<JsonElement>(),
                 It.IsAny<IDeploymentOperationsCache>()
-            ).Result).Returns(new BicepDeploymentStartResponse(true, "", null));;
+            ).Result).Returns(new BicepDeploymentStartResponse(true, "", null)); ;
 
             using var helper = await LanguageServerHelper.StartServerWithText(
-                TestContext, 
+                TestContext,
                 fileTextsByUri,
-                bicepFileUri, 
+                bicepFileUri,
                 services => services
                 .WithArmClientProvider(new MockArmClientProvider())
                 .WithDeploymentHelper(deploymentHelperMock.Object));
 
             var client = helper.Client;
             var bicepDeploymentStartParams = new BicepDeploymentStartParams(
-                bicepFileUri.AbsolutePath, 
+                bicepFileUri.AbsolutePath,
                 null, //null value here means a deployment without a parameters file
                 string.Empty,
                 string.Empty,
@@ -373,7 +371,8 @@ namespace Bicep.LangServer.IntegrationTests
                 "https://management.core.windows.net/");
 
             var deploymentStartResponse = await client.Workspace.ExecuteCommandWithResponse<BicepDeploymentStartResponse>(
-                new Command {
+                new Command
+                {
                     Name = "deploy/start",
                     Arguments = new JArray(
                         bicepDeploymentStartParams.ToJToken()
@@ -401,5 +400,5 @@ namespace Bicep.LangServer.IntegrationTests
             deploymentStartResponse.outputMessage.Should().Be("");
             deploymentStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
-   }
+    }
 }

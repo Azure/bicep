@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Extensions;
+using Bicep.Core.Registry;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -11,15 +12,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Text.Unicode;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
-using Microsoft;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Bicep.Core.Modules;
-using Bicep.Core;
-using Bicep.Core.Registry;
 
 namespace Bicep.LanguageServer.Providers
 {

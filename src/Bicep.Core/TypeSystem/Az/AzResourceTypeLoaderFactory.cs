@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.IO;
-using Bicep.Core.Registry.Oci;
-using Newtonsoft.Json;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
+using Bicep.Core.Registry.Oci;
+using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Bicep.Core.TypeSystem.Az
 {

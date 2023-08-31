@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using Bicep.Core.Syntax;
+using System;
 
 namespace Bicep.Core.Navigation
 {

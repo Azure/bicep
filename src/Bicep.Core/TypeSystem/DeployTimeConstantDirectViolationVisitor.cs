@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -25,7 +25,7 @@ namespace Bicep.Core.TypeSystem
                     // Validate property access via string literal index (myResource['sku']).
                     this.FlagIfPropertyNotReadableAtDeployTime(syntax, propertyName, accessedSymbol, accessedBodyType);
                 }
-                else if (indexExprTypeInfo is UnionType { Members: var indexUnionMembers } )
+                else if (indexExprTypeInfo is UnionType { Members: var indexUnionMembers })
                 {
                     var unionMemberTypes = indexUnionMembers.Select(m => m.Type).ToList();
                     if (unionMemberTypes.All(t => t is StringLiteralType))
@@ -94,23 +94,23 @@ namespace Bicep.Core.TypeSystem
                 {
                     case not PropertyAccessSyntax and not ArrayAccessSyntax when
                         this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax) is ({ } resourceSymbol, { } resourceType):
-                    {
-                        this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
+                        {
+                            this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
 
-                        return;
-                    }
+                            return;
+                        }
                     case ArrayAccessSyntax arrayAccessSyntax when
                         arrayAccessSyntax.BaseExpression == syntax &&
                         this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
                         this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
-                    {
-                        var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
-                        if (arrayIndexExprType.IsIntegerOrIntegerLiteral())
                         {
-                            this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
+                            var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
+                            if (arrayIndexExprType.IsIntegerOrIntegerLiteral())
+                            {
+                                this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
+                            }
+                            return;
                         }
-                        return;
-                    }
 
                     default:
                         return;
@@ -132,11 +132,11 @@ namespace Bicep.Core.TypeSystem
                 // }]
                 case not PropertyAccessSyntax and not ArrayAccessSyntax when
                     this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
-                {
-                    this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                    {
+                        this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
 
-                    return;
-                }
+                        return;
+                    }
                 // var foo = [for x in [...]: {
                 //   bar: myVNets[1] <-- accessing an entire resource/module via an array index.
                 // }]
@@ -144,16 +144,16 @@ namespace Bicep.Core.TypeSystem
                     arrayAccessSyntax.BaseExpression == syntax && // need this condition because this case is hit both when syntax is myVNets (variable access) or the index expression
                     this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
                     this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } accessedSymbol, { } accessedBodyType):
-                {
-                    var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
-                    if (arrayIndexExprType.IsIntegerOrIntegerLiteral()
-                        || arrayIndexExprType.TypeKind == TypeKind.Any
-                        || (arrayIndexExprType is UnionType indexUnionType && indexUnionType.Members.All(m => m.Type.IsIntegerOrIntegerLiteral())))
                     {
-                        this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                        var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
+                        if (arrayIndexExprType.IsIntegerOrIntegerLiteral()
+                            || arrayIndexExprType.TypeKind == TypeKind.Any
+                            || (arrayIndexExprType is UnionType indexUnionType && indexUnionType.Members.All(m => m.Type.IsIntegerOrIntegerLiteral())))
+                        {
+                            this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                        }
+                        return;
                     }
-                    return;
-                }
 
                 default:
                     return;

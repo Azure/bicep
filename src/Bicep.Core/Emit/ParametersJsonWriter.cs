@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System;
 
 namespace Bicep.Core.Emit;
 
@@ -40,11 +37,11 @@ public class ParametersJsonWriter
 
             var parameter = model.EmitLimitationInfo.ParameterAssignments[assignment];
 
-            if (parameter.KeyVaultReferenceExpression is {} keyVaultReference)
+            if (parameter.KeyVaultReferenceExpression is { } keyVaultReference)
             {
                 WriteKeyVaultReference(jsonWriter, keyVaultReference);
             }
-            else if (parameter.Value is {} value)
+            else if (parameter.Value is { } value)
             {
                 jsonWriter.WritePropertyName("value");
                 value.WriteTo(jsonWriter);

@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
-using System.Linq;
-using System.Text;
 using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
+using System.Text;
 
 namespace Bicep.Core.UnitTests.Semantics;
 

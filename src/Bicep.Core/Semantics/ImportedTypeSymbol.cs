@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Syntax;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.Semantics;
 

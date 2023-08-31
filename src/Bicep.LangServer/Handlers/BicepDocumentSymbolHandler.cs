@@ -1,10 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
@@ -14,6 +9,11 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using SymbolKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.SymbolKind;
 
 namespace Bicep.LanguageServer.Handlers

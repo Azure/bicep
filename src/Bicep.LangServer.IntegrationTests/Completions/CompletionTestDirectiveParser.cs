@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
 {

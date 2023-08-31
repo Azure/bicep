@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;

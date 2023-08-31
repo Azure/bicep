@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static Bicep.Core.UnitTests.Utils.CompilationHelper;
 
 namespace Bicep.Core.UnitTests.Assertions

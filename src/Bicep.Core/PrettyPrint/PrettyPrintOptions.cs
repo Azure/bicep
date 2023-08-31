@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Bicep.Core.PrettyPrint.Options;
+using System;
 
 namespace Bicep.Core.PrettyPrint
 {

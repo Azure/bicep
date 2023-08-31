@@ -1,28 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Bicep.Core;
 using Bicep.Core.CodeAction;
 using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
-using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
-using Bicep.LanguageServer;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
@@ -32,6 +22,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading.Tasks;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.IntegrationTests
@@ -72,7 +67,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BuiltInTestTypes.Create())));
 
-            ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext,services => services.WithNamespaceProvider(BicepTestConstants.NamespaceProvider)));
+            ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BicepTestConstants.NamespaceProvider)));
         }
 
         [ClassCleanup]

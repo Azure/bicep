@@ -1,10 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
@@ -14,12 +9,17 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
 
-internal record WildcardImportPropertyReference(WildcardImportSymbol WildcardImport, string PropertyName) {}
+internal record WildcardImportPropertyReference(WildcardImportSymbol WildcardImport, string PropertyName) { }
 
-internal record ImportedSymbolOriginMetadata(string SourceTemplateIdentifier, string OriginalName) {}
+internal record ImportedSymbolOriginMetadata(string SourceTemplateIdentifier, string OriginalName) { }
 
 internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedTypesInClosure,
     ImmutableDictionary<WildcardImportPropertyReference, string> WildcardPropertyReferenceToImportedTypeName,
@@ -57,7 +57,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
                 BicepSymbolicTypeReference bicepSymbolRef
                     => new ImportedTypeDeclarationMigrator(bicepSymbolRef.SourceBicepModel, importedBicepTypeNames, typeImportSymbolNames, wildcardImportTypePropertyNames, closure.TypeSymbolsInImportClosure[bicepSymbolRef])
-                        .RewriteForMigration((DeclaredTypeExpression) bicepExpressionBuilders.GetOrAdd(bicepSymbolRef.SourceBicepModel, m => new(new(m)))
+                        .RewriteForMigration((DeclaredTypeExpression)bicepExpressionBuilders.GetOrAdd(bicepSymbolRef.SourceBicepModel, m => new(new(m)))
                             .Convert(bicepSymbolRef.Symbol.DeclaringType)),
 
                 _ => throw new InvalidOperationException($"Unexpected symbolic reference type of {symbol.GetType().Name} encountered."),
@@ -295,24 +295,28 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         _ => throw new InvalidOperationException($"Unexpected symbolic reference type of {reference.GetType().Name} encountered."),
     };
 
-    private record SymbolicReference(ISemanticModel SourceModel) {}
-    private record InterTemplateSymbolicReference(SemanticModel SourceBicepModule) : SymbolicReference(SourceBicepModule) {}
+    private record SymbolicReference(ISemanticModel SourceModel) { }
+    private record InterTemplateSymbolicReference(SemanticModel SourceBicepModule) : SymbolicReference(SourceBicepModule) { }
     private record BicepWildcardImportSymbolicReference(WildcardImportSymbol Symbol, SemanticModel SourceBicepModel, ArtifactReference ImportTarget)
-        : InterTemplateSymbolicReference(SourceBicepModel) {}
+        : InterTemplateSymbolicReference(SourceBicepModel)
+    { }
     private record BicepImportedTypeSymbolicReference(ImportedTypeSymbol Symbol, SemanticModel SourceBicepModel, ArtifactReference ImportTarget)
-        : InterTemplateSymbolicReference(SourceBicepModel) {}
+        : InterTemplateSymbolicReference(SourceBicepModel)
+    { }
 
-    private record IntraTemplateSymbolicTypeReference(ISemanticModel SourceModel) : SymbolicReference(SourceModel) {}
-    private record BicepSymbolicTypeReference(TypeAliasSymbol Symbol, SemanticModel SourceBicepModel) : IntraTemplateSymbolicTypeReference(SourceBicepModel) {}
+    private record IntraTemplateSymbolicTypeReference(ISemanticModel SourceModel) : SymbolicReference(SourceModel) { }
+    private record BicepSymbolicTypeReference(TypeAliasSymbol Symbol, SemanticModel SourceBicepModel) : IntraTemplateSymbolicTypeReference(SourceBicepModel) { }
     private record ArmSymbolicTypeReference(string TypePointer, ArmTemplateFile ArmTemplateFile, ISemanticModel SourceModel)
-        : IntraTemplateSymbolicTypeReference(SourceModel) {}
+        : IntraTemplateSymbolicTypeReference(SourceModel)
+    { }
 
     private record ImportClosure(
         IReadOnlyDictionary<ISemanticModel, ArtifactReference> ImportedModuleReferences,
         IReadOnlyDictionary<IntraTemplateSymbolicTypeReference, SyntaxBase> TypeSymbolsInImportClosure,
         IReadOnlyDictionary<ImportedTypeSymbol, IntraTemplateSymbolicTypeReference> ImportedTypeSymbolsToIntraTemplateSymbols,
         IReadOnlyDictionary<WildcardImportPropertyReference, IntraTemplateSymbolicTypeReference> WildcardImportPropertiesToIntraTemplateSymbols,
-        IReadOnlyDictionary<ArmTemplateFile, SchemaValidationContext> ArmSchemaContexts) {}
+        IReadOnlyDictionary<ArmTemplateFile, SchemaValidationContext> ArmSchemaContexts)
+    { }
 
-    private record SearchQueueItem(SyntaxBase InitiallyDeclaringSyntax, SymbolicReference SymbolicReference) {}
+    private record SearchQueueItem(SyntaxBase InitiallyDeclaringSyntax, SymbolicReference SymbolicReference) { }
 }

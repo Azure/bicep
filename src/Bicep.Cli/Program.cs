@@ -6,13 +6,11 @@ using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
-using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
@@ -91,7 +89,7 @@ namespace Bicep.Cli
 
                     case DecompileArguments decompileArguments when decompileArguments.CommandName == Constants.Command.Decompile: // bicep decompile [options]
                         return await services.GetRequiredService<DecompileCommand>().RunAsync(decompileArguments);
-                    
+
                     case DecompileParamsArguments decompileParamsArguments when decompileParamsArguments.CommandName == Constants.Command.DecompileParams:
                         return services.GetRequiredService<DecompileParamsCommand>().Run(decompileParamsArguments);
 

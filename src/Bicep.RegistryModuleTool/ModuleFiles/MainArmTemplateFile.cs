@@ -56,11 +56,12 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 : outputsElement.EnumerateObject().Select(ToOutput));
             this.lazyTemplateHash = new(() => lazyRootElement.Value.GetPropertyByPath("metadata._generator.templateHash").ToNonNullString());
             this.lazyNameMetadata = new(() => lazyRootElement.Value.TryGetPropertyByPath($"metadata.{MainBicepFile.ModuleNameMetadataName}")?.ToNonNullString());
-            this.lazyOwnerMetadata= new(() => lazyRootElement.Value.TryGetPropertyByPath($"metadata.{MainBicepFile.ModuleOwnerMetadataName}")?.ToNonNullString());
+            this.lazyOwnerMetadata = new(() => lazyRootElement.Value.TryGetPropertyByPath($"metadata.{MainBicepFile.ModuleOwnerMetadataName}")?.ToNonNullString());
             this.lazyDescriptionMetadata = new(() => lazyRootElement.Value.TryGetPropertyByPath($"metadata.{MainBicepFile.ModuleDescriptionMetadataName}")?.ToNonNullString());
         }
 
-        private static string GetPrimitiveTypeName(ITypeReference typeRef) => typeRef.Type switch {
+        private static string GetPrimitiveTypeName(ITypeReference typeRef) => typeRef.Type switch
+        {
             StringType or StringLiteralType
                 => typeRef.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? "securestring" : "string",
             UnionType unionOfStrings when unionOfStrings.Members.All(m => m.Type is StringLiteralType || m.Type is StringType)

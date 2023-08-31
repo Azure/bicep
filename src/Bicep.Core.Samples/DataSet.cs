@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using System;

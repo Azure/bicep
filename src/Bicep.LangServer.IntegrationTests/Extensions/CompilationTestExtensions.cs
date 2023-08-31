@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using System.Collections.Generic;
 
 namespace Bicep.LangServer.IntegrationTests.Extensions
 {

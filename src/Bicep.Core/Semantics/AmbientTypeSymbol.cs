@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using Bicep.Core.TypeSystem;
+using System.Collections.Generic;
 
 namespace Bicep.Core.Semantics;
 

@@ -1,18 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
-using System.Text.RegularExpressions;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core;
 using Bicep.Decompiler.ArmHelpers;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Decompiler
 {

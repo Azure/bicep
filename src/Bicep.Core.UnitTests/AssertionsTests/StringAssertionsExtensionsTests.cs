@@ -4,8 +4,8 @@
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 
 namespace Bicep.Core.UnitTests.AssertionsTests
 {

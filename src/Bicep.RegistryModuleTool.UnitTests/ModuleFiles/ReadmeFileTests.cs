@@ -1,19 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Extensions;
-using Bicep.Core.Json;
-using Bicep.RegistryModuleTool.Exceptions;
+using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleValidators;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
-using Json.More;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System;
-using System.IO.Abstractions.TestingHelpers;
-using Bicep.Core.Exceptions;
 
 namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
 {

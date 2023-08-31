@@ -2,20 +2,12 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Extensions;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using FluentAssertions;
-using FluentAssertions.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.UnitTests.TypeSystem.MicrosoftGraph
 {

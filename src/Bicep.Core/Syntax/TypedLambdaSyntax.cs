@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Parsing;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
@@ -29,7 +29,8 @@ public class TypedLambdaSyntax : ExpressionSyntax
     public SyntaxBase Body { get; }
 
     public IEnumerable<TypedLocalVariableSyntax> GetLocalVariables()
-        => VariableSection switch {
+        => VariableSection switch
+        {
             TypedVariableBlockSyntax vars => vars.Arguments,
             _ => Enumerable.Empty<TypedLocalVariableSyntax>(),
         };

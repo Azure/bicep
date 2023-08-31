@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Semantics;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Semantics;
 
 namespace Bicep.Core.TypeSystem
 {

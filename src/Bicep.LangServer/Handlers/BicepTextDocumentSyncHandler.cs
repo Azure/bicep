@@ -1,8 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.LanguageServer.CompilationManager;
@@ -14,6 +11,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -30,12 +30,12 @@ namespace Bicep.LanguageServer.Handlers
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
         {
-            if(ConfigurationHelper.IsBicepConfigFile(uri))
+            if (ConfigurationHelper.IsBicepConfigFile(uri))
             {
                 return new TextDocumentAttributes(uri, LanguageConstants.JsoncLanguageId);
             }
 
-            if(PathHelper.HasBicepparamsExension(uri.ToUriEncoded()))
+            if (PathHelper.HasBicepparamsExension(uri.ToUriEncoded()))
             {
                 return new TextDocumentAttributes(uri, LanguageConstants.ParamsLanguageId);
             }

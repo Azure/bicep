@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.Semantics
 {

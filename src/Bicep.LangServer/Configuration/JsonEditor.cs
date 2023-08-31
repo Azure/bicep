@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Text;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -8,9 +11,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Bicep.Core.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.LanguageServer.Configuration
 {

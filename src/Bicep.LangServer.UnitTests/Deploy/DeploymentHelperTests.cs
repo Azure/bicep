@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
@@ -15,13 +9,15 @@ using Azure.ResourceManager.Resources.Models;
 using Bicep.Core;
 using Bicep.Core.Json;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Deploy;
-using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Deploy
 {

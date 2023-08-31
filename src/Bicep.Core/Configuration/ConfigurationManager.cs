@@ -43,9 +43,10 @@ namespace Bicep.Core.Configuration
         public (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(Uri configUri)
         {
             (RootConfiguration, RootConfiguration)? returnVal = null;
-            configFileUriToLoadedConfigCache.AddOrUpdate(configUri, LoadConfiguration, (uri, prev) => {
+            configFileUriToLoadedConfigCache.AddOrUpdate(configUri, LoadConfiguration, (uri, prev) =>
+            {
                 var reloaded = LoadConfiguration(uri);
-                if (prev.config is {} prevConfig && reloaded.Item1 is {} newConfig)
+                if (prev.config is { } prevConfig && reloaded.Item1 is { } newConfig)
                 {
                     returnVal = (prevConfig, newConfig);
                 }
@@ -119,7 +120,8 @@ namespace Bicep.Core.Configuration
                 var element = IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElementFromStream(stream));
 
                 return (RootConfiguration.Bind(element, configurationUri.LocalPath), null);
-            } catch (ConfigurationException exception)
+            }
+            catch (ConfigurationException exception)
             {
                 return (null, x => x.InvalidBicepConfigFile(configurationUri.LocalPath, exception.Message));
             }

@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Linq;
 using Bicep.Core.Analyzers;
 using Bicep.Core.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions
 {

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Azure.Deployments.Core.Definitions.Schema;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace Bicep.Core.Workspaces
 {

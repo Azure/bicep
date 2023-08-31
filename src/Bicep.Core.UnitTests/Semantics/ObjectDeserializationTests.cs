@@ -1,16 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-using Bicep.Core.Semantics;
-using Bicep.Core.Diagnostics;
-using System.Reflection;
-using Bicep.Core.Parsing;
-using Bicep.Core.Syntax;
-using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.UnitTests.Semantics
 {

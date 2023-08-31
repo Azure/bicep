@@ -1,13 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
@@ -23,6 +16,13 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using static Bicep.Core.Samples.DataSet;
 
 namespace Bicep.Core.IntegrationTests
@@ -56,7 +56,8 @@ namespace Bicep.Core.IntegrationTests
             File.Exists(badCachePath).Should().BeTrue();
 
             // cache root points to a file
-            var featureOverrides = BicepTestConstants.FeatureOverrides with {
+            var featureOverrides = BicepTestConstants.FeatureOverrides with
+            {
                 RegistryEnabled = true,
                 CacheRootDirectory = badCachePath
             };

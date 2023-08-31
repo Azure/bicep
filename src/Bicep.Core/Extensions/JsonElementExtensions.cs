@@ -3,12 +3,9 @@
 
 using Bicep.Core.Json;
 using Json.Patch;
-using Json.Path;
 using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

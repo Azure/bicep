@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -35,7 +29,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using SymbolKind = Bicep.Core.Semantics.SymbolKind;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -997,7 +996,7 @@ param foo|bar = true
             SharedLanguageHelperManager sharedLanguageHelperManager = new();
             sharedLanguageHelperManager.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
-                    TestContext, 
+                    TestContext,
                     services => services
                         .WithFeatureProviderFactory(featureProviderFactory)
                         .WithModuleDispatcher(moduleDispatcher)

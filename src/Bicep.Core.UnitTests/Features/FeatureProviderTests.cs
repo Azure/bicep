@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace Bicep.Core.UnitTests.Features;
 

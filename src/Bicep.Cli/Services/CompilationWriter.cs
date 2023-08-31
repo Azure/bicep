@@ -60,49 +60,49 @@ namespace Bicep.Cli.Services
 
         public EmitResult ToStdout(SemanticModel bicepModel, SemanticModel paramsModel)
         {
-                //emit template
-                var templateOutputBuffer = new StringBuilder();
-                using var templateOutputWriter = new StringWriter(templateOutputBuffer);
+            //emit template
+            var templateOutputBuffer = new StringBuilder();
+            using var templateOutputWriter = new StringWriter(templateOutputBuffer);
 
-                var templateEmitter = new TemplateEmitter(bicepModel);
-                var templateResult = templateEmitter.Emit(templateOutputWriter);
+            var templateEmitter = new TemplateEmitter(bicepModel);
+            var templateResult = templateEmitter.Emit(templateOutputWriter);
 
-                templateOutputWriter.Flush();
-                var templateOutput = templateOutputBuffer.ToString();
+            templateOutputWriter.Flush();
+            var templateOutput = templateOutputBuffer.ToString();
 
-                //emit parameters
-                var paramsOutputBuffer = new StringBuilder();
-                using var paramsOutputWriter = new StringWriter(paramsOutputBuffer);
+            //emit parameters
+            var paramsOutputBuffer = new StringBuilder();
+            using var paramsOutputWriter = new StringWriter(paramsOutputBuffer);
 
-                var paramsEmitter = new ParametersEmitter(paramsModel);
-                var paramsResult = paramsEmitter.Emit(paramsOutputWriter);
+            var paramsEmitter = new ParametersEmitter(paramsModel);
+            var paramsResult = paramsEmitter.Emit(paramsOutputWriter);
 
-                paramsOutputWriter.Flush();
-                var paramsOutput = paramsOutputBuffer.ToString();
+            paramsOutputWriter.Flush();
+            var paramsOutput = paramsOutputBuffer.ToString();
 
 
-                //emit combined output
-                using var wrapperWriter = new JsonTextWriter(io.Output)
-                {
-                    Formatting = Formatting.Indented
-                };
+            //emit combined output
+            using var wrapperWriter = new JsonTextWriter(io.Output)
+            {
+                Formatting = Formatting.Indented
+            };
 
-                wrapperWriter.WriteStartObject();
-                wrapperWriter.WritePropertyName("templateJson");
-                wrapperWriter.WriteValue(templateOutput);
+            wrapperWriter.WriteStartObject();
+            wrapperWriter.WritePropertyName("templateJson");
+            wrapperWriter.WriteValue(templateOutput);
 
-                wrapperWriter.WritePropertyName("parametersJson");
-                wrapperWriter.WriteValue(paramsOutput);
-                wrapperWriter.WriteEndObject();
+            wrapperWriter.WritePropertyName("parametersJson");
+            wrapperWriter.WriteValue(paramsOutput);
+            wrapperWriter.WriteEndObject();
 
-                var combinedDiagnostics = templateResult.Diagnostics.Concat(paramsResult.Diagnostics);
+            var combinedDiagnostics = templateResult.Diagnostics.Concat(paramsResult.Diagnostics);
 
-                if(templateResult.Status == EmitStatus.Failed || paramsResult.Status == EmitStatus.Failed)
-                {
-                    return new EmitResult(EmitStatus.Failed, combinedDiagnostics);
-                }
+            if (templateResult.Status == EmitStatus.Failed || paramsResult.Status == EmitStatus.Failed)
+            {
+                return new EmitResult(EmitStatus.Failed, combinedDiagnostics);
+            }
 
-                return new EmitResult(EmitStatus.Succeeded, combinedDiagnostics, templateResult.SourceMap);
+            return new EmitResult(EmitStatus.Succeeded, combinedDiagnostics, templateResult.SourceMap);
         }
 
 

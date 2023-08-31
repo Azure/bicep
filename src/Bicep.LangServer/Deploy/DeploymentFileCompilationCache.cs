@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Concurrent;
 using Bicep.Core.Semantics;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using System.Collections.Concurrent;
 
 namespace Bicep.LanguageServer.Deploy
 {
-    public class DeploymentFileCompilationCache: IDeploymentFileCompilationCache
+    public class DeploymentFileCompilationCache : IDeploymentFileCompilationCache
     {
         private readonly ConcurrentDictionary<DocumentUri, Compilation> compilationCache = new ConcurrentDictionary<DocumentUri, Compilation>();
 

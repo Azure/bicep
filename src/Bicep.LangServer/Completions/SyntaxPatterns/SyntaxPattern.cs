@@ -4,14 +4,10 @@
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
-using Bicep.LanguageServer.Completions.SyntaxPatterns;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Completions.SyntaxPatterns
 {

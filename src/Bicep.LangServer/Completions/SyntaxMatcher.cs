@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.LanguageServer.Completions
 {
@@ -25,7 +25,7 @@ namespace Bicep.LanguageServer.Completions
         public static bool IsTailMatch<T1>(IList<SyntaxBase> nodes, Func<T1, bool>? predicate = null)
             where T1 : SyntaxBase
         {
-            return GetTailMatch(nodes, predicate) is {};
+            return GetTailMatch(nodes, predicate) is { };
         }
 
         public static (T1 one, T2 two)? GetTailMatch<T1, T2>(IList<SyntaxBase> nodes, Func<T1, T2, bool>? predicate = null)
@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer.Completions
             where T1 : SyntaxBase
             where T2 : SyntaxBase
         {
-            return GetTailMatch(nodes, predicate) is {};
+            return GetTailMatch(nodes, predicate) is { };
         }
 
         public static (T1 one, T2 two, T3 three)? GetTailMatch<T1, T2, T3>(IList<SyntaxBase> nodes, Func<T1, T2, T3, bool>? predicate = null)
@@ -62,7 +62,7 @@ namespace Bicep.LanguageServer.Completions
             where T2 : SyntaxBase
             where T3 : SyntaxBase
         {
-            return GetTailMatch(nodes, predicate) is {};
+            return GetTailMatch(nodes, predicate) is { };
         }
 
         public static bool IsTailMatch<T1, T2, T3, T4>(IList<SyntaxBase> nodes, Func<T1, T2, T3, T4, bool>? predicate = null, Action<T1, T2, T3, T4>? actionOnMatch = null)

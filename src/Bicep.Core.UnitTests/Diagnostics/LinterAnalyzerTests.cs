@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Bicep.Core.Analyzers;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
@@ -14,6 +11,9 @@ using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics
 {

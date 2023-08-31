@@ -1,13 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
@@ -15,6 +8,13 @@ using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Emit
 {

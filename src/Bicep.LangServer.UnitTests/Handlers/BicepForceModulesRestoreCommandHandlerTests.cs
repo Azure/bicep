@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -18,6 +13,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -153,5 +152,5 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
 
         // One scenario not tested here is when we have an external module and another file than the module lock is locked, which prevent the directory delete. We don't have a test for the message
-     }
+    }
 }

@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.CodeAction;
@@ -20,6 +14,12 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {

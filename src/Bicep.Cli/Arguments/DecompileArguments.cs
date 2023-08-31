@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.FileSystem;
-using LanguageConstants = Bicep.Core.LanguageConstants;
-
-
 using System.IO;
+using LanguageConstants = Bicep.Core.LanguageConstants;
 
 namespace Bicep.Cli.Arguments
 {

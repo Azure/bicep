@@ -10,11 +10,7 @@ using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Json.More;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Immutable;
-using System.IO;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 
 namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 {

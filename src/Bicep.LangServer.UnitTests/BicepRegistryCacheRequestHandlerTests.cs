@@ -6,17 +6,17 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
-using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests
 {

@@ -1,10 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading.Tasks;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
@@ -26,6 +21,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading.Tasks;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.IntegrationTests
@@ -56,7 +56,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            
+
             var helper = await DefaultServer.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
 

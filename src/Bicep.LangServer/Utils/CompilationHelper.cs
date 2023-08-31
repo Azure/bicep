@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Semantics;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Utils
 {

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
 using Bicep.Core.Semantics;
 using FluentAssertions;
-using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using System;
+using System.Collections.Generic;
 
 namespace Bicep.Core.UnitTests.Semantics
 {

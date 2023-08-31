@@ -109,7 +109,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     if (declaredDependencies.Items.Count() == 1)
                     {
                         // we only have one entry - remove the whole dependsOn property
-                        if (SyntaxModifier.TryRemoveProperty(body, dependsOnProperty, model.ParsingErrorLookup) is {} newObject)
+                        if (SyntaxModifier.TryRemoveProperty(body, dependsOnProperty, model.ParsingErrorLookup) is { } newObject)
                         {
                             codeReplacement = new CodeReplacement(body.Span, newObject.ToTextPreserveFormatting());
                         }
@@ -117,7 +117,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     else
                     {
                         // we have multiple entries - just remove this one
-                        if (SyntaxModifier.TryRemoveItem(declaredDependencies, declaredDependency, model.ParsingErrorLookup) is {} newArray)
+                        if (SyntaxModifier.TryRemoveItem(declaredDependencies, declaredDependency, model.ParsingErrorLookup) is { } newArray)
                         {
                             codeReplacement = new CodeReplacement(declaredDependencies.Span, newArray.ToTextPreserveFormatting());
                         }

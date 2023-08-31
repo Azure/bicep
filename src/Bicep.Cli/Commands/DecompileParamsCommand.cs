@@ -7,7 +7,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Decompiler;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
 {

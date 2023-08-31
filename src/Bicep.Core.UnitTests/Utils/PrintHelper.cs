@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -14,6 +10,10 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Workspaces;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Bicep.Core.UnitTests.Utils
 {

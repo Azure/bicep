@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Resources;
@@ -12,6 +9,9 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
 using Moq;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.Utils
 {

@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.Emit
 {
@@ -321,7 +321,8 @@ namespace Bicep.Core.Emit
                         }
                     }
                 }
-            } else if ((this.currentVariableDeclarationSyntax == null || this.loopLevel > 0)
+            }
+            else if ((this.currentVariableDeclarationSyntax == null || this.loopLevel > 0)
                 && variableOrResourceAccessSyntax is VariableAccessSyntax variableAccessSyntax
                 && symbol is VariableSymbol variableSymbol
                 && InlineDependencyVisitor.ShouldInlineVariable(this.semanticModel, variableSymbol.DeclaringVariable, out var outInlineVariableChain))

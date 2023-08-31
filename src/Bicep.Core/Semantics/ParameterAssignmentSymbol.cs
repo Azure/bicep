@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
+using System.Collections.Generic;
 
 namespace Bicep.Core.Semantics
 {
@@ -30,7 +29,7 @@ namespace Bicep.Core.Semantics
 
         public override void Accept(SymbolVisitor visitor)
         {
-           visitor.VisitParamAssignmentSymbol(this);
+            visitor.VisitParamAssignmentSymbol(this);
         }
     }
 }

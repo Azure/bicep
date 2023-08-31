@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.UnitTests.Assertions;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Linq;
-using FluentAssertions;
+using System.Reflection;
 using System.Text.RegularExpressions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.Core.UnitTests.Baselines;
 

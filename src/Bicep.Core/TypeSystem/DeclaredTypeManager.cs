@@ -1,14 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -18,6 +10,14 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -204,7 +204,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment? GetParameterAssignmentType(ParameterAssignmentSyntax syntax)
         {
-            if(GetDeclaredParameterAssignmentType(syntax) is { } declaredParamAssignmentType)
+            if (GetDeclaredParameterAssignmentType(syntax) is { } declaredParamAssignmentType)
             {
                 return new(declaredParamAssignmentType, syntax);
             }
@@ -220,7 +220,7 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            if(!parameterAssignmentSymbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out var failureDiagnostic))
+            if (!parameterAssignmentSymbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out var failureDiagnostic))
             {
                 // failed to resolve using
                 return failureDiagnostic is ErrorDiagnostic error
@@ -228,7 +228,7 @@ namespace Bicep.Core.TypeSystem
                     : null;
             }
 
-            if(bicepSemanticModel.Parameters.TryGetValue(parameterAssignmentSymbol.Name, out var parameterMetadata))
+            if (bicepSemanticModel.Parameters.TryGetValue(parameterAssignmentSymbol.Name, out var parameterMetadata))
             {
                 return parameterMetadata.TypeReference.Type;
             }
@@ -256,7 +256,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetUserDefinedTypeType(TypeAliasSymbol symbol)
         {
-            if (binder.TryGetCycle(symbol) is {} cycle)
+            if (binder.TryGetCycle(symbol) is { } cycle)
             {
                 var builder = DiagnosticBuilder.ForPosition(symbol.DeclaringType.Name);
                 var diagnostic = cycle.Length == 1
@@ -482,7 +482,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             // The resource type of an output can be inferred.
-            var type = syntax.Type == null && GetOutputValueType(syntax) is {} inferredType ? inferredType : GetDeclaredResourceType(syntax);
+            var type = syntax.Type == null && GetOutputValueType(syntax) is { } inferredType ? inferredType : GetDeclaredResourceType(syntax);
 
             if (type is ResourceType resourceType && IsExtensibilityType(resourceType))
             {
@@ -568,7 +568,8 @@ namespace Bicep.Core.TypeSystem
 
                     properties.Add(new(propertyName, propertyType, TypePropertyFlags.Required, DescriptionHelper.TryGetFromDecorator(binder, typeManager, prop)));
                     nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType));
-                } else
+                }
+                else
                 {
                     diagnostics.Add(DiagnosticBuilder.ForPosition(prop.Key).NonConstantTypeProperty());
                     // since we're not attaching this property to the object due to the non-constant key, forward any property errors to the object type
@@ -693,7 +694,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnosticWriter.GetDiagnostics().OfType<ErrorDiagnostic>());
             }
 
-            if (evaluated is {} result && TypeHelper.IsLiteralType(result))
+            if (evaluated is { } result && TypeHelper.IsLiteralType(result))
             {
                 return result;
             }
@@ -945,7 +946,7 @@ namespace Bicep.Core.TypeSystem
                 declaredTestType,
                 syntax);
         }
-        
+
         private DeclaredTypeAssignment? GetVariableAccessType(VariableAccessSyntax syntax)
         {
             // because all variable access nodes are normally bound to something, this should always return true
@@ -1076,7 +1077,7 @@ namespace Bicep.Core.TypeSystem
                 long value when value >= baseType.Items.Length => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
                 // unlikely to hit this given that we've established that the tuple has a item at the given position
                 > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
-                long otherwise => baseType.Items[(int) otherwise].Type,
+                long otherwise => baseType.Items[(int)otherwise].Type,
             };
 
             // identify the correct syntax so property access can provide completions correctly for resource and module loops
@@ -1545,7 +1546,7 @@ namespace Bicep.Core.TypeSystem
                 // properties with their own types), then use the dictionary value type
                 if (parentAssignment?.Reference.Type is ObjectType parentObjectType &&
                     parentObjectType.Properties.IsEmpty &&
-                    parentObjectType.AdditionalPropertiesType is {} additionalPropertiesType)
+                    parentObjectType.AdditionalPropertiesType is { } additionalPropertiesType)
                 {
                     return new(additionalPropertiesType, syntax, DeclaredTypeFlags.None);
                 }
@@ -1818,7 +1819,7 @@ namespace Bicep.Core.TypeSystem
 
             return new TestType(typeName, testBody);
         }
-        
+
         private TypeSymbol GetResourceTypeFromString(TextSpan span, string stringContent, ResourceTypeGenerationFlags typeGenerationFlags, ResourceType? parentResourceType)
         {
             var colonIndex = stringContent.IndexOf(':');
@@ -1879,8 +1880,9 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var resourceTypes = binder.NamespaceResolver.GetMatchingResourceTypes(typeReference, typeGenerationFlags);
-                return resourceTypes.Length switch {
-                    0 => ErrorType.Create( DiagnosticBuilder.ForPosition(span).InvalidResourceType()),
+                return resourceTypes.Length switch
+                {
+                    0 => ErrorType.Create(DiagnosticBuilder.ForPosition(span).InvalidResourceType()),
                     1 => resourceTypes[0],
                     _ => ErrorType.Create(DiagnosticBuilder.ForPosition(span).AmbiguousResourceTypeBetweenImports(typeReference.FormatName(), resourceTypes.Select(x => x.DeclaringNamespace.Name))),
                 };
@@ -1901,7 +1903,7 @@ namespace Bicep.Core.TypeSystem
             else if (binder.GetSymbolInfo(resource) is ResourceSymbol resourceSymbol &&
                 binder.TryGetCycle(resourceSymbol) is null &&
                 resourceSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax &&
-                SyntaxHelper.UnwrapArrayAccessSyntax(referenceParentSyntax) is {} result &&
+                SyntaxHelper.UnwrapArrayAccessSyntax(referenceParentSyntax) is { } result &&
                 binder.GetSymbolInfo(result.baseSyntax) is ResourceSymbol parentResourceSymbol)
             {
                 parentResource = parentResourceSymbol.DeclaringResource;

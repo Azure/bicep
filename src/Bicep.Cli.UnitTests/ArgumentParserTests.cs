@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using Bicep.Cli.Services;
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Services;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 
 namespace Bicep.Cli.UnitTests
 {
@@ -180,7 +180,7 @@ namespace Bicep.Cli.UnitTests
             var arguments = ArgumentParser.TryParse(new[] { "--license" });
 
             arguments.Should().BeOfType<RootArguments>();
-            if(arguments is RootArguments rootArguments)
+            if (arguments is RootArguments rootArguments)
             {
                 rootArguments.PrintHelp.Should().BeFalse();
                 rootArguments.PrintVersion.Should().BeFalse();
@@ -210,7 +210,7 @@ namespace Bicep.Cli.UnitTests
             var arguments = ArgumentParser.TryParse(new[] { "--version" });
 
             arguments.Should().BeOfType<RootArguments>();
-            if(arguments is RootArguments rootArguments)
+            if (arguments is RootArguments rootArguments)
             {
                 rootArguments.PrintHelp.Should().BeFalse();
                 rootArguments.PrintVersion.Should().BeTrue();

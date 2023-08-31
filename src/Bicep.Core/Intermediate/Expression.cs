@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
-using System.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using System.Collections.Immutable;
+using System.Diagnostics;
 
 namespace Bicep.Core.Intermediate;
 
@@ -72,7 +72,7 @@ public record StringLiteralExpression(
 
 public record NullLiteralExpression(
     SyntaxBase? SourceSyntax
-): Expression(SourceSyntax)
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitNullLiteralExpression(this);
@@ -182,7 +182,8 @@ public abstract record AccessExpression(
     Expression Base,
     Expression Access,
     AccessExpressionFlags Flags
-) : Expression(SourceSyntax) { }
+) : Expression(SourceSyntax)
+{ }
 
 public record ArrayAccessExpression(
     SyntaxBase? SourceSyntax,
@@ -252,10 +253,10 @@ public record VariableReferenceExpression(
     protected override object? GetDebugAttributes() => new { Variable = Variable.Name };
 }
 
-    /// <summary>
-    ///   Represents a variable which has been synthesized rather than explicitly declared by the user.
-    ///   This is used for example when in-lining JSON blocks for the loadJsonContent() function.
-    /// </summary>
+/// <summary>
+///   Represents a variable which has been synthesized rather than explicitly declared by the user.
+///   This is used for example when in-lining JSON blocks for the loadJsonContent() function.
+/// </summary>
 public record SynthesizedVariableReferenceExpression(
     SyntaxBase? SourceSyntax,
     string Name
@@ -347,7 +348,8 @@ public record LambdaExpression(
 public abstract record DescribableExpression(
     SyntaxBase? SourceSyntax,
     Expression? Description
-) : Expression(SourceSyntax) {}
+) : Expression(SourceSyntax)
+{ }
 
 public record DeclaredMetadataExpression(
     SyntaxBase? SourceSyntax,
@@ -386,7 +388,8 @@ public abstract record TypeDeclaringExpression(
     Expression? MinValue,
     Expression? MaxValue,
     Expression? Sealed
-) : DescribableExpression(SourceSyntax, Description) {}
+) : DescribableExpression(SourceSyntax, Description)
+{ }
 
 public record DeclaredParameterExpression(
     SyntaxBase? SourceSyntax,

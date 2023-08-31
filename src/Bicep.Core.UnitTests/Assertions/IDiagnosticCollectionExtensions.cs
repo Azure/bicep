@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using FluentAssertions;
 using FluentAssertions.Collections;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -75,10 +75,10 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
         }
 
-        public AndConstraint<IDiagnosticCollectionAssertions> HaveFixableDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message, string fixDescription,string fixReplacementText)> diagnostics, string because = "", params object[] becauseArgs)
+        public AndConstraint<IDiagnosticCollectionAssertions> HaveFixableDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message, string fixDescription, string fixReplacementText)> diagnostics, string because = "", params object[] becauseArgs)
         {
             var actions = new List<Action<IDiagnostic>>();
-            foreach (var (code, level, message, fixDescription,fixReplacementText) in diagnostics)
+            foreach (var (code, level, message, fixDescription, fixReplacementText) in diagnostics)
             {
                 actions.Add(x =>
                 {

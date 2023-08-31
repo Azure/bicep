@@ -1,16 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit.Options;
+using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Emit.Options;
-using Bicep.Core.PrettyPrint;
-using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
-using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
 
@@ -54,28 +52,28 @@ public class TemplateEmitter
         switch (outputFormat)
         {
             case OutputFormatOption.BicepParam:
-            {
-                var bicepParamEmitter = new PlaceholderParametersBicepParamWriter(this.model, includeParams);
-                bicepParamEmitter.Write(textWriter, existingContent);
+                {
+                    var bicepParamEmitter = new PlaceholderParametersBicepParamWriter(this.model, includeParams);
+                    bicepParamEmitter.Write(textWriter, existingContent);
 
-                break;
-            }
+                    break;
+                }
             case OutputFormatOption.Json:
             default:
-            {
-                using var writer = new JsonTextWriter(textWriter)
                 {
-                    // don't close the textWriter when writer is disposed
-                    CloseOutput = false,
-                    Formatting = Formatting.Indented
-                };
+                    using var writer = new JsonTextWriter(textWriter)
+                    {
+                        // don't close the textWriter when writer is disposed
+                        CloseOutput = false,
+                        Formatting = Formatting.Indented
+                    };
 
-                var jsonEmitter = new PlaceholderParametersJsonWriter(this.model, includeParams);
-                jsonEmitter.Write(writer, existingContent);
-                writer.Flush();
+                    var jsonEmitter = new PlaceholderParametersJsonWriter(this.model, includeParams);
+                    jsonEmitter.Write(writer, existingContent);
+                    writer.Flush();
 
-                break;
-            }
+                    break;
+                }
         }
 
         return null;

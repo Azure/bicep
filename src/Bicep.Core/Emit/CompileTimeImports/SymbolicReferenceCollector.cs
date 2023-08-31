@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System.Collections.Generic;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
 

@@ -35,7 +35,8 @@ namespace Bicep.Core.Samples
             {
                 var data = GetAllExampleData();
 
-                data = Filter switch {
+                data = Filter switch
+                {
                     TestDataFilterType.ValidOnly => data.Where(x => x.IsValid),
                     TestDataFilterType.InvalidOnly => data.Where(x => !x.IsValid),
                     _ => data,

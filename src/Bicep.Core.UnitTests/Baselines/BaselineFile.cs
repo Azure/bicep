@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.UnitTests.Assertions;
-using System.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json.Linq;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace Bicep.Core.UnitTests.Baselines
 {

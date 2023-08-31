@@ -1,18 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Bicep.Core.Semantics
 {
@@ -162,7 +160,7 @@ namespace Bicep.Core.Semantics
                 return false;
             }
 
-            if(this.Context.Compilation.SourceFileGrouping.TryGetErrorDiagnostic(usingDeclaration) is { } errorBuilder)
+            if (this.Context.Compilation.SourceFileGrouping.TryGetErrorDiagnostic(usingDeclaration) is { } errorBuilder)
             {
                 failureDiagnostic = errorBuilder(DiagnosticBuilder.ForPosition(usingDeclaration.Path));
                 return false;
@@ -171,7 +169,7 @@ namespace Bicep.Core.Semantics
             // SourceFileGroupingBuilder should have already visited every using declaration and either recorded a failure or mapped it to a syntax tree.
             // So it is safe to assume that this lookup will succeed without throwing an exception.
             var sourceFile = Context.Compilation.SourceFileGrouping.TryGetSourceFile(usingDeclaration) ?? throw new InvalidOperationException($"Failed to find source file for using declaration.");
-            if(sourceFile is not BicepFile)
+            if (sourceFile is not BicepFile)
             {
                 // TODO: If we wanted to support referencing ARM templates via using, it probably wouldn't very difficult to do
                 failureDiagnostic = DiagnosticBuilder.ForPosition(usingDeclaration.Path).UsingDeclarationMustReferenceBicepFile();

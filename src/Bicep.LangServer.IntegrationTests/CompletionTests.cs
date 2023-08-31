@@ -1,14 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -40,6 +32,14 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Threading.Tasks;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -4232,11 +4232,11 @@ var arr6 = [
 
             foreach (var cursor in cursors)
             {
-              var completions = await file.RequestCompletion(cursor);
-              completions.Should().Contain(c => c.Label == "foo");
-              completions.Should().Contain(c => c.Label == "bar");
-              completions.Should().Contain(c => c.Label == "mod2.fizz");
-              completions.Should().Contain(c => c.Label == "mod2.buzz");
+                var completions = await file.RequestCompletion(cursor);
+                completions.Should().Contain(c => c.Label == "foo");
+                completions.Should().Contain(c => c.Label == "bar");
+                completions.Should().Contain(c => c.Label == "mod2.fizz");
+                completions.Should().Contain(c => c.Label == "mod2.buzz");
             }
         }
     }

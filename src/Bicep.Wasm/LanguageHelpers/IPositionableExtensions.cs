@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 
 namespace Bicep.Wasm.LanguageHelpers
 {

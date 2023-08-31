@@ -17,7 +17,7 @@ namespace Bicep.RegistryModuleTool.Extensions
         private static void WriteMessage(this IConsole console, IStandardStreamWriter writer, ConsoleColor color, string messsage)
         {
             var terminal = console.GetTerminal(preferVirtualTerminal: false);
-            var originalForegroundColor = terminal?.ForegroundColor ??  Console.ForegroundColor;
+            var originalForegroundColor = terminal?.ForegroundColor ?? Console.ForegroundColor;
 
             if (terminal is not null)
             {

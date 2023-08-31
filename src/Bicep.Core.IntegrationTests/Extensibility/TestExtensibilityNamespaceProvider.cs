@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.TypeSystem;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Features;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using System.Collections.Generic;
 using System.Linq;

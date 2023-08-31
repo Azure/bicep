@@ -1,23 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Emit;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
 {
@@ -48,7 +44,7 @@ namespace Bicep.Cli.Commands
             }
             var paramsInput = Environment.GetEnvironmentVariable("BICEP_PARAMETER_INPUT");
 
-            if(paramsInput is null)
+            if (paramsInput is null)
             {
                 throw new CommandLineException("No value is set for BICEP_PARAMETER_INPUT environment variable");
             }
@@ -61,30 +57,30 @@ namespace Bicep.Cli.Commands
 
             var validationDiagnostics = ToListDiagnosticWriter.Create();
 
-            foreach(var parameter in parametersJson.Properties())
-            {   
+            foreach (var parameter in parametersJson.Properties())
+            {
                 //Skip type check if parameter value is null (as those treated as being omitted by ARM Engine)
-                if(parameterDeclarations.TryGetValue(parameter.Name, out var parameterMetadata) 
+                if (parameterDeclarations.TryGetValue(parameter.Name, out var parameterMetadata)
                     && parameter.Value.Type != JTokenType.Null)
                 {
                     var declaredType = parameterMetadata.TypeReference.Type;
                     var assignedType = SystemNamespaceType.ConvertJsonToBicepType(parameter.Value);
 
-                    if(!TypeValidator.AreTypesAssignable(assignedType, declaredType))
+                    if (!TypeValidator.AreTypesAssignable(assignedType, declaredType))
                     {
                         var diagnostic = DiagnosticBuilder
                                         .ForDocumentStart()
                                         .InvalidParameterValueAssignmentType(parameter.Name, declaredType);
                         validationDiagnostics.Write(diagnostic);
                     }
-                }  
+                }
                 else
                 {
                     var diagnostic = DiagnosticBuilder
                                     .ForDocumentStart()
                                     .ParameterNotPresentInTemplate(parameter.Name, bicepFilePath);
-                        validationDiagnostics.Write(diagnostic);
-                } 
+                    validationDiagnostics.Write(diagnostic);
+                }
             }
 
             LogDiagnostics(bicepCompilation.SourceFileGrouping.EntryPoint, validationDiagnostics.GetDiagnostics());
@@ -94,7 +90,7 @@ namespace Bicep.Cli.Commands
 
         private void LogDiagnostics(BicepSourceFile bicepFile, IReadOnlyList<IDiagnostic> diagnostics)
         {
-            foreach(var diagnostic in diagnostics)
+            foreach (var diagnostic in diagnostics)
             {
                 diagnosticLogger.LogDiagnostic(bicepFile.FileUri, diagnostic, bicepFile.LineStarts);
             }

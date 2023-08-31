@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
@@ -29,7 +29,8 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Body { get; }
 
         public IEnumerable<LocalVariableSyntax> GetLocalVariables()
-            => VariableSection switch {
+            => VariableSection switch
+            {
                 LocalVariableSyntax var => var.AsEnumerable(),
                 VariableBlockSyntax vars => vars.Arguments,
                 _ => Enumerable.Empty<LocalVariableSyntax>(),

@@ -1,23 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.LanguageServer;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
+using System;
+using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.LanguageServer;
-using OmniSharp.Extensions.LanguageServer.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using System;
-using Bicep.LangServer.IntegrationTests.Helpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Bicep.Core.UnitTests.Utils;
-using System.Collections.Generic;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
-using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.FileSystem;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -87,7 +87,8 @@ namespace Bicep.LangServer.IntegrationTests
             var helper = await LanguageServerHelper.StartServer(
                 testContext,
                 options => options.OnPublishDiagnostics(diagnosticsListener.AddMessage),
-                services => {
+                services =>
+                {
                     onRegisterServices?.Invoke(services);
                     services.WithFileResolver(fileResolver);
                 });

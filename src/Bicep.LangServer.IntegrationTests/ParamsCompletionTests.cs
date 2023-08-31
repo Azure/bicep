@@ -1,21 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
-using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.FileSystem;
-using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
-using Bicep.LangServer.IntegrationTests.Helpers;
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
 {
@@ -338,7 +336,7 @@ param myArray array
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
             };
 
-            var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Should().SatisfyRespectively(
                 x =>
@@ -391,7 +389,7 @@ param customParam customType
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
             };
 
-            var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Should().SatisfyRespectively(
                 x =>
@@ -432,7 +430,7 @@ param customParam customType[]
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
             };
 
-            var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Any(x => x.Label == "required-properties");
         }

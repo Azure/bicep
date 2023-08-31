@@ -3,7 +3,6 @@
 
 using Bicep.Cli.Helpers;
 using Bicep.Core.FileSystem;
-using System;
 using System.IO;
 
 namespace Bicep.Cli.Arguments
@@ -107,7 +106,7 @@ namespace Bicep.Cli.Arguments
                 }
             }
 
-            if(DiagnosticsFormat is null)
+            if (DiagnosticsFormat is null)
             {
                 DiagnosticsFormat = Arguments.DiagnosticsFormat.Default;
             }

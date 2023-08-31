@@ -1,15 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using Bicep.Core.Json;
-using System.IO;
 using Bicep.Core.Extensions;
-using Bicep.Core.Syntax;
-using System.Linq;
+using Bicep.Core.Json;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Modules;
+using Bicep.Core.Syntax;
+using System;
 using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
 
 namespace Bicep.Core.Semantics
 {

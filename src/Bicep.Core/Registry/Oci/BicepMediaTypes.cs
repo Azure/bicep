@@ -18,7 +18,7 @@ namespace Bicep.Core.Registry.Oci
         public const string BicepProviderArtifactType = "application/vnd.ms.bicep.provider.artifact";
 
         public const string BicepProviderConfigV1 = "application/vnd.ms.bicep.provider.config.v1+json";
-        
+
         public const string BicepProviderArtifactLayerV1TarGzip = "application/vnd.ms.bicep.provider.layer.v1.tar+gzip";
     }
 }

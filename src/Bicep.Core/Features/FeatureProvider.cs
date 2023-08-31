@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using System;
 using System.IO;
-using Bicep.Core.Configuration;
 
 namespace Bicep.Core.Features
 {

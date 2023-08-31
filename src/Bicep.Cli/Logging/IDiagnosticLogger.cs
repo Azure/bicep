@@ -12,7 +12,7 @@ namespace Bicep.Cli.Logging
     {
         void LogDiagnostic(Uri fileUri, IDiagnostic diagnostic, ImmutableArray<int> lineStarts);
 
-        void SetupFormat (DiagnosticsFormat? format);
+        void SetupFormat(DiagnosticsFormat? format);
 
         void FlushLog();
 

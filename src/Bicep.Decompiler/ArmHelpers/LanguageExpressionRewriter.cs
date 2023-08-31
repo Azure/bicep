@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Azure.Deployments.Expression.Expressions;
+using System;
 
 namespace Bicep.Decompiler.ArmHelpers
 {

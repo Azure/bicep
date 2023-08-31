@@ -1,17 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter.Common;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Analyzers.Linter.Common;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {

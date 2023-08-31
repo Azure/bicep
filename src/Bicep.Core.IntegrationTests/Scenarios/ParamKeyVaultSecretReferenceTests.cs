@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.UnitTests.Assertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-using Bicep.Core.UnitTests.Utils;
-using FluentAssertions.Execution;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests.Scenarios
@@ -379,7 +379,7 @@ module secret 'BAD_PATH_MODULE.bicep' = {
 
             result.Should().NotGenerateATemplate();
             result.Should().NotHaveDiagnosticsWithCodes(new[] { "BCP180" }, "Function placement should not be evaluated on a module that couldn't be read.");
-            
+
         }
 
         /// <summary>
@@ -414,7 +414,7 @@ output exposed string = mySecret
                 parameterToken.Value<string>().Should().Be("[if(equals(true(), true()), createObject('reference', createObject('keyVault', createObject('id', resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')), 'secretName', 'mySecret', 'secretVersion', 'secretversionguid')), createObject('value', ''))]");
             }
         }
-        
+
         [TestMethod]
         public void SecretsWithConditional_InNestedCondition()
         {

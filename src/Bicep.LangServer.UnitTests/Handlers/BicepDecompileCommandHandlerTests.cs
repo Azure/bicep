@@ -703,7 +703,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, overwrite: false), CancellationToken.None) ;
+            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, overwrite: false), CancellationToken.None);
             var output = result.output + saveResult.output;
 
             output.Should().NotMatchRegex("Overwriting");

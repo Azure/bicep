@@ -1,23 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using Bicep.Core.UnitTests.Assertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.FileSystem;
-using FluentAssertions.Execution;
-using System.Text.RegularExpressions;
-using Bicep.Decompiler.Exceptions;
-using Bicep.Decompiler;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
-using System.Threading;
-using System.Globalization;
 using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Decompiler;
+using Bicep.Decompiler.Exceptions;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bicep.Core.IntegrationTests
@@ -311,7 +311,8 @@ namespace Bicep.Core.IntegrationTests
             });
 
             var currentCulture = Thread.CurrentThread.CurrentCulture;
-            try {
+            try
+            {
                 Thread.CurrentThread.CurrentCulture = new CultureInfo("fi-FI");
 
                 var decompiler = CreateDecompiler(fileResolver);
@@ -319,7 +320,8 @@ namespace Bicep.Core.IntegrationTests
 
                 filesToSave[entryPointUri].Should().Contain($"var cpu = '0.25'");
             }
-            finally {
+            finally
+            {
                 Thread.CurrentThread.CurrentCulture = currentCulture;
             }
         }

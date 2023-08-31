@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Diagnostics.CodeAnalysis;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
@@ -11,6 +9,8 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -951,14 +951,14 @@ output foo object = {
         [TestMethod]
         public void Az_getsecret_functions_are_evaluated_successfully()
         {
-          var bicepTemplateText =  @"
+            var bicepTemplateText = @"
 param param1 object
 param param2 object
 output output1 object = param1
 output output2 object = param2
 ";
 
-          var bicepparamText = @"
+            var bicepparamText = @"
 using 'main.bicep'
 param param1 = { reference: 'param1' }
 param param2 = union(param1, { reference: 'param2' })
@@ -982,12 +982,12 @@ param param2 = union(param1, { reference: 'param2' })
         [TestMethod]
         public void Az_getsecret_params_cannot_be_dereferenced()
         {
-          var bicepTemplateText =  @"
+            var bicepTemplateText = @"
 param param1 string
 param param2 object
 ";
 
-          var bicepparamText = @"
+            var bicepparamText = @"
 using 'main.bicep'
 param param1 = getSecret('<subscriptionId>', '<resourceGroupName>', '<keyVaultName>', '<secretName>')
 var var1 = 'foo_${param1}'
@@ -1009,12 +1009,12 @@ param param2 = {
         [TestMethod]
         public void Nulled_params_cannot_be_dereferenced()
         {
-          var bicepTemplateText =  @"
+            var bicepTemplateText = @"
 param param1 string = newGuid()
 param param2 object
 ";
 
-          var bicepparamText = @"
+            var bicepparamText = @"
 using 'main.bicep'
 param param1 = null
 var var1 = 'foo_${param1}'

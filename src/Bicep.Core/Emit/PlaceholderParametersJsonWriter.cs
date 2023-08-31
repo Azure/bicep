@@ -104,7 +104,7 @@ namespace Bicep.Core.Emit
                                 break;
                             case "int":
                                 emitter.EmitProperty("value", () => jsonWriter.WriteValue(0));
-                            break;
+                                break;
                             case "bool":
                                 emitter.EmitProperty("value", () => jsonWriter.WriteValue(false));
                                 break;

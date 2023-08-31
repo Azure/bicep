@@ -1,29 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Threading.Tasks;
 using Bicep.Core;
-using Bicep.Core.Decompiler.Rewriters;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
-using Bicep.Core.Rewriters;
-using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using Bicep.Core.Diagnostics;
-using System.IO;
 using Bicep.Decompiler.ArmHelpers;
-using System.Linq;
 using Bicep.Decompiler.Exceptions;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Bicep.Decompiler;
 
@@ -63,21 +54,21 @@ public class BicepparamDecompiler
         var jsonObject = JTokenHelpers.LoadJson(jsonInput, JObject.Load, ignoreTrailingContent: false);
 
         statements.Add(new UsingDeclarationSyntax(
-            SyntaxFactory.CreateIdentifierToken("using"), 
+            SyntaxFactory.CreateIdentifierToken("using"),
             bicepFilePath is { } ?
-            SyntaxFactory.CreateStringLiteral(bicepFilePath): 
-            SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template")));        
+            SyntaxFactory.CreateStringLiteral(bicepFilePath) :
+            SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template")));
 
-            statements.Add(SyntaxFactory.DoubleNewlineToken);
+        statements.Add(SyntaxFactory.DoubleNewlineToken);
 
 
-        var parameters = (TemplateHelpers.GetProperty(jsonObject, "parameters")?.Value as JObject ?? new JObject()).Properties();        
+        var parameters = (TemplateHelpers.GetProperty(jsonObject, "parameters")?.Value as JObject ?? new JObject()).Properties();
 
-        foreach(var parameter in parameters)
+        foreach (var parameter in parameters)
         {
             var metadata = parameter.Value?["metadata"];
 
-            if(metadata is {})
+            if (metadata is { })
             {
                 statements.Add(ParseParameterWithComment(metadata));
                 statements.Add(SyntaxFactory.NewlineToken);
@@ -93,8 +84,8 @@ public class BicepparamDecompiler
     }
 
     private SyntaxBase ParseParam(JProperty param)
-    { 
-        if(param.Value?["reference"] is not null)
+    {
+        if (param.Value?["reference"] is not null)
         {
             return new ParameterAssignmentSyntax(
             SyntaxFactory.CreateIdentifierToken("param"),
@@ -105,7 +96,7 @@ public class BicepparamDecompiler
 
         var value = param.Value?["value"];
 
-        if(value is null)
+        if (value is null)
         {
             throw new Exception($"No value found parameter {param.Name}");
         }
@@ -136,7 +127,7 @@ public class BicepparamDecompiler
         JTokenType.Null => SyntaxFactory.CreateNullLiteral(),
         _ => throw new NotImplementedException($"Unrecognized token type {value.Type}")
     };
-   
+
     private SyntaxBase ParseJArray(JArray jArray)
     {
         var itemSyntaxes = new List<SyntaxBase>();
@@ -152,7 +143,7 @@ public class BicepparamDecompiler
     private SyntaxBase ParseJObject(JObject jObject)
     {
         var propertySyntaxes = new List<ObjectPropertySyntax>();
-        
+
         foreach (var property in jObject.Properties())
         {
             propertySyntaxes.Add(SyntaxFactory.CreateObjectProperty(property.Name, ParseJToken(property.Value)));

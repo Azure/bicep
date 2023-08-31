@@ -5,7 +5,6 @@ using Bicep.Core.Emit;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Semantics;
-using Newtonsoft.Json;
 using System;
 using System.IO;
 

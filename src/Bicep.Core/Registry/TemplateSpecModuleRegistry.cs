@@ -1,20 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
+using Bicep.Core.Semantics;
+using Bicep.Core.Tracing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
-using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Json;
-using Bicep.Core.Modules;
-using Bicep.Core.Semantics;
-using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry
 {

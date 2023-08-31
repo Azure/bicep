@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Deployments.Core.Definitions.Schema;
 using System;
 using System.Collections.Immutable;
-using Azure.Deployments.Core.Definitions.Schema;
 
 
 namespace Bicep.Cli.Services;

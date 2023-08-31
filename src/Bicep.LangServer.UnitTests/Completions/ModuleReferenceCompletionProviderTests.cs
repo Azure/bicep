@@ -1,13 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -21,6 +14,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using ConfigurationManager = Bicep.Core.Configuration.ConfigurationManager;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
@@ -137,7 +137,8 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             completions.Count().Should().Be(5);
 
-            foreach ( var c in completions) {
+            foreach (var c in completions)
+            {
                 c.Label.Should().MatchRegex("^(.*/)|(.*:)$");
                 c.Kind.Should().Be(CompletionItemKind.Reference);
                 c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);

@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Linq;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using System;
+using System.Linq;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
 namespace Bicep.Core.Semantics
@@ -61,14 +61,15 @@ namespace Bicep.Core.Semantics
 
             var argTypes = overloads
                 .Where(x => x.MaximumArgumentCount is null || argIndex < x.MaximumArgumentCount)
-                .Select(overload => {
+                .Select(overload =>
+                {
                     if (argIndex < overload.FixedParameters.Length)
                     {
                         var parameter = overload.FixedParameters[argIndex];
 
                         if (parameter.Calculator is not null &&
                             getAssignedArgumentType is not null &&
-                            parameter.Calculator(getAssignedArgumentType) is {} calculatedType)
+                            parameter.Calculator(getAssignedArgumentType) is { } calculatedType)
                         {
                             return calculatedType;
                         }

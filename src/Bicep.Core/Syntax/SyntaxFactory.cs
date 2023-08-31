@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text.RegularExpressions;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
@@ -393,7 +391,8 @@ namespace Bicep.Core.Syntax
 
         public static LambdaSyntax CreateLambdaSyntax(IEnumerable<string> parameterNames, SyntaxBase functionExpression)
         {
-            SyntaxBase variableBlock = parameterNames.Count() switch {
+            SyntaxBase variableBlock = parameterNames.Count() switch
+            {
                 1 => new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(parameterNames.First())),
                 _ => new VariableBlockSyntax(
                     SyntaxFactory.LeftParenToken,

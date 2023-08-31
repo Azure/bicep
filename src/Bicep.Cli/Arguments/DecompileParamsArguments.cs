@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.FileSystem;
-using LanguageConstants = Bicep.Core.LanguageConstants;
-
-
 using System.IO;
+using LanguageConstants = Bicep.Core.LanguageConstants;
 
 namespace Bicep.Cli.Arguments
 {
@@ -59,7 +57,7 @@ namespace Bicep.Cli.Arguments
                         BicepFilePath = args[i + 1];
                         i++;
                         break;
-                    
+
                     default:
                         if (args[i].StartsWith("--"))
                         {

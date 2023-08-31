@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax.Visitors;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Core.Syntax.Comparers;
 

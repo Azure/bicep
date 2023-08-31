@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Linq;
 using Bicep.Core.Parsing;
+using System.Linq;
 
 namespace Bicep.Core.Syntax
 {

@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Emit.Options;
 using System;
 using System.IO;
-using Bicep.Core.Emit.Options;
 
 namespace Bicep.Core.FileSystem
 {
@@ -182,9 +182,9 @@ namespace Bicep.Core.FileSystem
         public static Uri RemoveExtension(Uri uri) => ChangeExtension(uri, null);
 
         public static Uri ChangeToBicepExtension(Uri uri) => ChangeExtension(uri, BicepExtension);
-        
+
         public static Uri ChangeToBicepparamExtension(Uri uri) => ChangeExtension(uri, BicepParamsExtension);
-        
+
         public static bool HasBicepExtension(Uri uri) => HasExtension(uri, BicepExtension);
 
         public static bool HasBicepparamsExension(Uri uri) => HasExtension(uri, BicepParamsExtension);

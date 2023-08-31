@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System.Diagnostics;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
 {

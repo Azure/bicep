@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Immutable;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Visitors;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.Emit
 {

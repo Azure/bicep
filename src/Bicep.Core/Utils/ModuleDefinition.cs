@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.Utils
 {

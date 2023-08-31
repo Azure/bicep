@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
@@ -11,6 +10,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 using Newtonsoft.Json.Linq;
+using System;
 
 namespace Bicep.Core.Workspaces
 {

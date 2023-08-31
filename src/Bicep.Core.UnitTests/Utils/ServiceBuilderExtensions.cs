@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
@@ -11,6 +9,8 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.Workspaces;
+using System;
+using System.Collections.Generic;
 
 namespace Bicep.Core.UnitTests.Utils;
 

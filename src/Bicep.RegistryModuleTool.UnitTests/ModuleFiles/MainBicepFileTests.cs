@@ -1,18 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleValidators;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using Bicep.RegistryModuleTool.UnitTests.ModuleValidators;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.IO.Abstractions.TestingHelpers;
-using System.Text.RegularExpressions;
-using static FluentAssertions.FluentActions;
 
 namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
 {

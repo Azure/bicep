@@ -1,24 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using Bicep.Core.UnitTests.Assertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FluentAssertions;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.FileSystem;
-using FluentAssertions.Execution;
-using System.Text.RegularExpressions;
-using Bicep.Decompiler.Exceptions;
-using Bicep.Decompiler;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Baselines;
-using System.Threading;
-using System.Globalization;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
-using System.Threading.Tasks;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Decompiler;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -34,7 +26,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void Decompiler_Decompiles_ValidParametersFile()
         {
-            var jsonParametersFile = 
+            var jsonParametersFile =
 @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -59,7 +51,7 @@ namespace Bicep.Core.IntegrationTests
     }
   }
 }";
-            var expectedBicepparamFile = 
+            var expectedBicepparamFile =
 @"using '' /*TODO: Provide a path to a bicep template*/
 
 param first = 'test'
@@ -80,20 +72,20 @@ param fourth = {
 
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
             {
-              [paramFileUri] = jsonParametersFile
+                [paramFileUri] = jsonParametersFile
             });
 
             var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
 
             var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(paramFileUri, PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), null);
 
-            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);         
+            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);
         }
 
         [TestMethod]
         public void Decompiler_Decompiles_ValidParamsFileWithBicepFilePath()
         {
-            var jsonParametersFile = 
+            var jsonParametersFile =
 @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -109,7 +101,7 @@ param fourth = {
     },
   }
 }";
-            var expectedBicepparamFile = 
+            var expectedBicepparamFile =
 @"using './dir/main.bicep'
 
 param first = 'test'
@@ -124,23 +116,23 @@ param third = true";
 
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
             {
-              [paramFileUri] = jsonParametersFile
+                [paramFileUri] = jsonParametersFile
             });
 
             var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
 
             var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(
-              paramFileUri, 
-              PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), 
+              paramFileUri,
+              PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
               bicepFilePath);
 
-            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);         
+            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);
         }
 
         [TestMethod]
         public void Decompiler_Decompiles_KeyVaultReferenceParameters()
         {
-            var jsonParametersFile = 
+            var jsonParametersFile =
 @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -162,7 +154,7 @@ param third = true";
     }
   }
 }";
-            var expectedBicepparamFile = 
+            var expectedBicepparamFile =
 @"using '' /*TODO: Provide a path to a bicep template*/
 
 param adminUsername = 'tim'
@@ -175,24 +167,24 @@ param dnsLabelPrefix = 'newvm79347a'";
 
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
             {
-              [paramFileUri] = jsonParametersFile
+                [paramFileUri] = jsonParametersFile
             });
 
             var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
 
             var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(
-              paramFileUri, 
-              PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), 
+              paramFileUri,
+              PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
               null);
 
-            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);         
+            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);
         }
 
 
         [TestMethod]
         public void Decompiler_Decompiles_ParametersContainingMetadata()
         {
-            var jsonParametersFile = 
+            var jsonParametersFile =
 @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -210,7 +202,7 @@ param dnsLabelPrefix = 'newvm79347a'";
   }
 }";
 
-            var expectedBicepparamFile = 
+            var expectedBicepparamFile =
 @"using '' /*TODO: Provide a path to a bicep template*/
 
 /*
@@ -231,17 +223,17 @@ param regions = [
 
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
             {
-              [paramFileUri] = jsonParametersFile
+                [paramFileUri] = jsonParametersFile
             });
 
             var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
 
             var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(
-              paramFileUri, 
-              PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), 
+              paramFileUri,
+              PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
               null);
 
-            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);         
+            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);
         }
     }
 }

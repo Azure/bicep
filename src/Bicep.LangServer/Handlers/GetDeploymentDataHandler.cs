@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Emit;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -11,6 +8,9 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -35,7 +35,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             await Task.Yield();
 
-            if (this.compilationManager.GetCompilation(request.TextDocument.Uri) is not {} context)
+            if (this.compilationManager.GetCompilation(request.TextDocument.Uri) is not { } context)
             {
                 return new(ErrorMessage: $"Bicep compilation failed. An unexpected error occurred.");
             }

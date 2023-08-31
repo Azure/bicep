@@ -44,7 +44,8 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.Logger.LogInformation("Validating obsolete metadata file doesn't exist...");
                 var noMetadataFileValidator = new NoMetadataFileValidator(this.Logger);
                 valid &= Validate(context.Console, () => MetadataFile.TryReadFromFileSystem(this.FileSystem)?.ValidatedBy(noMetadataFileValidator));
-                if (!valid) {
+                if (!valid)
+                {
                     // Exit early so user can run generate
                     return 1;
                 }

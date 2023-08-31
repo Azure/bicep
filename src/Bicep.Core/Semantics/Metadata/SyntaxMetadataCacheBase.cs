@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Concurrent;
 using Bicep.Core.Syntax;
+using System.Collections.Concurrent;
 
 namespace Bicep.Core.Semantics.Metadata
 {

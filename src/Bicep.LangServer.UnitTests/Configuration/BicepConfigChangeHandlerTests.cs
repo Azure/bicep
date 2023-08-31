@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
 using Bicep.Core;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.Core.FileSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
@@ -18,11 +15,10 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
-using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.UnitTests;
-using Bicep.LanguageServer.Providers;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.UnitTests.Configuration
 {
@@ -249,7 +245,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
             }
             else
             {
-              bicepConfigFilePath = null;
+                bicepConfigFilePath = null;
             }
 
             var bicepConfigChangeHandler = new BicepConfigChangeHandler(bicepCompilationManager,

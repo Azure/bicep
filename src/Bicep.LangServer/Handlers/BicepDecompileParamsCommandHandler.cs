@@ -3,23 +3,15 @@
 
 using Bicep.Core.FileSystem;
 using Bicep.Decompiler;
-using Bicep.LanguageServer.Telemetry;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using System;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Handlers
-{   
+{
     public record BicepDecompileParamsCommandParams(
         DocumentUri jsonUri,
         string? bicepPath
@@ -56,13 +48,13 @@ namespace Bicep.LanguageServer.Handlers
             {
                 Uri jsonUri = new Uri(parameters.jsonUri.GetFileSystemPath());
                 var (entryUri, filesToSave) = bicepparamDecompiler.Decompile(jsonUri, PathHelper.ChangeToBicepparamExtension(jsonUri), parameters.bicepPath);
-                
+
                 return Task.FromResult(new BicepDecompileParamsCommandResult(new DecompiledBicepparamFile(filesToSave[entryUri], entryUri.AbsolutePath), null));
             }
             catch (Exception ex)
-            {   
+            {
                 var message = string.Format(LangServerResources.Decompile_DecompilationFailed, ex.Message);
-                
+
                 return Task.FromResult(new BicepDecompileParamsCommandResult(null, message));
             }
         }

@@ -1,8 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -10,6 +7,9 @@ using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.LanguageServer
 {

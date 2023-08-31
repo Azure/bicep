@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core;
+using Bicep.Core.Resources;
+using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
+using Bicep.LanguageServer.Completions;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Bicep.Core;
-using Bicep.Core.Resources;
-using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
-using Bicep.LanguageServer.Completions;
 
 namespace Bicep.LanguageServer.Snippets;
 
@@ -74,7 +74,7 @@ public class SnippetsProvider : ISnippetsProvider
             }
             else
             {
-                if (GetResourceBodyCompletionSnippetFromTemplate(resourceTypeReference) is {} snippetFromExistingTemplate)
+                if (GetResourceBodyCompletionSnippetFromTemplate(resourceTypeReference) is { } snippetFromExistingTemplate)
                 {
                     snippets.Add(snippetFromExistingTemplate);
                 }
@@ -138,7 +138,8 @@ public class SnippetsProvider : ISnippetsProvider
         int index = 1;
         StringBuilder sb = new StringBuilder();
 
-        var sortedProperties = objectType.Properties.OrderBy(x => {
+        var sortedProperties = objectType.Properties.OrderBy(x =>
+        {
             var index = propertiesSortPreferenceList.IndexOf(x.Key);
 
             return (index > -1) ? index : (propertiesSortPreferenceList.Length - 1);

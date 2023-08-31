@@ -1,22 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
-using Bicep.Core;
-using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.Emit
 {
@@ -223,7 +220,7 @@ namespace Bicep.Core.Emit
 
                 // construct the length ARM expression from the Bicep array expression
                 // type check has already ensured that the array expression is an array
-                this.EmitProperty("count", new FunctionCallExpression(forExpression.SourceSyntax, "length", new [] { forExpression }.ToImmutableArray()));
+                this.EmitProperty("count", new FunctionCallExpression(forExpression.SourceSyntax, "length", new[] { forExpression }.ToImmutableArray()));
 
                 if (batchSize.HasValue)
                 {
@@ -244,7 +241,8 @@ namespace Bicep.Core.Emit
                             this.EmitPropertyWithTransform("input", input, converted => ExpressionConverter.ToFunctionExpression(converted));
                         }
                     }
-                    else {
+                    else
+                    {
                         this.EmitPropertyWithTransform("input", input, expression =>
                         {
                             if (!CanEmitAsInputDirectly(input))
@@ -328,13 +326,13 @@ namespace Bicep.Core.Emit
         {
             switch (parameter)
             {
-                case ResourceFunctionCallExpression functionCall when 
+                case ResourceFunctionCallExpression functionCall when
                     LanguageConstants.IdentifierComparer.Equals(functionCall.Name, AzResourceTypeProvider.GetSecretFunctionName):
                     return ConvertModuleParameterGetSecret(functionCall);
                 case TernaryExpression ternary:
                     return new TernaryExpression(ternary.SourceSyntax, ternary.Condition, ConvertModuleParameter(ternary.True), ConvertModuleParameter(ternary.False));
                 default:
-                    return ExpressionFactory.CreateObject(new [] {
+                    return ExpressionFactory.CreateObject(new[] {
                         ExpressionFactory.CreateObjectProperty("value", parameter)
                     }, parameter.SourceSyntax);
             }
@@ -343,7 +341,7 @@ namespace Bicep.Core.Emit
         private static Expression ConvertModuleParameterGetSecret(ResourceFunctionCallExpression functionCall)
         {
             var properties = new List<ObjectPropertyExpression>();
-            properties.Add(ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new [] {
+            properties.Add(ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new[] {
                 ExpressionFactory.CreateObjectProperty("id", new PropertyAccessExpression(functionCall.Resource.SourceSyntax, functionCall.Resource, "id", AccessExpressionFlags.None)),
             }, functionCall.SourceSyntax)));
             properties.Add(ExpressionFactory.CreateObjectProperty("secretName", functionCall.Parameters[0]));
@@ -352,7 +350,7 @@ namespace Bicep.Core.Emit
                 properties.Add(ExpressionFactory.CreateObjectProperty("secretVersion", functionCall.Parameters[1]));
             }
 
-            return ExpressionFactory.CreateObject(new [] {
+            return ExpressionFactory.CreateObject(new[] {
                 ExpressionFactory.CreateObjectProperty("reference", ExpressionFactory.CreateObject(properties))
             }, functionCall.SourceSyntax);
         }

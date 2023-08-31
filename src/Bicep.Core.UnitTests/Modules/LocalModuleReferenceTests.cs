@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace Bicep.Core.UnitTests.Modules
 {

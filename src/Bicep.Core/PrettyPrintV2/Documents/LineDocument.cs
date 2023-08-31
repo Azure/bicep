@@ -3,10 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.PrettyPrintV2.Documents
 {

@@ -113,7 +113,8 @@ metadata owner = ''
 
         protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
 
-        private static string FormatBicepString(string value) {
+        private static string FormatBicepString(string value)
+        {
             return SyntaxFactory.CreateStringLiteral(value).ToText();
         }
     }

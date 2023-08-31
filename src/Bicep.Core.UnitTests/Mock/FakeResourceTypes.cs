@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using Bicep.Core.Resources;
-using System.Linq;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Moq;
-using Bicep.Core.TypeSystem;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.Mock
 {

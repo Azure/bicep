@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -8,7 +9,6 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.FileSystem
 {
@@ -276,7 +276,7 @@ namespace Bicep.Core.FileSystem
             }
 
             string fileName = Path.GetFileNameWithoutExtension(localPath);
-            if(!string.Equals(fileName, "CON", StringComparison.InvariantCultureIgnoreCase))
+            if (!string.Equals(fileName, "CON", StringComparison.InvariantCultureIgnoreCase))
             {
                 // file is not named CON or CON.<any extension>, so we can proceed normally
                 return;

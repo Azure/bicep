@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Text;
 
 namespace Bicep.LanguageServer.Utils
 {

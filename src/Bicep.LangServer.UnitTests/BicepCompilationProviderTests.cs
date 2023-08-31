@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -12,6 +11,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using System.Collections.Immutable;
 
 namespace Bicep.LangServer.UnitTests
 {

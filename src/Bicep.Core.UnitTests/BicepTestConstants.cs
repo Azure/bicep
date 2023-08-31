@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
@@ -18,6 +16,8 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
 using Moq;
+using System;
+using System.Collections.Generic;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests

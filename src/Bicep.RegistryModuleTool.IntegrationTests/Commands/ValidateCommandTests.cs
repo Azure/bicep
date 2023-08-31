@@ -50,7 +50,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
             var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
             var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
             var processProxy = MockProcessProxyFactory.CreateProcessProxy(
-                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
+                (args => args.Contains(MainBicepFile.FileName), () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
                 (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockValidMainTestArmTemplateData)));
 
             var exitCode = Invoke(fileSystem, processProxy);
@@ -64,7 +64,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
             var fileSystem = MockFileSystemFactory.CreateFileSystemWithInvalidFiles();
             var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
             var processProxy = MockProcessProxyFactory.CreateProcessProxy(
-                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
+                (args => args.Contains(MainBicepFile.FileName), () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
                 (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockInvalidMainTestArmTemplateData)));
 
             var exitCode = Invoke(fileSystem, processProxy);
@@ -78,7 +78,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
             var fileSystem = MockFileSystemFactory.CreateFileSystemWithInvalidFiles();
             var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
             var processProxy = MockProcessProxyFactory.CreateProcessProxy(
-                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
+                (args => args.Contains(MainBicepFile.FileName), () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
                 (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockInvalidMainTestArmTemplateData)));
 
             var console = new MockConsole().ExpectErrorLines(
@@ -110,7 +110,7 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
         {
             var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
             var processProxy = MockProcessProxyFactory.CreateProcessProxy(
-                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
+                (args => args.Contains(MainBicepFile.FileName), () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
                 (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockValidMainTestArmTemplateData)));
 
             var exitCode = Invoke(fileSystem, processProxy);
@@ -124,7 +124,7 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
         {
             var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
             var processProxy = MockProcessProxyFactory.CreateProcessProxy(
-                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
+                (args => args.Contains(MainBicepFile.FileName), () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
                 (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockValidMainTestArmTemplateData)));
 
             var console = new MockConsole().ExpectErrorLines(error);

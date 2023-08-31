@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.K8s;
 using Bicep.Core.Resources;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.K8s
 {

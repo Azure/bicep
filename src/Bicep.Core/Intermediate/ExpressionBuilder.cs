@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Emit;
@@ -17,6 +12,11 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Linq;
 using static Bicep.Core.Emit.ScopeHelper;
 
 namespace Bicep.Core.Intermediate;
@@ -66,25 +66,28 @@ public class ExpressionBuilder
     {
         switch (syntax)
         {
-            case StringSyntax @string: {
-                if (@string.TryGetLiteralValue() is {} stringValue)
+            case StringSyntax @string:
                 {
-                    return new StringLiteralExpression(@string, stringValue);
-                }
+                    if (@string.TryGetLiteralValue() is { } stringValue)
+                    {
+                        return new StringLiteralExpression(@string, stringValue);
+                    }
 
-                return new InterpolatedStringExpression(
-                    @string,
-                    @string.SegmentValues,
-                    @string.Expressions.Select(ConvertWithoutLowering).ToImmutableArray());
-            }
-            case IntegerLiteralSyntax @int: {
-                var literalValue = SafeConvertIntegerValue(@int, isNegative: false);
-                return new IntegerLiteralExpression(@int, literalValue);
-            }
-            case UnaryOperationSyntax { Operator: UnaryOperator.Minus } unary when unary.Expression is IntegerLiteralSyntax @int: {
-                var literalValue = SafeConvertIntegerValue(@int, isNegative: true);
-                return new IntegerLiteralExpression(unary, literalValue);
-            }
+                    return new InterpolatedStringExpression(
+                        @string,
+                        @string.SegmentValues,
+                        @string.Expressions.Select(ConvertWithoutLowering).ToImmutableArray());
+                }
+            case IntegerLiteralSyntax @int:
+                {
+                    var literalValue = SafeConvertIntegerValue(@int, isNegative: false);
+                    return new IntegerLiteralExpression(@int, literalValue);
+                }
+            case UnaryOperationSyntax { Operator: UnaryOperator.Minus } unary when unary.Expression is IntegerLiteralSyntax @int:
+                {
+                    var literalValue = SafeConvertIntegerValue(@int, isNegative: true);
+                    return new IntegerLiteralExpression(unary, literalValue);
+                }
             case BooleanLiteralSyntax @bool:
                 return new BooleanLiteralExpression(@bool, @bool.Value);
             case NullLiteralSyntax:
@@ -305,15 +308,15 @@ public class ExpressionBuilder
     private TypeExpression ConvertPropertyAccessInTypeExpression(AccessExpressionSyntax syntax, string propertyName)
         => Context.SemanticModel.GetSymbolInfo(syntax.BaseExpression) switch
         {
-            BuiltInNamespaceSymbol builtIn when TryGetTypeProperty(builtIn, propertyName) is {} property
+            BuiltInNamespaceSymbol builtIn when TryGetTypeProperty(builtIn, propertyName) is { } property
                 => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, property.TypeReference.Type),
-            WildcardImportSymbol wildcardImport when TryGetTypeProperty(wildcardImport, propertyName) is {} property
+            WildcardImportSymbol wildcardImport when TryGetTypeProperty(wildcardImport, propertyName) is { } property
                 => new WildcardImportPropertyReferenceExpression(syntax, wildcardImport, propertyName, property.TypeReference.Type),
             var otherwise => throw new ArgumentException($"Failed to convert property access on symbol of type {otherwise?.GetType()}"),
         };
 
     private TypeTypeProperty? TryGetTypeProperty(INamespaceSymbol namespaceSymbol, string propertyName)
-        => namespaceSymbol.TryGetNamespaceType() is NamespaceType type && type.TryGetTypeProperty(propertyName) is {} property
+        => namespaceSymbol.TryGetNamespaceType() is NamespaceType type && type.TryGetTypeProperty(propertyName) is { } property
             ? property
             : null;
 
@@ -470,7 +473,7 @@ public class ExpressionBuilder
 
         var objectBody = (ObjectSyntax)body;
         var properties = objectBody.Properties
-            .Where(x => x.TryGetKeyText() is not {} key || !ModulePropertiesToOmit.Contains(key))
+            .Where(x => x.TryGetKeyText() is not { } key || !ModulePropertiesToOmit.Contains(key))
             .Select(ConvertObjectProperty);
         Expression bodyExpression = new ObjectExpression(body, properties.ToImmutableArray());
         var parameters = objectBody.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName);
@@ -579,7 +582,7 @@ public class ExpressionBuilder
 
         var propertiesToOmit = resource.IsAzResource ? AzResourcePropertiesToOmit : NonAzResourcePropertiesToOmit;
         var properties = ((ObjectSyntax)body).Properties
-            .Where(x => x.TryGetKeyText() is not {} key || !propertiesToOmit.Contains(key))
+            .Where(x => x.TryGetKeyText() is not { } key || !propertiesToOmit.Contains(key))
             .Select(ConvertObjectProperty);
         Expression bodyExpression = new ObjectExpression(body, properties.ToImmutableArray());
 
@@ -678,7 +681,7 @@ public class ExpressionBuilder
     private Expression ConvertFunction(FunctionCallSyntaxBase functionCall)
     {
         if (Context.Settings.FileKind == BicepSourceFileKind.BicepFile &&
-            Context.FunctionVariables.GetValueOrDefault(functionCall) is {} functionVariable)
+            Context.FunctionVariables.GetValueOrDefault(functionCall) is { } functionVariable)
         {
             return new SynthesizedVariableReferenceExpression(functionCall, functionVariable.Name);
         }
@@ -691,14 +694,14 @@ public class ExpressionBuilder
                 functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
         }
 
-        if (Context.SemanticModel.TypeManager.GetMatchedFunctionResultValue(functionCall) is {} functionValue)
+        if (Context.SemanticModel.TypeManager.GetMatchedFunctionResultValue(functionCall) is { } functionValue)
         {
             return functionValue;
         }
 
         var converted = ConvertFunctionDirect(functionCall);
         if (converted is FunctionCallExpression convertedFunction &&
-            Context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { Evaluator: {} } functionOverload)
+            Context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { Evaluator: { } } functionOverload)
         {
             return functionOverload.Evaluator(convertedFunction);
         }
@@ -858,7 +861,7 @@ public class ExpressionBuilder
 
         switch (symbol)
         {
-            case DeclaredSymbol declaredSymbol when Context.SemanticModel.ResourceMetadata.TryLookup(declaredSymbol.DeclaringSyntax) is {} resource:
+            case DeclaredSymbol declaredSymbol when Context.SemanticModel.ResourceMetadata.TryLookup(declaredSymbol.DeclaringSyntax) is { } resource:
                 return new ResourceReferenceExpression(variableAccessSyntax, resource, null);
 
             case ParameterSymbol parameterSymbol:
@@ -1078,23 +1081,25 @@ public class ExpressionBuilder
     {
         switch (dependency.Resource)
         {
-            case ResourceSymbol resource: {
-                var metadata = Context.SemanticModel.ResourceMetadata.TryLookup(resource.DeclaringSyntax) as DeclaredResourceMetadata
-                    ?? throw new InvalidOperationException("Failed to find resource in cache");
+            case ResourceSymbol resource:
+                {
+                    var metadata = Context.SemanticModel.ResourceMetadata.TryLookup(resource.DeclaringSyntax) as DeclaredResourceMetadata
+                        ?? throw new InvalidOperationException("Failed to find resource in cache");
 
-                var indexContext = (resource.IsCollection && dependency.IndexExpression is null) ? null :
-                    TryGetReplacementContext(metadata, dependency.IndexExpression, newContext);
+                    var indexContext = (resource.IsCollection && dependency.IndexExpression is null) ? null :
+                        TryGetReplacementContext(metadata, dependency.IndexExpression, newContext);
 
-                var reference = new ResourceReferenceExpression(null, metadata, indexContext);
-                return new ResourceDependencyExpression(null, reference);
-            }
-            case ModuleSymbol module: {
-                var indexContext = (module.IsCollection && dependency.IndexExpression is null) ? null :
-                    TryGetReplacementContext(module, dependency.IndexExpression, newContext);
+                    var reference = new ResourceReferenceExpression(null, metadata, indexContext);
+                    return new ResourceDependencyExpression(null, reference);
+                }
+            case ModuleSymbol module:
+                {
+                    var indexContext = (module.IsCollection && dependency.IndexExpression is null) ? null :
+                        TryGetReplacementContext(module, dependency.IndexExpression, newContext);
 
-                var reference = new ModuleReferenceExpression(null, module, indexContext);
-                return new ResourceDependencyExpression(null, reference);
-            }
+                    var reference = new ModuleReferenceExpression(null, module, indexContext);
+                    return new ResourceDependencyExpression(null, reference);
+                }
             default:
                 throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
         }
@@ -1293,9 +1298,10 @@ public class ExpressionBuilder
     }
 
     private static long SafeConvertIntegerValue(IntegerLiteralSyntax @int, bool isNegative)
-        => (@int.Value, isNegative) switch {
-            (<= long.MaxValue, false) => (long)@int.Value,
-            (<= long.MaxValue, true) => -(long)@int.Value,
+        => (@int.Value, isNegative) switch
+        {
+            ( <= long.MaxValue, false) => (long)@int.Value,
+            ( <= long.MaxValue, true) => -(long)@int.Value,
             // long.MaxValue is 9223372036854775807, whereas long.MinValue is -9223372036854775808, hence this special-case check:
             (1UL + long.MaxValue, true) => long.MinValue,
             _ => throw new NotImplementedException($"Unexpected out-of-range integer value"),

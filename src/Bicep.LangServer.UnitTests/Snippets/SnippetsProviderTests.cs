@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
@@ -15,6 +13,8 @@ using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.LangServer.UnitTests.Snippets
 {

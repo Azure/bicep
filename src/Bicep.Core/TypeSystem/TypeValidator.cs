@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
@@ -13,6 +8,11 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -124,7 +124,7 @@ namespace Bicep.Core.TypeSystem
                 case (ModuleType sourceModuleType, _):
                     // When assigning a module, we're really assigning the value of the module body.
                     return AreTypesAssignable(sourceModuleType.Body.Type, targetType);
-                
+
                 case (TestType sourceTestType, _):
                     // When assigning a module, we're really assigning the value of the test body.
                     return AreTypesAssignable(sourceTestType.Body.Type, targetType);
@@ -580,7 +580,7 @@ namespace Bicep.Core.TypeSystem
 
             // outside of the cases handled above, if anything was assignable to a literal target, the target will always be the most narrow type
             return targetType;
-    }
+        }
 
         private TypeSymbol? NarrowArrayAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, ArrayType targetType)
         {
@@ -825,7 +825,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             var viableCandidates = candidacyEvaluations
-                .Select(c => c.NarrowedType is {} Narrowed && !c.Errors.Any()
+                .Select(c => c.NarrowedType is { } Narrowed && !c.Errors.Any()
                     // If this node was encountered in a resource declaration, use the target type rather than the narrowed type, as the
                     // target type describes what will be returned by the service (included derived and read-only fields)
                     ? new ViableTypeCandidate(config.IsResourceDeclaration ? c.UnionTypeMemberEvaluated.Type : Narrowed, c.Diagnostics)
@@ -996,13 +996,13 @@ namespace Bicep.Core.TypeSystem
                     return LanguageConstants.Any;
 
                 default:
-                {
-                    var shouldWarn = (config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType);
-                    diagnosticWriter.Write(
-                        config.OriginSyntax ?? discriminatorProperty.Value,
-                        x => x.PropertyTypeMismatch(shouldWarn, TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)));
-                    return LanguageConstants.Any;
-                }
+                    {
+                        var shouldWarn = (config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType);
+                        diagnosticWriter.Write(
+                            config.OriginSyntax ?? discriminatorProperty.Value,
+                            x => x.PropertyTypeMismatch(shouldWarn, TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)));
+                        return LanguageConstants.Any;
+                    }
             }
         }
 

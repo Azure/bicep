@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -17,6 +11,12 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -201,7 +201,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 return JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(parametersFileContents);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception(string.Format(LangServerResources.InvalidParameterFile, parametersFilePath, e.Message));
             }

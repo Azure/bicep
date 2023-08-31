@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using System.Text;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Bicep.Core.UnitTests.Utils
 {

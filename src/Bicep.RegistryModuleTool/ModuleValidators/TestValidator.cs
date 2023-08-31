@@ -3,7 +3,6 @@
 
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;

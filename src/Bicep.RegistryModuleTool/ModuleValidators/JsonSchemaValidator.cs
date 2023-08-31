@@ -1,14 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.Schemas;
 using Json.Pointer;
 using Json.Schema;
 using Microsoft.Extensions.Logging;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

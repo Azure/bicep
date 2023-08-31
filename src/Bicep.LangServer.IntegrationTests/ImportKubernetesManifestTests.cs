@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Bicep.Core.UnitTests.Utils;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.LanguageServer.Handlers;
-using System.IO;
 using Bicep.Core.UnitTests;
-using FluentAssertions;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Bicep.LanguageServer.Handlers;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -44,9 +44,9 @@ namespace Bicep.LangServer.IntegrationTests
 
             var telemetry = await telemetryEventsListener.WaitForAll();
             telemetry.Should().ContainEvent("ImportKubernetesManifest/success", new JObject
-                {
-                    ["success"] = "true",
-                });
+            {
+                ["success"] = "true",
+            });
 
             bicepFile.ShouldHaveExpectedValue();
 
@@ -75,9 +75,9 @@ namespace Bicep.LangServer.IntegrationTests
 
             var telemetry = await telemetryEventsListener.WaitForAll();
             telemetry.Should().ContainEvent("ImportKubernetesManifest/failure", new JObject
-                {
-                    ["failureType"] = "DeserializeYamlFailed",
-                });
+            {
+                ["failureType"] = "DeserializeYamlFailed",
+            });
 
             var message = await messageListener.WaitNext();
             message.Should().HaveMessageAndType(

@@ -3,15 +3,9 @@
 
 using Bicep.Core.Collections.Trees;
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.UnitTests.Collections.Trees
 {
@@ -35,7 +29,7 @@ namespace Bicep.Core.UnitTests.Collections.Trees
                 {
                     return;
                 }
-                
+
                 treeBuilder.AppendLine($"{indent}+- [{node.Start}, {node.End} | {node.MaxEnd}]: {string.Join(", ", node.Data)}");
                 indent += isLast ? "   " : "|  ";
 

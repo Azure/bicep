@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System;
@@ -56,7 +55,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        override protected string  GetCodeFixDescription(string name)
+        override protected string GetCodeFixDescription(string name)
         {
             return $"Remove unused variable {name}";
         }

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Exceptions;
-using Bicep.Core.Registry;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleValidators;
 using Markdig;

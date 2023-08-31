@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.FileSystem;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using Bicep.Core.FileSystem;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -41,7 +41,7 @@ namespace Bicep.Core.UnitTests.Assertions
         {
             var currentDir = new DirectoryInfo(Environment.CurrentDirectory);
 
-            while (currentDir.Parent is {} parentDir)
+            while (currentDir.Parent is { } parentDir)
             {
                 // search upwards for the .git directory. This should only exist at the repository root.
                 if (Directory.Exists(Path.Join(currentDir.FullName, ".git")))

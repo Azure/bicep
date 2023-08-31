@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Exceptions;
-using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.ModuleValidators;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text.Json;

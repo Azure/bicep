@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Deployments.Core.Uri;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Azure.Deployments.Core.Uri;
-using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Modules
 {

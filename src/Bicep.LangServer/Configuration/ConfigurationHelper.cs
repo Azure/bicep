@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core;
+using Bicep.Core.Configuration;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Bicep.Core;
-using Bicep.Core.Configuration;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Configuration
 {
@@ -33,7 +33,7 @@ namespace Bicep.LanguageServer.Configuration
                 rootConfiguration = configurationManager.GetConfiguration(documentUri.ToUriEncoded());
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 rootConfiguration = null;
                 Trace.WriteLine($"Encountered issue while getting configuration: {e.Message}");

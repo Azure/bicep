@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
@@ -316,7 +315,7 @@ namespace Bicep.Core.Syntax
             return new TestDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
         }
         void ISyntaxVisitor.VisitTestDeclarationSyntax(TestDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceTestDeclarationSyntax);
-        
+
         protected virtual SyntaxBase ReplaceOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);

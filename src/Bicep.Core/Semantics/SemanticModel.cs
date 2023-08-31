@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
@@ -22,6 +16,12 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
 
 namespace Bicep.Core.Semantics
 {
@@ -190,7 +190,7 @@ namespace Bicep.Core.Semantics
                 sb.Append($"Experimental features enabled: {string.Join(',', experimentalFeatures)}. ");
             }
 
-            if (configuration.ConfigurationPath is {} configPath)
+            if (configuration.ConfigurationPath is { } configPath)
             {
                 sb.Append($"Using bicepConfig from path {configPath}.");
             }
@@ -517,7 +517,7 @@ namespace Bicep.Core.Semantics
                     }
 
                     // consider a parameter to be absent if there was no assignment statement OR if the value `null` was assigned
-                    return TryGetParameterAssignment(declaration) is not {} assignment || assignment.Type is NullType;
+                    return TryGetParameterAssignment(declaration) is not { } assignment || assignment.Type is NullType;
                 })
                 .Select(declaration => declaration.Name)
                 .ToImmutableArray();

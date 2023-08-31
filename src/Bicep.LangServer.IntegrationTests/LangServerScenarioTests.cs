@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using FluentAssertions;
@@ -11,6 +8,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.IntegrationTests;
 

@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure;
 using Azure.ResourceManager;
 using Azure.ResourceManager.ResourceGraph;
@@ -16,6 +10,10 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Tracing;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace Bicep.LanguageServer.Providers
 {

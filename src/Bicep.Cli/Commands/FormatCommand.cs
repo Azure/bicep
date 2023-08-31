@@ -85,9 +85,9 @@ public class FormatCommand : ICommand
         }
 
         var options = new PrettyPrintOptions(
-            args.Newline            ?? NewlineOption.Auto,
-            args.IndentKind         ?? IndentKindOption.Space,
-            args.IndentSize         ?? 2,
+            args.Newline ?? NewlineOption.Auto,
+            args.IndentKind ?? IndentKindOption.Space,
+            args.IndentSize ?? 2,
             args.InsertFinalNewline ?? false
         );
 

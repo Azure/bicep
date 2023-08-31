@@ -12,6 +12,7 @@ using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
+using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
@@ -24,7 +25,6 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
-using Bicep.LanguageServer.Settings;
 
 namespace Bicep.LanguageServer
 {

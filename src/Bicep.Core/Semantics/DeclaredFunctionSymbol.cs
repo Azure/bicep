@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.Semantics;
 
@@ -14,8 +14,8 @@ public class DeclaredFunctionSymbol : DeclaredSymbol, IFunctionSymbol
     public DeclaredFunctionSymbol(ISymbolContext context, string name, FunctionDeclarationSyntax declaringSyntax)
         : base(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        this.overloadsLazy = new(() => GetFunctionOverload() is {} overload ? 
-            ImmutableArray.Create(overload) : 
+        this.overloadsLazy = new(() => GetFunctionOverload() is { } overload ?
+            ImmutableArray.Create(overload) :
             ImmutableArray<FunctionOverload>.Empty);
     }
 
@@ -36,7 +36,7 @@ public class DeclaredFunctionSymbol : DeclaredSymbol, IFunctionSymbol
     private FunctionOverload GetFunctionOverload()
     {
         var builder = new FunctionOverloadBuilder(this.Name);
-        if (DescriptionHelper.TryGetFromDecorator(Context.Binder, Context.TypeManager, DeclaringFunction) is {} description)
+        if (DescriptionHelper.TryGetFromDecorator(Context.Binder, Context.TypeManager, DeclaringFunction) is { } description)
         {
             builder.WithGenericDescription(description);
         }

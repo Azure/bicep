@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Text.RegularExpressions;
-using System.Linq;
 using Bicep.Core.Parsing;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Bicep.Core.UnitTests.Utils
 {

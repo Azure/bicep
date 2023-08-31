@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.Semantics.Namespaces;
 

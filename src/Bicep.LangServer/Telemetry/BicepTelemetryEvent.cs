@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System;
 using System.Collections.Generic;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Telemetry
 {
@@ -265,7 +265,7 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
-        public static BicepTelemetryEvent DecompileForPaste(string decompileId, string? pasteContext, string? pasteType,  int jsonSize, int? bicepSize)
+        public static BicepTelemetryEvent DecompileForPaste(string decompileId, string? pasteContext, string? pasteType, int jsonSize, int? bicepSize)
             => new BicepTelemetryEvent
             (
                 eventName: TelemetryConstants.EventNames.DecompileForPaste,

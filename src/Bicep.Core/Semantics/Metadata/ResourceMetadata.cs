@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Resources;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics.Metadata
 {

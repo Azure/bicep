@@ -1,19 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Core;
-using Bicep.Core.Json;
 using Bicep.LanguageServer.Handlers;
+using System;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Deploy
 {

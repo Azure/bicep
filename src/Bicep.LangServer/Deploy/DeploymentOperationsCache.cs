@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Concurrent;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
+using System.Collections.Concurrent;
 
 namespace Bicep.LanguageServer.Deploy
 {

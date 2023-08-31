@@ -3,7 +3,6 @@
 
 using System;
 using System.Text;
-using Bicep.Core.Parsing;
 
 namespace Bicep.Core.TypeSystem;
 

@@ -1,22 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Samples;
 using BenchmarkDotNet.Attributes;
-using Microsoft.Extensions.DependencyInjection;
-using System.IO.Abstractions;
+using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Utils;
-using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServer.Client;
-using System.IO.Pipelines;
+using Bicep.LangServer.IntegrationTests;
 using Bicep.LanguageServer;
-using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.LanguageServer.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using System.Collections.Generic;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Bicep.LangServer.IntegrationTests;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.IO.Pipelines;
 using System.Reactive.Concurrency;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.Tools.Benchmark;
 
@@ -50,7 +50,8 @@ public class LanguageServer
 
         var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 
-        var client = LanguageClient.PreInit(options => {
+        var client = LanguageClient.PreInit(options =>
+        {
             options
                 .WithInput(clientPipe.Reader)
                 .WithOutput(serverPipe.Writer)
@@ -81,8 +82,10 @@ public class LanguageServer
         var version = 0;
         var documentUri = DocumentUri.Parse($"file:///{dataSet.Name}/main.bicep");
 
-        client.DidOpenTextDocument(new() {
-            TextDocument = new () {
+        client.DidOpenTextDocument(new()
+        {
+            TextDocument = new()
+            {
                 LanguageId = "bicep",
                 Text = "",
                 Uri = documentUri,
@@ -93,8 +96,10 @@ public class LanguageServer
 
         for (var i = 0; i < dataSet.Bicep.Length; i++)
         {
-            client.DidChangeTextDocument(new() {
-                TextDocument = new () {
+            client.DidChangeTextDocument(new()
+            {
+                TextDocument = new()
+                {
                     Uri = documentUri,
                     Version = version++,
                 },
@@ -107,8 +112,10 @@ public class LanguageServer
             diags = await diagsListener.WaitNext();
         }
 
-        client.DidCloseTextDocument(new() {
-            TextDocument = new () {
+        client.DidCloseTextDocument(new()
+        {
+            TextDocument = new()
+            {
                 Uri = documentUri,
             },
         });

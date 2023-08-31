@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Syntax;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.UnitTests.Syntax
 {
@@ -13,7 +13,7 @@ namespace Bicep.Core.UnitTests.Syntax
             public IEnumerable<SyntaxCollectorVisitor.SyntaxItem> GetAncestors()
             {
                 var data = this;
-                while (data.Parent is {} parent)
+                while (data.Parent is { } parent)
                 {
                     yield return parent;
                     data = parent;

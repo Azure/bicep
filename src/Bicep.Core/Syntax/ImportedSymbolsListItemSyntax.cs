@@ -23,7 +23,7 @@ public class ImportedSymbolsListItemSyntax : SyntaxBase, INamedDeclarationSyntax
 
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitImportedSymbolsListItemSyntax(this);
 
-    public override TextSpan Span => AsClause is {} nonNullAsClause
+    public override TextSpan Span => AsClause is { } nonNullAsClause
         ? TextSpan.Between(this.OriginalSymbolName, nonNullAsClause)
         : this.OriginalSymbolName.Span;
 }

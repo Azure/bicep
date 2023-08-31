@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Templates.Engines;
 using Bicep.Core.Emit;
 using FluentAssertions;
+using System;
 
 namespace Bicep.Core.UnitTests.Utils
 {

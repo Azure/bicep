@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
+using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Semantics;
-using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
 

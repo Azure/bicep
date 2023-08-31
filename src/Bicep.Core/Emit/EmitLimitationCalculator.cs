@@ -1,15 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -21,6 +15,11 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.Emit
 {
@@ -559,7 +558,7 @@ namespace Bicep.Core.Emit
                 // We may emit duplicate errors here - type checking will also execute some ARM functions and generate errors
                 // This is something we should improve before the first release.
                 var result = evaluator.EvaluateParameter(parameter);
-                if (result.Diagnostic is {})
+                if (result.Diagnostic is { })
                 {
                     diagnostics.Write(result.Diagnostic);
                 }
@@ -572,7 +571,7 @@ namespace Bicep.Core.Emit
             return generated.ToImmutableDictionary();
         }
 
-        private static IEnumerable<Symbol> GetTopologicallySortedSymbols(ImmutableDictionary<Symbol, ImmutableDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>>>  referencesInValues)
+        private static IEnumerable<Symbol> GetTopologicallySortedSymbols(ImmutableDictionary<Symbol, ImmutableDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>>> referencesInValues)
         {
             HashSet<Symbol> processed = new();
             IEnumerable<Symbol> YieldSymbolAndUnprocessedPredecessors(Symbol n)

@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.Visitors
 {
@@ -40,8 +40,8 @@ namespace Bicep.Core.Visitors
 
         private void GenerateVariableFromFunctionCall(FunctionCallSyntaxBase syntax)
         {
-            if (semanticModel.TypeManager.GetMatchedFunctionOverload(syntax) is not {} functionOverload ||
-                semanticModel.TypeManager.GetMatchedFunctionResultValue(syntax) is not {} functionResult)
+            if (semanticModel.TypeManager.GetMatchedFunctionOverload(syntax) is not { } functionOverload ||
+                semanticModel.TypeManager.GetMatchedFunctionResultValue(syntax) is not { } functionResult)
             {
                 return;
             }

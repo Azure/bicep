@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Azure.Bicep.Types;
+using Bicep.Core.Resources;
+using Microsoft.Graph.Bicep.Types;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Azure.Bicep.Types;
-using Microsoft.Graph.Bicep.Types;
-using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.MicrosoftGraph
 {

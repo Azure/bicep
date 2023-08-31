@@ -1,21 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
-using Bicep.Core.Features;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -99,16 +90,16 @@ test test1 ''
                 ("BCP050", DiagnosticLevel.Error, @"The specified path is empty."),
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location."),
             });
-               
+
         }
-    [TestMethod]
-    public void TestFramework_should_not_have_diagnostics_on_required_parameters()
-    {
-        var result = CompilationHelper.Compile(ServicesWithTestFramework,
-                                                ("testMain.bicep", @"
+        [TestMethod]
+        public void TestFramework_should_not_have_diagnostics_on_required_parameters()
+        {
+            var result = CompilationHelper.Compile(ServicesWithTestFramework,
+                                                    ("testMain.bicep", @"
                                                 param name string
                                                 "),
-                                                ("main.bicep", @"
+                                                    ("main.bicep", @"
                                                 test foo 'testMain.bicep' = {
                                                 params: {
                                                     name: 'us'
@@ -116,61 +107,61 @@ test test1 ''
                                                 }
                                                 "));
 
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-    }
-    [TestMethod]
-    public void TestFramework_should_have_diagnostics_on_wrong_parameter_type()
-    {
-        var result = CompilationHelper.Compile(ServicesWithTestFramework,
-                                                ("main.bicep", @"
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+        [TestMethod]
+        public void TestFramework_should_have_diagnostics_on_wrong_parameter_type()
+        {
+            var result = CompilationHelper.Compile(ServicesWithTestFramework,
+                                                    ("main.bicep", @"
                                                 test foo 'testMain.bicep' = {
                                                 params: {
                                                     name: 1
                                                 }
                                                 }
-                                                "),("testMain.bicep", @"
+                                                "), ("testMain.bicep", @"
                                                 param name string
                                                 "));
 
-        result.Should().HaveDiagnostics(new [] {
+            result.Should().HaveDiagnostics(new[] {
             ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"1\"."),
         });
-    }
+        }
 
-    [TestMethod]
-    public void TestFramework_should_have_diagnostics_when_missing_parameters()
-    {
-        var result = CompilationHelper.Compile(ServicesWithTestFramework,
-                                                ("main.bicep", @"
+        [TestMethod]
+        public void TestFramework_should_have_diagnostics_when_missing_parameters()
+        {
+            var result = CompilationHelper.Compile(ServicesWithTestFramework,
+                                                    ("main.bicep", @"
                                                 test foo 'testMain.bicep' = {
                                                 params: {
                                                 }
                                                 }
-                                                "),("testMain.bicep", @"
+                                                "), ("testMain.bicep", @"
                                                 param name string
                                                 "));
 
-        result.Should().HaveDiagnostics(new [] {
+            result.Should().HaveDiagnostics(new[] {
         ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"name\"."),
         });
-    }
-    
-    [TestMethod]
-    public void TestFramework_should_have_diagnostics_when_missing_parameters_property()
-    {
-        var result = CompilationHelper.Compile(ServicesWithTestFramework,
-                                                ("main.bicep", @"
+        }
+
+        [TestMethod]
+        public void TestFramework_should_have_diagnostics_when_missing_parameters_property()
+        {
+            var result = CompilationHelper.Compile(ServicesWithTestFramework,
+                                                    ("main.bicep", @"
                                                 test foo 'testMain.bicep' = {
                                                 }
-                                                "),("testMain.bicep", @"
+                                                "), ("testMain.bicep", @"
                                                 param name string
                                                 "));
 
-        result.Should().HaveDiagnostics(new [] {
+            result.Should().HaveDiagnostics(new[] {
         ("BCP035", DiagnosticLevel.Error, "The specified \"test\" declaration is missing the following required properties: \"params\"."),
         });
-    }
-        
+        }
+
     }
 
 }

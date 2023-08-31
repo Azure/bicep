@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -155,16 +155,16 @@ namespace Bicep.Core.TypeSystem
                     arrayAccessSyntax.BaseExpression == syntax &&
                     this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
                     this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
-                {
-                    var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
-                    if (arrayIndexExprType.IsIntegerOrIntegerLiteral()
-                        || arrayIndexExprType.TypeKind == TypeKind.Any
-                        || (arrayIndexExprType is UnionType indexUnionType && indexUnionType.Members.All(m => m.Type.IsIntegerOrIntegerLiteral())))
                     {
-                        this.FlagDeployTimeConstantViolationWithVariableDependencies(resourceSymbol, resourceType);
+                        var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
+                        if (arrayIndexExprType.IsIntegerOrIntegerLiteral()
+                            || arrayIndexExprType.TypeKind == TypeKind.Any
+                            || (arrayIndexExprType is UnionType indexUnionType && indexUnionType.Members.All(m => m.Type.IsIntegerOrIntegerLiteral())))
+                        {
+                            this.FlagDeployTimeConstantViolationWithVariableDependencies(resourceSymbol, resourceType);
+                        }
+                        return;
                     }
-                    return;
-                }
 
                 default:
                     break;

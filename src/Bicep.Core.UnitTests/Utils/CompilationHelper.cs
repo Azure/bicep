@@ -1,9 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
@@ -16,6 +12,10 @@ using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.Utils
 {

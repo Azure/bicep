@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Immutable;
 using Bicep.Core.Parsing;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.Syntax
 {

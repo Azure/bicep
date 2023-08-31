@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Bicep.Core.Semantics
 {
@@ -51,7 +51,7 @@ namespace Bicep.Core.Semantics
             [NotNullWhen(true)] out ISemanticModel? semanticModel,
             [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
         {
-            if (sourceFileLookup.TryGetErrorDiagnostic(reference) is {} errorBuilder)
+            if (sourceFileLookup.TryGetErrorDiagnostic(reference) is { } errorBuilder)
             {
                 semanticModel = null;
                 failureDiagnostic = errorBuilder(DiagnosticBuilder.ForPosition(reference.ReferenceSourceSyntax));

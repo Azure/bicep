@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Diagnostics;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using System.Text.Json;
-using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Configuration
 {
@@ -34,7 +34,7 @@ namespace Bicep.Core.Configuration
             FormattingConfiguration formatting,
             string? configurationPath,
             IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
-            {
+        {
             this.Cloud = cloud;
             this.ModuleAliases = moduleAliases;
             this.Analyzers = analyzers;

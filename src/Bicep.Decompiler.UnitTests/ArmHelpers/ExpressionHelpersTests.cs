@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 using Azure.Deployments.Expression.Configuration;
+using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Decompiler.ArmHelpers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using Bicep.Core.UnitTests.Assertions;
-using Azure.Deployments.Expression.Expressions;
 using System;
 
 namespace Bicep.Core.IntegrationTests.ArmHelpers

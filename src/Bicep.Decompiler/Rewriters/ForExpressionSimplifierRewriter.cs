@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Rewriters;
 using Bicep.Core.Syntax.Visitors;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Bicep.Core.Decompiler.Rewriters
 {
@@ -140,7 +140,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             SyntaxBase forVariableBlockSyntax;
             if (independentIndexAccesses.Any())
             {
-                forVariableBlockSyntax = SyntaxFactory.CreateVariableBlock(new [] {
+                forVariableBlockSyntax = SyntaxFactory.CreateVariableBlock(new[] {
                     SyntaxFactory.CreateIdentifier(itemVarName),
                     SyntaxFactory.CreateIdentifier(arrayIndexSymbol.Name)
                 });

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Azure.Deployments.Expression.Expressions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Azure.Deployments.Expression.Expressions;
 
 namespace Bicep.Decompiler
 {

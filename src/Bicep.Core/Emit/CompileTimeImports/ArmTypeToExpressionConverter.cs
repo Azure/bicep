@@ -1,8 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Immutable;
-using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Bicep.Core.Extensions;
@@ -11,6 +8,9 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
 
@@ -56,12 +56,13 @@ internal class ArmTypeToExpressionConverter
         Expression? MaxLength,
         Expression? MinValue,
         Expression? MaxValue,
-        Expression? Sealed) {}
+        Expression? Sealed)
+    { }
 
     private TypeModifiers GetTypeModifiers(ITemplateSchemaNode schemaNode) => new(
         GetDescription(schemaNode) is string description ? ExpressionFactory.CreateStringLiteral(description, sourceSyntax) : null,
         schemaNode.Metadata?.Value is JObject @object &&
-            ConvertToExpression(@object, LanguageConstants.MetadataDescriptionPropertyName, LanguageConstants.MetadataExportedPropertyName) is {} metadataObjectExpression &&
+            ConvertToExpression(@object, LanguageConstants.MetadataDescriptionPropertyName, LanguageConstants.MetadataExportedPropertyName) is { } metadataObjectExpression &&
             metadataObjectExpression.Properties.Any()
                 ? metadataObjectExpression
                 : null,
@@ -110,7 +111,7 @@ internal class ArmTypeToExpressionConverter
             Type = schemaNode.Type,
         });
 
-        if (schemaNode.AllowedValues?.Value is {} allowedValues)
+        if (schemaNode.AllowedValues?.Value is { } allowedValues)
         {
             // "allowedValues" in ARM has two meanings:
             //   1. { "type": "array", "allowedValues": ["foo", "bar"] } means that the node permits an array containing any subset of the allowed values
@@ -237,7 +238,7 @@ internal class ArmTypeToExpressionConverter
 
     private TypeExpression ConvertArrayNodeToTypeExpression(ITemplateSchemaNode schemaNode)
     {
-        if (schemaNode.PrefixItems is {} prefixItems)
+        if (schemaNode.PrefixItems is { } prefixItems)
         {
             var itemExpressions = ImmutableArray.CreateRange(prefixItems.Select(i =>
             {
@@ -260,7 +261,7 @@ internal class ArmTypeToExpressionConverter
                 itemExpressions);
         }
 
-        if (schemaNode.Items?.SchemaNode is {} itemsSchemaNode)
+        if (schemaNode.Items?.SchemaNode is { } itemsSchemaNode)
         {
             var itemTypeExpression = ConvertToTypeExpression(itemsSchemaNode);
             return new ArrayTypeExpression(sourceSyntax,
@@ -282,7 +283,8 @@ internal class ArmTypeToExpressionConverter
         }
 
         var properties = ImmutableArray.CreateRange(schemaNode.Properties.CoalesceEnumerable()
-            .Select(kvp => {
+            .Select(kvp =>
+            {
                 var modifiers = GetTypeModifiers(kvp.Value);
                 return new ObjectTypePropertyExpression(sourceSyntax,
                     kvp.Key,
@@ -298,7 +300,7 @@ internal class ArmTypeToExpressionConverter
             }));
 
         ObjectTypeAdditionalPropertiesExpression? addlProperties = null;
-        if (schemaNode.AdditionalProperties?.SchemaNode is {} additionalPropertiesSchema)
+        if (schemaNode.AdditionalProperties?.SchemaNode is { } additionalPropertiesSchema)
         {
             var modifiers = GetTypeModifiers(additionalPropertiesSchema);
             addlProperties = new(sourceSyntax,

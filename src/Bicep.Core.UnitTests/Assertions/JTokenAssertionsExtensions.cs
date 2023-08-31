@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using JsonDiffPatchDotNet;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions
 {

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Core.Syntax;
 

@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Resources;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Bicep.Core.Resources;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.TypeSystem.K8s
 {

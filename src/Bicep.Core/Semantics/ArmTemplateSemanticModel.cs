@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Templates.Engines;
@@ -16,6 +11,11 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace Bicep.Core.Semantics
 {
@@ -89,7 +89,7 @@ namespace Bicep.Core.Semantics
             // same name, whereas Bicep requires symbols to be unique within a template. How should we handle naming conflicts on exported members?
             this.exportedTypesLazy = new(() =>
             {
-                if (SourceFile.Template?.Definitions is not {} typeDefinitions)
+                if (SourceFile.Template?.Definitions is not { } typeDefinitions)
                 {
                     return ImmutableDictionary<string, ExportedTypeMetadata>.Empty;
                 }

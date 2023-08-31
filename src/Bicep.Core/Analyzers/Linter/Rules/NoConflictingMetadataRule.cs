@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules;
 
@@ -21,7 +21,8 @@ public sealed class NoConflictingMetadataRule : LinterRuleBase
         code: Code,
         description: CoreResources.NoConflictingMetadataRuleDescription,
         docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
-        diagnosticLevel: DiagnosticLevel.Warning) {}
+        diagnosticLevel: DiagnosticLevel.Warning)
+    { }
 
     public override string FormatMessage(params object[] values)
         => string.Format(CoreResources.NoConflictingMetadataRuleMessageFormat, values);
@@ -33,7 +34,7 @@ public sealed class NoConflictingMetadataRule : LinterRuleBase
                 conflict.ConflictInfo.MetadataPropertyName,
                 conflict.ConflictInfo.DecoratorName));
 
-    private record MetadataPropertySetByDecorator(string MetadataPropertyName, string DecoratorNamespace, string DecoratorName) {}
+    private record MetadataPropertySetByDecorator(string MetadataPropertyName, string DecoratorNamespace, string DecoratorName) { }
 
     private class Visitor : AstVisitor
     {
@@ -61,7 +62,7 @@ public sealed class NoConflictingMetadataRule : LinterRuleBase
 
         protected override void VisitInternal(SyntaxBase node)
         {
-            if (node is DecorableSyntax decorable && GetMetadataObject(decorable) is {} metadataObject)
+            if (node is DecorableSyntax decorable && GetMetadataObject(decorable) is { } metadataObject)
             {
                 foreach (var potentialConflict in metadataPropertySetByDecorators)
                 {
@@ -75,7 +76,7 @@ public sealed class NoConflictingMetadataRule : LinterRuleBase
         }
 
         private ObjectSyntax? GetMetadataObject(DecorableSyntax syntax)
-            => SemanticModelHelper.TryGetDecoratorInNamespace(model, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMetadataPropertyName) is {} mdDecorator
+            => SemanticModelHelper.TryGetDecoratorInNamespace(model, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterMetadataPropertyName) is { } mdDecorator
                 ? mdDecorator.Arguments.FirstOrDefault()?.Expression as ObjectSyntax
                 : null;
     }

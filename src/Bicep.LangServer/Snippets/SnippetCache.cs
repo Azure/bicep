@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Resources;
 using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Bicep.Core.Resources;
 
 namespace Bicep.LanguageServer.Snippets;
 

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Immutable;
 using Bicep.Core.TypeSystem;
+using System.Collections.Immutable;
 
 namespace Bicep.Core.Semantics;
 
-public interface IFunctionSymbol 
+public interface IFunctionSymbol
 {
     string Name { get; }
 

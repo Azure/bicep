@@ -1,5 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
+using Bicep.Core.Text;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,12 +13,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Emit;
-using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
-using Bicep.Core.Text;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -114,7 +114,8 @@ namespace Bicep.Core.UnitTests.Utils
             }
 
             var lineStarts = TextCoordinateConverter.GetLineStarts(bicepOutput);
-            var sourceMapDiags = fileEntry.SourceMap.Select(entry => {
+            var sourceMapDiags = fileEntry.SourceMap.Select(entry =>
+            {
                 var offset = TextCoordinateConverter.GetOffset(lineStarts, entry.SourceLine, 0);
                 var jsonLine = jsonLines[entry.TargetLine];
 

@@ -1,19 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text.Json.Nodes;
+using Azure.Deployments.Core.Definitions.Identifiers;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
@@ -25,8 +15,14 @@ using Bicep.Decompiler.BicepHelpers;
 using Bicep.Decompiler.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static Bicep.Core.Emit.ResourceDependencyVisitor;
-using Azure.Deployments.Core.Definitions.Identifiers;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 
 namespace Bicep.Decompiler
 {
@@ -636,7 +632,7 @@ namespace Bicep.Decompiler
         private SyntaxBase ParsePropertyAccess(SyntaxBase baseExpression, LanguageExpression property, bool safeNavigation = false)
         {
             Token? safeAccessMarker = safeNavigation ? SyntaxFactory.QuestionToken : null;
-            return TryParseIdentifier(property) is {} propertyName
+            return TryParseIdentifier(property) is { } propertyName
                 ? new PropertyAccessSyntax(baseExpression, SyntaxFactory.DotToken, safeAccessMarker, propertyName)
                 : new ArrayAccessSyntax(
                     baseExpression,
@@ -1005,8 +1001,9 @@ namespace Bicep.Decompiler
         private SyntaxBase GetModuleFromId(string templateID, JObject resource)
         {
             // eg for modules templateSpec - ts:<subscription-ID>/<resource-group-name>/<Template-spec-name>:<version>
-            if (!ResourceGroupLevelResourceId.TryParse(templateID, out var id)) {
-               throw  new ConversionFailedException($"Unable to interpret \"{templateID}\" as a valid template spec resource id under property {resource["name"]}.properties.templateLink.id", resource);
+            if (!ResourceGroupLevelResourceId.TryParse(templateID, out var id))
+            {
+                throw new ConversionFailedException($"Unable to interpret \"{templateID}\" as a valid template spec resource id under property {resource["name"]}.properties.templateLink.id", resource);
             }
             var templateSpec = $"ts:{id.SubscriptionId}/{id.ResourceGroup}/{id.NameHierarchy.First()}:{id.NameHierarchy.Last()}";
             return SyntaxFactory.CreateStringLiteral(templateSpec);
@@ -1405,11 +1402,11 @@ namespace Bicep.Decompiler
                 }
                 else if (idProperty?.Value<string>() is string templateSpecIdString)
                 {
-                    modulePath = GetModuleFromId(templateSpecIdString,resource);
+                    modulePath = GetModuleFromId(templateSpecIdString, resource);
                 }
                 else
                 {
-                     throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" or \"id\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
+                    throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" or \"id\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
                 }
                 var module = new ModuleDeclarationSyntax(
                     decoratorsAndNewLines,

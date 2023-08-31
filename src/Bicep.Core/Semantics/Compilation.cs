@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -12,6 +8,9 @@ using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
+using System;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.Semantics
 {

@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
@@ -15,6 +13,8 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 
 namespace Bicep.Wasm;
 

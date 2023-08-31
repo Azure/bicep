@@ -106,7 +106,7 @@ namespace Bicep.Cli.Arguments
                 }
             }
 
-            if(DiagnosticsFormat is null)
+            if (DiagnosticsFormat is null)
             {
                 DiagnosticsFormat = Arguments.DiagnosticsFormat.Default;
             }
@@ -114,11 +114,11 @@ namespace Bicep.Cli.Arguments
 
         private static DiagnosticsFormat ToDiagnosticsFormat(string? format)
         {
-            if(format is null || (format is not null && format.Equals("default", StringComparison.OrdinalIgnoreCase)))
+            if (format is null || (format is not null && format.Equals("default", StringComparison.OrdinalIgnoreCase)))
             {
                 return Arguments.DiagnosticsFormat.Default;
             }
-            else if(format is not null && format.Equals("sarif", StringComparison.OrdinalIgnoreCase))
+            else if (format is not null && format.Equals("sarif", StringComparison.OrdinalIgnoreCase))
             {
                 return Arguments.DiagnosticsFormat.Sarif;
             }

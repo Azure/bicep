@@ -1,15 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Configuration;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using System.Diagnostics.CodeAnalysis;
 using ConfigurationManager = Bicep.Core.Configuration.ConfigurationManager;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 

@@ -1,13 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests;
@@ -18,6 +11,12 @@ using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Handlers;
 

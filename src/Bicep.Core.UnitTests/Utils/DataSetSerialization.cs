@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.IO;
-using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using System.IO;
+using System.Text;
 
 namespace Bicep.Core.UnitTests.Utils
 {

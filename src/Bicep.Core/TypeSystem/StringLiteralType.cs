@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Bicep.Core.Parsing;
+using System;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -11,7 +11,7 @@ namespace Bicep.Core.TypeSystem
         internal StringLiteralType(string value, TypeSymbolValidationFlags validationFlags)
             // The name of the type should be set to the escaped string value (including quotes).
             // This affects how the type is displayed to the user, and is also used to compare two string literals types for equality.
-            : this(StringUtils.EscapeBicepString(value), value, validationFlags) {}
+            : this(StringUtils.EscapeBicepString(value), value, validationFlags) { }
 
         internal StringLiteralType(string typeName, string rawValue, TypeSymbolValidationFlags validationFlags)
             : base(typeName)

@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
@@ -11,6 +9,8 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace Bicep.Core.UnitTests.Registry
 {
@@ -513,7 +513,7 @@ namespace Bicep.Core.UnitTests.Registry
             string manifestFileContents,
             string registory,
             string repository,
-            string? digest= null,
+            string? digest = null,
             string? tag = null,
             bool cacheRootDirectory = true)
         {

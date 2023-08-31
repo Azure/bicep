@@ -1,16 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -21,6 +11,16 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Completions;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Snippets;
 
@@ -187,7 +187,7 @@ public class SnippetCacheBuilder
         workspace.UpsertSourceFiles(bicepFile.AsEnumerable());
 
         var compilation = await bicepCompiler.CreateCompilation(bicepFile.FileUri, workspace, skipRestore: true);
-        var semanticModel = compilation.GetEntrypointSemanticModel();   
+        var semanticModel = compilation.GetEntrypointSemanticModel();
 
         return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
     }

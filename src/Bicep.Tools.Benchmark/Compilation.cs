@@ -1,17 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Samples;
 using BenchmarkDotNet.Attributes;
-using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
-using System.IO.Abstractions.TestingHelpers;
-using System.IO.Abstractions;
-using System.Collections.Immutable;
-using FluentAssertions;
-using System;
+using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
-using SharpYaml;
+using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Immutable;
+using System.IO.Abstractions;
+using System.Linq;
 
 namespace Bicep.Tools.Benchmark;
 

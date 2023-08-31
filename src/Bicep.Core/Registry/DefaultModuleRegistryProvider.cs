@@ -4,9 +4,9 @@
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Immutable;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
 {

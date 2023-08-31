@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.TypeSystem.Az;
@@ -18,6 +16,8 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using System;
+using System.Collections.Generic;
 
 namespace Bicep.LangServer.UnitTests
 {

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.RegistryModuleTool.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.RegistryModuleTool.Extensions;
 using System;
 
 namespace Bicep.RegistryModuleTool.UnitTests.Extensions

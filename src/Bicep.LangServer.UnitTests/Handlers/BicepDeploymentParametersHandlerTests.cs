@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -17,6 +13,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -557,7 +557,8 @@ resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@
                     updatedParam.isExpression.Should().BeTrue();
                     updatedParam.isSecure.Should().BeFalse();
                 },
-                updatedParam => {
+                updatedParam =>
+                {
                     updatedParam.name.Should().Be("dataFactoryName");
                     updatedParam.value.Should().Be("format('datafactory{0}', uniqueString(resourceGroup().id))");
                     updatedParam.isMissingParam.Should().BeFalse();
@@ -780,7 +781,7 @@ param test foo", ParameterType.Array, @"{""experimentalFeaturesEnabled"":{""user
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, outputPath);
             if (configFileContents is not null)
             {
-              FileHelper.SaveResultFile(TestContext, "bicepconfig.json", configFileContents, outputPath);
+                FileHelper.SaveResultFile(TestContext, "bicepconfig.json", configFileContents, outputPath);
             }
             var service = new ServiceBuilder().Build();
             var parameterSymbol = service.BuildCompilation(service.BuildSourceFileGrouping(new(bicepFilePath))).GetEntrypointSemanticModel().Binder.FileSymbol.ParameterDeclarations.Single();

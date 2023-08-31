@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using static Bicep.Core.UnitTests.Utils.CompilationHelper;
 
 namespace Bicep.Core.UnitTests.Utils

@@ -15,16 +15,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void ExpectPass(string text, Options? options = null)
         {
-            AssertLinterRuleDiagnostics(SimplifyJsonNullRule.Code, text, diags => 
+            AssertLinterRuleDiagnostics(SimplifyJsonNullRule.Code, text, diags =>
             {
                 diags.Should().HaveCount(0, $"expecting linter rule to pass");
-            }, 
+            },
             options);
         }
 
         private void ExpectDiagnosticWithFix(string text, string expectedFix)
         {
-            AssertLinterRuleDiagnostics(SimplifyJsonNullRule.Code, text, diags => 
+            AssertLinterRuleDiagnostics(SimplifyJsonNullRule.Code, text, diags =>
             {
                 diags.Should().HaveCount(1, $"expected one fix per testcase");
 

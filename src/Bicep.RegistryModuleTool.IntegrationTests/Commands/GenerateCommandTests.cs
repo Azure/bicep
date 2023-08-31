@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.RegistryModuleTool.Commands;
-using Bicep.RegistryModuleTool.TestFixtures.Assertions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.Proxies;
+using Bicep.RegistryModuleTool.TestFixtures.Assertions;
 using Bicep.RegistryModuleTool.TestFixtures.Extensions;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using Bicep.RegistryModuleTool.TestFixtures.Mocks;

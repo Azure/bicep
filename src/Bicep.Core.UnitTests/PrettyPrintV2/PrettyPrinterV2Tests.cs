@@ -5,12 +5,6 @@ using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.UnitTests.PrettyPrintV2
 {

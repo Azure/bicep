@@ -108,7 +108,7 @@ namespace Bicep.Core.Registry
         }
 
         public ArtifactRestoreStatus GetArtifactRestoreStatus(
-            ArtifactReference artifactReference, 
+            ArtifactReference artifactReference,
             out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var registry = this.GetRegistry(artifactReference);
@@ -151,7 +151,7 @@ namespace Bicep.Core.Registry
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
-            if (!forceModulesRestore && 
+            if (!forceModulesRestore &&
                 moduleReferences.All(module => this.GetArtifactRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything

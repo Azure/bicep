@@ -5,10 +5,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.PrettyPrintV2
 {
