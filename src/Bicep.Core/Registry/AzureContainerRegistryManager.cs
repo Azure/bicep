@@ -159,7 +159,7 @@ namespace Bicep.Core.Registry
                 layers.Add((layer.MediaType, await PullLayerAsync(client, layer)));
             }
 
-            return new(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers.ToImmutableList());
+            return new(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers.ToImmutableArray());
         }
 
         private static async Task<BinaryData> PullLayerAsync(ContainerRegistryContentClient client, OciDescriptor layer, CancellationToken cancellationToken = default)
