@@ -92,59 +92,57 @@ namespace Bicep.LanguageServer.Handlers
             //starting with empty valid json (that can be parsed) for deployments with no parameters
             string parametersFileJson = "{}";
 
-            if(request.parametersFilePath is { })
+            if (request.parametersFilePath is { } && PathHelper.HasBicepparamsExension(DocumentUri.FromFileSystemPath(request.parametersFilePath).ToUriEncoded()))
             {
-                if (PathHelper.HasBicepparamsExension(DocumentUri.FromFileSystemPath(request.parametersFilePath).ToUriEncoded()))
+                //params file validation
+                if (request.parametersFileUpdateOption != ParametersFileUpdateOption.None)
                 {
-                    //params file validation
-                    if (request.parametersFileUpdateOption != ParametersFileUpdateOption.None)
-                    {
-                        return new BicepDeploymentStartResponse(false, "Cannot create/overwrite/update parameter files when using a bicep parameters file", null);
-                    }
+                    return new BicepDeploymentStartResponse(false, "Cannot create/overwrite/update parameter files when using a bicep parameters file", null);
+                }
 
-                    if (request.updatedDeploymentParameters.Any())
-                    {
-                        return new BicepDeploymentStartResponse(false, "Cannot update parameters for bicep parameter file", null);
-                    }
+                if (request.updatedDeploymentParameters.Any())
+                {
+                    return new BicepDeploymentStartResponse(false, "Cannot update parameters for bicep parameter file", null);
+                }
 
-                    //params file compilation
-                    var bicepparamCompilationResult = await TryCompileBicepparamFile(request.parametersFilePath);
+                //params file compilation
+                var bicepparamCompilationResult = await TryCompileBicepparamFile(request.parametersFilePath);
 
-                    if (!bicepparamCompilationResult.isSuccess)
+                if (!bicepparamCompilationResult.isSuccess)
+                {
+                    return new BicepDeploymentStartResponse(false, bicepparamCompilationResult.compilationResult, null);
+                }
+                else
+                {
+                    parametersFileJson = ExtractParametersObjectValue(bicepparamCompilationResult.compilationResult);
+                }
+            }
+            else
+            {
+                //request.parametersFileName only exists for a json parameter file
+                //as it maybe need to create a file if none exits on disk
+                if (request.parametersFileName is { })
+                {
+                    try
                     {
-                        return new BicepDeploymentStartResponse(false, bicepparamCompilationResult.compilationResult, null);
+                        parametersFileJson = DeploymentParametersHelper.GetUpdatedParametersFileContents(
+                            request.documentPath,
+                            request.parametersFileName,
+                            request.parametersFilePath,
+                            request.parametersFileUpdateOption,
+                            request.updatedDeploymentParameters);
                     }
-                    else
+                    catch (Exception e)
                     {
-                        parametersFileJson = ExtractParametersObjectValue(bicepparamCompilationResult.compilationResult);
+                        return new BicepDeploymentStartResponse(false, e.Message, null);
                     }
                 }
                 else
                 {
-                    //request.parametersFileName only exists for a json parameter file
-                    //as it maybe need to create a file if none exits on disk
-                    if (request.parametersFileName is { })
-                    {
-                        try
-                        {
-                            parametersFileJson = DeploymentParametersHelper.GetUpdatedParametersFileContents(
-                                request.documentPath,
-                                request.parametersFileName,
-                                request.parametersFilePath,
-                                request.parametersFileUpdateOption,
-                                request.updatedDeploymentParameters);
-                        }
-                        catch (Exception e)
-                        {
-                            return new BicepDeploymentStartResponse(false, e.Message, null);
-                        }
-                    }
-                    else
-                    {
-                        return new BicepDeploymentStartResponse(false, "ParametersFileName must be provided with JSON parameters file", null);
-                    }
+                    return new BicepDeploymentStartResponse(false, "ParametersFileName must be provided with JSON parameters file", null);
                 }
             }
+            
 
             //stringified json for params passed here
             var bicepDeploymentStartResponse = await deploymentHelper.StartDeploymentAsync(

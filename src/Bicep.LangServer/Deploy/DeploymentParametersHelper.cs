@@ -36,7 +36,7 @@ namespace Bicep.LanguageServer.Deploy
         public static string GetUpdatedParametersFileContents(
                 string documentPath,
                 string parametersFileName,
-                string parametersFilePath,
+                string? parametersFilePath,
                 ParametersFileUpdateOption updateOrCreateParametersFile,
                 IEnumerable<BicepUpdatedDeploymentParameter> updatedDeploymentParameters)
         {
@@ -51,7 +51,7 @@ namespace Bicep.LanguageServer.Deploy
 }";
                 // We will send across the secure param values to the azure sdk that handles deployment,
                 // but will avoid writing it to the parameters file for security reasons
-                var updatedParametersFile = !string.IsNullOrWhiteSpace(parametersFilePath) ?
+                var updatedParametersFile = parametersFilePath is {}?
                     File.ReadAllText(parametersFilePath) : armSchemaStyleParametersFile;
                 var updatedParametersFileWithoutSecureParams = updatedParametersFile;
 
@@ -106,6 +106,12 @@ namespace Bicep.LanguageServer.Deploy
                 {
                     if (updateOrCreateParametersFile == ParametersFileUpdateOption.Update)
                     {
+                        //Client must provide parameters file path if update option is selected
+                        if(parametersFilePath is not {})
+                        {
+                            throw new Exception("Path to parameters file must provided to update");
+                        }
+
                         File.WriteAllText(parametersFilePath, updatedParametersFileWithoutSecureParams);
                     }
                     // ParametersFileCreateOrUpdate will have a value of "Overwrite" only if the parameters

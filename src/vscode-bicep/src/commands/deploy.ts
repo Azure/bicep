@@ -371,7 +371,7 @@ export class DeployCommand implements Command {
 
       //if no parameter file or bicepparam file is provided then we don't do the
       //prerequisite steps for updating the parameter file on the disk
-      if (!parametersFilePath || parametersFilePath.endsWith(".bicepparam")) {
+      if (parametersFilePath && parametersFilePath.endsWith(".bicepparam")) {
         parametersFileName = undefined;
         updatedDeploymentParameters = [];
       } else {
@@ -391,7 +391,7 @@ export class DeployCommand implements Command {
           parametersFileUpdateOption = await this.askToUpdateParametersFile(
             context,
             documentPath,
-            await fse.pathExists(parametersFilePath),
+            parametersFilePath ? await fse.pathExists(parametersFilePath) : false,
             parametersFileName,
           );
         }
