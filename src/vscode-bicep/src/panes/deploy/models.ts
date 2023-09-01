@@ -34,12 +34,14 @@ export interface DeployResult {
 export type DeploymentScope =
   | {
       scopeType: "resourceGroup";
+      tenantId: string;
       subscriptionId: string;
       resourceGroup: string;
     }
   | {
       scopeType: "subscription";
       location: string;
+      tenantId: string;
       subscriptionId: string;
     };
 

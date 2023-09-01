@@ -302,6 +302,7 @@ export class DeployPaneView extends Disposable {
             await this.webviewPanel.webview.postMessage(
               createGetDeploymentScopeResultMessage({
                 scopeType: "resourceGroup",
+                tenantId: treeItem.subscription.tenantId,
                 subscriptionId: treeItem.subscription.subscriptionId,
                 resourceGroup: treeItem.label,
               }),
@@ -317,6 +318,7 @@ export class DeployPaneView extends Disposable {
             await this.webviewPanel.webview.postMessage(
               createGetDeploymentScopeResultMessage({
                 scopeType: "subscription",
+                tenantId: treeItem.subscription.tenantId,
                 subscriptionId: treeItem.subscription.subscriptionId,
                 location: treeItem.label,
               }),
