@@ -17,6 +17,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Linq;
@@ -111,19 +112,14 @@ namespace Bicep.Core.Semantics
 
                     foreach (var exportedVariable in exportedVariablesList)
                     {
-                        if (exportedVariable is not JObject exportedVariableObject ||
-                            !exportedVariableObject.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out var nameToken) ||
-                            nameToken is not JValue { Value: string name } ||
-                            !Lexer.IsValidIdentifier(name) ||
-                            evaluator[name] is not TemplateVariablesEvaluator.EvaluatedValue evaluatedValue)
+                        if (exportedVariable is JObject exportedVariableObject &&
+                            exportedVariableObject.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out var nameToken) &&
+                            nameToken is JValue { Value: string name } &&
+                            Lexer.IsValidIdentifier(name) && // TODO we could support this with a tweak to the parser (allow a quoted string for the original symbol name and require an alias)
+                            evaluator.TryGetEvaluatedVariableValue(name) is JToken evaluatedValue)
                         {
-                            // the variable export is malformed, missing a name, has a name that is not a valid Bicep identifier, or refers to a non-existent variable
-                            continue;
+                            exports.Add(new ExportedVariableMetadata(name, SystemNamespaceType.ConvertJsonToBicepType(evaluatedValue), GetDescription(exportedVariableObject)));
                         }
-
-                        exports.Add(new ExportedVariableMetadata(name,
-                            TypeHelper.TryCreateTypeLiteral(evaluatedValue.Value) ?? LanguageConstants.Any,
-                            GetDescription(exportedVariableObject)));
                     }
                 }
 

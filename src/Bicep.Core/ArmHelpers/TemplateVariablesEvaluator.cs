@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -28,9 +29,9 @@ internal class TemplateVariablesEvaluator
     private const string CopyItemValuePropertyName = "input";
     private const string CopyIndexFunctionName = "copyIndex";
 
-    internal interface IEvaluationResult {}
-    internal record EvaluatedValue(JToken Value) : IEvaluationResult {}
-    internal record EvaluationException(Exception Exception) : IEvaluationResult {}
+    private interface IEvaluationResult {}
+    private record EvaluatedValue(JToken Value) : IEvaluationResult {}
+    private record EvaluationException(Exception Exception) : IEvaluationResult {}
 
     private readonly ConcurrentDictionary<string, IEvaluationResult> evaluatedVariables = new();
     private readonly Stack<string> variableEvaluationStack = new();
@@ -49,10 +50,32 @@ internal class TemplateVariablesEvaluator
         evaluationContext = helper.EvaluationContext;
     }
 
-    internal IEvaluationResult this[string variableName] => evaluatedVariables.GetOrAdd(variableName, GetOrAddVariableResult);
+    internal JToken? TryGetEvaluatedVariableValue(string variableName) => evaluatedVariables.GetOrAdd(variableName, GetOrAddVariableResult) switch
+    {
+        EvaluatedValue evaluated => evaluated.Value,
+        _ => null,
+    };
 
-    internal IEvaluationResult Evaluate(LanguageExpression languageExpression)
-        => Evaluate(() => languageExpression.EvaluateExpression(evaluationContext));
+    internal JToken GetEvaluatedVariableValue(string variableName) => evaluatedVariables.GetOrAdd(variableName, GetOrAddVariableResult) switch
+    {
+        EvaluatedValue evaluated => evaluated.Value,
+        EvaluationException e => throw e.Exception,
+        _ => throw new UnreachableException(),
+    };
+
+    internal JToken Evaluate(LanguageExpression languageExpression) => languageExpression.EvaluateExpression(evaluationContext);
+
+    internal JToken? TryEvaluate(LanguageExpression languageExpression)
+    {
+        try
+        {
+            return Evaluate(languageExpression);
+        }
+        catch
+        {
+            return null;
+        }
+    }
 
     internal JToken? TryGetUnevaluatedDeclaringToken(string name)
     {
@@ -86,12 +109,7 @@ internal class TemplateVariablesEvaluator
     private static JToken OnGetParameter(string parameterName, TemplateErrorAdditionalInfo? additionalInfo)
         => throw new InvalidOperationException($"The {parameterName} parameter was requested.");
 
-    private JToken OnGetVariable(string variableName, TemplateErrorAdditionalInfo? additionalInfo) => evaluatedVariables.GetOrAdd(variableName, GetOrAddVariableResult) switch
-    {
-        EvaluatedValue evaluatedValue => evaluatedValue.Value,
-        EvaluationException exception => throw exception.Exception,
-        _ => throw new InvalidOperationException("This switch was already exhaustive."),
-    };
+    private JToken OnGetVariable(string variableName, TemplateErrorAdditionalInfo? additionalInfo) => GetEvaluatedVariableValue(variableName);
 
     private IEvaluationResult GetOrAddVariableResult(string name)
     {
@@ -100,40 +118,36 @@ internal class TemplateVariablesEvaluator
             return new EvaluationException(new InvalidOperationException($"Variable cycle detected: {string.Join(" -> ", variableEvaluationStack.Reverse().Append(name))}"));
         }
 
-        return GetUnevaluatedDeclaringToken(name) switch
+        try
         {
-            EvaluatedValue declaringJToken => EvaluateVariableDeclaration(name, declaringJToken.Value),
-            IEvaluationResult otherwise => otherwise,
-        };
+            return new EvaluatedValue(EvaluateVariableDeclaration(name, GetUnevaluatedDeclaringToken(name)));
+        }
+        catch (Exception e)
+        {
+            return new EvaluationException(e);
+        }
     }
 
-    private IEvaluationResult GetUnevaluatedDeclaringToken(string name)
+    private JToken GetUnevaluatedDeclaringToken(string name)
     {
         if (TryGetUnevaluatedDeclaringToken(name) is JToken singularVariable)
         {
-            return new EvaluatedValue(singularVariable);
+            return singularVariable;
         }
 
         if (TryGetRawUnevaluatedCopyDeclaration(name) is JObject copiedVariable)
         {
-            if (!copiedVariable.TryGetValue(CopyCountPropertyName, StringComparison.OrdinalIgnoreCase, out var copyCountToken) ||
-                Evaluate(copyCountToken) is not EvaluatedValue evaluatedCopyCount ||
-                evaluatedCopyCount.Value.Type != JTokenType.Integer ||
-                evaluatedCopyCount.Value.ToObject<BigInteger>() switch
-                {
-                    var intVal when intVal < int.MinValue || intVal > int.MaxValue => true,
-                    _ => false,
-                })
+            if (!copiedVariable.TryGetValue(CopyCountPropertyName, StringComparison.OrdinalIgnoreCase, out var copyCountToken))
             {
-                return new EvaluationException(new InvalidOperationException($"The '{name}' variable had a missing or invalid copy count."));
+                throw new InvalidOperationException($"The '{name}' variable did not declare a copy count.");
             }
 
             if (!copiedVariable.TryGetValue(CopyItemValuePropertyName, StringComparison.OrdinalIgnoreCase, out var copyItemToken))
             {
-                return new EvaluationException(new InvalidOperationException($"The '{name}' variable had a missing or invalid copy input."));
+                throw new InvalidOperationException($"The '{name}' variable did not declare a copy input.");
             }
 
-            var copyCount = evaluatedCopyCount.Value.ToObject<int>();
+            var copyCount = ExpressionsEngine.EvaluateLanguageExpressionAsInteger(copyCountToken, evaluationContext, null).ToObject<int>();
             JArray target = new();
             for (int i = 0; i < copyCount; i++)
             {
@@ -170,10 +184,10 @@ internal class TemplateVariablesEvaluator
                 target.Add(cloned);
             }
 
-            return new EvaluatedValue(target);
+            return target;
         }
 
-        return new EvaluationException(new InvalidOperationException($"Variable '{name}' was not found."));
+        throw new InvalidOperationException($"Variable '{name}' was not found.");
     }
 
     private JObject? TryGetRawUnevaluatedCopyDeclaration(string name)
@@ -182,8 +196,7 @@ internal class TemplateVariablesEvaluator
             copyVariable.Value is JArray copiedVariables &&
             copiedVariables.OfType<JObject>()
                 .Where(copy => copy.TryGetValue(CopyNamePropertyName, StringComparison.OrdinalIgnoreCase, out var copyNameToken) &&
-                    Evaluate(copyNameToken) is EvaluatedValue evaluatedCopyNameToken &&
-                    evaluatedCopyNameToken.Value is JValue { Value: string copyName } &&
+                    Evaluate(copyNameToken) is JValue { Value: string copyName } &&
                     StringComparer.OrdinalIgnoreCase.Equals(name, copyName))
                 .FirstOrDefault() is JObject copiedVariable)
         {
@@ -193,18 +206,22 @@ internal class TemplateVariablesEvaluator
         return null;
     }
 
-    private IEvaluationResult EvaluateVariableDeclaration(string variableName, JToken unevaluatedDeclaringToken)
+    private JToken EvaluateVariableDeclaration(string variableName, JToken unevaluatedDeclaringToken)
     {
         variableEvaluationStack.Push(variableName);
-        var evaluated = Evaluate(unevaluatedDeclaringToken);
-        variableEvaluationStack.Pop();
-
-        return evaluated;
+        try
+        {
+            return Evaluate(unevaluatedDeclaringToken);
+        }
+        finally
+        {
+            variableEvaluationStack.Pop();
+        }
     }
 
-    private IEvaluationResult Evaluate(JToken toEvaluate)
+    private JToken Evaluate(JToken toEvaluate)
         // ExpressionsEngine.EvaluateLanguageExpressionsRecursive will modify the provided JToken in place by replacing expressions with the evaluated value thereof, so clone the provided token
-        => Evaluate(() => ExpressionsEngine.EvaluateLanguageExpressionsRecursive(toEvaluate.DeepClone(), evaluationContext));
+        => ExpressionsEngine.EvaluateLanguageExpressionsRecursive(toEvaluate.DeepClone(), evaluationContext);
 
     private int EvaluateCopyIndexFunction(string expectedName, int loopIteration, LanguageExpression nameArgument, LanguageExpression? startIndexArgument)
     {
@@ -270,18 +287,6 @@ internal class TemplateVariablesEvaluator
         }
 
         return hasChanges;
-    }
-
-    private static IEvaluationResult Evaluate(Func<JToken> evaluationFunc)
-    {
-        try
-        {
-            return new EvaluatedValue(evaluationFunc());
-        }
-        catch (Exception e)
-        {
-            return new EvaluationException(e);
-        }
     }
 
     private static bool IsCopyIndexFunction(FunctionExpression expression) => StringComparer.OrdinalIgnoreCase.Equals(expression.Function, CopyIndexFunctionName);

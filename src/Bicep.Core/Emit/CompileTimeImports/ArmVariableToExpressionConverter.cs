@@ -129,7 +129,7 @@ internal class ArmVariableToExpressionConverter
                 // if the argument to variables() was itself a runtime-evaluated expression, just treat this as a function call
                 Expression otherwise => new FunctionCallExpression(sourceSyntax, VariablesFunctionName, ImmutableArray.Create(otherwise)),
             },
-            CopyIndexFunctionName when evaluator.Evaluate(func.Parameters[0]) is TemplateVariablesEvaluator.EvaluatedValue { Value: JValue { Value: string copyIndexName } } &&
+            CopyIndexFunctionName when evaluator.TryEvaluate(func.Parameters[0]) is JValue { Value: string copyIndexName } &&
                 StringComparer.OrdinalIgnoreCase.Equals(this.activeCopyLoopName, copyIndexName) => func.Parameters.Skip(1).FirstOrDefault() switch
                 {
                     LanguageExpression startIndexExpression => new BinaryExpression(sourceSyntax,

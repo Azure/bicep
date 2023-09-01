@@ -118,13 +118,8 @@ internal static class ArmTemplateHelpers
             {
                 variablesEvaluator.Evaluate(func.Parameters.Single()) switch
                 {
-                    TemplateVariablesEvaluator.EvaluatedValue value => value.Value switch
-                    {
-                        JValue { Value: string variableName } => variableName,
-                        _ => throw new InvalidOperationException("Invalid 'variables' function expression encountered. The argument could not be statically evaluated to a string"),
-                    },
-                    TemplateVariablesEvaluator.EvaluationException exception => throw exception.Exception,
-                    _ => throw new InvalidOperationException("This switch was already exhaustive"),
+                    JValue { Value: string variableName } => variableName,
+                    _ => throw new InvalidOperationException("Invalid 'variables' function expression encountered. The argument could not be statically evaluated to a string"),
                 },
             };
         }
