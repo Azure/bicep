@@ -135,7 +135,8 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
                 var targetModel = GetImportedModel(importedSymbolReference.Symbol);
                 importedModuleReferences[targetModel] = importedSymbolReference.ImportTarget;
 
-                var name = importedSymbolReference.Symbol.OriginalSymbolName;
+                var name = importedSymbolReference.Symbol.OriginalSymbolName
+                    ?? throw new InvalidOperationException($"The import symbol {importedSymbolReference.Symbol.Name} did not specify what symbol to import");
 
                 if (!targetModel.Exports.TryGetValue(name, out var exportMetadata))
                 {

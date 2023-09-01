@@ -268,6 +268,7 @@ namespace Bicep.Wasm.LanguageHelpers
             AddTokenType(syntax.Name, model.GetSymbolInfo(syntax) switch
             {
                 TypeAliasSymbol or AmbientTypeSymbol => SemanticTokenType.Type,
+                ImportedSymbol imported when imported.Kind == SymbolKind.TypeAlias => SemanticTokenType.Type,
                 _ => SemanticTokenType.Variable
             });
             base.VisitVariableAccessSyntax(syntax);
@@ -321,7 +322,15 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
         {
-            AddTokenType(syntax.OriginalSymbolName, SemanticTokenType.Variable);
+            if (syntax.OriginalSymbolName is IdentifierSyntax)
+            {
+                AddTokenType(syntax.OriginalSymbolName, model.GetSymbolInfo(syntax)?.Kind switch
+                {
+                    SymbolKind.TypeAlias => SemanticTokenType.Type,
+                    _ => SemanticTokenType.Variable,
+                });
+            }
+
             base.VisitImportedSymbolsListItemSyntax(syntax);
         }
 

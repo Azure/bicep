@@ -115,7 +115,6 @@ namespace Bicep.Core.Semantics
                         if (exportedVariable is JObject exportedVariableObject &&
                             exportedVariableObject.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out var nameToken) &&
                             nameToken is JValue { Value: string name } &&
-                            Lexer.IsValidIdentifier(name) && // TODO we could support this with a tweak to the parser (allow a quoted string for the original symbol name and require an alias)
                             evaluator.TryGetEvaluatedVariableValue(name) is JToken evaluatedValue)
                         {
                             exports.Add(new ExportedVariableMetadata(name, SystemNamespaceType.ConvertJsonToBicepType(evaluatedValue), GetDescription(exportedVariableObject)));

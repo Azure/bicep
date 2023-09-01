@@ -2091,6 +2091,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP374",
                 $"The imported model cannot be loaded with a wildcard because it contains the following duplicated exports: {ToQuotedString(ambiguousExportNames)}.");
+
+            public ErrorDiagnostic ImportListItemDoesNotIdentifyTarget() => new(
+                TextSpan,
+                "BCP375",
+                "The import list item does not identify which symbol to import.");
+
+            public ErrorDiagnostic ImportListItemDoesNotIncludeDeclaredSymbolName() => new(
+                TextSpan,
+                "BCP376",
+                "An import list item that identifies its target with a quoted string must include an 'as <alias>' clause.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

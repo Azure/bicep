@@ -7,6 +7,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics;
 
@@ -36,7 +37,12 @@ public class ImportedSymbol : DeclaredSymbol
 
     public ImportedSymbolsListItemSyntax DeclaringImportedSymbolsListItem => (ImportedSymbolsListItemSyntax)DeclaringSyntax;
 
-    public string OriginalSymbolName => DeclaringImportedSymbolsListItem.OriginalSymbolName.IdentifierName;
+    public string? OriginalSymbolName => DeclaringImportedSymbolsListItem.OriginalSymbolName switch
+    {
+        IdentifierSyntax identifier => identifier.IdentifierName,
+        StringSyntax @string when Context.TypeManager.GetTypeInfo(@string) is StringLiteralType stringLiteral => stringLiteral.RawStringValue,
+        _ => null,
+    };
 
     public override SymbolKind Kind => TryGetExportMetadata() switch
     {
@@ -65,7 +71,15 @@ public class ImportedSymbol : DeclaredSymbol
         }
     }
 
-    private ExportMetadata? TryGetExportMetadata() => TryGetSemanticModel()?.Exports.TryGetValue(OriginalSymbolName, out var exportMetadata) is true
+    public override IEnumerable<Symbol> Descendants
+    {
+        get
+        {
+            yield return this.Type;
+        }
+    }
+
+    private ExportMetadata? TryGetExportMetadata() => OriginalSymbolName is string nonNullName && TryGetSemanticModel()?.Exports.TryGetValue(nonNullName, out var exportMetadata) is true
         ? exportMetadata
         : null;
 }

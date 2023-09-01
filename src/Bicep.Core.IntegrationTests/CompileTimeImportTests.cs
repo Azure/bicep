@@ -896,4 +896,116 @@ public class CompileTimeImportTests
             }
             """));
     }
+
+    [TestMethod]
+    public void Named_import_can_identify_target_by_quoted_string()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {'a-b' as ab} from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "2.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "a-b",
+                                "description": "A lengthy, florid description"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "a-b": "a-b"
+                    },
+                    "resources": {}
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Named_import_by_quoted_string_self_reference_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {'${ab}' as ab} from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "2.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "a-b",
+                                "description": "A lengthy, florid description"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "a-b": "a-b"
+                    },
+                    "resources": {}
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
+        });
+    }
+
+    [TestMethod]
+    public void Named_import_by_quoted_string_without_alias_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {'foo'} from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "2.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "foo",
+                                "description": "A lengthy, florid description"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "foo": "foo"
+                    },
+                    "resources": {}
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP376", DiagnosticLevel.Error, "An import list item that identifies its target with a quoted string must include an 'as <alias>' clause."),
+        });
+    }
+
+    [TestMethod]
+    public void Named_import_with_invalid_original_symbol_name_syntax_should_raise_diagnostic()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {1 as foo} from 'mod.bicep'
+                """),
+            ("mod.bicep", string.Empty));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP355", DiagnosticLevel.Error, "Expected the name of an exported symbol at this location."),
+            ("BCP375", DiagnosticLevel.Error, "The import list item does not identify which symbol to import."),
+        });
+    }
 }

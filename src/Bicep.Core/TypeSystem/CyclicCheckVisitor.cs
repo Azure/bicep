@@ -14,10 +14,8 @@ namespace Bicep.Core.TypeSystem
     public sealed class CyclicCheckVisitor : AstVisitor
     {
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
-
-        private readonly IDictionary<DeclaredSymbol, IList<SyntaxBase>> declarationAccessDict;
-
-        private Stack<DeclaredSymbol> currentDeclarations;
+        private readonly Dictionary<DeclaredSymbol, IList<SyntaxBase>> declarationAccessDict = new();
+        private readonly Stack<DeclaredSymbol> currentDeclarations = new();
 
         public static ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> FindCycles(ProgramSyntax programSyntax, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
@@ -39,12 +37,10 @@ namespace Bicep.Core.TypeSystem
         private CyclicCheckVisitor(IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             this.bindings = bindings;
-            this.declarationAccessDict = new Dictionary<DeclaredSymbol, IList<SyntaxBase>>();
-            this.currentDeclarations = new Stack<DeclaredSymbol>();
         }
 
         private void VisitDeclaration<TDeclarationSyntax>(TDeclarationSyntax syntax, Action<TDeclarationSyntax> visitBaseFunc)
-            where TDeclarationSyntax : SyntaxBase, ITopLevelNamedDeclarationSyntax
+            where TDeclarationSyntax : SyntaxBase, INamedDeclarationSyntax
         {
             if (!bindings.TryGetValue(syntax, out var symbol) ||
                 symbol is not DeclaredSymbol currentDeclaration ||
@@ -74,9 +70,9 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
             => VisitDeclaration(syntax, base.VisitModuleDeclarationSyntax);
+
         public override void VisitTestDeclarationSyntax(TestDeclarationSyntax syntax)
             => VisitDeclaration(syntax, base.VisitTestDeclarationSyntax);
-
 
         public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
             => VisitDeclaration(syntax, base.VisitOutputDeclarationSyntax);
@@ -166,5 +162,8 @@ namespace Bicep.Core.TypeSystem
         {
             // recursive types are permitted. pass
         }
+
+        public override void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
+            => VisitDeclaration(syntax, base.VisitImportedSymbolsListItemSyntax);
     }
 }

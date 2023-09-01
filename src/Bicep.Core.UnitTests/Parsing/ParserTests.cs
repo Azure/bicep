@@ -483,13 +483,13 @@ type multilineUnion = 'a'
             imported.ImportedSymbols.Should().SatisfyRespectively(
                 item =>
                 {
-                    item.OriginalSymbolName.IdentifierName.Should().Be("foo");
+                    item.OriginalSymbolName.As<IdentifierSyntax>().IdentifierName.Should().Be("foo");
                     item.AsClause.Should().BeNull();
                     item.Name.IdentifierName.Should().Be("foo");
                 },
                 item =>
                 {
-                    item.OriginalSymbolName.IdentifierName.Should().Be("bar");
+                    item.OriginalSymbolName.As<IdentifierSyntax>().IdentifierName.Should().Be("bar");
                     var asClause = item.AsClause.Should().BeOfType<AliasAsClauseSyntax>().Subject;
                     asClause.Alias.IdentifierName.Should().Be("baz");
                     item.Name.IdentifierName.Should().Be("baz");

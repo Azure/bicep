@@ -1144,7 +1144,7 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("version", this.Context.SemanticModel.Features.AssemblyVersion);
                 });
 
-                var exportedVariables = Model.Exports.OfType<ExportedVariableMetadata>().ToImmutableArray();
+                var exportedVariables = Model.Exports.Values.OfType<ExportedVariableMetadata>().ToImmutableArray();
 
                 if (exportedVariables.Length > 0)
                 {

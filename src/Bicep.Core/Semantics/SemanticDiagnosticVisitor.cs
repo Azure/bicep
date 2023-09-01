@@ -69,7 +69,7 @@ namespace Bicep.Core.Semantics
             }
 
             // find instances where the same symbol is imported multiple times under different names
-            foreach (var grouping in symbol.ImportedSymbols.ToLookup(t => (t.TryGetSemanticModel(), t.OriginalSymbolName)).Where(g => g.Key.Item1 is not null && g.Count() > 1))
+            foreach (var grouping in symbol.ImportedSymbols.ToLookup(t => (t.TryGetSemanticModel(), t.OriginalSymbolName)).Where(g => g.Key.Item1 is not null && g.Key.OriginalSymbolName is not null && g.Count() > 1))
             {
                 var importedAs = grouping.Select(s => s.Name).ToArray();
                 foreach (var import in grouping)

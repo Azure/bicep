@@ -384,7 +384,7 @@ namespace Bicep.LanguageServer.Handlers
 
             return GetArmSourceTemplateInfo(context, imported.EnclosingDeclaration) switch
             {
-                (Template armTemplate, Uri armTemplateUri) when armTemplate.Definitions?.TryGetValue(imported.OriginalSymbolName, out var definition) == true && ToRange(definition) is {} range
+                (Template armTemplate, Uri armTemplateUri) when imported.OriginalSymbolName is string nonNullName && armTemplate.Definitions?.TryGetValue(nonNullName, out var definition) == true && ToRange(definition) is {} range
                     => new(new LocationOrLocationLink(new LocationLink
                     {
                         OriginSelectionRange = originSelectionRange,

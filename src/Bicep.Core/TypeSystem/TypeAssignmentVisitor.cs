@@ -1025,10 +1025,34 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                if (importableTypes.TryGetValue(syntax.OriginalSymbolName.IdentifierName) is not {} exportedType)
+                string? importTarget = null;
+                switch (syntax.OriginalSymbolName)
                 {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.OriginalSymbolName).ImportedSymbolNotFound(syntax.OriginalSymbolName.IdentifierName));
-                    return ErrorType.Empty();
+                    case IdentifierSyntax identifier:
+                        importTarget = identifier.IdentifierName;
+                        break;
+                    case StringSyntax @string:
+                        switch (GetTypeInfo(@string))
+                        {
+                            case StringLiteralType stringLiteral:
+                                importTarget = stringLiteral.RawStringValue;
+                                break;
+                            case ErrorType error:
+                                return error;
+                            default:
+                                return ErrorType.Create(DiagnosticBuilder.ForPosition(@string).CompileTimeConstantRequired());
+                        }
+                        break;
+                }
+
+                if (importTarget is null)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.OriginalSymbolName).ImportListItemDoesNotIdentifyTarget());
+                }
+
+                if (importableTypes.TryGetValue(importTarget) is not {} exportedType)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.OriginalSymbolName).ImportedSymbolNotFound(importTarget));
                 }
 
                 return exportedType.TypeReference;
