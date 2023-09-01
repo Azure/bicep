@@ -5013,4 +5013,22 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         var evaluated = TemplateEvaluator.Evaluate(result.Template);
         evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo2"));
     }
+
+    // https://github.com/Azure/bicep/issues/11292
+    [TestMethod]
+    public void Test_Issue11292()
+    {
+        var result = CompilationHelper.Compile(
+            Services.WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)),
+            ("main.bicep", """
+            @description('foo${'bar'}')
+            param baz int
+            """));
+
+        result.Template.Should().NotHaveValue();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+        });
+    }
 }
