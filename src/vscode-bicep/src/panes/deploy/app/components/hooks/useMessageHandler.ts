@@ -79,6 +79,11 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
       }
       case "GET_STATE_RESULT": {
         setPersistedState(message.state);
+        if (!message.state.scope.tenantId || !message.state.scope.portalUrl) {
+          // If state was persisted with an older version of the extension, these properties won't have been set.
+          // Force the user to re-pick the scope to reset them.
+          return;
+        }
         setScope(message.state.scope);
         return;
       }

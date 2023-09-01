@@ -1,4 +1,4 @@
-import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeDataGrid, VSCodeDataGridRow, VSCodeDataGridCell, VSCodeProgressRing, VSCodeLink } from "@vscode/webview-ui-toolkit/react";
 import { FC } from "react";
 import { DeploymentOperation } from "@azure/arm-resources";
 import { getPreformattedJson, isFailed, isInProgress } from "../utils";
@@ -51,9 +51,17 @@ export const DeploymentOperationsView: FC<DeploymentOperationsViewProps> = ({ sc
 function getResourceNameContents(scope: DeploymentScope, operation: DeploymentOperation) {
   const resourceId = operation.properties?.targetResource?.id;
   const resourceName = operation.properties?.targetResource?.resourceName;
-  if (!resourceId) {
-    return <>{resourceName}</>;
-  }
+  const isPutOrGet = operation.properties?.provisioningOperation === 'Create' || 
+    operation.properties?.provisioningOperation === 'Read';
 
-  return <a href={`https://portal.azure.com/#@${scope.tenantId}/resource${resourceId}`}>{resourceName}</a>;
+  return (
+    <>
+    {resourceName}
+    {resourceId && isPutOrGet && 
+      // It only makes sense to share a link to the portal if we're doing a PUT / GET on a resource (as opposed to a POST action)
+      <VSCodeLink title="Open in Portal" href={`${scope.portalUrl}/#@${scope.tenantId}/resource${resourceId}`}>
+        <span className="codicon codicon-globe" />
+      </VSCodeLink>}
+    </>
+  );
 }
