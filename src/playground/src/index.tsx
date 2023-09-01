@@ -10,16 +10,8 @@ import './index.css';
 import { initializeInterop } from './lspInterop';
 import { Playground } from './playground';
 
-const insights = new ApplicationInsights({
-  config: {
-    instrumentationKey: aiKey,
-  }
-});
-
-insights.loadAppInsights();
-insights.trackPageView();
-
 ReactDOM.render(
+  // Loading spinner while we initialize Blazor
   <Container className="d-flex vh-100">
     <Row className="m-auto align-self-center">
       <Spinner animation="border" variant="light" />
@@ -28,10 +20,24 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
-initializeInterop(self)
-  .then(() => ReactDOM.render(
+async function initialize() {
+  const insights = new ApplicationInsights({
+    config: {
+      instrumentationKey: aiKey,
+    }
+  });
+
+  insights.loadAppInsights();
+  insights.trackPageView();
+
+  await initializeInterop(self);
+
+  ReactDOM.render(
     <div className="app-container">
       <Playground insights={insights} />
     </div>,
     document.getElementById('root')
-  ));
+  );
+}
+
+initialize();
