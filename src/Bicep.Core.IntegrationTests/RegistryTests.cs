@@ -202,7 +202,10 @@ namespace Bicep.Core.IntegrationTests
             // modules should now be in the cache
             foreach (var moduleReference in moduleReferences)
             {
-                dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Succeeded);
+                var restoreResult = dispatcher.GetArtifactRestoreStatus(moduleReference, out var errorBuilder);
+                var error = errorBuilder?.Invoke(DiagnosticBuilder.ForDocumentStart());
+
+                restoreResult.Should().Be(ArtifactRestoreStatus.Succeeded, $"code: {error?.Code}, message: {error?.Message}");
             }
         }
 
