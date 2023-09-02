@@ -1,0 +1,218 @@
+[
+  {
+    "label": "arguments",
+    "kind": "property",
+    "detail": "arguments",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nCommand line arguments to pass to the script. Arguments are separated by spaces. ex: -Name blue* -Location 'West US 2'  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_arguments",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "arguments:"
+    }
+  },
+  {
+    "label": "azCliVersion",
+    "kind": "property",
+    "detail": "azCliVersion (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nAzure CLI module version to be used.  \n"
+    },
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "1_azCliVersion",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "azCliVersion:"
+    }
+  },
+  {
+    "label": "cleanupPreference",
+    "kind": "property",
+    "detail": "cleanupPreference",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `'Always' | 'OnExpiration' | 'OnSuccess' | string`  \nThe clean up preference when the script execution gets in a terminal state. Default setting is 'Always'.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_cleanupPreference",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "cleanupPreference:"
+    }
+  },
+  {
+    "label": "containerSettings",
+    "kind": "property",
+    "detail": "containerSettings",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `ContainerConfiguration`  \nContainer settings.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_containerSettings",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "containerSettings:"
+    }
+  },
+  {
+    "label": "environmentVariables",
+    "kind": "property",
+    "detail": "environmentVariables",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `EnvironmentVariable[]`  \nThe environment variables to pass over to the script.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_environmentVariables",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "environmentVariables:"
+    }
+  },
+  {
+    "label": "forceUpdateTag",
+    "kind": "property",
+    "detail": "forceUpdateTag",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nGets or sets how the deployment script should be forced to execute even if the script resource has not changed. Can be current time stamp or a GUID.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_forceUpdateTag",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "forceUpdateTag:"
+    }
+  },
+  {
+    "label": "primaryScriptUri",
+    "kind": "property",
+    "detail": "primaryScriptUri",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nUri for the script. This is the entry point for the external script.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_primaryScriptUri",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "primaryScriptUri:"
+    }
+  },
+  {
+    "label": "retentionInterval",
+    "kind": "property",
+    "detail": "retentionInterval (Required)",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nInterval for which the service retains the script resource after it reaches a terminal state. Resource will be deleted when this duration expires. Duration is based on ISO 8601 pattern (for example P1D means one day).  \n"
+    },
+    "deprecated": false,
+    "preselect": true,
+    "sortText": "1_retentionInterval",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "retentionInterval:"
+    }
+  },
+  {
+    "label": "scriptContent",
+    "kind": "property",
+    "detail": "scriptContent",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nScript body.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scriptContent",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "scriptContent:"
+    }
+  },
+  {
+    "label": "storageAccountSettings",
+    "kind": "property",
+    "detail": "storageAccountSettings",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `StorageAccountConfiguration`  \nStorage Account settings.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_storageAccountSettings",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "storageAccountSettings:"
+    }
+  },
+  {
+    "label": "supportingScriptUris",
+    "kind": "property",
+    "detail": "supportingScriptUris",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string[]`  \nSupporting files for the external script.  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_supportingScriptUris",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "supportingScriptUris:"
+    }
+  },
+  {
+    "label": "timeout",
+    "kind": "property",
+    "detail": "timeout",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `string`  \nMaximum allowed script execution time specified in ISO 8601 format. Default value is P1D  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_timeout",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "timeout:"
+    }
+  }
+]
