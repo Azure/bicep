@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Emit;
+using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using MediatR;
@@ -41,6 +42,8 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var semanticModel = context.Compilation.GetEntrypointSemanticModel();
+            ISemanticModel bicepModel = semanticModel;
+
             string? paramsFile = null;
             if (semanticModel.Root.FileKind == BicepSourceFileKind.ParamsFile)
             {
@@ -53,14 +56,16 @@ namespace Bicep.LanguageServer.Handlers
                 }
 
                 paramsFile = paramsStringWriter.ToString();
-                if (!semanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out semanticModel, out _))
+                if (!semanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var usingModel, out _))
                 {
                     return new(ErrorMessage: $"Bicep compilation failed. The Bicep parameters file contains errors.");
                 }
+
+                bicepModel = usingModel;
             }
 
             using var templateStringWriter = new StringWriter();
-            var result = new TemplateEmitter(semanticModel).Emit(templateStringWriter);
+            var result = new TemplateEmitter(context.Compilation, bicepModel).Emit(templateStringWriter);
             if (result.Status == EmitStatus.Failed)
             {
                 return new(ErrorMessage: $"Bicep compilation failed. The Bicep file contains errors.");

@@ -140,12 +140,12 @@ namespace Bicep.Cli.Services
             static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, IForeignArtifactReference module)
                 => grouping.TryGetErrorDiagnostic(module) is { } errorBuilder ? errorBuilder(DiagnosticBuilder.ForPosition(module.ReferenceSourceSyntax)) : null;
 
-            static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ArtifactResolutionInfo> originalArtifactsToRestore)
+            static IEnumerable<(BicepSourceFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ArtifactResolutionInfo> originalArtifactsToRestore)
             {
                 var originalModulesToRestore = originalArtifactsToRestore.OfType<ArtifactResolutionInfo>();
                 foreach (var (module, sourceFile) in originalModulesToRestore)
                 {
-                    if (sourceFile is BicepFile bicepFile &&
+                    if (sourceFile is BicepSourceFile bicepFile &&
                         DiagnosticForModule(grouping, module) is { } diagnostic)
                     {
                         yield return (bicepFile, diagnostic);
@@ -153,9 +153,9 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForAllModules(SourceFileGrouping grouping)
+            static IEnumerable<(BicepSourceFile, IDiagnostic)> GetDiagnosticsForAllModules(SourceFileGrouping grouping)
             {
-                foreach (var bicepFile in grouping.SourceFiles.OfType<BicepFile>())
+                foreach (var bicepFile in grouping.SourceFiles.OfType<BicepSourceFile>())
                 {
                     foreach (var module in bicepFile.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>())
                     {
@@ -171,7 +171,7 @@ namespace Bicep.Cli.Services
 
             return diagnosticsByFile
                 .ToLookup(t => t.Item1, t => t.Item2)
-                .ToImmutableDictionary(g => (BicepSourceFile)g.Key, g => g.ToImmutableArray());
+                .ToImmutableDictionary(g => g.Key, g => g.ToImmutableArray());
         }
 
         private void LogDiagnostics(Compilation compilation)

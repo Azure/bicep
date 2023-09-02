@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -31,11 +32,11 @@ namespace Bicep.Core.Workspaces
         IFileResolver FileResolver,
         Uri EntryFileUri,
         ImmutableDictionary<Uri, FileResolutionResult> FileResultByUri,
-        ImmutableDictionary<ISourceFile, ImmutableDictionary<IForeignArtifactReference, UriResolutionResult>> UriResultByModule,
+        ImmutableDictionary<ISourceFile, ImmutableDictionary<IForeignArtifactReference, UriResolutionResult>> UriResultByArtifactReference,
         ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup) : ISourceFileLookup
     {
         public IEnumerable<ArtifactResolutionInfo> GetModulesToRestore()
-            => UriResultByModule.SelectMany(
+            => UriResultByArtifactReference.SelectMany(
                 kvp => kvp.Value
                     .Where(entry => entry.Value.RequiresRestore)
                     .Select(entry => new ArtifactResolutionInfo(entry.Key, kvp.Key)));
@@ -46,7 +47,7 @@ namespace Bicep.Core.Workspaces
 
         public ErrorBuilderDelegate? TryGetErrorDiagnostic(IForeignArtifactReference foreignTemplateReference)
         {
-            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
+            var uriResult = UriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
             if (uriResult.ErrorBuilder is not null)
             {
                 return uriResult.ErrorBuilder;
@@ -58,7 +59,7 @@ namespace Bicep.Core.Workspaces
 
         public ISourceFile? TryGetSourceFile(IForeignArtifactReference foreignTemplateReference)
         {
-            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
+            var uriResult = UriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
             if (uriResult.FileUri is null)
             {
                 return null;

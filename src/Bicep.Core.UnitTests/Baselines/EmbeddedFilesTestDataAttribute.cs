@@ -39,6 +39,6 @@ public sealed class EmbeddedFilesTestDataAttribute : Attribute, ITestDataSource
     {
         var file = (data?[0] as EmbeddedFile)!;
 
-        return $"{methodInfo.Name}({file.StreamPath})";
+        return $"{methodInfo.Name} ({file.StreamPath})";
     }
 }

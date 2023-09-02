@@ -8,6 +8,7 @@ using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Semantics;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -60,14 +61,14 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(message);
             }
 
-            var paramsSemanticModel = paramsCompilation.GetEntrypointSemanticModel();
+            var paramsModel = paramsCompilation.GetEntrypointSemanticModel();
 
             //Failure scenario is ignored since a diagnostic for it would be emitted during semantic analysis
-            if (paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
+            if (paramsModel.Root.TryGetBicepFileSemanticModelViaUsing(out var usingModel, out _))
             {
-                var bicepFileUsingPathUri = bicepSemanticModel.Root.FileUri;
-
-                if (bicepFileArgPath is { } && !bicepFileUsingPathUri.Equals(PathHelper.FilePathToFileUrl(bicepFileArgPath)))
+                if (usingModel is SemanticModel bicepSemanticModel &&
+                    bicepFileArgPath is { } &&
+                    !bicepSemanticModel.Root.FileUri.Equals(PathHelper.FilePathToFileUrl(bicepFileArgPath)))
                 {
                     throw new CommandLineException($"Bicep file {bicepFileArgPath} provided with --bicep-file option doesn't match the Bicep file {bicepSemanticModel.Root.Name} referenced by the using declaration in the parameters file");
                 }
@@ -76,7 +77,7 @@ namespace Bicep.Cli.Commands
                 {
                     if (args.OutputToStdOut)
                     {
-                        writer.ToStdout(bicepSemanticModel, paramsSemanticModel);
+                        writer.ToStdout(paramsModel, usingModel);
                     }
                     else
                     {

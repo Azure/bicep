@@ -73,10 +73,8 @@ namespace Bicep.LanguageServer.Handlers
 
             var paramsSemanticModel = compilation.GetEntrypointSemanticModel();
 
-            if (paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
+            if (paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out _, out _))
             {
-                var bicepFileUsingPathUri = bicepSemanticModel.Root.FileUri;
-
                 static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
                 var paramsOutputPath = PathHelper.ResolveDefaultOutputPath(bicepParamsFilePath, null, compiledFilePath, DefaultOutputPath);
 

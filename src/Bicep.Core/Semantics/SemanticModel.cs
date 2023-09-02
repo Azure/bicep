@@ -30,14 +30,14 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<EmitLimitationInfo> emitLimitationInfoLazy;
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
-        private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
-        private readonly Lazy<ImmutableDictionary<string, ExportedTypeMetadata>> exportedTypesLazy;
+        private readonly Lazy<ImmutableSortedDictionary<string, ParameterMetadata>> parametersLazy;
+        private readonly Lazy<ImmutableSortedDictionary<string, ExportedTypeMetadata>> exportedTypesLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
         private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
 
         // needed to support param file go to def
-        private readonly Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>> declarationsByAssignment;
-        private readonly Lazy<ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>> assignmentsByDeclaration;
+        private readonly Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterMetadata?>> declarationsByAssignment;
+        private readonly Lazy<ImmutableDictionary<ParameterMetadata, ParameterAssignmentSymbol?>> assignmentsByDeclaration;
 
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
@@ -90,7 +90,7 @@ namespace Bicep.Core.Semantics
 
             this.parametersLazy = new(() =>
             {
-                var parameters = ImmutableDictionary.CreateBuilder<string, ParameterMetadata>();
+                var parameters = ImmutableSortedDictionary.CreateBuilder<string, ParameterMetadata>();
 
                 foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
                 {
@@ -118,7 +118,7 @@ namespace Bicep.Core.Semantics
                     t.DeclaringType,
                     SystemNamespaceType.BuiltInName,
                     LanguageConstants.ExportPropertyName) is not null)
-                .ToImmutableDictionary(t => t.Name,
+                .ToImmutableSortedDictionary(t => t.Name,
                     t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType))));
 
             this.outputsLazy = new(() =>
@@ -235,9 +235,9 @@ namespace Bicep.Core.Semantics
 
         public IBicepAnalyzer LinterAnalyzer { get; }
 
-        public ImmutableDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
+        public ImmutableSortedDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
 
-        public ImmutableDictionary<string, ExportedTypeMetadata> ExportedTypes => exportedTypesLazy.Value;
+        public ImmutableSortedDictionary<string, ExportedTypeMetadata> ExportedTypes => exportedTypesLazy.Value;
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
@@ -428,48 +428,48 @@ namespace Bicep.Core.Semantics
 
         public ResourceScope TargetScope => this.Binder.TargetScope;
 
-        public ParameterSymbol? TryGetParameterDeclaration(ParameterAssignmentSymbol parameterAssignmentSymbol) =>
-            this.declarationsByAssignment.Value.TryGetValue(parameterAssignmentSymbol, out var parameterSymbol) ? parameterSymbol : null;
+        public ParameterMetadata? TryGetParameterMetadata(ParameterAssignmentSymbol parameterAssignmentSymbol) =>
+            this.declarationsByAssignment.Value.TryGetValue(parameterAssignmentSymbol, out var parameterMetadata) ? parameterMetadata : null;
 
-        public ParameterAssignmentSymbol? TryGetParameterAssignment(ParameterSymbol parameterSymbol) =>
-            this.assignmentsByDeclaration.Value.TryGetValue(parameterSymbol, out var parameterAssignmentSymbol) ? parameterAssignmentSymbol : null;
+        public ParameterAssignmentSymbol? TryGetParameterAssignment(ParameterMetadata parameterMetadata) =>
+            this.assignmentsByDeclaration.Value.TryGetValue(parameterMetadata, out var parameterAssignment) ? parameterAssignment : null;
 
-        private ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?> InitializeDeclarationToAssignmentDictionary()
+        private ImmutableDictionary<ParameterMetadata, ParameterAssignmentSymbol?> InitializeDeclarationToAssignmentDictionary()
         {
-            if (this.TryGetBicepSemanticModelForParamsFile() is not { } bicepModel)
+            if (this.TryGetSemanticModelForParamsFile() is not { } usingModel)
             {
                 // not a param file or we can't resolve the semantic model via "using"
-                return ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>.Empty;
+                return ImmutableDictionary<ParameterMetadata, ParameterAssignmentSymbol?>.Empty;
             }
 
             var parameterAssignments = Root.ParameterAssignments.ToLookup(x => x.Name, LanguageConstants.IdentifierComparer);
 
-            return bicepModel.Root.ParameterDeclarations.ToImmutableDictionary(
-                decl => decl,
-                decl => parameterAssignments[decl.Name].FirstOrDefault());
+            return usingModel.Parameters.ToImmutableDictionary(
+                kvp => kvp.Value,
+                kvp => parameterAssignments[kvp.Key].FirstOrDefault());
         }
 
-        private ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?> InitializeAssignmentToDeclarationDictionary()
+        private ImmutableDictionary<ParameterAssignmentSymbol, ParameterMetadata?> InitializeAssignmentToDeclarationDictionary()
         {
-            if (this.TryGetBicepSemanticModelForParamsFile() is not { } bicepModel)
+            if (this.TryGetSemanticModelForParamsFile() is not { } usingModel)
             {
                 // not a param file or we can't resolve the semantic model via "using"
-                return ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>.Empty;
+                return ImmutableDictionary<ParameterAssignmentSymbol, ParameterMetadata?>.Empty;
             }
 
-            var parameterDeclarations = bicepModel.Root.ParameterDeclarations.ToLookup(x => x.Name, LanguageConstants.IdentifierComparer);
+            var parameterDeclarations = usingModel.Parameters.ToLookup(x => x.Key, x => x.Value, LanguageConstants.IdentifierComparer);
 
             return Root.ParameterAssignments.ToImmutableDictionary(
                 decl => decl,
                 decl => parameterDeclarations[decl.Name].FirstOrDefault());
         }
 
-        private SemanticModel? TryGetBicepSemanticModelForParamsFile()
+        private ISemanticModel? TryGetSemanticModelForParamsFile()
         {
             if (this.SourceFile is BicepParamFile &&
-                this.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
+                this.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var usingModel, out _))
             {
-                return bicepSemanticModel;
+                return usingModel;
             }
 
             return null;
@@ -488,7 +488,7 @@ namespace Bicep.Core.Semantics
             }
 
             // try to get the bicep file's semantic model
-            if (!this.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out var failureDiagnostic))
+            if (!this.Root.TryGetBicepFileSemanticModelViaUsing(out var semanticModel, out var failureDiagnostic))
             {
                 // failed to resolve using
                 return failureDiagnostic.AsEnumerable<IDiagnostic>();
@@ -496,30 +496,32 @@ namespace Bicep.Core.Semantics
 
             return
                 // get diagnostics relating to missing parameter assignments or declarations
-                GatherParameterMismatchDiagnostics(bicepSemanticModel)
+                GatherParameterMismatchDiagnostics(semanticModel)
                 // get diagnostics relating to type mismatch of params between Bicep and params files
                 .Concat(GatherTypeMismatchDiagnostics());
         }
 
-        private IEnumerable<IDiagnostic> GatherParameterMismatchDiagnostics(SemanticModel bicepSemanticModel)
+        private IEnumerable<IDiagnostic> GatherParameterMismatchDiagnostics(ISemanticModel usingModel)
         {
             // parameters that are assigned but not declared
             // var missingAssignedParams = new List<ParameterAssignmentSyntax>();
-            var missingAssignedParams = Root.ParameterAssignments.Where(s => TryGetParameterDeclaration(s) is null);
+            var missingAssignedParams = Root.ParameterAssignments.Where(s => TryGetParameterMetadata(s) is null);
 
             // parameters that are declared but not assigned
-            var missingRequiredParams = bicepSemanticModel.Root.ParameterDeclarations
-                .Where(declaration =>
+            var missingRequiredParams = usingModel.Parameters
+                .Where(kvp =>
                 {
-                    if (!bicepSemanticModel.Parameters.TryGetValue(declaration.Name, out var md) || !md.IsRequired)
+                    var (parameterName, parameterMetadata) = kvp;
+                    
+                    if (!usingModel.Parameters.TryGetValue(parameterName, out var md) || !md.IsRequired)
                     {
                         return false;
                     }
 
                     // consider a parameter to be absent if there was no assignment statement OR if the value `null` was assigned
-                    return TryGetParameterAssignment(declaration) is not {} assignment || assignment.Type is NullType;
+                    return TryGetParameterAssignment(parameterMetadata) is not {} assignment || assignment.Type is NullType;
                 })
-                .Select(declaration => declaration.Name)
+                .Select(kvp => kvp.Key)
                 .ToImmutableArray();
 
             // emit diagnostic only if there is a using statement

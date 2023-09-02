@@ -22,8 +22,8 @@ namespace Bicep.Core.Semantics
     public class ArmTemplateSemanticModel : ISemanticModel
     {
         private readonly Lazy<ResourceScope> targetScopeLazy;
-        private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
-        private readonly Lazy<ImmutableDictionary<string, ExportedTypeMetadata>> exportedTypesLazy;
+        private readonly Lazy<ImmutableSortedDictionary<string, ParameterMetadata>> parametersLazy;
+        private readonly Lazy<ImmutableSortedDictionary<string, ExportedTypeMetadata>> exportedTypesLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
 
         public ArmTemplateSemanticModel(ArmTemplateFile sourceFile)
@@ -60,7 +60,7 @@ namespace Bicep.Core.Semantics
             {
                 if (this.SourceFile.Template?.Parameters is null)
                 {
-                    return ImmutableDictionary<string, ParameterMetadata>.Empty;
+                    return ImmutableSortedDictionary<string, ParameterMetadata>.Empty;
                 }
 
                 // the source here is of type InsensitiveDictionary<TemplateInputParameter>,
@@ -70,7 +70,7 @@ namespace Bicep.Core.Semantics
                 // Ordinal key comparer, which looks purely at the key string code points
                 // without applying any additional rules
                 return this.SourceFile.Template.Parameters
-                    .ToImmutableDictionary(
+                    .ToImmutableSortedDictionary(
                         parameterProperty => parameterProperty.Key,
                         parameterProperty =>
                         {
@@ -91,11 +91,11 @@ namespace Bicep.Core.Semantics
             {
                 if (SourceFile.Template?.Definitions is not {} typeDefinitions)
                 {
-                    return ImmutableDictionary<string, ExportedTypeMetadata>.Empty;
+                    return ImmutableSortedDictionary<string, ExportedTypeMetadata>.Empty;
                 }
 
                 return typeDefinitions.Where(typeDefinition => IsExported(typeDefinition.Value))
-                    .ToImmutableDictionary(typeDefinition => typeDefinition.Key,
+                    .ToImmutableSortedDictionary(typeDefinition => typeDefinition.Key,
                         typeDefinition => new ExportedTypeMetadata(typeDefinition.Key,
                             GetType(typeDefinition.Value),
                             GetMostSpecificDescription(typeDefinition.Value)),
@@ -124,9 +124,9 @@ namespace Bicep.Core.Semantics
             ? ResourceScope.ResourceGroup
             : this.targetScopeLazy.Value;
 
-        public ImmutableDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
+        public ImmutableSortedDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
 
-        public ImmutableDictionary<string, ExportedTypeMetadata> ExportedTypes => exportedTypesLazy.Value;
+        public ImmutableSortedDictionary<string, ExportedTypeMetadata> ExportedTypes => exportedTypesLazy.Value;
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 

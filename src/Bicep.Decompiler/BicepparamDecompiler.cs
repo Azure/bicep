@@ -96,11 +96,9 @@ public class BicepparamDecompiler
     { 
         if(param.Value?["reference"] is not null)
         {
-            return new ParameterAssignmentSyntax(
-            SyntaxFactory.CreateIdentifierToken("param"),
-            SyntaxFactory.CreateIdentifier(param.Name),
-            SyntaxFactory.AssignmentToken,
-            SyntaxFactory.CreateInvalidSyntaxWithComment("KeyVault references are not supported in Bicep Parameters files"));
+            return SyntaxFactory.CreateParameterAssignmentSyntax(
+                param.Name,
+                SyntaxFactory.CreateInvalidSyntaxWithComment("KeyVault references are not supported in Bicep Parameters files"));
         }
 
         var value = param.Value?["value"];
@@ -110,12 +108,9 @@ public class BicepparamDecompiler
             throw new Exception($"No value found parameter {param.Name}");
         }
 
-        return new ParameterAssignmentSyntax(
-            SyntaxFactory.CreateIdentifierToken("param"),
-            SyntaxFactory.CreateIdentifier(param.Name),
-            SyntaxFactory.AssignmentToken,
-            ParseJToken(value)
-        );
+        return SyntaxFactory.CreateParameterAssignmentSyntax(
+            param.Name,
+            ParseJToken(value));
     }
 
     private SyntaxBase ParseJToken(JToken value)

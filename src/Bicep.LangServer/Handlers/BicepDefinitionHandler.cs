@@ -334,22 +334,21 @@ namespace Bicep.LanguageServer.Handlers
                 return new();
             }
 
-            var paramsSemanticModel = context.Compilation.GetEntrypointSemanticModel();
-            if (!paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
+            var paramsModel = context.Compilation.GetEntrypointSemanticModel();
+            if (!paramsModel.Root.TryGetBicepFileSemanticModelViaUsing(out var usingModel, out _) ||
+                usingModel is not SemanticModel bicepModel)
             {
                 return new();
             }
 
-            var parameterDeclarations = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
-            var parameterDeclarationSymbol = paramsSemanticModel.TryGetParameterDeclaration(param);
-
-            if (parameterDeclarationSymbol is null)
+            if (bicepModel.Root.ParameterDeclarations
+                .FirstOrDefault(x => x.DeclaringParameter.Name.NameEquals(param.Name)) is not ParameterSymbol parameterSymbol)
             {
                 return new();
             }
 
-            var range = PositionHelper.GetNameRange(bicepSemanticModel.SourceFile.LineStarts, parameterDeclarationSymbol.DeclaringSyntax);
-            var documentUri = bicepSemanticModel.SourceFile.FileUri;
+            var range = PositionHelper.GetNameRange(bicepModel.SourceFile.LineStarts, parameterSymbol.DeclaringSyntax);
+            var documentUri = bicepModel.SourceFile.FileUri;
 
             return new(new LocationOrLocationLink(new LocationLink
             {

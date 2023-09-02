@@ -145,7 +145,7 @@ namespace Bicep.Core.Semantics
         /// Tries to get the semantic module of the Bicep File referenced via a using declaration from the current file.
         /// If current file is not a parameter file, the method will return false.
         /// </summary>
-        public bool TryGetBicepFileSemanticModelViaUsing([NotNullWhen(true)] out SemanticModel? semanticModel, [NotNullWhen(false)] out Diagnostic? failureDiagnostic)
+        public bool TryGetBicepFileSemanticModelViaUsing([NotNullWhen(true)] out ISemanticModel? semanticModel, [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
         {
             semanticModel = null;
             failureDiagnostic = null;
@@ -162,29 +162,12 @@ namespace Bicep.Core.Semantics
                 return false;
             }
 
-            if(this.Context.Compilation.SourceFileGrouping.TryGetErrorDiagnostic(usingDeclaration) is { } errorBuilder)
-            {
-                failureDiagnostic = errorBuilder(DiagnosticBuilder.ForPosition(usingDeclaration.Path));
-                return false;
-            }
-
-            // SourceFileGroupingBuilder should have already visited every using declaration and either recorded a failure or mapped it to a syntax tree.
-            // So it is safe to assume that this lookup will succeed without throwing an exception.
-            var sourceFile = Context.Compilation.SourceFileGrouping.TryGetSourceFile(usingDeclaration) ?? throw new InvalidOperationException($"Failed to find source file for using declaration.");
-            if(sourceFile is not BicepFile)
-            {
-                // TODO: If we wanted to support referencing ARM templates via using, it probably wouldn't very difficult to do
-                failureDiagnostic = DiagnosticBuilder.ForPosition(usingDeclaration.Path).UsingDeclarationMustReferenceBicepFile();
-                return false;
-            }
-
-            if (this.Context.Compilation.GetSemanticModel(sourceFile) is SemanticModel model)
-            {
-                semanticModel = model;
-                return true;
-            }
-
-            throw new InvalidOperationException($"Unexpected semantic model type when following using declaration.");
+            return SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
+                usingDeclaration,
+                b => b.UsingDeclarationMustReferenceBicepFile(),
+                Context.Compilation,
+                out semanticModel,
+                out failureDiagnostic);
         }
 
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor

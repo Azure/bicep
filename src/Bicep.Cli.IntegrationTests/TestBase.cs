@@ -34,14 +34,14 @@ namespace Bicep.Cli.IntegrationTests
 
         protected record InvocationSettings(FeatureProviderOverrides FeatureOverrides, IContainerRegistryClientFactory ClientFactory, ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory);
 
-        protected static Task<(string output, string error, int result)> Bicep(params string[] args) => Bicep(CreateDefaultSettings(), args);
+        protected static Task<CliResult> Bicep(params string[] args) => Bicep(CreateDefaultSettings(), args);
 
         protected static InvocationSettings CreateDefaultSettings() => new(
             FeatureOverrides: BicepTestConstants.FeatureOverrides,
             ClientFactory: Repository.Create<IContainerRegistryClientFactory>().Object,
             TemplateSpecRepositoryFactory: Repository.Create<ITemplateSpecRepositoryFactory>().Object);
 
-        protected static Task<(string output, string error, int result)> Bicep(InvocationSettings settings, params string[] args)
+        protected static Task<CliResult> Bicep(InvocationSettings settings, params string[] args)
             => TextWriterHelper.InvokeWriterAction((@out, err)
                 => new Program(new(Output: @out, Error: err), services
                     => services

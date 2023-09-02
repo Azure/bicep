@@ -1,19 +1,35 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
+using Azure;
+using Azure.Containers.ContainerRegistry;
+using Bicep.Cli.Models;
+using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
+using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Features;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Moq;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -125,7 +141,7 @@ namespace Bicep.Cli.IntegrationTests
                 AssertNoErrors(error);
             }
 
-            var parametersStdout = JsonSerializer.Deserialize<ParametersStdout>(output)!;
+            var parametersStdout = JsonSerializer.Deserialize<BuildParamsStdout>(output)!;
             data.Compiled!.WriteToOutputFolder(parametersStdout.parametersJson);
             data.Compiled.ShouldHaveExpectedJsonValue();
         }
@@ -148,6 +164,73 @@ namespace Bicep.Cli.IntegrationTests
                 output.Should().BeEmpty();
                 error.Should().ContainAll(diagnostics);
             }
+        }
+
+        [TestMethod]
+        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Build_params_to_stdout_with_non_bicep_references_should_succeed(EmbeddedFile paramFile)
+        {
+            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+            var outputFile = baselineFolder.GetFileOrEnsureCheckedIn("output.json");
+
+            var clients = await MockRegistry.Build();
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
+
+            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
+            result.Should().Succeed().And.NotHaveStderr();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            outputFile.WriteJsonToOutputFolder(parametersStdout);
+            outputFile.ShouldHaveExpectedJsonValue();
+        }
+
+        [TestMethod]
+        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Build_params_to_stdout_with_registry_should_succeed_after_restore(EmbeddedFile paramFile)
+        {
+            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+            var outputFile = baselineFolder.GetFileOrEnsureCheckedIn("output.json");
+
+            var clients = await MockRegistry.Build();
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
+
+            var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
+            result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
+
+            result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--no-restore", "--stdout");
+            result.Should().Succeed().And.NotHaveStderr();
+
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            outputFile.WriteJsonToOutputFolder(parametersStdout);
+            outputFile.ShouldHaveExpectedJsonValue();
+        }
+
+        [TestMethod]
+        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Build_bicepparam_should_fail_with_error_diagnostics_for_registry_failure(EmbeddedFile paramFile)
+        {
+            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+
+            var client = StrictMock.Of<ContainerRegistryContentClient>();
+            client
+                .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
+
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactory
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), new Uri("https://mockregistry.io"), "parameters/basic"))
+                .Returns(client.Object);
+
+            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
+            
+            result.Should().Fail().And.NotHaveStdout();
+            result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the module with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
         }
 
         [TestInitialize]
