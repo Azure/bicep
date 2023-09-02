@@ -1000,7 +1000,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .Build();
             }
         }
-
+       
         private static ObjectType GetParseCidrReturnType()
         {
             return new ObjectType("parseCidr", TypeSymbolValidationFlags.Default, new[]

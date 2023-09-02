@@ -459,6 +459,38 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("resourceType", LanguageConstants.String, "The type of resource within the specified namespace")
                     .Build();
 
+                yield return new FunctionOverloadBuilder("toLogicalZone")
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription("Returns the logical zone corresponding to the given physical zone.")
+                .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                .WithRequiredParameter("physicalZone", LanguageConstants.String, "The physical zone to convert")
+                .Build();
+            
+            yield return new FunctionOverloadBuilder("toLogicalZones")
+                .WithReturnType(new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default, minLength: 1))
+                .WithGenericDescription("Returns the logical zone array corresponding to the given array of physical zones.")
+                .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                .WithRequiredParameter("physicalZones", LanguageConstants.Array, "An array of physical zones to convert")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("toPhysicalZone")
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription("Returns the physical zone corresponding to the given logical zone.")
+                .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                .WithRequiredParameter("logicalZone", LanguageConstants.String, "The logical zone to convert")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("toPhysicalZones")
+                .WithReturnType(new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default, minLength: 1))
+                .WithGenericDescription("Returns the physical zone array corresponding to the given array of logical zones.")
+                .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID of the deployed availability zones")
+                .WithRequiredParameter("location", LanguageConstants.String, "The location of the availability zone mappings")
+                .WithRequiredParameter("logicalZones", LanguageConstants.Array, "An array of logical zones to convert")
+                .Build();
+
                 // TODO: return type is string[]
                 // TODO: Location param should be of location type if we ever add it
                 yield return new FunctionOverloadBuilder("pickZones")
