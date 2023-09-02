@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Bicep.Core.Configuration;
@@ -19,6 +20,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Tracing;
 using Newtonsoft.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Bicep.Core.Registry
 {
@@ -298,7 +300,7 @@ namespace Bicep.Core.Registry
 
         public override async Task PublishArtifact(OciModuleReference moduleReference, Stream compiled, string? documentationUri, string? description)
         {
-            var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
+            var config = new StreamDescriptor(new MemoryStream(Encoding.UTF8.GetBytes("{}").ToArray()), BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
             try
@@ -340,7 +342,7 @@ namespace Bicep.Core.Registry
                 switch (mediaType)
                 {
                     // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
-                    // but this may change in the future if we chose to publish providers in multiple layers. 
+                    // but this may change in the future if we chose to publish providers in multiple layers.
                     case BicepMediaTypes.BicepModuleLayerV1Json:
                         {
                             // write module.json
