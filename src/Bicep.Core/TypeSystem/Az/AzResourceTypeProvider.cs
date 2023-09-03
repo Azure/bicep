@@ -8,6 +8,7 @@ using Bicep.Core.Semantics;
 using System.Collections.Immutable;
 using Bicep.Core.Emit;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Core.Comparers;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -191,6 +192,8 @@ namespace Bicep.Core.TypeSystem.Az
             }, null));
         }
 
+        public ImmutableDictionary<string, ImmutableArray<ResourceTypeReference>> TypeReferencesByType { get; }
+
         public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader, string providerVersion)
         {
             this.Version = providerVersion;
@@ -198,6 +201,9 @@ namespace Bicep.Core.TypeSystem.Az
             this.availableResourceTypes = resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet();
             this.definedTypeCache = new ResourceTypeCache();
             this.generatedTypeCache = new ResourceTypeCache();
+            this.TypeReferencesByType = availableResourceTypes
+                .GroupBy(x => x.Type, StringComparer.OrdinalIgnoreCase)
+                .ToImmutableDictionary(x => x.Key, x => x.OrderByDescending(x => x.ApiVersion, ApiVersionComparer.Instance).ToImmutableArray());
         }
 
         private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)

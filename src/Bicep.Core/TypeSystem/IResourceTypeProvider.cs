@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem
@@ -26,6 +27,8 @@ namespace Bicep.Core.TypeSystem
         /// Returns the full list of available types defined by this provider.
         /// </summary>
         IEnumerable<ResourceTypeReference> GetAvailableTypes();
+
+        ImmutableDictionary<string, ImmutableArray<ResourceTypeReference>> TypeReferencesByType { get; }
 
         /// <summary>
         /// Returns the version of the type definitions used by this provider.

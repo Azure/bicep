@@ -26,12 +26,17 @@ namespace Bicep.Core.TypeSystem.K8s
             NamePropertyName,
         }.ToImmutableHashSet();
 
+        public ImmutableDictionary<string, ImmutableArray<ResourceTypeReference>> TypeReferencesByType { get; }
+
         public K8sResourceTypeProvider(K8sResourceTypeLoader resourceTypeLoader)
         {
             this.resourceTypeLoader = resourceTypeLoader;
             this.availableResourceTypes = resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet();
             this.definedTypeCache = new ResourceTypeCache();
             this.generatedTypeCache = new ResourceTypeCache();
+            this.TypeReferencesByType = availableResourceTypes
+                .GroupBy(x => x.Type, StringComparer.OrdinalIgnoreCase)
+                .ToImmutableDictionary(x => x.Key, x => x.ToImmutableArray());
         }
 
         private static ResourceTypeComponents SetBicepResourceProperties(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)

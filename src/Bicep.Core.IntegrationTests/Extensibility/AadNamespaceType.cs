@@ -6,6 +6,8 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Semantics;
+using System;
+using System.Linq;
 
 namespace Bicep.Core.IntegrationTests.Extensibility
 {
@@ -67,6 +69,11 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                 => resourceTypes.Keys;
 
             public string Version { get; } = "1.0.0";
+
+            public ImmutableDictionary<string, ImmutableArray<ResourceTypeReference>> TypeReferencesByType
+                => GetAvailableTypes()
+                .GroupBy(x => x.Type, StringComparer.OrdinalIgnoreCase)
+                .ToImmutableDictionary(x => x.Key, x => x.ToImmutableArray());
         }
 
         public static NamespaceType Create(string aliasName)
