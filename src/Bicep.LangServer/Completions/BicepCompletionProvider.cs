@@ -391,7 +391,7 @@ namespace Bicep.LanguageServer.Completions
                     .SelectMany(wildcardImport => wildcardImport.TryGetSemanticModel() is ISemanticModel importedModel
                         ? importedModel.Exports.Values.OfType<ExportedTypeMetadata>().Select(exportMetadata => (wildcardImport, exportMetadata))
                         : Enumerable.Empty<(WildcardImportSymbol, ExportedTypeMetadata)>())
-                    .Select(t => CreateWildcardTypePropertyCompletion(t.Item1, t.Item2, context.ReplacementRange, CompletionPriority.High)));
+                    .Select(t => CreateWildcardPropertyCompletion(t.Item1, t.Item2, context.ReplacementRange, CompletionPriority.High)));
 
         private static bool IsTypeLiteralSyntax(SyntaxBase syntax) => syntax is BooleanLiteralSyntax
             || syntax is IntegerLiteralSyntax
@@ -1752,9 +1752,19 @@ namespace Bicep.LanguageServer.Completions
             return builder.Build();
         }
 
-        private static CompletionItem CreateWildcardTypePropertyCompletion(WildcardImportSymbol wildcardImport, ExportMetadata exportMetadata, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreateWildcardPropertyCompletion(WildcardImportSymbol wildcardImport, ExportMetadata exportMetadata, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
-            var replacement = $"{wildcardImport.Name}.{exportMetadata.Name}";
+            StringBuilder replacementBuilder = new(wildcardImport.Name);
+            if (Lexer.IsValidIdentifier(exportMetadata.Name))
+            {
+                replacementBuilder.Append('.').Append(exportMetadata.Name);
+            }
+            else
+            {
+                replacementBuilder.Append("['").Append(exportMetadata.Name.Replace("'", "\\'")).Append("']");
+            }
+
+            var replacement = replacementBuilder.ToString();
             var builder = CompletionItemBuilder.Create(CompletionItemKind.Class, replacement)
                 .WithPlainTextEdit(replacementRange, replacement)
                 .WithDetail(exportMetadata.TypeReference.Type.Name)
@@ -2043,9 +2053,12 @@ namespace Bicep.LanguageServer.Completions
 
                         foreach (var exported in importedModel.Exports)
                         {
-                            var edit = claimedNames.Contains(exported.Key)
-                                ? $"{exported.Key} as "
-                                : exported.Key;
+                            var edit = exported.Key switch
+                            {
+                                string key when !Lexer.IsValidIdentifier(key) => $"'{key.Replace("'", @"\'")}' as ",
+                                string key when claimedNames.Contains(key) => $"{key} as ",
+                                string key => key,
+                            };
 
                             yield return CompletionItemBuilder.Create(CompletionItemKind.Variable, exported.Key)
                                 .WithSortText(GetSortText(exported.Key, CompletionPriority.High))

@@ -14,7 +14,6 @@ using Azure.Deployments.Templates.Exceptions;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
@@ -101,7 +100,7 @@ namespace Bicep.Core.Semantics
 
                 if (template.Definitions is {} typeDefinitions)
                 {
-                    exports.AddRange(typeDefinitions.Where(kvp => Lexer.IsValidIdentifier(kvp.Key) && IsExported(kvp.Value))
+                    exports.AddRange(typeDefinitions.Where(kvp => IsExported(kvp.Value))
                         .Select(kvp => new ExportedTypeMetadata(kvp.Key, GetType(kvp.Value), GetMostSpecificDescription(kvp.Value))));
                 }
 
