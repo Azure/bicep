@@ -28,8 +28,8 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static BicepDecompiler CreateDecompiler(IFileResolver fileResolver)
-            => ServiceBuilder.Create(s => s.WithEmptyAzResources().WithFileResolver(fileResolver)).GetDecompiler();
+        private static BicepDecompiler CreateDecompiler()
+            => ServiceBuilder.Create(s => s.WithEmptyAzResources()).GetDecompiler();
 
         [DataTestMethod]
         [EmbeddedFilesTestData(@"Files/Working/.*\.json")]
@@ -41,9 +41,9 @@ namespace Bicep.Core.IntegrationTests
 
             var jsonUri = PathHelper.FilePathToFileUrl(jsonFile.OutputFilePath);
             var decompiler = ServiceBuilder.Create().GetDecompiler();
-            var (bicepUri, filesToSave) = await decompiler.Decompile(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
+            var (bicepUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(jsonUri), jsonFile.EmbeddedFile.Contents);
 
-            var result = CompilationHelper.Compile(new(), new InMemoryFileResolver(filesToSave), filesToSave.Keys, bicepUri);
+            var result = CompilationHelper.Compile(new ServiceBuilder().BuildCompilation(filesToSave, PathHelper.ChangeToBicepExtension(jsonUri)));
             var diagnosticsByBicepFile = result.Compilation.GetAllDiagnosticsByBicepFile();
 
             using (new AssertionScope())
@@ -79,17 +79,10 @@ namespace Bicep.Core.IntegrationTests
             baselineFile.ShouldHaveExpectedValue();
         }
 
-        private static IFileResolver ReadResourceFile(string resourcePath)
+        private static string ReadResourceFile(string resourcePath)
         {
             var manifestStream = typeof(DecompilationTests).Assembly.GetManifestResourceStream(resourcePath)!;
-            var jsonContents = new StreamReader(manifestStream).ReadToEnd();
-
-            var fileDict = new Dictionary<Uri, string>
-            {
-                [new Uri($"file:///{resourcePath}")] = jsonContents,
-            };
-
-            return new InMemoryFileResolver(fileDict);
+            return new StreamReader(manifestStream).ReadToEnd();
         }
 
         [DataTestMethod]
@@ -101,9 +94,9 @@ namespace Bicep.Core.IntegrationTests
         {
             Func<Task> onDecompile = async () =>
             {
-                var fileResolver = ReadResourceFile(resourcePath);
-                var decompiler = CreateDecompiler(fileResolver);
-                await decompiler.Decompile(new Uri($"file:///{resourcePath}"), new Uri("file:///unused.bicep"));
+                var jsonContent = ReadResourceFile(resourcePath);
+                var decompiler = CreateDecompiler();
+                await decompiler.Decompile(new Uri("file:///unused.bicep"), jsonContent);
             };
 
             await onDecompile.Should().ThrowAsync<ConversionFailedException>().WithMessage(expectedMessage);
@@ -131,13 +124,9 @@ namespace Bicep.Core.IntegrationTests
             template = string.Join(newline, Regex.Split(template, "\r?\n"));
 
             var fileUri = new Uri("file:///path/to/main.json");
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
-            {
-                [fileUri] = template,
-            }); ;
 
-            var decompiler = CreateDecompiler(fileResolver);
-            var (entryPointUri, filesToSave) = await decompiler.Decompile(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
+            var decompiler = CreateDecompiler();
+            var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
 
             // this behavior is actually controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
             filesToSave[entryPointUri].Should().Contain($"var multilineString = 'multi{escapedNewline}        line{escapedNewline}        string'");
@@ -190,43 +179,11 @@ namespace Bicep.Core.IntegrationTests
 }";
 
             var fileUri = new Uri("file:///path/to/main.json");
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
-            {
-                [fileUri] = template,
-            });
 
-            var decompiler = CreateDecompiler(fileResolver);
-            var (entryPointUri, filesToSave) = await decompiler.Decompile(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
+            var decompiler = CreateDecompiler();
+            var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
 
             filesToSave[entryPointUri].Should().Contain($"output calculated {type} = {expectedValue}");
-        }
-
-        [TestMethod]
-        public async Task Decompiler_should_not_decompile_bicep_extension()
-        {
-            const string template = @"{
-    ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-    ""contentVersion"": ""1.0.0.0"",
-    ""parameters"": {},
-    ""variables"": {},
-    ""resources"": [],
-    ""outputs"": {}
-}";
-
-            var fileUri = new Uri("file:///path/to/main.bicep");
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
-            {
-                [fileUri] = template,
-            });
-
-            Func<Task> sut = async () =>
-            {
-                var decompiler = CreateDecompiler(fileResolver);
-                await decompiler.Decompile(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
-            };
-
-            await sut.Should().ThrowAsync<InvalidOperationException>()
-                .WithMessage("Cannot decompile the file with .bicep extension: file:///path/to/main.bicep.");
         }
 
         [TestMethod]
@@ -278,13 +235,9 @@ namespace Bicep.Core.IntegrationTests
 }";
 
             var fileUri = new Uri("file:///path/to/main.json");
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
-            {
-                [fileUri] = template,
-            });
 
-            var decompiler = CreateDecompiler(fileResolver);
-            var (entryPointUri, filesToSave) = await decompiler.Decompile(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
+            var decompiler = CreateDecompiler();
+            var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
 
             filesToSave[entryPointUri].Should().Contain($"? /* TODO: User defined functions are not supported and have not been decompiled */");
         }
@@ -305,17 +258,13 @@ namespace Bicep.Core.IntegrationTests
 }";
 
             var fileUri = new Uri("file:///path/to/main.json");
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
-            {
-                [fileUri] = template,
-            });
 
             var currentCulture = Thread.CurrentThread.CurrentCulture;
             try {
                 Thread.CurrentThread.CurrentCulture = new CultureInfo("fi-FI");
 
-                var decompiler = CreateDecompiler(fileResolver);
-                var (entryPointUri, filesToSave) = await decompiler.Decompile(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
+                var decompiler = CreateDecompiler();
+                var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
 
                 filesToSave[entryPointUri].Should().Contain($"var cpu = '0.25'");
             }

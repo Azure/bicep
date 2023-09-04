@@ -70,7 +70,7 @@ resource baz 'Foo.Rp/bar@2019-06-01' = if (something == foo) {
   ]
 }
 
-module module1Deploy 'nested/module1.bicep' = if ((1 + 2) == 3) {
+module module1Deploy 'nested/module1.json' = if ((1 + 2) == 3) {
   name: 'module1Deploy'
   params: {
 //@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". (CodeDescription: none) |params|
@@ -83,7 +83,7 @@ module module1Deploy 'nested/module1.bicep' = if ((1 + 2) == 3) {
   }
 }
 
-module module2Deploy 'nested/module2.bicep' = if ((1 + 2) == 3) {
+module module2Deploy 'nested/module2.json' = if ((1 + 2) == 3) {
   name: 'module2Deploy'
   params: {
 //@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". (CodeDescription: none) |params|

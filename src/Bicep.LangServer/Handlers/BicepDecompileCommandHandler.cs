@@ -79,6 +79,7 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDecompileCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileCommandParams, BicepDecompileCommandResult>
     {
+        private readonly IFileResolver fileResolver;
         private readonly BicepDecompiler bicepDecompiler;
         private readonly TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult> telemetryHelper;
 
@@ -86,10 +87,12 @@ namespace Bicep.LanguageServer.Handlers
             ISerializer serializer,
             ILanguageServerFacade server,
             ITelemetryProvider telemetryProvider,
+            IFileResolver fileResolver,
             BicepDecompiler bicepDecompiler)
             : base(LangServerConstants.DecompileCommand, serializer)
         {
             this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult>(server.Window, telemetryProvider);
+            this.fileResolver = fileResolver;
             this.bicepDecompiler = bicepDecompiler;
         }
 
@@ -114,7 +117,12 @@ namespace Bicep.LanguageServer.Handlers
             {
                 // Decompile
                 Log(output, String.Format(LangServerResources.Decompile_DecompilationStartMsg, jsonPath));
-                (bicepUri, filesToSave) = await bicepDecompiler.Decompile(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
+                if (!fileResolver.TryRead(jsonUri).IsSuccess(out var jsonContents, out _))
+                {
+                    throw new InvalidOperationException($"Failed to read {jsonUri}");
+                }
+
+                (bicepUri, filesToSave) = await bicepDecompiler.Decompile(PathHelper.ChangeToBicepExtension(jsonUri), jsonContents);
             }
             catch (Exception ex)
             {

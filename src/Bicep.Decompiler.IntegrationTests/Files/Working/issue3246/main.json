@@ -10,7 +10,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "id": "/subscriptions/28cbf98f-381d-4425-9ac4-cf342dab9753/resourceGroups/StacksTestRG34xu72emdafmq/providers/Microsoft.Resources/templateSpecs/ABetterSpec/versions/V2"
+                    "id": "/subscriptions/fc88314c-e5cf-4a0b-aee1-743b09254997/resourceGroups/StacksTestRG34xu72emdafmq/providers/Microsoft.Resources/templateSpecs/ABetterSpec/versions/V2"
                 }
             }
         }

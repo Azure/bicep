@@ -708,9 +708,8 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
 
             output.Should().NotMatchRegex("Overwriting");
             output.Should().MatchRegex("Writing .*[\\\\/]main.bicep");
-            output.Should().MatchRegex("Writing .*[\\\\/]parent_child.bicep");
             output.Should().MatchRegex("Decompilation complete.");
-            saveResult.mainSavedBicepPath.Should().BeEquivalentToPath(Path.Join(testOutputPath, "abc", "def", "main_decompiled", "main.bicep"), "Should have displayed main file");
+            saveResult.mainSavedBicepPath.Should().BeEquivalentToPath(Path.Join(testOutputPath, "abc", "def", "main.bicep"), "Should have displayed main file");
         }
     }
 }
