@@ -3,8 +3,10 @@
 
 using Bicep.Core.Exceptions;
 using Bicep.Core.Registry;
+using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.TypeSystem;
 using Bicep.RegistryModuleTool.Extensions;
-using Bicep.RegistryModuleTool.ModuleValidators;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Markdig;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
@@ -14,6 +16,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
@@ -22,18 +25,21 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         public const string FileName = "README.md";
 
         private const string DetailsSectionHeader = "## Details";
-        private static readonly string DetailsSectionTemplate = @$"{DetailsSectionHeader}
-{{{{ Add detailed information about the module. }}}}".ReplaceLineEndings();
 
-        private static readonly string ExamplesSectionTemplate = @"## Examples
-### Example 1
-```bicep
-```
-### Example 2
-```bicep
-```".ReplaceLineEndings();
+        private static readonly string DefaultDetailsSection = $$$"""
+            {{{DetailsSectionHeader}}}
+            {{Add detailed information about the module}}
+            """.ReplaceLineEndings();
 
-        private const string ObsoleteDetailsSectionHeader = "## Description";
+        private static readonly string DefaultExamplesSection = """
+            ## Examples
+            ### Example 1
+            ```bicep
+            ```
+            ### Example 2
+            ```bicep
+            ```
+            """.ReplaceLineEndings();
 
         public ReadmeFile(string path, string contents)
             : base(path)
@@ -43,33 +49,23 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public string Contents { get; }
 
-        public static ReadmeFile Generate(IFileSystem fileSystem, MainArmTemplateFile mainArmTemplateFile)
+        public static async Task<ReadmeFile> GenerateAsync(IFileSystem fileSystem, MainBicepFile mainBicepFile)
         {
-            string? detailsSection = DetailsSectionTemplate;
-            var examplesSection = ExamplesSectionTemplate;
+            var detailsSection = DefaultDetailsSection;
+            var examplesSection = DefaultExamplesSection;
 
-            var moduleName = mainArmTemplateFile.NameMetadata ?? "TODO: MISSING Name";
-            var moduleDescription = mainArmTemplateFile.DescriptionMetadata ?? "TODO: MISSING Description";
+            var moduleName = mainBicepFile.TryGetMetadata(MainBicepFile.ModuleNameMetadataName).Value ?? "TODO: MISSING or INVALID name metadata in main.bicep";
+            var moduleDescription = mainBicepFile.TryGetMetadata(MainBicepFile.ModuleDescriptionMetadataName).Value ?? "TODO: MISSING or INVALID description metadata in main.bicep";
 
             try
             {
-                var existingFile = ReadFromFileSystem(fileSystem);
+                var existingFile = await OpenAsync(fileSystem);
 
                 // Details section
-                string? existingDetailsSection = TryGetExistingSection(existingFile, DetailsSectionHeader);
-                string? existingDescriptionSection = TryGetExistingSection(existingFile, ObsoleteDetailsSectionHeader);
-                if (existingDetailsSection is not null && existingDescriptionSection is not null)
-                {
-                    throw new BicepException($"The readme file {existingFile.Path} must not contain both a Description and a Details section.");
-                }
-                else if (existingDetailsSection is not null)
+
+                if (TryGetExistingSection(existingFile, DetailsSectionHeader) is { } existingDetailsSection)
                 {
                     detailsSection = existingDetailsSection;
-                }
-                else if (existingDescriptionSection is not null)
-                {
-                    // Upgrade "Description" section to "Details" section
-                    detailsSection = existingDescriptionSection.Replace(ObsoleteDetailsSectionHeader, DetailsSectionHeader);
                 }
 
                 // Examples section
@@ -93,45 +89,41 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             builder.AppendLine(detailsSection);
 
-            BuildParametersTable(builder, mainArmTemplateFile.Parameters);
-            BuildOutputsTable(builder, mainArmTemplateFile.Outputs);
+            BuildParametersTable(builder, mainBicepFile.SemanticModel.Parameters.Values);
+            BuildOutputsTable(builder, mainBicepFile.SemanticModel.Outputs);
 
             builder.AppendLine(examplesSection);
 
             var contents = builder.ToString();
             var normalizedContents = Markdown.Normalize(contents);
+            var path = fileSystem.Path.GetFullPath(FileName);
 
-            return new(fileSystem.Path.GetFullPath(FileName), normalizedContents);
+            await fileSystem.File.WriteAllTextAsync(path, normalizedContents);
+
+            return new(path, normalizedContents);
         }
 
-        public static ReadmeFile ReadFromFileSystem(IFileSystem fileSystem)
+        public static async Task<ReadmeFile> OpenAsync(IFileSystem fileSystem)
         {
             var path = fileSystem.Path.GetFullPath(FileName);
-            var content = fileSystem.File.ReadAllText(FileName);
+            var content = await fileSystem.File.ReadAllTextAsync(FileName);
 
             return new(path, content);
         }
 
-        public ReadmeFile WriteToFileSystem(IFileSystem fileSystem)
-        {
-            fileSystem.File.WriteAllText(FileName, this.Contents);
+        protected override Task<IEnumerable<string>> ValidatedByAsync(IModuleFileValidator validator) => validator.ValidateAsync(this);
 
-            return this;
-        }
-
-        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
-
-        private static void BuildParametersTable(StringBuilder builder, IEnumerable<MainArmTemplateParameter> parameters)
+        private static void BuildParametersTable(StringBuilder builder, IEnumerable<ParameterMetadata> parameters)
         {
             builder.AppendLine("## Parameters");
             builder.AppendLine();
             builder.AppendLine(parameters
-                .Select(p => new
+                .Select(x => new
                 {
-                    Name = $"`{p.Name}`",
-                    Type = $"`{p.Type}`",
-                    Required = p.Required ? "Yes" : "No",
-                    Description = p.Description?.TrimStart().TrimEnd().ReplaceLineEndings("<br />"),
+                    Name = $"`{x.Name}`",
+                    Type = $"`{ConvertToPrimitiveTypeName(x.TypeReference)}`",
+                    Required = x.IsRequired ? "Yes" : "No",
+                    Description = x.Description?.TrimStart().TrimEnd().ReplaceLineEndings("<br />"),
                 })
                 .ToMarkdownTable(columnName => columnName switch
                 {
@@ -142,16 +134,16 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             builder.AppendLine();
         }
 
-        private static void BuildOutputsTable(StringBuilder builder, IEnumerable<MainArmTemplateOutput> outputs)
+        private static void BuildOutputsTable(StringBuilder builder, IEnumerable<OutputMetadata> outputs)
         {
             builder.AppendLine("## Outputs");
             builder.AppendLine();
             builder.AppendLine(outputs
-                .Select(o => new
+                .Select(x => new
                 {
-                    Name = $"`{o.Name}`",
-                    Type = $"`{o.Type}`",
-                    Description = o.Description?.TrimStart().TrimEnd().ReplaceLineEndings("<br />"),
+                    Name = $"`{x.Name}`",
+                    Type = $"`{ConvertToPrimitiveTypeName(x.TypeReference)}`",
+                    Description = x.Description?.TrimStart().TrimEnd().ReplaceLineEndings("<br />"),
                 })
                 .ToMarkdownTable(columnName => columnName switch
                 {
@@ -160,6 +152,8 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 }));
             builder.AppendLine();
         }
+
+        private static bool IsSecure(ITypeReference typeReference) => typeReference.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
 
         private static string? TryReadSection(string markdownText, string title)
         {
@@ -199,5 +193,21 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             return null;
         }
+
+        private static string ConvertToPrimitiveTypeName(ITypeReference typeReference) => typeReference.Type switch {
+            NullType => "null",
+            IntegerType or IntegerLiteralType => "int",
+            BooleanType or BooleanLiteralType => "bool",
+
+            StringType or StringLiteralType when IsSecure(typeReference) => "securestring",
+            StringType or StringLiteralType => "string",
+
+            ObjectType when IsSecure(typeReference) => "secureObject",
+            ObjectType => "object",
+
+            ArrayType => "array",
+            UnionType union => string.Join(" | ", union.Members.SelectMany(ConvertToPrimitiveTypeName).Distinct()),
+            TypeSymbol otherwise => throw new InvalidOperationException($"Unable to determine primitive type of {otherwise.Name}"),
+        };
     }
 }

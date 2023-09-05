@@ -5,7 +5,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleValidators;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Json.More;
@@ -39,7 +39,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         public void MetadataValidation_Owner(string? owner, string? expectedMessagePattern)
         {
             var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
-            var mainBicepFile = MainBicepFile.ReadFromFileSystem(fileSystem);
+            var mainBicepFile = MainBicepFile.OpenAsync(fileSystem);
 
             // The BicepMetadataValidator doesn't actually look at the metadata compiled
             // into the main.json file from the main.bicep, so we will modify the main.json
@@ -55,7 +55,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
             else
             {
                 FluentActions.Invoking(() => sut.Validate(mainArmTemplateFile)).Should()
-                    .Throw<InvalidModuleException>()
+                    .Throw<InvalidModuleFileException>()
                     .WithMessage(expectedMessagePattern);
             }
         }
@@ -73,7 +73,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         public void MetadataValidation_Name(string? name, string? expectedMessagePattern)
         {
             var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
-            var mainBicepFile = MainBicepFile.ReadFromFileSystem(fileSystem);
+            var mainBicepFile = MainBicepFile.OpenAsync(fileSystem);
 
             // The BicepMetadataValidator doesn't actually look at the metadata compiled
             // into the main.json file from the main.bicep, so we will modify the main.json
@@ -89,7 +89,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
             else
             {
                 FluentActions.Invoking(() => sut.Validate(mainArmTemplateFile)).Should()
-                    .Throw<InvalidModuleException>()
+                    .Throw<InvalidModuleFileException>()
                     .WithMessage(expectedMessagePattern);
             }
         }
@@ -107,7 +107,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         public void MetadataValidation_Description(string? description, string? expectedMessagePattern)
         {
             var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
-            var mainBicepFile = MainBicepFile.ReadFromFileSystem(fileSystem);
+            var mainBicepFile = MainBicepFile.OpenAsync(fileSystem);
 
             // The BicepMetadataValidator doesn't actually look at the metadata compiled
             // into the main.json file from the main.bicep, so we will modify the main.json
@@ -123,7 +123,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
             else
             {
                 FluentActions.Invoking(() => sut.Validate(mainArmTemplateFile)).Should()
-                    .Throw<InvalidModuleException>()
+                    .Throw<InvalidModuleFileException>()
                     .WithMessage(expectedMessagePattern);
             }
         }
@@ -133,7 +133,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
             // The BicepMetadataValidator doesn't actually look at the metadata compiled
             // into the main.json file from the main.bicep, so we will modify the main.json
             // into what we want to test.
-            var mainArmTemplateFile = MainArmTemplateFile.ReadFromFileSystem(fileSystem);
+            var mainArmTemplateFile = MainArmTemplateFile.OpenAsync(fileSystem);
             var mainArmTemplateFileElement = JsonElementFactory.CreateElement(mainArmTemplateFile.Content);
             if (metadataValue is not null)
             {
@@ -145,7 +145,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
             }
 
             fileSystem.AddFile(mainArmTemplateFile.Path, mainArmTemplateFileElement.ToJsonString());
-            return MainArmTemplateFile.ReadFromFileSystem(fileSystem);
+            return MainArmTemplateFile.OpenAsync(fileSystem);
         }
     }
 }

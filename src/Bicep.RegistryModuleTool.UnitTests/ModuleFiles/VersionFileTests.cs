@@ -20,7 +20,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
 
             fileSystem.AddFile(path, "######");
 
-            FluentActions.Invoking(() => VersionFile.ReadFromFileSystem(fileSystem)).Should()
+            FluentActions.Invoking(() => VersionFile.OpenAsync(fileSystem)).Should()
                 .Throw<BicepException>()
                 .WithMessage($"The version file \"{path}\" is not a valid JSON file.*");
         }
@@ -33,7 +33,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
 
             fileSystem.AddFile(path, "[]");
 
-            FluentActions.Invoking(() => VersionFile.ReadFromFileSystem(fileSystem)).Should()
+            FluentActions.Invoking(() => VersionFile.OpenAsync(fileSystem)).Should()
                 .Throw<BicepException>()
                 .WithMessage($"The version file \"{path}\" must contain a JSON object at the root level.");
         }
@@ -46,7 +46,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
 
             fileSystem.AddFile(path, "{}");
 
-            FluentActions.Invoking(() => VersionFile.ReadFromFileSystem(fileSystem)).Should().NotThrow();
+            FluentActions.Invoking(() => VersionFile.OpenAsync(fileSystem)).Should().NotThrow();
         }
     }
 }

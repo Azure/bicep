@@ -3,7 +3,7 @@
 
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleValidators;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using Bicep.RegistryModuleTool.UnitTests.ModuleValidators;
 using FluentAssertions;
@@ -23,14 +23,14 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
         public void BicepGenerate_IfMetadataFileExists_MoveToBicep_AndDeleteMetadataFile()
         {
             var fileSystem = MockFileSystemFactory.CreateFileSystemWithModuleWithObsoleteMetadataFile();
-            var armTemplateFile = MainArmTemplateFile.ReadFromFileSystem(fileSystem);
+            var armTemplateFile = MainArmTemplateFile.OpenAsync(fileSystem);
             var metadataFile = MetadataFile.TryReadFromFileSystem(fileSystem)!;
 
             // act
             var bicepFile = MainBicepFile.Generate(fileSystem, metadataFile, armTemplateFile);
 
             MetadataFile.TryReadFromFileSystem(fileSystem).Should().BeNull("metadata file should have been deleted");
-            bicepFile.Contents.ReplaceLineEndings().Should().Be(
+            bicepFile.Content.ReplaceLineEndings().Should().Be(
 @"metadata name = 'Sample module'
 metadata description = 'Sample summary'
 metadata owner = 'test'
@@ -58,7 +58,7 @@ metadata owner = 'test'
             var bicepFile = MainBicepFile.Generate(fileSystem, metadataFile, armTemplateFile);
 
             MetadataFile.TryReadFromFileSystem(fileSystem).Should().BeNull("metadata file should have been deleted");
-            bicepFile.Contents.ReplaceLineEndings().Should().Be(
+            bicepFile.Content.ReplaceLineEndings().Should().Be(
 @"metadata name = 'Sample module'
 metadata owner = 'test'
 metadata description = 'My description in Bicep'
@@ -79,14 +79,14 @@ metadata description = 'My description in Bicep'
                   ""description"": ""Sample description"",
                   ""owner"": ""test""
                 }");
-            var armTemplateFile = MainArmTemplateFile.ReadFromFileSystem(fileSystem);
+            var armTemplateFile = MainArmTemplateFile.OpenAsync(fileSystem);
             var metadataFile = MetadataFile.TryReadFromFileSystem(fileSystem)!;
 
             // act
             var bicepFile = MainBicepFile.Generate(fileSystem, metadataFile, armTemplateFile);
 
             MetadataFile.TryReadFromFileSystem(fileSystem).Should().BeNull("metadata file should have been deleted");
-            bicepFile.Contents.ReplaceLineEndings().Should().Be(
+            bicepFile.Content.ReplaceLineEndings().Should().Be(
 @"metadata name = 'Sample module'
 metadata description = 'Sample description'
 metadata owner = 'test'
@@ -108,14 +108,14 @@ metadata owner = 'test'
                   ""owner"": ""test""
                 }");
             var a = fileSystem.File.ReadAllText(fileSystem.Path.GetFullPath(MetadataFile.FileName));
-            var armTemplateFile = MainArmTemplateFile.ReadFromFileSystem(fileSystem);
+            var armTemplateFile = MainArmTemplateFile.OpenAsync(fileSystem);
             var metadataFile = MetadataFile.TryReadFromFileSystem(fileSystem)!;
 
             // act
             var bicepFile = MainBicepFile.Generate(fileSystem, metadataFile, armTemplateFile);
 
             MetadataFile.TryReadFromFileSystem(fileSystem).Should().BeNull("metadata file should have been deleted");
-            bicepFile.Contents.ReplaceLineEndings().Should().Be(
+            bicepFile.Content.ReplaceLineEndings().Should().Be(
 @"metadata name = 'Not your mother\'s ""module""'
 metadata description = 'Sample\ndescription\r\nwith\twhitespace'
 metadata owner = 'test'

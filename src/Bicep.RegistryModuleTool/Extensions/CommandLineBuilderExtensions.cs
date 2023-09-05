@@ -1,8 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.Options;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
 using System.CommandLine.Builder;
+using System.CommandLine.Hosting;
+using System.IO;
 using System.Linq;
 
 namespace Bicep.RegistryModuleTool.Extensions

@@ -1,0 +1,52 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Exceptions;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Semantics;
+using Bicep.RegistryModuleTool.Exceptions;
+using System;
+using System.Collections.Generic;
+using System.CommandLine;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Bicep.RegistryModuleTool.Extensions
+{
+    internal static class BicepCompilerExtensions
+    {
+        public static async Task<Compilation> CompileAsync(this BicepCompiler compiler, string path, IConsole console, bool writeDiagnostics = true)
+        {
+            var hasError = false;
+            var uri = PathHelper.FilePathToFileUrl(path);
+            var compilation = await compiler.CreateCompilation(uri);
+
+            foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
+            {
+                foreach (var diagnostic in diagnostics)
+                {
+                    if (diagnostic.Level == DiagnosticLevel.Error)
+                    {
+                        hasError = true;
+                    }
+
+                    if (writeDiagnostics)
+                    {
+                        console.WriteDiagnostic(file, diagnostic);
+                    }
+
+                }
+            }
+
+            if (hasError)
+            {
+                throw new BicepException($"Failed to build \"{path}\"");
+            }
+
+            return compilation;
+        }
+    }
+}

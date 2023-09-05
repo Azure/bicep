@@ -5,10 +5,10 @@ using System;
 
 namespace Bicep.RegistryModuleTool.Exceptions
 {
-    public class InvalidModuleException : Exception
+    public class InvalidModuleFileException : Exception
     {
-        public InvalidModuleException(string message, Exception? innerException = null)
-            : base(NormalizeLineEndings(message), innerException)
+        public InvalidModuleFileException(string message)
+            : base(NormalizeLineEndings(message))
         {
         }
 

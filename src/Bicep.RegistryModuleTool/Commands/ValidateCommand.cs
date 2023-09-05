@@ -1,16 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleValidators;
-using Bicep.RegistryModuleTool.Proxies;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Microsoft.Extensions.Logging;
 using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.Commands
 {
@@ -23,73 +24,58 @@ namespace Bicep.RegistryModuleTool.Commands
 
         public sealed class CommandHandler : BaseCommandHandler
         {
-            private readonly IEnvironmentProxy environmentProxy;
+            private readonly BicepCompiler compiler;
 
-            private readonly IProcessProxy processProxy;
-
-            public CommandHandler(IEnvironmentProxy environmentProxy, IProcessProxy processProxy, IFileSystem fileSystem, ILogger<ValidateCommand> logger)
+            public CommandHandler(IFileSystem fileSystem, BicepCompiler compiler, ILogger<ValidateCommand> logger)
                 : base(fileSystem, logger)
             {
-                this.environmentProxy = environmentProxy;
-                this.processProxy = processProxy;
+                this.compiler = compiler;
             }
 
-            protected override int InvokeInternal(InvocationContext context)
+            protected override async Task<int> InvokeInternalAsync(InvocationContext context)
             {
                 var valid = true;
 
-                this.Logger.LogInformation("Validating module path...");
-                valid &= Validate(context.Console, () => ModulePathValidator.ValidateModulePath(this.FileSystem));
-
-                this.Logger.LogInformation("Validating obsolete metadata file doesn't exist...");
-                var noMetadataFileValidator = new NoMetadataFileValidator(this.Logger);
-                valid &= Validate(context.Console, () => MetadataFile.TryReadFromFileSystem(this.FileSystem)?.ValidatedBy(noMetadataFileValidator));
-                if (!valid) {
-                    // Exit early so user can run generate
-                    return 1;
-                }
-
                 this.Logger.LogInformation("Validating main Bicep file...");
 
-                var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger, context.Console);
-                var mainBicepFile = MainBicepFile.ReadFromFileSystem(this.FileSystem);
-
-                // This also validates that the main Bicep file can be built without errors.
-                var latestMainArmTemplateFile = MainArmTemplateFile.Generate(this.FileSystem, bicepCliProxy, mainBicepFile);
-                var descriptionsValidator = new DescriptionsValidator(this.Logger, latestMainArmTemplateFile);
-
-                valid &= Validate(context.Console, () => mainBicepFile.ValidatedBy(descriptionsValidator));
-
-                var testValidator = new TestValidator(this.FileSystem, this.Logger, bicepCliProxy, latestMainArmTemplateFile);
-                var jsonSchemaValidator = new JsonSchemaValidator(this.Logger);
-                var diffValidator = new DiffValidator(this.FileSystem, this.Logger, latestMainArmTemplateFile);
-                var metadataValidator = new BicepMetadataValidator(this.Logger, mainBicepFile);
+                var mainBicepFile = await MainBicepFile.OpenAsync(this.FileSystem, this.compiler, context.Console);
+                var descriptionsValidator = new DescriptionsValidator(this.Logger);
+                var metadataValidator = new BicepMetadataValidator(this.Logger);
+                valid &= await ValidateFileAsync(context.Console, () => mainBicepFile.ValidatedByAsync(descriptionsValidator, metadataValidator));
 
                 this.Logger.LogInformation("Validating main Bicep test file...");
-                valid &= Validate(context.Console, () => MainBicepTestFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(testValidator));
+
+                var mainBicepTestFile = MainBicepTestFile.Open(this.FileSystem);
+                var testValidator = new TestValidator(this.Logger, context.Console, this.compiler, mainBicepFile);
+                valid &= await ValidateFileAsync(context.Console, () => mainBicepTestFile.ValidatedByAsync(testValidator));
 
                 this.Logger.LogInformation("Validating main ARM template file...");
-                valid &= Validate(context.Console, () => MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
 
-                this.Logger.LogInformation("Validating metadata in main Bicep file...");
-                valid &= Validate(context.Console, () => latestMainArmTemplateFile.ValidatedBy(metadataValidator));
+                var diffValidator = new DiffValidator(this.FileSystem, this.Logger, mainBicepFile);
+                var mainArmTemplateFile = await MainArmTemplateFile.OpenAsync(this.FileSystem);
+                valid &= await ValidateFileAsync(context.Console, () => mainArmTemplateFile.ValidatedByAsync(diffValidator));
 
                 this.Logger.LogInformation("Validating README file...");
-                valid &= Validate(context.Console, () => ReadmeFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
+
+                var readmeFile = await ReadmeFile.OpenAsync(this.FileSystem);
+                valid &= await ValidateFileAsync(context.Console, () => readmeFile.ValidatedByAsync(diffValidator));
 
                 this.Logger.LogInformation("Validating version file...");
-                valid &= Validate(context.Console, () => VersionFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator, diffValidator));
+
+                var versionFile = await VersionFile.OpenAsync(this.FileSystem);
+                var jsonSchemaValidator = new JsonSchemaValidator(this.Logger);
+                valid &= await ValidateFileAsync(context.Console, () => versionFile.ValidatedByAsync(jsonSchemaValidator, diffValidator));
 
                 return valid ? 0 : 1;
             }
 
-            private static bool Validate(IConsole console, Action validateAction)
+            private static async Task<bool> ValidateFileAsync(IConsole console, Func<Task> fileValidator)
             {
                 try
                 {
-                    validateAction();
+                    await fileValidator();
                 }
-                catch (InvalidModuleException exception)
+                catch (InvalidModuleFileException exception)
                 {
                     console.WriteError(exception.Message);
 

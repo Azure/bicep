@@ -1,120 +1,153 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
+using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
-using Bicep.RegistryModuleTool.ModuleValidators;
+using Bicep.Core.Text;
+using Bicep.RegistryModuleTool.Exceptions;
+using Bicep.RegistryModuleTool.Extensions;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.CommandLine;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
+    public readonly record struct ModuleMetadata(string Name, string? Value)
+    {
+        public static readonly ModuleMetadata Undefined = new("", null);
+
+        public bool IsUndefined => this == Undefined;
+    }
+
     public sealed class MainBicepFile : ModuleFile
     {
         public const string FileName = "main.bicep";
 
         public const string ModuleNameMetadataName = "name";
+
         public const string ModuleDescriptionMetadataName = "description";
+
         public const string ModuleOwnerMetadataName = "owner";
 
-        public MainBicepFile(string path, string contents)
+        private static readonly string DefaultModuleNameMetadata = $"metadata {ModuleNameMetadataName} = 'TODO: Enter the module name.'";
+
+        private static readonly string DefaultModuleDescriptionMetadata = $"metadata {ModuleDescriptionMetadataName} = 'TODO: Enter the module description.'";
+
+        private static readonly string DefaultModuleOwnerMetadata = $"metadata {ModuleOwnerMetadataName} = 'TODO: Enter the GitHub username of the module owner.'";
+
+        private static readonly string DefaultContent = $"""
+            {DefaultModuleNameMetadata}
+            {DefaultModuleDescriptionMetadata}
+            {DefaultModuleOwnerMetadata}
+
+            """.ReplaceLineEndings();
+
+        private MainBicepFile(string path, SemanticModel semanticModel)
             : base(path)
         {
-            this.Contents = contents;
+            this.SemanticModel = semanticModel;
         }
 
-        public string Contents { get; }
+        public SemanticModel SemanticModel { get; }
 
-        public static MainBicepFile EnsureInFileSystem(IFileSystem fileSystem)
+        public ModuleMetadata TryGetMetadata(string metadataName)
+        {
+            foreach (var metadataSymbol in this.SemanticModel.Root.MetadataDeclarations)
+            {
+                if (metadataSymbol.Name.Equals(metadataName, StringComparison.Ordinal) &&
+                    metadataSymbol.DeclaringSyntax is MetadataDeclarationSyntax metadataDeclarationSyntax &&
+                    metadataDeclarationSyntax.Value is StringSyntax stringSyntax)
+                {
+                    return new(metadataName, stringSyntax.TryGetLiteralValue());
+                }
+            }
+
+            return ModuleMetadata.Undefined;
+        }
+
+        public static async Task<MainBicepFile> GenerateAsync(IFileSystem fileSystem, BicepCompiler compiler, IConsole console)
         {
             string path = fileSystem.Path.GetFullPath(FileName);
+            string content;
 
-            try
+            if (fileSystem.File.Exists(path))
             {
-                using (fileSystem.FileStream.New(path, FileMode.Open, FileAccess.Read)) { }
-            }
-            catch (FileNotFoundException)
-            {
-                fileSystem.File.WriteAllText(path, @"metadata name = ''
-metadata description = ''
-metadata owner = ''
-
-".ReplaceLineEndings());
-            }
-
-            return ReadFromFileSystem(fileSystem);
-        }
-
-        public static MainBicepFile ReadFromFileSystem(IFileSystem fileSystem)
-        {
-            string path = fileSystem.Path.GetFullPath(FileName);
-
-            using (fileSystem.FileStream.New(path, FileMode.Open)) { }
-
-            return new(path, fileSystem.File.ReadAllText(path));
-        }
-
-        public static MainBicepFile Generate(IFileSystem fileSystem, MetadataFile? metadataFile, MainArmTemplateFile mainArmTemplateFile)
-        {
-            MainBicepFile existingBicepFile = EnsureInFileSystem(fileSystem);
-
-            if (metadataFile is null)
-            {
-                return new(fileSystem.Path.GetFullPath(FileName), existingBicepFile.Contents);
-            }
-
-            // Move contents from metadata.json into main.bicep as metadata
-            var linesToPrepend = new StringBuilder();
-
-            if (mainArmTemplateFile.NameMetadata is null)
-            {
-                string moduleName = metadataFile?.Name ?? "TODO: Enter the module name";
-                linesToPrepend.AppendLine($"metadata {MainBicepFile.ModuleNameMetadataName} = {MainBicepFile.FormatBicepString(moduleName)}");
-            }
-            if (mainArmTemplateFile.DescriptionMetadata is null)
-            {
-                string description = metadataFile?.Summary ?? "TODO: Enter a short description for the module";
-                linesToPrepend.AppendLine($"metadata {MainBicepFile.ModuleDescriptionMetadataName} = {MainBicepFile.FormatBicepString(description)}");
-            }
-            if (mainArmTemplateFile.OwnerMetadata is null)
-            {
-                string owner = metadataFile?.Owner ?? "TODO: Enter the owner's github username";
-                linesToPrepend.AppendLine($"metadata {MainBicepFile.ModuleOwnerMetadataName} = {MainBicepFile.FormatBicepString(owner)}");
-            }
-
-            // Delete metadata.json
-            if (metadataFile is not null)
-            {
-                metadataFile.DeleteFile(fileSystem);
-            }
-
-            string newBicepContents;
-            if (linesToPrepend.Length > 0)
-            {
-                newBicepContents = linesToPrepend.ToString()
-                    + ((existingBicepFile.Contents.StartsWith("metadata ")) ? "" : "\n")
-                    + existingBicepFile.Contents;
+                content = await fileSystem.File.ReadAllTextAsync(path);
             }
             else
             {
-                newBicepContents = existingBicepFile.Contents;
+                content = DefaultContent;
+                await fileSystem.File.WriteAllTextAsync(path, content);
             }
 
-            return new(fileSystem.Path.GetFullPath(FileName), newBicepContents);
+            var compilation = await compiler.CompileAsync(path, console);
+            var semanticModel = compilation.GetEntrypointSemanticModel();
+            var metadataNames = semanticModel.Root.MetadataDeclarations.Select(x => x.Name).ToHashSet();
+            var metadataLinesToInsert = new StringBuilder();
+
+            if (!metadataNames.Contains(ModuleNameMetadataName))
+            {
+                metadataLinesToInsert.AppendLine(DefaultModuleNameMetadata);
+            }
+
+            if (!metadataNames.Contains(ModuleDescriptionMetadataName))
+            {
+                metadataLinesToInsert.AppendLine(DefaultModuleDescriptionMetadata);
+            }
+
+            if (!metadataNames.Contains(ModuleOwnerMetadataName))
+            {
+                metadataLinesToInsert.AppendLine(DefaultModuleOwnerMetadata);;
+            }
+
+            if (metadataLinesToInsert.Length > 0)
+            {
+                var firstMetadataDeclarationSyntax = semanticModel.Root.MetadataDeclarations.FirstOrDefault()?.DeclaringSyntax;
+
+                if (firstMetadataDeclarationSyntax is not null)
+                {
+                    content = content.Insert(firstMetadataDeclarationSyntax.Span.Position, metadataLinesToInsert.ToString());
+                }
+                else
+                {
+                    metadataLinesToInsert.AppendLine();
+                    content = $"{metadataLinesToInsert}{content}";
+                }
+
+                await fileSystem.File.WriteAllTextAsync(path, content);
+                compilation = await compiler.CompileAsync(path, console);
+                semanticModel = compilation.GetEntrypointSemanticModel();
+            }
+
+            return new(path, semanticModel);
         }
 
-        public MainBicepFile WriteToFileSystem(IFileSystem fileSystem)
+        public static async Task<MainBicepFile> OpenAsync(IFileSystem fileSystem, BicepCompiler compiler, IConsole console)
         {
-            fileSystem.File.WriteAllText(this.Path, this.Contents);
+            var path = fileSystem.Path.GetFullPath(FileName);
 
-            return this;
+            // Ensure file exists.
+            using (fileSystem.FileStream.New(path, FileMode.Open)) { }
+
+            var compilation = await compiler.CompileAsync(path, console);
+            var semanticModel = compilation.GetEntrypointSemanticModel();
+
+            return new(path, semanticModel);
         }
 
-        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
-
-        private static string FormatBicepString(string value) {
-            return SyntaxFactory.CreateStringLiteral(value).ToText();
-        }
+        protected override Task<IEnumerable<string>> ValidatedByAsync(IModuleFileValidator validator) => validator.ValidateAsync(this);
     }
 }

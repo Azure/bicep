@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.RegistryModuleTool.Exceptions;
-using Bicep.RegistryModuleTool.ModuleValidators;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -25,7 +25,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 
             Invoking(() => ModulePathValidator.ValidateModulePath(fileSystem))
                 .Should()
-                .Throw<InvalidModuleException>()
+                .Throw<InvalidModuleFileException>()
                 .WithMessage($@"Could not find the ""modules"" folder in the path ""{fileSystem.Directory.GetCurrentDirectory()}"".");
         }
 

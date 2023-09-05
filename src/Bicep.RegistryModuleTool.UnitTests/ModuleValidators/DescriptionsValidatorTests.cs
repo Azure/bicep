@@ -5,7 +5,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleValidators;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Json.More;
@@ -24,13 +24,13 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         public DescriptionsValidatorTests()
         {
             this.fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
-            this.fileToValidate = MainBicepFile.ReadFromFileSystem(this.fileSystem);
+            this.fileToValidate = MainBicepFile.OpenAsync(this.fileSystem);
         }
 
         [TestMethod]
         public void Validate_ValidFile_Succeeds()
         {
-            var latestArmTemplateFile = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
+            var latestArmTemplateFile = MainArmTemplateFile.OpenAsync(this.fileSystem);
             var sut = this.CreateDescriptionsValidator(latestArmTemplateFile);
 
             FluentActions.Invoking(() => sut.Validate(this.fileToValidate)).Should().NotThrow();
@@ -39,7 +39,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         [TestMethod]
         public void Validate_MissingDescriptions_ThrowsException()
         {
-            var mainArmTemplateFile = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
+            var mainArmTemplateFile = MainArmTemplateFile.OpenAsync(this.fileSystem);
             var mainArmTemplateFileElement = JsonElementFactory.CreateElement(mainArmTemplateFile.Content);
 
             var patchedElement = mainArmTemplateFileElement.Patch(
@@ -50,11 +50,11 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 
             fileSystem.AddFile(mainArmTemplateFile.Path, patchedElement.ToJsonString());
 
-            var latestArmTemplateFile = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
+            var latestArmTemplateFile = MainArmTemplateFile.OpenAsync(this.fileSystem);
             var sut = this.CreateDescriptionsValidator(latestArmTemplateFile);
 
             FluentActions.Invoking(() => sut.Validate(this.fileToValidate)).Should()
-                .Throw<InvalidModuleException>()
+                .Throw<InvalidModuleFileException>()
                 .WithMessage(
 $@"The file ""{this.fileToValidate.Path}"" is invalid. Descriptions for the following parameters are missing:
   - sshRSAPublicKey

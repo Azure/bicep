@@ -4,11 +4,13 @@
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
-using Bicep.RegistryModuleTool.ModuleValidators;
+using Bicep.RegistryModuleTool.Exceptions;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
@@ -16,7 +18,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     {
         public const string FileName = "version.json";
 
-        private static readonly JsonElement EmptyFileElement = JsonElementFactory.CreateElement(new Dictionary<string, object>
+        private static readonly JsonElement DefaultRootElement = JsonElementFactory.CreateElement(new Dictionary<string, object>
         {
             ["$schema"] = "https://aka.ms/bicep-registry-module-version-file-schema#",
             ["version"] = "",
@@ -27,7 +29,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             },
         });
 
-        private static readonly JsonElement NoVersionFileElement = EmptyFileElement.Patch(JsonPatchOperations.Remove("/version"));
+        private static readonly JsonElement DefaultRootElementWithoutVersion = DefaultRootElement.Patch(JsonPatchOperations.Remove("/version"));
 
         public VersionFile(string path, string contents, JsonElement rootElement)
             : base(path)
@@ -40,60 +42,54 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public JsonElement RootElement { get; }
 
-        public static VersionFile Generate(IFileSystem fileSystem)
+        public static async Task<VersionFile> GenerateAsync(IFileSystem fileSystem)
         {
-
             var path = fileSystem.Path.GetFullPath(FileName);
-            var rootElement = EmptyFileElement;
+            var rootElement = DefaultRootElement;
 
             try
             {
-                var existingFile = ReadFromFileSystem(fileSystem);
+                var existingFile = await OpenAsync(fileSystem);
 
-                // Merge NoVersionFileElement at last in case the author changed $schema or pathFilter.
+                // Merge DefaultRootElementWithoutVersion in case the author changed $schema or pathFilter.
                 rootElement = rootElement
                     .Merge(existingFile.RootElement)
-                    .Merge(NoVersionFileElement);
+                    .Merge(DefaultRootElementWithoutVersion);
             }
             catch (FileNotFoundException)
             {
                 // Nothing to do.
             }
 
-            var content = rootElement.ToFormattedString();
+            var contents = rootElement.ToIndentedString();
 
-            return new(path, content, rootElement);
+            await fileSystem.File.WriteAllTextAsync(path, contents);
+
+            return new(path, contents, rootElement);
         }
 
-        public static VersionFile ReadFromFileSystem(IFileSystem fileSystem)
+        public static async Task<VersionFile> OpenAsync(IFileSystem fileSystem)
         {
             var path = fileSystem.Path.GetFullPath(FileName);
 
             try
             {
-                var content = fileSystem.File.ReadAllText(FileName);
-                var rootElement = JsonElementFactory.CreateElement(content);
+                var contents = await fileSystem.File.ReadAllTextAsync(FileName);
+                var rootElement = JsonElementFactory.CreateElement(contents);
 
                 if (rootElement.ValueKind != JsonValueKind.Object)
                 {
-                    throw new BicepException($"The version file \"{path}\" must contain a JSON object at the root level.");
+                    throw new InvalidModuleFileException($"The version file \"{path}\" must contain a JSON object at the root level.");
                 }
 
-                return new(path, content, rootElement);
+                return new(path, contents, rootElement);
             }
             catch (JsonException jsonException)
             {
-                throw new BicepException($"The version file \"{path}\" is not a valid JSON file. {jsonException.Message}");
+                throw new InvalidModuleFileException($"The version file \"{path}\" is not a valid JSON file. {jsonException.Message}");
             }
         }
 
-        public VersionFile WriteToFileSystem(IFileSystem fileSystem)
-        {
-            fileSystem.File.WriteAllText(this.Path, this.Contents);
-
-            return this;
-        }
-
-        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
+        protected override Task<IEnumerable<string>> ValidatedByAsync(IModuleFileValidator validator) => validator.ValidateAsync(this);
     }
 }

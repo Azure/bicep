@@ -5,7 +5,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleValidators;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Json.More;
@@ -37,7 +37,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         public void Validate_InvalidMetadataFile_ThrowsException(MetadataFile invalidFile, string expectedErrorMessage)
         {
             FluentActions.Invoking(() => this.sut.Validate(invalidFile)).Should()
-                .Throw<InvalidModuleException>()
+                .Throw<InvalidModuleFileException>()
                 .WithMessage(expectedErrorMessage.ReplaceLineEndings());
         }
 

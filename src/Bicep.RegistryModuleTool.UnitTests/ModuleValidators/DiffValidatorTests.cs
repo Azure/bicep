@@ -3,7 +3,7 @@
 
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleValidators;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -27,14 +27,14 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         public DiffValidatorTests()
         {
             this.fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
-            this.latestMainArmTemplateFile = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
+            this.latestMainArmTemplateFile = MainArmTemplateFile.OpenAsync(this.fileSystem);
             this.sut = new DiffValidator(this.fileSystem, MockLoggerFactory.CreateLogger(), this.latestMainArmTemplateFile);
         }
 
         [TestMethod]
         public void Validate_ValidMainArmTemplateFile_Succeeds()
         {
-            var fileToValidate = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
+            var fileToValidate = MainArmTemplateFile.OpenAsync(this.fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
         }
@@ -44,17 +44,17 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         {
             this.fileSystem.AddFile(this.latestMainArmTemplateFile.Path, "modified");
 
-            var fileToValidate = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
+            var fileToValidate = MainArmTemplateFile.OpenAsync(this.fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<InvalidModuleException>()
+                .Throw<InvalidModuleFileException>()
                 .WithMessage($"The file \"{fileToValidate.Path}\" is modified or outdated. Please run \"brm generate\" to regenerate it.{Environment.NewLine}");
         }
 
         [TestMethod]
         public void Validate_ValidReadmeFile_Succeeds()
         {
-            var fileToValidate = ReadmeFile.ReadFromFileSystem(this.fileSystem);
+            var fileToValidate = ReadmeFile.OpenAsync(this.fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
         }
@@ -64,10 +64,10 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         {
             this.fileSystem.AddFile(this.fileSystem.Path.GetFullPath(ReadmeFile.FileName), "modified");
 
-            var fileToValidate = ReadmeFile.ReadFromFileSystem(this.fileSystem);
+            var fileToValidate = ReadmeFile.OpenAsync(this.fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<InvalidModuleException>()
+                .Throw<InvalidModuleFileException>()
                 .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please run ""brm generate"" to regenerate it.{Environment.NewLine}");
         }
 
@@ -77,10 +77,10 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         {
             this.fileSystem.AddFile(this.fileSystem.Path.GetFullPath(ReadmeFile.FileName), readmeFileContents);
 
-            var fileToValidate = ReadmeFile.ReadFromFileSystem(this.fileSystem);
+            var fileToValidate = ReadmeFile.OpenAsync(this.fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<InvalidModuleException>()
+                .Throw<InvalidModuleFileException>()
                 .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please run ""brm generate"" to regenerate it.{Environment.NewLine}");
         }
 
@@ -90,17 +90,17 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         {
             this.fileSystem.AddFile(this.fileSystem.Path.GetFullPath(ReadmeFile.FileName), readmeFileContents);
 
-            var fileToValidate = ReadmeFile.ReadFromFileSystem(this.fileSystem);
+            var fileToValidate = ReadmeFile.OpenAsync(this.fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<InvalidModuleException>()
+                .Throw<InvalidModuleFileException>()
                 .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please run ""brm generate"" to regenerate it.{Environment.NewLine}");
         }
 
         [TestMethod]
         public void Validate_ValidVersionFile_Succeeds()
         {
-            var fileToValidate = VersionFile.ReadFromFileSystem(this.fileSystem);
+            var fileToValidate = VersionFile.OpenAsync(this.fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
         }
@@ -116,17 +116,17 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
   ]
 }");
 
-            var fileToValidate = VersionFile.ReadFromFileSystem(this.fileSystem);
+            var fileToValidate = VersionFile.OpenAsync(this.fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<InvalidModuleException>()
+                .Throw<InvalidModuleFileException>()
                 .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please run ""brm generate"" to regenerate it.{Environment.NewLine}");
         }
 
         private static IEnumerable<object[]> GetEmptyExamplesSectionData()
         {
             var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
-            var validReadmeFile = ReadmeFile.ReadFromFileSystem(fileSystem);
+            var validReadmeFile = ReadmeFile.OpenAsync(fileSystem);
 
             var emptyExamplesSections = new string[]
             {
@@ -141,7 +141,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
             {
                 yield return new object[]
                 {
-                    Regex.Replace(validReadmeFile.Contents, "## Examples.+", section, RegexOptions.Singleline)
+                    Regex.Replace(validReadmeFile.Content, "## Examples.+", section, RegexOptions.Singleline)
                 };
             }
         }
@@ -149,7 +149,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
         private static IEnumerable<object[]> GetReadmeWithDescriptionSectionData()
         {
             var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
-            var validReadmeFile = ReadmeFile.ReadFromFileSystem(fileSystem);
+            var validReadmeFile = ReadmeFile.OpenAsync(fileSystem);
 
             var emptyExamplesSections = new string[]
             {
@@ -164,7 +164,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
             {
                 yield return new object[]
                 {
-                    Regex.Replace(validReadmeFile.Contents, "## Details.+", section, RegexOptions.Singleline)
+                    Regex.Replace(validReadmeFile.Content, "## Details.+", section, RegexOptions.Singleline)
                 };
             }
         }

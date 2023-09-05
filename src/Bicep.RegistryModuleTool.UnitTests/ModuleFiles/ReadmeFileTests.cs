@@ -5,7 +5,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleValidators;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Json.More;
@@ -24,11 +24,11 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
         public void ReadmeFileGenerate_ShouldReplaceDescriptionWithDetails()
         {
             var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
-            fileSystem.AddFile(fileSystem.Path.GetFullPath(ReadmeFile.FileName), ReadmeFile.ReadFromFileSystem(fileSystem).Contents.Replace("## Details", "## Description"));
-            ReadmeFile.ReadFromFileSystem(fileSystem).Contents.Should().Contain("## Description");
-            ReadmeFile.ReadFromFileSystem(fileSystem).Contents.Should().NotContain("## Details");
+            fileSystem.AddFile(fileSystem.Path.GetFullPath(ReadmeFile.FileName), ReadmeFile.OpenAsync(fileSystem).Content.Replace("## Details", "## Description"));
+            ReadmeFile.OpenAsync(fileSystem).Content.Should().Contain("## Description");
+            ReadmeFile.OpenAsync(fileSystem).Content.Should().NotContain("## Details");
 
-            var generatedFile = ReadmeFile.Generate(fileSystem, MainArmTemplateFile.ReadFromFileSystem(fileSystem));
+            var generatedFile = ReadmeFile.Generate(fileSystem, MainArmTemplateFile.OpenAsync(fileSystem));
 
             generatedFile.Contents.Should().Contain("## Details");
             generatedFile.Contents.Should().NotContain("## Description");
@@ -39,11 +39,11 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
         public void ReadmeFileGenerate_ShouldNotHaveBothDetailsAndDescriptionSections()
         {
             var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
-            fileSystem.AddFile(fileSystem.Path.GetFullPath(ReadmeFile.FileName), ReadmeFile.ReadFromFileSystem(fileSystem).Contents + "\n## Description\n\nMy description");
-            ReadmeFile.ReadFromFileSystem(fileSystem).Contents.Should().Contain("## Description");
-            ReadmeFile.ReadFromFileSystem(fileSystem).Contents.Should().Contain("## Details");
+            fileSystem.AddFile(fileSystem.Path.GetFullPath(ReadmeFile.FileName), ReadmeFile.OpenAsync(fileSystem).Content + "\n## Description\n\nMy description");
+            ReadmeFile.OpenAsync(fileSystem).Content.Should().Contain("## Description");
+            ReadmeFile.OpenAsync(fileSystem).Content.Should().Contain("## Details");
 
-            FluentActions.Invoking(() => ReadmeFile.Generate(fileSystem, MainArmTemplateFile.ReadFromFileSystem(fileSystem))).Should()
+            FluentActions.Invoking(() => ReadmeFile.Generate(fileSystem, MainArmTemplateFile.OpenAsync(fileSystem))).Should()
                 .Throw<BicepException>()
                 .WithMessage("The readme file *README.md must not contain both a Description and a Details section.");
         }

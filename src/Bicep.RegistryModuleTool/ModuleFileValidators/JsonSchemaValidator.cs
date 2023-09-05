@@ -1,20 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Json;
-using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.Schemas;
 using Json.Pointer;
 using Json.Schema;
 using Microsoft.Extensions.Logging;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
-namespace Bicep.RegistryModuleTool.ModuleValidators
+namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
     public sealed class JsonSchemaValidator : IModuleFileValidator
     {
@@ -32,11 +29,15 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
             this.logger = logger;
         }
 
-        public void Validate(MetadataFile file) => this.Validate(file.Path, JsonSchemaManager.MetadataFileSchema, file.RootElement);
+        public Task<IEnumerable<string>> ValidateAsync(VersionFile file)
+        {
+            var errors =  this.Validate(file.Path, JsonSchemaManager.VersionFileSchema, file.RootElement);
 
-        public void Validate(VersionFile file) => this.Validate(file.Path, JsonSchemaManager.VersionFileSchema, file.RootElement);
+            return Task.FromResult(errors);
+        }
 
-        private void Validate(string filePath, JsonSchema schema, JsonElement element)
+
+        private IEnumerable<string> Validate(string filePath, JsonSchema schema, JsonElement element)
         {
             this.logger.LogInformation("Validating \"{FilePath}\" against JSON schema...", filePath);
 
@@ -48,9 +49,6 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
 
             if (!results.IsValid)
             {
-
-                var errorMessageBuilder = new StringBuilder();
-                errorMessageBuilder.AppendLine($"The file \"{filePath}\" is invalid:");
 
                 IEnumerable<EvaluationResults> invalidResults = results.Details.Count == 0 ? new[] { results } : results.Details;
                 invalidResults = invalidResults.Where(x => !x.IsValid && x.HasErrors);
@@ -71,14 +69,12 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
                         continue;
                     }
 
-                    errorMessageBuilder.Append("  ");
-                    errorMessageBuilder.Append(result.InstanceLocation.ToString(JsonPointerStyle.UriEncoded));
-                    errorMessageBuilder.Append(": ");
+                    var errorInstanceLocation = result.InstanceLocation.ToString(JsonPointerStyle.UriEncoded);
 
                     if (isAdditionalPropertyError)
                     {
                         // The built-in error message is "All values fail against the false schema" which is not very intuitive.
-                        errorMessageBuilder.AppendLine("The property is not allowed");
+                        yield return $"{errorInstanceLocation}: The property is not allowed.";
 
                         // All errors are additional property errors. Only keep the first one as the others could be on the parent
                         // properties which are triggered by the child property, e.g., an additional property /properties/foo/bar
@@ -91,12 +87,10 @@ namespace Bicep.RegistryModuleTool.ModuleValidators
                     {
                         foreach (var (key, value) in result.Errors)
                         {
-                            errorMessageBuilder.AppendLine(value);
+                            yield return $"{errorInstanceLocation}: {value}.";
                         }
                     }
                 }
-
-                throw new InvalidModuleException(errorMessageBuilder.ToString());
             }
         }
 
