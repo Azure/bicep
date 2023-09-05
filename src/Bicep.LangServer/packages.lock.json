@@ -1060,11 +1060,11 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.2.29",
-        "contentHash": "G6Cv4Uf3aAE5Idcec1GUHMhqaKmzdrYfAZsxnRE+aW8yIrDs/qTC7yxG2FUDxuIMOYOuhaWJWaUfxpTjCenWZA==",
+        "resolved": "19.2.69",
+        "contentHash": "VNc0GMVJ7df9IOupFyUrsLVwOvnba6W+lKJPeR/sDx+agPkd6LmdZkXbcURWNN1ue//uLTwP6145agO61c9gNg==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.2.29",
-          "TestableIO.System.IO.Abstractions.Wrappers": "19.2.29"
+          "TestableIO.System.IO.Abstractions": "19.2.69",
+          "TestableIO.System.IO.Abstractions.Wrappers": "19.2.69"
         }
       },
       "System.IO.Compression": {
@@ -1876,15 +1876,15 @@
       },
       "TestableIO.System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "19.2.29",
-        "contentHash": "sqZAF3+li6MCKr1jWEonv6wVvhZfVGgwWWsKx8dfxlARWQNw543ZJDlU0Yn7ce8UBeOOzWLwBNl2TAPPuQqAqQ=="
+        "resolved": "19.2.69",
+        "contentHash": "BHZ9uqMAPG7TId4dwJPEuofR6NjIu8AycwH8qSWTSLYUKpQzJKFMIgo7Igp37BW3oURRdIs5Dx4+W86BqvEXrg=="
       },
       "TestableIO.System.IO.Abstractions.Wrappers": {
         "type": "Transitive",
-        "resolved": "19.2.29",
-        "contentHash": "oO00myIO1cjVYgDj46AXY2Oeba3pz89HhsQ1uuFRSP9bwn2cUB1Y93EsGL4nSPMms2Wgikv8i58AVwQLGDEU7w==",
+        "resolved": "19.2.69",
+        "contentHash": "yHPZKCrsaVoA/LuZRqarYhecFJ+hUnQFXXfTvFfFaGdfKhCUYN7oo1CPgtMcr2TqLA2usGpSPZ2R7ybDWotY/g==",
         "dependencies": {
-          "TestableIO.System.IO.Abstractions": "19.2.29"
+          "TestableIO.System.IO.Abstractions": "19.2.69"
         }
       },
       "WindowsAzure.Storage": {
@@ -1918,7 +1918,7 @@
           "Newtonsoft.Json": "[13.0.3, )",
           "SharpYaml": "[2.1.0, )",
           "System.Collections.Immutable": "[7.0.0, )",
-          "System.IO.Abstractions": "[19.2.29, )",
+          "System.IO.Abstractions": "[19.2.69, )",
           "System.Text.Json": "[8.0.0-preview.6.23329.7, )"
         }
       },
