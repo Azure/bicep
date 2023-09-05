@@ -1,0 +1,86 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1333494439302666939"
+    }
+  },
+  "parameters": {
+    "foo": {
+      "type": "string",
+      "allowedValues": [
+        "abc",
+        "def",
+        "ghi"
+      ]
+    }
+  },
+  "variables": {
+    "singleLineFunction": "[concat('abc', 'def')]",
+    "multiLineFunction": "[concat('abc', 'def')]",
+    "multiLineFunctionUnusualFormatting": "[concat('abc', createArray('hello'), 'def')]",
+    "nestedTest": "[concat(concat(concat(concat(concat('level', 'one'), 'two'), 'three'), 'four'), 'five')]",
+    "singleLineArray": [
+      "abc",
+      "def"
+    ],
+    "singleLineArrayTrailingCommas": [
+      "abc",
+      "def"
+    ],
+    "multiLineArray": [
+      "abc",
+      "def"
+    ],
+    "mixedArray": [
+      "abc",
+      "def",
+      "ghi",
+      "jkl",
+      "lmn"
+    ],
+    "singleLineObject": {
+      "abc": "def",
+      "ghi": "jkl"
+    },
+    "singleLineObjectTrailingCommas": {
+      "abc": "def",
+      "ghi": "jkl"
+    },
+    "multiLineObject": {
+      "abc": "def",
+      "ghi": "jkl"
+    },
+    "mixedObject": {
+      "abc": "abc",
+      "def": "def",
+      "ghi": "ghi",
+      "jkl": "jkl",
+      "lmn": "lmn"
+    },
+    "nestedMixed": {
+      "abc": {
+        "def": "ghi",
+        "abc": "def",
+        "foo": [
+          "bar",
+          "blah"
+        ]
+      }
+    },
+    "brokenFormatting": [
+      "bar",
+      "asdfdsf",
+      12324,
+      "",
+      "\n\n",
+      123,
+      233535,
+      true
+    ]
+  },
+  "resources": []
+}
