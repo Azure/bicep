@@ -514,7 +514,7 @@ module moduleB './moduleB.bicep' = {
                 TestTypeHelper.CreateEmptyProvider(),
                 fileResolver,
                 new ModuleDispatcher(
-                    new DefaultModuleRegistryProvider(
+                    new DefaultArtifactRegistryProvider(
                         BicepTestConstants.EmptyServiceProvider,
                         fileResolver,
                         BicepTestConstants.ClientFactory,

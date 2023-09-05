@@ -3,6 +3,7 @@
 
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using System;
 using System.Diagnostics.CodeAnalysis;

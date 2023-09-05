@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
 {
-    public class DefaultModuleRegistryProvider : IModuleRegistryProvider
+    public class DefaultArtifactRegistryProvider : IArtifactRegistryProvider
     {
         private readonly IFileResolver fileResolver;
         private readonly IContainerRegistryClientFactory clientFactory;
@@ -19,7 +19,7 @@ namespace Bicep.Core.Registry
         private readonly IConfigurationManager configurationManager;
         private readonly IServiceProvider serviceProvider;
 
-        public DefaultModuleRegistryProvider(IServiceProvider serviceProvider, IFileResolver fileResolver, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager)
+        public DefaultArtifactRegistryProvider(IServiceProvider serviceProvider, IFileResolver fileResolver, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager)
         {
             this.fileResolver = fileResolver;
             this.clientFactory = clientFactory;
@@ -29,7 +29,7 @@ namespace Bicep.Core.Registry
             this.serviceProvider = serviceProvider;
         }
 
-        // The templateUri affects how module aliases are resolved (depending on whether the bicepconfig.json is located for the given template)
+        // NOTE(stephwe): The templateUri affects how module aliases are resolved (depending on whether the bicepconfig.json is located for the given template)
         public ImmutableArray<IArtifactRegistry> Registries(Uri templateUri)
         {
             var configuration = configurationManager.GetConfiguration(templateUri);

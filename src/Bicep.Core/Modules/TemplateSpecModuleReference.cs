@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Uri;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Registry;
 
 namespace Bicep.Core.Modules
 {

@@ -9,6 +9,7 @@ using Azure.Deployments.Templates.Engines;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Text;
 using Newtonsoft.Json.Linq;
 

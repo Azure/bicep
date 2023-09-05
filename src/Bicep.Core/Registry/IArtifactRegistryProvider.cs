@@ -7,9 +7,9 @@ using System.Collections.Immutable;
 namespace Bicep.Core.Registry
 {
     /// <summary>
-    /// Represents the configured module registries for the current instance of Bicep.
+    /// Represents the configured artifact registries for the current instance of Bicep.
     /// </summary>
-    public interface IModuleRegistryProvider
+    public interface IArtifactRegistryProvider
     {
         ImmutableArray<IArtifactRegistry> Registries(Uri templateUri);
     }
