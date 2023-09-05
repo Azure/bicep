@@ -397,7 +397,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        private static (Template?, Uri?) GetArmSourceTemplateInfo(CompilationContext context, IForeignArtifactReference foreignTemplateReference)
+        private static (Template?, Uri?) GetArmSourceTemplateInfo(CompilationContext context, IArtifactReferenceSyntax foreignTemplateReference)
             => context.Compilation.SourceFileGrouping.TryGetSourceFile(foreignTemplateReference) switch
             {
                 TemplateSpecFile templateSpecFile => (templateSpecFile.MainTemplateFile.Template, templateSpecFile.FileUri),

@@ -36,7 +36,7 @@ namespace Bicep.Core.Registry
 
         private ImmutableDictionary<string, IArtifactRegistry> Registries(Uri parentModuleUri)
             => registryProvider.Registries(parentModuleUri).ToImmutableDictionary(r => r.Scheme);
-
+        
         public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
             => Registries(parentModuleUri).Keys.OrderBy(s => s).ToImmutableArray();
 
@@ -90,9 +90,9 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public bool TryGetModuleReference(IForeignArtifactReference module, Uri parentModuleUri, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public bool TryGetModuleReference(IArtifactReferenceSyntax moduleDeclaration, Uri parentModuleUri, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            if (!SyntaxHelper.TryGetForeignTemplatePath(module, out var moduleReferenceString, out failureBuilder))
+            if (!SyntaxHelper.TryGetForeignTemplatePath(moduleDeclaration, out var moduleReferenceString, out failureBuilder))
             {
                 moduleReference = null;
                 return false;
@@ -221,7 +221,7 @@ namespace Bicep.Core.Registry
         }
 
         private IArtifactRegistry GetRegistry(ArtifactReference moduleReference) =>
-            Registries(moduleReference.ParentModuleUri).TryGetValue(moduleReference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected module reference scheme '{moduleReference.Scheme}'.");
+            Registries(moduleReference.ParentModuleUri).TryGetValue(moduleReference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected moduleDeclaration reference scheme '{moduleReference.Scheme}'.");
 
         private bool HasRestoreFailed(ArtifactReference moduleReference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {

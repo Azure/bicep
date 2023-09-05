@@ -429,6 +429,7 @@ namespace Bicep.Core.Registry
             try
             {
                 var result = await this.client.PullArtifactAsync(configuration, reference);
+                // TODO(asilverman): Refactor validation to switch by mediaType
                 ValidateModule(result);
 
                 await this.TryWriteArtifactContentAsync(reference, result);
