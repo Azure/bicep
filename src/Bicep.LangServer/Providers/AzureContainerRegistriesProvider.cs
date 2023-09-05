@@ -27,9 +27,9 @@ namespace Bicep.LanguageServer.Providers
         private readonly IConfigurationManager configurationManager;
         private readonly ITokenCredentialFactory tokenCredentialFactory;
 
-        private const string queryToGetRegistryNames = @"Resources
-| where type == ""microsoft.containerregistry/registries""
-| project properties[""loginServer""]";
+//        private const string queryToGetRegistryNames = @"Resources
+//| where type == ""microsoft.containerregistry/registries""
+//| project properties[""loginServer""]";
 
         public AzureContainerRegistriesProvider(IConfigurationManager configurationManager, ITokenCredentialFactory tokenCredentialFactory)
         {
@@ -40,17 +40,29 @@ namespace Bicep.LanguageServer.Providers
         // Used for completions after typing "'br:"
         public async IAsyncEnumerable<string> GetRegistryUris(Uri templateUri, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            //asdfg cancellationToken.ThrowIfCancellationRequested();
+
+            const string queryToGetBicepModules = @"Manifests | where artifactType == 'application/vnd.ms.bicep.module.artifact' | project repository, digest, mediaType, createdAt";
 
             var armClient = GetArmClient(templateUri);
             TenantCollection tenants = armClient.GetTenants();
 
             await foreach (TenantResource tenant in tenants)
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                //asdfg cancellationToken.ThrowIfCancellationRequested();
 
-                var queryContent = new ResourceQueryContent(queryToGetRegistryNames);
-                Response<ResourceQueryResult> queryResponse = await tenant.GetResourcesAsync(queryContent);
+                Response<ResourceQueryResult> queryResponse;
+                try {
+                    ResourceQueryContent queryContent = new ResourceQueryContent(queryToGetBicepModules);
+                queryResponse = await tenant.GetResourcesAsync(queryContent);
+                }
+                catch (Exception ex)
+                {
+                    string s = ex.Message;
+                    string s2 = s;
+                    s = s2;
+                    throw;
+                }
 
                 if (queryResponse.Value is ResourceQueryResult resourceQueryResult &&
                     resourceQueryResult.TotalRecords > 0 &&
@@ -72,7 +84,42 @@ namespace Bicep.LanguageServer.Providers
             }
         }
 
-        private ArmClient GetArmClient(Uri templateUri)
+        //private async IAsyncEnumerable<string> GetRegistryRepos(Uri templateUri, string registryUri, [EnumeratorCancellation] CancellationToken cancellationToken) {
+        //    const string queryToGetBicepModules = @"Manifests | where artifactType == 'application/vnd.ms.bicep.module.artifact' | project repository, digest, mediaType, createdAt";
+
+        //    cancellationToken.ThrowIfCancellationRequested();
+
+        //    var armClient = GetArmClient(templateUri);
+        //    TenantCollection tenants = armClient.GetTenants();
+
+        //    await foreach (TenantResource tenant in tenants)
+        //    {
+        //        cancellationToken.ThrowIfCancellationRequested();
+
+        //        var queryContent = new ResourceQueryContent(queryToGetBicepModules);
+        //        Response<ResourceQueryResult> queryResponse = await tenant.GetResourcesAsync(queryContent);
+
+        //        if (queryResponse.Value is ResourceQueryResult resourceQueryResult &&
+        //            resourceQueryResult.TotalRecords > 0 &&
+        //            resourceQueryResult.Data is BinaryData data)
+        //        {
+        //            JArray jArray = JArray.Parse(data.ToString());
+
+        //            foreach (JObject item in jArray)
+        //            {
+        //                if (item is not null &&
+        //                    item.GetValue("properties_loginServer") is JToken jToken &&
+        //                    jToken is not null &&
+        //                    jToken.Value<string>() is string loginServer)
+        //                {
+        //                    yield return loginServer;
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
+
+    private ArmClient GetArmClient(Uri templateUri)
         {
             var rootConfiguration = configurationManager.GetConfiguration(templateUri);
             var credential = tokenCredentialFactory.CreateChain(rootConfiguration.Cloud.CredentialPrecedence, rootConfiguration.Cloud.ActiveDirectoryAuthorityUri);
