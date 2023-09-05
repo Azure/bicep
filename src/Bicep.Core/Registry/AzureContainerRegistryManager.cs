@@ -65,6 +65,7 @@ namespace Bicep.Core.Registry
         public async Task PushArtifactAsync(
             RootConfiguration configuration,
             IOciArtifactReference artifactReference,
+            string? mediaType,
             string? artifactType,
             StreamDescriptor config,
             string? documentationUri = null,
@@ -106,7 +107,7 @@ namespace Bicep.Core.Registry
                 annotations[LanguageConstants.OciOpenContainerImageDescriptionAnnotation] = description;
             }
 
-            var manifest = new OciManifest(2, artifactType, configDescriptor, layerDescriptors.ToImmutableArray(), annotations.ToImmutableDictionary());
+            var manifest = new OciManifest(2, mediaType, artifactType, configDescriptor, layerDescriptors.ToImmutableArray(), annotations.ToImmutableDictionary());
 
             using var manifestStream = new MemoryStream();
             OciSerialization.Serialize(manifestStream, manifest);
@@ -152,11 +153,13 @@ namespace Bicep.Core.Registry
             ValidateManifestResponse(manifestResponse);
 
             var deserializedManifest = OciManifest.FromBinaryData(manifestResponse.Value.Manifest) ?? throw new InvalidOperationException("the manifest is not a valid OCI manifest");
-            var layers = deserializedManifest.Layers
-                .Select(layer => new KeyValuePair<string, BinaryData>(layer.Digest, PullLayerAsync(client, layer).Result))
-                .ToImmutableDictionary(pair => pair.Key, pair => pair.Value);
+            var layers = new List<(string MediaType, BinaryData Data)>();
+            foreach (var layer in deserializedManifest.Layers)
+            {
+                layers.Add((layer.MediaType, await PullLayerAsync(client, layer)));
+            }
 
-            return new(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers);
+            return new(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers.ToImmutableArray());
         }
 
         private static async Task<BinaryData> PullLayerAsync(ContainerRegistryContentClient client, OciDescriptor layer, CancellationToken cancellationToken = default)
