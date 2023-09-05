@@ -5021,7 +5021,7 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         var result = CompilationHelper.Compile("""
             @description('foo${'bar'}')
             param baz int
-            """));
+            """);
 
         result.Template.Should().NotHaveValue();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
