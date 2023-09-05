@@ -19,7 +19,7 @@
     "ts-jest": "^28.0.8",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
-    "vscode-oniguruma": "^1.7.0",
+    "vscode-oniguruma": "^2.0.0",
     "vscode-textmate": "^9.0.0"
   },
   "engines": {
