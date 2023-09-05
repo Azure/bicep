@@ -5013,4 +5013,67 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         var evaluated = TemplateEvaluator.Evaluate(result.Template);
         evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo2"));
     }
+
+    // https://github.com/Azure/bicep/issues/11292
+    [TestMethod]
+    public void Test_Issue11292()
+    {
+        var result = CompilationHelper.Compile("""
+            @description('foo${'bar'}')
+            param baz int
+            """);
+
+        result.Template.Should().NotHaveValue();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/11742
+    [TestMethod]
+    public void Test_Issue11742()
+    {
+        var result = CompilationHelper.Compile("""
+            param location string
+
+            resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
+              name: 'name'
+              location: location
+              properties: {
+                enabledForDeployment: true
+                enabledForTemplateDeployment: true
+                enabledForDiskEncryption: true
+                tenantId: 'tenantId'
+                accessPolicies: [
+                  {
+                    tenantId: 'tenantId'
+                    objectId: 'objectId'
+                    permissions: {
+                      keys: [
+                        'get'
+                      ]
+                      secrets: [
+                        'list'
+                        'get'
+                      ]
+                    }
+                  }
+                ]
+                sku: {
+                  name: 'standard'
+                  family: 'A'
+                }
+              }
+            }
+            """);
+
+        result.Template.Should().NotBeNull();
+        // uncomment after merging https://github.com/Azure/bicep/pull/11740
+        // result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        // {
+        //     ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
+        //     ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
+        // });
+    }
 }

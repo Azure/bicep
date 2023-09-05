@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Extensions;
-using Bicep.Core.Modules;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;

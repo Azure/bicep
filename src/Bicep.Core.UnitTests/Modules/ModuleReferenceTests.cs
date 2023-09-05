@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Modules;
+using Bicep.Core.Registry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;

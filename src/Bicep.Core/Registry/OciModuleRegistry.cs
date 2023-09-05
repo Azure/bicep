@@ -35,7 +35,14 @@ namespace Bicep.Core.Registry
 
         private const string NewerVersionMightBeRequired = "A newer version of Bicep might be required to reference this artifact.";
 
-        public OciModuleRegistry(IFileResolver FileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features, RootConfiguration configuration, Uri parentModuleUri)
+        private const string NewerVersionMightBeRequired = "A newer version of Bicep might be required to reference this artifact.";
+
+        public OciModuleRegistry(
+            IFileResolver FileResolver,
+            IContainerRegistryClientFactory clientFactory,
+            IFeatureProvider features,
+            RootConfiguration configuration,
+            Uri parentModuleUri)
             : base(FileResolver)
         {
             this.cachePath = Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
@@ -52,7 +59,11 @@ namespace Bicep.Core.Registry
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
         }
 
-        public override bool TryParseArtifactReference(string? aliasName, string reference, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override bool TryParseArtifactReference(
+            string? aliasName,
+            string reference,
+            [NotNullWhen(true)] out ArtifactReference? moduleReference,
+            [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             if (OciModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri, out var @ref, out failureBuilder))
             {
@@ -105,7 +116,9 @@ namespace Bicep.Core.Registry
                 // Found no module at all
                 return false;
             }
-            catch (InvalidModuleException exception) when (exception.Kind == InvalidModuleExceptionKind.WrongArtifactType || exception.Kind == InvalidModuleExceptionKind.WrongModuleLayerMediaType)
+            catch (InvalidModuleException exception) when (
+                exception.Kind == InvalidModuleExceptionKind.WrongArtifactType ||
+                exception.Kind == InvalidModuleExceptionKind.WrongModuleLayerMediaType)
             {
                 throw new ExternalArtifactException("An artifact with the tag already exists in the registry, but the artifact is not a Bicep file or module!", exception);
             }
@@ -403,6 +416,7 @@ namespace Bicep.Core.Registry
             try
             {
                 var result = await this.client.PullArtifactAsync(configuration, reference);
+                // TODO(asilverman): Refactor validation to switch by mediaType
                 ValidateModule(result);
 
                 await this.TryWriteArtifactContentAsync(reference, result);

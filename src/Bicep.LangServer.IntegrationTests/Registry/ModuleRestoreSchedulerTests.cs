@@ -5,7 +5,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
@@ -82,7 +81,7 @@ namespace Bicep.LangServer.UnitTests.Registry
         [TestMethod]
         public async Task RestoreShouldBeScheduledAsRequested()
         {
-            var provider = Repository.Create<IModuleRegistryProvider>();
+            var provider = Repository.Create<IArtifactRegistryProvider>();
             var mockRegistry = new MockRegistry();
             provider.Setup(m => m.Registries(It.IsAny<Uri>())).Returns(((IArtifactRegistry)mockRegistry).AsEnumerable().ToImmutableArray());
 

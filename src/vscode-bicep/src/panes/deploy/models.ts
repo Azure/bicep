@@ -31,21 +31,24 @@ export interface DeployResult {
   error?: ErrorResponse;
 }
 
+type DeploymentScopeBase = {
+  portalUrl: string;
+  tenantId: string;
+};
+
 export type DeploymentScope =
-  | {
+  | (DeploymentScopeBase & {
       scopeType: "resourceGroup";
       subscriptionId: string;
       resourceGroup: string;
-    }
-  | {
+    })
+  | (DeploymentScopeBase & {
       scopeType: "subscription";
       location: string;
       subscriptionId: string;
-    };
+    });
 
-export type DeploymentScopeType =
-  | "resourceGroup"
-  | "subscription";
+export type DeploymentScopeType = "resourceGroup" | "subscription";
 
 export interface DeployPaneState {
   scope: DeploymentScope;

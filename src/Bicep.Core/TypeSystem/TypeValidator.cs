@@ -124,7 +124,7 @@ namespace Bicep.Core.TypeSystem
                 case (ModuleType sourceModuleType, _):
                     // When assigning a module, we're really assigning the value of the module body.
                     return AreTypesAssignable(sourceModuleType.Body.Type, targetType);
-                
+
                 case (TestType sourceTestType, _):
                     // When assigning a module, we're really assigning the value of the test body.
                     return AreTypesAssignable(sourceTestType.Body.Type, targetType);
@@ -311,23 +311,23 @@ namespace Bicep.Core.TypeSystem
             // integer assignability check
             if (targetType is IntegerType targetInteger)
             {
-                return NarrowIntegerAssignmentType(expression, expressionType, targetInteger);
+                return NarrowIntegerAssignmentType(config, expression, expressionType, targetInteger);
             }
 
             if (targetType is IntegerLiteralType targetIntegerLiteral)
             {
-                return NarrowIntegerLiteralAssignmentType(expression, expressionType, targetIntegerLiteral);
+                return NarrowIntegerLiteralAssignmentType(config, expression, expressionType, targetIntegerLiteral);
             }
 
             // string assignability check
             if (targetType is StringType targetString)
             {
-                return NarrowStringAssignmentType(expression, expressionType, targetString);
+                return NarrowStringAssignmentType(config, expression, expressionType, targetString);
             }
 
             if (targetType is StringLiteralType targetStringLiteral)
             {
-                return NarrowStringLiteralAssignmentType(expression, expressionType, targetStringLiteral);
+                return NarrowStringLiteralAssignmentType(config, expression, expressionType, targetStringLiteral);
             }
 
             // object assignability check
@@ -402,22 +402,24 @@ namespace Bicep.Core.TypeSystem
             return true;
         }
 
-        private TypeSymbol NarrowIntegerAssignmentType(SyntaxBase expression, TypeSymbol expressionType, IntegerType targetType)
+        private TypeSymbol NarrowIntegerAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, IntegerType targetType)
         {
+            bool shouldWarn = config.IsResourceDeclaration || ShouldWarn(targetType);
+
             switch (expressionType)
             {
                 case IntegerType expressionInteger:
                     if (expressionInteger.MinValue.HasValue && targetType.MaxValue.HasValue && expressionInteger.MinValue.Value > targetType.MaxValue.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionInteger.MinValue.Value, targetType.MaxValue.Value));
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(shouldWarn, expressionInteger.MinValue.Value, targetType.MaxValue.Value));
                         break;
                     }
 
                     if (expressionInteger.MaxValue.HasValue && targetType.MinValue.HasValue && expressionInteger.MaxValue.Value < targetType.MinValue.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionInteger.MaxValue.Value, targetType.MinValue.Value));
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(shouldWarn, expressionInteger.MaxValue.Value, targetType.MinValue.Value));
                         break;
                     }
 
@@ -447,14 +449,14 @@ namespace Bicep.Core.TypeSystem
                     if (targetType.MaxValue.HasValue && expressionIntegerLiteral.Value > targetType.MaxValue.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionIntegerLiteral.Value, targetType.MaxValue.Value));
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(shouldWarn, expressionIntegerLiteral.Value, targetType.MaxValue.Value));
                         break;
                     }
 
                     if (targetType.MinValue.HasValue && expressionIntegerLiteral.Value < targetType.MinValue.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionIntegerLiteral.Value, targetType.MinValue.Value));
+                            .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(shouldWarn, expressionIntegerLiteral.Value, targetType.MinValue.Value));
                         break;
                     }
 
@@ -465,21 +467,23 @@ namespace Bicep.Core.TypeSystem
             return expressionType;
         }
 
-        private TypeSymbol NarrowIntegerLiteralAssignmentType(SyntaxBase expression, TypeSymbol expressionType, IntegerLiteralType targetType)
+        private TypeSymbol NarrowIntegerLiteralAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, IntegerLiteralType targetType)
         {
+            bool shouldWarn = config.IsResourceDeclaration || ShouldWarn(targetType);
+
             if (expressionType is IntegerType expressionInteger)
             {
                 if (expressionInteger.MinValue.HasValue && expressionInteger.MinValue.Value > targetType.Value)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                        .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(ShouldWarn(targetType), expressionInteger.MinValue.Value, targetType.Value));
+                        .SourceIntDomainDisjointFromTargetIntDomain_SourceHigh(shouldWarn, expressionInteger.MinValue.Value, targetType.Value));
                     return expressionType;
                 }
 
                 if (expressionInteger.MaxValue.HasValue && expressionInteger.MaxValue.Value < targetType.Value)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                        .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(ShouldWarn(targetType), expressionInteger.MaxValue.Value, targetType.Value));
+                        .SourceIntDomainDisjointFromTargetIntDomain_SourceLow(shouldWarn, expressionInteger.MaxValue.Value, targetType.Value));
                     return expressionType;
                 }
             }
@@ -488,10 +492,9 @@ namespace Bicep.Core.TypeSystem
             return targetType;
         }
 
-        private TypeSymbol NarrowStringAssignmentType(SyntaxBase expression, TypeSymbol expressionType, StringType targetType)
+        private TypeSymbol NarrowStringAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, StringType targetType)
         {
-            var targetMinLength = targetType.MinLength ?? 0;
-            var targetMaxLength = targetType.MaxLength ?? long.MaxValue;
+            bool shouldWarn = config.IsResourceDeclaration || ShouldWarn(targetType);
 
             switch (expressionType)
             {
@@ -499,14 +502,14 @@ namespace Bicep.Core.TypeSystem
                     if (expressionString.MinLength.HasValue && targetType.MaxLength.HasValue && expressionString.MinLength.Value > targetType.MaxLength.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(ShouldWarn(targetType), expressionString.MinLength.Value, targetType.MaxLength.Value));
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(shouldWarn, expressionString.MinLength.Value, targetType.MaxLength.Value));
                         break;
                     }
 
                     if (expressionString.MaxLength.HasValue && targetType.MinLength.HasValue && expressionString.MaxLength.Value < targetType.MinLength.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression)
-                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(ShouldWarn(targetType), expressionString.MaxLength.Value, targetType.MinLength.Value));
+                            .SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(shouldWarn, expressionString.MaxLength.Value, targetType.MinLength.Value));
                         break;
                     }
 
@@ -536,14 +539,14 @@ namespace Bicep.Core.TypeSystem
                     if (targetType.MaxLength.HasValue && expressionStringLiteral.RawStringValue.Length > targetType.MaxLength.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
-                            ShouldWarn(targetType),
+                            shouldWarn,
                             expressionStringLiteral.RawStringValue.Length,
                             targetType.MaxLength.Value));
                     }
                     else if (targetType.MinLength.HasValue && expressionStringLiteral.RawStringValue.Length < targetType.MinLength.Value)
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(
-                            ShouldWarn(targetType),
+                            shouldWarn,
                             expressionStringLiteral.RawStringValue.Length,
                             targetType.MinLength.Value));
                     }
@@ -555,14 +558,14 @@ namespace Bicep.Core.TypeSystem
             return expressionType;
         }
 
-        private TypeSymbol NarrowStringLiteralAssignmentType(SyntaxBase expression, TypeSymbol expressionType, StringLiteralType targetType)
+        private TypeSymbol NarrowStringLiteralAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, StringLiteralType targetType)
         {
             if (expressionType is StringType expressionString)
             {
                 if (expressionString.MinLength.HasValue && expressionString.MinLength.Value > targetType.RawStringValue.Length)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
-                        ShouldWarn(targetType),
+                        config.IsResourceDeclaration || ShouldWarn(targetType),
                         expressionString.MinLength.Value,
                         targetType.RawStringValue.Length));
                     return expressionType;
@@ -571,7 +574,7 @@ namespace Bicep.Core.TypeSystem
                 if (expressionString.MaxLength.HasValue && expressionString.MaxLength.Value < targetType.RawStringValue.Length)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(
-                        ShouldWarn(targetType),
+                        config.IsResourceDeclaration || ShouldWarn(targetType),
                         expressionString.MaxLength.Value,
                         targetType.RawStringValue.Length));
                     return expressionType;
@@ -604,7 +607,7 @@ namespace Bicep.Core.TypeSystem
                 if (expressionTuple.Items.Length != targetTuple.Items.Length)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
-                        ShouldWarn(targetType),
+                        config.IsResourceDeclaration || ShouldWarn(targetType),
                         expressionTuple.Items.Length,
                         targetTuple.Items.Length));
                     return expressionType;
@@ -621,7 +624,7 @@ namespace Bicep.Core.TypeSystem
                 if (expressionArrayType.MinLength.HasValue && targetType.MaxLength.HasValue && expressionArrayType.MinLength.Value > targetType.MaxLength.Value)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
-                        ShouldWarn(targetType),
+                        config.IsResourceDeclaration || ShouldWarn(targetType),
                         expressionArrayType.MinLength.Value,
                         targetType.MaxLength.Value));
                     return expressionType;
@@ -630,7 +633,7 @@ namespace Bicep.Core.TypeSystem
                 if (expressionArrayType.MaxLength.HasValue && targetType.MinLength.HasValue && expressionArrayType.MaxLength.Value < targetType.MinLength.Value)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(
-                        ShouldWarn(targetType),
+                        config.IsResourceDeclaration || ShouldWarn(targetType),
                         expressionArrayType.MaxLength.Value,
                         targetType.MinLength.Value));
                     return expressionType;
@@ -696,14 +699,14 @@ namespace Bicep.Core.TypeSystem
             if (targetType.MaxLength.HasValue && targetType.MaxLength.Value < arrayProperties.Count)
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceHigh(
-                    ShouldWarn(targetType),
+                    config.IsResourceDeclaration || ShouldWarn(targetType),
                     arrayProperties.Count,
                     targetType.MaxLength.Value));
             }
             else if (targetType.MinLength.HasValue && targetType.MinLength.Value > arrayProperties.Count)
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).SourceValueLengthDomainDisjointFromTargetValueLengthDomain_SourceLow(
-                    ShouldWarn(targetType),
+                    config.IsResourceDeclaration || ShouldWarn(targetType),
                     arrayProperties.Count,
                     targetType.MinLength.Value));
             }

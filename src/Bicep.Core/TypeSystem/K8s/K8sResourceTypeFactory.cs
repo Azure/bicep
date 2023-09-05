@@ -69,8 +69,20 @@ namespace Bicep.Core.TypeSystem.K8s
         {
             switch (typeBase)
             {
+                case Azure.Bicep.Types.Concrete.AnyType:
+                    return LanguageConstants.Any;
+                case Azure.Bicep.Types.Concrete.NullType:
+                    return LanguageConstants.Null;
+                case Azure.Bicep.Types.Concrete.BooleanType:
+                    return LanguageConstants.Bool;
+                case Azure.Bicep.Types.Concrete.IntegerType @int:
+                    return TypeFactory.CreateIntegerType(@int.MinValue, @int.MaxValue);
+                case Azure.Bicep.Types.Concrete.StringType @string:
+                    return TypeFactory.CreateStringType(@string.MinLength, @string.MaxLength);
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
-                    return builtInType.Kind switch {
+                    return builtInType.Kind switch
+                    {
+                        #pragma warning disable 618
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Any => LanguageConstants.Any,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Null => LanguageConstants.Null,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Bool => LanguageConstants.Bool,
@@ -79,6 +91,7 @@ namespace Bicep.Core.TypeSystem.K8s
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Object => LanguageConstants.Object,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Array => LanguageConstants.Array,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.ResourceRef => LanguageConstants.ResourceRef,
+                        #pragma warning restore 618
                         _ => throw new ArgumentException(),
                     };
                 case Azure.Bicep.Types.Concrete.ObjectType objectType:
