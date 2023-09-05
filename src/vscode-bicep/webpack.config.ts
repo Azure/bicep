@@ -6,12 +6,14 @@ import CopyPlugin from "copy-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 import TerserPlugin from "terser-webpack-plugin";
 
+const outputPath = path.resolve(__dirname, "out");
+
 const extensionConfig: webpack.Configuration = {
   target: "node",
   entry: "./src/extension.ts",
   devtool: "source-map",
   output: {
-    path: path.resolve(__dirname, "out"),
+    path: outputPath,
     filename: "extension.js",
     libraryTarget: "commonjs2",
     devtoolModuleFilenameTemplate: "file:///[absolute-resource-path]",
@@ -77,7 +79,7 @@ const visualizerConfig: webpack.Configuration = {
   devtool: "source-map",
   output: {
     filename: "visualizer.js",
-    path: path.resolve(__dirname, "out"),
+    path: outputPath,
     devtoolModuleFilenameTemplate: "file:///[absolute-resource-path]",
   },
   externals: {
@@ -119,7 +121,7 @@ const deployPaneConfig: webpack.Configuration = {
   devtool: "source-map",
   output: {
     filename: "deployPane.js",
-    path: path.resolve(__dirname, "out"),
+    path: outputPath,
     devtoolModuleFilenameTemplate: "file:///[absolute-resource-path]",
   },
   externals: {
@@ -156,6 +158,12 @@ const deployPaneConfig: webpack.Configuration = {
     // This is needed for esbuild-loader to resolve react.
     new webpack.ProvidePlugin({
       React: "react",
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: 'node_modules/@vscode/codicons/dist/codicon.css', to: outputPath },
+        { from: 'node_modules/@vscode/codicons/dist/codicon.ttf', to: outputPath },
+      ]
     }),
   ],
 };
