@@ -14,11 +14,11 @@ resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
     enabledForTemplateDeployment: true
     enabledForDiskEncryption: true
     tenantId: 'tenantId'
-//@[14:24) [BCP333 (Error)] The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36. (CodeDescription: none) |'tenantId'|
+//@[14:24) [BCP333 (Warning)] The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36. (CodeDescription: none) |'tenantId'|
     accessPolicies: [
       {
         tenantId: 'tenantId'
-//@[18:28) [BCP333 (Error)] The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36. (CodeDescription: none) |'tenantId'|
+//@[18:28) [BCP333 (Warning)] The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36. (CodeDescription: none) |'tenantId'|
         objectId: 'objectId'
         permissions: {
           keys: [

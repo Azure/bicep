@@ -344,6 +344,7 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 @sys.description('this is just a storage account loop with index')
 resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
   name: '${account.name}${i}'
+//@[08:29) [BCP334 (Warning)] The provided value can have a length as small as 1 and may be too short to assign to a target with a configured minimum length of 3. (CodeDescription: none) |'${account.name}${i}'|
   location: account.location
   sku: {
     name: 'Standard_LRS'
