@@ -124,50 +124,59 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        private readonly ImmutableArray<string> allowedArtifactMediaTypes = ImmutableArray.Create(
-            BicepMediaTypes.BicepModuleArtifactType,
-            BicepMediaTypes.BicepProviderArtifactType);
-
-        private readonly ImmutableArray<string> allowedConfigMediaTypes = ImmutableArray.Create(
-            BicepMediaTypes.BicepModuleConfigV1,
-            BicepMediaTypes.BicepProviderConfigV1);
-
-        private readonly ImmutableArray<string> allowedLayerMediaTypes = ImmutableArray.Create(
-            BicepMediaTypes.BicepModuleLayerV1Json,
-            BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip);
-        private void ValidateModule(OciArtifactResult artifactResult)
+        private static void ValidateModule(OciArtifactResult artifactResult)
         {
             var manifest = artifactResult.Manifest;
-            var artifactType = manifest.ArtifactType;
-            if (artifactType is not null &&
-                !allowedArtifactMediaTypes.Contains(artifactType, MediaTypeComparer))
-            {
-                throw new InvalidModuleException(
-                    $"Expected OCI artifact to have the artifactType field set to either null or '{BicepMediaTypes.BicepModuleArtifactType}' but found '{artifactType}'.",
-                    InvalidModuleExceptionKind.WrongArtifactType);
-            }
             var config = manifest.Config;
             var configMediaType = config.MediaType;
             if (configMediaType is not null &&
-                !allowedConfigMediaTypes.Contains(configMediaType, MediaTypeComparer))
+                !configMediaType.Equals(BicepMediaTypes.BicepModuleConfigV1, MediaTypeComparison))
             {
                 throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\".");
             }
-
-            if (config.Size > 2)
+            if (config.Size != 0)
             {
                 throw new InvalidModuleException("Expected an empty config blob.");
             }
-
             if (manifest.Layers.Length != 1)
             {
                 throw new InvalidModuleException("Expected a single layer in the OCI artifact.");
             }
 
             var layer = manifest.Layers.Single();
-            if (!allowedLayerMediaTypes.Contains(layer.MediaType, MediaTypeComparer))
+            if (!layer.MediaType.Equals(BicepMediaTypes.BicepModuleLayerV1Json, MediaTypeComparison))
             {
-                throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+                throw new InvalidModuleException(
+                    $"Unknown layer media type '{layer.MediaType}'. Expected {BicepMediaTypes.BicepModuleLayerV1Json}",
+                    InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+            }
+        }
+
+        private static void ValidateProvider(OciArtifactResult artifactResult)
+        {
+            var manifest = artifactResult.Manifest;
+            var config = manifest.Config;
+            var configMediaType = config.MediaType;
+            if (configMediaType is not null &&
+                !configMediaType.Equals(BicepMediaTypes.BicepProviderConfigV1, MediaTypeComparison))
+            {
+                throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\".");
+            }
+            if (config.Size > 2)
+            {
+                throw new InvalidModuleException("Expected an empty config blob.");
+            }
+            if (manifest.Layers.Length != 1)
+            {
+                throw new InvalidModuleException("Expected a single layer in the OCI artifact.");
+            }
+
+            var layer = manifest.Layers.Single();
+            if (!layer.MediaType.Equals(BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, MediaTypeComparison))
+            {
+                throw new InvalidModuleException(
+                    $"Unknown layer media type '{layer.MediaType}'. Expected {BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}",
+                    InvalidModuleExceptionKind.WrongModuleLayerMediaType);
             }
         }
 
@@ -329,7 +338,7 @@ namespace Bicep.Core.Registry
         }
 
         // media types are case-insensitive (they are lowercase by convention only)
-        public static readonly IEqualityComparer<string> MediaTypeComparer = StringComparer.OrdinalIgnoreCase;
+        public static readonly StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
 
         protected override void WriteArtifactContent(OciModuleReference reference, OciArtifactResult result)
         {
@@ -429,9 +438,20 @@ namespace Bicep.Core.Registry
             try
             {
                 var result = await this.client.PullArtifactAsync(configuration, reference);
-                // TODO(asilverman): Refactor validation to switch by mediaType
-                ValidateModule(result);
-
+                switch (result.Manifest.ArtifactType)
+                {
+                    case BicepMediaTypes.BicepModuleArtifactType:
+                    case null:
+                        ValidateModule(result);
+                        break;
+                    case BicepMediaTypes.BicepProviderArtifactType:
+                        ValidateProvider(result);
+                        break;
+                    default:
+                        throw new InvalidModuleException(
+                            $"Unknown ArtifactType: '{result.Manifest.ArtifactType}'. Supported OCI artifactType fields are: (1) null or '{BicepMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType} for resource type providers'",
+                            InvalidModuleExceptionKind.WrongArtifactType);
+                }
                 await this.TryWriteArtifactContentAsync(reference, result);
 
                 return (result, null);
