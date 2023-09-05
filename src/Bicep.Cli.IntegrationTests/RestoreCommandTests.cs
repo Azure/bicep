@@ -28,7 +28,6 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Memory;
 using System.Text;
 using Bicep.Core.Emit;
 using Azure.Identity;
-using System.Drawing;
 
 namespace Bicep.Cli.IntegrationTests
 {
