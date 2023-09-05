@@ -35,8 +35,6 @@ namespace Bicep.Core.Registry
 
         private const string NewerVersionMightBeRequired = "A newer version of Bicep might be required to reference this artifact.";
 
-        private const string NewerVersionMightBeRequired = "A newer version of Bicep might be required to reference this artifact.";
-
         public OciModuleRegistry(
             IFileResolver FileResolver,
             IContainerRegistryClientFactory clientFactory,
