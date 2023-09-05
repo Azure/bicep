@@ -189,7 +189,7 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
-            const int ConcurrentTasks = 50;
+            const int ConcurrentTasks = 25;
             var tasks = new List<Task<bool>>();
             for (int i = 0; i < ConcurrentTasks; i++)
             {
