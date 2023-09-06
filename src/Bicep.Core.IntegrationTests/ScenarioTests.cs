@@ -2076,7 +2076,7 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
     {
         var result = CompilationHelper.Compile(@"
 resource registry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' existing = {
-  name: 'foo'
+  name: 'foobar'
   resource importPipeline 'importPipelines' existing = {
     name: 'import'
   }
@@ -2084,7 +2084,7 @@ resource registry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' ex
 
 resource pipelineRun 'Microsoft.ContainerRegistry/registries/pipelineRuns@2021-06-01-preview' = [for index in range(0, 3): if(registry::importPipeline.properties.trigger.sourceTrigger.status == 'Disabled') {
   parent: registry
-  name: 'bar${index}'
+  name: 'barbaz${index}'
   properties: {
     request: {
       pipelineResourceId: registry::importPipeline.id
@@ -2472,7 +2472,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-04-01' = {
 }
 
 resource registry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {
-  name: 'foo'
+  name: 'foobar'
   location: 'westus'
   sku: {
     name: 'Premium'
@@ -4986,5 +4986,94 @@ param foo = 'asdf'
             """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/10343
+    [TestMethod]
+    public void Test_Issue10343()
+    {
+        var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(SymbolicNameCodegenEnabled: true)), ("main.bicep", @"
+resource foo1 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo'
+}
+
+resource foo2 'Microsoft.Authorization/roleAssignments@2022-04-01' existing = {
+  scope: foo1
+  name: 'blah'
+}
+
+resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
+  name: 'foo3'
+  properties: {
+    accessTier: foo2.id
+  }
+}
+"));
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        evaluated.Should().HaveValueAtPath("resources.foo3.dependsOn", new JArray("foo2"));
+    }
+
+    // https://github.com/Azure/bicep/issues/11292
+    [TestMethod]
+    public void Test_Issue11292()
+    {
+        var result = CompilationHelper.Compile("""
+            @description('foo${'bar'}')
+            param baz int
+            """);
+
+        result.Template.Should().NotHaveValue();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/11742
+    [TestMethod]
+    public void Test_Issue11742()
+    {
+        var result = CompilationHelper.Compile("""
+            param location string
+
+            resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
+              name: 'name'
+              location: location
+              properties: {
+                enabledForDeployment: true
+                enabledForTemplateDeployment: true
+                enabledForDiskEncryption: true
+                tenantId: 'tenantId'
+                accessPolicies: [
+                  {
+                    tenantId: 'tenantId'
+                    objectId: 'objectId'
+                    permissions: {
+                      keys: [
+                        'get'
+                      ]
+                      secrets: [
+                        'list'
+                        'get'
+                      ]
+                    }
+                  }
+                ]
+                sku: {
+                  name: 'standard'
+                  family: 'A'
+                }
+              }
+            }
+            """);
+
+        result.Template.Should().NotBeNull();
+        // uncomment after merging https://github.com/Azure/bicep/pull/11740
+        // result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        // {
+        //     ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
+        //     ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
+        // });
     }
 }

@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12321629843193403120"
+      "templateHash": "15369804211876997670"
     }
   },
   "parameters": {
@@ -32,7 +32,10 @@
       "apiVersion": "2019-06-01-preview",
       "subscriptionId": "[parameters('templateSpecSub')]",
       "resourceGroup": "[parameters('templateSpecRg')]",
-      "name": "[format('{0}/{1}', parameters('templateSpecName'), parameters('templateSpecVersion'))]"
+      "name": "[format('{0}/{1}', parameters('templateSpecName'), parameters('templateSpecVersion'))]",
+      "dependsOn": [
+        "ts"
+      ]
     },
     "ts": {
       "existing": true,
@@ -52,7 +55,10 @@
           "id": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('templateSpecSub'), parameters('templateSpecRg')), 'Microsoft.Resources/templateSpecs/versions', parameters('templateSpecName'), parameters('templateSpecVersion'))]"
         },
         "parameters": {}
-      }
+      },
+      "dependsOn": [
+        "ts"
+      ]
     }
   }
 }

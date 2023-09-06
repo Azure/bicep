@@ -519,7 +519,7 @@ namespace Bicep.Core.UnitTests.Registry
         {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
-            var parentModuleUri = DocumentUri.FromFileSystemPath(bicepPath).ToUri();
+            var parentModuleUri = DocumentUri.FromFileSystemPath(bicepPath).ToUriEncoded();
 
             var ociArtifactModuleReference = OciArtifactModuleReferenceHelper.GetModuleReferenceAndSaveManifestFile(
                 TestContext,

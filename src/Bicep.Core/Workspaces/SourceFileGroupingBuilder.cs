@@ -8,7 +8,6 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
@@ -26,7 +25,7 @@ namespace Bicep.Core.Workspaces
         private readonly IReadOnlyWorkspace workspace;
 
         private readonly Dictionary<Uri, FileResolutionResult> fileResultByUri;
-        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IForeignArtifactReference, UriResolutionResult>> uriResultByModule;
+        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IArtifactReferenceSyntax, UriResolutionResult>> uriResultByModule;
 
         private readonly bool forceModulesRestore;
 
@@ -150,7 +149,7 @@ namespace Bicep.Core.Workspaces
             {
                 case BicepFile bicepFile:
                     {
-                        foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IForeignArtifactReference>())
+                        foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>())
                         {
                             // NOTE(asilverman): The below check is ugly but temporary until we have a better way to
                             // handle dynamic type loading in a way that is decoupled from modules.
@@ -212,7 +211,7 @@ namespace Bicep.Core.Workspaces
             return fileResult;
         }
 
-        private (ArtifactReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, IForeignArtifactReference foreignTemplateReference)
+        private (ArtifactReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, IArtifactReferenceSyntax foreignTemplateReference)
         {
             if (!moduleDispatcher.TryGetModuleReference(foreignTemplateReference, parentFileUri, out var moduleReference, out var referenceResolutionError))
             {
@@ -294,11 +293,11 @@ namespace Bicep.Core.Workspaces
         /// This method only looks at top-level statements. If nested syntax nodes can be foreign template references at any point in the future,
         /// a SyntaxAggregator will need to be used in place of the <code>sourceFile.ProgramSyntax.Children</code> expressions.
         /// </remarks>
-        private static IEnumerable<IForeignArtifactReference> GetReferenceSourceNodes(ISourceFile sourceFile) => sourceFile switch
+        private static IEnumerable<IArtifactReferenceSyntax> GetReferenceSourceNodes(ISourceFile sourceFile) => sourceFile switch
         {
-            BicepFile bicepFile => bicepFile.ProgramSyntax.Children.OfType<IForeignArtifactReference>(),
-            BicepParamFile paramsFile => paramsFile.ProgramSyntax.Children.OfType<IForeignArtifactReference>(),
-            _ => Enumerable.Empty<IForeignArtifactReference>(),
+            BicepFile bicepFile => bicepFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>(),
+            BicepParamFile paramsFile => paramsFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>(),
+            _ => Enumerable.Empty<IArtifactReferenceSyntax>(),
         };
 
         private static IEnumerable<ModuleDeclarationSyntax> GetModuleDeclarations(ISourceFile sourceFile) => sourceFile is BicepFile bicepFile

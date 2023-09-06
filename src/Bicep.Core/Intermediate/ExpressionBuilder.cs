@@ -1071,7 +1071,7 @@ public class ExpressionBuilder
         return null;
     }
 
-    private static bool ShouldGenerateDependsOn(ResourceDependency dependency)
+    private bool ShouldGenerateDependsOn(ResourceDependency dependency)
     {
         if (dependency.Kind == ResourceDependencyKind.Transitive)
         {
@@ -1080,8 +1080,9 @@ public class ExpressionBuilder
         }
 
         return dependency.Resource switch
-        {   // We only want to add a 'dependsOn' for resources being deployed in this file.
-            ResourceSymbol resource => !resource.DeclaringResource.IsExistingResource(),
+        {
+            // 'existing' resources are only represented in the JSON if using symbolic names.
+            ResourceSymbol resource => Context.Settings.EnableSymbolicNames || !resource.DeclaringResource.IsExistingResource(),
             ModuleSymbol => true,
             _ => throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}"),
         };

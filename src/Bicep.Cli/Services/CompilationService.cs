@@ -137,8 +137,8 @@ namespace Bicep.Cli.Services
 
         private static ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ArtifactResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
         {
-            static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, IForeignArtifactReference module)
-                => grouping.TryGetErrorDiagnostic(module) is { } errorBuilder ? errorBuilder(DiagnosticBuilder.ForPosition(module.ReferenceSourceSyntax)) : null;
+            static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, IArtifactReferenceSyntax moduleDeclaration)
+                => grouping.TryGetErrorDiagnostic(moduleDeclaration) is { } errorBuilder ? errorBuilder(DiagnosticBuilder.ForPosition(moduleDeclaration.SourceSyntax)) : null;
 
             static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ArtifactResolutionInfo> originalArtifactsToRestore)
             {

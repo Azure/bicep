@@ -7,8 +7,12 @@ namespace Bicep.Core.TypeSystem;
 
 public static class TypeFactory
 {
-    public static BooleanType CreateBooleanType(TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
-        => new(validationFlags);
+    private static readonly BooleanType UnrefinedBool = new(default);
+    private static readonly IntegerType UnrefinedInt = new(default, default, default);
+    private static readonly StringType UnrefinedString = new(default, default, default);
+
+    public static TypeSymbol CreateBooleanType(TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
+        => validationFlags == UnrefinedBool.ValidationFlags ? UnrefinedBool : new BooleanType(validationFlags);
 
     public static BooleanLiteralType CreateBooleanLiteralType(bool value, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
         => new(value, validationFlags);
@@ -20,7 +24,12 @@ public static class TypeFactory
             return CreateIntegerLiteralType(minValue.Value, validationFlags);
         }
 
-        return new IntegerType(minValue, maxValue, validationFlags);
+        if (minValue != UnrefinedInt.MinValue || maxValue != UnrefinedInt.MaxValue || validationFlags != UnrefinedInt.ValidationFlags)
+        {
+            return new IntegerType(minValue, maxValue, validationFlags);
+        }
+
+        return UnrefinedInt;
     }
 
     public static IntegerLiteralType CreateIntegerLiteralType(long value, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)
@@ -51,7 +60,12 @@ public static class TypeFactory
             return CreateStringLiteralType(string.Empty, validationFlags);
         }
 
-        return new StringType(minLength, maxLength, validationFlags);
+        if (minLength != UnrefinedString.MinLength || maxLength != UnrefinedString.MaxLength || validationFlags != UnrefinedString.ValidationFlags)
+        {
+            return new StringType(minLength, maxLength, validationFlags);
+        }
+
+        return UnrefinedString;
     }
 
     public static StringLiteralType CreateStringLiteralType(string value, TypeSymbolValidationFlags validationFlags = TypeSymbolValidationFlags.Default)

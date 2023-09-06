@@ -451,7 +451,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
 
             var server = new LanguageServerMock();
             string? displayedDoc = null;
-            server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUri().LocalPath);
+            server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUriEncoded().LocalPath);
 
             var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
@@ -481,7 +481,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
 
             var server = new LanguageServerMock();
             string? displayedDoc = null;
-            server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUri().LocalPath);
+            server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUriEncoded().LocalPath);
 
             var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
@@ -521,7 +521,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
 
             var server = new LanguageServerMock();
             string? displayedDoc = null;
-            server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUri().LocalPath);
+            server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUriEncoded().LocalPath);
 
             var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
@@ -559,7 +559,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
 
             var server = new LanguageServerMock();
             string? displayedDoc = null;
-            server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUri().LocalPath);
+            server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUriEncoded().LocalPath);
 
             var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
@@ -602,7 +602,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
 
             var server = new LanguageServerMock();
             string? displayedDoc = null;
-            server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUri().LocalPath);
+            server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUriEncoded().LocalPath);
 
             var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(

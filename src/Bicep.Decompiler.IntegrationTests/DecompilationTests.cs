@@ -61,6 +61,24 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
+        [DataTestMethod]
+        [EmbeddedFilesTestData(@"Files/Parameters/.*\.json")]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Decompiler_generates_expected_bicepparam_files_with_diagnostics(EmbeddedFile embeddedJson)
+        {
+            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedJson);
+            var jsonFile = baselineFolder.EntryFile;
+
+            var jsonUri = PathHelper.FilePathToFileUrl(jsonFile.OutputFilePath);
+            var decompiler = ServiceBuilder.Create().GetBicepparamDecompiler();
+
+            var (entryPointUri, filesToSave) = decompiler.Decompile(jsonUri, PathHelper.ChangeExtension(jsonUri, LanguageConstants.ParamsFileExtension), null);
+
+            var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(entryPointUri);
+            baselineFile.WriteToOutputFolder(filesToSave[entryPointUri]);
+            baselineFile.ShouldHaveExpectedValue();
+        }
+
         private static IFileResolver ReadResourceFile(string resourcePath)
         {
             var manifestStream = typeof(DecompilationTests).Assembly.GetManifestResourceStream(resourcePath)!;

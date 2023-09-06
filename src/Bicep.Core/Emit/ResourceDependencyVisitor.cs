@@ -71,7 +71,7 @@ namespace Bicep.Core.Emit
             {
                 for (int i = ancestors.Length - 1; i >= 0; i--)
                 {
-                    if (!ancestors[i].Resource.IsExistingResource || (options?.IncludeExisting ?? false))
+                    if (!ancestors[i].Resource.IsExistingResource || options?.IncludeExisting == true)
                     {
                         // we found the non-existing resource - we're done
                         return i;
@@ -177,7 +177,7 @@ namespace Bicep.Core.Emit
                     return;
 
                 case ResourceSymbol resourceSymbol:
-                    if (resourceSymbol.DeclaringResource.IsExistingResource())
+                    if (resourceSymbol.DeclaringResource.IsExistingResource() && options?.IncludeExisting != true)
                     {
                         var existingDependencies = GetResourceDependencies(resourceSymbol);
 

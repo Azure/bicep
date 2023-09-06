@@ -157,7 +157,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            var uri = documentUri.ToUri();
+            var uri = documentUri.ToUriEncoded();
 
             var files = new Dictionary<Uri, string>
             {
@@ -517,11 +517,11 @@ resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' =
 
             var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", mainBicepFileContents, testOutputPath);
             var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
-            fileSystemDict[mainUri.ToUri()] = mainBicepFileContents;
+            fileSystemDict[mainUri.ToUriEncoded()] = mainBicepFileContents;
 
             var referencedBicepFilePath = FileHelper.SaveResultFile(TestContext, "groups.bicep", referencedBicepFileContents, testOutputPath);
             var moduleUri = DocumentUri.FromFileSystemPath(referencedBicepFilePath);
-            fileSystemDict[moduleUri.ToUri()] = referencedBicepFileContents;
+            fileSystemDict[moduleUri.ToUriEncoded()] = referencedBicepFileContents;
 
             var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();
 
@@ -531,7 +531,7 @@ resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' =
                 services => services.WithFileResolver(new InMemoryFileResolver(fileSystemDict)));
             var client = helper.Client;
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUriEncoded()], 1));
 
             var bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
 
@@ -558,9 +558,9 @@ resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' =
             var client = helper.Client;
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");
-            fileSystemDict[mainUri.ToUri()] = text;
+            fileSystemDict[mainUri.ToUriEncoded()] = text;
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUriEncoded()], 1));
 
             var bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);

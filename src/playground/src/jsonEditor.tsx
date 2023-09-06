@@ -1,33 +1,36 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as monacoEditor from 'monaco-editor';
-import React, { useRef } from 'react';
-import MonacoEditor from 'react-monaco-editor';
+import * as monaco from 'monaco-editor';
+import React, { createRef, useEffect, useState } from 'react';
 
 interface JsonEditorProps {
   content: string;
 }
 
-export const JsonEditor : React.FC<JsonEditorProps> = props=> {
-  const options: monacoEditor.editor.IStandaloneEditorConstructionOptions = {
-    scrollBeyondLastLine: false,
-    automaticLayout: true,
-    minimap: {
-      enabled: false,
-    },
-    readOnly: true,
-  };
-  
-  const monacoRef = useRef<MonacoEditor>();
-  
-  // clear the selection after rendering completes
-  setTimeout(() => monacoRef.current.editor.setSelection({startColumn: 1, startLineNumber: 1, endColumn: 1, endLineNumber: 1}), 0);
+const editorOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
+  language: 'json',
+  theme: 'vs-dark',
+  scrollBeyondLastLine: false,
+  automaticLayout: true,
+  minimap: {
+    enabled: false,
+  },
+  readOnly: true,
+};
 
-  return <MonacoEditor
-    ref={monacoRef}
-    language="json"
-    theme="vs-dark"
-    value={props.content}
-    options={options}
-  />
+export const JsonEditor: React.FC<JsonEditorProps> = ({ content }) => {
+  const editorRef = createRef<HTMLDivElement>();
+  const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor>();
+
+  useEffect(() => {
+    const editor = monaco.editor.create(editorRef.current, editorOptions);
+
+    setEditor(editor);
+  }, []);
+
+  useEffect(() => {
+    editor?.setValue(content);
+  }, [content, editor]);
+
+  return <div ref={editorRef} style={{height: '100%', width: '100%'}} />;
 };

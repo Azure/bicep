@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3904421736177706194"
+      "templateHash": "14798761027267387413"
     }
   },
   "parameters": {
@@ -283,6 +283,7 @@
         }
       },
       "dependsOn": [
+        "logAnalyticsWorkspace",
         "virtualMachines"
       ]
     },

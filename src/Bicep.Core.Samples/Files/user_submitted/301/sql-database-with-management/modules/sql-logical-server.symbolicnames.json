@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11297024240548375439"
+      "templateHash": "4926441281649354787"
     }
   },
   "parameters": {
@@ -152,7 +152,8 @@
       },
       "dependsOn": [
         "azureDefender",
-        "sqlLogicalServerRes"
+        "sqlLogicalServerRes",
+        "storageAccountVulnerabilityAssessments"
       ]
     },
     "auditSettings": {
@@ -237,8 +238,9 @@
       "dependsOn": [
         "auditSettings",
         "dummyDeployments",
-        "sqlDatabases",
-        "sqlLogicalServerRes"
+        "logAnalyticsWorkspace",
+        "masterDb",
+        "sqlDatabases"
       ]
     },
     "diagnosticSettings": {
@@ -270,8 +272,9 @@
       },
       "dependsOn": [
         "dummyDeployments",
-        "sqlDatabases",
-        "sqlLogicalServerRes"
+        "logAnalyticsWorkspace",
+        "masterDb",
+        "sqlDatabases"
       ]
     },
     "sqlFirewallRules": {
@@ -369,7 +372,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6449296172144959788"
+              "templateHash": "2334572005318909582"
             }
           },
           "parameters": {
@@ -464,6 +467,7 @@
               "dependsOn": [
                 "azureDefender",
                 "sqlDb",
+                "storageAccountVulnerabilityAssessments",
                 "transparentDataEncryption"
               ]
             },
@@ -493,6 +497,7 @@
               },
               "dependsOn": [
                 "auditSettings",
+                "logAnalyticsWorkspace",
                 "sqlDb",
                 "transparentDataEncryption"
               ]
@@ -525,6 +530,7 @@
                 "workspaceId": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', parameters('sqlDatabase').diagnosticLogsAndMetrics.subscriptionId, parameters('sqlDatabase').diagnosticLogsAndMetrics.resourceGroupName), 'Microsoft.OperationalInsights/workspaces', parameters('sqlDatabase').diagnosticLogsAndMetrics.name)]"
               },
               "dependsOn": [
+                "logAnalyticsWorkspace",
                 "sqlDb",
                 "transparentDataEncryption"
               ]

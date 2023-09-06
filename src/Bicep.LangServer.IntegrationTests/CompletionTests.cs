@@ -222,7 +222,7 @@ namespace Bicep.LangServer.IntegrationTests
         private async Task<string> RequestSnippetCompletion(string bicepFileName, CompletionData completionData, string placeholderFile, int cursor)
         {
             var documentUri = DocumentUri.FromFileSystemPath(bicepFileName);
-            var bicepFile = SourceFileFactory.CreateBicepFile(documentUri.ToUri(), placeholderFile);
+            var bicepFile = SourceFileFactory.CreateBicepFile(documentUri.ToUriEncoded(), placeholderFile);
 
             var helper = await ServerWithNamespaceProvider.GetAsync();
             await helper.OpenFileOnceAsync(this.TestContext, placeholderFile, documentUri);
@@ -3431,14 +3431,14 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             var expected = expectedInfo.Value.content;
             var expectedLocation = expectedInfo.Value.scope switch
             {
-                ExpectedCompletionsScope.DataSet => Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestCompletionsDirectory, GetFullSetName(setName)),
+                ExpectedCompletionsScope.DataSet => DataSet.GetBaselineUpdatePath(dataSet, Path.Combine(DataSet.TestCompletionsDirectory, GetFullSetName(setName))),
                 _ => GetGlobalCompletionSetPath(setName)
             };
 
             actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, expectedLocation, actualLocation, "because ");
         }
 
-        private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
+        private static string GetGlobalCompletionSetPath(string setName) => DataSet.GetBaselineUpdatePath(DataSet.TestCompletionsDirectory, GetFullSetName(setName));
 
         private static async Task<CompletionList> RunSingleCompletionScenarioTest(TestContext testContext, SharedLanguageHelperManager server, string text, int offset)
         {
@@ -3853,7 +3853,7 @@ var file = " + functionName + @"(templ|)
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
                 .WithFileResolver(new FileResolver(new IOFileSystem())));
 
-            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(3);
@@ -3882,7 +3882,7 @@ var file = " + functionName + @"(templ|)
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
                 .WithFileResolver(new FileResolver(new IOFileSystem())));
 
-            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
@@ -3918,7 +3918,7 @@ var file = " + functionName + @"(templ|)
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
                 .WithFileResolver(new FileResolver(new IOFileSystem())));
 
-            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);
@@ -3952,7 +3952,7 @@ var file = " + functionName + @"(templ|)
                 .AddSingleton<ISettingsProvider>(settingsProvider.Object)
                 .WithFileResolver(new FileResolver(new IOFileSystem())));
 
-            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUri(), text);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(mainUri.ToUriEncoded(), text);
             var completions = await file.RequestCompletion(cursor);
 
             completions.Count().Should().Be(2);

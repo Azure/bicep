@@ -41,7 +41,7 @@ namespace Bicep.LangServer.IntegrationTests
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
                 TestContext,
                 typeof(DataSet).Assembly,
-                "Files/Resources_CRLF");
+                DataSets.Resources_CRLF.GetStreamPrefix());
 
             var bicepFilePath = Path.Combine(outputDirectory, "main.bicep");
             var expectedJson = File.ReadAllText(Path.Combine(outputDirectory, "main.parameters.json"));

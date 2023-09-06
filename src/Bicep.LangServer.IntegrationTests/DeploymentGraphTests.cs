@@ -34,7 +34,7 @@ namespace Bicep.LangServer.IntegrationTests
             var fileSystemDict = new Dictionary<Uri, string>();
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");
-            fileSystemDict[mainUri.ToUri()] = @"
+            fileSystemDict[mainUri.ToUriEncoded()] = @"
 resource res1 'Test.Rp/basicTests@2020-01-01' = {
   name: 'res1'
 }
@@ -62,7 +62,7 @@ module nonExistingMod './path/to/nonExistingModule.bicep' = {
 ";
 
             var module1Uri = DocumentUri.FromFileSystemPath("/modules/module1.bicep");
-            fileSystemDict[module1Uri.ToUri()] = @"
+            fileSystemDict[module1Uri.ToUriEncoded()] = @"
 resource res3 'Test.Rp/basicTests@2020-01-01' = {
   name: 'res3'
 }
@@ -71,7 +71,7 @@ output output1 int = 123
 ";
 
             var module2Uri = DocumentUri.FromFileSystemPath("/modules/module2.bicep");
-            fileSystemDict[module2Uri.ToUri()] = @"
+            fileSystemDict[module2Uri.ToUriEncoded()] = @"
 resource res4 'Test.Rp/basicTests@2020-01-01' = {
   name: 'res4'
 }
@@ -85,7 +85,7 @@ module nestedMod './nestedModules/nestedModule.bicep' = [for x in []: {
 ";
 
             var nestedModuleUri = DocumentUri.FromFileSystemPath("/modules/nestedModules/nestedModule.bicep");
-            fileSystemDict[nestedModuleUri.ToUri()] = @"
+            fileSystemDict[nestedModuleUri.ToUriEncoded()] = @"
 resource res5 'Test.Rp/basicTests@2020-01-01' = {
   name: 'res5'
 }
@@ -97,7 +97,7 @@ resource res5 'Test.Rp/basicTests@2020-01-01' = {
                 services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFileResolver(new InMemoryFileResolver(fileSystemDict)));
             var client = helper.Client;
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUriEncoded()], 1));
             await diagnosticsListener.WaitNext();
 
             var deploymentGraph = await client.SendRequest(new BicepDeploymentGraphParams(new TextDocumentIdentifier(mainUri)), default);

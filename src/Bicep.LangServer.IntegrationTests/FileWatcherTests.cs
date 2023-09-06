@@ -51,7 +51,7 @@ namespace Bicep.LangServer.IntegrationTests
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-            fileSystemDict[mainUri.ToUri()] = @"
+            fileSystemDict[mainUri.ToUriEncoded()] = @"
 module myMod '../toOther/module.bicep' = {
   name: 'myMod'
   params: {
@@ -61,7 +61,7 @@ module myMod '../toOther/module.bicep' = {
 ";
 
             var moduleUri = DocumentUri.FromFileSystemPath("/path/toOther/module.bicep");
-            fileSystemDict[moduleUri.ToUri()] = @"
+            fileSystemDict[moduleUri.ToUriEncoded()] = @"
 // mis-spelling!
 param requiredIpnut string
 ";
@@ -73,7 +73,7 @@ param requiredIpnut string
 
             // open the main document
             {
-                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUriEncoded()], 1));
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
@@ -82,7 +82,7 @@ param requiredIpnut string
 
             // open the module document. this should trigger diagnostics for both the module and the main doc which references it.
             {
-                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(moduleUri, fileSystemDict[moduleUri.ToUri()], 1));
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(moduleUri, fileSystemDict[moduleUri.ToUriEncoded()], 1));
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(moduleUri);
@@ -129,7 +129,7 @@ param requiredInput string
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-            fileSystemDict[mainUri.ToUri()] = @"
+            fileSystemDict[mainUri.ToUriEncoded()] = @"
 module myMod '../toOther/module.bicep' = {
   name: 'myMod'
   params: {
@@ -139,7 +139,7 @@ module myMod '../toOther/module.bicep' = {
 ";
 
             var moduleUri = DocumentUri.FromFileSystemPath("/path/toOther/module.bicep");
-            fileSystemDict[moduleUri.ToUri()] = @"
+            fileSystemDict[moduleUri.ToUriEncoded()] = @"
 // mis-spelling!
 param requiredIpnut string
 ";
@@ -153,7 +153,7 @@ param requiredIpnut string
 
             // open the main document
             {
-                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUriEncoded()], 1));
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);
@@ -196,7 +196,7 @@ param requiredIpnut string
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-            fileSystemDict[mainUri.ToUri()] = @"
+            fileSystemDict[mainUri.ToUriEncoded()] = @"
 module myMod '../toOther/module.bicep' = {
   name: 'myMod'
   params: {
@@ -206,7 +206,7 @@ module myMod '../toOther/module.bicep' = {
 ";
 
             var moduleUri = DocumentUri.FromFileSystemPath("/path/toOther/module.bicep");
-            fileSystemDict[moduleUri.ToUri()] = @"
+            fileSystemDict[moduleUri.ToUriEncoded()] = @"
 // mis-spelling!
 param requiredIpnut string
 ";
@@ -220,7 +220,7 @@ param requiredIpnut string
 
             // open the main document
             {
-                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUriEncoded()], 1));
 
                 var diagsParams = await diagsListener.WaitNext();
                 diagsParams.Uri.Should().Be(mainUri);

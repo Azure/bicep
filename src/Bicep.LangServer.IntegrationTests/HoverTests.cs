@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
@@ -817,7 +816,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
             var documentUri = DocumentUri.FromFileSystemPath(bicepPath);
-            var parentModuleUri = documentUri.ToUri();
+            var parentModuleUri = documentUri.ToUriEncoded();
 
             var client = await GetLanguageClientAsync(
                 documentUri,

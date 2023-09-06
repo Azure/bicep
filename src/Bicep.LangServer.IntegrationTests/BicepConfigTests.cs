@@ -495,7 +495,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             string bicepFileContents = @"param storageAccountName string = 'test'";
             var documentUriOfFileInChildDirectory = SaveFile("main.bicep", bicepFileContents, childDirectoryPath);
-            var uriOfFileInChildDirectory = documentUriOfFileInChildDirectory.ToUri();
+            var uriOfFileInChildDirectory = documentUriOfFileInChildDirectory.ToUriEncoded();
 
             // open the main document and verify diagnostics
             {
@@ -511,7 +511,7 @@ namespace Bicep.LangServer.IntegrationTests
             // add bicepconfig.json to parent directory and verify diagnostics
             {
                 var documentUriOfFileInParentDirectory = SaveFile("main.bicep", bicepFileContents, parentDirectoryPath);
-                var uriOfFileInParentDirectory = documentUriOfFileInParentDirectory.ToUri();
+                var uriOfFileInParentDirectory = documentUriOfFileInParentDirectory.ToUriEncoded();
 
                 bicepConfigFileContents = @"{
   ""analyzers"": {

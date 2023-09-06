@@ -73,7 +73,7 @@ namespace Bicep.LangServer.IntegrationTests
         /// No further file opening is possible.
         /// </summary>
         public static Task<LanguageServerHelper> StartServerWithText(TestContext testContext, string text, DocumentUri documentUri, Action<IServiceCollection>? onRegisterServices = null)
-            => StartServerWithText(testContext, new Dictionary<Uri, string> { [documentUri.ToUri()] = text }, documentUri.ToUri(), onRegisterServices);
+            => StartServerWithText(testContext, new Dictionary<Uri, string> { [documentUri.ToUriEncoded()] = text }, documentUri.ToUriEncoded(), onRegisterServices);
 
         /// <summary>
         /// Starts a language client/server pair that will load the specified Bicep text and wait for the diagnostics to be published.

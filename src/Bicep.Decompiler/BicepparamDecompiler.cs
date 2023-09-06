@@ -60,12 +60,7 @@ public class BicepparamDecompiler
     {
         var statements = new List<SyntaxBase>();
 
-        var jsonReader = new JsonTextReader(new StringReader(jsonInput));
-
-        JObject jsonObject = JObject.Load(jsonReader, new JsonLoadSettings{
-            CommentHandling = CommentHandling.Ignore,
-            LineInfoHandling = LineInfoHandling.Load
-        });
+        var jsonObject = JTokenHelpers.LoadJson(jsonInput, JObject.Load, ignoreTrailingContent: false);
 
         statements.Add(new UsingDeclarationSyntax(
             SyntaxFactory.CreateIdentifierToken("using"), 

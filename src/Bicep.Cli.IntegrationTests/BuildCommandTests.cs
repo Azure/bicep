@@ -99,7 +99,7 @@ namespace Bicep.Cli.IntegrationTests
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 
@@ -117,6 +117,7 @@ namespace Bicep.Cli.IntegrationTests
             var manifestStr = $$"""
                 {
                   "schemaVersion": 2,
+                  "mediaType": "application/vnd.oci.image.manifest.v1+json",
                   "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
                   "config": {
                     "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
@@ -204,7 +205,7 @@ import 'az@2.0.0'
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 
@@ -246,7 +247,7 @@ import 'az@2.0.0'
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
                 JToken.Parse(dataSet.Compiled!),
-                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
         }
 

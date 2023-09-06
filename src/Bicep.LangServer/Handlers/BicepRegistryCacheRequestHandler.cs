@@ -6,6 +6,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System;
 using System.Threading;
@@ -42,7 +43,7 @@ namespace Bicep.LanguageServer.Handlers
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
 
-            if (!moduleDispatcher.TryGetModuleReference(request.Target, request.TextDocument.Uri.ToUri(), out var moduleReference, out _))
+            if (!moduleDispatcher.TryGetModuleReference(request.Target, request.TextDocument.Uri.ToUriEncoded(), out var moduleReference, out _))
             {
                 throw new InvalidOperationException(
                     $"The client specified an invalid module reference '{request.Target}'.");

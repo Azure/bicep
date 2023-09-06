@@ -87,10 +87,12 @@ export const App: FC = () => {
         {azure.running && <VSCodeProgressRing></VSCodeProgressRing>}
       </FormSection>
 
-      <ResultsView result={azure.result} />
-      <DeploymentOperationsView operations={azure.operations} />
-      <DeploymentOutputsView outputs={azure.outputs} />
-      <WhatIfChangesView changes={azure.whatIfChanges} />
+      {messages.scope && <>
+        <ResultsView result={azure.result} />
+        <DeploymentOperationsView scope={messages.scope} operations={azure.operations} />
+        <DeploymentOutputsView outputs={azure.outputs} />
+        <WhatIfChangesView changes={azure.whatIfChanges} />
+      </>}
     </main>
   );
 };
