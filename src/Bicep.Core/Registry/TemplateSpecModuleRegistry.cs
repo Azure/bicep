@@ -106,7 +106,7 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        protected override void WriteArtifactContent(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
+        protected override void WriteArtifactContentToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
             File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.Content);
 
         protected override string GetArtifactDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(

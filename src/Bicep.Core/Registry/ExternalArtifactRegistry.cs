@@ -29,7 +29,7 @@ namespace Bicep.Core.Registry
 
         protected IFileResolver FileResolver { get; }
 
-        protected abstract void WriteArtifactContent(TArtifactReference reference, TArtifactEntity entity);
+        protected abstract void WriteArtifactContentToCache(TArtifactReference reference, TArtifactEntity entity);
 
         protected abstract string GetArtifactDirectoryPath(TArtifactReference reference);
 
@@ -70,7 +70,7 @@ namespace Bicep.Core.Registry
                         }
 
                         // write the contents to disk
-                        this.WriteArtifactContent(reference, entity);
+                        this.WriteArtifactContentToCache(reference, entity);
                         return;
                     }
                 }
