@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8241965242746316062"
+      "templateHash": "14572384289576581216"
     }
   },
   "parameters": {
@@ -164,12 +164,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16851376161884006626"
+              "templateHash": "883693020421615274"
             }
           },
           "parameters": {
             "appName": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1
             },
             "location": {
               "type": "string",

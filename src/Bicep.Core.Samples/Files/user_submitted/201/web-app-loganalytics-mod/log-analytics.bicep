@@ -1,5 +1,6 @@
 param location string = resourceGroup().location
 
+@minLength(1)
 param appName string
 var logAnalyticsName = toLower('la-${appName}')
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03-01-preview' = {

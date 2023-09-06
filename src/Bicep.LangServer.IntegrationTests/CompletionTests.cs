@@ -3428,14 +3428,14 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             var expected = expectedInfo.Value.content;
             var expectedLocation = expectedInfo.Value.scope switch
             {
-                ExpectedCompletionsScope.DataSet => Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestCompletionsDirectory, GetFullSetName(setName)),
+                ExpectedCompletionsScope.DataSet => DataSet.GetBaselineUpdatePath(dataSet, Path.Combine(DataSet.TestCompletionsDirectory, GetFullSetName(setName))),
                 _ => GetGlobalCompletionSetPath(setName)
             };
 
             actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, expectedLocation, actualLocation, "because ");
         }
 
-        private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
+        private static string GetGlobalCompletionSetPath(string setName) => DataSet.GetBaselineUpdatePath(DataSet.TestCompletionsDirectory, GetFullSetName(setName));
 
         private static async Task<CompletionList> RunSingleCompletionScenarioTest(TestContext testContext, SharedLanguageHelperManager server, string text, int offset)
         {

@@ -128,7 +128,7 @@ param input array
 var nullableAtIndex = [for i in input: i != null]
 
 resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = if (first(nullableAtIndex)) {
-  name: 'sa'
+  name: 'storageacct'
 }
 ",
 @"
@@ -137,7 +137,7 @@ param input array
 var nullableAtIndex = [for i in input: i != null]
 
 resource sa 'Microsoft.Storage/storageAccounts@2022-09-01' existing = if (first(nullableAtIndex)!) {
-  name: 'sa'
+  name: 'storageacct'
 }
 ",
                 LanguageConstants.Bool,
