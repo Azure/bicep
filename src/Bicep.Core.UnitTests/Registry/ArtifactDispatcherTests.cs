@@ -4,7 +4,6 @@
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
@@ -254,7 +253,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         private static IModuleDispatcher CreateDispatcher(IConfigurationManager configurationManager, params IArtifactRegistry[] registries)
         {
-            var provider = StrictMock.Of<IModuleRegistryProvider>();
+            var provider = StrictMock.Of<IArtifactRegistryProvider>();
             provider.Setup(m => m.Registries(It.IsAny<Uri>())).Returns(registries.ToImmutableArray());
 
             return new ModuleDispatcher(provider.Object, configurationManager);

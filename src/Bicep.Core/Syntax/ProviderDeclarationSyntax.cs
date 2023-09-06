@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace Bicep.Core.Syntax
 {
-    public class ProviderDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IForeignArtifactReference
+    public class ProviderDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
         private readonly Lazy<ImportSpecification> lazySpecification;
 
@@ -44,7 +44,7 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(this.SpecificationString, this.WithClause, this.AsClause));
 
-        SyntaxBase IForeignArtifactReference.ReferenceSourceSyntax => ProviderPath;
+        SyntaxBase IArtifactReferenceSyntax.SourceSyntax => ProviderPath;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderDeclarationSyntax(this);
 

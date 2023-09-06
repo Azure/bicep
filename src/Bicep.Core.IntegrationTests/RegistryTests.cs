@@ -62,7 +62,7 @@ namespace Bicep.Core.IntegrationTests
             };
             var featuresFactory = BicepTestConstants.CreateFeatureProviderFactory(featureOverrides);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(EmptyServiceProvider, BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, featuresFactory, BicepTestConstants.ConfigurationManager), BicepTestConstants.ConfigurationManager);
+            var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(EmptyServiceProvider, BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, featuresFactory, BicepTestConstants.ConfigurationManager), BicepTestConstants.ConfigurationManager);
 
             var workspace = new Workspace();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri, featuresFactory);
@@ -174,7 +174,7 @@ namespace Bicep.Core.IntegrationTests
 
             var fileResolver = BicepTestConstants.FileResolver;
             var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
+            var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
 
             var moduleReferences = dataSet.RegistryModules.Values
                 .OrderBy(m => m.Metadata.Target)
@@ -228,7 +228,7 @@ namespace Bicep.Core.IntegrationTests
 
             var fileResolver = BicepTestConstants.FileResolver;
             var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
+            var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
 
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = moduleInfos
@@ -297,7 +297,7 @@ namespace Bicep.Core.IntegrationTests
 
             var fileResolver = BicepTestConstants.FileResolver;
             var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
+            var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
 
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
@@ -372,7 +372,7 @@ namespace Bicep.Core.IntegrationTests
 
             var fileResolver = BicepTestConstants.FileResolver;
             var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
+            var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
 
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = moduleInfos

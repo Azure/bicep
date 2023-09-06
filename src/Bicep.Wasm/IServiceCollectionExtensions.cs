@@ -25,7 +25,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-        .AddSingleton<IModuleRegistryProvider, EmptyModuleRegistryProvider>()
+        .AddSingleton<IArtifactRegistryProvider, EmptyModuleRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
         .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IFileSystem, MockFileSystem>()

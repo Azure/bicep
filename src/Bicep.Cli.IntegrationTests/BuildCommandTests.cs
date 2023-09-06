@@ -117,6 +117,7 @@ namespace Bicep.Cli.IntegrationTests
             var manifestStr = $$"""
                 {
                   "schemaVersion": 2,
+                  "mediaType": "application/vnd.oci.image.manifest.v1+json",
                   "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
                   "config": {
                     "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",

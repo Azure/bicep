@@ -15,7 +15,7 @@ namespace Bicep.Core.Workspaces
 {
     
     public record ArtifactResolutionInfo(
-        IForeignArtifactReference DeclarationSyntax,
+        IArtifactReferenceSyntax DeclarationSyntax,
         ISourceFile ParentTemplateFile);
 
     public record FileResolutionResult(
@@ -32,7 +32,7 @@ namespace Bicep.Core.Workspaces
         IFileResolver FileResolver,
         Uri EntryFileUri,
         ImmutableDictionary<Uri, FileResolutionResult> FileResultByUri,
-        ImmutableDictionary<ISourceFile, ImmutableDictionary<IForeignArtifactReference, UriResolutionResult>> UriResultByArtifactReference,
+        ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, UriResolutionResult>> UriResultByArtifactReference,
         ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup) : ISourceFileLookup
     {
         public IEnumerable<ArtifactResolutionInfo> GetModulesToRestore()
@@ -45,7 +45,7 @@ namespace Bicep.Core.Workspaces
 
         public IEnumerable<ISourceFile> SourceFiles => FileResultByUri.Values.Select(x => x.File).WhereNotNull();
 
-        public ErrorBuilderDelegate? TryGetErrorDiagnostic(IForeignArtifactReference foreignTemplateReference)
+        public ErrorBuilderDelegate? TryGetErrorDiagnostic(IArtifactReferenceSyntax foreignTemplateReference)
         {
             var uriResult = UriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
             if (uriResult.ErrorBuilder is not null)
@@ -57,7 +57,7 @@ namespace Bicep.Core.Workspaces
             return fileResult.ErrorBuilder;
         }
 
-        public ISourceFile? TryGetSourceFile(IForeignArtifactReference foreignTemplateReference)
+        public ISourceFile? TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference)
         {
             var uriResult = UriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
             if (uriResult.FileUri is null)

@@ -8,7 +8,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class TestDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax, IForeignArtifactReference
+    public class TestDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax, IArtifactReferenceSyntax
     {
         public TestDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase path, SyntaxBase assignment, SyntaxBase value)
             : base(leadingNodes)
@@ -43,7 +43,7 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 
-        public SyntaxBase ReferenceSourceSyntax => Path;
+        public SyntaxBase SourceSyntax => Path;
 
         public ObjectSyntax? TryGetBody() =>
             this.Value switch

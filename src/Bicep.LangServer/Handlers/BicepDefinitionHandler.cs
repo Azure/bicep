@@ -26,7 +26,6 @@ using Bicep.Core.Workspaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.Registry;
-using Bicep.Core.Modules;
 using System.Net;
 using Bicep.Core.Navigation;
 using Bicep.Core.TypeSystem;
@@ -397,7 +396,7 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        private static (Template?, Uri?) GetArmSourceTemplateInfo(CompilationContext context, IForeignArtifactReference foreignTemplateReference)
+        private static (Template?, Uri?) GetArmSourceTemplateInfo(CompilationContext context, IArtifactReferenceSyntax foreignTemplateReference)
             => context.Compilation.SourceFileGrouping.TryGetSourceFile(foreignTemplateReference) switch
             {
                 TemplateSpecFile templateSpecFile => (templateSpecFile.MainTemplateFile.Template, templateSpecFile.FileUri),

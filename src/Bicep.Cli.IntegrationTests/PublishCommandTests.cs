@@ -372,7 +372,7 @@ namespace Bicep.Cli.IntegrationTests
 
             await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory.Object, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, documentationUri);
 
-            var manifest = Encoding.Default.GetString(blobClient.Manifests.Single().Value.ToBuilder().ToArray());
+            var manifest = blobClient.Manifests.Single().Value.Text;
 
             if (expectedDescription is null)
             {

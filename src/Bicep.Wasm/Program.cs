@@ -21,7 +21,7 @@ public class Program
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
         builder.Services.AddSingleton<IFileSystem, MockFileSystem>();
-        builder.Services.AddSingleton<IModuleRegistryProvider, EmptyModuleRegistryProvider>();
+        builder.Services.AddSingleton<IArtifactRegistryProvider, EmptyModuleRegistryProvider>();
         builder.Services.AddBicepCore();
         builder.Services.AddBicepDecompiler();
 

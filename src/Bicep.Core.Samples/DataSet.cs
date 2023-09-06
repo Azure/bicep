@@ -42,7 +42,7 @@ namespace Bicep.Core.Samples
 
         public record ExternalModuleMetadata(string Target);
 
-        public static readonly string Prefix = "Files/";
+        public static readonly string Prefix = "Files/baselines/";
 
         private readonly Lazy<string> lazyBicep;
 

@@ -6,7 +6,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class UsingDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IForeignArtifactReference
+    public class UsingDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
         public UsingDeclarationSyntax(Token keyword, SyntaxBase path)
             : base(Enumerable.Empty<SyntaxBase>())
@@ -29,6 +29,6 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 
-        SyntaxBase IForeignArtifactReference.ReferenceSourceSyntax => Path;
+        SyntaxBase IArtifactReferenceSyntax.SourceSyntax => Path;
     }
 }

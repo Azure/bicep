@@ -22,6 +22,7 @@ namespace Bicep.Core.Registry.Oci
         [JsonConstructor]
         public OciManifest(
             int schemaVersion,
+            string? mediaType,
             string? artifactType,
             OciDescriptor config,
             ImmutableArray<OciDescriptor> layers,
@@ -29,12 +30,15 @@ namespace Bicep.Core.Registry.Oci
         {
             this.Annotations = annotations;
             this.SchemaVersion = schemaVersion;
+            this.MediaType = mediaType;
             this.ArtifactType = artifactType;
             this.Config = config;
             this.Layers = layers;
         }
 
         public int SchemaVersion { get; }
+
+        public string? MediaType { get; }
 
         public string? ArtifactType { get; }
 
