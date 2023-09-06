@@ -95,6 +95,11 @@ namespace Bicep.Core.Registry
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Metadata));
         }
 
+        private InvalidModuleException GetUnknownArtifactException(string gotArtifactMediaType)
+                => new(
+                    $"Unknown ArtifactType: '{gotArtifactMediaType}'. Supported OCI artifactType fields are: (1) null or '{BicepMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType} for resource type providers'",
+                    InvalidModuleExceptionKind.WrongArtifactType);
+
         public override async Task<bool> CheckArtifactExists(OciModuleReference reference)
         {
             try
@@ -144,10 +149,7 @@ namespace Bicep.Core.Registry
                 // (Bicep v0.20.0 and lower use null for this field, so assume valid in that case)
                 null or BicepMediaTypes.BicepModuleArtifactType => BicepMediaTypes.BicepModuleLayerV1Json,
                 BicepMediaTypes.BicepProviderArtifactType => BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip,
-                _ =>
-                     throw new InvalidModuleException(
-                            $"Unknown ArtifactType: '{result.Manifest.ArtifactType}'. Supported OCI artifactType fields are: (1) null or '{BicepMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType} for resource type providers'",
-                            InvalidModuleExceptionKind.WrongArtifactType)
+                _ => throw GetUnknownArtifactException(result.Manifest.ArtifactType)
             };
 
             // Ignore layers we don't recognize for now.
@@ -172,10 +174,7 @@ namespace Bicep.Core.Registry
                 // (Bicep v0.20.0 and lower use null for this field, so assume valid in that case)
                 null or BicepMediaTypes.BicepModuleArtifactType => BicepMediaTypes.BicepModuleConfigV1,
                 BicepMediaTypes.BicepProviderArtifactType => BicepMediaTypes.BicepProviderConfigV1,
-                _ =>
-                 throw new InvalidModuleException(
-                        $"Unknown ArtifactType: '{artifactResult.Manifest.ArtifactType}'. Supported OCI artifactType fields are: (1) null or '{BicepMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType} for resource type providers'",
-                        InvalidModuleExceptionKind.WrongArtifactType)
+                _ => throw GetUnknownArtifactException(artifactResult.Manifest.ArtifactType)
             };
             var manifest = artifactResult.Manifest;
             var config = manifest.Config;
