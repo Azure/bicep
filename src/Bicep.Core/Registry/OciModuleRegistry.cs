@@ -97,7 +97,7 @@ namespace Bicep.Core.Registry
 
         private InvalidModuleException GetUnknownArtifactException(string gotArtifactMediaType)
                 => new(
-                    $"Unknown ArtifactType: '{gotArtifactMediaType}'. Supported OCI artifactType fields are: (1) null or '{BicepMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType} for resource type providers'",
+                    $"Unknown ArtifactType: '{gotArtifactMediaType}'. Supported OCI artifactType fields are: (1) null or '{BicepMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType}' for resource type providers. {NewerVersionMightBeRequired}",
                     InvalidModuleExceptionKind.WrongArtifactType);
 
         public override async Task<bool> CheckArtifactExists(OciModuleReference reference)
