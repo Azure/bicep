@@ -153,13 +153,10 @@ namespace Bicep.Core.Registry
             ValidateManifestResponse(manifestResponse);
 
             var deserializedManifest = OciManifest.FromBinaryData(manifestResponse.Value.Manifest) ?? throw new InvalidOperationException("the manifest is not a valid OCI manifest");
-            var layers = new List<(string MediaType, BinaryData Data)>();
-            foreach (var layer in deserializedManifest.Layers)
-            {
-                layers.Add((layer.MediaType, await PullLayerAsync(client, layer)));
-            }
+            var layerTasks = deserializedManifest.Layers
+                .Select(async layer => new OciArtifactLayer(layer.Digest, layer.MediaType, await PullLayerAsync(client, layer)));
 
-            return new(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers.ToImmutableArray());
+            return new(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, await Task.WhenAll(layerTasks));
         }
 
         private static async Task<BinaryData> PullLayerAsync(ContainerRegistryContentClient client, OciDescriptor layer, CancellationToken cancellationToken = default)

@@ -132,15 +132,26 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        private (string mediaType, BinaryData data) getMainLayer(OciArtifactResult result)
+        private OciArtifactLayer getMainLayer(OciArtifactResult result)
         {
             if (result.Layers.Count() == 0)
             {
                 throw new InvalidModuleException("Expected at least one layer in the OCI artifact.");
             }
 
+            var expectedMediaType = result.Manifest.ArtifactType switch
+            {
+                // (Bicep v0.20.0 and lower use null for this field, so assume valid in that case)
+                null or BicepMediaTypes.BicepModuleArtifactType => BicepMediaTypes.BicepModuleLayerV1Json,
+                BicepMediaTypes.BicepProviderArtifactType => BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip,
+                _ =>
+                     throw new InvalidModuleException(
+                            $"Unknown ArtifactType: '{result.Manifest.ArtifactType}'. Supported OCI artifactType fields are: (1) null or '{BicepMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType} for resource type providers'",
+                            InvalidModuleExceptionKind.WrongArtifactType)
+            };
+
             // Ignore layers we don't recognize for now.
-            var mainLayers = result.Layers.Where(l => l.MediaType.Equals(BicepMediaTypes.BicepModuleLayerV1Json, MediaTypeComparison)).ToArray();
+            var mainLayers = result.Layers.Where(l => l.MediaType.Equals(expectedMediaType, MediaTypeComparison)).ToArray();
             if (mainLayers.Count() == 0)
             {
                 throw new InvalidModuleException($"Did not expect only layer media types {string.Join(", ", result.Layers.Select(l => l.MediaType).ToArray())}", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
@@ -154,13 +165,24 @@ namespace Bicep.Core.Registry
         }
 
 
-        private void ValidateModule(OciArtifactResult artifactResult)
+        private void ValidateArtifact(OciArtifactResult artifactResult)
         {
+            var expectedMediaType = artifactResult.Manifest.ArtifactType switch
+            {
+                // (Bicep v0.20.0 and lower use null for this field, so assume valid in that case)
+                null or BicepMediaTypes.BicepModuleArtifactType => BicepMediaTypes.BicepModuleConfigV1,
+                BicepMediaTypes.BicepProviderArtifactType => BicepMediaTypes.BicepProviderConfigV1,
+                _ =>
+                 throw new InvalidModuleException(
+                        $"Unknown ArtifactType: '{artifactResult.Manifest.ArtifactType}'. Supported OCI artifactType fields are: (1) null or '{BicepMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType} for resource type providers'",
+                        InvalidModuleExceptionKind.WrongArtifactType)
+            };
             var manifest = artifactResult.Manifest;
             var config = manifest.Config;
 
             var configMediaType = config.MediaType;
-            if (configMediaType is not null && !configMediaType.Equals(BicepMediaTypes.BicepModuleConfigV1, MediaTypeComparison))
+
+            if (configMediaType is not null && !configMediaType.Equals(expectedMediaType, MediaTypeComparison))
             {
                 throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\". {NewerVersionMightBeRequired}");
             }
@@ -169,36 +191,6 @@ namespace Bicep.Core.Registry
 
             // Note: We're not currently writing out non-zero config for modules but expect to soon (https://github.com/Azure/bicep/issues/11482).
             // So ignore the field for now and don't do any validation.
-        }
-
-        private static void ValidateProvider(OciArtifactResult artifactResult)
-        {
-            var manifest = artifactResult.Manifest;
-            var config = manifest.Config;
-
-            var configMediaType = config.MediaType;
-            if (configMediaType is not null && !configMediaType.Equals(BicepMediaTypes.BicepProviderConfigV1, MediaTypeComparison))
-            {
-                throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\".");
-            }
-
-            if (config.Size > 2)
-            {
-                throw new InvalidModuleException("Expected an empty config blob.");
-            }
-
-            if (manifest.Layers.Length != 1)
-            {
-                throw new InvalidModuleException("Expected a single layer in the OCI artifact.");
-            }
-
-            var layer = manifest.Layers.Single();
-            if (!layer.MediaType.Equals(BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, MediaTypeComparison))
-            {
-                throw new InvalidModuleException(
-                    $"Unknown layer media type '{layer.MediaType}'. Expected {BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}",
-                    InvalidModuleExceptionKind.WrongModuleLayerMediaType);
-            }
         }
 
         public override bool TryGetLocalArtifactEntryPointUri(OciModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
@@ -357,13 +349,13 @@ namespace Bicep.Core.Registry
             // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
             // but this may change in the future if we chose to publish providers in multiple layers.
             // TODO: IsArtifactRestoreRequired assumes there must be a ModuleMain file, which isn't true for provider artifacts
-            var moduleFileType = mainLayer.mediaType switch
+            var moduleFileType = mainLayer.MediaType switch
             {
                 BicepMediaTypes.BicepModuleLayerV1Json => ModuleFileType.ModuleMain,
                 BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip => ModuleFileType.Provider,
-                _ => throw new ArgumentException($"Unexpected layer mediaType \"{mainLayer.mediaType}\". This should have been caught in the {nameof(ValidateModule)} method.")
+                _ => throw new ArgumentException($"Unexpected layer mediaType \"{mainLayer.MediaType}\". This should have been caught in the {nameof(ValidateArtifact)} method.")
             };
-            using var dataStream = mainLayer.data.ToStream();
+            using var dataStream = mainLayer.Data.ToStream();
             this.FileResolver.Write(this.GetModuleFileUri(reference, moduleFileType), dataStream);
 
             // write metadata
@@ -422,20 +414,10 @@ namespace Bicep.Core.Registry
             try
             {
                 var result = await this.client.PullArtifactAsync(configuration, reference);
-                switch (result.Manifest.ArtifactType)
-                {
-                    case BicepMediaTypes.BicepModuleArtifactType:
-                    case null: // (Bicep v0.20.0 and lower use null for this field, so assume valid in that case)
-                        ValidateModule(result);
-                        break;
-                    case BicepMediaTypes.BicepProviderArtifactType:
-                        ValidateProvider(result);
-                        break;
-                    default:
-                        throw new InvalidModuleException(
-                            $"Unknown ArtifactType: '{result.Manifest.ArtifactType}'. Supported OCI artifactType fields are: (1) null or '{BicepMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType} for resource type providers'",
-                            InvalidModuleExceptionKind.WrongArtifactType);
-                }
+
+
+
+                ValidateArtifact(result);
                 await this.TryWriteArtifactContentAsync(reference, result);
 
                 return (result, null);
