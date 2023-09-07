@@ -2085,7 +2085,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic AmbiguousExportFromArmTemplate(string exportName, IEnumerable<string> exportKindsUsingName) => new(
                 TextSpan,
                 "BCP373",
-                $"The name \"{exportName}\" is ambiguous because it refers to exports of the following kinds: {string.Join(", ", exportKindsUsingName)}.");
+                $"The name \"{exportName}\" is ambiguous because it refers to exports of the following kinds: {ToQuotedString(exportKindsUsingName)}.");
 
             public ErrorDiagnostic ImportedModelContainsAmbiguousExports(IEnumerable<string> ambiguousExportNames) => new(
                 TextSpan,

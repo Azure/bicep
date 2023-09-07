@@ -1010,7 +1010,7 @@ namespace Bicep.Core.TypeSystem
 
                 // Unlike a wildcard import, the intermediate syntax node surrounding the symbols declared by a statement like `import {foo, bar, baz} from 'main.bicep'`
                 // doesn't declare a single dereferenceable symbol.
-                return VoidType.Instance;
+                return LanguageConstants.Never;
             });
 
         public override void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)

@@ -93,10 +93,5 @@ namespace Bicep.Core.TypeSystem
         /// A reference to a type symbol
         /// </summary>
         TypeReference,
-
-        /// <summary>
-        /// The absence of a type
-        /// </summary>
-        Void,
     }
 }

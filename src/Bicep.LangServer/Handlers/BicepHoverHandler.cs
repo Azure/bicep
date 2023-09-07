@@ -110,7 +110,7 @@ namespace Bicep.LanguageServer.Handlers
                         WithTypeModifiers($"type {imported.Name}: {imported.Type}", imported.Type),
                         imported.TryGetDescription()));
 
-                case ImportedSymbol imported:
+                case ImportedSymbol imported when imported.Kind == Bicep.Core.Semantics.SymbolKind.Variable:
                     return AsMarkdown(CodeBlockWithDescription($"var {imported.Name}: {imported.Type}", imported.TryGetDescription()));
 
                 case AmbientTypeSymbol ambientType:

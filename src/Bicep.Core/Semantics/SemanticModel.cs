@@ -112,9 +112,9 @@ namespace Bicep.Core.Semantics
                 return parameters.ToImmutable();
             });
 
-            this.exportsLazy = new(() => ExportedTypes.Concat(ExportedVariables)
-                .DistinctBy(export => export.Name)
-                .ToImmutableDictionary(export => export.Name));
+            this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables())
+                .DistinctBy(export => export.Name, LanguageConstants.IdentifierComparer)
+                .ToImmutableDictionary(export => export.Name, LanguageConstants.IdentifierComparer));
 
             this.outputsLazy = new(() =>
             {
@@ -140,11 +140,11 @@ namespace Bicep.Core.Semantics
             });
         }
 
-        private IEnumerable<ExportMetadata> ExportedTypes => Root.TypeDeclarations
+        private IEnumerable<ExportMetadata> FindExportedTypes() => Root.TypeDeclarations
             .Where(t => IsExported(t.DeclaringType))
             .Select(t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType)));
 
-        private IEnumerable<ExportMetadata> ExportedVariables => Root.VariableDeclarations
+        private IEnumerable<ExportMetadata> FindExportedVariables() => Root.VariableDeclarations
             .Where(v => IsExported(v.DeclaringVariable))
             .Select(v => new ExportedVariableMetadata(v.Name, v.Type, DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable)));
 

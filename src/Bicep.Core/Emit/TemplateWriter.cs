@@ -70,12 +70,10 @@ namespace Bicep.Core.Emit
         private EmitterContext Context => ExpressionBuilder.Context;
         private ExpressionBuilder ExpressionBuilder { get; }
         private ImportClosureInfo ImportClosureInfo { get; }
-        private SemanticModel Model { get; }
         private ImmutableDictionary<string, DeclaredTypeExpression> declaredTypesByName;
 
         public TemplateWriter(SemanticModel semanticModel)
         {
-            Model = semanticModel;
             ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
             ImportClosureInfo = ImportClosureInfo.Calculate(semanticModel);
             declaredTypesByName = ImmutableDictionary<string, DeclaredTypeExpression>.Empty;
@@ -1144,7 +1142,7 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("version", this.Context.SemanticModel.Features.AssemblyVersion);
                 });
 
-                var exportedVariables = Model.Exports.Values.OfType<ExportedVariableMetadata>().ToImmutableArray();
+                var exportedVariables = Context.SemanticModel.Exports.Values.OfType<ExportedVariableMetadata>().ToImmutableArray();
 
                 if (exportedVariables.Length > 0)
                 {

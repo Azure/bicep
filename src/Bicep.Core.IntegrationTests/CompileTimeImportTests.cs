@@ -53,6 +53,46 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
+    public void Imported_variable_cannot_be_used_in_a_type_expression()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {bar} from 'mod.bicep'
+
+                type foo = bar
+                """),
+            ("mod.bicep", """
+                @export()
+                var bar = 'bar'
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP287", DiagnosticLevel.Error, "'bar' refers to a value but is being used as a type here."),
+        });
+    }
+
+    [TestMethod]
+    public void Imported_type_cannot_be_used_in_a_value_expression()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {foo} from 'mod.bicep'
+
+                var bar = foo
+                """),
+            ("mod.bicep", """
+                @export()
+                type foo = string[]
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP288", DiagnosticLevel.Error, "'foo' refers to a type but is being used as a value here."),
+        });
+    }
+
+    [TestMethod]
     public void Dereferencing_unexported_or_unknown_symbol_from_wildcard_should_raise_diagnostic()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
@@ -755,7 +795,7 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP373", DiagnosticLevel.Error, "The name \"foo\" is ambiguous because it refers to exports of the following kinds: Type, Variable."),
+            ("BCP373", DiagnosticLevel.Error, "The name \"foo\" is ambiguous because it refers to exports of the following kinds: \"Type\", \"Variable\"."),
         });
     }
 

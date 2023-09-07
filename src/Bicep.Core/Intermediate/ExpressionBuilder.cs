@@ -888,13 +888,8 @@ public class ExpressionBuilder
             case LocalVariableSymbol localVariableSymbol:
                 return GetLocalVariableExpression(variableAccessSyntax, localVariableSymbol);
 
-            case ImportedSymbol importedSymbol:
-                if (importedSymbol.Kind == SymbolKind.Variable)
-                {
-                    return new ImportedVariableReferenceExpression(variableAccessSyntax, importedSymbol);
-                }
-
-                throw new InvalidOperationException($"Cannot dereference an imported symbol of kind {importedSymbol.Kind} in a value expression.");
+            case ImportedSymbol importedSymbol when importedSymbol.Kind == SymbolKind.Variable:
+                return new ImportedVariableReferenceExpression(variableAccessSyntax, importedSymbol);
 
             default:
                 throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");

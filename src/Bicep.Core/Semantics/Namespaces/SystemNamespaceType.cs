@@ -1442,7 +1442,7 @@ namespace Bicep.Core.Semantics.Namespaces
             if (featureProvider.CompileTimeImportsEnabled)
             {
                 yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
-                    .WithDescription("Allows a type or variable to be imported into other templates.")
+                    .WithDescription("Allows a type or variable to be imported into other Bicep files.")
                     .WithFlags(FunctionFlags.TypeOrVariableDecorator)
                     .WithEvaluator(static (functionCall, decorated) => decorated switch
                     {
@@ -1462,11 +1462,11 @@ namespace Bicep.Core.Semantics.Namespaces
                         if (decoratorTarget is not null && binder.GetSymbolInfo(decoratorTarget) is DeclaredSymbol targetedDeclaration)
                         {
                             var nonExportableSymbolsInClosure = SymbolicReferenceCollector.CollectSymbolsReferencedRecursive(binder, targetedDeclaration)
-                                .Where(s => s is not VariableSymbol &&
-                                    s is not TypeAliasSymbol &&
-                                    s is not ImportedSymbol &&
-                                    s is not WildcardImportSymbol &&
-                                    s is not LocalVariableSymbol)
+                                .Where(s => s is not VariableSymbol and
+                                    not TypeAliasSymbol and
+                                    not ImportedSymbol and
+                                    not WildcardImportSymbol and
+                                    not LocalVariableSymbol)
                                 .Select(s => s.Name)
                                 .Order()
                                 .ToImmutableArray();

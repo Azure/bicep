@@ -89,58 +89,7 @@ namespace Bicep.Core.Semantics
                         LanguageConstants.IdentifierComparer);
             });
 
-            this.exportsLazy = new(() =>
-            {
-                if (SourceFile.Template is not {} template || SourceFile.TemplateObject is not {} templateObject)
-                {
-                    return ImmutableDictionary<string, ExportMetadata>.Empty;
-                }
-
-                List<ExportMetadata> exports = new();
-
-                if (template.Definitions is {} typeDefinitions)
-                {
-                    exports.AddRange(typeDefinitions.Where(kvp => IsExported(kvp.Value))
-                        .Select(kvp => new ExportedTypeMetadata(kvp.Key, GetType(kvp.Value), GetMostSpecificDescription(kvp.Value))));
-                }
-
-                if (template.Metadata?.TryGetValue(LanguageConstants.TemplateMetadataExportedVariablesName, out var exportedVariables) is true
-                    && exportedVariables.Value is JArray exportedVariablesList)
-                {
-                    TemplateVariablesEvaluator evaluator = new(template);
-
-                    foreach (var exportedVariable in exportedVariablesList)
-                    {
-                        if (exportedVariable is JObject exportedVariableObject &&
-                            exportedVariableObject.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out var nameToken) &&
-                            nameToken is JValue { Value: string name } &&
-                            evaluator.TryGetEvaluatedVariableValue(name) is JToken evaluatedValue)
-                        {
-                            exports.Add(new ExportedVariableMetadata(name, SystemNamespaceType.ConvertJsonToBicepType(evaluatedValue), GetDescription(exportedVariableObject)));
-                        }
-                    }
-                }
-
-                var exportsBuilder = ImmutableDictionary.CreateBuilder<string, ExportMetadata>();
-
-                foreach (var exportsByName in exports.ToLookup(e => e.Name))
-                {
-                    // Each export needs a unique name, so if two or more exports of different types share a name, they are no longer uniquely identifiable by name
-                    // This will never come up for templates authored in Bicep, but it may for templates authored directly in ARM JSON.
-                    // A necessary consequence of skipping exports that share a name is that adding a second export of a given name (e.g., if there is already a
-                    // type export named 'foo' and the template author exports a variable named 'foo') is a **backwards incompatible change**.
-                    if (exportsByName.Count() == 1)
-                    {
-                        exportsBuilder.Add(exportsByName.Key, exportsByName.Single());
-                    }
-                    else
-                    {
-                        exportsBuilder.Add(exportsByName.Key, new DuplicatedExportMetadata(exportsByName.Key, exportsByName.Select(e => e.Kind.ToString()).ToImmutableArray()));
-                    }
-                }
-
-                return exportsBuilder.ToImmutable();
-            });
+            this.exportsLazy = new(FindExports);
 
             this.outputsLazy = new(() =>
             {
@@ -249,6 +198,59 @@ namespace Bicep.Core.Semantics
 
                 _ => GetType((ITemplateSchemaNode)output),
             };
+        }
+
+        private ImmutableDictionary<string, ExportMetadata> FindExports()
+        {
+            if (SourceFile.Template is not {} template || SourceFile.TemplateObject is not {} templateObject)
+            {
+                return ImmutableDictionary<string, ExportMetadata>.Empty;
+            }
+
+            List<ExportMetadata> exports = new();
+
+            if (template.Definitions is {} typeDefinitions)
+            {
+                exports.AddRange(typeDefinitions.Where(kvp => IsExported(kvp.Value))
+                    .Select(kvp => new ExportedTypeMetadata(kvp.Key, GetType(kvp.Value), GetMostSpecificDescription(kvp.Value))));
+            }
+
+            if (template.Metadata?.TryGetValue(LanguageConstants.TemplateMetadataExportedVariablesName, out var exportedVariables) is true
+                && exportedVariables.Value is JArray exportedVariablesList)
+            {
+                TemplateVariablesEvaluator evaluator = new(template);
+
+                foreach (var exportedVariable in exportedVariablesList)
+                {
+                    if (exportedVariable is JObject exportedVariableObject &&
+                        exportedVariableObject.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out var nameToken) &&
+                        nameToken is JValue { Value: string name } &&
+                        evaluator.TryGetEvaluatedVariableValue(name) is JToken evaluatedValue)
+                    {
+                        exports.Add(new ExportedVariableMetadata(name, SystemNamespaceType.ConvertJsonToBicepType(evaluatedValue), GetDescription(exportedVariableObject)));
+                    }
+                }
+            }
+
+            var exportsBuilder = ImmutableDictionary.CreateBuilder<string, ExportMetadata>();
+
+            foreach (var exportsByName in exports.ToLookup(e => e.Name))
+            {
+                // Each export needs a unique name, so if two or more exports of different types share a name, they are no longer uniquely identifiable by name
+                // This will never come up for templates authored in Bicep, but it may for templates authored directly in ARM JSON.
+                // A necessary consequence of skipping exports that share a name is that adding a second export of a given name (e.g., if there is already a
+                // type export named 'foo' and the template author exports a variable named 'foo') is a **backwards incompatible change**.
+                if (exportsByName.Count() == 1)
+                {
+                    exportsBuilder.Add(exportsByName.Key, exportsByName.Single());
+                }
+                else
+                {
+                    exportsBuilder.Add(exportsByName.Key, new DuplicatedExportMetadata(exportsByName.Key, exportsByName.Select(e => e.Kind.ToString()).ToImmutableArray()));
+                }
+            }
+
+            return exportsBuilder.ToImmutable();
         }
 
         private static bool TryCreateUnboundResourceTypeParameter(JToken? metadataToken, [NotNullWhen(true)] out TypeSymbol? type)
