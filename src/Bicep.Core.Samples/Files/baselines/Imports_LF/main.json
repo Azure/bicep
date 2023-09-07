@@ -1,0 +1,90 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6589342864324340997"
+    }
+  },
+  "definitions": {
+    "fizzes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/fizz"
+      }
+    },
+    "1.buzz": {
+      "type": "object",
+      "properties": {
+        "property": {
+          "$ref": "#/definitions/1.pop",
+          "nullable": true
+        }
+      },
+      "metadata": {
+        "__bicep_imported_from!": {
+          "sourceTemplate": "modules/mod.bicep"
+        }
+      }
+    },
+    "1.pop": {
+      "type": "string",
+      "minLength": 3,
+      "metadata": {
+        "__bicep_imported_from!": {
+          "sourceTemplate": "modules/mod.bicep"
+        }
+      }
+    },
+    "3.fizz": {
+      "type": "string",
+      "allowedValues": [
+        "buzz"
+      ],
+      "metadata": {
+        "__bicep_imported_from!": {
+          "sourceTemplate": "modules/mod2.bicep"
+        }
+      }
+    },
+    "fizz": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/1.buzz"
+      },
+      "metadata": {
+        "__bicep_imported_from!": {
+          "sourceTemplate": "modules/mod.bicep"
+        }
+      }
+    }
+  },
+  "variables": {
+    "copy": [
+      {
+        "name": "2.copyVariable",
+        "count": "[length(range(0, variables('2.copyVariableCount')))]",
+        "input": {
+          "count": "[copyIndex('2.copyVariable')]",
+          "value": "[variables('2.notExported')[mod(copyIndex('2.copyVariable'), 2)]]"
+        }
+      }
+    ],
+    "aliasedFoo": "[variables('foo')]",
+    "1.bar": "[variables('1.baz')]",
+    "1.baz": "quux",
+    "2.copyVariableCount": 10,
+    "2.notExported": [
+      "bippity boppity boop",
+      "abracadabra"
+    ],
+    "3.foo": "bar",
+    "foo": "[variables('1.bar')]",
+    "refersToCopyVariable": "[variables('2.copyVariable')]",
+    "withInvalidIdentifier": "value"
+  },
+  "resources": {}
+}
