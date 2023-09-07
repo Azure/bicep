@@ -41,9 +41,10 @@ public class Result<TSuccess, TError>
 
     /// <summary>
     /// Returns the succcessful result, assuming success. Throws an exception if not.
+    /// This should only be called if you'e already verified that the result is successful.
     /// </summary>
     public TSuccess Unwrap()
-        => TryUnwrap() ?? throw new InvalidOperationException($"{nameof(Success)} was not set!");
+        => TryUnwrap() ?? throw new InvalidOperationException("Cannot unwrap a failed result.");
 
     public TSuccess? TryUnwrap()
         => Success;
