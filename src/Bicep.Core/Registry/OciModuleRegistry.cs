@@ -137,7 +137,7 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        private OciArtifactLayer getMainLayer(OciArtifactResult result)
+        private OciArtifactLayer GetMainLayer(OciArtifactResult result)
         {
             if (result.Layers.Count() == 0)
             {
@@ -186,7 +186,7 @@ namespace Bicep.Core.Registry
                 throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\". {NewerVersionMightBeRequired}");
             }
             // Verify nothing wrong with the layers we've been given
-            _ = getMainLayer(artifactResult);
+            _ = GetMainLayer(artifactResult);
 
             // Note: We're not currently writing out non-zero config for modules but expect to soon (https://github.com/Azure/bicep/issues/11482).
             // So ignore the field for now and don't do any validation.
@@ -343,7 +343,7 @@ namespace Bicep.Core.Registry
             this.FileResolver.Write(manifestFileUri, manifestStream);
 
             // write data file
-            var mainLayer = getMainLayer(result);
+            var mainLayer = GetMainLayer(result);
 
             // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
             // but this may change in the future if we chose to publish providers in multiple layers.
