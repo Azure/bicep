@@ -29,6 +29,7 @@ using Bicep.Core.Registry;
 using System.Net;
 using Bicep.Core.Navigation;
 using Bicep.Core.TypeSystem;
+using Newtonsoft.Json;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -118,7 +119,8 @@ namespace Bicep.LanguageServer.Handlers
                         context,
                         new() { Start = new(0, 0), End = new(0, 0) });
                 }
-            }{ // Definition handler for a non symbol bound to implement import path goto.
+            }
+            { // Definition handler for a non symbol bound to implement import path goto.
                 // try to resolve import path syntax from given offset using tail matching.
                 if (SyntaxMatcher.IsTailMatch<CompileTimeImportDeclarationSyntax, CompileTimeImportFromClauseSyntax, StringSyntax, Token>(
                      matchingNodes,
@@ -367,7 +369,7 @@ namespace Bicep.LanguageServer.Handlers
             var originSelectionRange = result.Origin.ToRange(context.LineStarts);
 
             if (imported.TryGetSemanticModel() is SemanticModel bicepModel &&
-                bicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is {} originalDeclaration)
+                bicepModel.Root.Declarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is {} originalDeclaration)
             {
                 // entire span of the declaredSymbol
                 var targetRange = PositionHelper.GetNameRange(bicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);
@@ -381,18 +383,57 @@ namespace Bicep.LanguageServer.Handlers
                 }));
             }
 
-            return GetArmSourceTemplateInfo(context, imported.EnclosingDeclaration) switch
+            var (armTemplate, armTemplateUri) = GetArmSourceTemplateInfo(context, imported.EnclosingDeclaration);
+
+            if (armTemplateUri is not null && imported.OriginalSymbolName is string nonNullName)
             {
-                (Template armTemplate, Uri armTemplateUri) when imported.OriginalSymbolName is string nonNullName && armTemplate.Definitions?.TryGetValue(nonNullName, out var definition) == true && ToRange(definition) is {} range
-                    => new(new LocationOrLocationLink(new LocationLink
+                if (imported.Kind == Core.Semantics.SymbolKind.TypeAlias &&
+                    armTemplate?.Definitions?.TryGetValue(nonNullName, out var originalTypeDefintion) is true &&
+                    ToRange(originalTypeDefintion) is Range typeDefintionRange)
+                {
+                    return new(new LocationOrLocationLink(new LocationLink
                     {
                         OriginSelectionRange = originSelectionRange,
                         TargetUri = armTemplateUri,
-                        TargetRange = range,
-                        TargetSelectionRange = range,
-                    })),
-                _ => new(),
-            };
+                        TargetRange = typeDefintionRange,
+                        TargetSelectionRange = typeDefintionRange,
+                    }));
+                }
+
+                if (imported.Kind == Core.Semantics.SymbolKind.Variable)
+                {
+                    if (armTemplate?.Variables?.TryGetValue(nonNullName, out var variableDeclaration) is true && ToRange(variableDeclaration) is Range variableDefinitionRange)
+                    {
+                        return new(new LocationOrLocationLink(new LocationLink
+                        {
+                            OriginSelectionRange = originSelectionRange,
+                            TargetUri = armTemplateUri,
+                            TargetRange = variableDefinitionRange,
+                            TargetSelectionRange = variableDefinitionRange,
+                        }));
+                    }
+
+                    if (armTemplate?.Variables?.TryGetValue("copy", out var copyVariablesDeclaration) is true &&
+                        copyVariablesDeclaration.Value is JArray copyVariablesArray &&
+                        copyVariablesArray.Where(e => e is JObject objectElement &&
+                            objectElement.TryGetValue("name", StringComparison.OrdinalIgnoreCase, out var nameToken) &&
+                            nameToken is JValue { Value: string nameString } &&
+                            StringComparer.OrdinalIgnoreCase.Equals(nameString, nonNullName))
+                            .FirstOrDefault() is JToken copyVariableToken &&
+                        ToRange(copyVariableToken) is Range copyVariableDefinitionRange)
+                    {
+                        return new(new LocationOrLocationLink(new LocationLink
+                        {
+                            OriginSelectionRange = originSelectionRange,
+                            TargetUri = armTemplateUri,
+                            TargetRange = copyVariableDefinitionRange,
+                            TargetSelectionRange = copyVariableDefinitionRange,
+                        }));
+                    }
+                }
+            }
+
+            return new();
         }
 
         private static (Template?, Uri?) GetArmSourceTemplateInfo(CompilationContext context, IArtifactReferenceSyntax foreignTemplateReference)
@@ -406,6 +447,11 @@ namespace Bicep.LanguageServer.Handlers
         private static Range? ToRange(JTokenMetadata jToken)
             => jToken.LineNumber.HasValue && jToken.LinePosition.HasValue
                 ? new(jToken.LineNumber.Value - 1, jToken.LinePosition.Value, jToken.LineNumber.Value - 1, jToken.LinePosition.Value)
+                : null;
+
+        private static Range? ToRange(IJsonLineInfo jsonLineInfo)
+            => jsonLineInfo.LineNumber > 0
+                ? new(jsonLineInfo.LineNumber - 1, jsonLineInfo.LinePosition, jsonLineInfo.LineNumber - 1, jsonLineInfo.LinePosition)
                 : null;
 
         private LocationOrLocationLinks GetModuleSymbolLocation(
