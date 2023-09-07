@@ -317,8 +317,8 @@ namespace Bicep.Core.Parsing
             SyntaxBase originalSymbolName = reader.Peek().Type switch
             {
                 TokenType.Identifier => Identifier(b => b.ExpectedExportedSymbolName()),
-                TokenType.StringComplete or
-                TokenType.StringLeftPiece => InterpolableString(),
+                TokenType.StringComplete => InterpolableString(),
+                TokenType.StringLeftPiece => Skip(InterpolableString(), b => b.CompileTimeConstantRequired()),
                 _ => Skip(reader.Read(), b => b.ExpectedExportedSymbolName()),
             };
 

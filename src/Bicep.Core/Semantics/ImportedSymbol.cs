@@ -26,7 +26,7 @@ public class ImportedSymbol : DeclaredSymbol
     public string? OriginalSymbolName => DeclaringImportedSymbolsListItem.OriginalSymbolName switch
     {
         IdentifierSyntax identifier => identifier.IdentifierName,
-        StringSyntax @string when Context.TypeManager.GetTypeInfo(@string) is StringLiteralType stringLiteral => stringLiteral.RawStringValue,
+        StringSyntax @string when @string.TryGetLiteralValue() is string literalValue => literalValue,
         _ => null,
     };
 

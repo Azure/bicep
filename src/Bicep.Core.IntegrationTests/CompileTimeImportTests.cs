@@ -968,22 +968,22 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Named_import_by_quoted_string_self_reference_should_raise_diagnostic()
+    public void Named_import_by_quoted_string_should_block_interpolation()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
             ("main.bicep", """
-                import {'${ab}' as ab} from 'mod.json'
+                import {'${originalSymbolName}' as ab} from 'mod.json'
+
+                var originalSymbolName = 'a-b'
                 """),
             ("mod.json", $$"""
                 {
                     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
                     "contentVersion": "1.0.0.0",
-                    "languageVersion": "2.0",
                     "metadata": {
                         "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
                             {
-                                "name": "a-b",
-                                "description": "A lengthy, florid description"
+                                "name": "a-b"
                             }
                         ]
                     },
@@ -996,7 +996,7 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
+            ("BCP032", DiagnosticLevel.Error, "The value must be a compile-time constant."),
         });
     }
 
@@ -1029,7 +1029,7 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP376", DiagnosticLevel.Error, "An import list item that identifies its target with a quoted string must include an 'as <alias>' clause."),
+            ("BCP375", DiagnosticLevel.Error, "An import list item that identifies its target with a quoted string must include an 'as <alias>' clause."),
         });
     }
 
@@ -1045,7 +1045,6 @@ public class CompileTimeImportTests
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP355", DiagnosticLevel.Error, "Expected the name of an exported symbol at this location."),
-            ("BCP375", DiagnosticLevel.Error, "The import list item does not identify which symbol to import."),
         });
     }
 }

@@ -1025,29 +1025,17 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                string? importTarget = null;
-                switch (syntax.OriginalSymbolName)
+                string? importTarget = syntax.OriginalSymbolName switch
                 {
-                    case IdentifierSyntax identifier:
-                        importTarget = identifier.IdentifierName;
-                        break;
-                    case StringSyntax @string:
-                        switch (GetTypeInfo(@string))
-                        {
-                            case StringLiteralType stringLiteral:
-                                importTarget = stringLiteral.RawStringValue;
-                                break;
-                            case ErrorType error:
-                                return error;
-                            default:
-                                return ErrorType.Create(DiagnosticBuilder.ForPosition(@string).CompileTimeConstantRequired());
-                        }
-                        break;
-                }
+                    IdentifierSyntax identifier => identifier.IdentifierName,
+                    StringSyntax @string when @string.TryGetLiteralValue() is string literalValue => literalValue,
+                    _ => null,
+                };
 
                 if (importTarget is null)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.OriginalSymbolName).ImportListItemDoesNotIdentifyTarget());
+                    // in this case, we are already reporting a parse error of some kind
+                    return ErrorType.Empty();
                 }
 
                 if (importableTypes.TryGetValue(importTarget) is not {} exportedType)
