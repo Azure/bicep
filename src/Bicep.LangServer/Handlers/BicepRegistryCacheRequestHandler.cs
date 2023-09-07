@@ -67,7 +67,7 @@ namespace Bicep.LanguageServer.Handlers
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
             }
 
-            if (!this.fileResolver.TryRead(uri, out var contents, out var failureBuilder))
+            if (!this.fileResolver.TryRead(uri).IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
                 throw new InvalidOperationException($"Unable to read file '{uri}'. {message}");

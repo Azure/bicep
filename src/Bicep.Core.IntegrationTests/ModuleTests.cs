@@ -20,6 +20,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -187,17 +188,19 @@ module main 'main.bicep' = {
 
         private delegate bool TryReadDelegate(Uri fileUri, out string? fileContents, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
+        private static Result<TSuccess, TError> SetupResult<TSuccess, TError>(TSuccess? success, TError? error)
+            where TSuccess : class
+            where TError : class
+            => (success, error) switch {
+                ({}, null) => new(success),
+                (null, {}) => new(error),
+                (null, null) => throw new InvalidOperationException($"{nameof(success)} and {nameof(error)} cannot both be null"),
+                _ => throw new InvalidOperationException($"{nameof(success)} and {nameof(error)} cannot both be non-null"),
+            };
+
         private static void SetupFileReaderMock(Mock<IFileResolver> mockFileResolver, Uri fileUri, string? fileContents, DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            string? outFileContents;
-            DiagnosticBuilder.ErrorBuilderDelegate? outFailureBuilder;
-            mockFileResolver.Setup(x => x.TryRead(fileUri, out outFileContents, out outFailureBuilder))
-                .Returns(new TryReadDelegate((Uri filePath, out string? outFileContents, out DiagnosticBuilder.ErrorBuilderDelegate? outFailureBuilder) =>
-                {
-                    outFailureBuilder = failureBuilder;
-                    outFileContents = fileContents;
-                    return fileContents != null;
-                }));
+            mockFileResolver.Setup(x => x.TryRead(fileUri)).Returns(SetupResult(fileContents, failureBuilder));
         }
 
         [TestMethod]

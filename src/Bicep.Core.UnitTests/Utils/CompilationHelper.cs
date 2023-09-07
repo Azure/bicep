@@ -57,7 +57,7 @@ namespace Bicep.Core.UnitTests.Utils
             services = services.WithFileResolver(fileResolver);
             var sourceFileDict = sourceFiles
                 .Where(x => PathHelper.HasBicepExtension(x) || PathHelper.HasArmTemplateLikeExtension(x))
-                .ToDictionary(x => x, x => fileResolver.TryRead(x, out var fileContents, out _) ? fileContents : throw new InvalidOperationException($"Failed to find file {x}"));
+                .ToDictionary(x => x, x => fileResolver.TryRead(x).IsSuccess(out var fileContents, out _) ? fileContents : throw new InvalidOperationException($"Failed to find file {x}"));
 
             return Compile(services.BuildCompilation(sourceFileDict, entryUri));
         }

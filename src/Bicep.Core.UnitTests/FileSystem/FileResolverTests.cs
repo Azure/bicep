@@ -62,13 +62,13 @@ namespace Bicep.Core.UnitTests.FileSystem
             var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
 
             File.WriteAllText(tempFile, "abcd\r\ndef");
-            fileResolver.TryRead(tempFileUri, out var fileContents, out var failureMessage).Should().BeTrue();
+            fileResolver.TryRead(tempFileUri).IsSuccess(out var fileContents, out var failureMessage).Should().BeTrue();
             fileContents.Should().Be("abcd\r\ndef");
             failureMessage.Should().BeNull();
 
             File.Delete(tempFile);
 
-            fileResolver.TryRead(tempFileUri, out fileContents, out failureMessage).Should().BeFalse();
+            fileResolver.TryRead(tempFileUri).IsSuccess(out fileContents, out failureMessage).Should().BeFalse();
             fileContents.Should().BeNull();
             failureMessage.Should().NotBeNull();
         }
@@ -82,8 +82,8 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             File.WriteAllText(tempFile, "abcd\r\ndef");
 
-            fileResolver.TryRead(tempFileUri, out var fileContents, out var failureMessage, Encoding.UTF8, 6, out var _).Should().BeFalse();
-            fileContents.Should().BeNull();
+            fileResolver.TryRead(tempFileUri, Encoding.UTF8, 6).IsSuccess(out var result, out var failureMessage).Should().BeFalse();
+            result.Should().BeNull();
             failureMessage.Should().NotBeNull();
             Core.Diagnostics.DiagnosticBuilder.DiagnosticBuilderInternal diag = new(new Core.Parsing.TextSpan(0, 5));
             var err = failureMessage!.Invoke(diag);
@@ -91,8 +91,8 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             File.Delete(tempFile);
 
-            fileResolver.TryRead(tempFileUri, out fileContents, out failureMessage, Encoding.UTF8, 6, out var _).Should().BeFalse();
-            fileContents.Should().BeNull();
+            fileResolver.TryRead(tempFileUri, Encoding.UTF8, 6).IsSuccess(out result, out failureMessage).Should().BeFalse();
+            result.Should().BeNull();
             failureMessage.Should().NotBeNull();
         }
 
@@ -104,11 +104,11 @@ namespace Bicep.Core.UnitTests.FileSystem
             var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
 
             File.WriteAllText(tempFile, "abcd\r\ndef\r\n\r\nghi");
-            fileResolver.TryReadAsBase64(tempFileUri, out var fileContents, out var failureMessage).Should().BeTrue();
+            fileResolver.TryReadAsBase64(tempFileUri).IsSuccess(out var fileContents, out var failureMessage).Should().BeTrue();
             fileContents.Should().Be("YWJjZA0KZGVmDQoNCmdoaQ==");
             failureMessage.Should().BeNull();
 
-            fileResolver.TryReadAsBase64(tempFileUri, out fileContents, out failureMessage, 8).Should().BeFalse();
+            fileResolver.TryReadAsBase64(tempFileUri, 8).IsSuccess(out fileContents, out failureMessage).Should().BeFalse();
             fileContents.Should().BeNull();
             failureMessage.Should().NotBeNull();
             Core.Diagnostics.DiagnosticBuilder.DiagnosticBuilderInternal diag = new(new Core.Parsing.TextSpan(0, 5));
@@ -117,7 +117,7 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             File.Delete(tempFile);
 
-            fileResolver.TryReadAsBase64(tempFileUri, out fileContents, out failureMessage).Should().BeFalse();
+            fileResolver.TryReadAsBase64(tempFileUri).IsSuccess(out fileContents, out failureMessage).Should().BeFalse();
             fileContents.Should().BeNull();
             failureMessage.Should().NotBeNull();
         }
@@ -204,7 +204,7 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             File.WriteAllText(tempFile, fileContents);
 
-            var result = fileResolver.TryReadAtMostNCharacters(tempFileUri, Encoding.UTF8, n, out var readContents);
+            var result = fileResolver.TryReadAtMostNCharacters(tempFileUri, Encoding.UTF8, n).IsSuccess(out var readContents, out _);
 
             result.Should().Be(expectedResult);
             readContents.Should().Be(expectedContents);
@@ -242,7 +242,7 @@ namespace Bicep.Core.UnitTests.FileSystem
             var outputUri = PathHelper.FilePathToFileUrl(outputDir);
             var fileResolver = GetFileResolver();
 
-            fileResolver.TryRead(outputUri, out var fileContents, out var failureBuilder).Should().BeFalse();
+            fileResolver.TryRead(outputUri).IsSuccess(out var fileContents, out var failureBuilder).Should().BeFalse();
             fileContents.Should().BeNull();
             var err = failureBuilder!.Invoke(new DiagnosticBuilder.DiagnosticBuilderInternal(TextSpan.TextDocumentStart));
             err.Message.Should().Match("Unable to open file at path \"*\". Found a directory instead.");

@@ -120,7 +120,7 @@ namespace Bicep.Core.Workspaces
                 return new(fileUri, null, sourceFile);
             }
 
-            if (!fileResolver.TryRead(fileUri, out var fileContents, out var failureBuilder))
+            if (!fileResolver.TryRead(fileUri).IsSuccess(out var fileContents, out var failureBuilder))
             {
                 return new(fileUri, failureBuilder, null);
             }

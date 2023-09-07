@@ -58,7 +58,7 @@ public class BicepDecompiler
                 continue;
             }
 
-            if (!fileResolver.TryRead(jsonUri, out var jsonInput, out _))
+            if (!fileResolver.TryRead(jsonUri).IsSuccess(out var jsonInput, out _))
             {
                 throw new InvalidOperationException($"Failed to read {jsonUri}");
             }

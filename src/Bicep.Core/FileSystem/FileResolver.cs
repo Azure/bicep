@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.FileSystem
 {
@@ -27,58 +28,43 @@ namespace Bicep.Core.FileSystem
             return FileLock.TryAcquire(fileUri.LocalPath);
         }
 
-        public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryRead(Uri fileUri)
         {
             if (!fileUri.IsFile)
             {
-                failureBuilder = x => x.UnableToLoadNonFileUri(fileUri);
-                fileContents = null;
-                return false;
+                return new(x => x.UnableToLoadNonFileUri(fileUri));
             }
 
             try
             {
-                failureBuilder = null;
                 if (DirExists(fileUri))
                 {
-                    failureBuilder = x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath);
-                    fileContents = null;
-                    return false;
+                    return new(x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath));
                 }
 
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
-                fileContents = fileSystem.File.ReadAllText(fileUri.LocalPath);
-                return true;
+                return new(fileSystem.File.ReadAllText(fileUri.LocalPath));
             }
             catch (Exception exception)
             {
                 // I/O classes typically throw a large variety of exceptions
                 // instead of handling each one separately let's just trust the message we get
-                failureBuilder = x => x.ErrorOccurredReadingFile(exception.Message);
-                fileContents = null;
-                return false;
+                return new(x => x.ErrorOccurredReadingFile(exception.Message));
             }
         }
 
-        public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, Encoding fileEncoding, int maxCharacters, [NotNullWhen(true)] out Encoding? detectedEncoding)
+        public Result<FileWithEncoding, DiagnosticBuilder.ErrorBuilderDelegate> TryRead(Uri fileUri, Encoding fileEncoding, int maxCharacters)
         {
             if (!fileUri.IsFile)
             {
-                failureBuilder = x => x.UnableToLoadNonFileUri(fileUri);
-                fileContents = null;
-                detectedEncoding = null;
-                return false;
+                return new(x => x.UnableToLoadNonFileUri(fileUri));
             }
 
             try
             {
-                failureBuilder = null;
                 if (DirExists(fileUri))
                 {
-                    failureBuilder = x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath);
-                    fileContents = null;
-                    detectedEncoding = null;
-                    return false;
+                    return new(x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath));
                 }
 
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
@@ -93,43 +79,31 @@ namespace Bicep.Core.FileSystem
                     sb.Append(new string(buffer.Slice(0, i)));
                     if (maxCharacters > 0 && sb.Length > maxCharacters)
                     {
-                        failureBuilder = x => x.FileExceedsMaximumSize(fileUri.LocalPath, maxCharacters, "characters");
-                        fileContents = null;
-                        detectedEncoding = null;
-                        return false;
+                        return new(x => x.FileExceedsMaximumSize(fileUri.LocalPath, maxCharacters, "characters"));
                     }
                 }
-                fileContents = sb.ToString();
-                detectedEncoding = sr.CurrentEncoding;
-                return true;
+
+                return new(new FileWithEncoding(sb.ToString(), sr.CurrentEncoding));
             }
             catch (Exception exception)
             {
                 // I/O classes typically throw a large variety of exceptions
                 // instead of handling each one separately let's just trust the message we get
-                failureBuilder = x => x.ErrorOccurredReadingFile(exception.Message);
-                fileContents = null;
-                detectedEncoding = null;
-                return false;
+                return new(x => x.ErrorOccurredReadingFile(exception.Message));
             }
         }
 
-        public bool TryReadAsBase64(Uri fileUri, [NotNullWhen(true)] out string? fileBase64, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, int maxCharacters = -1)
+        public Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryReadAsBase64(Uri fileUri, int maxCharacters = -1)
         {
             if (!fileUri.IsFile)
             {
-                failureBuilder = x => x.UnableToLoadNonFileUri(fileUri);
-                fileBase64 = null;
-                return false;
+                return new(x => x.UnableToLoadNonFileUri(fileUri));
             }
             try
             {
-                failureBuilder = null;
                 if (DirExists(fileUri))
                 {
-                    failureBuilder = x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath);
-                    fileBase64 = null;
-                    return false;
+                    return new(x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath));
                 }
 
                 if (maxCharacters > 0)
@@ -139,9 +113,7 @@ namespace Bicep.Core.FileSystem
                     fileInfo.Refresh();
                     if (fileInfo.Length > maxFileSize)
                     {
-                        failureBuilder = x => x.FileExceedsMaximumSize(fileUri.LocalPath, maxFileSize, "bytes");
-                        fileBase64 = null;
-                        return false;
+                        return new(x => x.FileExceedsMaximumSize(fileUri.LocalPath, maxFileSize, "bytes"));
                     }
                 }
 
@@ -157,34 +129,33 @@ namespace Bicep.Core.FileSystem
                     memoryStream.Write(buffer.Slice(0, i));
                 }
 
-                fileBase64 = new string(Convert.ToBase64String(memoryStream.ToArray(), Base64FormattingOptions.None));
-
-                return true;
+                return new(Convert.ToBase64String(memoryStream.ToArray(), Base64FormattingOptions.None));
             }
             catch (Exception exception)
             {
                 // I/O classes typically throw a large variety of exceptions
                 // instead of handling each one separately let's just trust the message we get
-                failureBuilder = x => x.ErrorOccurredReadingFile(exception.Message);
-                fileBase64 = null;
-                return false;
+                return new(x => x.ErrorOccurredReadingFile(exception.Message));
             }
         }
 
-        public bool TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents)
+        public Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
         {
-            if (!fileUri.IsFile || n <= 0)
+            if (n <= 0)
             {
-                fileContents = null;
-                return false;
+                throw new InvalidOperationException($"Cannot read {n} characters");
+            }
+
+            if (!fileUri.IsFile)
+            {
+                return new(x => x.UnableToLoadNonFileUri(fileUri));
             }
 
             try
             {
                 if (DirExists(fileUri))
                 {
-                    fileContents = null;
-                    return false;
+                    return new(x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath));
                 }
 
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
@@ -194,13 +165,13 @@ namespace Bicep.Core.FileSystem
                 var buffer = new char[n];
                 n = sr.ReadBlock(buffer, 0, n);
 
-                fileContents = new string(buffer.Take(n).ToArray());
-                return true;
+                return new(new string(buffer.Take(n).ToArray()));
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                fileContents = null;
-                return false;
+                // I/O classes typically throw a large variety of exceptions
+                // instead of handling each one separately let's just trust the message we get
+                return new(x => x.ErrorOccurredReadingFile(exception.Message));
             }
         }
 
