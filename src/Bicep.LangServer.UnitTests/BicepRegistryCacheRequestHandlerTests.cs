@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
+using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -164,7 +165,7 @@ namespace Bicep.LangServer.UnitTests
             dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(moduleReference!, out fileUri, out nullBuilder)).Returns(true);
 
             var resolver = StrictMock.Of<IFileResolver>();
-            resolver.Setup(m => m.TryRead(fileUri).IsSuccess(out fileContents, out readFailureBuilder)).Returns(false);
+            resolver.Setup(m => m.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, readFailureBuilder));
 
             var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object);
 
@@ -201,7 +202,7 @@ namespace Bicep.LangServer.UnitTests
             dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(moduleReference!, out fileUri, out nullBuilder)).Returns(true);
 
             var resolver = StrictMock.Of<IFileResolver>();
-            resolver.Setup(m => m.TryRead(fileUri).IsSuccess(out fileContents, out nullBuilder)).Returns(true);
+            resolver.Setup(m => m.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, nullBuilder));
 
             var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object);
 

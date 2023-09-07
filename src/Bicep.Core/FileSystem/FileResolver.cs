@@ -28,7 +28,7 @@ namespace Bicep.Core.FileSystem
             return FileLock.TryAcquire(fileUri.LocalPath);
         }
 
-        public Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryRead(Uri fileUri)
+        public ResultWithDiagnostic<string> TryRead(Uri fileUri)
         {
             if (!fileUri.IsFile)
             {
@@ -53,7 +53,7 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-        public Result<FileWithEncoding, DiagnosticBuilder.ErrorBuilderDelegate> TryRead(Uri fileUri, Encoding fileEncoding, int maxCharacters)
+        public ResultWithDiagnostic<FileWithEncoding> TryRead(Uri fileUri, Encoding fileEncoding, int maxCharacters)
         {
             if (!fileUri.IsFile)
             {
@@ -93,7 +93,7 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-        public Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryReadAsBase64(Uri fileUri, int maxCharacters = -1)
+        public ResultWithDiagnostic<string> TryReadAsBase64(Uri fileUri, int maxCharacters = -1)
         {
             if (!fileUri.IsFile)
             {
@@ -139,7 +139,7 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-        public Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
+        public ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
         {
             if (n <= 0)
             {

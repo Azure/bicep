@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Semantics;
 
@@ -28,13 +29,11 @@ public class ImportedTypeSymbol : DeclaredSymbol
 
     public override SymbolKind Kind => SymbolKind.TypeAlias;
 
-    public bool TryGetSemanticModel([NotNullWhen(true)] out ISemanticModel? semanticModel, [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
+    public Result<ISemanticModel, ErrorDiagnostic> TryGetSemanticModel()
         => SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
             EnclosingDeclaration,
             b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
-            Context.Compilation,
-            out semanticModel,
-            out failureDiagnostic);
+            Context.Compilation);
 
     public bool TryGetModuleReference([NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         => Context.Compilation.ModuleReferenceFactory.TryGetModuleReference(EnclosingDeclaration, Context.SourceFile.FileUri, out moduleReference, out failureBuilder);

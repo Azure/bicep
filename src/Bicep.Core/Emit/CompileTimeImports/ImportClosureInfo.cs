@@ -191,7 +191,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
     private static ISemanticModel GetImportedModel(ImportedTypeSymbol symbol)
     {
-        if (symbol.TryGetSemanticModel(out var model, out _))
+        if (symbol.TryGetSemanticModel().IsSuccess(out var model, out _))
         {
             return model;
         }
@@ -201,7 +201,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
     private static ISemanticModel GetImportedModel(WildcardImportSymbol symbol)
     {
-        if (symbol.TryGetSemanticModel(out var model, out _))
+        if (symbol.TryGetSemanticModel().IsSuccess(out var model, out _))
         {
             return model;
         }

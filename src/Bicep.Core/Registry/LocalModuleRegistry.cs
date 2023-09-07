@@ -91,9 +91,9 @@ namespace Bicep.Core.Registry
                 if (this.TryGetLocalArtifactEntryPointUri(moduleReference, out Uri? localUri, out _) && this.bicepCompiler is not null)
                 {
                     var compilation = await this.bicepCompiler.CreateCompilation(localUri, skipRestore: true);
-                    if (compilation.SourceFileGrouping.FileResultByUri.TryGetValue(localUri, out var result)
-                        && result.File is { } source
-                        && compilation.GetSemanticModel(source) is { } semanticModel)
+                    if (compilation.SourceFileGrouping.FileResultByUri.TryGetValue(localUri, out var result) &&
+                        result.IsSuccess(out var source, out _) &&
+                        compilation.GetSemanticModel(source) is { } semanticModel)
                     {
                         return DescriptionHelper.TryGetFromSemanticModel(semanticModel);
                     }

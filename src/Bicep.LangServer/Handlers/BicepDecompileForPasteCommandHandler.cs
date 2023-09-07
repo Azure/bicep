@@ -545,7 +545,7 @@ namespace Bicep.LanguageServer.Handlers
             throw new NotImplementedException();
         }
 
-        public Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryRead(Uri fileUri)
+        public ResultWithDiagnostic<string> TryRead(Uri fileUri)
         {
             if (fileUri.Equals(this.Uri))
             {
@@ -555,17 +555,17 @@ namespace Bicep.LanguageServer.Handlers
             return new(x => x.UnableToLoadNonFileUri(fileUri));
         }
 
-        public Result<FileWithEncoding, DiagnosticBuilder.ErrorBuilderDelegate> TryRead(Uri fileUri, Encoding fileEncoding, int maxCharacters)
+        public ResultWithDiagnostic<FileWithEncoding> TryRead(Uri fileUri, Encoding fileEncoding, int maxCharacters)
         {
             throw new NotImplementedException();
         }
 
-        public Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
+        public ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
         {
             throw new NotImplementedException();
         }
 
-        public Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryReadAsBase64(Uri fileUri, int maxCharacters = -1)
+        public ResultWithDiagnostic<string> TryReadAsBase64(Uri fileUri, int maxCharacters = -1)
         {
             throw new NotImplementedException();
         }

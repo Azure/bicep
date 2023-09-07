@@ -108,7 +108,7 @@ namespace Bicep.LanguageServer.Handlers
                 case ImportedTypeSymbol importedType:
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"type {importedType.Name}: {importedType.Type}", importedType.Type),
-                        importedType.TryGetSemanticModel(out var model, out _) && model.ExportedTypes.TryGetValue(importedType.OriginalSymbolName, out var exportedTypeMetadata)
+                        importedType.TryGetSemanticModel().IsSuccess(out var model, out _) && model.ExportedTypes.TryGetValue(importedType.OriginalSymbolName, out var exportedTypeMetadata)
                             ? exportedTypeMetadata.Description
                             : null));
 
@@ -180,7 +180,7 @@ namespace Bicep.LanguageServer.Handlers
             IArtifactRegistryProvider moduleRegistryProvider,
             ModuleSymbol module)
         {
-            if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule, out var filePath, out _))
+            if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule).IsSuccess(out var filePath, out _))
             {
                 filePath = string.Empty;
             }

@@ -26,7 +26,7 @@ public interface IFileResolver
     /// Tries to read a file contents to string. If an exception is encountered, returns null and sets a non-null failureMessage.
     /// </summary>
     /// <param name="fileUri">The file URI to read.</param>
-    Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryRead(Uri fileUri);
+    ResultWithDiagnostic<string> TryRead(Uri fileUri);
 
     /// <summary>
     /// Tries to read a file contents to string. If an exception is encountered, returns null and sets a non-null failureMessage.
@@ -34,9 +34,9 @@ public interface IFileResolver
     /// <param name="fileUri">The file URI to read.</param>
     /// <param name="fileEncoding">Encoding to use when reading file. Auto if set to null</param>
     /// <param name="maxCharacters">Maximum number of text characters to read. if negative - read all.</param>
-    Result<FileWithEncoding, DiagnosticBuilder.ErrorBuilderDelegate> TryRead(Uri fileUri, Encoding fileEncoding, int maxCharacters);
+    ResultWithDiagnostic<FileWithEncoding> TryRead(Uri fileUri, Encoding fileEncoding, int maxCharacters);
 
-    Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n);
+    ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n);
 
     void Write(Uri fileUri, Stream contents);
 
@@ -85,5 +85,5 @@ public interface IFileResolver
     /// </summary>
     /// <param name="fileUri">The file URI to read.</param>
     /// <param name="maxCharacters">Maximum number of output base64 text characters to read. if negative - read all. Maximum file size is calculated using (maxCharacters/4)*3 formula.</param>
-    Result<string, DiagnosticBuilder.ErrorBuilderDelegate> TryReadAsBase64(Uri fileUri, int maxCharacters = -1);
+    ResultWithDiagnostic<string> TryReadAsBase64(Uri fileUri, int maxCharacters = -1);
 }

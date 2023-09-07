@@ -69,7 +69,7 @@ public class BicepDecompiler
 
             foreach (var module in program.Children.OfType<ModuleDeclarationSyntax>())
             {
-                if (!SyntaxHelper.TryGetForeignTemplatePath(module, out var moduleRelativePath, out _) ||
+                if (!SyntaxHelper.TryGetForeignTemplatePath(module).IsSuccess(out var moduleRelativePath, out _) ||
                     !LocalModuleReference.Validate(moduleRelativePath, out _) ||
                     !Uri.TryCreate(bicepUri, moduleRelativePath, out var moduleUri))
                 {

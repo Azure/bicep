@@ -167,7 +167,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         /// </summary>
         protected static ImmutableArray<ParameterDeclarationSyntax> TryGetParameterDefinitionsForConsumedModule(ModuleDeclarationSyntax moduleDeclarationSyntax, SemanticModel model)
         {
-            if (model.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
+            if (model.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile, out _) && sourceFile is BicepFile bicepFile)
             {
                 return bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().ToImmutableArray();
             }
@@ -221,7 +221,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
 
             // Parameters used in any resource's location property
-            if (fileSemanticModel.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
+            if (fileSemanticModel.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile, out _) && sourceFile is BicepFile bicepFile)
             {
                 if (fileSemanticModel.Compilation.GetSemanticModel(bicepFile) is SemanticModel moduleSemanticModel)
                 {

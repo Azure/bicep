@@ -188,19 +188,9 @@ module main 'main.bicep' = {
 
         private delegate bool TryReadDelegate(Uri fileUri, out string? fileContents, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
-        private static Result<TSuccess, TError> SetupResult<TSuccess, TError>(TSuccess? success, TError? error)
-            where TSuccess : class
-            where TError : class
-            => (success, error) switch {
-                ({}, null) => new(success),
-                (null, {}) => new(error),
-                (null, null) => throw new InvalidOperationException($"{nameof(success)} and {nameof(error)} cannot both be null"),
-                _ => throw new InvalidOperationException($"{nameof(success)} and {nameof(error)} cannot both be non-null"),
-            };
-
         private static void SetupFileReaderMock(Mock<IFileResolver> mockFileResolver, Uri fileUri, string? fileContents, DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            mockFileResolver.Setup(x => x.TryRead(fileUri)).Returns(SetupResult(fileContents, failureBuilder));
+            mockFileResolver.Setup(x => x.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, failureBuilder));
         }
 
         [TestMethod]
