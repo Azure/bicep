@@ -13,24 +13,10 @@ namespace Bicep.Core.Semantics;
 
 public class ImportedSymbol : DeclaredSymbol
 {
-    private readonly Lazy<ISemanticModel?> sourceModelLazy;
-
     public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion)
         : base(context, declaringSyntax.Name.IdentifierName, declaringSyntax, declaringSyntax.Name)
     {
         EnclosingDeclaration = enclosingDeclartion;
-
-        sourceModelLazy = new(() =>
-        {
-            SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
-                EnclosingDeclaration,
-                b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
-                Context.Compilation,
-                out var semanticModel,
-                out _);
-
-            return semanticModel;
-        });
     }
 
     public CompileTimeImportDeclarationSyntax EnclosingDeclaration { get; }
@@ -51,7 +37,17 @@ public class ImportedSymbol : DeclaredSymbol
         _ => SymbolKind.Error,
     };
 
-    public ISemanticModel? TryGetSemanticModel() => sourceModelLazy.Value;
+    public ISemanticModel? TryGetSemanticModel()
+    {
+        SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
+            EnclosingDeclaration,
+            b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
+            Context.Compilation,
+            out var semanticModel,
+            out _);
+
+        return semanticModel;
+    }
 
     public string? TryGetDescription() => TryGetExportMetadata()?.Description;
 

@@ -12,7 +12,7 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Workspaces
 {
-    
+
     public record ArtifactResolutionInfo(
         IArtifactReferenceSyntax DeclarationSyntax,
         ISourceFile ParentTemplateFile);
@@ -27,13 +27,35 @@ namespace Bicep.Core.Workspaces
         bool RequiresRestore,
         ErrorBuilderDelegate? ErrorBuilder);
 
-    public record SourceFileGrouping(
-        IFileResolver FileResolver,
-        Uri EntryFileUri,
-        ImmutableDictionary<Uri, FileResolutionResult> FileResultByUri,
-        ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, UriResolutionResult>> UriResultByModule,
-        ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup) : ISourceFileLookup
+    public class SourceFileGrouping : ISourceFileLookup
     {
+        public SourceFileGrouping(IFileResolver fileResolver,
+            Uri entryFileUri,
+            ImmutableDictionary<Uri, FileResolutionResult> fileResultByUri,
+            ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, UriResolutionResult>> uriResultByModule,
+            ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup)
+        {
+            FileResolver = fileResolver;
+            EntryFileUri = entryFileUri;
+            FileResultByUri = fileResultByUri;
+            UriResultByModule = uriResultByModule;
+            SourceFileParentLookup = sourceFileParentLookup;
+
+            UriResults = uriResultByModule.Values.SelectMany(kvp => kvp).ToImmutableDictionary();
+        }
+
+        public IFileResolver FileResolver { get; }
+
+        public Uri EntryFileUri { get; }
+
+        public ImmutableDictionary<Uri, FileResolutionResult> FileResultByUri { get; }
+
+        public ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, UriResolutionResult>> UriResultByModule { get; }
+
+        public ImmutableDictionary<IArtifactReferenceSyntax, UriResolutionResult> UriResults { get; }
+
+        public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; }
+
         public IEnumerable<ArtifactResolutionInfo> GetModulesToRestore()
             => UriResultByModule.SelectMany(
                 kvp => kvp.Value
@@ -46,19 +68,19 @@ namespace Bicep.Core.Workspaces
 
         public ErrorBuilderDelegate? TryGetErrorDiagnostic(IArtifactReferenceSyntax foreignTemplateReference)
         {
-            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
+            var uriResult = UriResults[foreignTemplateReference];
             if (uriResult.ErrorBuilder is not null)
             {
                 return uriResult.ErrorBuilder;
             }
 
-            var fileResult = FileResultByUri[uriResult?.FileUri!];
+            var fileResult = FileResultByUri[uriResult.FileUri!];
             return fileResult.ErrorBuilder;
         }
 
         public ISourceFile? TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference)
         {
-            var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
+            var uriResult = UriResults[foreignTemplateReference];
             if (uriResult.FileUri is null)
             {
                 return null;
