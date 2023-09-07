@@ -34,6 +34,6 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
             b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
             Context.Compilation);
 
-    public bool TryGetModuleReference([NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
-        => Context.Compilation.ModuleReferenceFactory.TryGetModuleReference(EnclosingDeclaration, Context.SourceFile.FileUri, out moduleReference, out failureBuilder);
+    public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference()
+        => Context.Compilation.ModuleReferenceFactory.TryGetModuleReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 }

@@ -210,13 +210,13 @@ namespace Bicep.Core.Workspaces
 
         private (ArtifactReference? reference, Result<Uri, UriResolutionError> result) GetModuleRestoreResult(Uri parentFileUri, IArtifactReferenceSyntax foreignTemplateReference)
         {
-            if (!moduleDispatcher.TryGetModuleReference(foreignTemplateReference, parentFileUri, out var moduleReference, out var referenceResolutionError))
+            if (!moduleDispatcher.TryGetModuleReference(foreignTemplateReference, parentFileUri).IsSuccess(out var moduleReference, out var referenceResolutionError))
             {
                 // module reference is not valid
                 return (null, new(new UriResolutionError(referenceResolutionError, false)));
             }
 
-            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var moduleFileUri, out var moduleGetPathFailureBuilder))
+            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference).IsSuccess(out var moduleFileUri, out var moduleGetPathFailureBuilder))
             {
                 return (moduleReference, new(new UriResolutionError(moduleGetPathFailureBuilder, false)));
             }

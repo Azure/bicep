@@ -31,13 +31,7 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="aliasName">The alias name</param>
         /// <param name="reference">The unqualified artifact reference</param>
-        /// <param name="artifactReference">set to the parsed artifact reference if parsing succeeds</param>
-        /// <param name="failureBuilder">set to an error builder if parsing fails</param>
-        bool TryParseArtifactReference(
-            string? aliasName,
-            string reference,
-            [NotNullWhen(true)] out ArtifactReference? artifactReference,
-            [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string reference);
 
         /// <summary>
         /// Returns true if the specified artifact is already cached in the local cache.
@@ -49,10 +43,8 @@ namespace Bicep.Core.Registry
         /// Returns a URI to the entry point module.
         /// </summary>
         /// <param name="reference">The module reference</param>
-        /// <param name="localUri">set to the local entry module entry point URI if parsing succeeds</param>
-        /// <param name="failureBuilder">set to an error builder if parsing fails</param>
         /// <returns></returns>
-        bool TryGetLocalArtifactEntryPointUri(ArtifactReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
 
         /// <summary>
         /// Returns true if the specified module exists in the registry.

@@ -47,16 +47,14 @@ namespace Bicep.Core.Modules
 
         public override bool IsExternal => false;
 
-        public static bool TryParse(string unqualifiedReference, Uri parentModuleUri, [NotNullWhen(true)] out LocalModuleReference? parsed, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static ResultWithDiagnostic<LocalModuleReference> TryParse(string unqualifiedReference, Uri parentModuleUri)
         {
-            if (!Validate(unqualifiedReference, out failureBuilder))
+            if (!Validate(unqualifiedReference, out var failureBuilder))
             {
-                parsed = null;
-                return false;
+                return new(failureBuilder);
             }
 
-            parsed = new(unqualifiedReference, parentModuleUri);
-            return true;
+            return new(new LocalModuleReference(unqualifiedReference, parentModuleUri));
         }
 
         public static bool Validate(string pathName, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)

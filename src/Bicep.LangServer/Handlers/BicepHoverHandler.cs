@@ -192,7 +192,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (registries != null &&
                 registries.Any() &&
-                moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _) &&
+                moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri).IsSuccess(out var moduleReference, out _) &&
                 moduleReference is not null)
             {
                 var registry = registries.FirstOrDefault(r => r.Scheme == moduleReference.Scheme);

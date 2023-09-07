@@ -178,7 +178,7 @@ namespace Bicep.Core.IntegrationTests
 
             var moduleReferences = dataSet.RegistryModules.Values
                 .OrderBy(m => m.Metadata.Target)
-                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, RandomFileUri(), out var @ref, out _) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref, out _) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
                 .ToImmutableList();
 
             moduleReferences.Should().HaveCount(7);
@@ -233,7 +233,7 @@ namespace Bicep.Core.IntegrationTests
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
-                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, RandomFileUri(), out var @ref, out _) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref, out _) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
                 .ToImmutableList();
 
             moduleReferences.Should().HaveCount(moduleCount);
@@ -244,7 +244,7 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
-            dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0], out var moduleFileUri, out _).Should().BeTrue();
+            dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri, out _).Should().BeTrue();
             moduleFileUri.Should().NotBeNull();
 
             var moduleFilePath = moduleFileUri!.LocalPath;
@@ -301,7 +301,7 @@ namespace Bicep.Core.IntegrationTests
 
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
-                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, RandomFileUri(), out var @ref, out _) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref, out _) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
                 .ToImmutableList();
 
             moduleReferences.Should().HaveCount(moduleCount);
@@ -312,7 +312,7 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
-            dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0], out var moduleFileUri, out _).Should().BeTrue();
+            dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri, out _).Should().BeTrue();
             moduleFileUri.Should().NotBeNull();
 
             var moduleFilePath = moduleFileUri!.LocalPath;
@@ -377,7 +377,7 @@ namespace Bicep.Core.IntegrationTests
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
-                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, RandomFileUri(), out var @ref, out _) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref, out _) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
                 .ToImmutableList();
 
             moduleReferences.Should().HaveCount(moduleCount);
@@ -388,7 +388,7 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
-            dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0], out var moduleFileUri, out _).Should().BeTrue();
+            dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri, out _).Should().BeTrue();
             moduleFileUri.Should().NotBeNull();
 
             var moduleFilePath = moduleFileUri!.LocalPath;

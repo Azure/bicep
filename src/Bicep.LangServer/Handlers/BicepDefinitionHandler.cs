@@ -109,7 +109,7 @@ namespace Bicep.LanguageServer.Handlers
                  && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile, out _)
-                 && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded(), out var moduleReference, out _))
+                 && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference, out _))
                 {
                     // goto beginning of the module file.
                     return GetFileDefinitionLocation(
@@ -126,7 +126,7 @@ namespace Bicep.LanguageServer.Handlers
                  && matchingNodes[^4] is CompileTimeImportDeclarationSyntax importDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(importDeclarationSyntax).IsSuccess(out var sourceFile, out _)
-                 && this.moduleDispatcher.TryGetModuleReference(importDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded(), out var moduleReference, out _))
+                 && this.moduleDispatcher.TryGetModuleReference(importDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference, out _))
                 {
                     // goto beginning of the module file.
                     return GetFileDefinitionLocation(
@@ -193,13 +193,19 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, DefinitionParams request, SymbolResolutionResult result, WildcardImportSymbol wildcardImport)
-            => context.Compilation.SourceFileGrouping.TryGetSourceFile(wildcardImport.EnclosingDeclaration).IsSuccess(out var sourceFile, out _) && wildcardImport.TryGetModuleReference(out var moduleReference, out _)
-                ? GetFileDefinitionLocation(
+        {
+            if (context.Compilation.SourceFileGrouping.TryGetSourceFile(wildcardImport.EnclosingDeclaration).IsSuccess(out var sourceFile, out _) && 
+                wildcardImport.TryGetModuleReference().IsSuccess(out var moduleReference, out _))
+            {
+                return GetFileDefinitionLocation(
                     GetDocumentLinkUri(sourceFile, moduleReference),
                     wildcardImport.DeclaringSyntax,
                     context,
-                    new() { Start = new(0, 0), End = new(0, 0) })
-                : new();
+                    new() { Start = new(0, 0), End = new(0, 0) });
+            }
+            
+            return new();
+        }
 
         private static LocationOrLocationLinks HandleDeclaredDefinitionLocation(DefinitionParams request, SymbolResolutionResult result, DeclaredSymbol declaration)
         {

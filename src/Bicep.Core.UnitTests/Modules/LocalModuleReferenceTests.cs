@@ -48,7 +48,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static LocalModuleReference Parse(string package)
         {
-            LocalModuleReference.TryParse(package, PathHelper.FilePathToFileUrl(Path.GetTempFileName()), out var parsed, out var failureBuilder);
+            LocalModuleReference.TryParse(package, PathHelper.FilePathToFileUrl(Path.GetTempFileName())).IsSuccess(out var parsed, out var failureBuilder);
             parsed.Should().NotBeNull();
             failureBuilder.Should().BeNull();
             return parsed!;
