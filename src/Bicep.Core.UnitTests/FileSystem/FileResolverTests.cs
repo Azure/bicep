@@ -204,7 +204,7 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             File.WriteAllText(tempFile, fileContents);
 
-            var result = fileResolver.TryReadAtMostNCharacters(tempFileUri, Encoding.UTF8, n).IsSuccess(out var readContents, out _);
+            var result = fileResolver.TryReadAtMostNCharacters(tempFileUri, Encoding.UTF8, n).IsSuccess(out var readContents);
 
             result.Should().Be(expectedResult);
             readContents.Should().Be(expectedContents);

@@ -42,7 +42,7 @@ public class BicepparamDecompiler
     {
         var workspace = new Workspace();
 
-        if (!fileResolver.TryRead(entryJsonUri).IsSuccess(out var jsonInput, out _))
+        if (!fileResolver.TryRead(entryJsonUri).IsSuccess(out var jsonInput))
         {
             throw new InvalidOperationException($"Failed to read {entryJsonUri}");
         }

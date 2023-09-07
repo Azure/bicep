@@ -978,7 +978,7 @@ namespace Bicep.Decompiler
             }
 
             var nestedUri = fileResolver.TryResolveFilePath(bicepFileUri, nestedRelativePath);
-            if (nestedUri is null || !fileResolver.TryRead(nestedUri).IsSuccess(out _, out _))
+            if (nestedUri is null || !fileResolver.TryRead(nestedUri).IsSuccess())
             {
                 // return the original expression so that the author can fix it up rather than failing
                 return (createFakeModulePath(templateLink), null);

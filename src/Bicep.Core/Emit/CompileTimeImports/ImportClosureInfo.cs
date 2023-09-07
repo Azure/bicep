@@ -159,7 +159,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
     private static ArtifactReference GetImportReference(ImportedTypeSymbol symbol)
     {
-        if (symbol.TryGetModuleReference().IsSuccess(out var moduleReference, out _))
+        if (symbol.TryGetModuleReference().IsSuccess(out var moduleReference))
         {
             return moduleReference;
         }
@@ -169,7 +169,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
     private static ArtifactReference GetImportReference(WildcardImportSymbol symbol)
     {
-        if (symbol.TryGetModuleReference().IsSuccess(out var moduleReference, out _))
+        if (symbol.TryGetModuleReference().IsSuccess(out var moduleReference))
         {
             return moduleReference;
         }
@@ -191,7 +191,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
     private static ISemanticModel GetImportedModel(ImportedTypeSymbol symbol)
     {
-        if (symbol.TryGetSemanticModel().IsSuccess(out var model, out _))
+        if (symbol.TryGetSemanticModel().IsSuccess(out var model))
         {
             return model;
         }
@@ -201,7 +201,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
     private static ISemanticModel GetImportedModel(WildcardImportSymbol symbol)
     {
-        if (symbol.TryGetSemanticModel().IsSuccess(out var model, out _))
+        if (symbol.TryGetSemanticModel().IsSuccess(out var model))
         {
             return model;
         }

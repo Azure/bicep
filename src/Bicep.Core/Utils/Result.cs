@@ -28,16 +28,18 @@ public class Result<TSuccess, TError>
         Error = error;
     }
 
-    public bool IsSuccess()
-        => Success is not null;
-
     public bool IsSuccess([NotNullWhen(true)] out TSuccess? success, [NotNullWhen(false)] out TError? error)
     {
         success = Success;
         error = Error;
 
-        return IsSuccess();
+        return Success is not null;
     }
+
+
+    public bool IsSuccess() => IsSuccess(out _, out _);
+
+    public bool IsSuccess([NotNullWhen(true)] out TSuccess? success) => IsSuccess(out success, out _);
 
     /// <summary>
     /// Returns the succcessful result, assuming success. Throws an exception if not.

@@ -107,7 +107,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var module in model.Root.ModuleDeclarations)
             {
-                if (module.TryGetSemanticModel().IsSuccess(out ISemanticModel? moduleModel, out _))
+                if (module.TryGetSemanticModel().IsSuccess(out var moduleModel))
                 {
                     foreach (var formalParam in moduleModel.Parameters.Values)
                     {

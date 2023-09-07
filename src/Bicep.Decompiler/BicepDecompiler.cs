@@ -58,7 +58,7 @@ public class BicepDecompiler
                 continue;
             }
 
-            if (!fileResolver.TryRead(jsonUri).IsSuccess(out var jsonInput, out _))
+            if (!fileResolver.TryRead(jsonUri).IsSuccess(out var jsonInput))
             {
                 throw new InvalidOperationException($"Failed to read {jsonUri}");
             }
@@ -69,7 +69,7 @@ public class BicepDecompiler
 
             foreach (var module in program.Children.OfType<ModuleDeclarationSyntax>())
             {
-                if (!SyntaxHelper.TryGetForeignTemplatePath(module).IsSuccess(out var moduleRelativePath, out _) ||
+                if (!SyntaxHelper.TryGetForeignTemplatePath(module).IsSuccess(out var moduleRelativePath) ||
                     !LocalModuleReference.Validate(moduleRelativePath, out _) ||
                     !Uri.TryCreate(bicepUri, moduleRelativePath, out var moduleUri))
                 {

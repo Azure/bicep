@@ -39,7 +39,7 @@ namespace Bicep.Core.Emit
 
         private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
-            if (!moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out _))
+            if (!moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel))
             {
                 // this should have already been checked during type assignment
                 throw new InvalidOperationException($"Unable to find referenced compilation for module {moduleSymbol.Name}");

@@ -65,7 +65,7 @@ namespace Bicep.Core.Samples
             {
                 var target = publishInfo.Metadata.Target;
 
-                if (!dispatcher.TryGetModuleReference(target, RandomFileUri()).IsSuccess(out var @ref, out _) || @ref is not OciModuleReference targetReference)
+                if (!dispatcher.TryGetModuleReference(target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not OciModuleReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
@@ -131,7 +131,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, templateSpecInfo) in dataSet.TemplateSpecs)
             {
-                if (!dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref, out _) || @ref is not TemplateSpecModuleReference reference)
+                if (!dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
@@ -168,7 +168,7 @@ namespace Bicep.Core.Samples
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
                 .Construct<IModuleDispatcher>();
 
-            var targetReference = dispatcher.TryGetModuleReference(target, RandomFileUri()).IsSuccess(out var @ref, out _) ? @ref
+            var targetReference = dispatcher.TryGetModuleReference(target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
                 : throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
 
             var result = CompilationHelper.Compile(moduleSource);

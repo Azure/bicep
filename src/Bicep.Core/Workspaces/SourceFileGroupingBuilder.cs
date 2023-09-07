@@ -159,13 +159,13 @@ namespace Bicep.Core.Workspaces
 
                             uriResultByModule.GetOrAdd(bicepFile, f => new())[restorable] = uriResult;
 
-                            if (!uriResult.IsSuccess(out var moduleFileUri, out _))
+                            if (!uriResult.IsSuccess(out var moduleFileUri))
                             {
                                 continue;
                             }
 
                             if (!fileResultByUri.TryGetValue(moduleFileUri, out var childResult) ||
-                                (childResult.IsSuccess(out var childFile, out _) && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childFile)))
+                                (childResult.IsSuccess(out var childFile) && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childFile)))
                             {
                                 // only recurse if we've not seen this file before - to avoid infinite loops
                                 childResult = PopulateRecursive(moduleFileUri, childModuleReference, sourceFileToRebuild, featuresFactory);
@@ -263,8 +263,8 @@ namespace Bicep.Core.Workspaces
             {
                 foreach (var (statement, urlResult) in uriResultByModuleForFile)
                 {
-                    if (urlResult.IsSuccess(out var fileUri, out _) &&
-                        fileResultByUri[fileUri].IsSuccess(out var sourceFile, out _) &&
+                    if (urlResult.IsSuccess(out var fileUri) &&
+                        fileResultByUri[fileUri].IsSuccess(out var sourceFile) &&
                         cycles.TryGetValue(sourceFile, out var cycle))
                     {
                         if (cycle.Length == 1)

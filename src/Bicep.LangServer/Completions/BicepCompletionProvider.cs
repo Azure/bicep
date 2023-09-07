@@ -386,7 +386,7 @@ namespace Bicep.LanguageServer.Completions
         private static IEnumerable<CompletionItem> GetImportedTypeCompletions(SemanticModel model, BicepCompletionContext context)
             => model.Root.TypeImports.Select(importedType => CreateImportedTypeCompletion(importedType, context.ReplacementRange, CompletionPriority.High))
                 .Concat(model.Root.WildcardImports
-                    .SelectMany(wildcardImport => wildcardImport.TryGetSemanticModel().IsSuccess(out var importedModel, out _)
+                    .SelectMany(wildcardImport => wildcardImport.TryGetSemanticModel().IsSuccess(out var importedModel)
                         ? importedModel.ExportedTypes.Values.Select(typeMetadata => (wildcardImport, typeMetadata))
                         : Enumerable.Empty<(WildcardImportSymbol, ExportedTypeMetadata)>())
                     .Select(t => CreateWildcardTypePropertyCompletion(t.Item1, t.Item2, context.ReplacementRange, CompletionPriority.High)));
@@ -709,7 +709,7 @@ namespace Bicep.LanguageServer.Completions
                     return false;
                 }
 
-                if (FileResolver.TryReadAtMostNCharacters(fileUri, Encoding.UTF8, 2000).IsSuccess(out var fileContents, out _) &&
+                if (FileResolver.TryReadAtMostNCharacters(fileUri, Encoding.UTF8, 2000).IsSuccess(out var fileContents) &&
                     LanguageConstants.ArmTemplateSchemaRegex.IsMatch(fileContents))
                 {
                     return true;
@@ -1742,7 +1742,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(importedType.Type.Name)
                 .WithSortText(GetSortText(importedType.Name, priority));
 
-            if (importedType.TryGetSemanticModel().IsSuccess(out var model, out _) &&
+            if (importedType.TryGetSemanticModel().IsSuccess(out var model) &&
                 model.ExportedTypes.TryGetValue(importedType.OriginalSymbolName, out var typeMetadata) &&
                 typeMetadata.Description is string documentation)
             {
@@ -2037,7 +2037,7 @@ namespace Bicep.LanguageServer.Completions
                             compileTimeImportDeclaration,
                             b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
                             model.Compilation)
-                        .IsSuccess(out var importedModel, out _))
+                        .IsSuccess(out var importedModel))
                     {
                         var claimedNames = model.Root.Declarations.Select(d => d.Name).ToImmutableHashSet();
 
