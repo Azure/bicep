@@ -91,17 +91,17 @@ namespace Bicep.Core.Workspaces
 
                 var templateObject = ParseObject(fileContents);
 
-                return new(fileUri, template, templateObject);
+                return new(fileUri, fileContents, template, templateObject);
             }
             catch (Exception)
             {
-                return new(fileUri, null, null);
+                return new(fileUri, fileContents, null, null);
             }
         }
 
         public static TemplateSpecFile CreateTemplateSpecFile(Uri fileUri, string fileContents)
         {
-            TemplateSpecFile CreateErrorFile() => new(fileUri, null, new ArmTemplateFile(InMemoryMainTemplateUri, null, null));
+            TemplateSpecFile CreateErrorFile() => new(fileUri, null, new ArmTemplateFile(InMemoryMainTemplateUri, fileContents, null, null));
 
             try
             {

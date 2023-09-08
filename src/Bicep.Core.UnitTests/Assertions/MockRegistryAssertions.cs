@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+//asdfg do manually 
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;

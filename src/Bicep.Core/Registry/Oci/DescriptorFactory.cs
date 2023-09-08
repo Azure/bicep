@@ -22,6 +22,8 @@ namespace Bicep.Core.Registry.Oci
 
         public static string ComputeDigest(string algorithmIdentifier, Stream stream)
         {
+            stream.Seek(0, SeekOrigin.Begin);
+
             using var algorithm = CreateHashAlgorithm(algorithmIdentifier);
             var hashValue = algorithm.ComputeHash(stream);
 
@@ -33,6 +35,8 @@ namespace Bicep.Core.Registry.Oci
             {
                 buffer.Append(@byte.ToString("x2"));
             }
+
+            stream.Seek(0, SeekOrigin.Begin);
 
             return buffer.ToString();
         }

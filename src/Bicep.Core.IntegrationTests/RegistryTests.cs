@@ -56,7 +56,8 @@ namespace Bicep.Core.IntegrationTests
             File.Exists(badCachePath).Should().BeTrue();
 
             // cache root points to a file
-            var featureOverrides = BicepTestConstants.FeatureOverrides with {
+            var featureOverrides = BicepTestConstants.FeatureOverrides with
+            {
                 RegistryEnabled = true,
                 CacheRootDirectory = badCachePath
             };
@@ -156,21 +157,24 @@ namespace Bicep.Core.IntegrationTests
                 });
         }
 
-        [TestMethod]
-        public async Task ModuleRestoreContentionShouldProduceConsistentState()
+        [DataTestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task ModuleRestoreContentionShouldProduceConsistentState(bool publishSource)
         {
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource: publishSource);
 
             var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
             Directory.CreateDirectory(cacheDirectory);
 
             var features = StrictMock.Of<IFeatureProvider>();
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
+            features.Setup(m => m.PublishSourceEnabled).Returns(true);
 
             var fileResolver = BicepTestConstants.FileResolver;
             var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
@@ -211,20 +215,21 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
-        public async Task ModuleRestoreWithStuckFileLockShouldFailAfterTimeout(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount)
+        public async Task ModuleRestoreWithStuckFileLockShouldFailAfterTimeout(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount, bool publishSource)
         {
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource: publishSource);
 
             var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
             Directory.CreateDirectory(cacheDirectory);
 
             var features = StrictMock.Of<IFeatureProvider>();
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
+            features.Setup(m => m.PublishSourceEnabled).Returns(true);
 
             var fileResolver = BicepTestConstants.FileResolver;
             var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
@@ -280,7 +285,7 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
-        public async Task ForceModuleRestoreWithStuckFileLockShouldFailAfterTimeout(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount)
+        public async Task ForceModuleRestoreWithStuckFileLockShouldFailAfterTimeout(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount, bool publishSource)
         {
             var dataSet = DataSets.Registry_LF;
 
@@ -294,6 +299,7 @@ namespace Bicep.Core.IntegrationTests
 
             var features = StrictMock.Of<IFeatureProvider>();
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
+            features.Setup(m => m.PublishSourceEnabled).Returns(true);
 
             var fileResolver = BicepTestConstants.FileResolver;
             var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
@@ -355,20 +361,21 @@ namespace Bicep.Core.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
-        public async Task ForceModuleRestoreShouldRestoreAllModules(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount)
+        public async Task ForceModuleRestoreShouldRestoreAllModules(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount, bool publishSource)
         {
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients().Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
 
             var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
             Directory.CreateDirectory(cacheDirectory);
 
             var features = StrictMock.Of<IFeatureProvider>();
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
+            features.Setup(m => m.PublishSourceEnabled).Returns(true);
 
             var fileResolver = BicepTestConstants.FileResolver;
             var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
@@ -406,8 +413,10 @@ namespace Bicep.Core.IntegrationTests
 
         public static IEnumerable<object[]> GetModuleInfoData()
         {
-            yield return new object[] { DataSets.Registry_LF.RegistryModules.Values, 7 };
-            yield return new object[] { DataSets.Registry_LF.TemplateSpecs.Values, 2 };
+            yield return new object[] { DataSets.Registry_LF.RegistryModules.Values, 7, false /* publishSource */ };
+            yield return new object[] { DataSets.Registry_LF.RegistryModules.Values, 7, true };
+            yield return new object[] { DataSets.Registry_LF.TemplateSpecs.Values, 2, false };
+            yield return new object[] { DataSets.Registry_LF.TemplateSpecs.Values, 2, true };
         }
 
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());

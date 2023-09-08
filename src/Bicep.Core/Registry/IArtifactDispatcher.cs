@@ -22,8 +22,10 @@ namespace Bicep.Core.Registry
 
         Task<bool> CheckModuleExists(ArtifactReference moduleReference);
 
-        Task PublishModule(ArtifactReference moduleReference, Stream compiled, string? documentationUri);
+        Task PublishModule(ArtifactReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri);
 
         void PruneRestoreStatuses();
+
+        bool TryGetModuleSources(ArtifactReference moduleReference, [NotNullWhen(true)] out SourceArchive? sourceArchive); //asdfg use ResultWithDiagnostic?
     }
 }

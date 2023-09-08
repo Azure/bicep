@@ -23,7 +23,12 @@ namespace Bicep.Core.UnitTests.Assertions
 
         protected override string Identifier => "FeatureProvider";
 
-        public AndConstraint<FeatureProviderAssertions> HaveValidModules()
+        public AndConstraint<FeatureProviderAssertions> HaveValidCachedModulesWithSources()
+            => HaveValidCachedModules(withSources: true);
+        public AndConstraint<FeatureProviderAssertions> HaveValidCachedModulesWithoutSources()
+            => HaveValidCachedModules(withSources: false);
+
+        public AndConstraint<FeatureProviderAssertions> HaveValidCachedModules(bool withSources)
         {
             // ensure something got restored
             var cacheDir = new DirectoryInfo(this.Subject.CacheRootDirectory!);
@@ -41,7 +46,14 @@ namespace Bicep.Core.UnitTests.Assertions
             foreach (var moduleDirectory in moduleDirectories)
             {
                 var files = moduleDirectory.EnumerateFiles().Select(file => file.Name).ToImmutableArray();
-                files.Should().BeEquivalentTo("lock", "main.json", "manifest", "metadata");
+                if (withSources)
+                {
+                    files.Should().BeEquivalentTo("lock", "main.json", "manifest", "metadata", "sources.zip");
+                }
+                else
+                {
+                    files.Should().BeEquivalentTo("lock", "main.json", "manifest", "metadata");
+                }
             }
 
             return new(this);

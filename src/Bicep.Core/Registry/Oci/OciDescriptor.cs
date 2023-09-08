@@ -23,7 +23,6 @@ namespace Bicep.Core.Registry.Oci
 
         public long Size { get; }
 
-        // TODO: Skip serialization for empty annotations
-        public ImmutableDictionary<string, string> Annotations { get; }
+        public ImmutableDictionary<string, string>? Annotations { get; }
     }
 }

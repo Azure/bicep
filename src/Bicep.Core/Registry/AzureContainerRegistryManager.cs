@@ -1,22 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+//asdfgasdfg do this file manually
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
+using Azure.Core;
 using Azure.Identity;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
+using Bicep.Core.Features;
+using Bicep.Core.Json;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OciDescriptor = Bicep.Core.Registry.Oci.OciDescriptor;
 using OciManifest = Bicep.Core.Registry.Oci.OciManifest;
+
 
 namespace Bicep.Core.Registry
 {
@@ -27,6 +36,10 @@ namespace Bicep.Core.Registry
 
         private readonly IContainerRegistryClientFactory clientFactory;
 
+        // https://docs.docker.com/registry/spec/api/#content-digests
+        // "While the algorithm does allow one to implement a wide variety of algorithms, compliant implementations should use sha256."
+        private static readonly string DigestAlgorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
+
         public AzureContainerRegistryManager(IContainerRegistryClientFactory clientFactory)
         {
             this.clientFactory = clientFactory;
@@ -34,7 +47,8 @@ namespace Bicep.Core.Registry
 
         public async Task<OciArtifactResult> PullArtifactAsync(
             RootConfiguration configuration,
-            IOciArtifactReference artifactReference)
+            IOciArtifactReference artifactReference,
+            bool downloadSource = true/*asdfg implement*/)
         {
             async Task<OciArtifactResult> DownloadManifestInternalAsync(bool anonymousAccess)
             {
@@ -68,18 +82,46 @@ namespace Bicep.Core.Registry
             string? mediaType,
             string? artifactType,
             StreamDescriptor config,
+            Stream? bicepSources, //asdfg implement
             string? documentationUri = null,
             string? description = null,
             params StreamDescriptor[] layers)
         {
-            // TODO: How do we choose this? Does it ever change?
-            var algorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
+            //asdfgasdfg
+        //     var referrers = await this.GetReferrersAsync(client, moduleManifestDigest);
+
+        //     var matchingSourceDigests = referrers.Where(r => r.artifactType == BicepMediaTypes.BicepSourceArtifactType).Select(r => r.digest);
+        //     if (matchingSourceDigests?.Count() > 1)
+        //     {
+        //         Trace.WriteLine($"Multiple source manifests found for module {moduleReference.FullyQualifiedReference}, ignoring all. "
+        //         + $"Module manifest: ${moduleManifestDigest}. "
+        //         + $"Source referrers: {string.Join(", ", matchingSourceDigests)}");
+        //     }
+        //     else if (matchingSourceDigests?.SingleOrDefault() is string sourcesManifestDigest)
+        //     {
+        //         var sourcesManifest = await client.GetManifestAsync(sourcesManifestDigest);
+        //         var sourcesManifestStream = sourcesManifest.Value.Manifest.ToStream();
+        //         var dm = DeserializeManifest(sourcesManifestStream);
+        //         Debug.Assert(dm.ArtifactType == BicepMediaTypes.BicepSourceArtifactType);
+
+        //         var sourceLayer = dm.Layers.FirstOrDefault(l => l.MediaType == BicepMediaTypes.BicepSourceV1Layer);
+        //         if (sourceLayer?.Digest is string sourcesBlobDigest)
+        //         {
+        //             var sourcesBlobResult = await client.DownloadBlobContentAsync(sourcesBlobDigest);
+
+        //             // Caller is responsible for disposing the stream
+        //             return sourcesBlobResult.Value.Content.ToStream();
+        //         }
+        //     }
+
+        //     return null;
+        // }
 
             // push is not supported anonymously
             var blobClient = this.CreateBlobClient(configuration, artifactReference, anonymousAccess: false);
 
             config.ResetStream();
-            var configDescriptor = DescriptorFactory.CreateDescriptor(algorithmIdentifier, config);
+            var configDescriptor = DescriptorFactory.CreateDescriptor(DigestAlgorithmIdentifier, config);
 
             config.ResetStream();
             _ = await blobClient.UploadBlobAsync(config.Stream);
@@ -88,12 +130,49 @@ namespace Bicep.Core.Registry
             foreach (var layer in layers)
             {
                 layer.ResetStream();
-                var layerDescriptor = DescriptorFactory.CreateDescriptor(algorithmIdentifier, layer);
+                var layerDescriptor = DescriptorFactory.CreateDescriptor(DigestAlgorithmIdentifier, layer);
                 layerDescriptors.Add(layerDescriptor);
 
                 layer.ResetStream();
                 _ = await blobClient.UploadBlobAsync(layer.Stream);
             }
+
+//asdfgasdfg
+            // var timestamp = DateTime.UtcNow.ToRfc3339Format();
+
+            // var moduleManifestDescriptor = await PushModuleManifestAsync(blobClient, moduleReference, artifactType, config, documentationUri, description, layers, timestamp);
+            // if (bicepSources is not null)
+            // {
+            //     await PushSourceManifestAsync(blobClient, moduleReference, moduleManifestDescriptor, bicepSources, timestamp);
+            // }
+
+
+//asdfgasdfg
+        // private async Task<OciDescriptor> PushModuleManifestAsync(IOciRegistryContentClient blobClient, OciArtifactModuleReference moduleReference, string? artifactType, StreamDescriptor config, string? documentationUri, string? description, StreamDescriptor[] layers, string timestamp)
+        // {
+        //     /* Sample module manifest:
+        //         {
+        //             "schemaVersion": 2,
+        //             "artifactType": "application/vnd.ms.bicep.module.artifact",
+        //             "config": {
+        //               "mediaType": "application/vnd.ms.bicep.module.config.v1+json",
+        //               "digest": "sha256:...",
+        //               "size": 0
+        //             },
+        //             "layers": [
+        //               {
+        //                 "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+        //                 "digest": "sha256:...",
+        //                 "size": 2774
+        //               }
+        //             ],
+        //             "annotations": {
+        //               "org.opencontainers.image.description": "module description"
+        //               "org.opencontainers.image.documentation": "https://www.contoso.com/moduledocumentation.html"
+        //             }
+        //           }
+        //      */
+
 
             var annotations = new Dictionary<string, string>();
 
@@ -144,6 +223,7 @@ namespace Bicep.Core.Registry
                 Trace.WriteLine($"Manifest for module {artifactReference.FullyQualifiedReference} could not be found in the registry.");
                 throw new OciModuleRegistryException("The artifact does not exist in the registry.", exception);
             }
+            Debug.Assert(manifestResponse.Value.Manifest.ToArray().Length > 0);
 
             // the Value is disposable, but we are not calling it because we need to pass the stream outside of this scope
             using var stream = manifestResponse.Value.Manifest.ToStream();
@@ -189,7 +269,7 @@ namespace Bicep.Core.Registry
             }
 
             stream.Position = 0;
-            string digestFromContents = DescriptorFactory.ComputeDigest(DescriptorFactory.AlgorithmIdentifierSha256, stream);
+            string digestFromContents = DescriptorFactory.ComputeDigest(DigestAlgorithmIdentifier, stream);
             stream.Position = 0;
 
             if (!string.Equals(descriptor.Digest, digestFromContents, StringComparison.Ordinal))
@@ -203,8 +283,7 @@ namespace Bicep.Core.Registry
             var digestFromRegistry = manifestResponse.Value.Digest;
             var stream = manifestResponse.Value.Manifest.ToStream();
 
-            // TODO: The registry may use a different digest algorithm - we need to handle that
-            string digestFromContent = DescriptorFactory.ComputeDigest(DescriptorFactory.AlgorithmIdentifierSha256, stream);
+            string digestFromContent = DescriptorFactory.ComputeDigest(DigestAlgorithmIdentifier, stream);
 
             if (!string.Equals(digestFromRegistry, digestFromContent, DigestComparison))
             {

@@ -86,4 +86,10 @@ public interface IFileResolver
     /// <param name="fileUri">The file URI to read.</param>
     /// <param name="maxCharacters">Maximum number of output base64 text characters to read. if negative - read all. Maximum file size is calculated using (maxCharacters/4)*3 formula.</param>
     ResultWithDiagnostic<string> TryReadAsBase64(Uri fileUri, int maxCharacters = -1);
+
+    /// <summary>
+    /// Checks if the specified file URI exists, and if so, deletes it
+    /// </summary>
+    /// <param name="uri">The URI to test.</param>
+    void DeleteFileIfExists(Uri uri);
 }

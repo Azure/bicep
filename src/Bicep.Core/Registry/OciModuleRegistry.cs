@@ -70,7 +70,9 @@ namespace Bicep.Core.Registry
         public override bool IsArtifactRestoreRequired(OciModuleReference reference)
         {
             /*
-             * this should be kept in sync with the WriteArtifactContentToCache() implementation
+             * this should be kept in sync with the WriteModuleContent() implementation
+             * asdfg but beware that it's possible older versions of Bicep and newer versions of Bicep
+             * may be sharing this cache on the same machine.
              *
              * when we write content to the module cache, we attempt to get a lock so that no other writes happen in the directory
              * the code here appears to implement a lock-free read by checking existence of several files that are expected in a fully restored module
@@ -93,8 +95,8 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                // Get module
-                await this.client.PullArtifactAsync(configuration, reference);
+                // Try getting module
+                await this.client.PullArtifactAsync(configuration, reference, downloadSource: false);
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
@@ -292,7 +294,7 @@ namespace Bicep.Core.Registry
             return await base.InvalidateArtifactsCacheInternal(references);
         }
 
-        public override async Task PublishArtifact(OciModuleReference moduleReference, Stream compiled, string? documentationUri, string? description)
+        public override async Task PublishArtifact(OciModuleReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description)
         {
             // Write out an empty config for now
             // NOTE: Bicep v0.20 and earlier will throw if it finds a non-empty config
@@ -300,12 +302,12 @@ namespace Bicep.Core.Registry
 
             // Write out a single layer with the compiled JSON
             // NOTE: Bicep v0.20 and earlier will throw if it finds more than one layer
-            var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
+            var layer = new StreamDescriptor(compiledArmTemplate, BicepMediaTypes.BicepModuleLayerV1Json);
 
             try
             {
                 // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
-                await this.client.PushArtifactAsync(configuration, moduleReference, ManifestMediaType.OciImageManifest.ToString(), BicepMediaTypes.BicepModuleArtifactType, config, documentationUri, description, layer);
+                await this.client.PushArtifactAsync(configuration, moduleReference, ManifestMediaType.OciImageManifest.ToString(), BicepMediaTypes.BicepModuleArtifactType, config, bicepSources, documentationUri, description, layer);
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {
@@ -326,6 +328,8 @@ namespace Bicep.Core.Registry
         {
             /*
              * this should be kept in sync with the IsModuleRestoreRequired() implementation
+             * but beware that it's possible older versions of Bicep and newer versions of Bicep
+             * may be sharing this cache on the same machine.
              */
 
 
@@ -357,6 +361,17 @@ namespace Bicep.Core.Registry
             OciSerialization.Serialize(metadataStream, metadata);
             metadataStream.Position = 0;
             this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Metadata), metadataStream);
+
+            // write sources asdfg
+            //var sourcesFile = this.GetModuleFileUri(reference, ModuleFileType.Sources);
+            //if (result.SourcesStream is Stream sourcesStream)
+            //{
+            //    this.FileResolver.Write(sourcesFile, result.SourcesStream);
+            //}
+            //else
+            //{
+            //    this.FileResolver.DeleteFileIfExists(sourcesFile);
+            // }
         }
 
         protected override string GetArtifactDirectoryPath(OciModuleReference reference)
@@ -459,10 +474,23 @@ namespace Bicep.Core.Registry
                 ModuleFileType.Manifest => "manifest",
                 ModuleFileType.Metadata => "metadata",
                 ModuleFileType.Provider => "types.tgz",
+                ModuleFileType.Sources => "sources.zip", //asdfg tgz
                 _ => throw new NotImplementedException($"Unexpected module file type '{fileType}'.")
             };
 
             return Path.Combine(this.GetArtifactDirectoryPath(reference), fileName);
+        }
+
+        public override SourceArchive? TryGetSources(OciModuleReference reference)
+        {
+            var zipFile = GetModuleFilePath(reference, ModuleFileType.Sources);
+            if (!File.Exists(zipFile))
+            {
+                return null;
+            }
+
+            var stream = File.OpenRead(zipFile);
+            return new SourceArchive(stream);
         }
 
         private enum ModuleFileType
@@ -471,7 +499,8 @@ namespace Bicep.Core.Registry
             Manifest,
             Lock,
             Metadata,
-            Provider
+            Provider,
+            Sources,
         };
     }
 }
