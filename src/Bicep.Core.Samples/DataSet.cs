@@ -42,7 +42,7 @@ namespace Bicep.Core.Samples
 
         public record ExternalModuleMetadata(string Target);
 
-        public static readonly string Prefix = "Files/";
+        public static readonly string Prefix = "Files/baselines/";
 
         private readonly Lazy<string> lazyBicep;
 
@@ -159,8 +159,11 @@ namespace Bicep.Core.Samples
             where TPositionable : IPositionable
             => OutputHelper.AddDiagsToSourceText(dataSet.Bicep, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", items, item => item.Span, diagsFunc);
 
+        public static string GetBaselineUpdatePath(params string[] fileNames)
+            => Path.Combine("src", "Bicep.Core.Samples", "Files", "baselines", Path.Combine(fileNames));
+
         public static string GetBaselineUpdatePath(DataSet dataSet, string fileName)
-            => Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, fileName);
+            => GetBaselineUpdatePath(dataSet.Name, fileName);
 
         private static ImmutableDictionary<string, ExternalModuleInfo> ReadPublishData(string streamNamePrefix) =>
             ReadExternalModuleData(streamNamePrefix, LanguageConstants.LanguageFileExtension);

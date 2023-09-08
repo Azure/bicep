@@ -63,7 +63,7 @@ namespace Bicep.Core.UnitTests
         public static readonly IAzResourceTypeLoader BuiltinAzResourceTypeLoader = BicepTestConstants.AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, BicepTestConstants.Features)!;
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
-        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(EmptyServiceProvider, FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
+        public static readonly IArtifactRegistryProvider RegistryProvider = new DefaultArtifactRegistryProvider(EmptyServiceProvider, FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
 
         public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
 

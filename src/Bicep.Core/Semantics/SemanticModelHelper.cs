@@ -45,7 +45,7 @@ namespace Bicep.Core.Semantics
         }
 
         public static bool TryGetSemanticModelForForeignTemplateReference(ISourceFileLookup sourceFileLookup,
-            IForeignArtifactReference reference,
+            IArtifactReferenceSyntax reference,
             DiagnosticBuilder.ErrorBuilderDelegate onInvalidSourceFileType,
             ISemanticModelLookup semanticModelLookup,
             [NotNullWhen(true)] out ISemanticModel? semanticModel,
@@ -54,7 +54,7 @@ namespace Bicep.Core.Semantics
             if (sourceFileLookup.TryGetErrorDiagnostic(reference) is {} errorBuilder)
             {
                 semanticModel = null;
-                failureDiagnostic = errorBuilder(DiagnosticBuilder.ForPosition(reference.ReferenceSourceSyntax));
+                failureDiagnostic = errorBuilder(DiagnosticBuilder.ForPosition(reference.SourceSyntax));
                 return false;
             }
 
@@ -68,7 +68,7 @@ namespace Bicep.Core.Semantics
             if (sourceFile is not BicepFile and not ArmTemplateFile and not TemplateSpecFile)
             {
                 semanticModel = null;
-                failureDiagnostic = onInvalidSourceFileType(DiagnosticBuilder.ForPosition(reference.ReferenceSourceSyntax));
+                failureDiagnostic = onInvalidSourceFileType(DiagnosticBuilder.ForPosition(reference.SourceSyntax));
                 return false;
             }
 

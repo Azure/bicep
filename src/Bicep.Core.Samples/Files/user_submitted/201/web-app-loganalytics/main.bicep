@@ -1,6 +1,7 @@
 param skuName string = 'S1'
 param skuCapacity int = 1
 param location string = resourceGroup().location
+@minLength(1)
 param appName string = uniqueString(resourceGroup().id)
 
 var appServicePlanName = toLower('asp-${appName}')

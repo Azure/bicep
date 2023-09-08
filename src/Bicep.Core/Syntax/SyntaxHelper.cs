@@ -32,7 +32,7 @@ namespace Bicep.Core.Syntax
             return null;
         }
 
-        public static bool TryGetForeignTemplatePath(IForeignArtifactReference foreignTemplateReference,
+        public static bool TryGetForeignTemplatePath(IArtifactReferenceSyntax foreignTemplateReference,
             [NotNullWhen(true)] out string? path,
             [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
@@ -55,7 +55,7 @@ namespace Bicep.Core.Syntax
             return true;
         }
 
-        private static DiagnosticBuilder.ErrorBuilderDelegate OnMissingPathSyntaxErrorBuilder(IForeignArtifactReference syntax) => syntax switch
+        private static DiagnosticBuilder.ErrorBuilderDelegate OnMissingPathSyntaxErrorBuilder(IArtifactReferenceSyntax syntax) => syntax switch
         {
             ModuleDeclarationSyntax => x => x.ModulePathHasNotBeenSpecified(),
             UsingDeclarationSyntax => x => x.UsingPathHasNotBeenSpecified(),

@@ -7,7 +7,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public class CompileTimeImportDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IForeignArtifactReference
+public class CompileTimeImportDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
 {
     public CompileTimeImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase importExpression, SyntaxBase fromClause)
         : base(leadingNodes)
@@ -27,7 +27,7 @@ public class CompileTimeImportDeclarationSyntax : StatementSyntax, ITopLevelDecl
 
     public SyntaxBase FromClause { get; }
 
-    SyntaxBase IForeignArtifactReference.ReferenceSourceSyntax
+    SyntaxBase IArtifactReferenceSyntax.SourceSyntax
         => FromClause is CompileTimeImportFromClauseSyntax fromClauseSyntax ? fromClauseSyntax.Path : FromClause;
 
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitCompileTimeImportDeclarationSyntax(this);

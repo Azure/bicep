@@ -1,3 +1,4 @@
+@minLength(4)
 param projectName string = uniqueString(resourceGroup().id)
 param location string = resourceGroup().location
 param eventHubSku string = 'Standard'

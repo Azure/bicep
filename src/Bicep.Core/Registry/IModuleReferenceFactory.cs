@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using System;
 using System.Collections.Immutable;
@@ -16,5 +15,5 @@ public interface IModuleReferenceFactory
 
     bool TryGetModuleReference(string reference, Uri parentModuleUri, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
-    bool TryGetModuleReference(IForeignArtifactReference module, Uri parentModuleUri, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+    bool TryGetModuleReference(IArtifactReferenceSyntax artifactDeclaration, Uri parentModuleUri, [NotNullWhen(true)] out ArtifactReference? artifactReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 }

@@ -8,7 +8,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Modules;
 
 namespace Bicep.Core.Registry
 {

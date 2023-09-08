@@ -26,7 +26,7 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepHoverHandler : HoverHandlerBase
     {
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly IModuleRegistryProvider moduleRegistryProvider;
+        private readonly IArtifactRegistryProvider moduleRegistryProvider;
         private readonly ISymbolResolver symbolResolver;
 
         private const int MaxHoverMarkdownCodeBlockLength = 90000;
@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Handlers
 
         public BicepHoverHandler(
             IModuleDispatcher moduleDispatcher,
-            IModuleRegistryProvider moduleRegistryProvider,
+            IArtifactRegistryProvider moduleRegistryProvider,
             ISymbolResolver symbolResolver)
         {
             this.moduleDispatcher = moduleDispatcher;
@@ -83,7 +83,7 @@ namespace Bicep.LanguageServer.Handlers
             HoverParams request,
             SymbolResolutionResult result,
             IModuleDispatcher moduleDispatcher,
-            IModuleRegistryProvider moduleRegistryProvider)
+            IArtifactRegistryProvider moduleRegistryProvider)
         {
             // all of the generated markdown includes the language id to avoid VS code rendering
             // with multiple borders
@@ -177,7 +177,7 @@ namespace Bicep.LanguageServer.Handlers
             HoverParams request,
             SymbolResolutionResult result,
             IModuleDispatcher moduleDispatcher,
-            IModuleRegistryProvider moduleRegistryProvider,
+            IArtifactRegistryProvider moduleRegistryProvider,
             ModuleSymbol module)
         {
             if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule, out var filePath, out _))

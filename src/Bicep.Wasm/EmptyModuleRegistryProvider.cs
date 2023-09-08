@@ -7,7 +7,7 @@ using System.Collections.Immutable;
 
 namespace Bicep.Wasm
 {
-    public class EmptyModuleRegistryProvider : IModuleRegistryProvider
+    public class EmptyModuleRegistryProvider : IArtifactRegistryProvider
     {
         public ImmutableArray<IArtifactRegistry> Registries(Uri _) => ImmutableArray<IArtifactRegistry>.Empty;
     }

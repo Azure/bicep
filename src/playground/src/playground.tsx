@@ -141,7 +141,7 @@ export const Playground : React.FC<Props> = (props) => {
       </Container> :
       <>
         <div className="playground-editorpane">
-          <BicepEditor onBicepChange={setBicepContent} onJsonChange={setJsonContent} initialCode={initialContent} />
+          <BicepEditor onBicepChange={setBicepContent} onJsonChange={setJsonContent} initialContent={initialContent} />
         </div>
         <div className="playground-editorpane">
           <JsonEditor content={jsonContent} />

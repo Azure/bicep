@@ -7,6 +7,7 @@ using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Bicep.Core.Registry;
 
 namespace Bicep.Core.Modules
 {

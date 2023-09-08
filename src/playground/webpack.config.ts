@@ -25,7 +25,7 @@ const config: Configuration = {
       use: ['style-loader', 'css-loader']
     }, {
       test: /\.ttf$/,
-      use: ['file-loader']
+      type: 'asset/resource'
     }]
   },
   resolve: {
