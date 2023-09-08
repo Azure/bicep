@@ -10,6 +10,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Bicep.LanguageServer.Telemetry;
@@ -544,31 +545,27 @@ namespace Bicep.LanguageServer.Handlers
             throw new NotImplementedException();
         }
 
-        public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public ResultWithDiagnostic<string> TryRead(Uri fileUri)
         {
             if (fileUri.Equals(this.Uri))
             {
-                failureBuilder = null;
-                fileContents = this.contents;
-                return true;
+                return new(this.contents);
             }
 
-            failureBuilder = x => x.UnableToLoadNonFileUri(fileUri);
-            fileContents = null;
-            return false;
+            return new(x => x.UnableToLoadNonFileUri(fileUri));
         }
 
-        public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, Encoding fileEncoding, int maxCharacters, [NotNullWhen(true)] out Encoding? detectedEncoding)
+        public ResultWithDiagnostic<FileWithEncoding> TryRead(Uri fileUri, Encoding fileEncoding, int maxCharacters)
         {
             throw new NotImplementedException();
         }
 
-        public bool TryReadAsBase64(Uri fileUri, [NotNullWhen(true)] out string? fileBase64, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, int maxCharacters = -1)
+        public ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
         {
             throw new NotImplementedException();
         }
 
-        public bool TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents)
+        public ResultWithDiagnostic<string> TryReadAsBase64(Uri fileUri, int maxCharacters = -1)
         {
             throw new NotImplementedException();
         }

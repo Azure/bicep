@@ -8,6 +8,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -44,37 +45,25 @@ namespace Bicep.Core.Semantics
             });
         }
 
-        public static bool TryGetSemanticModelForForeignTemplateReference(ISourceFileLookup sourceFileLookup,
+        public static Result<ISemanticModel, ErrorDiagnostic> TryGetSemanticModelForForeignTemplateReference(ISourceFileLookup sourceFileLookup,
             IArtifactReferenceSyntax reference,
             DiagnosticBuilder.ErrorBuilderDelegate onInvalidSourceFileType,
-            ISemanticModelLookup semanticModelLookup,
-            [NotNullWhen(true)] out ISemanticModel? semanticModel,
-            [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
+            ISemanticModelLookup semanticModelLookup)
         {
-            if (sourceFileLookup.TryGetErrorDiagnostic(reference) is {} errorBuilder)
+            if (!sourceFileLookup.TryGetSourceFile(reference).IsSuccess(out var sourceFile, out var errorBuilder))
             {
-                semanticModel = null;
-                failureDiagnostic = errorBuilder(DiagnosticBuilder.ForPosition(reference.SourceSyntax));
-                return false;
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(reference.SourceSyntax)));
             }
-
-            // SourceFileGroupingBuilder should have already visited every module declaration and either recorded a failure or mapped it to a syntax tree.
-            // So it is safe to assume that this lookup will succeed without throwing an exception.
-            var sourceFile = sourceFileLookup.TryGetSourceFile(reference) ?? throw new InvalidOperationException($"Failed to find source file for module");
 
             // when we inevitably add a third language ID,
             // the inclusion list style below will prevent the new language ID from being
             // automatically allowed to be referenced via module declarations
-            if (sourceFile is not BicepFile and not ArmTemplateFile and not TemplateSpecFile)
+            if (sourceFile is not (BicepFile or ArmTemplateFile or TemplateSpecFile))
             {
-                semanticModel = null;
-                failureDiagnostic = onInvalidSourceFileType(DiagnosticBuilder.ForPosition(reference.SourceSyntax));
-                return false;
+                return new(onInvalidSourceFileType(DiagnosticBuilder.ForPosition(reference.SourceSyntax)));
             }
 
-            failureDiagnostic = null;
-            semanticModel = semanticModelLookup.GetSemanticModel(sourceFile);
-            return true;
+            return new(semanticModelLookup.GetSemanticModel(sourceFile));
         }
     }
 }

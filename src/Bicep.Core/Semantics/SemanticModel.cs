@@ -409,7 +409,7 @@ namespace Bicep.Core.Semantics
 
             foreach (var moduleSymbol in Root.ModuleDeclarations)
             {
-                if (moduleSymbol.TryGetSemanticModel(out var model, out _))
+                if (moduleSymbol.TryGetSemanticModel().IsSuccess(out var model))
                 {
                     foreach (var output in model.Outputs)
                     {

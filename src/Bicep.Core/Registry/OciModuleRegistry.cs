@@ -57,20 +57,14 @@ namespace Bicep.Core.Registry
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
         }
 
-        public override bool TryParseArtifactReference(
-            string? aliasName,
-            string reference,
-            [NotNullWhen(true)] out ArtifactReference? moduleReference,
-            [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string reference)
         {
-            if (OciModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri, out var @ref, out failureBuilder))
+            if (!OciModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
-                moduleReference = @ref;
-                return true;
+                return new(failureBuilder);
             }
 
-            moduleReference = null;
-            return false;
+            return new(@ref);
         }
 
         public override bool IsArtifactRestoreRequired(OciModuleReference reference)
@@ -193,11 +187,10 @@ namespace Bicep.Core.Registry
             // So ignore the field for now and don't do any validation.
         }
 
-        public override bool TryGetLocalArtifactEntryPointUri(OciModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(OciModuleReference reference)
         {
-            failureBuilder = null;
-            localUri = this.GetModuleFileUri(reference, ModuleFileType.ModuleMain);
-            return true;
+            var localUri = this.GetModuleFileUri(reference, ModuleFileType.ModuleMain);
+            return new(localUri);
         }
 
         public override string? TryGetDocumentationUri(OciModuleReference ociArtifactModuleReference)

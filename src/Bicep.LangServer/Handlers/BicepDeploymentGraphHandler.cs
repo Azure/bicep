@@ -111,7 +111,7 @@ namespace Bicep.LanguageServer.Handlers
                         var hasChildren = false;
 
                         if (moduleFilePath is not null &&
-                            moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var _) &&
+                            moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out var _) &&
                             moduleSemanticModel is SemanticModel bicepModel &&
                             (bicepModel.Root.ResourceDeclarations.Any() || bicepModel.Root.ModuleDeclarations.Any()))
                         {
