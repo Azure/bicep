@@ -206,7 +206,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             ObjectType => "object",
 
             ArrayType => "array",
-            UnionType union => string.Join(" | ", union.Members.SelectMany(ConvertToPrimitiveTypeName).Distinct()),
+            UnionType union => string.Join(" | ", union.Members.Select(ConvertToPrimitiveTypeName).Distinct()),
             TypeSymbol otherwise => throw new InvalidOperationException($"Unable to determine primitive type of {otherwise.Name}"),
         };
     }

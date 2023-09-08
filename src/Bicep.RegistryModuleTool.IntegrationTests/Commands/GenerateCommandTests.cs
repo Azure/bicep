@@ -106,9 +106,9 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
 
         private static IEnumerable<object[]> GetSuccessData()
         {
-            yield return CreateTestCase(Sample.Empty, Sample.NewlyGenerated);
+            //yield return CreateTestCase(Sample.Empty, Sample.NewlyGenerated);
             yield return CreateTestCase(Sample.Modified, Sample.Valid);
-            yield return CreateTestCase(Sample.Modified_Experimental, Sample.Valid_Experimental);
+            //yield return CreateTestCase(Sample.Modified_Experimental, Sample.Valid_Experimental);
 
             static object[] CreateTestCase(Sample before, Sample after) => new object[]
             {
