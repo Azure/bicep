@@ -192,7 +192,7 @@ namespace Bicep.Core.Workspaces
                                 (childResult.IsSuccess(out var childFile) && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childFile)))
                             {
                                 // only recurse if we've not seen this file before - to avoid infinite loops
-                                childResult = PopulateRecursive(usingFileUri, null, sourceFileToRebuild, featuresFactory);
+                                childResult = PopulateRecursive(usingFileUri, childModuleReference, sourceFileToRebuild, featuresFactory);
                             }
 
                             fileResultByUri[usingFileUri] = childResult;
