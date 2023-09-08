@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
 {
-    public static partial class MockFileSystemFactory
+    public static class MockFileSystemFactory
     {
         private const string CurrentDirectory = "/modules/test/testmodule";
 
