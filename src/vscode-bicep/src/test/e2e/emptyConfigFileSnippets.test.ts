@@ -10,7 +10,7 @@ import vscode, {
   workspace,
 } from "vscode";
 import path from "path";
-import fse from "fs-extra";
+import fs from "fs";
 import {
   executeCloseAllEditors,
   executeCompletionItemProvider,
@@ -30,7 +30,7 @@ describe("empty config file snippets", (): void => {
 
     const tempFolder = createUniqueTempFolder("emptyConfigSnippetsTest-");
     const configPath = path.join(tempFolder, "bicepconfig.json");
-    fse.writeFileSync(configPath, "\n");
+    fs.writeFileSync(configPath, "\n");
 
     try {
       const doc = await workspace.openTextDocument(configPath);
@@ -85,11 +85,15 @@ describe("empty config file snippets", (): void => {
       );
       */
     } finally {
-      fse.rmdirSync(tempFolder, {
-        recursive: true,
-        maxRetries: 5,
-        retryDelay: 1000,
-      });
+      try {
+        fs.rmSync(tempFolder, {
+          recursive: true,
+          maxRetries: 5,
+          retryDelay: 1000,
+        });
+      } catch {
+        // post-test cleanup is strictly best-effort only
+      }
     }
   });
 });
