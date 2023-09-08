@@ -186,6 +186,22 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/.*/main\.bicepparam")]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Build_params_returns_intuitive_error_if_invoked_with_bicep_file_param(EmbeddedFile paramFile)
+        {
+            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+            var bicepFile = Path.Combine(baselineFolder.OutputFolderPath, "main.bicep");
+            File.WriteAllText(bicepFile, "");
+
+            var clients = await MockRegistry.Build();
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
+
+            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--bicep-file", bicepFile,  "--stdout");
+            result.Should().Fail().And.HaveStderrMatch($"Bicep file * provided with --bicep-file can only be used if the Bicep parameters \"using\" declaration refers to a Bicep file on disk.*");
+        }
+
+        [TestMethod]
         [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Build_params_to_stdout_with_registry_should_succeed_after_restore(EmbeddedFile paramFile)

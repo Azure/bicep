@@ -31,12 +31,26 @@ public static class CliResultAssertionsExtensions
         return new(instance);
     }
 
+    public static AndConstraint<CliResultAssertions> HaveStdoutMatch(this CliResultAssertions instance, string stdout, string because = "", params object[] becauseArgs)
+    {
+        instance.Subject.Stdout.Should().Match(stdout, because, becauseArgs);
+
+        return new(instance);
+    }
+
     public static AndConstraint<CliResultAssertions> NotHaveStdout(this CliResultAssertions instance, string because = "", params object[] becauseArgs)
         => HaveStdout(instance, "", because, becauseArgs);
 
     public static AndConstraint<CliResultAssertions> HaveStderr(this CliResultAssertions instance, string stderr, string because = "", params object[] becauseArgs)
     {
         instance.Subject.Stderr.Should().Be(stderr, because, becauseArgs);
+
+        return new(instance);
+    }
+
+    public static AndConstraint<CliResultAssertions> HaveStderrMatch(this CliResultAssertions instance, string stderr, string because = "", params object[] becauseArgs)
+    {
+        instance.Subject.Stderr.Should().Match(stderr, because, becauseArgs);
 
         return new(instance);
     }

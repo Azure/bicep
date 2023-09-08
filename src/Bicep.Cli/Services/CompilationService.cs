@@ -74,11 +74,13 @@ namespace Bicep.Cli.Services
             LogDiagnostics(GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceModulesRestore));
         }
 
-        public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore)
+        public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore, Action<Compilation>? validateFunc = null)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
             var compilation = await bicepCompiler.CreateCompilation(inputUri, this.workspace, skipRestore, forceModulesRestore: false);
+
+            validateFunc?.Invoke(compilation);
 
             LogDiagnostics(compilation);
 
