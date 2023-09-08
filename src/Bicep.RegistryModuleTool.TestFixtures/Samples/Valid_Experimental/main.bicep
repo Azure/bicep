@@ -2,6 +2,9 @@ metadata name = 'Sample module'
 metadata description = 'Sample description'
 metadata owner = 'test'
 
+@description('Test nullable parameter types')
+param foo string?
+
 @description('The dns prefix')
 param dnsPrefix string
 

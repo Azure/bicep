@@ -10,7 +10,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18176247026906887286"
+      "templateHash": "11329550581480896929"
     },
     "name": "Sample module",
     "description": "Sample description",
@@ -30,6 +30,13 @@
     }
   },
   "parameters": {
+    "foo": {
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "Test nullable parameter types"
+      }
+    },
     "dnsPrefix": {
       "type": "string",
       "metadata": {
