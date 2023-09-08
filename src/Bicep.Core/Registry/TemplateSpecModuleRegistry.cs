@@ -43,16 +43,14 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities GetCapabilities(TemplateSpecModuleReference reference) => RegistryCapabilities.Default;
 
-        public override bool TryParseArtifactReference(string? aliasName, string reference, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string reference)
         {
-            if (TemplateSpecModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri, out var @ref, out failureBuilder))
+            if (!TemplateSpecModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
-                moduleReference = @ref;
-                return true;
+                return new(failureBuilder);
             }
 
-            moduleReference = null;
-            return false;
+            return new(@ref);
         }
 
         public override bool IsArtifactRestoreRequired(TemplateSpecModuleReference reference) =>
@@ -62,11 +60,10 @@ namespace Bicep.Core.Registry
 
         public override Task<bool> CheckArtifactExists(TemplateSpecModuleReference reference) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
-        public override bool TryGetLocalArtifactEntryPointUri(TemplateSpecModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(TemplateSpecModuleReference reference)
         {
-            failureBuilder = null;
-            localUri = this.GetModuleEntryPointUri(reference);
-            return true;
+            var localUri = this.GetModuleEntryPointUri(reference);
+            return new(localUri);
         }
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<TemplateSpecModuleReference> references)

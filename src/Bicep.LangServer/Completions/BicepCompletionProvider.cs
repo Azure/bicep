@@ -711,7 +711,7 @@ namespace Bicep.LanguageServer.Completions
                     return false;
                 }
 
-                if (FileResolver.TryReadAtMostNCharacters(fileUri, Encoding.UTF8, 2000, out var fileContents) &&
+                if (FileResolver.TryReadAtMostNCharacters(fileUri, Encoding.UTF8, 2000).IsSuccess(out var fileContents) &&
                     LanguageConstants.ArmTemplateSchemaRegex.IsMatch(fileContents))
                 {
                     return true;
@@ -2042,12 +2042,12 @@ namespace Bicep.LanguageServer.Completions
                 if (context.EnclosingDeclaration is CompileTimeImportDeclarationSyntax compileTimeImportDeclaration &&
                     compileTimeImportDeclaration.ImportExpression.Span.ContainsInclusive(context.ReplacementTarget.Span.Position))
                 {
-                    if (SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(model.Compilation.SourceFileGrouping,
-                        compileTimeImportDeclaration,
-                        b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
-                        model.Compilation,
-                        out var importedModel,
-                        out _))
+                    if (SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(
+                            model.Compilation.SourceFileGrouping,
+                            compileTimeImportDeclaration,
+                            b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
+                            model.Compilation)
+                        .IsSuccess(out var importedModel))
                     {
                         var claimedNames = model.Root.Declarations.Select(d => d.Name).ToImmutableHashSet();
 

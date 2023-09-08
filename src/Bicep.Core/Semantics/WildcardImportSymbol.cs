@@ -9,29 +9,16 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Semantics;
 
 public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
 {
-    private readonly Lazy<ISemanticModel?> sourceModelLazy;
-
     public WildcardImportSymbol(ISymbolContext context, WildcardImportSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclaration)
         : base(context, declaringSyntax.Name.IdentifierName, declaringSyntax, declaringSyntax.AliasAsClause.Alias)
     {
         EnclosingDeclaration = enclosingDeclaration;
-
-        sourceModelLazy = new(() =>
-        {
-            SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
-                EnclosingDeclaration,
-                b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
-                Context.Compilation,
-                out var semanticModel,
-                out _);
-
-            return semanticModel;
-        });
     }
 
     public CompileTimeImportDeclarationSyntax EnclosingDeclaration { get; }
@@ -45,10 +32,15 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
 
     public NamespaceType? TryGetNamespaceType() => this.Type as NamespaceType;
 
-    public ISemanticModel? TryGetSemanticModel() => sourceModelLazy.Value;
+    public ISemanticModel? TryGetSemanticModel()
+        => SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
+            EnclosingDeclaration,
+            b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
+            Context.Compilation)
+            .TryUnwrap();
 
-    public bool TryGetModuleReference([NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
-        => Context.Compilation.ModuleReferenceFactory.TryGetModuleReference(EnclosingDeclaration, Context.SourceFile.FileUri, out moduleReference, out failureBuilder);
+    public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference()
+        => Context.Compilation.ModuleReferenceFactory.TryGetModuleReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 
     public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
     {

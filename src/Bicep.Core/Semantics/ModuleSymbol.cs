@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Semantics
 {
@@ -21,13 +22,11 @@ namespace Bicep.Core.Semantics
 
         public override SymbolKind Kind => SymbolKind.Module;
 
-        public bool TryGetSemanticModel([NotNullWhen(true)] out ISemanticModel? semanticModel, [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
+        public Result<ISemanticModel, ErrorDiagnostic> TryGetSemanticModel()
             => SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
                 DeclaringModule,
                 b => b.ModuleDeclarationMustReferenceBicepModule(),
-                Context.Compilation,
-                out semanticModel,
-                out failureDiagnostic);
+                Context.Compilation);
 
         public override IEnumerable<Symbol> Descendants
         {

@@ -20,6 +20,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -189,15 +190,7 @@ module main 'main.bicep' = {
 
         private static void SetupFileReaderMock(Mock<IFileResolver> mockFileResolver, Uri fileUri, string? fileContents, DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            string? outFileContents;
-            DiagnosticBuilder.ErrorBuilderDelegate? outFailureBuilder;
-            mockFileResolver.Setup(x => x.TryRead(fileUri, out outFileContents, out outFailureBuilder))
-                .Returns(new TryReadDelegate((Uri filePath, out string? outFileContents, out DiagnosticBuilder.ErrorBuilderDelegate? outFailureBuilder) =>
-                {
-                    outFailureBuilder = failureBuilder;
-                    outFileContents = fileContents;
-                    return fileContents != null;
-                }));
+            mockFileResolver.Setup(x => x.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, failureBuilder));
         }
 
         [TestMethod]

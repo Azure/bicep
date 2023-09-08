@@ -1173,17 +1173,18 @@ namespace Bicep.Core.Semantics.Namespaces
                 fileEncoding = LanguageConstants.SupportedEncodings[encodingType.RawStringValue];
             }
 
-            if (!fileResolver.TryRead(fileUri, out fileContent, out var fileReadFailureBuilder, fileEncoding, maxCharacters, out var detectedEncoding))
+            if (!fileResolver.TryRead(fileUri, fileEncoding, maxCharacters).IsSuccess(out var result, out var fileReadFailureBuilder))
             {
                 errorDiagnostic = fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument.syntax));
                 return false;
             }
 
-            if (encodingArgument is not null && !Equals(fileEncoding, detectedEncoding))
+            if (encodingArgument is not null && !Equals(fileEncoding, result.Encoding))
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(detectedEncoding.WebName));
+                diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(result.Encoding.WebName));
             }
 
+            fileContent = result.Contents;
             return true;
         }
 
@@ -1201,7 +1202,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 return new(ErrorType.Create(errorDiagnostic));
             }
-            if (!fileResolver.TryReadAsBase64(fileUri, out var fileContent, out var fileReadFailureBuilder, LanguageConstants.MaxLiteralCharacterLimit))
+            if (!fileResolver.TryReadAsBase64(fileUri, LanguageConstants.MaxLiteralCharacterLimit).IsSuccess(out var fileContent, out var fileReadFailureBuilder))
             {
                 return new(ErrorType.Create(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0]))));
             }

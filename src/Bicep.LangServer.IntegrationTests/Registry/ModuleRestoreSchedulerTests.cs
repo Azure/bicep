@@ -195,7 +195,7 @@ namespace Bicep.LangServer.UnitTests.Registry
                 return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>());
             }
 
-            public bool TryGetLocalArtifactEntryPointUri(ArtifactReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference)
             {
                 throw new NotImplementedException();
             }
@@ -204,11 +204,9 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public Task<string?> TryGetDescription(ArtifactReference reference) => Task.FromResult<string?>(null);
 
-            public bool TryParseArtifactReference(string? aliasName, string reference, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string reference)
             {
-                failureBuilder = null;
-                moduleReference = new MockModuleRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName()));
-                return true;
+                return new(new MockModuleRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
             }
         }
 

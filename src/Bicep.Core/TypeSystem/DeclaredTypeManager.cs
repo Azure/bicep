@@ -1729,7 +1729,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Empty();
             }
 
-            if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var failureDiagnostic))
+            if (!moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out var failureDiagnostic))
             {
                 return ErrorType.Create(failureDiagnostic);
             }
@@ -1783,7 +1783,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Empty();
             }
 
-            if (!testSymbol.TryGetSemanticModel(out var testSemanticModel, out var failureDiagnostic))
+            if (!testSymbol.TryGetSemanticModel().IsSuccess(out var testSemanticModel, out var failureDiagnostic))
             {
                 return ErrorType.Create(failureDiagnostic);
             }

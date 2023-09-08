@@ -38,21 +38,16 @@ public class ImportedSymbol : DeclaredSymbol
     };
 
     public ISemanticModel? TryGetSemanticModel()
-    {
-        SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
+        => SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
             EnclosingDeclaration,
             b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
-            Context.Compilation,
-            out var semanticModel,
-            out _);
-
-        return semanticModel;
-    }
+            Context.Compilation)
+            .TryUnwrap();
 
     public string? TryGetDescription() => TryGetExportMetadata()?.Description;
 
-    public bool TryGetModuleReference([NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
-        => Context.Compilation.ModuleReferenceFactory.TryGetModuleReference(EnclosingDeclaration, Context.SourceFile.FileUri, out moduleReference, out failureBuilder);
+    public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference()
+        => Context.Compilation.ModuleReferenceFactory.TryGetModuleReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 
     public override void Accept(SymbolVisitor visitor)
     {
