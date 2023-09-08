@@ -2,35 +2,19 @@
 // Licensed under the MIT License.
 
 using Bicep.RegistryModuleTool.Commands;
-using Bicep.RegistryModuleTool.TestFixtures.Assertions;
 using Bicep.RegistryModuleTool.ModuleFiles;
+using Bicep.RegistryModuleTool.TestFixtures.Assertions;
 using Bicep.RegistryModuleTool.TestFixtures.Extensions;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using Bicep.RegistryModuleTool.TestFixtures.Mocks;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Threading.Tasks;
-using Bicep.Core;
-using Bicep.Core.Features;
-using Bicep.Core.Configuration;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem.Az;
-using Bicep.Core.Analyzers.Linter;
-using System.Diagnostics;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
-using Bicep.Core.Analyzers.Interfaces;
-using Microsoft.Extensions.DependencyInjection;
-using Castle.Core.Logging;
-using Microsoft.Extensions.Logging;
-using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
 {
@@ -120,23 +104,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
         private static GenerateCommand CreateGenerateCommand(IFileSystem fileSystem)
         {
             var serviceCollection = new ServiceCollection()
-                .AddSingleton(fileSystem)
-                .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-                .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
-                .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
-                .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
-                .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
-                .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-                .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
-                .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-                .AddSingleton<IFileResolver, FileResolver>()
-                .AddSingleton<IConfigurationManager, ConfigurationManager>()
-                .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
-                .AddSingleton(new FeatureProviderOverrides())
-                .AddSingleton<FeatureProviderFactory>()
-                .AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>()
-                .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-                .AddSingleton<BicepCompiler>()
+                .AddBicepCompilerWithFileSystem(fileSystem)
                 .AddSingleton(MockLoggerFactory.CreateGenericLogger<GenerateCommand>())
                 .AddSingleton<GenerateCommand.CommandHandler>();
 

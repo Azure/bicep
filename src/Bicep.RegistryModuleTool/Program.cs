@@ -53,22 +53,7 @@ namespace Bicep.RegistryModuleTool
         }
 
         private static void ConfigureHost(IHostBuilder builder) => builder
-            .ConfigureServices(services => services
-                .AddSingleton<IFileSystem, FileSystem>()
-                .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-                .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
-                .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
-                .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
-                .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
-                .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-                .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
-                .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-                .AddSingleton<IFileResolver, FileResolver>()
-                .AddSingleton<IConfigurationManager, ConfigurationManager>()
-                .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
-                .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
-                .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-                .AddSingleton<BicepCompiler>())
+            .ConfigureServices(services => services.AddBicepCompiler())
             .UseSerilog((context, logging) => logging
                 .MinimumLevel.Is(GetMinimumLogEventLevel(context))
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
