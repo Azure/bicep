@@ -25,7 +25,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             ["pathFilters"] = new[]
             {
                 "./main.json",
-                "./metadata.json"
             },
         });
 
@@ -79,14 +78,14 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
                 if (rootElement.ValueKind != JsonValueKind.Object)
                 {
-                    throw new InvalidModuleFileException($"The version file \"{path}\" must contain a JSON object at the root level.");
+                    throw new BicepException($"The version file \"{path}\" must contain a JSON object at the root level.");
                 }
 
                 return new(path, contents, rootElement);
             }
             catch (JsonException jsonException)
             {
-                throw new InvalidModuleFileException($"The version file \"{path}\" is not a valid JSON file. {jsonException.Message}");
+                throw new BicepException($"The version file \"{path}\" is not a valid JSON file. {jsonException.Message}");
             }
         }
 

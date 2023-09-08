@@ -18,7 +18,7 @@ namespace Bicep.RegistryModuleTool.Extensions
 {
     internal static class BicepCompilerExtensions
     {
-        public static async Task<Compilation> CompileAsync(this BicepCompiler compiler, string path, IConsole console, bool writeDiagnostics = true)
+        public static async Task<Compilation> CompileAsync(this BicepCompiler compiler, string path, IConsole console, string? skipWritingDiagnosticsPath = null)
         {
             var hasError = false;
             var uri = PathHelper.FilePathToFileUrl(path);
@@ -33,17 +33,16 @@ namespace Bicep.RegistryModuleTool.Extensions
                         hasError = true;
                     }
 
-                    if (writeDiagnostics)
+                    if (!file.FileUri.LocalPath.Equals(skipWritingDiagnosticsPath, StringComparison.Ordinal))
                     {
                         console.WriteDiagnostic(file, diagnostic);
                     }
-
                 }
             }
 
             if (hasError)
             {
-                throw new BicepException($"Failed to build \"{path}\"");
+                throw new BicepException(@$"Failed to build ""{path}"".");
             }
 
             return compilation;

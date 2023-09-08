@@ -16,7 +16,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     {
         public const string FileName = "main.test.bicep";
 
-        private const string Directory = "test";
+        public const string Directory = "test";
 
         private static readonly string DefaultContent = """
             /*

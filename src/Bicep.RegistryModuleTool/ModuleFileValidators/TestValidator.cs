@@ -28,24 +28,23 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         private readonly BicepCompiler compiler;
 
-        private readonly MainBicepFile latestMainBicepFile;
+        private readonly MainBicepFile mainBicepFile;
 
-        public TestValidator(ILogger logger, IConsole console, BicepCompiler compiler, MainBicepFile latestMainBicepFile)
+        public TestValidator(ILogger logger, IConsole console, BicepCompiler compiler, MainBicepFile mainBicepFile)
         {
             this.logger = logger;
             this.console = console;
             this.compiler = compiler;
-            this.latestMainBicepFile = latestMainBicepFile;
+            this.mainBicepFile = mainBicepFile;
         }
 
         public async Task<IEnumerable<string>> ValidateAsync(MainBicepTestFile file)
         {
             this.logger.LogInformation("Making sure the test file contains at least one test...");
 
-            // Skip writting diagnostics to avoid printing duplicated diagnostics for main.bicep.
-            var compilation = await this.compiler.CompileAsync(file.Path, this.console, writeDiagnostics: false);
+            var compilation = await this.compiler.CompileAsync(file.Path, this.console, this.mainBicepFile.Path);
             var hasMainBicepFileReference = compilation.SourceFileGrouping.SourceFiles
-                .Any(x => x.FileUri.LocalPath.Equals(this.latestMainBicepFile.Path, StringComparison.Ordinal));
+                .Any(x => x.FileUri.LocalPath.Equals(this.mainBicepFile.Path, StringComparison.Ordinal));
 
             if (!hasMainBicepFileReference)
             {

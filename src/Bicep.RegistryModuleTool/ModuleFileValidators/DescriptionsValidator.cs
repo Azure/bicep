@@ -28,8 +28,8 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
         {
             this.logger.LogInformation("Making sure descriptions are defined for all parameters and outputs...");
 
-            var noDescriptionParameters = file.SemanticModel.Parameters.Values.Where(x => string.IsNullOrEmpty(x.Description));
-            var noDescriptionOutputs = file.SemanticModel.Outputs.Where(x => string.IsNullOrEmpty(x.Description));
+            var noDescriptionParameters = file.Parameters.Where(x => string.IsNullOrEmpty(x.Description));
+            var noDescriptionOutputs = file.Outputs.Where(x => string.IsNullOrEmpty(x.Description));
 
             foreach (var parameter in noDescriptionParameters)
             {

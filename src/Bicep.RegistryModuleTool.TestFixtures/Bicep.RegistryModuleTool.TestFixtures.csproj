@@ -5,24 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="SampleFiles/**/*" WithCulture="false" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="SampleFiles\Modified\main.json" />
-    <None Remove="SampleFiles\Modified\README.md" />
-    <None Remove="SampleFiles\Modified\test\main.test.bicep" />
-    <None Remove="SampleFiles\Modified\version.json" />
-    <None Remove="SampleFiles\NewlyGenerated\main.bicep" />
-    <None Remove="SampleFiles\NewlyGenerated\main.json" />
-    <None Remove="SampleFiles\NewlyGenerated\metadata.json" />
-    <None Remove="SampleFiles\NewlyGenerated\README.md" />
-    <None Remove="SampleFiles\NewlyGenerated\test\main.test.bicep" />
-    <None Remove="SampleFiles\NewlyGenerated\version.json" />
-    <None Remove="SampleFiles\Invalid\metadata.json" />
-    <None Remove="SampleFiles\Invalid\test\main.test.bicep" />
-    <None Remove="SampleFiles\Valid\test\main.test.bicep" />
-    <None Remove="SampleFiles\ModuleWithObsoleteMetadataFile\" />
+    <EmbeddedResource Include="Samples/**/*" WithCulture="false" />
   </ItemGroup>
 
   <ItemGroup>

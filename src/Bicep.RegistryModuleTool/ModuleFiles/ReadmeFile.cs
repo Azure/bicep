@@ -89,8 +89,8 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             builder.AppendLine(detailsSection);
 
-            BuildParametersTable(builder, mainBicepFile.SemanticModel.Parameters.Values);
-            BuildOutputsTable(builder, mainBicepFile.SemanticModel.Outputs);
+            BuildParametersTable(builder, mainBicepFile.Parameters);
+            BuildOutputsTable(builder, mainBicepFile.Outputs);
 
             builder.AppendLine(examplesSection);
 

@@ -42,11 +42,11 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public const string ModuleOwnerMetadataName = "owner";
 
-        private static readonly string DefaultModuleNameMetadata = $"metadata {ModuleNameMetadataName} = 'TODO: Enter the module name.'";
+        private static readonly string DefaultModuleNameMetadata = $"metadata {ModuleNameMetadataName} = 'TODO: <module name>'";
 
-        private static readonly string DefaultModuleDescriptionMetadata = $"metadata {ModuleDescriptionMetadataName} = 'TODO: Enter the module description.'";
+        private static readonly string DefaultModuleDescriptionMetadata = $"metadata {ModuleDescriptionMetadataName} = 'TODO: <module description>'";
 
-        private static readonly string DefaultModuleOwnerMetadata = $"metadata {ModuleOwnerMetadataName} = 'TODO: Enter the GitHub username of the module owner.'";
+        private static readonly string DefaultModuleOwnerMetadata = $"metadata {ModuleOwnerMetadataName} = 'TODO: <GitHub username of module owner>'";
 
         private static readonly string DefaultContent = $"""
             {DefaultModuleNameMetadata}
@@ -62,6 +62,12 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         }
 
         public SemanticModel SemanticModel { get; }
+
+        // Do not use SemanticModel.Parameters.Values() since the order may change.
+        public IEnumerable<ParameterMetadata> Parameters => this.SemanticModel.Root.ParameterDeclarations
+            .Select(x => this.SemanticModel.Parameters[x.Name]);
+
+        public IEnumerable<OutputMetadata> Outputs => this.SemanticModel.Outputs;
 
         public ModuleMetadata TryGetMetadata(string metadataName)
         {

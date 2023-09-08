@@ -18,25 +18,25 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         private readonly ILogger logger;
 
-        private readonly MainBicepFile latestMainBicepFile;
+        private readonly MainBicepFile mainBicepFile;
 
-        public DiffValidator(IFileSystem fileSystem, ILogger logger, MainBicepFile latestMainBicepFile)
+        public DiffValidator(IFileSystem fileSystem, ILogger logger, MainBicepFile mainBicepFile)
         {
             this.fileSystem = fileSystem;
             this.logger = logger;
-            this.latestMainBicepFile = latestMainBicepFile;
+            this.mainBicepFile = mainBicepFile;
         }
 
         public async Task<IEnumerable<string>> ValidateAsync(MainArmTemplateFile file)
         {
-            var latestMainArmTemplateFile = await MainArmTemplateFile.GenerateAsync(this.fileSystem, this.latestMainBicepFile);
+            var latestMainArmTemplateFile = await MainArmTemplateFile.GenerateAsync(this.fileSystem, this.mainBicepFile);
 
             return this.Validate(file.Path, file.Content, latestMainArmTemplateFile.Content);
         }
 
         public async Task<IEnumerable<string>> ValidateAsync(ReadmeFile file)
         {
-            var latestReadmeFile = await ReadmeFile.GenerateAsync(this.fileSystem, this.latestMainBicepFile);
+            var latestReadmeFile = await ReadmeFile.GenerateAsync(this.fileSystem, this.mainBicepFile);
 
             return this.Validate(file.Path, file.Contents, latestReadmeFile.Contents);
         }
