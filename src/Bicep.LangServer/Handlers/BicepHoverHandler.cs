@@ -108,7 +108,7 @@ namespace Bicep.LanguageServer.Handlers
                 case ImportedTypeSymbol importedType:
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"type {importedType.Name}: {importedType.Type}", importedType.Type),
-                        importedType.TryGetSemanticModel(out var model, out _) && model.ExportedTypes.TryGetValue(importedType.OriginalSymbolName, out var exportedTypeMetadata)
+                        importedType.TryGetSemanticModel().IsSuccess(out var model) && model.ExportedTypes.TryGetValue(importedType.OriginalSymbolName, out var exportedTypeMetadata)
                             ? exportedTypeMetadata.Description
                             : null));
 
@@ -180,7 +180,7 @@ namespace Bicep.LanguageServer.Handlers
             IArtifactRegistryProvider moduleRegistryProvider,
             ModuleSymbol module)
         {
-            if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule, out var filePath, out _))
+            if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule).IsSuccess(out var filePath))
             {
                 filePath = string.Empty;
             }
@@ -192,7 +192,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (registries != null &&
                 registries.Any() &&
-                moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri, out var moduleReference, out _) &&
+                moduleDispatcher.TryGetModuleReference(module.DeclaringModule, uri).IsSuccess(out var moduleReference) &&
                 moduleReference is not null)
             {
                 var registry = registries.FirstOrDefault(r => r.Scheme == moduleReference.Scheme);
@@ -227,7 +227,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private static ParameterMetadata? GetDeclaredParameterMetadata(ParameterAssignmentSymbol symbol)
         {
-            if (!symbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var semanticModel, out _))
+            if (!symbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel))
             {
                 // failed to resolve using
                 return null;

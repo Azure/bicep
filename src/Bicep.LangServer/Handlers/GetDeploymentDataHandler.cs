@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
 
                 paramsFile = paramsStringWriter.ToString();
-                if (!semanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var usingModel, out _))
+                if (!semanticModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
                 {
                     return new(ErrorMessage: $"Bicep compilation failed. The Bicep parameters file contains errors.");
                 }

@@ -2076,7 +2076,7 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
     {
         var result = CompilationHelper.Compile(@"
 resource registry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' existing = {
-  name: 'foo'
+  name: 'foobar'
   resource importPipeline 'importPipelines' existing = {
     name: 'import'
   }
@@ -2084,7 +2084,7 @@ resource registry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' ex
 
 resource pipelineRun 'Microsoft.ContainerRegistry/registries/pipelineRuns@2021-06-01-preview' = [for index in range(0, 3): if(registry::importPipeline.properties.trigger.sourceTrigger.status == 'Disabled') {
   parent: registry
-  name: 'bar${index}'
+  name: 'barbaz${index}'
   properties: {
     request: {
       pipelineResourceId: registry::importPipeline.id
@@ -2472,7 +2472,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-04-01' = {
 }
 
 resource registry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {
-  name: 'foo'
+  name: 'foobar'
   location: 'westus'
   sku: {
     name: 'Premium'

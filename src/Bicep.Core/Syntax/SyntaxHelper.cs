@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Syntax
@@ -32,27 +33,19 @@ namespace Bicep.Core.Syntax
             return null;
         }
 
-        public static bool TryGetForeignTemplatePath(IArtifactReferenceSyntax foreignTemplateReference,
-            [NotNullWhen(true)] out string? path,
-            [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static ResultWithDiagnostic<string> TryGetForeignTemplatePath(IArtifactReferenceSyntax foreignTemplateReference)
         {
             if (foreignTemplateReference.TryGetPath() is not StringSyntax pathSyntax)
             {
-                path = null;
-                failureBuilder = OnMissingPathSyntaxErrorBuilder(foreignTemplateReference);
-                return false;
+                return new(OnMissingPathSyntaxErrorBuilder(foreignTemplateReference));
             }
 
             if (pathSyntax.TryGetLiteralValue() is not string pathValue)
             {
-                path = null;
-                failureBuilder = x => x.FilePathInterpolationUnsupported();
-                return false;
+                return new(x => x.FilePathInterpolationUnsupported());
             }
 
-            path = pathValue;
-            failureBuilder = null;
-            return true;
+            return new(pathValue);
         }
 
         private static DiagnosticBuilder.ErrorBuilderDelegate OnMissingPathSyntaxErrorBuilder(IArtifactReferenceSyntax syntax) => syntax switch

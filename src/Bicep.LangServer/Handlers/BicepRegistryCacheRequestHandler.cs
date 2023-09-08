@@ -43,7 +43,7 @@ namespace Bicep.LanguageServer.Handlers
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
 
-            if (!moduleDispatcher.TryGetModuleReference(request.Target, request.TextDocument.Uri.ToUriEncoded(), out var moduleReference, out _))
+            if (!moduleDispatcher.TryGetModuleReference(request.Target, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
             {
                 throw new InvalidOperationException(
                     $"The client specified an invalid module reference '{request.Target}'.");
@@ -61,13 +61,13 @@ namespace Bicep.LanguageServer.Handlers
                     $"The module '{moduleReference.FullyQualifiedReference}' has not yet been successfully restored.");
             }
 
-            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var uri, out _))
+            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference).IsSuccess(out var uri))
             {
                 throw new InvalidOperationException(
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
             }
 
-            if (!this.fileResolver.TryRead(uri, out var contents, out var failureBuilder))
+            if (!this.fileResolver.TryRead(uri).IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
                 throw new InvalidOperationException($"Unable to read file '{uri}'. {message}");

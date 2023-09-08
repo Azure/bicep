@@ -1,5 +1,5 @@
 ﻿// $1 = containerRegistry
-// $2 = 'name'
+// $2 = 'registryName'
 // $3 = location
 // $4 = 'Basic'
 // $5 = false

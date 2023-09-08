@@ -409,7 +409,7 @@ namespace Bicep.Core.Semantics
 
             foreach (var moduleSymbol in Root.ModuleDeclarations)
             {
-                if (moduleSymbol.TryGetSemanticModel(out var model, out _))
+                if (moduleSymbol.TryGetSemanticModel().IsSuccess(out var model))
                 {
                     foreach (var output in model.Outputs)
                     {
@@ -467,7 +467,7 @@ namespace Bicep.Core.Semantics
         private ISemanticModel? TryGetSemanticModelForParamsFile()
         {
             if (this.SourceFile is BicepParamFile &&
-                this.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var usingModel, out _))
+                this.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
             {
                 return usingModel;
             }
@@ -488,7 +488,7 @@ namespace Bicep.Core.Semantics
             }
 
             // try to get the bicep file's semantic model
-            if (!this.Root.TryGetBicepFileSemanticModelViaUsing(out var semanticModel, out var failureDiagnostic))
+            if (!this.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel, out var failureDiagnostic))
             {
                 // failed to resolve using
                 return failureDiagnostic.AsEnumerable<IDiagnostic>();

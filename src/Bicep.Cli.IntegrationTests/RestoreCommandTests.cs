@@ -55,7 +55,7 @@ namespace Bicep.Cli.IntegrationTests
 
             using (var compiledStream = new BufferedMemoryStream())
             {
-                OciModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep"), out var artifactReference, out _).Should().BeTrue();
+                OciModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep")).IsSuccess(out var artifactReference).Should().BeTrue();
 
                 compiledStream.Write(TemplateEmitter.UTF8EncodingWithoutBom.GetBytes(dataSet.Compiled!));
                 compiledStream.Position = 0;
