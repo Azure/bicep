@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,10 +17,17 @@ namespace Bicep.Core.Emit;
 
 public class TemplateEmitter
 {
-    private readonly SemanticModel model;
+    private readonly Compilation compilation;
+    private readonly ISemanticModel model;
 
     public TemplateEmitter(SemanticModel model)
+        : this(model.Compilation, model)
     {
+    }
+
+    public TemplateEmitter(Compilation compilation, ISemanticModel model)
+    {
+        this.compilation = compilation;
         this.model = model;
     }
 
@@ -51,11 +59,16 @@ public class TemplateEmitter
     /// <param name="includeParams">Include parameters (requiredonly or all)</param>
     public EmitResult EmitTemplateGeneratedParameterFile(TextWriter textWriter, string existingContent, OutputFormatOption outputFormat, IncludeParamsOption includeParams) => this.EmitOrFail(() =>
     {
+        if (model is not SemanticModel bicepSemanticModel)
+        {
+            throw new InvalidOperationException($"This action is only supported for Bicep files");
+        }
+
         switch (outputFormat)
         {
             case OutputFormatOption.BicepParam:
             {
-                var bicepParamEmitter = new PlaceholderParametersBicepParamWriter(this.model, includeParams);
+                var bicepParamEmitter = new PlaceholderParametersBicepParamWriter(bicepSemanticModel, includeParams);
                 bicepParamEmitter.Write(textWriter, existingContent);
 
                 break;
@@ -70,7 +83,7 @@ public class TemplateEmitter
                     Formatting = Formatting.Indented
                 };
 
-                var jsonEmitter = new PlaceholderParametersJsonWriter(this.model, includeParams);
+                var jsonEmitter = new PlaceholderParametersJsonWriter(bicepSemanticModel, includeParams);
                 jsonEmitter.Write(writer, existingContent);
                 writer.Flush();
 
@@ -98,15 +111,19 @@ public class TemplateEmitter
     /// <param name="textWriter">The text writer to write the template</param>
     public EmitResult Emit(TextWriter textWriter) => EmitOrFail(() =>
     {
-        var sourceFileToTrack = this.model.Features.SourceMappingEnabled ? this.model.SourceFile : default;
-        using var writer = new SourceAwareJsonTextWriter(this.model.FileResolver, textWriter, sourceFileToTrack)
+        var fileResolver = compilation.GetEntrypointSemanticModel().FileResolver;
+        var sourceFileToTrack = model switch {
+            SemanticModel bicepModel when bicepModel.Features.SourceMappingEnabled => bicepModel.SourceFile,
+            _ => null,
+        };
+        using var writer = new SourceAwareJsonTextWriter(fileResolver, textWriter, sourceFileToTrack)
         {
             // don't close the textWriter when writer is disposed
             CloseOutput = false,
             Formatting = Formatting.Indented
         };
 
-        var emitter = new TemplateWriter(this.model);
+        var emitter = TemplateWriterFactory.CreateTemplateWriter(this.model);
         emitter.Write(writer);
         writer.Flush();
 
@@ -116,7 +133,10 @@ public class TemplateEmitter
     private EmitResult EmitOrFail(Func<SourceMap?> write)
     {
         // collect all the diagnostics
-        var diagnostics = this.model.GetAllDiagnostics();
+        var diagnostics = model switch {
+            SemanticModel x => x.GetAllDiagnostics(),
+            _ => ImmutableArray<IDiagnostic>.Empty,
+        };
 
         if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
         {
