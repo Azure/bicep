@@ -2,8 +2,19 @@
 
 >**Note**: only install the nightly if you'd like to try the bleeding edge capabilities of Bicep. These are much more likely to have undiscovered bugs or other issues. If you find anything, please open an issue.
 
->**Note**: The Bicep VS code extension versions older than 0.2 must be uninstalled before or after the installation of the new version. Otherwise, both extension versions will run side by side and you will see duplicated and/or inconsistent errors. Versions 0.2 or newer do not require uninstallation and will upgrade correctly.
+## Automatic
+These steps only work on Linux or Mac platforms
 
+### VSCode Extension
+1. Run `./scripts/install_vsix_nightly.sh`.
+1. Reload your VSCode window.
+
+### Azure CLI
+1. Run `./scripts/install_cli_nightly.sh <platform> <arch>`, with platform set to either `linux` or `osx` and arch set to either `x64` or `arm64`.
+    > For example: `./scripts/install_cli_nightly.sh osx arm64`.
+1. Your Azure CLI install should now be referencing the latest nightly Bicep CLI release.
+
+## Manual
 We are not currently publishing "nightly" releases, but you can grab the latest bits by viewing the latest Action workflows for the `main` branch (or any other branch).
 
 The easiest way to get these artifacts is through the GitHub site. Follow [this link](https://github.com/Azure/bicep/actions/workflows/build.yml?query=branch%3Amain+is%3Asuccess) to view the latest successful Action workflows for the `main` branch. Select it to show the related artifacts:
