@@ -30,6 +30,7 @@ using System.Text;
 using Bicep.Core.Emit;
 using Azure.Identity;
 using Bicep.Core.UnitTests.Baselines;
+using System.Reflection;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -138,7 +139,7 @@ namespace Bicep.Cli.IntegrationTests
             result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
 
             // ensure something got restored
-            settings.FeatureOverrides.Should().HaveValidModules();
+            settings.FeatureOverrides.Should().HaveValidCachedModulesWithoutSources();
         }
 
         //[DataTestMethod]

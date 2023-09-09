@@ -208,15 +208,15 @@ namespace Bicep.LanguageServer.Handlers
             var fullyQualifiedReference = WebUtility.UrlEncode(moduleReference.FullyQualifiedReference);
 
             // Encode the source file path as a path and the fully qualified reference as a fragment.
-            // Vs Code will pass it to our language client, which will respond by requesting the source to display via
+            // VsCode will pass it to our language client, which will respond by requesting the source to display via
             //   a textDocument/bicepCache request (see BicepCacheHandler)
             return new Uri($"bicep-cache:{fullyQualifiedReference}#{sourceFilePath}");
         }
 
-        private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, DefinitionParams request, SymbolResolutionResult result, WildcardImportSymbol wildcardImport)
-            => context.Compilation.SourceFileGrouping.TryGetSourceFile(wildcardImport.EnclosingDeclaration) is {} sourceFile && wildcardImport.TryGetModuleReference(out var moduleReference, out _)
-                ? GetFileDefinitionLocation(
-                    GetDocumentLinkUri(sourceFile, moduleReference),
+        private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, WildcardImportSymbol wildcardImport) {
+            if (context.Compilation.SourceFileGrouping.TryGetSourceFile(wildcardImport.EnclosingDeclaration).IsSuccess(out ISourceFile? sourceFile) && wildcardImport.TryGetModuleReference().IsSuccess(out var moduleReference)) {
+                return GetFileDefinitionLocation(
+                    GetModuleSourceLinkUri(sourceFile, moduleReference),
                     wildcardImport.DeclaringSyntax,
                     context,
                     new() { Start = new(0, 0), End = new(0, 0) });
@@ -364,10 +364,8 @@ namespace Bicep.LanguageServer.Handlers
                 return new();
             }
 
-            var parameterDeclarations = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
-            var parameterDeclarationSymbol = paramsSemanticModel.TryGetParameterDeclaration(param);
-
-            if (parameterDeclarationSymbol is null)
+            if (bicepModel.Root.ParameterDeclarations
+                .FirstOrDefault(x => x.DeclaringParameter.Name.NameEquals(param.Name)) is not ParameterSymbol parameterSymbol)
             {
                 return new();
             }
