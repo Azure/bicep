@@ -6,12 +6,13 @@
 These steps only work on Linux or Mac platforms
 
 ### VSCode Extension
-1. Run `./scripts/install_vsix_nightly.sh`.
+1. Run `bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_vsix_nightly.sh)`.
 1. Reload your VSCode window.
 
 ### Azure CLI
-1. Run `./scripts/install_cli_nightly.sh <platform> <arch>`, with platform set to either `linux` or `osx` and arch set to either `x64` or `arm64`.
-    > For example: `./scripts/install_cli_nightly.sh osx arm64`.
+1. Run `bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh) <platform> <arch>`
+   - `<platform>` should either be `linux` or `osx`
+   - `<arch>` should either be `x64` or `arm64`
 1. Your Azure CLI install should now be referencing the latest nightly Bicep CLI release.
 
 ## Manual
