@@ -82,40 +82,39 @@ namespace Bicep.Core.Registry
             string? mediaType,
             string? artifactType,
             StreamDescriptor config,
-            Stream? bicepSources, //asdfg implement
-            string? documentationUri = null,
-            string? description = null,
-            params StreamDescriptor[] layers)
+            IEnumerable<StreamDescriptor> layers,
+            string? documentationUri = null, //asdfg move these?
+            string? description = null)
         {
             //asdfgasdfg
-        //     var referrers = await this.GetReferrersAsync(client, moduleManifestDigest);
+            //     var referrers = await this.GetReferrersAsync(client, moduleManifestDigest);
 
-        //     var matchingSourceDigests = referrers.Where(r => r.artifactType == BicepMediaTypes.BicepSourceArtifactType).Select(r => r.digest);
-        //     if (matchingSourceDigests?.Count() > 1)
-        //     {
-        //         Trace.WriteLine($"Multiple source manifests found for module {moduleReference.FullyQualifiedReference}, ignoring all. "
-        //         + $"Module manifest: ${moduleManifestDigest}. "
-        //         + $"Source referrers: {string.Join(", ", matchingSourceDigests)}");
-        //     }
-        //     else if (matchingSourceDigests?.SingleOrDefault() is string sourcesManifestDigest)
-        //     {
-        //         var sourcesManifest = await client.GetManifestAsync(sourcesManifestDigest);
-        //         var sourcesManifestStream = sourcesManifest.Value.Manifest.ToStream();
-        //         var dm = DeserializeManifest(sourcesManifestStream);
-        //         Debug.Assert(dm.ArtifactType == BicepMediaTypes.BicepSourceArtifactType);
+            //     var matchingSourceDigests = referrers.Where(r => r.artifactType == BicepMediaTypes.BicepSourceArtifactType).Select(r => r.digest);
+            //     if (matchingSourceDigests?.Count() > 1)
+            //     {
+            //         Trace.WriteLine($"Multiple source manifests found for module {moduleReference.FullyQualifiedReference}, ignoring all. "
+            //         + $"Module manifest: ${moduleManifestDigest}. "
+            //         + $"Source referrers: {string.Join(", ", matchingSourceDigests)}");
+            //     }
+            //     else if (matchingSourceDigests?.SingleOrDefault() is string sourcesManifestDigest)
+            //     {
+            //         var sourcesManifest = await client.GetManifestAsync(sourcesManifestDigest);
+            //         var sourcesManifestStream = sourcesManifest.Value.Manifest.ToStream();
+            //         var dm = DeserializeManifest(sourcesManifestStream);
+            //         Debug.Assert(dm.ArtifactType == BicepMediaTypes.BicepSourceArtifactType);
 
-        //         var sourceLayer = dm.Layers.FirstOrDefault(l => l.MediaType == BicepMediaTypes.BicepSourceV1Layer);
-        //         if (sourceLayer?.Digest is string sourcesBlobDigest)
-        //         {
-        //             var sourcesBlobResult = await client.DownloadBlobContentAsync(sourcesBlobDigest);
+            //         var sourceLayer = dm.Layers.FirstOrDefault(l => l.MediaType == BicepMediaTypes.BicepSourceV1Layer);
+            //         if (sourceLayer?.Digest is string sourcesBlobDigest)
+            //         {
+            //             var sourcesBlobResult = await client.DownloadBlobContentAsync(sourcesBlobDigest);
 
-        //             // Caller is responsible for disposing the stream
-        //             return sourcesBlobResult.Value.Content.ToStream();
-        //         }
-        //     }
+            //             // Caller is responsible for disposing the stream
+            //             return sourcesBlobResult.Value.Content.ToStream();
+            //         }
+            //     }
 
-        //     return null;
-        // }
+            //     return null;
+            // }
 
             // push is not supported anonymously
             var blobClient = this.CreateBlobClient(configuration, artifactReference, anonymousAccess: false);
@@ -126,7 +125,7 @@ namespace Bicep.Core.Registry
             config.ResetStream();
             _ = await blobClient.UploadBlobAsync(config.Stream);
 
-            var layerDescriptors = new List<OciDescriptor>(layers.Length);
+            var layerDescriptors = new List<OciDescriptor>(layers.Count());
             foreach (var layer in layers)
             {
                 layer.ResetStream();
@@ -137,7 +136,7 @@ namespace Bicep.Core.Registry
                 _ = await blobClient.UploadBlobAsync(layer.Stream);
             }
 
-//asdfgasdfg
+            //asdfgasdfg
             // var timestamp = DateTime.UtcNow.ToRfc3339Format();
 
             // var moduleManifestDescriptor = await PushModuleManifestAsync(blobClient, moduleReference, artifactType, config, documentationUri, description, layers, timestamp);
@@ -147,31 +146,31 @@ namespace Bicep.Core.Registry
             // }
 
 
-//asdfgasdfg
-        // private async Task<OciDescriptor> PushModuleManifestAsync(IOciRegistryContentClient blobClient, OciArtifactModuleReference moduleReference, string? artifactType, StreamDescriptor config, string? documentationUri, string? description, StreamDescriptor[] layers, string timestamp)
-        // {
-        //     /* Sample module manifest:
-        //         {
-        //             "schemaVersion": 2,
-        //             "artifactType": "application/vnd.ms.bicep.module.artifact",
-        //             "config": {
-        //               "mediaType": "application/vnd.ms.bicep.module.config.v1+json",
-        //               "digest": "sha256:...",
-        //               "size": 0
-        //             },
-        //             "layers": [
-        //               {
-        //                 "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
-        //                 "digest": "sha256:...",
-        //                 "size": 2774
-        //               }
-        //             ],
-        //             "annotations": {
-        //               "org.opencontainers.image.description": "module description"
-        //               "org.opencontainers.image.documentation": "https://www.contoso.com/moduledocumentation.html"
-        //             }
-        //           }
-        //      */
+            //asdfgasdfg
+            // private async Task<OciDescriptor> PushModuleManifestAsync(IOciRegistryContentClient blobClient, OciArtifactModuleReference moduleReference, string? artifactType, StreamDescriptor config, string? documentationUri, string? description, StreamDescriptor[] layers, string timestamp)
+            // {
+            //     /* Sample module manifest:
+            //         {
+            //             "schemaVersion": 2,
+            //             "artifactType": "application/vnd.ms.bicep.module.artifact",
+            //             "config": {
+            //               "mediaType": "application/vnd.ms.bicep.module.config.v1+json",
+            //               "digest": "sha256:...",
+            //               "size": 0
+            //             },
+            //             "layers": [
+            //               {
+            //                 "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+            //                 "digest": "sha256:...",
+            //                 "size": 2774
+            //               }
+            //             ],
+            //             "annotations": {
+            //               "org.opencontainers.image.description": "module description"
+            //               "org.opencontainers.image.documentation": "https://www.contoso.com/moduledocumentation.html"
+            //             }
+            //           }
+            //      */
 
 
             var annotations = new Dictionary<string, string>();

@@ -33,6 +33,8 @@ namespace Bicep.Core.Registry
 
         private readonly Uri parentModuleUri;
 
+        private readonly IFeatureProvider features;
+
         private const string NewerVersionMightBeRequired = "A newer version of Bicep might be required to reference this artifact.";
 
         public OciModuleRegistry(
@@ -46,6 +48,7 @@ namespace Bicep.Core.Registry
             this.cachePath = Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
             this.client = new AzureContainerRegistryManager(clientFactory);
             this.configuration = configuration;
+            this.features = features;
             this.parentModuleUri = parentModuleUri;
         }
 
@@ -300,14 +303,17 @@ namespace Bicep.Core.Registry
             // NOTE: Bicep v0.20 and earlier will throw if it finds a non-empty config
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
 
-            // Write out a single layer with the compiled JSON
-            // NOTE: Bicep v0.20 and earlier will throw if it finds more than one layer
-            var layer = new StreamDescriptor(compiledArmTemplate, BicepMediaTypes.BicepModuleLayerV1Json);
+            List<StreamDescriptor> layers = new List<StreamDescriptor>();
+            layers.Add(new StreamDescriptor(compiledArmTemplate, BicepMediaTypes.BicepModuleLayerV1Json));
+            if (bicepSources is { })
+            {
+                layers.Add(new StreamDescriptor(bicepSources, BicepMediaTypes.BicepSourceV1Layer));
+            }
 
             try
             {
                 // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
-                await this.client.PushArtifactAsync(configuration, moduleReference, ManifestMediaType.OciImageManifest.ToString(), BicepMediaTypes.BicepModuleArtifactType, config, bicepSources, documentationUri, description, layer);
+                await this.client.PushArtifactAsync(configuration, moduleReference, ManifestMediaType.OciImageManifest.ToString(), BicepMediaTypes.BicepModuleArtifactType, config, layers, documentationUri, description);
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {
