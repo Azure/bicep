@@ -9,7 +9,9 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace Bicep.Core.Extensions
@@ -89,11 +91,17 @@ namespace Bicep.Core.Extensions
             return patched;
         }
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "Relying on references to required properties of the generic type elsewhere in the codebase.")]
-        public static string ToFormattedString(this JsonElement element) => JsonSerializer.Serialize(element, new JsonSerializerOptions
+        public static string ToIndentedString(this JsonElement element) 
         {
-            WriteIndented = true,
-        });
+            var bufferWriter = new ArrayBufferWriter<byte>();
+            using var writer = new Utf8JsonWriter(bufferWriter, new JsonWriterOptions { Indented = true });
+
+            element.WriteTo(writer);
+
+            writer.Flush();
+
+            return Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
+        }
 
         public static JsonElement Merge(this JsonElement element, JsonElement other)
         {
