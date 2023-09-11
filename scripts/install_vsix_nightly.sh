@@ -1,6 +1,11 @@
 #!/bin/bash
 set -e
 
+if ! command -v gh > /dev/null; then
+  echo "Please install the GitHub CLI: https://cli.github.com/"
+  exit 1
+fi
+
 # Fetch
 REPO="Azure/bicep"
 lastRunId=$(gh run list -R $REPO --branch main --workflow build --status success -L 1 --json databaseId -q ".[0].databaseId")
