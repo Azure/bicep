@@ -19,8 +19,7 @@ chmod +x "$AZCLI_BIN_DIR/bicep"
 if [[ $platform == "osx" ]]
 then
   # Nightly binaries aren't signed, so OSX requires a gatekeeper exception
-  echo "Configuring a Gatekeeper exception requires administrator access"
-  sudo spctl --add "$AZCLI_BIN_DIR/bicep"
+  sudo -p "Enter your password to allow the Bicep binary to run: " spctl --add "$AZCLI_BIN_DIR/bicep"
 fi
 
 # Cleanup
