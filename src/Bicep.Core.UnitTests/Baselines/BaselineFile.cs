@@ -7,6 +7,8 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Bicep.Core.UnitTests.Baselines
 {
@@ -18,6 +20,8 @@ namespace Bicep.Core.UnitTests.Baselines
         public string ReadFromOutputFolder() => File.ReadAllText(OutputFilePath);
 
         public void WriteToOutputFolder(string contents) => File.WriteAllText(OutputFilePath, contents);
+
+        public void WriteJsonToOutputFolder<T>(T contents) => WriteToOutputFolder(JsonConvert.SerializeObject(contents, Formatting.Indented));
 
         public void ShouldHaveExpectedValue()
         {

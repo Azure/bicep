@@ -26,8 +26,8 @@ namespace Bicep.Core.Semantics
     public class ArmTemplateSemanticModel : ISemanticModel
     {
         private readonly Lazy<ResourceScope> targetScopeLazy;
-        private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
-        private readonly Lazy<ImmutableDictionary<string, ExportMetadata>> exportsLazy;
+        private readonly Lazy<ImmutableSortedDictionary<string, ParameterMetadata>> parametersLazy;
+        private readonly Lazy<ImmutableSortedDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
 
         public ArmTemplateSemanticModel(ArmTemplateFile sourceFile)
@@ -64,7 +64,7 @@ namespace Bicep.Core.Semantics
             {
                 if (this.SourceFile.Template?.Parameters is null)
                 {
-                    return ImmutableDictionary<string, ParameterMetadata>.Empty;
+                    return ImmutableSortedDictionary<string, ParameterMetadata>.Empty;
                 }
 
                 // the source here is of type InsensitiveDictionary<TemplateInputParameter>,
@@ -74,7 +74,7 @@ namespace Bicep.Core.Semantics
                 // Ordinal key comparer, which looks purely at the key string code points
                 // without applying any additional rules
                 return this.SourceFile.Template.Parameters
-                    .ToImmutableDictionary(
+                    .ToImmutableSortedDictionary(
                         parameterProperty => parameterProperty.Key,
                         parameterProperty =>
                         {
@@ -113,9 +113,9 @@ namespace Bicep.Core.Semantics
             ? ResourceScope.ResourceGroup
             : this.targetScopeLazy.Value;
 
-        public ImmutableDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
+        public ImmutableSortedDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
 
-        public ImmutableDictionary<string, ExportMetadata> Exports => exportsLazy.Value;
+        public ImmutableSortedDictionary<string, ExportMetadata> Exports => exportsLazy.Value;
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
@@ -200,11 +200,11 @@ namespace Bicep.Core.Semantics
             };
         }
 
-        private ImmutableDictionary<string, ExportMetadata> FindExports()
+        private ImmutableSortedDictionary<string, ExportMetadata> FindExports()
         {
             if (SourceFile.Template is not {} template || SourceFile.TemplateObject is not {} templateObject)
             {
-                return ImmutableDictionary<string, ExportMetadata>.Empty;
+                return ImmutableSortedDictionary<string, ExportMetadata>.Empty;
             }
 
             List<ExportMetadata> exports = new();
@@ -232,7 +232,7 @@ namespace Bicep.Core.Semantics
                 }
             }
 
-            var exportsBuilder = ImmutableDictionary.CreateBuilder<string, ExportMetadata>();
+            var exportsBuilder = ImmutableSortedDictionary.CreateBuilder<string, ExportMetadata>();
 
             foreach (var exportsByName in exports.ToLookup(e => e.Name))
             {

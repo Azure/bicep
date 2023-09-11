@@ -48,7 +48,7 @@ namespace Bicep.Core.Samples
             {
                 var baselineData = (data?[0] as BaselineData_Bicepparam)!;
 
-                return $"{methodInfo.Name}({baselineData.paramsFile.StreamPath})";
+                return $"{methodInfo.Name} ({baselineData.paramsFile.StreamPath})";
             }
         }
 
