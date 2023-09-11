@@ -156,7 +156,7 @@ namespace Bicep.Core.Registry
             var mainLayers = result.Layers.Where(l => l.MediaType.Equals(expectedMediaType, MediaTypeComparison)).ToArray();
             if (mainLayers.Count() == 0)
             {
-                throw new InvalidModuleException($"Did not expect only layer media types {string.Join(", ", result.Layers.Select(l => l.MediaType).ToArray())}", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+                throw new InvalidModuleException($"Expected to find a layer with media type {expectedMediaType}, but found only layers of types {string.Join(", ", result.Layers.Select(l => l.MediaType).ToArray())}", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
             }
             else if (mainLayers.Count() > 1)
             {
