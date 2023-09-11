@@ -2,20 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Core;
-using Bicep.Core.Exceptions;
-using Bicep.Core.Extensions;
-using Bicep.Core.Json;
-using Bicep.Core.Workspaces;
-using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.IO.Abstractions;
 using System.Linq;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators

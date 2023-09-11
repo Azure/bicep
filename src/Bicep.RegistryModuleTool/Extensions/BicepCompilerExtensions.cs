@@ -6,12 +6,8 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
-using Bicep.RegistryModuleTool.Exceptions;
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.Extensions

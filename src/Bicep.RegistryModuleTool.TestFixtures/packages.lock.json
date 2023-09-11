@@ -2259,8 +2259,6 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
-          "DiffPlex": "[1.7.1, )",
-          "FluentAssertions": "[6.11.0, )",
           "JsonPath.Net": "[0.6.5, )",
           "JsonSchema.Net": "[4.1.8, )",
           "Markdig": "[0.31.0, )",

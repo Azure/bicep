@@ -2,13 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.RegistryModuleTool.Commands;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using System.CommandLine;
 using System.CommandLine.Hosting;
-using System.CommandLine.Invocation;
-using System.CommandLine.NamingConventionBinder;
 using System.Linq;
 using System.Reflection;
 

@@ -2,20 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Core;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
-using Bicep.Core.Text;
-using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.CommandLine;
 using System.IO;
 using System.IO.Abstractions;

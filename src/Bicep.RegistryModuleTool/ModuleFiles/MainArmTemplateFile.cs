@@ -2,19 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Emit;
-using Bicep.Core.Extensions;
-using Bicep.Core.Json;
-using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
-using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles

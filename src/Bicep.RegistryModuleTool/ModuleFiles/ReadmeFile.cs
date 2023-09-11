@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Exceptions;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.TypeSystem;
 using Bicep.RegistryModuleTool.Extensions;
