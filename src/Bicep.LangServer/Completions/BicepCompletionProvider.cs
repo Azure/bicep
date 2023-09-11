@@ -93,6 +93,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetUsingDeclarationPathCompletions(model, context))
                 .Concat(GetAssertValueCompletions(model, context))
+                .Concat(GetOpenAIBicepCompletions(model, context))
                 .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
 
@@ -950,6 +951,14 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return GetValueCompletionsForType(model, context, LanguageConstants.Bool, loopsAllowed: false);
+        }
+
+        private IEnumerable<CompletionItem> GetOpenAIBicepCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            // TODO: inspect the cursor offster in the case the cursor is at the end of a resource declaration we could fetch
+            // raw github spec for latest version, append to base-prompt
+            // send a request to the OpenAI REST API, append the answers into the return value
+            return Enumerable.Empty<CompletionItem>();
         }
 
         private IEnumerable<CompletionItem> GetModuleBodyCompletions(SemanticModel model, BicepCompletionContext context)
