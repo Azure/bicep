@@ -93,6 +93,9 @@ export async function activate(
     prefix: bicepLanguageId,
   });
 
+  // Enable suggestions as grayed-out text
+  workspace.getConfiguration().update('editor.suggest.preview', true);
+
   // Activate and launch language server
   await activateWithTelemetryAndErrorHandling(async (actionContext) => {
     await window.withProgress(
