@@ -19,6 +19,25 @@ These steps only work on Linux or Mac platforms
    ```
 1. Your Azure CLI install should now be referencing the latest nightly Bicep CLI release.
 
+### Targeting a particular build or branch
+The following optional arguments are also supported in the nightly install scripts:
+- Installing from a GitHub branch (VSCode extension):
+   ```sh
+   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_vsix_nightly.sh) --branch jeskew/variable-imports
+   ```
+- Installing from a GitHub branch (CLI):
+   ```sh
+   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh) --branch jeskew/variable-imports
+   ```
+- Installing from a GitHub Action run (VSCode extension):
+   ```sh
+   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_vsix_nightly.sh) --run-id 6146657618
+   ```
+- Installing from a GitHub Action run (CLI):
+   ```sh
+   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh) --run-id 6146657618
+   ```
+
 ## Manual
 We are not currently publishing "nightly" releases, but you can grab the latest bits by viewing the latest Action workflows for the `main` branch (or any other branch).
 
