@@ -219,7 +219,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
     }
 
     private static IEnumerable<SymbolicReference> CollectReferences(BicepSymbolicReference typeReference)
-        => SymbolicReferenceCollector.CollectSymbolsReferenced(typeReference.SourceBicepModel.Binder, typeReference.Symbol)
+        => typeReference.SourceBicepModel.Binder.GetSymbolsReferencedInDeclarationOf(typeReference.Symbol)
             .Select<DeclaredSymbol, SymbolicReference?>(symbol => symbol switch
             {
                 ProviderNamespaceSymbol => null, // this was the base expression of a fully qualified ambient type reference (e.g., sys.string)

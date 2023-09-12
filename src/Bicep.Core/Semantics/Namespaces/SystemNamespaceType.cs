@@ -1462,7 +1462,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
                         if (decoratorTarget is not null && binder.GetSymbolInfo(decoratorTarget) is DeclaredSymbol targetedDeclaration)
                         {
-                            var nonExportableSymbolsInClosure = SymbolicReferenceCollector.CollectSymbolsReferencedRecursive(binder, targetedDeclaration)
+                            var nonExportableSymbolsInClosure = binder.GetReferencedSymbolClosureFor(targetedDeclaration)
                                 .Where(s => s is not VariableSymbol and
                                     not TypeAliasSymbol and
                                     not ImportedSymbol and
