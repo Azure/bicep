@@ -817,7 +817,7 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
     "styled-components": "^6.0.7",
-    "stylis": "^4.0.0",
+    "stylis": "^4.3.0",
     "triple-beam": "^1.4.1",
     "vscode-languageclient": "^8.1.0",
     "vscode-nls": "^5.2.0",
