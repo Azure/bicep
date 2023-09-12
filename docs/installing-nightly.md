@@ -15,10 +15,8 @@ These steps only work on Linux or Mac platforms
 ### Azure CLI
 1. Run the following:
    ```sh
-   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh) <platform> <arch>
+   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh)
    ```
-   - `<platform>` should either be `linux` or `osx`
-   - `<arch>` should either be `x64` or `arm64`
 1. Your Azure CLI install should now be referencing the latest nightly Bicep CLI release.
 
 ## Manual

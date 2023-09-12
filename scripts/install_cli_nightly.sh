@@ -1,14 +1,22 @@
 #!/bin/bash
 set -e
 
-usage="Usage: ./install_cli_nightly.sh <platform> <arch>"
-platform=${1:?"Missing platform (e.g. 'osx' or 'linux'). ${usage}"}
-arch=${2:?"Missing arch (e.g. 'x64' or 'arm64'). ${usage}"}
-
 if ! command -v gh > /dev/null; then
-  echo "Please install the GitHub CLI: https://cli.github.com/"
-  exit 1
+  echo "Please install the GitHub CLI: https://cli.github.com/"; exit 1;
 fi
+
+case "$(uname -s)" in
+  Linux*)     platform=linux;;
+  Darwin*)    platform=osx;;
+  *)          echo "Unknown platform '$(uname -s)'"; exit 1;;
+esac
+
+case "$(uname -m)" in
+  x86_64)     arch="x64" ;;
+  arm64)      arch="arm64" ;;
+  aarch64)    arch="arm64" ;;
+  *)          echo "Unknown architecture '$(uname -m)'"; exit 1;;
+esac
 
 # Fetch
 REPO="Azure/bicep"
@@ -17,15 +25,17 @@ tmpDir=$(mktemp -d)
 gh run download -R $REPO $lastRunId -n "bicep-release-$platform-$arch" --dir $tmpDir
 
 # Install
-AZCLI_BIN_DIR="$HOME/.azure/bin"
 if [[ $platform == "osx" ]]; then
   # Ad-hoc sign the binary
   codesign -s - "$tmpDir/bicep"
 fi
 
+AZCLI_BIN_DIR="$HOME/.azure/bin"
 mkdir -p $AZCLI_BIN_DIR
 mv "$tmpDir/bicep" "$AZCLI_BIN_DIR/bicep"
 chmod +x "$AZCLI_BIN_DIR/bicep"
+
+echo "Installed Bicep from https://github.com/Azure/bicep/actions/runs/$lastRunId to $AZCLI_BIN_DIR/bicep"
 
 # Cleanup
 rm -Rf $tmpDir
