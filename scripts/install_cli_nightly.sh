@@ -18,14 +18,14 @@ gh run download -R $REPO $lastRunId -n "bicep-release-$platform-$arch" --dir $tm
 
 # Install
 AZCLI_BIN_DIR="$HOME/.azure/bin"
+if [[ $platform == "osx" ]]; then
+  # Ad-hoc sign the binary
+  codesign -s - "$tmpDir/bicep"
+fi
+
 mkdir -p $AZCLI_BIN_DIR
 mv "$tmpDir/bicep" "$AZCLI_BIN_DIR/bicep"
 chmod +x "$AZCLI_BIN_DIR/bicep"
-if [[ $platform == "osx" ]]
-then
-  # Nightly binaries aren't signed, so OSX requires a gatekeeper exception
-  sudo -p "Enter your password to allow the Bicep binary to run: " spctl --add "$AZCLI_BIN_DIR/bicep"
-fi
 
 # Cleanup
 rm -Rf $tmpDir
