@@ -955,7 +955,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetOpenAIBicepCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            // TODO: inspect the cursor offster in the case the cursor is at the end of a resource declaration we could fetch
+            // TODO: inspect the cursor offset in the case the cursor is at the end of a resource declaration we could fetch
             // raw github spec for latest version, append to base-prompt
             // send a request to the OpenAI REST API, append the answers into the return value
             return Enumerable.Empty<CompletionItem>();
