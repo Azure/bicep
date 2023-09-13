@@ -17,7 +17,7 @@ namespace Bicep.LanguageServer.Completions
     /// </summary>
     public class CopilotManager
     {
-        private const string DeploymentName = "policy-copilot-model";
+        private const string DeploymentName = "gpt-35-turbo-16k";
         private static OpenAIClient? client;
         private int numTriesRemaining = 3;
 
@@ -25,21 +25,22 @@ namespace Bicep.LanguageServer.Completions
         /// Initializes the OpenAIClient.
         /// </summary>
         /// <returns>Whether or not the client was successfully initialized.</returns>
-        public async Task<bool> ConnectToEndpointAsync()
+        public bool ConnectToEndpoint()
         {
             if (this.numTriesRemaining > 0 && client == null)
             {
                 try
                 {
                     // TODO: In prod, we'll need to figure out how the model will be deployed and how distributed access will work. See what GitHub Copilot is doing.
-                    Uri modelEndpoint = new("https://completions-model-resource.openai.azure.com/");
-                    string keyVaultUri = "https://policy-copilot-keyvault.vault.azure.net/";
-                    SecretClient keyVaultClient = new(new Uri(keyVaultUri), new DefaultAzureCredential(new DefaultAzureCredentialOptions
-                    {
-                        ExcludeVisualStudioCodeCredential = false,
-                    }));
-                    KeyVaultSecret modelEndpointKey = await keyVaultClient.GetSecretAsync("model-endpoint-key").ConfigureAwait(false);
-                    AzureKeyCredential modelCredentials = new(modelEndpointKey.Value.ToString());
+                    Uri modelEndpoint = new("https://americasopenai.azure-api.net");
+                    //string keyVaultUri = "https://policy-copilot-keyvault.vault.azure.net/";
+                    //SecretClient keyVaultClient = new(new Uri(keyVaultUri), new DefaultAzureCredential(new DefaultAzureCredentialOptions
+                    //{
+                    //    ExcludeVisualStudioCodeCredential = false,
+                    //}));
+                    //KeyVaultSecret modelEndpointKey = await keyVaultClient.GetSecretAsync("model-endpoint-key").ConfigureAwait(false);
+                    //AzureKeyCredential modelCredentials = new(modelEndpointKey.Value.ToString());
+                    AzureKeyCredential modelCredentials = new("TODO: HERE COMES THE API KEY");
                     client = new OpenAIClient(modelEndpoint, modelCredentials);
                 }
                 catch (Exception) // ex)
@@ -56,6 +57,7 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
+            //return Task.FromResult(client != null);
             return client != null;
         }
 
@@ -65,18 +67,18 @@ namespace Bicep.LanguageServer.Completions
         /// </summary>
         /// <param name="completionsOptions">All of the content/options being sent in the request (including the prompt).</param>
         /// <returns>A list of the model completions for the given completionsOptions.</returns>
-        public async Task<IReadOnlyList<Choice>?> GetModelCompletionsAsync(CompletionsOptions completionsOptions)
+        public async Task<IReadOnlyList<ChatChoice>?> GetModelChatCompletionsAsync(ChatCompletionsOptions completionsOptions)
         {
             if (client == null)
             {
                 // Programmer error
-                //Console.WriteLine("Need to successfully call ConnectToEndpointAsync() to initialize OpenAIClient before requesting completions.");
+                //Console.WriteLine("Need to successfully call ConnectToEndpoint() to initialize OpenAIClient before requesting completions.");
                 return null;
             }
 
             try
             {
-                Response<Azure.AI.OpenAI.Completions> completionsResponse = await client.GetCompletionsAsync(DeploymentName, completionsOptions);
+                Response<ChatCompletions> completionsResponse = await client.GetChatCompletionsAsync(DeploymentName, completionsOptions);
                 return completionsResponse.Value.Choices;
             }
             catch (Exception) // ex)

@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 
 using global::Azure.AI.OpenAI;
 using Microsoft.Extensions.Azure;
-using Microsoft.WindowsAzure.Governance.PolicyService.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using static System.Net.Mime.MediaTypeNames;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using static Bicep.LanguageServer.Completions.IEnumerableExtensions;
 
 namespace Bicep.LanguageServer.Completions
 {
@@ -45,51 +45,32 @@ namespace Bicep.LanguageServer.Completions
     /// </summary>
     public class CopilotComplete : IAutoComplete
     {
-        private static int numDescriptionWarningAttemptsRemaining = 20;
-
         private readonly CopilotManager copilotManager;
-        private readonly IJsonDocument policyDocument;
+        private readonly string content;
         private readonly Range contextRange;
-        private readonly string? policyDefDescription;
+        //private readonly string? policyDefDescription;
         private readonly DescriptionStatus policyDefDescriptionStatus;
-        private readonly int numLevelsNestedFromIf;
         private readonly List<CompletionItem> items = new();
         private readonly string currWord;
         private readonly string completionSuffix;
 
-        private string context = string.Empty;
+        //private string context = string.Empty;
         private int positionsAheadToReplace = 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CopilotComplete" /> class.
         /// </summary>
         /// <param name="copilotManager">The Copilot manager to use for Azure AI API calls.</param>
-        /// <param name="policyDocument">The policy document.</param>
+        /// <param name="content">The text editor content.</param>
         /// <param name="contextRange">The range of the context from the policy definition to feed to the model.</param>
-        /// <param name="policyDefDescription">The description of the policy definition being edited.</param>
-        /// <param name="numLevelsNestedFromIf">The number of levels the cursor is nested within the current if block.</param>
-        public CopilotComplete(CopilotManager copilotManager, IJsonDocument policyDocument, Range contextRange, string? policyDefDescription, int numLevelsNestedFromIf)
+        public CopilotComplete(CopilotManager copilotManager, string content, Range contextRange)
         {
             this.copilotManager = copilotManager;
-            this.policyDocument = policyDocument;
+            this.content = content;
             this.contextRange = contextRange;
-            this.policyDefDescription = policyDefDescription;
-            this.numLevelsNestedFromIf = numLevelsNestedFromIf;
             this.currWord = this.GetWordUpToCursor();
             this.completionSuffix = this.GetCompletionSuffix();
-
-            if (policyDefDescription == null)
-            {
-                this.policyDefDescriptionStatus = DescriptionStatus.NonExistent;
-            }
-            else if (policyDefDescription.Length < 40)
-            {
-                this.policyDefDescriptionStatus = DescriptionStatus.TooShort;
-            }
-            else
-            {
-                this.policyDefDescriptionStatus = DescriptionStatus.Sufficient;
-            }
+            this.policyDefDescriptionStatus = DescriptionStatus.NonExistent;
         }
 
         /// <summary>
@@ -116,38 +97,15 @@ namespace Bicep.LanguageServer.Completions
         /// <returns>Whether or not any completions were produced.</returns>
         public async Task<bool> GenerateCopilotCompletionsAsync()
         {
-            // If the PD doesn't have a description, add a completion item prompting the user to add one (with an empty string as the completion).
-            if (this.policyDefDescriptionStatus == DescriptionStatus.NonExistent)
+            ChatCompletionsOptions completionsOptions = new(this.GetChatMessages())
             {
-                if (numDescriptionWarningAttemptsRemaining == 0)
-                {
-                    return false;
-                }
-
-                // Wait a small amount of time so that the PD description warning isn't constantly showing up while the user is typing.
-                await Task.Delay(1000);
-                this.AddCompletionItem(new CompletionItem()
-                {
-                    Kind = CompletionItemKind.Snippet,
-                    Label = "Provide description to use copilot",
-                    TextEdit = new TextEdit { Range = new Range(this.contextRange.End, this.contextRange.End), NewText = string.Empty },
-                    InsertTextMode = InsertTextMode.AsIs,
-                    Documentation = "Please provide a description in the policy definition to use the autocompletion feature of the Policy Copilot.",
-                });
-                numDescriptionWarningAttemptsRemaining--;
-                return true;
-            }
-
-            CompletionsOptions completionsOptions = new()
-            {
-                Prompts = { this.GetModelPrompt() },
                 Temperature = 0.3f,
                 StopSequences = { "}" },
                 MaxTokens = 600, // TODO: See how much this actually needs to be when generating 3 possible autocompletions (will need to determine token count of various symbols in a policy definition JSON file). Compare w/token limit for entire prompt.
-                ChoicesPerPrompt = 3,
+                ChoiceCount = 3
             };
 
-            IReadOnlyList<Choice>? modelResponses = await this.copilotManager.GetModelCompletionsAsync(completionsOptions);
+            IReadOnlyList<ChatChoice>? modelResponses = await this.copilotManager.GetModelChatCompletionsAsync(completionsOptions);
 
             Position endPositionOfCompletion = new(this.contextRange.End.Line, this.contextRange.End.Character + this.positionsAheadToReplace);
             string shortDescriptionStatus = this.policyDefDescriptionStatus == DescriptionStatus.TooShort ? "(Make description more specific) " : string.Empty;
@@ -155,11 +113,12 @@ namespace Bicep.LanguageServer.Completions
 
             if (modelResponses != null && modelResponses.Count > 0)
             {
+                // TODO: Review CompletionItem format and content.
                 string currFormattedCompletion;
-                Enumerable.DistinctBy(modelResponses, choice => choice.Text).ForEach(response => this.AddCompletionItem(new CompletionItem()
+                Enumerable.DistinctBy(modelResponses, choice => choice.Message).ForEach(response => this.AddCompletionItem(new CompletionItem()
                 {
                     Kind = CompletionItemKind.Snippet,
-                    Label = shortDescriptionStatus + Regex.Replace(this.currWord + (currFormattedCompletion = this.FormatCompletion(response.Text)), "(\\s){2,}", "$1"), // Use replace on duplicate whitespace to compress completion as much as possible into completions widget list.
+                    Label = shortDescriptionStatus + Regex.Replace(this.currWord + (currFormattedCompletion = this.FormatCompletion(response.Message.Content)), "(\\s){2,}", "$1"), // Use replace on duplicate whitespace to compress completion as much as possible into completions widget list.
                     TextEdit = new TextEdit { Range = new Range(this.contextRange.End, endPositionOfCompletion), NewText = currFormattedCompletion },
                     InsertTextMode = InsertTextMode.AsIs,
                     Documentation = longDescriptionStatus + "To verify the accuracy of this response, please see https://learn.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure.",
@@ -175,55 +134,21 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        /// <summary>
-        /// Assembles and returns the prompt to use when making the Azure AI API call.
-        /// </summary>
-        /// <returns>The complete model prompt string to pass to the model.</returns>
-        private string GetModelPrompt()
+        private IList<ChatMessage> GetChatMessages()
         {
-            return CopilotCompletionsPrompt.BasePrompt + this.GetCasePrompt();
-        }
-
-        /// <summary>
-        /// Gets the case prompt for the specified context in the policy definition document (unanswered question of prompt that model needs to complete).
-        /// </summary>
-        /// <returns>A string representing the case prompt for the specified context.</returns>
-        private string GetCasePrompt()
-        {
-            StringBuilder ifBlockSoFar = new();
-            Position contextStart = this.contextRange.Start, contextEnd = this.contextRange.End;
-            int currLineNum = contextStart.Line;
-
-            // For removing initial indentation of overall if block.
-            Regex prefixSpaceCountRegex = new("^(\\s*)");
-            int initialSpaceCount = prefixSpaceCountRegex.Match(this.policyDocument.LineAt(currLineNum)).Groups[1].Value.Length;
-            int currSpaceCount;
-
-            while (currLineNum < contextEnd.Line)
+            return new List<ChatMessage>()
             {
-                currSpaceCount = prefixSpaceCountRegex.Match(this.policyDocument.LineAt(currLineNum)).Groups[1].Value.Length;
-                ifBlockSoFar.Append(this.policyDocument.LineAt(currLineNum)[(currSpaceCount >= initialSpaceCount ? initialSpaceCount : currSpaceCount)..] + "\n");
-                currLineNum++;
-            }
-
-            currSpaceCount = prefixSpaceCountRegex.Match(this.policyDocument.LineAt(currLineNum)).Groups[1].Value.Length;
-
-            // Edit currSpaceCount to be the number of deletable spaces (for indentation alignment).
-            if (currSpaceCount > contextEnd.Character)
-            {
-                currSpaceCount = contextEnd.Character;
-            }
-
-            int substringStart = currSpaceCount >= initialSpaceCount ? initialSpaceCount : currSpaceCount;
-            int substringLength = currSpaceCount >= initialSpaceCount ? contextEnd.Character - initialSpaceCount : contextEnd.Character - currSpaceCount;
-            ifBlockSoFar.Append(this.policyDocument.LineAt(currLineNum).AsSpan(substringStart, substringLength));
-
-            this.context = ifBlockSoFar.ToString();
-
-            return $@"[Q] {this.policyDefDescription}
-[A]
-'
-{ifBlockSoFar}";
+                new ChatMessage()
+                {
+                    Content = CopilotCompletionsPrompt.BasePrompt,
+                    Role = "system"
+                },
+                new ChatMessage()
+                {
+                    Content = this.content,
+                    Role = "user"
+                }
+            };
         }
 
         /// <summary>
@@ -233,7 +158,7 @@ namespace Bicep.LanguageServer.Completions
         /// <returns>The formatted completion text.</returns>
         private string FormatCompletion(string completion)
         {
-            string formattedCompletion;
+            string formattedCompletion = "";
 
             // Step 1: If an opening bracket was generated in the model completion, add a closing bracket at the end
             // (since } is a stop token that's excluded in the model output).
@@ -248,33 +173,33 @@ namespace Bicep.LanguageServer.Completions
 
             // Notice that we can't just analyze from the beginning of the completion to the end of it because the completion may start
             // mid-string, which doesn't agree with what the IJsonDocument.GetNumLevelsNested method expects (regarding the inString var).
-            if (!whitespaceOrLineFeedRegex.Match(completion).Success &&
-                IJsonDocument.GetNumLevelsNested(this.context + completion, 0, this.context.Length + completion.Length - 1) - this.numLevelsNestedFromIf < 1)
-            {
-                // Return completion without newline at end.
-                int stopIndex = completion.Length - 1;
-                while (stopIndex >= 0 && char.IsWhiteSpace(completion[stopIndex]))
-                {
-                    stopIndex--;
-                }
+            //if (!whitespaceOrLineFeedRegex.Match(completion).Success &&
+            //    IJsonDocument.GetNumLevelsNested(this.context + completion, 0, this.context.Length + completion.Length - 1) - this.numLevelsNestedFromIf < 1)
+            //{
+            //    // Return completion without newline at end.
+            //    int stopIndex = completion.Length - 1;
+            //    while (stopIndex >= 0 && char.IsWhiteSpace(completion[stopIndex]))
+            //    {
+            //        stopIndex--;
+            //    }
 
-                formattedCompletion = completion[..(stopIndex + 1)];
-            }
-            else
-            {
-                formattedCompletion = completion + '}';
-            }
+            //    formattedCompletion = completion[..(stopIndex + 1)];
+            //}
+            //else
+            //{
+            //    formattedCompletion = completion + '}';
+            //}
 
             // Step 2: Make sure the indenting of the completions response is correct.
 
             // Get the indentation of the start of the if block.
-            string firstLine = this.policyDocument.LineAt(this.contextRange.Start.Line);
-            Regex prefixSpaceRegex = new("^(\\s*)");
-            string firstLineInitialSpaces = prefixSpaceRegex.Match(firstLine).Groups[1].Value;
+            //string firstLine = this.policyDocument.LineAt(this.contextRange.Start.Line);
+            //Regex prefixSpaceRegex = new("^(\\s*)");
+            //string firstLineInitialSpaces = prefixSpaceRegex.Match(firstLine).Groups[1].Value;
 
-            // Need to add the indentation of the if block to each line in the completion since the model believes the
-            // reference for indenting is the start of the if block, not the beginning of the policy definition.
-            formattedCompletion = Regex.Replace(formattedCompletion, "[\r\n]+(\\s+|})", "\n" + firstLineInitialSpaces + "$1");
+            //// Need to add the indentation of the if block to each line in the completion since the model believes the
+            //// reference for indenting is the start of the if block, not the beginning of the policy definition.
+            //formattedCompletion = Regex.Replace(formattedCompletion, "[\r\n]+(\\s+|})", "\n" + firstLineInitialSpaces + "$1");
 
             return formattedCompletion + this.completionSuffix;
         }
@@ -287,25 +212,25 @@ namespace Bicep.LanguageServer.Completions
         {
             // If the cursor is within a bracket or brace pair, i.e., [] or {}, automatically insert a new line at the end to the get the closing brace on the line following the completion.
             // Assumes bracket pairs are on their own lines (no nesting either). This is very reasonable when using the VSCode Policy extension to author policy JSON files.
-            string cursorLine = this.policyDocument.LineAt(this.contextRange.End.Line);
-            Regex inBracketsRegex = new("(({\\s*})|(\\[\\s*\\]))");
-            Match inBracketsMatch = inBracketsRegex.Match(cursorLine);
-            if (inBracketsMatch.Success && inBracketsMatch.Index < this.contextRange.End.Character && this.contextRange.End.Character <= inBracketsMatch.Index + inBracketsMatch.Groups[1].Value.Length - 1)
-            {
-                // Get the indentation of the last line (with the cursor).
-                string lastLine = this.policyDocument.LineAt(this.contextRange.End.Line);
-                Regex prefixSpaceRegex = new("^(\\s*)");
-                string lastLineInitialSpaces = prefixSpaceRegex.Match(lastLine).Groups[1].Value;
+            //string cursorLine = this.policyDocument.LineAt(this.contextRange.End.Line);
+            //Regex inBracketsRegex = new("(({\\s*})|(\\[\\s*\\]))");
+            //Match inBracketsMatch = inBracketsRegex.Match(cursorLine);
+            //if (inBracketsMatch.Success && inBracketsMatch.Index < this.contextRange.End.Character && this.contextRange.End.Character <= inBracketsMatch.Index + inBracketsMatch.Groups[1].Value.Length - 1)
+            //{
+            //    // Get the indentation of the last line (with the cursor).
+            //    string lastLine = this.policyDocument.LineAt(this.contextRange.End.Line);
+            //    Regex prefixSpaceRegex = new("^(\\s*)");
+            //    string lastLineInitialSpaces = prefixSpaceRegex.Match(lastLine).Groups[1].Value;
 
-                return string.Concat("\n", lastLineInitialSpaces[(inBracketsMatch.Index + inBracketsMatch.Groups[1].Value.Length - 1 - this.contextRange.End.Character)..]);
-            }
+            //    return string.Concat("\n", lastLineInitialSpaces[(inBracketsMatch.Index + inBracketsMatch.Groups[1].Value.Length - 1 - this.contextRange.End.Character)..]);
+            //}
 
-            // If the cursor is followed by a quotation mark, set the flag for removing the ending quotation mark, as this will already be filled in by the model.
-            int cursorPos = this.contextRange.End.Character;
-            if (cursorPos < cursorLine.Length && cursorLine[cursorPos] == '"' && (cursorPos + 1 == cursorLine.Length || !char.IsLetterOrDigit(cursorLine[cursorPos + 1])))
-            {
-                this.positionsAheadToReplace = 1;
-            }
+            //// If the cursor is followed by a quotation mark, set the flag for removing the ending quotation mark, as this will already be filled in by the model.
+            //int cursorPos = this.contextRange.End.Character;
+            //if (cursorPos < cursorLine.Length && cursorLine[cursorPos] == '"' && (cursorPos + 1 == cursorLine.Length || !char.IsLetterOrDigit(cursorLine[cursorPos + 1])))
+            //{
+            //    this.positionsAheadToReplace = 1;
+            //}
 
             return string.Empty;
         }
@@ -325,9 +250,11 @@ namespace Bicep.LanguageServer.Completions
             }
 
             Position lastCharPosition = new(this.contextRange.End.Line, currCharNum - 1);
-            Range currWordRange = this.policyDocument.WordRangeAt(lastCharPosition);
+            //Range currWordRange = this.policyDocument.WordRangeAt(lastCharPosition);
             Range noWordRange = new(new Position(-1, -1), new Position(-1, -1));
-            return currWordRange.Equals(noWordRange) ? string.Empty : this.policyDocument.LineAt(this.contextRange.End.Line)[currWordRange.Start.Character..currCharNum];
+            //return currWordRange.Equals(noWordRange) ? string.Empty : this.policyDocument.LineAt(this.contextRange.End.Line)[currWordRange.Start.Character..currCharNum];
+
+            return string.Empty;
         }
     }
 }
