@@ -59,7 +59,11 @@ namespace Bicep.LanguageServer.Completions
                     SyntaxBaseExtensions.ToTextPreserveFormatting(context.TargetScope);
                 
                 CopilotComplete copilotComplete = new(this.copilotManager, fileContent, context.ReplacementRange);
-                await copilotComplete.GenerateCopilotCompletionsAsync();
+
+                // TODO: pass in proper values
+                string schemaContent = await BicepCompletionProvider.GetResourceDefinitionsMarkdown("keyvault/microsoft.keyvault", "2023-02-01");
+
+                await copilotComplete.GenerateCopilotCompletionsAsync(schemaContent: schemaContent, bicepContent: fileContent);
                 return copilotComplete;
             }
 

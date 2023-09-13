@@ -39,7 +39,7 @@ namespace Bicep.LanguageServer.Completions
     public class CopilotComplete : IAutoComplete
     {
         private readonly CopilotManager copilotManager;
-        private readonly string content;
+        //private readonly string content;
         private readonly Range contextRange;
         //private readonly string? policyDefDescription;
         private readonly DescriptionStatus policyDefDescriptionStatus;
@@ -59,7 +59,7 @@ namespace Bicep.LanguageServer.Completions
         public CopilotComplete(CopilotManager copilotManager, string content, Range contextRange)
         {
             this.copilotManager = copilotManager;
-            this.content = content;
+            //this.content = content;
             this.contextRange = contextRange;
             this.currWord = this.GetWordUpToCursor();
             this.completionSuffix = this.GetCompletionSuffix();
@@ -88,9 +88,9 @@ namespace Bicep.LanguageServer.Completions
         /// Gets the OpenAI model's completions and adds them to the CompletionItem list for insertion into the Intellisense completions widget.
         /// </summary>
         /// <returns>Whether or not any completions were produced.</returns>
-        public async Task<bool> GenerateCopilotCompletionsAsync()
+        public async Task<bool> GenerateCopilotCompletionsAsync(string schemaContent, string bicepContent)
         {
-            ChatCompletionsOptions completionsOptions = new(this.GetChatMessages())
+            ChatCompletionsOptions completionsOptions = new(this.GetChatMessages(schemaContent, bicepContent))
             {
                 Temperature = 0.3f,
                 StopSequences = { "}" },
@@ -127,18 +127,18 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private IList<ChatMessage> GetChatMessages()
+        private IList<ChatMessage> GetChatMessages(string schemaContent, string bicepContent)
         {
             return new List<ChatMessage>()
             {
                 new ChatMessage()
                 {
-                    Content = CopilotCompletionsPrompt.BasePrompt,
+                    Content = CopilotCompletionsPrompt.GetSystemPrompt(),
                     Role = "system"
                 },
                 new ChatMessage()
                 {
-                    Content = this.content,
+                    Content = CopilotCompletionsPrompt.GetUserPrompt(schemaContent, bicepContent),
                     Role = "user"
                 }
             };
