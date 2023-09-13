@@ -2,19 +2,19 @@
 // Licensed under the MIT License.
 
 using Bicep.RegistryModuleTool.Commands;
-using Bicep.RegistryModuleTool.TestFixtures.Assertions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.Proxies;
+using Bicep.RegistryModuleTool.TestFixtures.Assertions;
 using Bicep.RegistryModuleTool.TestFixtures.Extensions;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using Bicep.RegistryModuleTool.TestFixtures.Mocks;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Mocks;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
 {
@@ -23,104 +23,98 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
     {
         [DataTestMethod]
         [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
-        [DynamicData(nameof(GetExperimentalData), DynamicDataSourceType.Method)]
-        public void Invoke_OnSuccess_ReturnsZero(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
+        public async Task InvokeAsync_OnSuccess_ReturnsZero(MockFileSystem fileSystemBeforeGeneration, MockFileSystem _)
         {
-            var mockMainArmTemplateFileData = fileSystemAfterGeneration.GetFile(MainArmTemplateFile.FileName);
-            var processProxy = MockProcessProxyFactory.CreateProcessProxy(() => fileSystemBeforeGeneration.SetTempFile(mockMainArmTemplateFileData));
+            var sut = CreateGenerateCommand(fileSystemBeforeGeneration);
 
-            var exitCode = Invoke(fileSystemBeforeGeneration, processProxy);
+            var exitCode = await sut.InvokeAsync("");
 
             exitCode.Should().Be(0);
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
-        public void Invoke_OnSuccess_ProducesExpectedFiles(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
+        public async Task InvokeAsync_OnSuccess_ProducesExpectedFiles(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
         {
-            var mockMainArmTemplateFileData = fileSystemAfterGeneration.GetFile(MainArmTemplateFile.FileName);
-            var processProxy = MockProcessProxyFactory.CreateProcessProxy(() => fileSystemBeforeGeneration.SetTempFile(mockMainArmTemplateFileData));
+            var sut = CreateGenerateCommand(fileSystemBeforeGeneration);
 
-            Invoke(fileSystemBeforeGeneration, processProxy);
+            await sut.InvokeAsync("");
 
             fileSystemBeforeGeneration.Should().HaveSameFilesAs(fileSystemAfterGeneration);
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
-        public void Invoke_RepeatOnSuccess_ProducesSameFiles(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
+        public async Task InvokeAsync_RepeatOnSuccess_ProducesSameFiles(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
         {
-            var mockMainArmTemplateFileData = fileSystemAfterGeneration.GetFile(MainArmTemplateFile.FileName);
-            var processProxy = MockProcessProxyFactory.CreateProcessProxy(() => fileSystemBeforeGeneration.SetTempFile(mockMainArmTemplateFileData));
+            var sut = CreateGenerateCommand(fileSystemBeforeGeneration);
 
-            for (int i = 0; i < 6; i++)
+
+            for (int i = 0; i < 2; i++)
             {
-                Invoke(fileSystemBeforeGeneration, processProxy);
-            }
+                await sut.InvokeAsync("");
 
-            fileSystemBeforeGeneration.Should().HaveSameFilesAs(fileSystemAfterGeneration);
+                fileSystemBeforeGeneration.Should().HaveSameFilesAs(fileSystemAfterGeneration);
+            }
         }
 
         [TestMethod]
-        public void Invoke_BicepBuildError_ReturnsOne()
+        public async Task InvokeAsync_BicepBuildError_ReturnsOne()
         {
-            var fileSystem = MockFileSystemFactory.CreateFileSystemWithNewlyGeneratedFiles();
-            var processProxy = MockProcessProxyFactory.CreateProcessProxy(exitCode: 1, standardError: "Build error.");
+            var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
+            var sut = CreateGenerateCommand(fileSystem);
 
-            var exitCode = Invoke(fileSystem, processProxy);
+            fileSystem.File.WriteAllText(MainBicepFile.FileName, "something");
+
+            var exitCode = await sut.InvokeAsync("");
 
             exitCode.Should().Be(1);
         }
 
         [TestMethod]
-        public void Invoke_BicepBuildError_WritesErrorsToConsole()
+        public async Task InvokeAsync_BicepBuildError_PrintDiagnostics()
         {
-            var fileSystem = MockFileSystemFactory.CreateFileSystemWithNewlyGeneratedFiles();
-            var processProxy = MockProcessProxyFactory.CreateProcessProxy(exitCode: 1, standardError: "Build error one.\nBuild error two.");
-            var console = new MockConsole().ExpectErrorLines("Build error one.", "Build error two.", $"Failed to build \"{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}\".");
+            var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
+            var sut = CreateGenerateCommand(fileSystem);
+            var mainBicepFilePath = fileSystem.Path.GetFullPath(MainBicepFile.FileName);
+            var console = new MockConsole().ExpectErrorLines(
+                @$"{mainBicepFilePath}(1,1) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.",
+                @$"Failed to build ""{mainBicepFilePath}"".");
 
-            Invoke(fileSystem, processProxy, console);
+            fileSystem.File.WriteAllText(MainBicepFile.FileName, "something");
+
+            await sut.InvokeAsync("", console);
 
             console.Verify();
         }
 
         private static IEnumerable<object[]> GetSuccessData()
         {
-            yield return new object[]
-            {
-                MockFileSystemFactory.CreateFileSystemWithEmptyFolder(),
-                MockFileSystemFactory.CreateFileSystemWithNewlyGeneratedFiles(),
-            };
+            yield return CreateTestCase(Sample.Empty, Sample.NewlyGenerated);
+            yield return CreateTestCase(Sample.Modified, Sample.Valid);
+            yield return CreateTestCase(Sample.Modified_Experimental, Sample.Valid_Experimental);
 
-            yield return new object[]
+            static object[] CreateTestCase(Sample before, Sample after) => new object[]
             {
-                MockFileSystemFactory.CreateFileSystemWithModifiedFiles(),
-                MockFileSystemFactory.CreateFileSystemWithValidFiles(),
+                MockFileSystemFactory.CreateForSample(before),
+                MockFileSystemFactory.CreateForSample(after),
             };
         }
 
-        private static IEnumerable<object[]> GetExperimentalData()
+        private static GenerateCommand CreateGenerateCommand(IFileSystem fileSystem)
         {
+            var serviceCollection = new ServiceCollection()
+                .AddBicepCompilerWithFileSystem(fileSystem)
+                .AddSingleton(MockLoggerFactory.CreateGenericLogger<GenerateCommand>())
+                .AddSingleton<GenerateCommand.CommandHandler>();
 
-            yield return new object[]
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var handler = serviceProvider.GetRequiredService<GenerateCommand.CommandHandler>();
+
+            return new GenerateCommand()
             {
-                MockFileSystemFactory.CreateFileSystemWithModifiedFiles(),
-                MockFileSystemFactory.CreateFileSystemWithExperimentalFiles(),
+                Handler = handler,
             };
-        }
-
-        private static int Invoke(IFileSystem fileSystem, IProcessProxy processProxy, IConsole? console = null)
-        {
-            var command = new GenerateCommand()
-            {
-                Handler = new GenerateCommand.CommandHandler(
-                    MockEnvironmentProxy.Default,
-                    processProxy,
-                    fileSystem,
-                    MockLoggerFactory.CreateGenericLogger<GenerateCommand>()),
-            };
-
-            return command.Invoke("", console);
         }
     }
 }

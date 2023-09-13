@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Cli.Models;
 using Bicep.Core.Emit;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -57,54 +59,48 @@ namespace Bicep.Cli.Services
             }
         }
 
-
-        public EmitResult ToStdout(SemanticModel bicepModel, SemanticModel paramsModel)
+        public EmitResult ToStdout(SemanticModel paramsModel, ISemanticModel usingModel)
         {
-                //emit template
-                var templateOutputBuffer = new StringBuilder();
-                using var templateOutputWriter = new StringWriter(templateOutputBuffer);
+            var (templateResult, templateJson) = EmitTemplate(paramsModel, usingModel);
+            var (paramsResult, parametersJson) = EmitParameters(paramsModel);
 
-                var templateEmitter = new TemplateEmitter(bicepModel);
-                var templateResult = templateEmitter.Emit(templateOutputWriter);
+            var combinedDiagnostics = templateResult.Diagnostics.Concat(paramsResult.Diagnostics);
+            if (templateResult.Status == EmitStatus.Failed || paramsResult.Status == EmitStatus.Failed)
+            {
+                return new EmitResult(EmitStatus.Failed, combinedDiagnostics);
+            }
 
-                templateOutputWriter.Flush();
-                var templateOutput = templateOutputBuffer.ToString();
+            var result = new BuildParamsStdout(
+                parametersJson: parametersJson,
+                templateJson:   (usingModel is not TemplateSpecSemanticModel) ? templateJson : null,
+                templateSpecId: (usingModel as TemplateSpecSemanticModel)?.SourceFile.TemplateSpecId);
 
-                //emit parameters
-                var paramsOutputBuffer = new StringBuilder();
-                using var paramsOutputWriter = new StringWriter(paramsOutputBuffer);
+            io.Output.Write(JsonConvert.SerializeObject(result));
 
-                var paramsEmitter = new ParametersEmitter(paramsModel);
-                var paramsResult = paramsEmitter.Emit(paramsOutputWriter);
-
-                paramsOutputWriter.Flush();
-                var paramsOutput = paramsOutputBuffer.ToString();
-
-
-                //emit combined output
-                using var wrapperWriter = new JsonTextWriter(io.Output)
-                {
-                    Formatting = Formatting.Indented
-                };
-
-                wrapperWriter.WriteStartObject();
-                wrapperWriter.WritePropertyName("templateJson");
-                wrapperWriter.WriteValue(templateOutput);
-
-                wrapperWriter.WritePropertyName("parametersJson");
-                wrapperWriter.WriteValue(paramsOutput);
-                wrapperWriter.WriteEndObject();
-
-                var combinedDiagnostics = templateResult.Diagnostics.Concat(paramsResult.Diagnostics);
-
-                if(templateResult.Status == EmitStatus.Failed || paramsResult.Status == EmitStatus.Failed)
-                {
-                    return new EmitResult(EmitStatus.Failed, combinedDiagnostics);
-                }
-
-                return new EmitResult(EmitStatus.Succeeded, combinedDiagnostics, templateResult.SourceMap);
+            return new EmitResult(EmitStatus.Succeeded, combinedDiagnostics, templateResult.SourceMap);
         }
 
+        private static (EmitResult result, string output) EmitTemplate(SemanticModel paramsModel, ISemanticModel usingModel)
+        {
+            var stringBuilder = new StringBuilder();
+            using var stringWriter = new StringWriter(stringBuilder) { NewLine = "\n" };
+
+            var emitter = new TemplateEmitter(paramsModel.Compilation, usingModel);
+            var result = emitter.Emit(stringWriter);
+
+            return (result, stringBuilder.ToString());
+        }
+
+        private static (EmitResult result, string output) EmitParameters(SemanticModel paramsModel)
+        {
+            var stringBuilder = new StringBuilder();
+            using var stringWriter = new StringWriter(stringBuilder) { NewLine = "\n" };
+
+            var emitter = new ParametersEmitter(paramsModel);
+            var result = emitter.Emit(stringWriter);
+
+            return (result, stringBuilder.ToString());
+        }
 
         public EmitResult ToStdout(Compilation compilation)
         {

@@ -26,12 +26,12 @@ public record SourceFileGrouping(
     IFileResolver FileResolver,
     Uri EntryFileUri,
     ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> FileResultByUri,
-    ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> UriResultByModule,
+    ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> UriResultByArtifactReference,
     ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup) : ISourceFileLookup
 {
     public IEnumerable<ArtifactResolutionInfo> GetModulesToRestore()
     {
-        foreach (var (sourceFile, moduleResults) in UriResultByModule)
+        foreach (var (sourceFile, moduleResults) in UriResultByArtifactReference)
         {
             foreach (var (syntax, result) in moduleResults)
             {
@@ -50,7 +50,7 @@ public record SourceFileGrouping(
 
     public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference)
     {
-        var uriResult = UriResultByModule.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
+        var uriResult = UriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
         if (!uriResult.IsSuccess(out var fileUri, out var error))
         {
             return new(error.ErrorBuilder);

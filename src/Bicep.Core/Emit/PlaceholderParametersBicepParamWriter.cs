@@ -16,21 +16,21 @@ namespace Bicep.Core.Emit
 {
     public class PlaceholderParametersBicepParamWriter
     {
+        private readonly SemanticModel semanticModel;
+
         public PlaceholderParametersBicepParamWriter(SemanticModel semanticModel, IncludeParamsOption includeParams)
         {
-            this.Context = new EmitterContext(semanticModel);
+            this.semanticModel = semanticModel;
             this.IncludeParams = includeParams;
         }
-
-        private EmitterContext Context { get; }
 
         private IncludeParamsOption IncludeParams { get; }
 
         public void Write(TextWriter writer, string existingContent)
         {
-            var bicepFileName = Path.GetFileName(this.Context.SemanticModel.SourceFile.FileUri.LocalPath);
+            var bicepFileName = Path.GetFileName(semanticModel.SourceFile.FileUri.LocalPath);
 
-            var allParameterDeclarations = this.Context.SemanticModel.Root.ParameterDeclarations;
+            var allParameterDeclarations = semanticModel.Root.ParameterDeclarations;
 
             var filteredParameterDeclarations = this.IncludeParams == IncludeParamsOption.All ? allParameterDeclarations.Select(e => e.DeclaringParameter) : allParameterDeclarations.Where(e => e.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax).Select(e => e.DeclaringParameter);
 

@@ -3,6 +3,7 @@
 
 using Azure.Containers.ContainerRegistry;
 using Azure;
+using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
@@ -28,6 +29,7 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Memory;
 using System.Text;
 using Bicep.Core.Emit;
 using Azure.Identity;
+using Bicep.Core.UnitTests.Baselines;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -117,6 +119,23 @@ namespace Bicep.Cli.IntegrationTests
                 // ensure something got restored
                 settings.FeatureOverrides.Should().HaveValidModules();
             }
+        }
+
+        [TestMethod]
+        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Restore_should_succeed_for_bicepparam_file_with_registry_reference(EmbeddedFile paramFile)
+        {
+            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+
+            var clients = await MockRegistry.Build();
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
+
+            var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
+            result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
+
+            // ensure something got restored
+            settings.FeatureOverrides.Should().HaveValidModules();
         }
 
         [DataTestMethod]
@@ -575,6 +594,32 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
                 output.Should().BeEmpty();
                 error.Should().Contain("main.bicep(1,12) : Error BCP192: Unable to restore the module with reference \"br:fake/fake:v1\": Mock registry request failure.");
             }
+        }
+
+        [TestMethod]
+        [EmbeddedFilesTestData(@"Files/BuildParamsCommandTests/Registry/main\.bicepparam")]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Restore_bicepparam_should_fail_with_error_diagnostics_for_registry_failure(EmbeddedFile paramFile)
+        {
+            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, paramFile);
+
+            var client = StrictMock.Of<ContainerRegistryContentClient>();
+            client
+                .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
+
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactory
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), new Uri("https://mockregistry.io"), "parameters/basic"))
+                .Returns(client.Object);
+
+            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
+            
+            result.Should().Fail().And.NotHaveStdout();
+            result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the module with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
         }
 
         private static IEnumerable<object[]> GetAllDataSets() => DataSets.AllDataSets.ToDynamicTestData();

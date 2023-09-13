@@ -22,9 +22,9 @@ namespace Bicep.Core.Semantics
 
         public ResourceScope TargetScope => this.mainTemplateSemanticModel.TargetScope;
 
-        public ImmutableDictionary<string, ParameterMetadata> Parameters => this.mainTemplateSemanticModel.Parameters;
+        public ImmutableSortedDictionary<string, ParameterMetadata> Parameters => this.mainTemplateSemanticModel.Parameters;
 
-        public ImmutableDictionary<string, ExportedTypeMetadata> ExportedTypes => this.mainTemplateSemanticModel.ExportedTypes;
+        public ImmutableSortedDictionary<string, ExportedTypeMetadata> ExportedTypes => this.mainTemplateSemanticModel.ExportedTypes;
 
         public ImmutableArray<OutputMetadata> Outputs => this.mainTemplateSemanticModel.Outputs;
 
