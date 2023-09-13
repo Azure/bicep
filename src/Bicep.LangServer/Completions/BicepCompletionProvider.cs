@@ -16,6 +16,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -25,6 +26,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
+using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
@@ -51,11 +53,14 @@ namespace Bicep.LanguageServer.Completions
         private readonly ISnippetsProvider SnippetsProvider;
         public readonly IModuleReferenceCompletionProvider moduleReferenceCompletionProvider;
 
+        private readonly AutoCompleteFactory autoCompleteFactory;
+
         public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, IModuleReferenceCompletionProvider moduleReferenceCompletionProvider)
         {
             this.FileResolver = fileResolver;
             this.SnippetsProvider = snippetsProvider;
             this.moduleReferenceCompletionProvider = moduleReferenceCompletionProvider;
+            this.autoCompleteFactory = new AutoCompleteFactory();
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context, CancellationToken cancellationToken)
@@ -93,7 +98,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetUsingDeclarationPathCompletions(model, context))
                 .Concat(GetAssertValueCompletions(model, context))
-                .Concat(GetOpenAIBicepCompletions(model, context))
+                .Concat(await GetOpenAIBicepCompletionsAsync(model, context))
                 .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
 
@@ -953,12 +958,10 @@ namespace Bicep.LanguageServer.Completions
             return GetValueCompletionsForType(model, context, LanguageConstants.Bool, loopsAllowed: false);
         }
 
-        private IEnumerable<CompletionItem> GetOpenAIBicepCompletions(SemanticModel model, BicepCompletionContext context)
+        private async Task<IEnumerable<CompletionItem>> GetOpenAIBicepCompletionsAsync(SemanticModel model, BicepCompletionContext context)
         {
-            // TODO: inspect the cursor offster in the case the cursor is at the end of a resource declaration we could fetch
-            // raw github spec for latest version, append to base-prompt
-            // send a request to the OpenAI REST API, append the answers into the return value
-            return Enumerable.Empty<CompletionItem>();
+            var autocomplete = await this.autoCompleteFactory.BuildAsync(model, context).ConfigureAwait(false);
+            return new CompletionList(autocomplete.GetCompletionItems(), true);
         }
 
         private IEnumerable<CompletionItem> GetModuleBodyCompletions(SemanticModel model, BicepCompletionContext context)
