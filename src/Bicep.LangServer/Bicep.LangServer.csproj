@@ -15,14 +15,9 @@
   <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.7" />
     <PackageReference Include="Azure.ResourceManager.ResourceGraph" Version="1.0.1" />
-    <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.5.0" />
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.7" />
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="SharpYaml" Version="2.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.7" />
   </ItemGroup>
 
   <ItemGroup>

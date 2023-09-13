@@ -1,20 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
+using global::Azure.AI.OpenAI;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-
-using global::Azure.AI.OpenAI;
-using Microsoft.Extensions.Azure;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static System.Net.Mime.MediaTypeNames;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
-using static Bicep.LanguageServer.Completions.IEnumerableExtensions;
 
 namespace Bicep.LanguageServer.Completions
 {

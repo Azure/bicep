@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using global::Azure;
+using global::Azure.AI.OpenAI;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
-using global::Azure;
-using global::Azure.AI.OpenAI;
-using global::Azure.Identity;
-using global::Azure.Security.KeyVault.Secrets;
 
 namespace Bicep.LanguageServer.Completions
 {
@@ -31,15 +28,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 try
                 {
-                    // TODO: In prod, we'll need to figure out how the model will be deployed and how distributed access will work. See what GitHub Copilot is doing.
                     Uri modelEndpoint = new("https://americasopenai.azure-api.net");
-                    //string keyVaultUri = "https://policy-copilot-keyvault.vault.azure.net/";
-                    //SecretClient keyVaultClient = new(new Uri(keyVaultUri), new DefaultAzureCredential(new DefaultAzureCredentialOptions
-                    //{
-                    //    ExcludeVisualStudioCodeCredential = false,
-                    //}));
-                    //KeyVaultSecret modelEndpointKey = await keyVaultClient.GetSecretAsync("model-endpoint-key").ConfigureAwait(false);
-                    //AzureKeyCredential modelCredentials = new(modelEndpointKey.Value.ToString());
                     AzureKeyCredential modelCredentials = new("TODO: HERE COMES THE API KEY");
                     client = new OpenAIClient(modelEndpoint, modelCredentials);
                 }
