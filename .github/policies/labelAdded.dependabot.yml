@@ -24,5 +24,7 @@ configuration:
           comment: ':shipit:'
       - addLabel:
           label: auto-merge
+      - enableAutoMerge:
+          mergeMethod: Squash
 onFailure:
 onSuccess:

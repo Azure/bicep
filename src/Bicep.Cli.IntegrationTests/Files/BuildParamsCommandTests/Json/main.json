@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.20.4.51522",
+      "templateHash": "13460471388516029403"
+    }
+  },
+  "parameters": {
+    "stringParam": {
+      "type": "string"
+    },
+    "intParam": {
+      "type": "int"
+    },
+    "boolParam": {
+      "type": "bool"
+    },
+    "objectParam": {
+      "type": "object"
+    },
+    "arrayParam": {
+      "type": "array"
+    }
+  },
+  "resources": []
+}

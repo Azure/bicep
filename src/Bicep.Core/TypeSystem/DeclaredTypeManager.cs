@@ -220,7 +220,7 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            if(!parameterAssignmentSymbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out var failureDiagnostic))
+            if(!parameterAssignmentSymbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel, out var failureDiagnostic))
             {
                 // failed to resolve using
                 return failureDiagnostic is ErrorDiagnostic error
@@ -228,7 +228,7 @@ namespace Bicep.Core.TypeSystem
                     : null;
             }
 
-            if(bicepSemanticModel.Parameters.TryGetValue(parameterAssignmentSymbol.Name, out var parameterMetadata))
+            if(semanticModel.Parameters.TryGetValue(parameterAssignmentSymbol.Name, out var parameterMetadata))
             {
                 return parameterMetadata.TypeReference.Type;
             }
@@ -1727,7 +1727,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Empty();
             }
 
-            if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var failureDiagnostic))
+            if (!moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out var failureDiagnostic))
             {
                 return ErrorType.Create(failureDiagnostic);
             }
@@ -1781,7 +1781,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Empty();
             }
 
-            if (!testSymbol.TryGetSemanticModel(out var testSemanticModel, out var failureDiagnostic))
+            if (!testSymbol.TryGetSemanticModel().IsSuccess(out var testSemanticModel, out var failureDiagnostic))
             {
                 return ErrorType.Create(failureDiagnostic);
             }

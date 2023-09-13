@@ -4,10 +4,10 @@
   "devDependencies": {
     "@types/html-escaper": "^3.0.0",
     "@types/jest": "^29.5.4",
-    "@types/node": "^20.5.9",
-    "@typescript-eslint/eslint-plugin": "^6.4.1",
+    "@types/node": "^20.6.0",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
     "@typescript-eslint/parser": "^6.6.0",
-    "eslint": "^8.48.0",
+    "eslint": "^8.49.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^27.2.3",
     "html-escaper": "^3.0.3",
@@ -28,8 +28,8 @@
     "lint:fix": "eslint src"
   },
   "dependencies": {
-    "@babel/core": "^7.22.11",
-    "@babel/plugin-transform-modules-commonjs": "^7.22.11",
+    "@babel/core": "^7.22.17",
+    "@babel/plugin-transform-modules-commonjs": "^7.22.15",
     "babel-jest": "^29.6.4"
   }
 }

@@ -343,7 +343,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                  if (this.binder.GetSymbolInfo(syntax) is TestSymbol testSymbol &&
-                    testSymbol.TryGetSemanticModel(out var testSemanticModel, out var _) &&
+                    testSymbol.TryGetSemanticModel().IsSuccess(out var testSemanticModel, out var _) &&
                     testSemanticModel.HasErrors())
                 {
                     diagnostics.Write(testSemanticModel is ArmTemplateSemanticModel
@@ -420,7 +420,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 if (this.binder.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol &&
-                    moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var _) &&
+                    moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out var _) &&
                     moduleSemanticModel.HasErrors())
                 {
                     diagnostics.Write(moduleSemanticModel is ArmTemplateSemanticModel
@@ -954,11 +954,12 @@ namespace Bicep.Core.TypeSystem
         private ImmutableDictionary<string, TypeTypeProperty>? GetImportableTypesForDeclaration(CompileTimeImportDeclarationSyntax syntax, IDiagnosticWriter diagnostics)
         {
             if (!SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(sourceFileLookup,
-                syntax,
-                b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
-                semanticModelLookup,
-                out var semanticModel,
-                out var failureDiagnostic))
+                    syntax,
+                    b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
+                    semanticModelLookup)
+                .IsSuccess(
+                    out var semanticModel,
+                    out var failureDiagnostic))
             {
                 diagnostics.Write(failureDiagnostic);
                 return null;

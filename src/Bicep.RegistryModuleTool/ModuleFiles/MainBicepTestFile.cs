@@ -1,55 +1,53 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.RegistryModuleTool.ModuleValidators;
-using System.IO;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
+using System.Collections.Generic;
 using System.IO.Abstractions;
+using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
     public class MainBicepTestFile : ModuleFile
     {
+        public const string FileName = "main.test.bicep";
+
         public const string Directory = "test";
 
-        public const string FileName = "main.test.bicep";
+        private static readonly string DefaultContent = """
+            /*
+            Write deployment tests in this file. Any module that references the main
+            module file is a deployment test. Make sure at least one test is added.
+            */
+            """.ReplaceLineEndings();
 
         public MainBicepTestFile(string path)
             : base(path)
         {
         }
 
-        public static MainBicepTestFile EnsureInFileSystem(IFileSystem fileSystem)
+        public static async Task<MainBicepTestFile> GenerateAsync(IFileSystem fileSystem)
         {
             fileSystem.Directory.CreateDirectory(Directory);
-
             string relativePath = fileSystem.Path.Combine(Directory, FileName);
             string path = fileSystem.Path.GetFullPath(relativePath);
 
-            try
+            if (!fileSystem.File.Exists(path))
             {
-                using (fileSystem.FileStream.New(path, FileMode.Open, FileAccess.Read)) { }
-            }
-            catch (FileNotFoundException)
-            {
-                fileSystem.File.WriteAllText(path, @"/*
-Write deployment tests in this file. Any module that references the main
-module file is a deployment test. Make sure at least one test is added.
-*/".ReplaceLineEndings());
+                await fileSystem.File.WriteAllTextAsync(path, DefaultContent);
             }
 
             return new(path);
         }
 
-        public static MainBicepTestFile ReadFromFileSystem(IFileSystem fileSystem)
+        public static MainBicepTestFile Open(IFileSystem fileSystem)
         {
-            string relativePath = fileSystem.Path.Combine(Directory, FileName);
-            string path = fileSystem.Path.GetFullPath(relativePath);
-
-            using (fileSystem.FileStream.New(path, FileMode.Open)) { }
+            var relativePath = fileSystem.Path.Combine(Directory, FileName);
+            var path = fileSystem.Path.GetFullPath(relativePath);
 
             return new(path);
         }
 
-        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
+        protected override Task<IEnumerable<string>> ValidatedByAsync(IModuleFileValidator validator) => validator.ValidateAsync(this);
     }
 }

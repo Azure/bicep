@@ -8,6 +8,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -40,7 +41,7 @@ namespace Bicep.Core.UnitTests.Registry
             var dispatcher = CreateDispatcher(BicepTestConstants.ConfigurationManager);
             var configuration = BicepTestConstants.BuiltInConfiguration;
 
-            dispatcher.TryGetModuleReference(module, RandomFileUri(), out var reference, out var failureBuilder).Should().BeFalse();
+            dispatcher.TryGetModuleReference(module, RandomFileUri()).IsSuccess(out var reference, out var failureBuilder).Should().BeFalse();
             reference.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 
@@ -51,7 +52,7 @@ namespace Bicep.Core.UnitTests.Registry
             }
 
             var localModule = CreateModule("test.bicep");
-            dispatcher.TryGetModuleReference(localModule, RandomFileUri(), out var localModuleReference, out var localModuleFailureBuilder).Should().BeFalse();
+            dispatcher.TryGetModuleReference(localModule, RandomFileUri()).IsSuccess(out var localModuleReference, out var localModuleFailureBuilder).Should().BeFalse();
             localModuleReference.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
             using (new AssertionScope())
@@ -88,35 +89,29 @@ namespace Bicep.Core.UnitTests.Registry
 
             var validRefUri = RandomFileUri();
             ArtifactReference? validRef = new MockModuleReference("validRef", validRefUri);
-            mock.Setup(m => m.TryParseArtifactReference(null, "validRef", out validRef, out @null))
-                .Returns(true);
+            mock.Setup(m => m.TryParseArtifactReference(null, "validRef")).Returns(ResultHelper.Create(validRef, @null));
 
             var validRefUri2 = RandomFileUri();
             ArtifactReference? validRef2 = new MockModuleReference("validRef2", validRefUri2);
-            mock.Setup(m => m.TryParseArtifactReference(null, "validRef2", out validRef2, out @null))
-                .Returns(true);
+            mock.Setup(m => m.TryParseArtifactReference(null, "validRef2")).Returns(ResultHelper.Create(validRef2, @null));
 
             var validRefUri3 = RandomFileUri();
             ArtifactReference? validRef3 = new MockModuleReference("validRef3", validRefUri3);
-            mock.Setup(m => m.TryParseArtifactReference(null, "validRef3", out validRef3, out @null))
-                .Returns(true);
+            mock.Setup(m => m.TryParseArtifactReference(null, "validRef3")).Returns(ResultHelper.Create(validRef3, @null));
 
             var badRefUri = RandomFileUri();
             ArtifactReference? nullRef = null;
             ErrorBuilderDelegate? badRefError = x => new ErrorDiagnostic(x.TextSpan, "BCPMock", "Bad ref error");
-            mock.Setup(m => m.TryParseArtifactReference(null, "badRef", out nullRef, out badRefError))
-                .Returns(false);
+            mock.Setup(m => m.TryParseArtifactReference(null, "badRef")).Returns(ResultHelper.Create(nullRef, badRefError));
 
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef)).Returns(true);
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef2)).Returns(false);
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef3)).Returns(true);
 
             Uri? validRefLocalUri = new Uri("untitled://validRef");
-            mock.Setup(m => m.TryGetLocalArtifactEntryPointUri(validRef, out validRefLocalUri, out @null))
-                .Returns(true);
+            mock.Setup(m => m.TryGetLocalArtifactEntryPointUri(validRef)).Returns(ResultHelper.Create(validRefLocalUri, @null));
             Uri? validRef3LocalUri = new Uri("untitled://validRef3");
-            mock.Setup(m => m.TryGetLocalArtifactEntryPointUri(validRef3, out validRef3LocalUri, out @null))
-                .Returns(true);
+            mock.Setup(m => m.TryGetLocalArtifactEntryPointUri(validRef3)).Returns(ResultHelper.Create(validRef3LocalUri, @null));
 
             mock.Setup(m => m.RestoreArtifacts(It.IsAny<IEnumerable<ArtifactReference>>()))
                 .ReturnsAsync(new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>
@@ -131,11 +126,11 @@ namespace Bicep.Core.UnitTests.Registry
             var goodModule3 = CreateModule("mock:validRef3");
             var badModule = CreateModule("mock:badRef");
 
-            dispatcher.TryGetModuleReference(goodModule, validRefUri, out var @ref, out var goodValidationBuilder).Should().BeTrue();
+            dispatcher.TryGetModuleReference(goodModule, validRefUri).IsSuccess(out var @ref, out var goodValidationBuilder).Should().BeTrue();
             @ref.Should().Be(validRef);
             goodValidationBuilder!.Should().BeNull();
 
-            dispatcher.TryGetModuleReference(badModule, badRefUri, out @ref, out var badValidationBuilder).Should().BeFalse();
+            dispatcher.TryGetModuleReference(badModule, badRefUri).IsSuccess(out @ref, out var badValidationBuilder).Should().BeFalse();
             @ref.Should().BeNull();
             badValidationBuilder!.Should().NotBeNull();
             badValidationBuilder!.Should().HaveCode("BCPMock");
@@ -152,11 +147,11 @@ namespace Bicep.Core.UnitTests.Registry
             goodAvailabilityBuilder3!.Should().HaveCode("BCP190");
             goodAvailabilityBuilder3!.Should().HaveMessage("The module with reference \"mock:validRef3\" has not been restored.");
 
-            dispatcher.TryGetLocalModuleEntryPointUri(validRef, out var @uri, out var entryPointBuilder).Should().BeTrue();
+            dispatcher.TryGetLocalModuleEntryPointUri(validRef).IsSuccess(out var @uri, out var entryPointBuilder).Should().BeTrue();
             @uri.Should().Be(new Uri("untitled://validRef"));
             entryPointBuilder!.Should().BeNull();
 
-            dispatcher.TryGetLocalModuleEntryPointUri(validRef3, out @uri, out var entryPointBuilder3).Should().BeTrue();
+            dispatcher.TryGetLocalModuleEntryPointUri(validRef3).IsSuccess(out @uri, out var entryPointBuilder3).Should().BeTrue();
             @uri.Should().Be(new Uri("untitled://validRef3"));
             entryPointBuilder3!.Should().BeNull();
 

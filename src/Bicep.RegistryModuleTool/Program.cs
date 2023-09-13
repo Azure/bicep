@@ -1,10 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core;
+using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Configuration;
+using Bicep.Core.Features;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.RegistryModuleTool.Commands;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.Options;
-using Bicep.RegistryModuleTool.Proxies;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -44,10 +53,7 @@ namespace Bicep.RegistryModuleTool
         }
 
         private static void ConfigureHost(IHostBuilder builder) => builder
-            .ConfigureServices(services => services
-                .AddSingleton<IEnvironmentProxy, EnvironmentProxy>()
-                .AddSingleton<IProcessProxy, ProcessProxy>()
-                .AddSingleton<IFileSystem, FileSystem>())
+            .ConfigureServices(services => services.AddBicepCompiler())
             .UseSerilog((context, logging) => logging
                 .MinimumLevel.Is(GetMinimumLogEventLevel(context))
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)

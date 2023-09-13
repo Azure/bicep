@@ -13,8 +13,8 @@ using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
-using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
 {
@@ -22,45 +22,45 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
     public class BaseCommandHandlerTests
     {
         [TestMethod]
-        public void Invoke_NoException_Passthrough()
+        public async Task InvokeAsync_NoException_Passthrough()
         {
-            var exitCode = Invoke(new PassThroughCommandHandler(100));
+            var exitCode = await InvokeAsync(new PassThroughCommandHandler(100));
 
             exitCode.Should().Be(100);
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetExceptionData), DynamicDataSourceType.Method)]
-        public void Invoke_CaughtException_ReturnsOne(Exception exceptionToThrow)
+        public async Task InvokeAsync_CaughtException_ReturnsOne(Exception exceptionToThrow)
         {
-            var exitCode = Invoke(new ThrowExceptionCommandHandler(exceptionToThrow));
+            var exitCode = await InvokeAsync(new ThrowExceptionCommandHandler(exceptionToThrow));
 
             exitCode.Should().Be(1);
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetExpectedExceptionData), DynamicDataSourceType.Method)]
-        public void Invoke_CaughtExpectedException_LogsDebug(Exception exceptionToThrow)
+        public async Task InvokeAsync_CaughtExpectedException_LogsDebug(Exception exceptionToThrow)
         {
             var logger = MockLoggerFactory.CreateLogger();
 
-            Invoke(new ThrowExceptionCommandHandler(exceptionToThrow, logger));
+            await InvokeAsync(new ThrowExceptionCommandHandler(exceptionToThrow, logger));
 
             Mock.Get(logger).Verify(x => x.Log(
                 LogLevel.Debug,
                 It.IsAny<EventId>(),
                 It.IsAny<It.IsAnyType>(),
-                exceptionToThrow,
+                It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetUnexpectedExceptionData), DynamicDataSourceType.Method)]
-        public void Invoke_CaughtUnexpectedException_LogsCritical(Exception exceptionToThrow)
+        public async Task InvokeAsync_CaughtUnexpectedException_LogsCritical(Exception exceptionToThrow)
         {
             var logger = MockLoggerFactory.CreateLogger();
 
-            Invoke(new ThrowExceptionCommandHandler(exceptionToThrow, logger));
+            await InvokeAsync(new ThrowExceptionCommandHandler(exceptionToThrow, logger));
 
             Mock.Get(logger).Verify(x => x.Log(
                 LogLevel.Critical,
@@ -70,14 +70,14 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
         }
 
-        private static int Invoke(ICommandHandler handler)
+        private static Task<int> InvokeAsync(ICommandHandler handler)
         {
             var command = new TestCommand()
             {
                 Handler = handler,
             };
 
-            return command.Invoke("");
+            return command.InvokeAsync("");
         }
 
         private static IEnumerable<object[]> GetExceptionData() => GetExpectedExceptionData().Concat(GetUnexpectedExceptionData());
@@ -131,12 +131,12 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
             private readonly int exitCode;
 
             public PassThroughCommandHandler(int exitCode)
-                : base(new MockFileSystem(), MockLoggerFactory.CreateLogger())
+                : base(MockFileSystemFactory.CreateForSample(Sample.Empty), MockLoggerFactory.CreateLogger())
             {
                 this.exitCode = exitCode;
             }
 
-            protected override int InvokeInternal(InvocationContext context) => this.exitCode;
+            protected override Task<int> InvokeInternalAsync(InvocationContext context) => Task.FromResult(this.exitCode);
         }
 
         private class ThrowExceptionCommandHandler : BaseCommandHandler
@@ -144,12 +144,12 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
             private readonly Exception exceptionToThrow;
 
             public ThrowExceptionCommandHandler(Exception exceptionToThrow, ILogger? logger = null)
-                : base(new MockFileSystem(), logger ?? MockLoggerFactory.CreateLogger())
+                : base(MockFileSystemFactory.CreateForSample(Sample.Empty), logger ?? MockLoggerFactory.CreateLogger())
             {
                 this.exceptionToThrow = exceptionToThrow;
             }
 
-            protected override int InvokeInternal(InvocationContext context)
+            protected override Task<int> InvokeInternalAsync(InvocationContext context)
             {
                 throw exceptionToThrow;
             }

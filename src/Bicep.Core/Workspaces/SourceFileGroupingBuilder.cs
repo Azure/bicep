@@ -24,8 +24,8 @@ namespace Bicep.Core.Workspaces
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IReadOnlyWorkspace workspace;
 
-        private readonly Dictionary<Uri, FileResolutionResult> fileResultByUri;
-        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IArtifactReferenceSyntax, UriResolutionResult>> uriResultByModule;
+        private readonly Dictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri;
+        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> uriResultByArtifactReference;
 
         private readonly bool forceModulesRestore;
 
@@ -38,7 +38,7 @@ namespace Bicep.Core.Workspaces
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.workspace = workspace;
-            this.uriResultByModule = new();
+            this.uriResultByArtifactReference = new();
             this.fileResultByUri = new();
             this.forceModulesRestore = forceModulesRestore;
         }
@@ -53,8 +53,8 @@ namespace Bicep.Core.Workspaces
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.workspace = workspace;
-            this.uriResultByModule = new(current.UriResultByModule.Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToDictionary(p => p.Key, p => p.Value))));
-            this.fileResultByUri = current.FileResultByUri.Where(x => x.Value.File is not null).ToDictionary(x => x.Key, x => x.Value);
+            this.uriResultByArtifactReference = new(current.UriResultByArtifactReference.Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToDictionary(p => p.Key, p => p.Value))));
+            this.fileResultByUri = current.FileResultByUri.Where(x => x.Value.TryUnwrap() is not null).ToDictionary(x => x.Key, x => x.Value);
             this.forceModulesRestore = forceforceModulesRestore;
         }
 
@@ -68,12 +68,12 @@ namespace Bicep.Core.Workspaces
         public static SourceFileGrouping Rebuild(IFeatureProviderFactory featuresFactory, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current)
         {
             var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current);
-            var isParamsFile = current.FileResultByUri[current.EntryFileUri].File is BicepParamFile;
+            var isParamsFile = current.EntryPoint is BicepParamFile;
             var modulesToRestore = current.GetModulesToRestore().ToHashSet();
 
             foreach (var (module, sourceFile) in modulesToRestore)
             {
-                builder.uriResultByModule[sourceFile].Remove(module);
+                builder.uriResultByArtifactReference[sourceFile].Remove(module);
             }
 
             // Rebuild source files that contain external module references restored during the inital build.
@@ -93,12 +93,9 @@ namespace Bicep.Core.Workspaces
         {
             var fileResult = this.PopulateRecursive(entryFileUri, null, sourceFilesToRebuild, featuresFactory);
 
-            if (fileResult.File is null)
+            if (!fileResult.IsSuccess(out _, out var errorBuilder))
             {
-                // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
-                // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
-                var failureBuilder = fileResult.ErrorBuilder ?? throw new InvalidOperationException($"Expected {nameof(PopulateRecursive)} to provide failure diagnostics");
-                var diagnostic = failureBuilder(ForDocumentStart());
+                var diagnostic = errorBuilder(ForDocumentStart());
 
                 throw new ErrorDiagnosticException(diagnostic);
             }
@@ -109,28 +106,28 @@ namespace Bicep.Core.Workspaces
                 fileResolver,
                 entryFileUri,
                 fileResultByUri.ToImmutableDictionary(),
-                uriResultByModule.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutableDictionary()),
+                uriResultByArtifactReference.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutableDictionary()),
                 sourceFileDependencies.InvertLookup().ToImmutableDictionary());
         }
 
-        private FileResolutionResult GetFileResolutionResult(Uri fileUri, ArtifactReference? moduleReference)
+        private ResultWithDiagnostic<ISourceFile> GetFileResolutionResult(Uri fileUri, ArtifactReference? moduleReference)
         {
             if (workspace.TryGetSourceFile(fileUri, out var sourceFile))
             {
-                return new(fileUri, null, sourceFile);
+                return new(sourceFile);
             }
 
-            if (!fileResolver.TryRead(fileUri, out var fileContents, out var failureBuilder))
+            if (!fileResolver.TryRead(fileUri).IsSuccess(out var fileContents, out var failureBuilder))
             {
-                return new(fileUri, failureBuilder, null);
+                return new(failureBuilder);
             }
 
             sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents, moduleReference);
 
-            return new(fileUri, null, sourceFile);
+            return new(sourceFile);
         }
 
-        private FileResolutionResult GetFileResolutionResultWithCaching(Uri fileUri, ArtifactReference? moduleReference)
+        private ResultWithDiagnostic<ISourceFile> GetFileResolutionResultWithCaching(Uri fileUri, ArtifactReference? moduleReference)
         {
             if (!fileResultByUri.TryGetValue(fileUri, out var resolutionResult))
             {
@@ -141,11 +138,11 @@ namespace Bicep.Core.Workspaces
             return resolutionResult;
         }
 
-        private FileResolutionResult PopulateRecursive(Uri fileUri, ArtifactReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild, IFeatureProviderFactory featuresFactory)
+        private ResultWithDiagnostic<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild, IFeatureProviderFactory featuresFactory)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, moduleReference);
             var features = featuresFactory.GetFeatureProvider(fileUri);
-            switch (fileResult.File)
+            switch (fileResult.TryUnwrap())
             {
                 case BicepFile bicepFile:
                     {
@@ -160,21 +157,21 @@ namespace Bicep.Core.Workspaces
                             }
                             var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, restorable);
 
-                            uriResultByModule.GetOrAdd(bicepFile, f => new())[restorable] = uriResult;
+                            uriResultByArtifactReference.GetOrAdd(bicepFile, f => new())[restorable] = uriResult;
 
-                            if (uriResult.FileUri is null)
+                            if (!uriResult.IsSuccess(out var moduleFileUri))
                             {
                                 continue;
                             }
 
-                            if (!fileResultByUri.TryGetValue(uriResult.FileUri, out var childResult) ||
-                                (childResult.File is not null && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childResult.File)))
+                            if (!fileResultByUri.TryGetValue(moduleFileUri, out var childResult) ||
+                                (childResult.IsSuccess(out var childFile) && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childFile)))
                             {
                                 // only recurse if we've not seen this file before - to avoid infinite loops
-                                childResult = PopulateRecursive(uriResult.FileUri, childModuleReference, sourceFileToRebuild, featuresFactory);
+                                childResult = PopulateRecursive(moduleFileUri, childModuleReference, sourceFileToRebuild, featuresFactory);
                             }
 
-                            fileResultByUri[uriResult.FileUri] = childResult;
+                            fileResultByUri[moduleFileUri] = childResult;
                         }
                         break;
                     }
@@ -182,24 +179,20 @@ namespace Bicep.Core.Workspaces
                     {
                         foreach (var usingDeclaration in paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>())
                         {
-                            if (!SyntaxHelper.TryGetForeignTemplatePath(usingDeclaration, out var usingFilePath, out var errorBuilder))
+                            var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, usingDeclaration);
+
+                            uriResultByArtifactReference.GetOrAdd(paramsFile, f => new())[usingDeclaration] = uriResult;
+
+                            if (!uriResult.IsSuccess(out var usingFileUri))
                             {
-                                uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(null, false, errorBuilder);
                                 continue;
                             }
 
-                            if (fileResolver.TryResolveFilePath(fileUri, usingFilePath) is not { } usingFileUri)
-                            {
-                                uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(null, false, x => x.FilePathCouldNotBeResolved(usingFilePath, fileUri.LocalPath));
-                                continue;
-                            }
-
-                            uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(usingFileUri, false, null);
-
-                            if (!fileResultByUri.TryGetValue(usingFileUri, out var childResult))
+                            if (!fileResultByUri.TryGetValue(usingFileUri, out var childResult) ||
+                                (childResult.IsSuccess(out var childFile) && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childFile)))
                             {
                                 // only recurse if we've not seen this file before - to avoid infinite loops
-                                childResult = PopulateRecursive(usingFileUri, null, sourceFileToRebuild, featuresFactory);
+                                childResult = PopulateRecursive(usingFileUri, childModuleReference, sourceFileToRebuild, featuresFactory);
                             }
 
                             fileResultByUri[usingFileUri] = childResult;
@@ -211,23 +204,23 @@ namespace Bicep.Core.Workspaces
             return fileResult;
         }
 
-        private (ArtifactReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, IArtifactReferenceSyntax foreignTemplateReference)
+        private (ArtifactReference? reference, Result<Uri, UriResolutionError> result) GetModuleRestoreResult(Uri parentFileUri, IArtifactReferenceSyntax foreignTemplateReference)
         {
-            if (!moduleDispatcher.TryGetModuleReference(foreignTemplateReference, parentFileUri, out var moduleReference, out var referenceResolutionError))
+            if (!moduleDispatcher.TryGetModuleReference(foreignTemplateReference, parentFileUri).IsSuccess(out var moduleReference, out var referenceResolutionError))
             {
                 // module reference is not valid
-                return (null, new(null, false, referenceResolutionError));
+                return (null, new(new UriResolutionError(referenceResolutionError, false)));
             }
 
-            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var moduleFileUri, out var moduleGetPathFailureBuilder))
+            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference).IsSuccess(out var moduleFileUri, out var moduleGetPathFailureBuilder))
             {
-                return (moduleReference, new(null, false, moduleGetPathFailureBuilder));
+                return (moduleReference, new(new UriResolutionError(moduleGetPathFailureBuilder, false)));
             }
 
             if (forceModulesRestore)
             {
                 //override the status to force restore
-                return (moduleReference, new(moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
+                return (moduleReference, new(new UriResolutionError(x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference), true)));
             }
 
             var restoreStatus = moduleDispatcher.GetArtifactRestoreStatus(moduleReference, out var restoreErrorBuilder);
@@ -235,52 +228,53 @@ namespace Bicep.Core.Workspaces
             {
                 case ArtifactRestoreStatus.Unknown:
                     // we have not yet attempted to restore the module, so let's do it
-                    return (moduleReference, new(moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
+                    return (moduleReference, new(new UriResolutionError(x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference), true)));
                 case ArtifactRestoreStatus.Failed:
                     // the module has not yet been restored or restore failed
                     // in either case, set the error
-                    return (moduleReference, new(null, false, restoreErrorBuilder));
+                    return (moduleReference, new(new UriResolutionError(restoreErrorBuilder ?? (x => x.ModuleRestoreFailed(moduleReference.FullyQualifiedReference)), false)));
                 default:
                     break;
             }
 
-            return (moduleReference, new(moduleFileUri, false, null));
+            return (moduleReference, new(moduleFileUri));
         }
 
         private ILookup<ISourceFile, ISourceFile> ReportFailuresForCycles()
         {
             var sourceFileGraph = this.fileResultByUri.Values
-                .Select(x => x.File)
+                .Select(x => x.TryUnwrap())
                 .WhereNotNull()
                 .SelectMany(sourceFile => GetReferenceSourceNodes(sourceFile)
-                    .SelectMany(moduleDeclaration => this.uriResultByModule.Values.Select(f => f.TryGetValue(moduleDeclaration)?.FileUri))
-                    .Select(fileUri => fileUri != null ? this.fileResultByUri[fileUri].File : null)
+                    .SelectMany(moduleDeclaration => this.uriResultByArtifactReference.Values.Select(f => f.TryGetValue(moduleDeclaration)?.TryUnwrap()))
+                    .WhereNotNull()
+                    .Select(fileUri => this.fileResultByUri[fileUri].TryUnwrap())
                     .WhereNotNull()
                     .Distinct()
                     .Select(referencedFile => (sourceFile, referencedFile)))
                 .ToLookup(x => x.sourceFile, x => x.referencedFile);
 
             var cycles = CycleDetector<ISourceFile>.FindCycles(sourceFileGraph);
-            foreach (var (file, uriResultByModuleForFile) in uriResultByModule)
+            foreach (var (file, uriResultByModuleForFile) in uriResultByArtifactReference)
             {
                 foreach (var (statement, urlResult) in uriResultByModuleForFile)
                 {
-                    if (urlResult.FileUri is not null &&
-                        fileResultByUri[urlResult.FileUri].File is { } sourceFile &&
+                    if (urlResult.IsSuccess(out var fileUri) &&
+                        fileResultByUri[fileUri].IsSuccess(out var sourceFile) &&
                         cycles.TryGetValue(sourceFile, out var cycle))
                     {
                         if (cycle.Length == 1)
                         {
                             uriResultByModuleForFile[statement] = cycle[0] switch
                             {
-                                BicepParamFile => new(null, false, x => x.CyclicParametersSelfReference()),
-                                _ => new(null, false, x => x.CyclicModuleSelfReference())
+                                BicepParamFile => new(new UriResolutionError(x => x.CyclicParametersSelfReference(), false)),
+                                _ => new(new UriResolutionError(x => x.CyclicModuleSelfReference(), false)),
                             };
                         }
                         else
                         {
                             // the error message is generic so it should work for either bicep module or params
-                            uriResultByModuleForFile[statement] = new(null, false, x => x.CyclicFile(cycle.Select(u => u.FileUri.LocalPath)));
+                            uriResultByModuleForFile[statement] = new(new UriResolutionError(x => x.CyclicFile(cycle.Select(u => u.FileUri.LocalPath)), false));
                         }
                     }
                 }

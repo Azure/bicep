@@ -1049,9 +1049,8 @@ param foo|bar = true
                 digest,
                 tag);
 
-            DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            moduleDispatcher.Setup(m => m.TryGetModuleReference(moduleDeclarationSyntax, parentModuleUri, out ociArtifactModuleReference, out failureBuilder)).Returns(true);
+            moduleDispatcher.Setup(m => m.TryGetModuleReference(moduleDeclarationSyntax, parentModuleUri)).Returns(ResultHelper.Create(ociArtifactModuleReference, null));
 
             return moduleDispatcher.Object;
         }

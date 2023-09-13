@@ -27,9 +27,9 @@ namespace Bicep.Core.Registry
 
         public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<T> references);
 
-        public abstract bool TryGetLocalArtifactEntryPointUri(T reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        public abstract ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(T reference);
 
-        public abstract bool TryParseArtifactReference(string? aliasName, string reference, [NotNullWhen(true)] out ArtifactReference? artifactReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        public abstract ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string reference);
 
         public abstract string? TryGetDocumentationUri(T reference);
 
@@ -47,8 +47,8 @@ namespace Bicep.Core.Registry
         public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> references) =>
              this.InvalidateArtifactsCache(references.Select(ConvertReference));
 
-        public bool TryGetLocalArtifactEntryPointUri(ArtifactReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
-            this.TryGetLocalArtifactEntryPointUri(ConvertReference(reference), out localUri, out failureBuilder);
+        public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference) =>
+            this.TryGetLocalArtifactEntryPointUri(ConvertReference(reference));
 
         public string? GetDocumentationUri(ArtifactReference reference) => this.TryGetDocumentationUri(ConvertReference(reference));
 

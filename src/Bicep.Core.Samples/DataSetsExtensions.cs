@@ -53,6 +53,9 @@ namespace Bicep.Core.Samples
         }
 
         public static Mock<IContainerRegistryClientFactory> CreateMockRegistryClients(this DataSet dataSet, params (Uri registryUri, string repository)[] additionalClients)
+            => CreateMockRegistryClients(dataSet.RegistryModules, additionalClients);
+
+        public static Mock<IContainerRegistryClientFactory> CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, params (Uri registryUri, string repository)[] additionalClients)
         {
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
@@ -61,11 +64,11 @@ namespace Bicep.Core.Samples
 
             var clients = new List<(Uri registryUri, string repository)>();
 
-            foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
+            foreach (var (moduleName, publishInfo) in registryModules)
             {
                 var target = publishInfo.Metadata.Target;
 
-                if (!dispatcher.TryGetModuleReference(target, RandomFileUri(), out var @ref, out _) || @ref is not OciModuleReference targetReference)
+                if (!dispatcher.TryGetModuleReference(target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not OciModuleReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
@@ -121,7 +124,13 @@ namespace Bicep.Core.Samples
             return (clientFactory, repoToClient);
         }
 
+        public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory()
+            => CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo>.Empty);
+
         public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext testContext)
+            => CreateMockTemplateSpecRepositoryFactory(dataSet.TemplateSpecs);
+
+        public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo> templateSpecs)
         {
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
@@ -129,9 +138,9 @@ namespace Bicep.Core.Samples
                 .Construct<IModuleDispatcher>();
             var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 
-            foreach (var (moduleName, templateSpecInfo) in dataSet.TemplateSpecs)
+            foreach (var (moduleName, templateSpecInfo) in templateSpecs)
             {
-                if (!dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, RandomFileUri(), out var @ref, out _) || @ref is not TemplateSpecModuleReference reference)
+                if (!dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
@@ -154,8 +163,11 @@ namespace Bicep.Core.Samples
         }
 
         public static async Task PublishModulesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory)
+            => await PublishModulesToRegistryAsync(dataSet.RegistryModules, clientFactory);
+
+        public static async Task PublishModulesToRegistryAsync(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, IContainerRegistryClientFactory clientFactory)
         {
-            foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
+            foreach (var (moduleName, publishInfo) in registryModules)
             {
                 await PublishModuleToRegistryAsync(clientFactory, moduleName, publishInfo.Metadata.Target, publishInfo.ModuleSource, null);
             }
@@ -168,7 +180,7 @@ namespace Bicep.Core.Samples
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
                 .Construct<IModuleDispatcher>();
 
-            var targetReference = dispatcher.TryGetModuleReference(target, RandomFileUri(), out var @ref, out _) ? @ref
+            var targetReference = dispatcher.TryGetModuleReference(target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
                 : throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
 
             var result = CompilationHelper.Compile(moduleSource);

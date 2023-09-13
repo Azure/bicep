@@ -36,30 +36,26 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities GetCapabilities(LocalModuleReference reference) => RegistryCapabilities.Default;
 
-        public override bool TryParseArtifactReference(string? alias, string reference, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? alias, string reference)
         {
-            if (LocalModuleReference.TryParse(reference, parentModuleUri, out var @ref, out failureBuilder))
+            if (!LocalModuleReference.TryParse(reference, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
-                moduleReference = @ref;
-                return true;
+                return new(failureBuilder);
             }
 
-            moduleReference = null;
-            return false;
+            return new(@ref);
         }
 
 
-        public override bool TryGetLocalArtifactEntryPointUri(LocalModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(LocalModuleReference reference)
         {
-            localUri = fileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path);
-            if (localUri is not null)
+            var localUri = fileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path);
+            if (localUri is null)
             {
-                failureBuilder = null;
-                return true;
+                return new(x => x.FilePathCouldNotBeResolved(reference.Path, reference.ParentModuleUri.LocalPath));
             }
 
-            failureBuilder = x => x.FilePathCouldNotBeResolved(reference.Path, reference.ParentModuleUri.LocalPath);
-            return false;
+            return new(localUri);
         }
 
         public override Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<LocalModuleReference> references)
@@ -88,12 +84,12 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                if (this.TryGetLocalArtifactEntryPointUri(moduleReference, out Uri? localUri, out _) && this.bicepCompiler is not null)
+                if (this.TryGetLocalArtifactEntryPointUri(moduleReference).IsSuccess(out var localUri) && this.bicepCompiler is not null)
                 {
                     var compilation = await this.bicepCompiler.CreateCompilation(localUri, skipRestore: true);
-                    if (compilation.SourceFileGrouping.FileResultByUri.TryGetValue(localUri, out var result)
-                        && result.File is { } source
-                        && compilation.GetSemanticModel(source) is { } semanticModel)
+                    if (compilation.SourceFileGrouping.FileResultByUri.TryGetValue(localUri, out var result) &&
+                        result.IsSuccess(out var source) &&
+                        compilation.GetSemanticModel(source) is { } semanticModel)
                     {
                         return DescriptionHelper.TryGetFromSemanticModel(semanticModel);
                     }

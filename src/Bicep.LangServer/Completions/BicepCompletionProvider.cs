@@ -99,20 +99,25 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
         {
             if (paramsCompletionContext.Kind.HasFlag(BicepCompletionContextKind.ParamIdentifier) &&
-                paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
+                paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
             {
-                var bicepFileParamDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
-
-                foreach (var declaration in bicepFileParamDeclarations)
+                foreach (var metadata in usingModel.Parameters.Values)
                 {
-                    if (!IsParamAssigned(declaration))
+                    if (paramsSemanticModel.TryGetParameterAssignment(metadata) is null)
                     {
-                        yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange, bicepSemanticModel);
+                        yield return CompletionItemBuilder
+                            .Create(
+                                GetCompletionItemKind(SymbolKind.ParameterAssignment),
+                                metadata.Name)
+                            .WithDocumentation(
+                                $"Type: {metadata.TypeReference.Type}" + 
+                                (metadata.Description is null ? "" : $"{MarkdownNewLine}{metadata.Description}"))
+                            .WithDetail(metadata.Name)
+                            .WithPlainTextEdit(paramsCompletionContext.ReplacementRange, metadata.Name)
+                            .Build();
                     }
                 }
             }
-
-            bool IsParamAssigned(ParameterSymbol declaration) => paramsSemanticModel.Binder.FileSymbol.ParameterAssignments.Any(paramDeclaration => paramDeclaration.Name == declaration.Name);
         }
 
         private IEnumerable<CompletionItem> GetParamValueCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
@@ -386,7 +391,7 @@ namespace Bicep.LanguageServer.Completions
         private static IEnumerable<CompletionItem> GetImportedTypeCompletions(SemanticModel model, BicepCompletionContext context)
             => model.Root.TypeImports.Select(importedType => CreateImportedTypeCompletion(importedType, context.ReplacementRange, CompletionPriority.High))
                 .Concat(model.Root.WildcardImports
-                    .SelectMany(wildcardImport => wildcardImport.TryGetSemanticModel(out var importedModel, out _)
+                    .SelectMany(wildcardImport => wildcardImport.TryGetSemanticModel().IsSuccess(out var importedModel)
                         ? importedModel.ExportedTypes.Values.Select(typeMetadata => (wildcardImport, typeMetadata))
                         : Enumerable.Empty<(WildcardImportSymbol, ExportedTypeMetadata)>())
                     .Select(t => CreateWildcardTypePropertyCompletion(t.Item1, t.Item2, context.ReplacementRange, CompletionPriority.High)));
@@ -709,7 +714,7 @@ namespace Bicep.LanguageServer.Completions
                     return false;
                 }
 
-                if (FileResolver.TryReadAtMostNCharacters(fileUri, Encoding.UTF8, 2000, out var fileContents) &&
+                if (FileResolver.TryReadAtMostNCharacters(fileUri, Encoding.UTF8, 2000).IsSuccess(out var fileContents) &&
                     LanguageConstants.ArmTemplateSchemaRegex.IsMatch(fileContents))
                 {
                     return true;
@@ -1011,7 +1016,7 @@ namespace Bicep.LanguageServer.Completions
                 return CompletionPriority.VeryHigh;
             }
 
-            return GetCompletionPriority(symbol);
+            return GetCompletionPriority(symbol.Kind);
         }
 
         private static bool ShouldSymbolBeIncludedInCompletion(Symbol symbol, SemanticModel model, BicepCompletionContext context, Symbol? enclosingDeclarationSymbol)
@@ -1742,7 +1747,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(importedType.Type.Name)
                 .WithSortText(GetSortText(importedType.Name, priority));
 
-            if (importedType.TryGetSemanticModel(out var model, out _) &&
+            if (importedType.TryGetSemanticModel().IsSuccess(out var model) &&
                 model.ExportedTypes.TryGetValue(importedType.OriginalSymbolName, out var typeMetadata) &&
                 typeMetadata.Description is string documentation)
             {
@@ -1887,10 +1892,10 @@ namespace Bicep.LanguageServer.Completions
         private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, SemanticModel model, string? insertText = null, CompletionPriority? priority = null)
         {
             insertText ??= symbol.Name;
-            var kind = GetCompletionItemKind(symbol);
+            var kind = GetCompletionItemKind(symbol.Kind);
             var completion = CompletionItemBuilder.Create(kind, insertText);
 
-            priority ??= GetCompletionPriority(symbol);
+            priority ??= GetCompletionPriority(symbol.Kind);
             completion.WithSortText(GetSortText(insertText, priority.Value));
 
             if (symbol is ResourceSymbol)
@@ -2032,12 +2037,12 @@ namespace Bicep.LanguageServer.Completions
                 if (context.EnclosingDeclaration is CompileTimeImportDeclarationSyntax compileTimeImportDeclaration &&
                     compileTimeImportDeclaration.ImportExpression.Span.ContainsInclusive(context.ReplacementTarget.Span.Position))
                 {
-                    if (SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(model.Compilation.SourceFileGrouping,
-                        compileTimeImportDeclaration,
-                        b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
-                        model.Compilation,
-                        out var importedModel,
-                        out _))
+                    if (SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(
+                            model.Compilation.SourceFileGrouping,
+                            compileTimeImportDeclaration,
+                            b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
+                            model.Compilation)
+                        .IsSuccess(out var importedModel))
                     {
                         var claimedNames = model.Root.Declarations.Select(d => d.Name).ToImmutableHashSet();
 
@@ -2061,8 +2066,8 @@ namespace Bicep.LanguageServer.Completions
         // the priority must be a number in the sort text
         private static string GetSortText(string label, CompletionPriority priority) => $"{(int)priority}_{label}";
 
-        private static CompletionPriority GetCompletionPriority(Symbol symbol) =>
-            symbol.Kind switch
+        private static CompletionPriority GetCompletionPriority(SymbolKind symbolKind) =>
+            symbolKind switch
             {
                 SymbolKind.Function => CompletionPriority.Low,
                 SymbolKind.Namespace => CompletionPriority.Low,
@@ -2070,8 +2075,8 @@ namespace Bicep.LanguageServer.Completions
                 _ => CompletionPriority.Medium
             };
 
-        private static CompletionItemKind GetCompletionItemKind(Symbol symbol) =>
-            symbol.Kind switch
+        private static CompletionItemKind GetCompletionItemKind(SymbolKind symbolKind) =>
+            symbolKind switch
             {
                 SymbolKind.Function => CompletionItemKind.Function,
                 SymbolKind.File => CompletionItemKind.File,
@@ -2080,6 +2085,7 @@ namespace Bicep.LanguageServer.Completions
                 SymbolKind.ImportedNamespace => CompletionItemKind.Folder,
                 SymbolKind.Output => CompletionItemKind.Value,
                 SymbolKind.Parameter => CompletionItemKind.Field,
+                SymbolKind.ParameterAssignment => CompletionItemKind.Field,
                 SymbolKind.TypeAlias => CompletionItemKind.TypeParameter,
                 SymbolKind.Resource => CompletionItemKind.Interface,
                 SymbolKind.Module => CompletionItemKind.Module,

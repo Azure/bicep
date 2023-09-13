@@ -103,7 +103,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void InvalidReferencesShouldProduceExpectedError(string value, string expectedCode, string expectedError)
         {
-            OciModuleReference.TryParse(null, value, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var @ref, out var failureBuilder).Should().BeFalse();
+            OciModuleReference.TryParse(null, value, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var @ref, out var failureBuilder).Should().BeFalse();
             @ref.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 
@@ -145,7 +145,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("foo bar ÄÄÄ")]
         public void TryParse_InvalidAliasName_ReturnsFalseAndSetsErrorDiagnostic(string aliasName)
         {
-            OciModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
+            OciModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().HaveCode("BCP211");
@@ -159,7 +159,7 @@ namespace Bicep.Core.UnitTests.Modules
         {
             var configuration = BicepTestConstants.CreateMockConfiguration(configurationPath: configurationPath);
 
-            OciModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
+            OciModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().NotBeNull();
@@ -171,7 +171,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DynamicData(nameof(GetInvalidAliasData), DynamicDataSourceType.Method)]
         public void TryParse_InvalidAlias_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
         {
-            OciModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
+            OciModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().NotBeNull();
@@ -183,7 +183,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DynamicData(nameof(GetValidAliasData), DynamicDataSourceType.Method)]
         public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
         {
-            OciModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeTrue();
+            OciModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeTrue();
 
             reference.Should().NotBeNull();
             reference!.FullyQualifiedReference.Should().Be(fullyQualifiedReferenceValue);
@@ -192,7 +192,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static OciModuleReference Parse(string package)
         {
-            OciModuleReference.TryParse(null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var parsed, out var failureBuilder).Should().BeTrue();
+            OciModuleReference.TryParse(null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
             return parsed!;

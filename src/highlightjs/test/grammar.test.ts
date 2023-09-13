@@ -18,18 +18,18 @@ async function generateGrammar() {
   return await readFile(`${root}/out/usage.min.js`, { encoding: 'utf8' });
 }
 
+// Invoking webpack can take some time
+const webpackTestTimeout = 60000
+
 describe('grammar tests', () => {
   it('should exist', () => {
     expect(existsSync(grammarPath)).toBeTruthy();
   });
 
   it('should be up-to-date', async () => {
-    // Invoking webpack can take some time
-    jest.setTimeout(60000);
-
     const savedGrammar = await readFile(grammarPath, { encoding: 'utf8' });
 
     const generatedGrammar = await generateGrammar();
     expect(generatedGrammar).toStrictEqual(savedGrammar);
-  });
+  }, webpackTestTimeout);
 });

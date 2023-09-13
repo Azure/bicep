@@ -2,11 +2,46 @@
 
 >**Note**: only install the nightly if you'd like to try the bleeding edge capabilities of Bicep. These are much more likely to have undiscovered bugs or other issues. If you find anything, please open an issue.
 
->**Note**: The Bicep VS code extension versions older than 0.2 must be uninstalled before or after the installation of the new version. Otherwise, both extension versions will run side by side and you will see duplicated and/or inconsistent errors. Versions 0.2 or newer do not require uninstallation and will upgrade correctly.
+## Automatic
+These steps only work on Linux or Mac platforms
 
+### VSCode Extension
+1. Run the following:
+   ```sh
+   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_vsix_nightly.sh)
+   ```
+1. Reload your VSCode window.
+
+### Azure CLI
+1. Run the following:
+   ```sh
+   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh)
+   ```
+1. Your Azure CLI install should now be referencing the latest nightly Bicep CLI release.
+
+### Targeting a particular build or branch
+The following optional arguments are also supported in the nightly install scripts:
+- Installing from a GitHub branch (VSCode extension):
+   ```sh
+   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_vsix_nightly.sh) --branch jeskew/variable-imports
+   ```
+- Installing from a GitHub branch (CLI):
+   ```sh
+   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh) --branch jeskew/variable-imports
+   ```
+- Installing from a GitHub Action run (VSCode extension):
+   ```sh
+   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_vsix_nightly.sh) --run-id 6146657618
+   ```
+- Installing from a GitHub Action run (CLI):
+   ```sh
+   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh) --run-id 6146657618
+   ```
+
+## Manual
 We are not currently publishing "nightly" releases, but you can grab the latest bits by viewing the latest Action workflows for the `main` branch (or any other branch).
 
-The easiest way to get these artifacts is through the GitHub site. Follow [this link](https://github.com/Azure/bicep/actions) to view the latest Action workflows. Find the most recent build on the `main` branch and select it:
+The easiest way to get these artifacts is through the GitHub site. Follow [this link](https://github.com/Azure/bicep/actions/workflows/build.yml?query=branch%3Amain+is%3Asuccess) to view the latest successful Action workflows for the `main` branch. Select it to show the related artifacts:
 
 ![](./images/bicep-select-action.PNG)
 
