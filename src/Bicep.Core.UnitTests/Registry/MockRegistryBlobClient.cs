@@ -33,10 +33,15 @@ namespace Bicep.Core.UnitTests.Registry
         public MockRegistryBlobClient() : base()
         {
             // ensure we call the base parameterless constructor to prevent outgoing calls
+
+            BlobUploads = 0;
         }
 
         // maps digest to blob bytes
         public ConcurrentDictionary<string, TextByteArray> Blobs { get; } = new();
+
+        // May be different than number of actual blobs because blobs with the same contents get stored only once
+        public int BlobUploads { get; private set; }
 
         // maps digest to manifest bytes
         public ConcurrentDictionary<string, TextByteArray> Manifests { get; } = new();
@@ -105,7 +110,9 @@ namespace Bicep.Core.UnitTests.Registry
             var (copy, digest) = ReadStream(stream);
             Blobs.TryAdd(digest, new TextByteArray(copy));
 
-            return CreateResult(ContainerRegistryModelFactory.UploadRegistryBlobResult(digest, copy.Length));
+            var result = CreateResult(ContainerRegistryModelFactory.UploadRegistryBlobResult(digest, copy.Length));
+            ++BlobUploads;
+            return result;
         }
 
         public override async Task<Response<SetManifestResult>> SetManifestAsync(BinaryData manifest, string? tag = default, ManifestMediaType? mediaType = default, CancellationToken cancellationToken = default)

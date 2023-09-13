@@ -44,61 +44,6 @@ namespace Bicep.Cli.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        asdfg move the tests that use this to unit tests against containerRegistryManager. We need to create a full ociModuleRegistry because we want to pass in specific
-        layer types instead of actual contents
-        private async Task<(MockRegistryBlobClient, Mock<IContainerRegistryClientFactory>)> PublishArtifactLayersToMockClient(string tempDirectory, string registry, Uri registryUri, string repository, DataSet dataSet, string? mediaType, string? artifactType, string? configContents, Stream? bicepSources, IEnumerable<string> layerMediaTypes)
-        {
-            var client = new MockRegistryBlobClient();
-
-            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
-            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
-
-            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
-
-            Directory.CreateDirectory(tempDirectory);
-
-            var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object);
-
-            //asdfg?
-            //var fs = new MockFileSystem();
-            //var fr = new FileResolver(fs);
-            //var configurationManager = new ConfigurationManager(fs);
-            //var parentUri = new Uri("http://test.bicep", UriKind.Absolute);
-            //var featureProvider = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: false/*asdfg*/), configurationManager)
-            //    .GetFeatureProvider(parentUri);
-            //var configuration = configurationManager.GetConfiguration(parentUri);
-
-            //var ociModuleRegistry = new OciModuleRegistry(fr, clientFactory.Object, featureProvider, configuration, parentUri);
-
-
-            using (var compiledStream = new BufferedMemoryStream())
-            {
-                OciModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep")).IsSuccess(out var artifactReference).Should().BeTrue();
-
-                compiledStream.Write(TemplateEmitter.UTF8EncodingWithoutBom.GetBytes(dataSet.Compiled!));
-                compiledStream.Position = 0;
-
-                await containerRegistryManager.PushArtifactAsync(
-                    configuration: configuration,
-                    artifactReference: artifactReference!,
-                    mediaType: mediaType,
-                    artifactType: artifactType,
-                    config: new StreamDescriptor(new TextByteArray(configContents ?? string.Empty).ToStream(), BicepMediaTypes.BicepModuleConfigV1),
-                    layers: (layerMediaTypes.Select(mt => new StreamDescriptor(compiledStream, mt)))
-                        .Concat(bicepSources is { } ?
-                            new StreamDescriptor[] { new StreamDescriptor(bicepSources, "application/vnd.ms.bicep.module.source.v1+zip") } :
-                            Enumerable.Empty<StreamDescriptor>())
-                        .ToArray()
-                    );
-            }
-
-            /*
-             * TODO: Publish via code
-             */
-
-            return (client, clientFactory);
-        }
-
         [TestMethod]
         public async Task Restore_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
         {
@@ -162,6 +107,7 @@ namespace Bicep.Cli.IntegrationTests
             settings.FeatureOverrides.Should().HaveValidCachedModulesWithoutSources();
         }
 
+        //ASdfg remove
         //[DataTestMethod]
         //[DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
         //public async Task Restore_ShouldSucceedWithAnonymousClient(string testName, DataSet dataSet, bool publishSource)
@@ -212,107 +158,107 @@ namespace Bicep.Cli.IntegrationTests
         //    //}
         //}
 
-        // asdfg bool publishSource
-        // Validates that we can restore a module published by an older version of Bicep that had artifactType as null in the OCI manifest,
-        //   or mediaType as null, or an empty config, or newer versions that have a non-empty config
-        //
-        //
-        // No errors
-        [DataTestMethod]
-        [DataRow(null, null, null)]
-        [DataRow(null, "application/vnd.ms.bicep.module.artifact", null)]
-        [DataRow("application/vnd.oci.image.manifest.v1+json", null, null)]
-        [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.artifact", null)]
-        // We should ignore any unrecognized layers and any data written into a module's config, for future compatibility
-        // Expecting no errors
-        [DataRow(null, null, "{}", null)]
-        [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.artifact", "{\"whatever\": \"your heart desires as long as it's JSON\"}")]
-        // These are just invalid. It's possible they might change in the future, but they would have to be breaking changes,
-        //   current clients can't be expected to ignore these.
-        // Expecting errors
-        [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.unexpected", null,
-            // expected error:
-            "Error BCP192: Unable to restore.*but found 'application/vnd.ms.bicep.module.unexpected'.*newer version of Bicep might be required")]
-        public async Task Restore_Artifacts_BackwardsAndForwardsCompatibility(string? mediaType, string? artifactType, string? configContents, string? expectedErrorRegex = null)
-        {
-            var registry = "example.com";
-            var registryUri = new Uri("https://" + registry);
-            var repository = "hello/there";
-            var dataSet = DataSets.Empty;
-            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+//        // asdfg bool publishSource
+//        // Validates that we can restore a module published by an older version of Bicep that had artifactType as null in the OCI manifest,
+//        //   or mediaType as null, or an empty config, or newer versions that have a non-empty config
+//        //
+//        //
+//        // No errors
+//        [DataTestMethod]
+//        [DataRow(null, null, null)]
+//        [DataRow(null, "application/vnd.ms.bicep.module.artifact", null)]
+//        [DataRow("application/vnd.oci.image.manifest.v1+json", null, null)]
+//        [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.artifact", null)]
+//        // We should ignore any unrecognized layers and any data written into a module's config, for future compatibility
+//        // Expecting no errors
+//        [DataRow(null, null, "{}", null)]
+//        [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.artifact", "{\"whatever\": \"your heart desires as long as it's JSON\"}")]
+//        // These are just invalid. It's possible they might change in the future, but they would have to be breaking changes,
+//        //   current clients can't be expected to ignore these.
+//        // Expecting errors
+//        [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.unexpected", null,
+//            // expected error:
+//            "Error BCP192: Unable to restore.*but found 'application/vnd.ms.bicep.module.unexpected'.*newer version of Bicep might be required")]
+//        public async Task Restore_Artifacts_BackwardsAndForwardsCompatibility(string? mediaType, string? artifactType, string? configContents, string? expectedErrorRegex = null)
+//        {
+//            var registry = "example.com";
+//            var registryUri = new Uri("https://" + registry);
+//            var repository = "hello/there";
+//            var dataSet = DataSets.Empty;
+//            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
 
-            var (client, clientFactory) = await PublishToMockClient(
-                tempDirectory,
-                registry,
-                registryUri,
-                repository,
-                dataSet,
-                mediaType,
-                artifactType,
-                configContents,
-                null, // bicepSources asdfg
-                new string[] { BicepMediaTypes.BicepModuleLayerV1Json });
+//            var (client, clientFactory) = await PublishToMockClient(
+//                tempDirectory,
+//                registry,
+//                registryUri,
+//                repository,
+//                dataSet,
+//                mediaType,
+//                artifactType,
+//                configContents,
+//                null, // bicepSources asdfg
+//                new string[] { BicepMediaTypes.BicepModuleLayerV1Json });
 
-            /* asdfg
-                        var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+//            /* asdfg
+//                        var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
 
-                        var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object, BicepTestConstants.Features);
-                        var configuration = BicepTestConstants.BuiltInConfiguration;
+//                        var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object, BicepTestConstants.Features);
+//                        var configuration = BicepTestConstants.BuiltInConfiguration;
 
-                        using (var compiledStream = new BufferedMemoryStream())
-                        {
-                            OciArtifactModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep"), out var moduleReference, out _).Should().BeTrue();
+//                        using (var compiledStream = new BufferedMemoryStream())
+//                        {
+//                            OciArtifactModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep"), out var moduleReference, out _).Should().BeTrue();
 
-                            compiledStream.Write(TemplateEmitter.UTF8EncodingWithoutBom.GetBytes(dataSet.Compiled!));
-                            compiledStream.Position = 0;
+//                            compiledStream.Write(TemplateEmitter.UTF8EncodingWithoutBom.GetBytes(dataSet.Compiled!));
+//                            compiledStream.Position = 0;
 
-                            await containerRegistryManager.PushModuleAsync(
-                                configuration: configuration,
-                                moduleReference: moduleReference!,
-                                // intentionally setting artifactType to null to simulate a publish done by an older version of Bicep
-                                artifactType: null,
-                                bicepSources: publishSource ? TextBytes.TextToStream("sources") : null,
-                                config: new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1),
-                                description: null,
-                                documentationUri: null,
-                                layers: new StreamDescriptor[] { new StreamDescriptor(compiledStream, BicepMediaTypes.BicepModuleLayerV1Json) });
-                        }
-            */
+//                            await containerRegistryManager.PushModuleAsync(
+//                                configuration: configuration,
+//                                moduleReference: moduleReference!,
+//                                // intentionally setting artifactType to null to simulate a publish done by an older version of Bicep
+//                                artifactType: null,
+//                                bicepSources: publishSource ? TextBytes.TextToStream("sources") : null,
+//                                config: new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1),
+//                                description: null,
+//                                documentationUri: null,
+//                                layers: new StreamDescriptor[] { new StreamDescriptor(compiledStream, BicepMediaTypes.BicepModuleLayerV1Json) });
+//                        }
+//            */
 
-            //asdfg            client.Blobs.Should().HaveCount(publishSource ? 4 : 2);
-            //asdfg            client.Manifests.Should().HaveCount(publishSource ? 2 : 1);
-            client.ManifestTags.Should().HaveCount(1);
+//            //asdfg            client.Blobs.Should().HaveCount(publishSource ? 4 : 2);
+//            //asdfg            client.Manifests.Should().HaveCount(publishSource ? 2 : 1);
+//            client.ManifestTags.Should().HaveCount(1);
 
-            string digest = client.Manifests.Single(m => m.Value.Text.Contains(BicepMediaTypes.BicepModuleConfigV1)).Key;
+//            string digest = client.Manifests.Single(m => m.Value.Text.Contains(BicepMediaTypes.BicepModuleConfigV1)).Key;
 
-            var bicep = $@"
-module empty 'br:{registry}/{repository}@{digest}' = {{
-  name: 'empty'
-}}
-";
+//            var bicep = $@"
+//module empty 'br:{registry}/{repository}@{digest}' = {{
+//  name: 'empty'
+//}}
+//";
 
-            var restoreBicepFilePath = Path.Combine(tempDirectory, "restored.bicep");
-            File.WriteAllText(restoreBicepFilePath, bicep);
+//            var restoreBicepFilePath = Path.Combine(tempDirectory, "restored.bicep");
+//            File.WriteAllText(restoreBicepFilePath, bicep);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+//            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
-            var (output, error, result) = await Bicep(settings, "restore", restoreBicepFilePath);
-            using (new AssertionScope())
-            {
-                output.Should().BeEmpty();
+//            var (output, error, result) = await Bicep(settings, "restore", restoreBicepFilePath);
+//            using (new AssertionScope())
+//            {
+//                output.Should().BeEmpty();
 
-                if (expectedErrorRegex == null)
-                {
-                    result.Should().Be(0);
-                    error.Should().BeEmpty();
-                }
-                else
-                {
-                    result.Should().Be(1);
-                    error.Should().MatchRegex(expectedErrorRegex);
-                }
-            }
-        }
+//                if (expectedErrorRegex == null)
+//                {
+//                    result.Should().Be(0);
+//                    error.Should().BeEmpty();
+//                }
+//                else
+//                {
+//                    result.Should().Be(1);
+//                    error.Should().MatchRegex(expectedErrorRegex);
+//                }
+//            }
+//        }
 
         //        [DataTestMethod]
         //        // Valid
