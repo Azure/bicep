@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -97,6 +98,24 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
 
+        public static async Task<string> GetResourceDefinitionsMarkdown(string resourceProviderFolder, string apiVersion)
+        {
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "Bicep LanguageServer C# App"); // GitHub requires a user agent header
+            var owner = "Azure";
+            var repo = "bicep-types-az";
+            var url = $"https://raw.githubusercontent.com/{owner}/{repo}/main/generated/{resourceProviderFolder}/{apiVersion}/types.md";
+            var response = await client.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException($"Failed to fetch file content from {url}. Status code: {response.StatusCode}");
+            }
+
+            return await response.Content.ReadAsStringAsync();
+
+        }
+
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
         {
             if (paramsCompletionContext.Kind.HasFlag(BicepCompletionContextKind.ParamIdentifier) &&
@@ -137,7 +156,7 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            if(paramsCompletionContext.EnclosingDeclaration is not UsingDeclarationSyntax usingDeclarationSyntax ||
+            if (paramsCompletionContext.EnclosingDeclaration is not UsingDeclarationSyntax usingDeclarationSyntax ||
                usingDeclarationSyntax.Path is not StringSyntax stringSyntax ||
                stringSyntax.TryGetLiteralValue() is not string entered)
             {
@@ -145,8 +164,8 @@ namespace Bicep.LanguageServer.Completions
             }
 
 
-             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (TryGetFilesForPathCompletions(paramsSemanticModel.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
+            // These should only fail if we're not able to resolve cwd path or the entered string
+            if (TryGetFilesForPathCompletions(paramsSemanticModel.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -439,7 +458,8 @@ namespace Bicep.LanguageServer.Completions
         }
 
         private static string? TryGetEnteredTextFromStringOrSkipped(SyntaxBase syntax)
-            => syntax switch {
+            => syntax switch
+            {
                 StringSyntax s => s.TryGetLiteralValue(),
                 SkippedTriviaSyntax s => TryGetSkippedTokenText(s),
                 _ => null,
@@ -486,7 +506,7 @@ namespace Bicep.LanguageServer.Completions
             static string? TryGetFullyQualifiedType(SyntaxBase? syntax)
             {
                 if (syntax is not null &&
-                    TryGetEnteredTextFromStringOrSkipped(syntax) is {} entered &&
+                    TryGetEnteredTextFromStringOrSkipped(syntax) is { } entered &&
                     ResourceTypeReference.HasResourceTypePrefix(entered))
                 {
                     return entered;
@@ -579,7 +599,7 @@ namespace Bicep.LanguageServer.Completions
                 dirs = FileResolver.GetDirectories(queryParent, string.Empty).ToList();
 
                 // include the parent folder as a completion if we're not at the file system root
-                if (FileResolver.TryResolveFilePath(queryParent, "..") is {} parentDir &&
+                if (FileResolver.TryResolveFilePath(queryParent, "..") is { } parentDir &&
                     parentDir != queryParent)
                 {
                     dirs.Add(parentDir);
@@ -1364,7 +1384,7 @@ namespace Bicep.LanguageServer.Completions
             return GetValueCompletionsForType(model, context, argType, loopsAllowed: false);
         }
 
-        private IEnumerable<CompletionItem> GetFileCompletionPaths(SemanticModel model,BicepCompletionContext context, TypeSymbol argType)
+        private IEnumerable<CompletionItem> GetFileCompletionPaths(SemanticModel model, BicepCompletionContext context, TypeSymbol argType)
         {
             if (context.FunctionArgument is not { } functionArgument || !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath))
             {
@@ -1376,7 +1396,7 @@ namespace Bicep.LanguageServer.Completions
             var entered = (functionArgument.Function.Arguments.ElementAtOrDefault(functionArgument.ArgumentIndex)?.Expression as StringSyntax)?.TryGetLiteralValue() ?? string.Empty;
 
             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
+            if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -1492,7 +1512,8 @@ namespace Bicep.LanguageServer.Completions
                     break;
 
                 case LambdaType lambda:
-                    var (snippet, label) = lambda.ArgumentTypes.Length switch {
+                    var (snippet, label) = lambda.ArgumentTypes.Length switch
+                    {
                         1 => (
                             "${1:arg} => $0",
                             "arg => ..."),
@@ -1949,7 +1970,7 @@ namespace Bicep.LanguageServer.Completions
                     .Build();
             }
 
-            if(TryGetSymbolDocumentationMarkdown(symbol, model) is {} documentation)
+            if (TryGetSymbolDocumentationMarkdown(symbol, model) is { } documentation)
             {
                 completion.WithDocumentation(documentation);
             }
@@ -2139,10 +2160,10 @@ namespace Bicep.LanguageServer.Completions
 
         private static string? TryGetSymbolDocumentationMarkdown(Symbol symbol, SemanticModel model)
         {
-            if(symbol is DeclaredSymbol declaredSymbol && declaredSymbol.DeclaringSyntax is DecorableSyntax decorableSyntax)
+            if (symbol is DeclaredSymbol declaredSymbol && declaredSymbol.DeclaringSyntax is DecorableSyntax decorableSyntax)
             {
                 var documentation = DescriptionHelper.TryGetFromDecorator(model, decorableSyntax);
-                if(declaredSymbol is ParameterSymbol)
+                if (declaredSymbol is ParameterSymbol)
                 {
                     documentation = $"Type: {declaredSymbol.Type}" + (documentation is null ? "" : $"{MarkdownNewLine}{documentation}");
                 }
