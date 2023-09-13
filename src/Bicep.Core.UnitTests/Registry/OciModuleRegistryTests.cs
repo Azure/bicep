@@ -67,6 +67,7 @@ namespace Bicep.Core.UnitTests.Registry
 }";
 
 
+        // >>>>>>>>>>>>>>>>>>>> RUN THIS TEST
         [DataTestMethod]
         [DataRow(true)]
         public async Task PublishArtifactWithSources_AtMultipleVersions_ShouldAttachAsdfgSourceToModuleManifest(bool publishSource)
