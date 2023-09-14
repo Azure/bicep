@@ -625,14 +625,14 @@ jobs:
               <summary>VSCode (Mac/Linux)</summary>
               
               ```sh
-              bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_vsix_nightly.sh) --run-id ${{ github.run_id }}
+              bash <(curl -Ls https://aka.ms/bicep/nightly-vsix.sh) --run-id ${{ github.run_id }}
               ```
             </details>
             <details>
               <summary>Azure CLI (Mac/Linux)</summary>
               
               ```sh
-              bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh) --run-id ${{ github.run_id }}
+              bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --run-id ${{ github.run_id }}
               ```
             </details>
 
