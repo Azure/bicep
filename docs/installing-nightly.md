@@ -8,14 +8,14 @@ These steps only work on Linux or Mac platforms
 ### VSCode Extension
 1. Run the following:
    ```sh
-   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_vsix_nightly.sh)
+   bash <(curl -Ls https://aka.ms/bicep/nightly-vsix.sh)
    ```
 1. Reload your VSCode window.
 
 ### Azure CLI
 1. Run the following:
    ```sh
-   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh)
+   bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh)
    ```
 1. Your Azure CLI install should now be referencing the latest nightly Bicep CLI release.
 
@@ -23,19 +23,19 @@ These steps only work on Linux or Mac platforms
 The following optional arguments are also supported in the nightly install scripts:
 - Installing from a GitHub branch (VSCode extension):
    ```sh
-   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_vsix_nightly.sh) --branch jeskew/variable-imports
+   bash <(curl -Ls https://aka.ms/bicep/nightly-vsix.sh) --branch jeskew/variable-imports
    ```
 - Installing from a GitHub branch (CLI):
    ```sh
-   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh) --branch jeskew/variable-imports
+   bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --branch jeskew/variable-imports
    ```
 - Installing from a GitHub Action run (VSCode extension):
    ```sh
-   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_vsix_nightly.sh) --run-id 6146657618
+   bash <(curl -Ls https://aka.ms/bicep/nightly-vsix.sh) --run-id 6146657618
    ```
 - Installing from a GitHub Action run (CLI):
    ```sh
-   bash <(curl -s https://raw.githubusercontent.com/Azure/bicep/main/scripts/install_cli_nightly.sh) --run-id 6146657618
+   bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --run-id 6146657618
    ```
 
 ## Manual
