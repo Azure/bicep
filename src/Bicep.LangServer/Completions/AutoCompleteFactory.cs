@@ -28,11 +28,12 @@ namespace Bicep.LanguageServer.Completions
         /// </summary>
         /// <param name="model">The SemanticModel.</param>
         /// <param name="context">The BicepCompletionContext.</param>
+        /// <param name="schemaContent">The schme content.</param>
         /// <returns>Task that completes when the document autocomplete keywords are ready.</returns>
         [SuppressMessage("Microsoft.Globalization", "CA1307:SpecifyStringComparison", Justification = "String literals are not locale-specific.")]
-        public async Task<IAutoComplete> BuildAsync(SemanticModel model, BicepCompletionContext context)
+        public async Task<IAutoComplete> BuildAsync(SemanticModel model, BicepCompletionContext context, string schemaContent)
         {
-            IAutoComplete copilotAutocompleteItems = await this.AutocompleteRuleConditionAsync(model, context).ConfigureAwait(false);
+            IAutoComplete copilotAutocompleteItems = await this.AutocompleteRuleConditionAsync(model, context, schemaContent).ConfigureAwait(false);
 
             if (copilotAutocompleteItems != EmptyComplete.Instance && copilotAutocompleteItems.GetCompletionItems().Count != 0)
             {
@@ -49,8 +50,9 @@ namespace Bicep.LanguageServer.Completions
         /// </summary>
         /// <param name="model">The SemanticModel.</param>
         /// <param name="context">The BicepCompletionContext.</param>
+        /// <param name="schemaContent">The schme content.</param>
         /// <returns>Task that completes when the Policy Copilot autocompletions have been populated.</returns>
-        private async Task<IAutoComplete> AutocompleteRuleConditionAsync(SemanticModel model, BicepCompletionContext context)
+        private async Task<IAutoComplete> AutocompleteRuleConditionAsync(SemanticModel model, BicepCompletionContext context, string schemaContent)
         {
             if (this.copilotManager.ConnectToEndpoint())
             {
@@ -59,9 +61,6 @@ namespace Bicep.LanguageServer.Completions
                     SyntaxBaseExtensions.ToTextPreserveFormatting(context.TargetScope);
                 
                 CopilotComplete copilotComplete = new(this.copilotManager, fileContent, context.ReplacementRange);
-
-                // TODO: pass in proper values
-                string schemaContent = await BicepCompletionProvider.GetResourceDefinitionsMarkdown("keyvault/microsoft.keyvault", "2023-02-01");
 
                 await copilotComplete.GenerateCopilotCompletionsAsync(schemaContent: schemaContent, bicepContent: fileContent);
                 return copilotComplete;

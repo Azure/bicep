@@ -1,25 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -29,14 +16,24 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
-using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
-using Json.Path;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
@@ -112,7 +109,6 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParamValueCompletions(model, context))
                 .Concat(GetUsingDeclarationPathCompletions(model, context))
                 .Concat(GetAssertValueCompletions(model, context))
-                .Concat(await GetOpenAIBicepCompletionsAsync(model, context))
                 .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
 
@@ -517,6 +513,7 @@ namespace Bicep.LanguageServer.Completions
                 _ => null,
             };
 
+        [SuppressMessage("Microsoft.Maintainability", "VSTHRD002")]
         private IEnumerable<CompletionItem> GetResourceTypeCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ResourceType))
@@ -559,16 +556,20 @@ namespace Bicep.LanguageServer.Completions
             // If the current value passes the namespace and type notation ("<Namespace>/<type>") format, we return the fully qualified resource types
             if (TryGetFullyQualfiedResourceType(context.EnclosingDeclaration) is string qualified)
             {
-                // newest api versions should be shown first
-                // strict filtering on type so that we show api versions for only the selected type
-                return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
-                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(qualified.Split('@')[0], rt.FormatType()))
-                    .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
-                    .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
-                    .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
-                    .ToList();
+                //// newest api versions should be shown first
+                //// strict filtering on type so that we show api versions for only the selected type
+                //return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
+                //    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(qualified.Split('@')[0], rt.FormatType()))
+                //    .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
+                //    .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
+                //    .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
+                //    .ToList();
 
-                //TODO(gary): entry point for our stuff
+                // Get completions from OpenAI instead.
+                var schemaContent = GetResourceDefinitionsMarkdown(model, context).Result;
+                var autocomplete = this.autoCompleteFactory.BuildAsync(model, context, schemaContent).Result;
+
+                return new CompletionList(autocomplete.GetCompletionItems(), true);
             }
 
             // if we do not have the namespace and type notation, we only return unique resource types without their api-versions
@@ -1003,13 +1004,6 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return GetValueCompletionsForType(model, context, LanguageConstants.Bool, loopsAllowed: false);
-        }
-
-        private async Task<IEnumerable<CompletionItem>> GetOpenAIBicepCompletionsAsync(SemanticModel model, BicepCompletionContext context)
-        {
-            var autocomplete = await this.autoCompleteFactory.BuildAsync(model, context).ConfigureAwait(false);
-            // var foo = GetResourceDefinitionsMarkdown(model, context);
-            return new CompletionList(autocomplete.GetCompletionItems(), true);
         }
 
         private IEnumerable<CompletionItem> GetModuleBodyCompletions(SemanticModel model, BicepCompletionContext context)
