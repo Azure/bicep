@@ -7,7 +7,9 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,6 +32,7 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
+using Json.Path;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -39,6 +42,7 @@ namespace Bicep.LanguageServer.Completions
 {
     public class BicepCompletionProvider : ICompletionProvider
     {
+        private readonly Dictionary<string, string> TypeToFolderLookup;
         private const string MarkdownNewLine = "  \n";
 
         private static readonly Container<string> ResourceSymbolCommitChars = new(":");
@@ -57,6 +61,15 @@ namespace Bicep.LanguageServer.Completions
             this.FileResolver = fileResolver;
             this.SnippetsProvider = snippetsProvider;
             this.moduleReferenceCompletionProvider = moduleReferenceCompletionProvider;
+
+            var assembly = typeof(BicepCompletionProvider).Assembly;
+            var resourceName = "Files/TypesToFolderMapMinified.json";
+
+            using var stream = assembly.GetManifestResourceStream(resourceName)!;
+            using StreamReader reader = new(stream);
+            string json = reader.ReadToEnd();
+            this.TypeToFolderLookup = JsonSerializer.Deserialize<Dictionary<string, string>>(json)!;
+
         }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context, CancellationToken cancellationToken)
@@ -98,13 +111,25 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
 
-        public static async Task<string> GetResourceDefinitionsMarkdown(string resourceProviderFolder, string apiVersion)
+        public async Task<string> GetResourceDefinitionsMarkdown(SemanticModel model, BicepCompletionContext resourceCompletionContext)
         {
+            var declarationTriviaStatement = TryGetFullyQualfiedResourceType(resourceCompletionContext.EnclosingDeclaration);
+            var triviaTypeDescriptor = declarationTriviaStatement!.Split("@")[0];
+            var resourceProviderNamespace = triviaTypeDescriptor.Split("/")[0];
+
+            var apiVersion = model.Binder.NamespaceResolver.GetAvailableResourceTypes()
+                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(triviaTypeDescriptor, rt.FormatType()))
+                    .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
+                    .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
+                    .Select(rt => rt.ApiVersion)
+                    .FirstOrDefault();
+
+            var azTypesRelativeFolderName = TypeToFolderLookup[triviaTypeDescriptor];
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Add("User-Agent", "Bicep LanguageServer C# App"); // GitHub requires a user agent header
             var owner = "Azure";
             var repo = "bicep-types-az";
-            var url = $"https://raw.githubusercontent.com/{owner}/{repo}/main/generated/{resourceProviderFolder}/{apiVersion}/types.md";
+            var url = $"https://raw.githubusercontent.com/{owner}/{repo}/main/generated/{azTypesRelativeFolderName}/{resourceProviderNamespace.ToLower()}/{apiVersion}/types.md";
             var response = await client.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
@@ -113,7 +138,6 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return await response.Content.ReadAsStringAsync();
-
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
@@ -457,6 +481,29 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
+        static string? TryGetFullyQualfiedResourceType(SyntaxBase? enclosingDeclaration)
+        {
+            return enclosingDeclaration switch
+            {
+                ResourceDeclarationSyntax resourceSyntax => TryGetFullyQualifiedType(resourceSyntax.Type),
+                ParameterDeclarationSyntax parameterSyntax when parameterSyntax.Type is ResourceTypeSyntax resourceType => TryGetFullyQualifiedType(resourceType.Type),
+                OutputDeclarationSyntax outputSyntax when outputSyntax.Type is ResourceTypeSyntax resourceType => TryGetFullyQualifiedType(resourceType.Type),
+                _ => null,
+            };
+        }
+
+        static string? TryGetFullyQualifiedType(SyntaxBase? syntax)
+        {
+            if (syntax is not null &&
+                TryGetEnteredTextFromStringOrSkipped(syntax) is { } entered &&
+                ResourceTypeReference.HasResourceTypePrefix(entered))
+            {
+                return entered;
+            }
+
+            return null;
+        }
+
         private static string? TryGetEnteredTextFromStringOrSkipped(SyntaxBase syntax)
             => syntax switch
             {
@@ -503,29 +550,6 @@ namespace Bicep.LanguageServer.Completions
                 return items;
             }
 
-            static string? TryGetFullyQualifiedType(SyntaxBase? syntax)
-            {
-                if (syntax is not null &&
-                    TryGetEnteredTextFromStringOrSkipped(syntax) is { } entered &&
-                    ResourceTypeReference.HasResourceTypePrefix(entered))
-                {
-                    return entered;
-                }
-
-                return null;
-            }
-
-            static string? TryGetFullyQualfiedResourceType(SyntaxBase? enclosingDeclaration)
-            {
-                return enclosingDeclaration switch
-                {
-                    ResourceDeclarationSyntax resourceSyntax => TryGetFullyQualifiedType(resourceSyntax.Type),
-                    ParameterDeclarationSyntax parameterSyntax when parameterSyntax.Type is ResourceTypeSyntax resourceType => TryGetFullyQualifiedType(resourceType.Type),
-                    OutputDeclarationSyntax outputSyntax when outputSyntax.Type is ResourceTypeSyntax resourceType => TryGetFullyQualifiedType(resourceType.Type),
-                    _ => null,
-                };
-            }
-
             // ResourceType completions are divided into 2 parts.
             // If the current value passes the namespace and type notation ("<Namespace>/<type>") format, we return the fully qualified resource types
             if (TryGetFullyQualfiedResourceType(context.EnclosingDeclaration) is string qualified)
@@ -538,6 +562,8 @@ namespace Bicep.LanguageServer.Completions
                     .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
                     .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
                     .ToList();
+
+                //TODO(gary): entry point for our stuff
             }
 
             // if we do not have the namespace and type notation, we only return unique resource types without their api-versions
@@ -551,6 +577,7 @@ namespace Bicep.LanguageServer.Completions
                 .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false))
                 .ToList();
         }
+
 
         private IEnumerable<CompletionItem> GetResourceTypeFollowerCompletions(BicepCompletionContext context)
         {
@@ -975,6 +1002,8 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetOpenAIBicepCompletions(SemanticModel model, BicepCompletionContext context)
         {
+
+            var foo = GetResourceDefinitionsMarkdown(model, context);
             // TODO: inspect the cursor offset in the case the cursor is at the end of a resource declaration we could fetch
             // raw github spec for latest version, append to base-prompt
             // send a request to the OpenAI REST API, append the answers into the return value
