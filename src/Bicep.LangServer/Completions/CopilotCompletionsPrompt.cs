@@ -33,6 +33,10 @@ Here are a few clarifying instructions:
 <Schema Start>
 {{schemaContent}}
 <Schema End>
+- You should populate properties using the information in the schema.
+- You MUST populate all the Required properties. You MUST NOT populate ReadOnly properties. You MUST also populate properties not marked as Required or ReadOnly.
+- When populating enum properties, put all possible values as the value of the property. Separate possible values with "|".
+- String values should always be enclosed in single quotes.
 - The partially written Bicep file is:
 <Bicep Start>
 {{bicepContent}}

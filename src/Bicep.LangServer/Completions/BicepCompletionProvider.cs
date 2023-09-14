@@ -556,20 +556,20 @@ namespace Bicep.LanguageServer.Completions
             // If the current value passes the namespace and type notation ("<Namespace>/<type>") format, we return the fully qualified resource types
             if (TryGetFullyQualfiedResourceType(context.EnclosingDeclaration) is string qualified)
             {
-                //// newest api versions should be shown first
-                //// strict filtering on type so that we show api versions for only the selected type
-                //return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
-                //    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(qualified.Split('@')[0], rt.FormatType()))
-                //    .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
-                //    .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
-                //    .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
-                //    .ToList();
+                // newest api versions should be shown first
+                // strict filtering on type so that we show api versions for only the selected type
+                var apiVersionList = model.Binder.NamespaceResolver.GetAvailableResourceTypes()
+                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(qualified.Split('@')[0], rt.FormatType()))
+                    .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
+                    .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
+                    .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
+                    .ToList();
 
                 // Get completions from OpenAI instead.
                 var schemaContent = GetResourceDefinitionsMarkdown(model, context).Result;
                 var autocomplete = this.autoCompleteFactory.BuildAsync(model, context, schemaContent).Result;
 
-                return new CompletionList(autocomplete.GetCompletionItems(), true);
+                return new CompletionList(autocomplete.GetCompletionItems(), true).Concat(apiVersionList);
             }
 
             // if we do not have the namespace and type notation, we only return unique resource types without their api-versions
