@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>Bicep.LanguageServer</RootNamespace>
-    <!-- generates a NOTICE file in the publish output using our custom targets -->
-    <EnableNoticeInPublishOutput>true</EnableNoticeInPublishOutput>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>Bicep.LanguageServer</RootNamespace>
+		<!-- generates a NOTICE file in the publish output using our custom targets -->
+		<EnableNoticeInPublishOutput>true</EnableNoticeInPublishOutput>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
-    <ProjectReference Include="..\Bicep.Decompiler\Bicep.Decompiler.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
+		<ProjectReference Include="..\Bicep.Decompiler\Bicep.Decompiler.csproj" />
+	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.7" />
@@ -25,18 +25,18 @@
     <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" WithCulture="false" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="LangServerResources.Designer.cs">
-      <DependentUpon>LangServerResources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="LangServerResources.Designer.cs">
+			<DependentUpon>LangServerResources.resx</DependentUpon>
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+		</Compile>
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="LangServerResources.resx">
-      <LastGenOutput>LangServerResources.Designer.cs</LastGenOutput>
-      <Generator>PublicResXFileCodeGenerator</Generator>
-    </EmbeddedResource>
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="LangServerResources.resx">
+			<LastGenOutput>LangServerResources.Designer.cs</LastGenOutput>
+			<Generator>PublicResXFileCodeGenerator</Generator>
+		</EmbeddedResource>
+	</ItemGroup>
 </Project>
