@@ -622,18 +622,28 @@ jobs:
           message: |
             Test this change out locally with the following install scripts (Action run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}))
             <details>
-              <summary>VSCode (Mac/Linux)</summary>
-              
-              ```sh
-              bash <(curl -Ls https://aka.ms/bicep/nightly-vsix.sh) --run-id ${{ github.run_id }}
-              ```
+              <summary>VSCode</summary>
+
+              - Mac/Linux
+                  ```sh
+                  bash <(curl -Ls https://aka.ms/bicep/nightly-vsix.sh) --run-id ${{ github.run_id }}
+                  ```
+              - Windows
+                  ```powershell
+                  iex "& { $(irm https://aka.ms/bicep/nightly-vsix.ps1) } -RunId ${{ github.run_id }}"
+                  ```
             </details>
             <details>
-              <summary>Azure CLI (Mac/Linux)</summary>
+              <summary>Azure CLI</summary>
               
-              ```sh
-              bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --run-id ${{ github.run_id }}
-              ```
+              - Mac/Linux
+                  ```sh
+                  bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --run-id ${{ github.run_id }}
+                  ```
+              - Windows
+                  ```powershell
+                  iex "& { $(irm https://aka.ms/bicep/nightly-cli.ps1) } -RunId ${{ github.run_id }}"
+                  ```
             </details>
 
   can-run-live-tests:
