@@ -2,8 +2,7 @@
 
 >**Note**: only install the nightly if you'd like to try the bleeding edge capabilities of Bicep. These are much more likely to have undiscovered bugs or other issues. If you find anything, please open an issue.
 
-## Automatic
-These steps only work on Linux or Mac platforms
+## Automatic (Mac/Linux)
 
 ### VSCode Extension
 1. Run the following:
@@ -36,6 +35,41 @@ The following optional arguments are also supported in the nightly install scrip
 - Installing from a GitHub Action run (CLI):
    ```sh
    bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --run-id 6146657618
+   ```
+
+## Automatic (Windows)
+
+### VSCode Extension
+1. Run the following in a PowerShell window:
+   ```powershell
+   iex "& { $(irm https://aka.ms/bicep/nightly-vsix.ps1) }"
+   ```
+1. Reload your VSCode window.
+
+### Azure CLI
+1. Run the following in a PowerShell window:
+   ```powershell
+   iex "& { $(irm https://aka.ms/bicep/nightly-cli.ps1) }"
+   ```
+1. Reload your VSCode window.
+
+### Targeting a particular build or branch
+The following optional arguments are also supported in the nightly install scripts:
+- Installing from a GitHub branch (VSCode extension):
+   ```powershell
+   iex "& { $(irm https://aka.ms/bicep/nightly-vsix.ps1) } -Branch jeskew/variable-imports"
+   ```
+- Installing from a GitHub branch (CLI):
+   ```powershell
+   iex "& { $(irm https://aka.ms/bicep/nightly-cli.ps1) } -Branch jeskew/variable-imports"
+   ```
+- Installing from a GitHub Action run (VSCode extension):
+   ```powershell
+   iex "& { $(irm https://aka.ms/bicep/nightly-vsix.ps1) } -RunId 6146657618"
+   ```
+- Installing from a GitHub Action run (CLI):
+   ```powershell
+   iex "& { $(irm https://aka.ms/bicep/nightly-cli.ps1) } -RunId 6146657618"
    ```
 
 ## Manual
