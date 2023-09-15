@@ -57,13 +57,13 @@ export class DecompileParamsCommand implements Command {
       );
     }
 
-    const bicepFileUri = await DecompileParamsCommand.selectBicepFile(
-      context,
-    );
+    const bicepFileUri = await DecompileParamsCommand.selectBicepFile(context);
 
     const decompileParamsCommandParams: DecompileParamsCommandParams = {
       jsonUri: documentUri.path,
-      bicepUri: bicepFileUri ? this.client.code2ProtocolConverter.asUri(bicepFileUri) : undefined,
+      bicepUri: bicepFileUri
+        ? this.client.code2ProtocolConverter.asUri(bicepFileUri)
+        : undefined,
     };
 
     this.outputChannelManager.appendToOutputChannel(
@@ -81,20 +81,19 @@ export class DecompileParamsCommand implements Command {
     }
 
     assert(decompileParamsResult.decompiledBicepparamFile !== undefined);
-    let bicepparamPath = this.client.protocol2CodeConverter.asUri(decompileParamsResult.decompiledBicepparamFile.uri).fsPath;
+    let bicepparamPath = this.client.protocol2CodeConverter.asUri(
+      decompileParamsResult.decompiledBicepparamFile.uri,
+    ).fsPath;
 
-    if (
-      await fse.pathExists(bicepparamPath)
-    ) {
+    if (await fse.pathExists(bicepparamPath)) {
       const fileSaveOption = await DecompileParamsCommand.getFileSaveOption(
         context,
       );
 
       if (fileSaveOption === "Copy") {
-        bicepparamPath =
-          await DecompileParamsCommand.getUniquePath(
-            bicepparamPath,
-          );
+        bicepparamPath = await DecompileParamsCommand.getUniquePath(
+          bicepparamPath,
+        );
         this.outputChannelManager.appendToOutputChannel(
           `Saving Decompiled file (copy): ${bicepparamPath}`,
         );
