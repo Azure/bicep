@@ -113,6 +113,7 @@ namespace Bicep.Core
         public const string TrueKeyword = "true";
         public const string FalseKeyword = "false";
         public const string NullKeyword = "null";
+        public const string VoidKeyword = "void";
 
         public const string ListFunctionPrefix = "list";
 
@@ -142,6 +143,7 @@ namespace Bicep.Core
         public const string MetadataResourceTypePropertyName = "resourceType";
         public const string MetadataExportedPropertyName = "__bicep_export!";
         public const string MetadataImportedFromPropertyName = "__bicep_imported_from!";
+        public const string TemplateMetadataExportedVariablesName = "__bicep_exported_variables!";
         public const string ImportMetadataSourceTemplatePropertyName = "sourceTemplate";
         public const string ImportMetadataOriginalIdentifierPropertyName = "originalIdentifier";
         public const string BatchSizePropertyName = "batchSize";
@@ -315,6 +317,4 @@ namespace Bicep.Core
             return new ModuleType(typeName, moduleScope, moduleBody);
         }
     }
-
-    
 }

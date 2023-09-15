@@ -22,13 +22,35 @@ public record UriResolutionError(
     DiagnosticBuilder.ErrorBuilderDelegate ErrorBuilder,
     bool RequiresRestore);
 
-public record SourceFileGrouping(
-    IFileResolver FileResolver,
-    Uri EntryFileUri,
-    ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> FileResultByUri,
-    ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> UriResultByArtifactReference,
-    ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup) : ISourceFileLookup
+public class SourceFileGrouping : ISourceFileLookup
 {
+    public SourceFileGrouping(IFileResolver fileResolver,
+        Uri entryFileUri,
+        ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri,
+        ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> uriResultByArtifactReference,
+        ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup)
+    {
+        FileResolver = fileResolver;
+        EntryFileUri = entryFileUri;
+        FileResultByUri = fileResultByUri;
+        UriResultByArtifactReference = uriResultByArtifactReference;
+        SourceFileParentLookup = sourceFileParentLookup;
+
+        UriResults = uriResultByArtifactReference.Values.SelectMany(kvp => kvp).ToImmutableDictionary();
+    }
+
+    public IFileResolver FileResolver { get; }
+
+    public Uri EntryFileUri { get; }
+
+    public ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> FileResultByUri { get; }
+
+    public ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> UriResultByArtifactReference { get; }
+
+    public ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>> UriResults { get; }
+
+    public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; }
+
     public IEnumerable<ArtifactResolutionInfo> GetModulesToRestore()
     {
         foreach (var (sourceFile, moduleResults) in UriResultByArtifactReference)

@@ -133,7 +133,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is ProviderNamespaceSymbol ||
                         s is BuiltInNamespaceSymbol ||
                         s is LocalVariableSymbol ||
-                        s is TestSymbol);
+                        s is TestSymbol ||
+                        s is ImportedSymbol ||
+                        s is WildcardImportSymbol);
                 }
                 else
                 {
@@ -153,7 +155,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is ProviderNamespaceSymbol ||
                         s is BuiltInNamespaceSymbol ||
                         s is LocalVariableSymbol ||
-                        s is TestSymbol);
+                        s is TestSymbol ||
+                        s is ImportedSymbol ||
+                        s is WildcardImportSymbol);
                 }
 
                 var foundRefs = model.FindReferences(symbol!);

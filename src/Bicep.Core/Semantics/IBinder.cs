@@ -20,5 +20,9 @@ namespace Bicep.Core.Semantics
         ImmutableDictionary<SyntaxBase, Symbol> Bindings { get; }
 
         ImmutableArray<DeclaredSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol);
+
+        ImmutableHashSet<DeclaredSymbol> GetSymbolsReferencedInDeclarationOf(DeclaredSymbol symbol);
+
+        ImmutableHashSet<DeclaredSymbol> GetReferencedSymbolClosureFor(DeclaredSymbol symbol);
     }
 }

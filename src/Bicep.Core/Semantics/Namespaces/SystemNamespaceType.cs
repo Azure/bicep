@@ -1440,24 +1440,46 @@ namespace Bicep.Core.Semantics.Namespaces
                 })
                 .Build();
 
-            yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
-                .WithDescription("Allows the type to be imported into other templates.")
-                .WithFlags(FunctionFlags.TypeDecorator)
-                .WithEvaluator(static (functionCall, decorated) => decorated switch
-                {
-                    DeclaredTypeExpression declaredType => declaredType with { Exported = functionCall },
-                    _ => decorated,
-                })
-                .WithValidator(static (decoratorName, decoratorSyntax, _, _, binder, _, diagnosticWriter) =>
-                {
-                    var decoratorTarget = binder.GetParent(decoratorSyntax);
-
-                    if (decoratorTarget is not ITopLevelNamedDeclarationSyntax)
+            if (featureProvider.CompileTimeImportsEnabled)
+            {
+                yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
+                    .WithDescription("Allows a type or variable to be imported into other Bicep files.")
+                    .WithFlags(FunctionFlags.TypeOrVariableDecorator)
+                    .WithEvaluator(static (functionCall, decorated) => decorated switch
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ExportDecoratorMustTargetStatement());
-                    }
-                })
-                .Build();
+                        DeclaredTypeExpression declaredType => declaredType with { Exported = functionCall },
+                        DeclaredVariableExpression declaredVariable => declaredVariable with { Exported = functionCall },
+                        _ => decorated,
+                    })
+                    .WithValidator(static (decoratorName, decoratorSyntax, _, _, binder, _, diagnosticWriter) =>
+                    {
+                        var decoratorTarget = binder.GetParent(decoratorSyntax);
+
+                        if (decoratorTarget is not ITopLevelNamedDeclarationSyntax)
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ExportDecoratorMustTargetStatement());
+                        }
+
+                        if (decoratorTarget is not null && binder.GetSymbolInfo(decoratorTarget) is DeclaredSymbol targetedDeclaration)
+                        {
+                            var nonExportableSymbolsInClosure = binder.GetReferencedSymbolClosureFor(targetedDeclaration)
+                                .Where(s => s is not VariableSymbol and
+                                    not TypeAliasSymbol and
+                                    not ImportedSymbol and
+                                    not WildcardImportSymbol and
+                                    not LocalVariableSymbol)
+                                .Select(s => s.Name)
+                                .Order()
+                                .ToImmutableArray();
+
+                            if (nonExportableSymbolsInClosure.Any())
+                            {
+                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ClosureContainsNonExportableSymbols(nonExportableSymbolsInClosure));
+                            }
+                        }
+                    })
+                    .Build();
+            }
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterAllowedPropertyName)
                 .WithDescription("Defines the allowed values of the parameter.")
@@ -1700,8 +1722,8 @@ namespace Bicep.Core.Semantics.Namespaces
             _ => false,
         };
 
-        private static IEnumerable<TypeTypeProperty> GetSystemAmbientSymbols()
-            => LanguageConstants.DeclarationTypes.Select(t => new TypeTypeProperty(t.Key, new(t.Value)));
+        private static IEnumerable<TypeProperty> GetSystemAmbientSymbols()
+            => LanguageConstants.DeclarationTypes.Select(t => new TypeProperty(t.Key, new TypeType(t.Value)));
 
         public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
         {

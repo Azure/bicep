@@ -56,7 +56,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            
+
             var helper = await DefaultServer.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
 
@@ -157,7 +157,7 @@ namespace Bicep.LangServer.IntegrationTests
             static bool IsWrongNode(SyntaxBase node) =>
                 !(node is PropertyAccessSyntax propertyAccessSyntax && propertyAccessSyntax.BaseExpression is ISymbolReference) &&
                 node is not ISymbolReference &&
-                node is not ITopLevelNamedDeclarationSyntax &&
+                node is not INamedDeclarationSyntax &&
                 node is not Token;
 
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);

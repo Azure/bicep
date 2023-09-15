@@ -31,7 +31,7 @@ namespace Bicep.Core.TypeSystem
         ParameterDecorator = 1 << 2,
 
         /// <summary>
-        /// The function can be used as a parameter decorator.
+        /// The function can be used as a variable decorator.
         /// </summary>
         VariableDecorator = 1 << 3,
 
@@ -51,7 +51,7 @@ namespace Bicep.Core.TypeSystem
         OutputDecorator = 1 << 6,
 
         /// <summary>
-        /// The  function can be used as an provider decorator.
+        /// The  function can be used as a provider decorator.
         /// </summary>
         ProviderDecorator = 1 << 7,
 
@@ -65,6 +65,9 @@ namespace Bicep.Core.TypeSystem
         /// </summary>
         MetadataDecorator = 1 << 9,
 
+        /// <summary>
+        /// The function can be used as a type decorator.
+        /// </summary>
         TypeDecorator = 1 << 10,
 
         GenerateIntermediateVariableAlways = 1 << 11,
@@ -95,6 +98,11 @@ namespace Bicep.Core.TypeSystem
         /// The function can be used as a parameter, output, or type decorator.
         /// </summary>
         ParameterOutputOrTypeDecorator = ParameterDecorator | OutputDecorator | TypeDecorator,
+
+        /// <summary>
+        /// The function can be used as a type or variable decorator.
+        /// </summary>
+        TypeOrVariableDecorator = TypeDecorator | VariableDecorator,
 
         /// <summary>
         /// The function can be used as a decorator anywhere.

@@ -17,7 +17,7 @@ namespace Bicep.Core.TypeSystem
         public NamespaceType(
             string aliasName,
             NamespaceSettings settings,
-            IEnumerable<TypeTypeProperty> properties,
+            IEnumerable<TypeProperty> properties,
             IEnumerable<FunctionOverload> functionOverloads,
             IEnumerable<BannedFunction> bannedFunctions,
             IEnumerable<Decorator> decorators,
@@ -40,9 +40,5 @@ namespace Bicep.Core.TypeSystem
         public string ProviderName => Settings.BicepProviderName;
 
         public ObjectType? ConfigurationType => Settings.ConfigurationType;
-
-        public TypeTypeProperty? TryGetTypeProperty(string name) => Properties.TryGetValue(name, out var property) && property is TypeTypeProperty typeProperty
-            ? typeProperty
-            : null;
     }
 }

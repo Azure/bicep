@@ -389,12 +389,14 @@ namespace Bicep.LanguageServer.Completions
         }
 
         private static IEnumerable<CompletionItem> GetImportedTypeCompletions(SemanticModel model, BicepCompletionContext context)
-            => model.Root.TypeImports.Select(importedType => CreateImportedTypeCompletion(importedType, context.ReplacementRange, CompletionPriority.High))
+            => model.Root.ImportedSymbols
+                .Where(imported => imported.Kind == SymbolKind.TypeAlias)
+                .Select(importedType => CreateImportedCompletion(importedType, context.ReplacementRange, CompletionPriority.High))
                 .Concat(model.Root.WildcardImports
-                    .SelectMany(wildcardImport => wildcardImport.TryGetSemanticModel().IsSuccess(out var importedModel)
-                        ? importedModel.ExportedTypes.Values.Select(typeMetadata => (wildcardImport, typeMetadata))
+                    .SelectMany(wildcardImport => wildcardImport.TryGetSemanticModel() is ISemanticModel importedModel
+                        ? importedModel.Exports.Values.OfType<ExportedTypeMetadata>().Select(exportMetadata => (wildcardImport, exportMetadata))
                         : Enumerable.Empty<(WildcardImportSymbol, ExportedTypeMetadata)>())
-                    .Select(t => CreateWildcardTypePropertyCompletion(t.Item1, t.Item2, context.ReplacementRange, CompletionPriority.High)));
+                    .Select(t => CreateWildcardPropertyCompletion(t.Item1, t.Item2, context.ReplacementRange, CompletionPriority.High)));
 
         private static bool IsTypeLiteralSyntax(SyntaxBase syntax) => syntax is BooleanLiteralSyntax
             || syntax is IntegerLiteralSyntax
@@ -1740,16 +1742,14 @@ namespace Bicep.LanguageServer.Completions
             return builder.Build();
         }
 
-        private static CompletionItem CreateImportedTypeCompletion(ImportedTypeSymbol importedType, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreateImportedCompletion(ImportedSymbol imported, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
-            var builder = CompletionItemBuilder.Create(CompletionItemKind.Class, importedType.Name)
-                .WithPlainTextEdit(replacementRange, importedType.Name)
-                .WithDetail(importedType.Type.Name)
-                .WithSortText(GetSortText(importedType.Name, priority));
+            var builder = CompletionItemBuilder.Create(CompletionItemKind.Class, imported.Name)
+                .WithPlainTextEdit(replacementRange, imported.Name)
+                .WithDetail(imported.Type.Name)
+                .WithSortText(GetSortText(imported.Name, priority));
 
-            if (importedType.TryGetSemanticModel().IsSuccess(out var model) &&
-                model.ExportedTypes.TryGetValue(importedType.OriginalSymbolName, out var typeMetadata) &&
-                typeMetadata.Description is string documentation)
+            if (imported.TryGetDescription() is string documentation)
             {
                 builder = builder.WithDocumentation(documentation);
             }
@@ -1757,15 +1757,25 @@ namespace Bicep.LanguageServer.Completions
             return builder.Build();
         }
 
-        private static CompletionItem CreateWildcardTypePropertyCompletion(WildcardImportSymbol wildcardImport, ExportedTypeMetadata exportedTypeMetadata, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreateWildcardPropertyCompletion(WildcardImportSymbol wildcardImport, ExportMetadata exportMetadata, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
-            var replacement = $"{wildcardImport.Name}.{exportedTypeMetadata.Name}";
+            StringBuilder replacementBuilder = new(wildcardImport.Name);
+            if (Lexer.IsValidIdentifier(exportMetadata.Name))
+            {
+                replacementBuilder.Append('.').Append(exportMetadata.Name);
+            }
+            else
+            {
+                replacementBuilder.Append("['").Append(exportMetadata.Name.Replace("'", "\\'")).Append("']");
+            }
+
+            var replacement = replacementBuilder.ToString();
             var builder = CompletionItemBuilder.Create(CompletionItemKind.Class, replacement)
                 .WithPlainTextEdit(replacementRange, replacement)
-                .WithDetail(exportedTypeMetadata.TypeReference.Type.Name)
+                .WithDetail(exportMetadata.TypeReference.Type.Name)
                 .WithSortText(GetSortText(replacement, priority));
 
-            if (exportedTypeMetadata.Description is string documentation)
+            if (exportMetadata.Description is string documentation)
             {
                 builder = builder.WithDocumentation(documentation);
             }
@@ -2046,11 +2056,14 @@ namespace Bicep.LanguageServer.Completions
                     {
                         var claimedNames = model.Root.Declarations.Select(d => d.Name).ToImmutableHashSet();
 
-                        foreach (var exported in importedModel.ExportedTypes)
+                        foreach (var exported in importedModel.Exports)
                         {
-                            var edit = claimedNames.Contains(exported.Key)
-                                ? $"{exported.Key} as "
-                                : exported.Key;
+                            var edit = exported.Key switch
+                            {
+                                string key when !Lexer.IsValidIdentifier(key) => $"'{key.Replace("'", @"\'")}' as ",
+                                string key when claimedNames.Contains(key) => $"{key} as ",
+                                string key => key,
+                            };
 
                             yield return CompletionItemBuilder.Create(CompletionItemKind.Variable, exported.Key)
                                 .WithSortText(GetSortText(exported.Key, CompletionPriority.High))

@@ -243,7 +243,7 @@ public class ExpressionBuilder
             {
                 AmbientTypeSymbol ambientType => new AmbientTypeReferenceExpression(syntax, ambientType.Name, ambientType.Type),
                 TypeAliasSymbol typeAlias => new TypeAliasReferenceExpression(syntax, typeAlias.Name, typeAlias.Type),
-                ImportedTypeSymbol importedType => new ImportedTypeReferenceExpression(syntax, importedType, importedType.Type),
+                ImportedSymbol importedSymbol when importedSymbol.Kind == SymbolKind.TypeAlias => new ImportedTypeReferenceExpression(syntax, importedSymbol, importedSymbol.Type),
                 Symbol otherwise => throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression."),
                 _ => throw new ArgumentException($"Unable to locate symbol for name '{variableAccess.Name.IdentifierName}'.")
             },
@@ -305,16 +305,16 @@ public class ExpressionBuilder
     private TypeExpression ConvertPropertyAccessInTypeExpression(AccessExpressionSyntax syntax, string propertyName)
         => Context.SemanticModel.GetSymbolInfo(syntax.BaseExpression) switch
         {
-            BuiltInNamespaceSymbol builtIn when TryGetTypeProperty(builtIn, propertyName) is {} property
-                => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, property.TypeReference.Type),
-            WildcardImportSymbol wildcardImport when TryGetTypeProperty(wildcardImport, propertyName) is {} property
-                => new WildcardImportPropertyReferenceExpression(syntax, wildcardImport, propertyName, property.TypeReference.Type),
+            BuiltInNamespaceSymbol builtIn when TryGetPropertyType(builtIn, propertyName) is TypeType typeType
+                => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, typeType),
+            WildcardImportSymbol wildcardImport when TryGetPropertyType(wildcardImport, propertyName) is TypeType typeType
+                => new WildcardImportTypePropertyReferenceExpression(syntax, wildcardImport, propertyName, typeType),
             var otherwise => throw new ArgumentException($"Failed to convert property access on symbol of type {otherwise?.GetType()}"),
         };
 
-    private TypeTypeProperty? TryGetTypeProperty(INamespaceSymbol namespaceSymbol, string propertyName)
-        => namespaceSymbol.TryGetNamespaceType() is NamespaceType type && type.TryGetTypeProperty(propertyName) is {} property
-            ? property
+    private TypeSymbol? TryGetPropertyType(INamespaceSymbol namespaceSymbol, string propertyName)
+        => namespaceSymbol.TryGetNamespaceType() is NamespaceType type && type.Properties.TryGetValue(propertyName, out var property)
+            ? property.TypeReference.Type
             : null;
 
     private TExpression ConvertWithoutLowering<TExpression>(SyntaxBase syntax)
@@ -815,6 +815,12 @@ public class ExpressionBuilder
                 flags);
         }
 
+        // Looking for: expr.blah (where expr is a wildcard import)
+        if (Context.SemanticModel.GetSymbolInfo(propertyAccess.BaseExpression) is WildcardImportSymbol wildcardImport)
+        {
+            return new WildcardImportVariablePropertyReferenceExpression(propertyAccess, wildcardImport, propertyAccess.PropertyName.IdentifierName);
+        }
+
         var convertedBase = ConvertWithoutLowering(propertyAccess.BaseExpression);
 
         // Looking for short-circuitable access chains
@@ -881,6 +887,9 @@ public class ExpressionBuilder
 
             case LocalVariableSymbol localVariableSymbol:
                 return GetLocalVariableExpression(variableAccessSyntax, localVariableSymbol);
+
+            case ImportedSymbol importedSymbol when importedSymbol.Kind == SymbolKind.Variable:
+                return new ImportedVariableReferenceExpression(variableAccessSyntax, importedSymbol);
 
             default:
                 throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");

@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -28,12 +32,21 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
 
     public NamespaceType? TryGetNamespaceType() => this.Type as NamespaceType;
 
-    public Result<ISemanticModel, ErrorDiagnostic> TryGetSemanticModel()
+    public ISemanticModel? TryGetSemanticModel()
         => SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
             EnclosingDeclaration,
             b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
-            Context.Compilation);
+            Context.Compilation)
+            .TryUnwrap();
 
     public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference()
         => Context.Compilation.ModuleReferenceFactory.TryGetModuleReference(EnclosingDeclaration, Context.SourceFile.FileUri);
+
+    public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
+    {
+        if (TryGetSemanticModel()?.Exports.Values.OfType<DuplicatedExportMetadata>() is {} duplicatedExports && duplicatedExports.Any())
+        {
+            yield return DiagnosticBuilder.ForPosition(DeclaringSyntax).ImportedModelContainsAmbiguousExports(duplicatedExports.Select(md => md.Name));
+        }
+    }
 }

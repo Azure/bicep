@@ -82,14 +82,17 @@ namespace Bicep.LangServer.IntegrationTests
 
                 var link = ValidateDefinitionResponse(response);
 
-                // document should match the requested document
-                link.TargetUri.Should().Be(uri);
+                if (symbol is not ImportedSymbol and not WildcardImportSymbol)
+                {
+                    // document should match the requested document
+                    link.TargetUri.Should().Be(uri);
 
-                // target range should be the whole span of the symbol
-                link.TargetRange.Should().Be(symbol.DeclaringSyntax.Span.ToRange(lineStarts));
+                    // target range should be the whole span of the symbol
+                    link.TargetRange.Should().Be(symbol.DeclaringSyntax.Span.ToRange(lineStarts));
 
-                // selection range should be the span of the identifier of the symbol
-                link.TargetSelectionRange.Should().Be(symbol.NameSource.Span.ToRange(lineStarts));
+                    // selection range should be the span of the identifier of the symbol
+                    link.TargetSelectionRange.Should().Be(symbol.NameSource.Span.ToRange(lineStarts));
+                }
 
                 if (syntax is ParameterDeclarationSyntax parameterSyntax)
                 {
@@ -481,7 +484,7 @@ param |foo| string
         }
 
         [TestMethod]
-        public async Task Goto_definition_works_with_cherrypick_arm_import_statements_and_references()
+        public async Task Goto_definition_works_with_cherrypick_arm_type_import_statements_and_references()
         {
             var (contents, cursors) = ParserHelper.GetFileWithCursors("""
                 import {f|o|o| |a|s| |f|i|z|z} from 'mod.json'
@@ -506,6 +509,104 @@ param |foo| string
                         "bar": {
                             "type": "string"
                         }
+                    },
+                    "resources": {}
+                }
+                """);
+
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
+                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true))
+                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
+                {
+                    {new("file:///mod.json"), moduleContents},
+                })));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var file = await helper.OpenFile("/main.bicep", contents);
+
+            foreach (var cursor in cursors)
+            {
+                var response = await file.GotoDefinition(cursor);
+
+                var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
+                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetRange.Should().Be(expectedRange);
+            }
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_cherrypick_arm_variable_import_statements_and_references()
+        {
+            var (contents, cursors) = ParserHelper.GetFileWithCursors("""
+                import {f|o|o| |a|s| |f|i|z|z} from 'mod.json'
+
+                var foo = f|i|z|z
+                """);
+            var (moduleContents, moduleCursors) = ParserHelper.GetFileWithCursors($$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "foo"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "foo": "foo"||
+                    },
+                    "resources": {}
+                }
+                """);
+
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
+                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true))
+                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
+                {
+                    {new("file:///mod.json"), moduleContents},
+                })));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var file = await helper.OpenFile("/main.bicep", contents);
+
+            foreach (var cursor in cursors)
+            {
+                var response = await file.GotoDefinition(cursor);
+
+                var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
+                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetRange.Should().Be(expectedRange);
+            }
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_cherrypick_arm_copy_variable_import_statements_and_references()
+        {
+            var (contents, cursors) = ParserHelper.GetFileWithCursors("""
+                import {f|o|o| |a|s| |f|i|z|z} from 'mod.json'
+
+                var foo = f|i|z|z
+                """);
+            var (moduleContents, moduleCursors) = ParserHelper.GetFileWithCursors($$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "foo"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "copy": [
+                            {||
+                                "name": "foo",
+                                "count": 1,
+                                "input": "foo"
+                            }
+                        ]
                     },
                     "resources": {}
                 }
@@ -588,10 +689,24 @@ param |foo| string
         private bool ValidUnboundNode(List<SyntaxBase> accumulated, int index)
         {
             // Module path
-            return index > 1
-            && accumulated[index] is StringSyntax
-            && accumulated[index - 1] is IdentifierSyntax
-            && accumulated[index - 2] is ModuleDeclarationSyntax;
+            if (index > 1 &&
+                accumulated[index] is StringSyntax &&
+                accumulated[index - 1] is IdentifierSyntax &&
+                accumulated[index - 2] is ModuleDeclarationSyntax)
+            {
+                return true;
+            }
+
+            // import path
+            if (index > 1 &&
+                accumulated[index] is StringSyntax &&
+                accumulated[index - 1] is CompileTimeImportFromClauseSyntax
+            )
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private static LocationLink ValidateDefinitionResponse(LocationOrLocationLinks response)
