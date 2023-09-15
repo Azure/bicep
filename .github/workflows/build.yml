@@ -38,7 +38,7 @@ jobs:
           - osx-arm64
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -89,50 +89,12 @@ jobs:
           path: out/*
           if-no-files-found: error
 
-  build-langserver:
-    name: Build Language Server
+  build-vscode-ext:
+    name: "Build: VSCode Extension"
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-          submodules: true
-
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v3
-
-      - name: Publish Language Server
-        run: dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
-
-      - name: Upload Language Server
-        uses: actions/upload-artifact@v3
-        with:
-          name: Bicep.LangServer
-          path: ./src/Bicep.LangServer/bin/release/net7.0/publish/*
-          if-no-files-found: error
-
-      # needed to generate notice file
-      - name: Upload Language Server project assets file
-        uses: actions/upload-artifact@v3
-        with:
-          name: Bicep.LangServer.ProjAssets
-          path: ./src/Bicep.LangServer/obj/project.assets.json
-
-  build-vscode-ext:
-    name: Build VSCode Extension
-    runs-on: ${{ matrix.os }}
-    needs: build-langserver
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - windows-latest
-          - ubuntu-latest
-          - macos-latest
-
-    steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -145,9 +107,74 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
 
+      - name: Publish Language Server
+        run: |
+          dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
+          cp -R src/Bicep.LangServer/bin/release/net7.0/publish ./src/vscode-bicep/bicepLanguageServer
+
       - name: npm ci
         run: npm ci
         working-directory: ./src/vscode-bicep
+
+      - name: Generate VSIX notice
+        run: |
+          mkdir -p ./src/vscode-bicep-notice/inputs
+          npm --prefix ./src/vscode-bicep list -a --json > ./src/vscode-bicep-notice/inputs/npm-list.json
+          cp ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/project.assets.json
+          dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
+
+      - name: Create VSIX
+        run: npm run package
+        working-directory: ./src/vscode-bicep
+
+      - name: Upload VSIX
+        uses: actions/upload-artifact@v3
+        with:
+          name: vscode-bicep.vsix
+          path: ./src/vscode-bicep/vscode-bicep.vsix
+          if-no-files-found: error
+
+  test-vscode-ext:
+    name: "Test: VSCode Extension"
+    runs-on: ${{ matrix.os }}
+    needs: build-vscode-ext
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v3
+
+      - name: Publish Language Server
+        run: |
+          dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
+          cp -R src/Bicep.LangServer/bin/release/net7.0/publish ./src/vscode-bicep/bicepLanguageServer
+
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/vscode-bicep
+
+      - name: Generate VSIX notice
+        run: |
+          mkdir -p ./src/vscode-bicep-notice/inputs
+          npm --prefix ./src/vscode-bicep list -a --json > ./src/vscode-bicep-notice/inputs/npm-list.json
+          cp ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/project.assets.json
+          dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
 
       - name: Run lint
         run: npm run lint
@@ -160,28 +187,6 @@ jobs:
       - name: Run snapshot tests
         run: npm run test:snapshot
         working-directory: ./src/vscode-bicep
-
-      - name: Download Language Server
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.LangServer
-          path: ./src/vscode-bicep/bicepLanguageServer
-
-      - name: Download Language Server project assets file
-        if: runner.os == 'Linux'
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.LangServer.ProjAssets
-          path: ./src/vscode-bicep-notice/inputs
-
-      - name: npm list -a --json
-        if: runner.os == 'Linux'
-        run: npm list -a --json > ../vscode-bicep-notice/inputs/npm-list.json
-        working-directory: ./src/vscode-bicep
-
-      - name: Generate VSIX notice
-        if: runner.os == 'Linux'
-        run: dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
 
       - name: Build prod
         run: npm run build:prod
@@ -213,25 +218,12 @@ jobs:
           flags: typescript
           directory: ./src/vscode-bicep/coverage
 
-      - name: Create VSIX
-        run: npm run package
-        if: runner.os == 'Linux'
-        working-directory: ./src/vscode-bicep
-
-      - name: Upload VSIX
-        uses: actions/upload-artifact@v3
-        if: runner.os == 'Linux'
-        with:
-          name: vscode-bicep.vsix
-          path: ./src/vscode-bicep/vscode-bicep.vsix
-          if-no-files-found: error
-
   build-vs-ext:
     name: Build Visual Studio Extension
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -292,7 +284,7 @@ jobs:
     needs: build-cli
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -355,7 +347,7 @@ jobs:
             runTests: false
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -428,7 +420,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -465,7 +457,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -526,7 +518,7 @@ jobs:
             rid: osx-x64
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -535,14 +527,14 @@ jobs:
         uses: actions/setup-dotnet@v3
 
       - name: Run Tests
-        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/${{ github.run_id }}/${{ github.run_attempt}}/${{ matrix.runtime.rid }}
+        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
         if: always()
         with:
           name: Bicep.TestResults.${{ matrix.runtime.rid }}
-          path: ./TestResults/${{ github.run_id }}/${{ github.run_attempt}}/${{ matrix.runtime.rid }}/**/*.trx
+          path: ./TestResults/*.trx
           if-no-files-found: error
 
       - name: Download Bicep CLI
@@ -576,36 +568,84 @@ jobs:
         with:
           flags: dotnet
 
-  publish-test-results:
-    name: "Publish Tests Results (${{ matrix.rid }})"
+  comment-test-summary:
+    name: "PR Comment: Tests Summary"
     needs: test-bicep
     runs-on: ubuntu-latest
     permissions:
       checks: write
-      # only needed unless run with comment_mode: off
       pull-requests: write
-    strategy:
-      fail-fast: false
-      matrix:
-        rid: ["win-x64", "linux-x64", "linux-musl-x64", "osx-x64"]
     if: always()
 
     steps:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: Bicep.TestResults.${{ matrix.rid }}
-          path: TestResults/${{ github.run_id }}/${{ github.run_attempt}}/${{ matrix.rid }}
+          name: Bicep.TestResults.win-x64
+          path: TestResults/win-x64
 
-      - name: List downloaded artifacts
-        run: ls -R TestResults/
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: Bicep.TestResults.linux-x64
+          path: TestResults/linux-x64
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: Bicep.TestResults.linux-musl-x64
+          path: TestResults/linux-musl-x64
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: Bicep.TestResults.osx-x64
+          path: TestResults/osx-x64
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
-          check_name: "Test Results (${{ matrix.rid }})"
-          files: "TestResults/${{ github.run_id }}/${{ github.run_attempt}}/${{ matrix.rid }}/**/*.trx"
+          check_name: Test Results
+          files: "TestResults/**/*.trx"
   
+  comment-preview-links:
+    name: "PR Comment: Preview Links"
+    needs: [build-vscode-ext, build-cli]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    if: always()
+
+    steps:
+      - uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            Test this change out locally with the following install scripts (Action run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}))
+            <details>
+              <summary>VSCode</summary>
+
+              - Mac/Linux
+                  ```sh
+                  bash <(curl -Ls https://aka.ms/bicep/nightly-vsix.sh) --run-id ${{ github.run_id }}
+                  ```
+              - Windows
+                  ```powershell
+                  iex "& { $(irm https://aka.ms/bicep/nightly-vsix.ps1) } -RunId ${{ github.run_id }}"
+                  ```
+            </details>
+            <details>
+              <summary>Azure CLI</summary>
+              
+              - Mac/Linux
+                  ```sh
+                  bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --run-id ${{ github.run_id }}
+                  ```
+              - Windows
+                  ```powershell
+                  iex "& { $(irm https://aka.ms/bicep/nightly-cli.ps1) } -RunId ${{ github.run_id }}"
+                  ```
+            </details>
+
   can-run-live-tests:
     name: Check secret access
     runs-on: ubuntu-latest
@@ -640,7 +680,7 @@ jobs:
     if: needs.can-run-live-tests.outputs.access_verified == 'true'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -688,7 +728,7 @@ jobs:
     if: needs.can-run-live-tests.outputs.access_verified == 'true'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Cannot use actions/setup-node@v3 for linux-musl-x64
       - name: Setup Node.js

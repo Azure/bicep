@@ -3,191 +3,163 @@
 
 using Bicep.RegistryModuleTool.Commands;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.Proxies;
 using Bicep.RegistryModuleTool.TestFixtures.Extensions;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using Bicep.RegistryModuleTool.TestFixtures.Mocks;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Mocks;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
+using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
 {
     [TestClass]
     public class ValidateCommandTests
     {
-        // NOTE: The templateHash here has to match the templateHash in SampleFiles/Valid/main.json
-        private static readonly MockFileData MockValidMainTestArmTemplateData = @"{
-  ""resources"": [
-    {
-      ""type"": ""Microsoft.Resources/deployments"",
-      ""properties"": {
-        ""template"": {
-          ""metadata"": {
-            ""_generator"": {
-              ""templateHash"": ""16759655392678672335""
-            }
-          }
-        }
-      }
-    }
-  ]
-}";
-
-        private static readonly MockFileData MockInvalidMainTestArmTemplateData = @"{
-  ""resources"": []
-}";
-
-        // TODO: This test doesn't catch if main.json does not match the compiled main.bicep
         [TestMethod]
-        public void Invoke_ValidFiles_ReturnsZero()
+        public async Task InvokeAsync_ValidFiles_ReturnsZero()
         {
-            var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
-            var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
-            var processProxy = MockProcessProxyFactory.CreateProcessProxy(
-                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
-                (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockValidMainTestArmTemplateData)));
+            var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
+            var sut = CreateValidateCommand(fileSystem);
 
-            var exitCode = Invoke(fileSystem, processProxy);
+            var exitCode = await sut.InvokeAsync("");
 
             exitCode.Should().Be(0);
         }
 
         [TestMethod]
-        public void Invoke_InvalidFiles_ReturnsOne()
+        public async Task InvokeAsync_InvalidFiles_ReturnsOne()
         {
-            var fileSystem = MockFileSystemFactory.CreateFileSystemWithInvalidFiles();
-            var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
-            var processProxy = MockProcessProxyFactory.CreateProcessProxy(
-                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
-                (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockInvalidMainTestArmTemplateData)));
+            var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Invalid);
+            var sut = CreateValidateCommand(fileSystem);
 
-            var exitCode = Invoke(fileSystem, processProxy);
+            var exitCode = await sut.InvokeAsync("");
 
             exitCode.Should().Be(1);
         }
 
         [TestMethod]
-        public void Invoke_InvalidFiles_WritesErrorsToConsole()
+        public async Task InvokeAsync_InvalidFiles_WritesErrorsToConsole()
         {
-            var fileSystem = MockFileSystemFactory.CreateFileSystemWithInvalidFiles();
-            var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
-            var processProxy = MockProcessProxyFactory.CreateProcessProxy(
-                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
-                (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockInvalidMainTestArmTemplateData)));
-
+            var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Invalid);
+            var sut = CreateValidateCommand(fileSystem);
+            var testFile = MainBicepTestFile.Open(fileSystem);
             var console = new MockConsole().ExpectErrorLines(
-                $@"The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. Descriptions for the following parameters are missing:
-  - dnsPrefix
-  - servicePrincipalClientSecret
+                $"""
+                The file "{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}" is invalid:
+                  - A description must be specified for parameter "dnsPrefix".
+                  - A description must be specified for parameter "servicePrincipalClientSecret".
+                  - A description must be specified for output "controlPlaneFQDN".
+                  - Metadata "description" must contain at least 10 characters.
 
-The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. Descriptions for the following outputs are missing:
-  - controlPlaneFQDN
-".ReplaceLineEndings(),
-                $@"The file ""{fileSystem.Path.GetFullPath($"test/{MainBicepTestFile.FileName}")}"" is invalid. Could not find tests in the file. Please make sure to add at least one module referencing the main Bicep file.
-".ReplaceLineEndings(),
-                $@"The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. ""metadata description"" must contain at least 10 characters.
-".ReplaceLineEndings(),
-                $@"The file ""{fileSystem.Path.GetFullPath(ReadmeFile.FileName)}"" is modified or outdated. Please run ""brm generate"" to regenerate it.
-".ReplaceLineEndings(),
-                $@"The file ""{fileSystem.Path.GetFullPath(VersionFile.FileName)}"" is invalid:
-  #: Required properties [""$schema"",""version"",""pathFilters""] were not present
-".ReplaceLineEndings());
+                """,
+                $"""
+                The file "{testFile.Path}" is invalid:
+                  - Could not find tests in the file. Please make sure to add at least one module referencing the main Bicep file.
 
-            Invoke(fileSystem, processProxy, console);
+                """,
+                $"""
+                The file "{fileSystem.Path.GetFullPath(MainArmTemplateFile.FileName)}" is invalid:
+                  - The file is modified or outdated. Please run "brm generate" to regenerate it.
 
-            console.Verify();
-        }
+                """,
+                $"""
+                The file "{fileSystem.Path.GetFullPath(ReadmeFile.FileName)}" is invalid:
+                  - The file is modified or outdated. Please run "brm generate" to regenerate it.
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidModulePathData), DynamicDataSourceType.Method)]
-        public void Invoke_InvalidModulePath_ReturnsOne(MockFileSystem fileSystem, string error)
-        {
-            var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
-            var processProxy = MockProcessProxyFactory.CreateProcessProxy(
-                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
-                (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockValidMainTestArmTemplateData)));
+                """,
+                $"""
+                The file "{fileSystem.Path.GetFullPath(VersionFile.FileName)}" is invalid:
+                  - #: Required properties ["$schema","version","pathFilters"] were not present.
+                  - The file is modified or outdated. Please run "brm generate" to regenerate it.
 
-            var exitCode = Invoke(fileSystem, processProxy);
+                """);
 
-            exitCode.Should().Be(1);
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidModulePathData), DynamicDataSourceType.Method)]
-        public void Invoke_InvalidModulePath_WritesErrorsToConsole(MockFileSystem fileSystem, string error)
-        {
-            var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
-            var processProxy = MockProcessProxyFactory.CreateProcessProxy(
-                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
-                (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockValidMainTestArmTemplateData)));
-
-            var console = new MockConsole().ExpectErrorLines(error);
-
-            Invoke(fileSystem, processProxy, console);
+            await sut.InvokeAsync("", console);
 
             console.Verify();
         }
 
         [TestMethod]
-        public void Invoke_MetadataFileExists_WritesErrorToConsole()
+        public async Task InvokeAsync_BicepBuildError_ReturnsOne()
         {
-            var fileSystem = MockFileSystemFactory.CreateFileSystemWithModuleWithObsoleteMetadataFile();
-            var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
-            var processProxy = MockProcessProxyFactory.CreateProcessProxy(
-                (args => args.Contains(MainBicepFile.FileName), () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
-                (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockInvalidMainTestArmTemplateData)));
+            var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
+            var sut = CreateValidateCommand(fileSystem);
+            var console = new MockConsole();
 
+            fileSystem.File.WriteAllText(MainBicepFile.FileName, "something");
+
+            var exitCode = await sut.InvokeAsync("", console);
+
+            exitCode.Should().Be(1);
+        }
+
+        [TestMethod]
+        public async Task InvokeAsync_BicepBuildError_PrintDiagnostics()
+        {
+            var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
+            var sut = CreateValidateCommand(fileSystem);
+            var mainBicepFilePath = fileSystem.Path.GetFullPath(MainBicepFile.FileName);
             var console = new MockConsole().ExpectErrorLines(
-                $@"The file ""{fileSystem.Path.GetFullPath(MetadataFile.FileName)}"" is obsolete.  Please run ""brm generate"" to have its contents moved to ""main.bicep""." + "\n");
+                @$"{mainBicepFilePath}(1,1) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.",
+                @$"Failed to build ""{mainBicepFilePath}"".");
 
-            Invoke(fileSystem, processProxy, console);
+            fileSystem.File.WriteAllText(MainBicepFile.FileName, "something");
+
+            await sut.InvokeAsync("", console);
 
             console.Verify();
         }
 
-        private static IEnumerable<object[]> GetInvalidModulePathData()
+        [TestMethod]
+        public async Task InvokeAsync_BicepTestBuildError_ReturnsOne()
         {
-            var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
+            var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
+            var sut = CreateValidateCommand(fileSystem);
+            var console = new MockConsole();
+            var bicepTestFile = MainBicepTestFile.Open(fileSystem);
 
-            var moduleDirectory = fileSystem.Path.GetFullPath("/modules/FOO/BAR");
-            fileSystem.MoveDirectory(fileSystem.Directory.GetCurrentDirectory(), moduleDirectory);
-            fileSystem.Directory.SetCurrentDirectory(moduleDirectory);
+            fileSystem.File.WriteAllText(bicepTestFile.Path, "something");
 
-            yield return new object[]
-            {
-                fileSystem,
-                $@"The module path ""FOO{fileSystem.Path.DirectorySeparatorChar}BAR"" in the path ""{moduleDirectory}"" is invalid. All characters in the module path must be in lowercase.{Environment.NewLine}"
-            };
+            var exitCode = await sut.InvokeAsync("", console);
 
-            moduleDirectory = fileSystem.Path.GetFullPath("/modules/mymodule");
-            fileSystem.MoveDirectory(fileSystem.Directory.GetCurrentDirectory(), moduleDirectory);
-            fileSystem.Directory.SetCurrentDirectory(moduleDirectory);
-
-            yield return new object[]
-            {
-                fileSystem,
-                $@"The module path ""mymodule"" in the path ""{moduleDirectory}"" is invalid. The module path must be in the format of ""<module-folder>{fileSystem.Path.DirectorySeparatorChar}<module-name>"".{Environment.NewLine}"
-            };
+            exitCode.Should().Be(1);
         }
 
-        private static int Invoke(IFileSystem fileSystem, IProcessProxy processProxy, IConsole? console = null)
+        [TestMethod]
+        public async Task InvokeAsync_BicepTestBuildError_PrintDiagnostics()
         {
-            var command = new ValidateCommand()
-            {
-                Handler = new ValidateCommand.CommandHandler(
-                    MockEnvironmentProxy.Default,
-                    processProxy,
-                    fileSystem,
-                    MockLoggerFactory.CreateGenericLogger<ValidateCommand>()),
-            };
+            var fileSystem = MockFileSystemFactory.CreateForSample(Sample.Valid);
+            var sut = CreateValidateCommand(fileSystem);
+            var bicepTestFile = MainBicepTestFile.Open(fileSystem);
 
-            return command.Invoke("", console);
+            fileSystem.File.WriteAllText(bicepTestFile.Path, "something");
+
+            var console = new MockConsole().ExpectErrorLines(
+                @$"{bicepTestFile.Path}(1,1) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.",
+                @$"Failed to build ""{bicepTestFile.Path}"".");
+
+            await sut.InvokeAsync("", console);
+
+            console.Verify();
+        }
+
+        private static ValidateCommand CreateValidateCommand(IFileSystem fileSystem)
+        {
+            var serviceCollection = new ServiceCollection()
+                .AddBicepCompilerWithFileSystem(fileSystem)
+                .AddSingleton(MockLoggerFactory.CreateGenericLogger<ValidateCommand>())
+                .AddSingleton<ValidateCommand.CommandHandler>();
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var handler = serviceProvider.GetRequiredService<ValidateCommand.CommandHandler>();
+
+            return new ValidateCommand()
+            {
+                Handler = handler,
+            };
         }
     }
 }

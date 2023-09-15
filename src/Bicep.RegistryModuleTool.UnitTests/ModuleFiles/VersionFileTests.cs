@@ -6,6 +6,7 @@ using Bicep.RegistryModuleTool.ModuleFiles;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO.Abstractions.TestingHelpers;
+using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
 {
@@ -13,40 +14,40 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
     public class VersionFileTests
     {
         [TestMethod]
-        public void ReadFromFileSystem_InvalidJson_ThrowsException()
+        public async Task OpenAsync_InvalidJson_Throws()
         {
             var fileSystem = new MockFileSystem();
             var path = fileSystem.Path.GetFullPath(VersionFile.FileName);
 
             fileSystem.AddFile(path, "######");
 
-            FluentActions.Invoking(() => VersionFile.ReadFromFileSystem(fileSystem)).Should()
-                .Throw<BicepException>()
+            await FluentActions.Invoking(() => VersionFile.OpenAsync(fileSystem)).Should()
+                .ThrowAsync<BicepException>()
                 .WithMessage($"The version file \"{path}\" is not a valid JSON file.*");
         }
 
         [TestMethod]
-        public void ReadFromFileSystem_RootIsNotObject_ThrowsException()
+        public async Task OpenAsync_RootIsNotObject_Throws()
         {
             var fileSystem = new MockFileSystem();
             var path = fileSystem.Path.GetFullPath(VersionFile.FileName);
 
             fileSystem.AddFile(path, "[]");
 
-            FluentActions.Invoking(() => VersionFile.ReadFromFileSystem(fileSystem)).Should()
-                .Throw<BicepException>()
+            await FluentActions.Invoking(() => VersionFile.OpenAsync(fileSystem)).Should()
+                .ThrowAsync<BicepException>()
                 .WithMessage($"The version file \"{path}\" must contain a JSON object at the root level.");
         }
 
         [TestMethod]
-        public void ReadFromFileSystem_ValidJson_Succeeds()
+        public async Task OpenAsync_ValidJson_Succeeds()
         {
             var fileSystem = new MockFileSystem();
             var path = fileSystem.Path.GetFullPath(VersionFile.FileName);
 
             fileSystem.AddFile(path, "{}");
 
-            FluentActions.Invoking(() => VersionFile.ReadFromFileSystem(fileSystem)).Should().NotThrow();
+            await FluentActions.Invoking(() => VersionFile.OpenAsync(fileSystem)).Should().NotThrowAsync();
         }
     }
 }

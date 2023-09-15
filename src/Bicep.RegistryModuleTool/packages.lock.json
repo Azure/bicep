@@ -8,21 +8,6 @@
         "resolved": "0.1.32",
         "contentHash": "vogk6semxm58Ws/vzyhvK5O5nSZH6EHNIfisxPnO+l9fKP/2WH2nPyAbHVqL8ZOp9ImgJ/AotOpMLvxF5Z/7JA=="
       },
-      "DiffPlex": {
-        "type": "Direct",
-        "requested": "[1.7.1, )",
-        "resolved": "1.7.1",
-        "contentHash": "a0fSO2p8ykrcfzgG0sjpZAMZPthXXz4l6UIVuM9uyIYIh5yga4sq3aydSGt6n+MkdSBKvMurjjaKnxIqZtfG1g=="
-      },
-      "FluentAssertions": {
-        "type": "Direct",
-        "requested": "[6.11.0, )",
-        "resolved": "6.11.0",
-        "contentHash": "aBaagwdNtVKkug1F3imGXUlmoBd8ZUZX8oQ5niThaJhF79SpESe1Gzq7OFuZkQdKD5Pa4Mone+jrbas873AT4g==",
-        "dependencies": {
-          "System.Configuration.ConfigurationManager": "4.4.0"
-        }
-      },
       "JsonPath.Net": {
         "type": "Direct",
         "requested": "[0.6.5, )",
