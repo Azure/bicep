@@ -315,6 +315,16 @@
                     }
                   ]
                 },
+                "no-deployments-resources": {
+                  "allOf": [
+                    {
+                      "description": "Bicep modules are recommended instead of representing nested or linked deployments as a resource. See https://aka.ms/bicep/linter/no-deployments-resources"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-hardcoded-env-urls": {
                   "allOf": [
                     {

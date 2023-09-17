@@ -417,6 +417,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bicep modules are recommended instead of representing nested or linked deployments as a resource..
+        /// </summary>
+        internal static string NoDeploymentsResourcesRuleDescription {
+            get {
+                return ResourceManager.GetString("NoDeploymentsResourcesRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource &quot;{0}&quot; of type &quot;{1}&quot; should instead be declared as a Bicep module..
+        /// </summary>
+        internal static string NoDeploymentsResourcesRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("NoDeploymentsResourcesRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A resource location should not use a hard-coded string or variable value. Change variable &apos;{0}&apos; into a parameter instead..
         /// </summary>
         internal static string NoHardcodedLocation_ErrorChangeVarToParam {
