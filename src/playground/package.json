@@ -40,7 +40,7 @@
   "dependencies": {
     "@microsoft/applicationinsights-web": "^3.0.2",
     "bootstrap": "^5.3.1",
-    "monaco-editor": "^0.41.0",
+    "monaco-editor": "^0.43.0",
     "pako": "^2.1.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.8.0",
