@@ -287,6 +287,9 @@
   <data name="UseStableVMImageRuleFixMessageFormat" xml:space="preserve">
     <value>Virtual machines shouldn't use preview images. Use stable version in imageReference property "{0}".</value>
   </data>
+  <data name="AutomaticOSImageUpgrade" xml:space="preserve">
+    <value>Virtual machines should set automatic OS image upgrades for security. Set this in property "{0}".</value>
+  </data>
   <data name="UnusedExistingResourceRuleDescription" xml:space="preserve">
     <value>All existing resources must be used.</value>
   </data>
