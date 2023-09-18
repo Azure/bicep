@@ -472,8 +472,7 @@ namespace Bicep.Core.Semantics
 
         private ISemanticModel? TryGetSemanticModelForParamsFile()
         {
-            if (this.SourceFile is BicepParamFile &&
-                this.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
+            if (this.SourceFile is BicepParamFile && this.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
             {
                 return usingModel;
             }

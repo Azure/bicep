@@ -214,13 +214,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol? GetDeclaredParameterAssignmentType(ParameterAssignmentSyntax syntax)
         {
-            if (this.binder.GetSymbolInfo(syntax) is not ParameterAssignmentSymbol parameterAssignmentSymbol)
-            {
-                // no access to the compilation to get something better
-                return null;
-            }
-
-            if(!parameterAssignmentSymbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel, out var failureDiagnostic))
+            if (!binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel, out var failureDiagnostic))
             {
                 // failed to resolve using
                 return failureDiagnostic is ErrorDiagnostic error
@@ -228,7 +222,7 @@ namespace Bicep.Core.TypeSystem
                     : null;
             }
 
-            if(semanticModel.Parameters.TryGetValue(parameterAssignmentSymbol.Name, out var parameterMetadata))
+            if(semanticModel.Parameters.TryGetValue(syntax.Name.IdentifierName, out var parameterMetadata))
             {
                 return parameterMetadata.TypeReference.Type;
             }

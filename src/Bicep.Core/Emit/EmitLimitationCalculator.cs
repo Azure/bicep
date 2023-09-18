@@ -506,7 +506,10 @@ namespace Bicep.Core.Emit
                 return ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty;
             }
 
-            var referencesInValues = model.Root.ParameterAssignments.Concat<DeclaredSymbol>(model.Root.VariableDeclarations)
+            var referencesInValues = model.Root.ParameterAssignments
+                .Concat<DeclaredSymbol>(model.Root.VariableDeclarations)
+                .Concat(model.Root.ImportedSymbols)
+                .Concat(model.Root.WildcardImports)
                 .ToImmutableDictionary(p => p as Symbol, p => ReferenceGatheringVisitor.GatherReferences(model, p));
             var generated = ImmutableDictionary.CreateBuilder<ParameterAssignmentSymbol, ParameterAssignmentValue>();
             var evaluator = new ParameterAssignmentEvaluator(model);

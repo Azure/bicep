@@ -127,7 +127,7 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Importing_non_template_should_raise_diagnostic()
+    public void Importing_non_template_should_not_raise_diagnostic()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
             ("main.bicep", """
@@ -136,16 +136,16 @@ public class CompileTimeImportTests
             ("main.bicepparam", """
                 using 'mod.bicep'
 
-                param bar = 'bar'
+                @export()
+                var foo = 'bar'
+
+                param bar = foo
                 """),
             ("mod.bicep", """
                 param bar string
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP359", DiagnosticLevel.Error, "A compile-time import can only reference a Bicep file, an ARM template, a registry artifact, or a template spec.")
-        });
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
@@ -1046,5 +1046,67 @@ public class CompileTimeImportTests
         {
             ("BCP355", DiagnosticLevel.Error, "Expected the name of an exported symbol at this location."),
         });
+    }
+
+    [TestMethod]
+    public void Named_imports_into_bicepparam_file_are_supported()
+    {
+        var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                param intParam int
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+                import {a} from 'mod.bicep'
+                import {b} from 'mod.bicepparam'
+
+                param intParam = a + b + 4
+                """),
+            ("mod.bicep", """
+                @export()
+                var a = 2
+                """),
+            ("mod.bicepparam", """
+                using 'mod.bicep'
+
+                @export()
+                var b = 3
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var parameters = TemplateEvaluator.ParseParametersFile(result.Parameters);
+        parameters["intParam"].Should().DeepEqual(9);
+    }
+
+    [TestMethod]
+    public void Wildcard_imports_into_bicepparam_file_are_supported()
+    {
+        var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                param intParam int
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+                import * as modTemplate from 'mod.bicep'
+                import * as modParams from 'mod.bicepparam'
+
+                param intParam = modTemplate.a + modParams.b + 4
+                """),
+            ("mod.bicep", """
+                @export()
+                var a = 2
+                """),
+            ("mod.bicepparam", """
+                using 'mod.bicep'
+
+                @export()
+                var b = 3
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var parameters = TemplateEvaluator.ParseParametersFile(result.Parameters);
+        parameters["intParam"].Should().DeepEqual(9);
     }
 }

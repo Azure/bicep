@@ -110,7 +110,7 @@ namespace Bicep.LanguageServer.Completions
                                 GetCompletionItemKind(SymbolKind.ParameterAssignment),
                                 metadata.Name)
                             .WithDocumentation(
-                                $"Type: {metadata.TypeReference.Type}" + 
+                                $"Type: {metadata.TypeReference.Type}" +
                                 (metadata.Description is null ? "" : $"{MarkdownNewLine}{metadata.Description}"))
                             .WithDetail(metadata.Name)
                             .WithPlainTextEdit(paramsCompletionContext.ReplacementRange, metadata.Name)
@@ -2047,10 +2047,9 @@ namespace Bicep.LanguageServer.Completions
                 if (context.EnclosingDeclaration is CompileTimeImportDeclarationSyntax compileTimeImportDeclaration &&
                     compileTimeImportDeclaration.ImportExpression.Span.ContainsInclusive(context.ReplacementTarget.Span.Position))
                 {
-                    if (SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(
+                    if (SemanticModelHelper.TryGetModelForArtifactReference(
                             model.Compilation.SourceFileGrouping,
                             compileTimeImportDeclaration,
-                            b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
                             model.Compilation)
                         .IsSuccess(out var importedModel))
                     {

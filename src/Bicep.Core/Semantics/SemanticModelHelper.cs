@@ -45,14 +45,26 @@ namespace Bicep.Core.Semantics
             });
         }
 
-        public static Result<ISemanticModel, ErrorDiagnostic> TryGetSemanticModelForForeignTemplateReference(ISourceFileLookup sourceFileLookup,
+        public static Result<ISemanticModel, ErrorDiagnostic> TryGetModelForArtifactReference(ISourceFileLookup sourceFileLookup,
+            IArtifactReferenceSyntax reference,
+            ISemanticModelLookup semanticModelLookup)
+        {
+            if (!TryGetSourceFile(sourceFileLookup, reference).IsSuccess(out var sourceFile, out var error))
+            {
+                return new(error);
+            }
+
+            return new(semanticModelLookup.GetSemanticModel(sourceFile));
+        }
+
+        public static Result<ISemanticModel, ErrorDiagnostic> TryGetTemplateModelForArtifactReference(ISourceFileLookup sourceFileLookup,
             IArtifactReferenceSyntax reference,
             DiagnosticBuilder.ErrorBuilderDelegate onInvalidSourceFileType,
             ISemanticModelLookup semanticModelLookup)
         {
-            if (!sourceFileLookup.TryGetSourceFile(reference).IsSuccess(out var sourceFile, out var errorBuilder))
+            if (!TryGetSourceFile(sourceFileLookup, reference).IsSuccess(out var sourceFile, out var error))
             {
-                return new(errorBuilder(DiagnosticBuilder.ForPosition(reference.SourceSyntax)));
+                return new(error);
             }
 
             // when we inevitably add a third language ID,
@@ -64,6 +76,16 @@ namespace Bicep.Core.Semantics
             }
 
             return new(semanticModelLookup.GetSemanticModel(sourceFile));
+        }
+
+        private static Result<ISourceFile, ErrorDiagnostic> TryGetSourceFile(ISourceFileLookup sourceFileLookup, IArtifactReferenceSyntax reference)
+        {
+            if (!sourceFileLookup.TryGetSourceFile(reference).IsSuccess(out var sourceFile, out var errorBuilder))
+            {
+                return new(errorBuilder(DiagnosticBuilder.ForPosition(reference.SourceSyntax)));
+            }
+
+            return new(sourceFile);
         }
     }
 }

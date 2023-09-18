@@ -160,7 +160,7 @@ namespace Bicep.Core.Semantics
                 return new(DiagnosticBuilder.ForDocumentStart().UsingDeclarationNotSpecified());
             }
 
-            return SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(
+            return SemanticModelHelper.TryGetTemplateModelForArtifactReference(
                 Context.Compilation.SourceFileGrouping,
                 usingDeclaration,
                 b => b.UsingDeclarationMustReferenceBicepFile(),

@@ -38,9 +38,8 @@ public class ImportedSymbol : DeclaredSymbol
     };
 
     public ISemanticModel? TryGetSemanticModel()
-        => SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
+        => SemanticModelHelper.TryGetModelForArtifactReference(Context.Compilation.SourceFileGrouping,
             EnclosingDeclaration,
-            b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
             Context.Compilation)
             .TryUnwrap();
 

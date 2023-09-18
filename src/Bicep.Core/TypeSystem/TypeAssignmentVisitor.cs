@@ -954,9 +954,8 @@ namespace Bicep.Core.TypeSystem
 
         private ImmutableDictionary<string, TypeProperty>? GetImportablePropertiesForDeclaration(CompileTimeImportDeclarationSyntax syntax, IDiagnosticWriter diagnostics)
         {
-            if (!SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(sourceFileLookup,
+            if (!SemanticModelHelper.TryGetModelForArtifactReference(sourceFileLookup,
                     syntax,
-                    b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
                     semanticModelLookup)
                 .IsSuccess(
                     out var semanticModel,

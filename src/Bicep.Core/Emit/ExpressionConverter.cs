@@ -144,6 +144,9 @@ namespace Bicep.Core.Emit
                 case ImportedVariableReferenceExpression exp:
                     return CreateFunction("variables", new JTokenExpression(exp.Variable.Name));
 
+                case WildcardImportVariablePropertyReferenceExpression exp:
+                    return AppendProperties(CreateFunction("variables", new JTokenExpression(exp.ImportSymbol.Name)), new JTokenExpression(exp.PropertyName));
+
                 case ParametersReferenceExpression exp:
                     return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
 

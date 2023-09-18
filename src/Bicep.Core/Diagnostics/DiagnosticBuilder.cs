@@ -2012,11 +2012,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP358",
                 "This declaration is missing a template file path reference.");
 
-            public ErrorDiagnostic CompileTimeImportDeclarationMustReferenceTemplate() => new(
-                TextSpan,
-                "BCP359",
-                "A compile-time import can only reference a Bicep file, an ARM template, a registry artifact, or a template spec.");
-
             public ErrorDiagnostic ImportedSymbolNotFound(string symbolName) => new(
                 TextSpan,
                 "BCP360",
