@@ -56,6 +56,7 @@ namespace Bicep.Core.Emit
             BlockTestFrameworkWithoutExperimentalFeaure(model, diagnostics);
             BlockAssertsWithoutExperimentalFeatures(model, diagnostics);
             BlockNamesDistinguishedOnlyByCase(model, diagnostics);
+            BlockSymbolicReferencesInInnerScopedNestedDeployments(model, diagnostics);
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
@@ -507,7 +508,7 @@ namespace Bicep.Core.Emit
             }
 
             var referencesInValues = model.Root.ParameterAssignments.Concat<DeclaredSymbol>(model.Root.VariableDeclarations)
-                .ToImmutableDictionary(p => p as Symbol, p => ReferenceGatheringVisitor.GatherReferences(model, p));
+                .ToImmutableDictionary(p => p as Symbol, p => ReferenceGatheringVisitor.GatherReferences(model, p.DeclaringSyntax));
             var generated = ImmutableDictionary.CreateBuilder<ParameterAssignmentSymbol, ParameterAssignmentValue>();
             var evaluator = new ParameterAssignmentEvaluator(model);
             HashSet<Symbol> erroredSymbols = new();
@@ -606,10 +607,10 @@ namespace Bicep.Core.Emit
                 this.topLevelSymbols = model.Root.Declarations.ToHashSet<Symbol>();
             }
 
-            internal static ImmutableDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>> GatherReferences(SemanticModel model, DeclaredSymbol parameterAssignment)
+            internal static ImmutableDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>> GatherReferences(SemanticModel model, SyntaxBase syntax)
             {
                 var visitor = new ReferenceGatheringVisitor(model);
-                parameterAssignment.DeclaringSyntax.Accept(visitor);
+                syntax.Accept(visitor);
 
                 return visitor.references.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutable());
             }
@@ -704,6 +705,34 @@ namespace Bicep.Core.Emit
 
                 diagnostics.WriteMultiple(grouping.Select(
                     item => DiagnosticBuilder.ForPosition(nameSyntaxExtractor(item)).ItemsMustBeCaseInsensitivelyUnique(itemTypePluralName, clashingNames)));
+            }
+        }
+
+        private static void BlockSymbolicReferencesInInnerScopedNestedDeployments(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            var innerScopedEvaluationIsDefault = new EmitterSettings(model).EnableSymbolicNames;
+
+            foreach (var resource in model.DeclaredResources.Where(r => r.IsAzResource))
+            {
+                if (!LanguageConstants.ResourceTypeComparer.Equals(resource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeDeployments) ||
+                    resource.Symbol.DeclaringResource.GetBody().TryGetPropertyByName("properties", StringComparison.OrdinalIgnoreCase)?.Value is not ObjectSyntax propertiesObject ||
+                    propertiesObject.TryGetPropertyByName("template", StringComparison.OrdinalIgnoreCase)?.Value is not SyntaxBase nestedTemplate)
+                {
+                    continue;
+                }
+
+                bool explicitInnerScope = (propertiesObject.TryGetPropertyByName("expressionEvaluationOptions", StringComparison.OrdinalIgnoreCase)?.Value as ObjectSyntax)
+                    ?.TryGetPropertyByName("scope", StringComparison.OrdinalIgnoreCase)?.Value is SyntaxBase explicitScope &&
+                    model.GetTypeInfo(explicitScope) is StringLiteralType folded &&
+                    folded.RawStringValue.Equals("inner", StringComparison.OrdinalIgnoreCase);
+
+                if (explicitInnerScope || innerScopedEvaluationIsDefault)
+                {
+                    foreach (var (name, signifier) in ReferenceGatheringVisitor.GatherReferences(model, nestedTemplate).SelectMany(kvp => kvp.Value.Select(v => (kvp.Key.Name, v))))
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(signifier).ReferencedSymbolDefinedOutsideOfEvaluationContext(name));
+                    }
+                }
             }
         }
     }
