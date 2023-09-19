@@ -56,6 +56,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }",
                 new string[]
                 {
+                    "[17] The symbol 'stgAccountName' is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."
                 });
         }
 
@@ -96,6 +97,48 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     }",
                 new string[]
                 {
+                    "[17] The symbol 'stgAccountName' is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."
+                });
+        }
+
+        [TestMethod]
+        public void SecureParams_AndListKeys_ButImplicitlyInnerScope_Pass()
+        {
+            // https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-test-cases#use-inner-scope-for-nested-deployment-secure-parameters
+            CompileAndTest("""
+                    @secure()
+                    param stgAccountName string
+
+                    #disable-next-line no-unused-params
+                    param arr string[]
+
+                    resource nested 'Microsoft.Resources/deployments@2021-04-01' = {
+                      name: 'nested'
+                      properties: {
+                        mode: 'Incremental'
+                        template: {
+                          '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                          contentVersion: '1.0.0.0'
+                          resources: [
+                            {
+                              name: stgAccountName
+                              type: 'Microsoft.Storage/storageAccounts'
+                              apiVersion: '2021-04-01'
+                              location: format('{0}', listKeys('someResourceId', '2020-01-01'))
+                              kind: 'StorageV2'
+                              sku: {
+                                name: 'Premium_LRS'
+                                tier: 'Premium'
+                              }
+                            }
+                          ]
+                        }
+                      }
+                    }
+                    """,
+                new string[]
+                {
+                    "[16] The symbol 'stgAccountName' is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."
                 });
         }
 
@@ -577,7 +620,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                           ]
                         }
                       }
-                    }                       
+                    }
                 ",
                 new string[]
                 {
@@ -621,7 +664,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                           ]
                         }
                       }
-                    }                       
+                    }
                 ",
                 new string[]
                 {
@@ -661,7 +704,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                           ]
                         }
                       }
-                    }                       
+                    }
                 ",
                 new string[]
                 {
@@ -704,7 +747,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
                 new[]
                 {
-                   "[6] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.", 
+                   "[6] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
                 });
         }
 
@@ -740,7 +783,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                           ]
                         }
                       }
-                    }]                       
+                    }]
                 ",
                 new string[]
                 {

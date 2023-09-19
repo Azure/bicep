@@ -710,7 +710,7 @@ namespace Bicep.Core.Emit
 
         private static void BlockSymbolicReferencesInInnerScopedNestedDeployments(SemanticModel model, IDiagnosticWriter diagnostics)
         {
-            var innerScopedEvaluationIsDefault = new EmitterSettings(model).EnableSymbolicNames;
+            var innerScopedEvaluationIsDefault = model.EmitterSettings.EnableSymbolicNames;
 
             foreach (var resource in model.DeclaredResources.Where(r => r.IsAzResource))
             {

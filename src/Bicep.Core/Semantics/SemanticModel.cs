@@ -34,6 +34,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableSortedDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
         private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
+        private readonly Lazy<EmitterSettings> emitterSettingsLazy;
 
         // needed to support param file go to def
         private readonly Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterMetadata?>> declarationsByAssignment;
@@ -66,6 +67,7 @@ namespace Bicep.Core.Semantics
             // allow type queries now
             symbolContext.Unlock();
 
+            this.emitterSettingsLazy = new(() => new(this));
             this.emitLimitationInfoLazy = new(() => EmitLimitationCalculator.Calculate(this));
             this.symbolHierarchyLazy = new(() =>
             {
@@ -228,6 +230,8 @@ namespace Bicep.Core.Semantics
         public ITypeManager TypeManager { get; }
 
         public IFileResolver FileResolver { get; }
+
+        public EmitterSettings EmitterSettings => emitterSettingsLazy.Value;
 
         public IDiagnosticLookup LexingErrorLookup => this.SourceFile.LexingErrorLookup;
 
