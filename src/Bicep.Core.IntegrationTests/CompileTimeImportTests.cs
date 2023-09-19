@@ -1047,4 +1047,39 @@ public class CompileTimeImportTests
             ("BCP355", DiagnosticLevel.Error, "Expected the name of an exported symbol at this location."),
         });
     }
+
+    [TestMethod]
+    public void Importing_type_results_in_ARM_language_version_2()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {foo} from 'mod.bicep'
+                """),
+            ("mod.bicep", """
+                @export()
+                type foo = string
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
+    }
+
+    [TestMethod]
+    public void Importing_variables_only_does_not_result_in_elevated_ARM_language_version()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {bar} from 'mod.bicep'
+                """),
+            ("mod.bicep", """
+                @export()
+                type foo = string
+
+                @export()
+                var bar = 'bar'
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotHaveValueAtPath("languageVersion");
+    }
 }
