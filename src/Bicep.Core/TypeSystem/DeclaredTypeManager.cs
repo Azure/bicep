@@ -1753,6 +1753,13 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var flags = parameter.IsRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly;
+
+                // add implicit nullability for optional parameters
+                if (!parameter.IsRequired)
+                {
+                    type = TypeHelper.CreateTypeUnion(type, LanguageConstants.Null);
+                }
+
                 parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
             }
 
