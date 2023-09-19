@@ -4881,11 +4881,11 @@ module mod 'mod.bicep' = [for i in range(0, count): {
     {
         var result = CompilationHelper.CompileParams(
             ("parameters.bicepparam", """
-using 'main.bicep'
+                using 'main.bicep'
 
-param foo = 'asdf'
-param foo = 'asdf'
-"""),
+                param foo = 'asdf'
+                param foo = 'asdf'
+                """),
             ("main.bicep", """param foo string"""));
 
         result.Should().HaveDiagnostics(new[]
@@ -5075,5 +5075,32 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         //     ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
         //     ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
         // });
+    }
+
+    // https://github.com/Azure/bicep/issues/11883
+    [TestMethod]
+    public void Test_Issue11883()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                param nullable string?
+                param withNestedNullable {
+                  property: string?
+                }
+
+                module mod 'mod.bicep' = {
+                  name: 'mod'
+                  params: {
+                    withDefault: nullable
+                    nullable: withNestedNullable.?property
+                  }
+                }
+                """),
+            ("mod.bicep", """
+                param withDefault string = 'default'
+                param nullable string?
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
     }
 }
