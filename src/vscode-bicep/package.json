@@ -778,7 +778,7 @@
     "eslint": "^8.49.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-header": "^3.1.1",
-    "eslint-plugin-jest": "^27.2.3",
+    "eslint-plugin-jest": "^27.4.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.33.2",
     "fork-ts-checker-webpack-plugin": "^8.0.0",
