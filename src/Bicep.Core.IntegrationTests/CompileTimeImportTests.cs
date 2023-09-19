@@ -1049,6 +1049,41 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
+    public void Importing_type_results_in_ARM_language_version_2()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {foo} from 'mod.bicep'
+                """),
+            ("mod.bicep", """
+                @export()
+                type foo = string
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
+    }
+
+    [TestMethod]
+    public void Importing_variables_only_does_not_result_in_elevated_ARM_language_version()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {bar} from 'mod.bicep'
+                """),
+            ("mod.bicep", """
+                @export()
+                type foo = string
+
+                @export()
+                var bar = 'bar'
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotHaveValueAtPath("languageVersion");
+    }
+
+    [TestMethod]
     public void Named_imports_into_bicepparam_file_are_supported()
     {
         var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,

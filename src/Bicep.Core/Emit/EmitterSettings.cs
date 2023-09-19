@@ -23,6 +23,8 @@ namespace Bicep.Core.Emit
                 model.Features.SymbolicNameCodegenEnabled ||
                 // there are any user-defined type declarations
                 model.Root.TypeDeclarations.Any() ||
+                // there are any user-defined types imported
+                model.Root.ImportedSymbols.Where(imported => imported.Kind == SymbolKind.TypeAlias).Any() ||
                 // any user-defined type declaration syntax is used (e.g., in a `param` or `output` statement)
                 SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
                     seed: false,
