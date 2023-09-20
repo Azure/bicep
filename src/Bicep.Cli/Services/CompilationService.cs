@@ -74,6 +74,8 @@ namespace Bicep.Cli.Services
             LogDiagnostics(GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceModulesRestore));
         }
 
+        public Workspace Workspace => workspace;
+
         public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore, Action<Compilation>? validateFunc = null)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);

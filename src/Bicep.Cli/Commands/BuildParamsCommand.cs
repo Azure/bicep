@@ -1,14 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Rewriters;
+using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
@@ -52,6 +59,34 @@ namespace Bicep.Cli.Commands
             {
                 logger.LogError(CliResources.UnrecognizedBicepparamsFileExtensionMessage, paramsInputPath);
                 return 1;
+            }
+
+            if (args.ParamOverrides.Any())
+            {
+                var fileContents = await File.ReadAllTextAsync(paramsInputPath);
+                var sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
+
+                var newProgramSyntax = CallbackRewriter.Rewrite(sourceFile.ProgramSyntax, syntax => {
+                    if (syntax is not ParameterAssignmentSyntax paramSyntax)
+                    {
+                        return syntax;
+                    }
+
+                    if (!args.ParamOverrides.TryGetValue(paramSyntax.Name.IdentifierName, out var replacementValue))
+                    {
+                        return syntax;
+                    }
+
+                    return new ParameterAssignmentSyntax(
+                        paramSyntax.Keyword,
+                        paramSyntax.Name,
+                        paramSyntax.Assignment,
+                        SyntaxFactory.CreateStringLiteral(replacementValue));
+                });
+
+                fileContents = newProgramSyntax.ToTextPreserveFormatting();
+                sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
+                compilationService.Workspace.UpsertSourceFile(sourceFile);
             }
 
             var paramsCompilation = await compilationService.CompileAsync(

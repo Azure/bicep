@@ -30,6 +30,7 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -248,6 +249,36 @@ namespace Bicep.Cli.IntegrationTests
             System.Environment.SetEnvironmentVariable("stringEnvVariableName", "test");
             System.Environment.SetEnvironmentVariable("intEnvVariableName", "100");
             System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", "true");
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_overrides()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", """
+using './main.bicep'
+
+param foo = 'abc'
+param bar = foo
+""");
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+param foo string
+param bar string
+
+output baz string = '${foo}-${bar}'
+""", Path.GetDirectoryName(bicepparamsPath));
+
+            var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
+
+            File.Exists(outputFilePath).Should().BeFalse();
+            var result = await Bicep("build-params", bicepparamsPath, "--stdout", "--param-override", "foo=def");
+
+            result.Should().NotHaveStderr().And.Succeed();
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+
+            paramsObject.Should().HaveValueAtPath("parameters.foo.value", "def");
+            paramsObject.Should().HaveValueAtPath("parameters.bar.value", "def");
         }
     }
 }
