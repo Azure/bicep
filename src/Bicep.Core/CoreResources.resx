@@ -485,4 +485,7 @@
   <data name="ExperimentalFeatureNames_MicrosoftGraphPreview" xml:space="preserve">
     <value>MicrosoftGraph Preview</value>
   </data>
+  <data name="ExperimentalFeatureNames_PublishSource" xml:space="preserve">
+    <value>Publish source with modules</value>
+  </data>
 </root>

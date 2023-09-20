@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Modules;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -71,7 +72,8 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="moduleReference">The module reference</param>
         /// <param name="compiled">The compiled module</param>
-        Task PublishArtifact(ArtifactReference moduleReference, Stream compiled, string? documentationUri, string? description);
+        /// <param name="bicepSources">The source archive (binary stream of SourceArchive)</param> //asdfg
+        Task PublishArtifact(ArtifactReference moduleReference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description);
 
         /// <summary>
         /// Returns documentationUri for the module.
@@ -84,5 +86,12 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="moduleReference">The module reference</param>
         Task<string?> TryGetDescription(ArtifactReference moduleReference);
+
+        /// <summary>
+        /// Returns the source code for the module, if available.
+        /// </summary>
+        /// <param name="moduleReference">The module reference</param>
+        /// <returns>A source archive</returns>
+        SourceArchive? TryGetSource(ArtifactReference moduleReference);
     }
 }

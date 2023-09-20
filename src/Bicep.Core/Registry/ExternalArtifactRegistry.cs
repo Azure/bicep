@@ -35,7 +35,7 @@ namespace Bicep.Core.Registry
 
         protected abstract Uri GetArtifactLockFileUri(TArtifactReference reference);
 
-        protected async Task TryWriteArtifactContentAsync(TArtifactReference reference, TArtifactEntity entity)
+        protected async Task WriteArtifactContentToCacheAsync(TArtifactReference reference, TArtifactEntity entity)
         {
             // this has to be after downloading the artifact content so we don't create directories for non-existent artifacts
             var artifactDirectoryPath = this.GetArtifactDirectoryPath(reference);
@@ -86,6 +86,7 @@ namespace Bicep.Core.Registry
 
         private static void CreateArtifactDirectory(string artifactDirectoryPath)
         {
+            Debug.Assert(Path.IsPathFullyQualified(artifactDirectoryPath), $"Artifact directory must be fully qualified: \"{artifactDirectoryPath}\"");
             try
             {
                 // ensure that the directory exists

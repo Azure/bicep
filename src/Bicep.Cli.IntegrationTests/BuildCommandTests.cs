@@ -68,12 +68,12 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Build_Valid_SingleFile_WithTemplateSpecReference_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients().Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(false).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
             var (output, error, result) = await Bicep(settings, "build", bicepFilePath);
 
             using (new AssertionScope())
@@ -110,7 +110,7 @@ namespace Bicep.Cli.IntegrationTests
             // 1. create a mock registry client
             var registryUri = new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}");
             var repository = $"bicep/providers/az";
-            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients((registryUri, repository));
+            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients(false, (registryUri, repository));
             var myClient = blobClients[(registryUri, repository)];
 
             // 2. upload a manifest and its blob layer
@@ -176,12 +176,12 @@ import 'az@2.0.0'
         public async Task Build_Valid_SingleFile_WithTemplateSpecReference_ToStdOut_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients().Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(false).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "build", "--stdout", bicepFilePath);
 
@@ -194,7 +194,8 @@ import 'az@2.0.0'
 
             if (dataSet.HasExternalModules)
             {
-                settings.FeatureOverrides.Should().HaveValidModules();
+                CachedModules.GetCachedRegistryModules(settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                    .And.AllSatisfy(m => m.Should().HaveSource());
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -214,12 +215,12 @@ import 'az@2.0.0'
         public async Task Build_Valid_SingleFile_After_Restore_Should_Succeed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients().Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(false).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             var (restoreOutput, restoreError, restoreResult) = await Bicep(settings, "restore", bicepFilePath);
             using (new AssertionScope())
@@ -265,7 +266,7 @@ import 'az@2.0.0'
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -281,11 +282,11 @@ import 'az@2.0.0'
                 publishError.Should().BeEmpty();
             }
 
-            client.Blobs.Should().HaveCount(2);
+            client.Blobs.Should().HaveCount(3); // manifest config, main.json, sources
             client.Manifests.Should().HaveCount(1);
             client.ManifestTags.Should().HaveCount(1);
 
-            string digest = client.Manifests.Single().Key;
+            string digest = client.ModuleManifestObjects.Single().Key;
 
             var bicep = $$"""
 module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {

@@ -182,12 +182,12 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public async Task PublishModule(ArtifactReference moduleReference, Stream compiled, string? documentationUri)
+        public async Task PublishModule(ArtifactReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri)
         {
             var registry = this.GetRegistry(moduleReference);
 
-            var description = DescriptionHelper.TryGetFromArmTemplate(compiled);
-            await registry.PublishArtifact(moduleReference, compiled, documentationUri, description);
+            var description = DescriptionHelper.TryGetFromArmTemplate(compiledArmTemplate);
+            await registry.PublishArtifact(moduleReference, compiledArmTemplate, bicepSources, documentationUri, description);
         }
 
         public async Task<bool> CheckModuleExists(ArtifactReference moduleReference)
@@ -213,6 +213,11 @@ namespace Bicep.Core.Registry
 
         private IArtifactRegistry GetRegistry(ArtifactReference moduleReference) =>
             Registries(moduleReference.ParentModuleUri).TryGetValue(moduleReference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected moduleDeclaration reference scheme '{moduleReference.Scheme}'.");
+
+        public SourceArchive? TryGetModuleSources(ArtifactReference moduleReference) {
+            var registry = this.GetRegistry(moduleReference);
+            return registry.TryGetSource(moduleReference);
+        }
 
         private bool HasRestoreFailed(ArtifactReference moduleReference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {

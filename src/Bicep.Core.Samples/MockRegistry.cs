@@ -24,12 +24,12 @@ public class MockRegistry
         IContainerRegistryClientFactory ContainerRegistry,
         ITemplateSpecRepositoryFactory TemplateSpec);
 
-    public static async Task<ClientFactories> Build()
+    public static async Task<ClientFactories> Build(bool enablePublishSource = false)
         => new(
-            await CreateMockBicepRegistry(),
-            CreateMockTemplateSpecRegistry());
+            await CreateMockBicepRegistry(enablePublishSource),
+            CreateMockTemplateSpecRegistry(enablePublishSource));
 
-    private static async Task<IContainerRegistryClientFactory> CreateMockBicepRegistry()
+    private static async Task<IContainerRegistryClientFactory> CreateMockBicepRegistry(bool publishSource)
     {
         var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true);
         var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryIndex>();
@@ -42,13 +42,13 @@ public class MockRegistry
             modules[registryPath] = new(sourceFile.Contents, new(registryPath));
         }
 
-        var clientFactory = DataSetsExtensions.CreateMockRegistryClients(modules.ToImmutableDictionary()).Object;
-        await DataSetsExtensions.PublishModulesToRegistryAsync(modules.ToImmutableDictionary(), clientFactory);
+        var clientFactory = DataSetsExtensions.CreateMockRegistryClients(modules.ToImmutableDictionary(), publishSource).Object;
+        await DataSetsExtensions.PublishModulesToRegistryAsync(modules.ToImmutableDictionary(), clientFactory, publishSource);
 
         return clientFactory;
     }
 
-    private static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRegistry()
+    private static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRegistry(bool enablePublishSource)
     {
         var registryFiles = EmbeddedFile.LoadAll(typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly, "mockregistry", _ => true);
         var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryIndex>();
@@ -71,6 +71,6 @@ public class MockRegistry
             modules[registryPath] = new(templateSpec.ToJson(), new(registryPath));
         }
 
-        return DataSetsExtensions.CreateMockTemplateSpecRepositoryFactory(modules.ToImmutableDictionary());
+        return DataSetsExtensions.CreateMockTemplateSpecRepositoryFactory(modules.ToImmutableDictionary(), enablePublishSource);
     }
 }

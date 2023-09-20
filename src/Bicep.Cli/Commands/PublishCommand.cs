@@ -7,11 +7,13 @@ using Bicep.Cli.Services;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
@@ -22,29 +24,30 @@ namespace Bicep.Cli.Commands
         private readonly CompilationService compilationService;
         private readonly CompilationWriter compilationWriter;
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly IConfigurationManager configurationManager;
         private readonly IFileSystem fileSystem;
+        private readonly IFeatureProviderFactory featureProviderFactory;
 
         public PublishCommand(
             IDiagnosticLogger diagnosticLogger,
             CompilationService compilationService,
             CompilationWriter compilationWriter,
             IModuleDispatcher moduleDispatcher,
-            IConfigurationManager configurationManager,
-            IFileSystem fileSystem)
+            IFileSystem fileSystem,
+            IFeatureProviderFactory featureProviderFactory)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.compilationService = compilationService;
             this.compilationWriter = compilationWriter;
             this.moduleDispatcher = moduleDispatcher;
-            this.configurationManager = configurationManager;
             this.fileSystem = fileSystem;
+            this.featureProviderFactory = featureProviderFactory;
         }
 
         public async Task<int> RunAsync(PublishArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+            var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
             var documentationUri = args.DocumentationUri;
             var moduleReference = ValidateReference(args.TargetModuleReference, inputUri);
             var overwriteIfExists = args.Force;
@@ -53,7 +56,7 @@ namespace Bicep.Cli.Commands
             {
                 // Publishing an ARM template file.
                 using var armTemplateStream = this.fileSystem.FileStream.New(inputPath, FileMode.Open, FileAccess.Read);
-                await this.PublishModuleAsync(moduleReference, armTemplateStream, documentationUri, overwriteIfExists);
+                await this.PublishModuleAsync(moduleReference, armTemplateStream, null, documentationUri, overwriteIfExists);
 
                 return 0;
             }
@@ -66,16 +69,18 @@ namespace Bicep.Cli.Commands
                 return 1;
             }
 
-            var stream = new MemoryStream();
-            compilationWriter.ToStream(compilation, stream);
+            var compiledArmTemplateStream = new MemoryStream();
+            compilationWriter.ToStream(compilation, compiledArmTemplateStream);
+            compiledArmTemplateStream.Position = 0;
 
-            stream.Position = 0;
-            await this.PublishModuleAsync(moduleReference, stream, documentationUri, overwriteIfExists);
+            using var sourcesStream = features.PublishSourceEnabled ? SourceArchive.PackSources(compilation.SourceFileGrouping) : null;
+
+            await this.PublishModuleAsync(moduleReference, compiledArmTemplateStream, sourcesStream, documentationUri, overwriteIfExists);
 
             return 0;
         }
 
-        private async Task PublishModuleAsync(ArtifactReference target, Stream stream, string? documentationUri, bool overwriteIfExists)
+        private async Task PublishModuleAsync(ArtifactReference target, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, bool overwriteIfExists)
         {
             try
             {
@@ -84,7 +89,7 @@ namespace Bicep.Cli.Commands
                 {
                     throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
                 }
-                await this.moduleDispatcher.PublishModule(target, stream, documentationUri);
+                await this.moduleDispatcher.PublishModule(target, compiledArmTemplate, bicepSources, documentationUri);
             }
             catch (ExternalArtifactException exception)
             {

@@ -177,7 +177,7 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public bool IsArtifactRestoreRequired(ArtifactReference reference) => true;
 
-            public Task PublishArtifact(ArtifactReference moduleReference, Stream compiled, string? documentationUri, string? description)
+            public Task PublishArtifact(ArtifactReference moduleReference, Stream compiledArmTemplates, Stream? bicepSources, string? documentationUri, string? description)
             {
                 throw new NotImplementedException();
             }
@@ -208,6 +208,8 @@ namespace Bicep.LangServer.UnitTests.Registry
             {
                 return new(new MockModuleRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
             }
+
+            public SourceArchive? TryGetSource(ArtifactReference artifactReference) => null;
         }
 
         private class MockModuleRef : ArtifactReference

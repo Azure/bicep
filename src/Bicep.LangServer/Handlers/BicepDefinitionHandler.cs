@@ -29,8 +29,11 @@ using Bicep.Core.Registry;
 using System.Net;
 using Bicep.Core.Navigation;
 using Bicep.Core.TypeSystem;
+using System.IO;
+using Bicep.Core.Features;
 using Newtonsoft.Json;
 
+//asdfg separate out?
 namespace Bicep.LanguageServer.Handlers
 {
     public class BicepDefinitionHandler : DefinitionHandlerBase
@@ -40,19 +43,22 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IFileResolver fileResolver;
         private readonly ILanguageServerFacade languageServer;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IFeatureProviderFactory featureProviderFactory;
 
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
             ICompilationManager compilationManager,
             IFileResolver fileResolver,
             ILanguageServerFacade languageServer,
-            IModuleDispatcher moduleDispatcher) : base()
+            IModuleDispatcher moduleDispatcher,
+            IFeatureProviderFactory featureProviderFactory) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
             this.fileResolver = fileResolver;
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
+            this.featureProviderFactory = featureProviderFactory;
         }
 
         public override Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)
@@ -66,7 +72,7 @@ namespace Bicep.LanguageServer.Handlers
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
 
             // No parent Symbol: ad hoc syntax matching
-            var response =  result switch
+            var response = result switch
             {
                 null => HandleUnboundSymbolLocation(request, context),
 
@@ -74,7 +80,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 // Used for the declaration ONLY of a wildcard import. Other syntax that resolves to a wildcard import will be handled by HandleDeclaredDefinitionLocation
                 { Origin: WildcardImportSyntax, Symbol: WildcardImportSymbol wildcardImport }
-                    => HandleWildcardImportDeclaration(context, request, result, wildcardImport),
+                    => HandleWildcardImportDeclaration(context, request, result,  wildcardImport),
 
                 { Symbol: ImportedSymbol imported } => HandleImportedSymbolLocation(request, result, context, imported),
 
@@ -99,7 +105,6 @@ namespace Bicep.LanguageServer.Handlers
 
         private LocationOrLocationLinks HandleUnboundSymbolLocation(DefinitionParams request, CompilationContext context)
         {
-
             int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
             var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(context.Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax, offset);
             { // Definition handler for a non symbol bound to implement module path goto.
@@ -112,12 +117,7 @@ namespace Bicep.LanguageServer.Handlers
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile)
                  && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
                 {
-                    // goto beginning of the module file.
-                    return GetFileDefinitionLocation(
-                        GetDocumentLinkUri(sourceFile, moduleReference),
-                        stringToken,
-                        context,
-                        new() { Start = new(0, 0), End = new(0, 0) });
+                    return HandleModuleReference(context, stringToken, sourceFile, moduleReference);
                 }
             }
             { // Definition handler for a non symbol bound to implement import path goto.
@@ -132,7 +132,7 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     // goto beginning of the module file.
                     return GetFileDefinitionLocation(
-                        GetDocumentLinkUri(sourceFile, moduleReference),
+                        GetModuleSourceLinkUri(sourceFile, moduleReference),
                         stringToken,
                         context,
                         new() { Start = new(0, 0), End = new(0, 0) });
@@ -173,9 +173,19 @@ namespace Bicep.LanguageServer.Handlers
             return new();
         }
 
-        private Uri GetDocumentLinkUri(ISourceFile sourceFile, ArtifactReference moduleReference)
+        private LocationOrLocationLinks HandleModuleReference(CompilationContext context, StringSyntax stringToken, ISourceFile sourceFile, ArtifactReference moduleReference)
         {
-            if (!this.CanSendRegistryContent() || !moduleReference.IsExternal)
+            // Return the correct link format so our language client can display the sources
+            return GetFileDefinitionLocation(
+                GetModuleSourceLinkUri(sourceFile, moduleReference),
+                stringToken,
+                context,
+                new() { Start = new(0, 0), End = new(0, 0) });
+        }
+
+        private Uri GetModuleSourceLinkUri(ISourceFile sourceFile, ArtifactReference moduleReference)
+        {
+            if (!this.CanClientAcceptRegistryContent() || !moduleReference.IsExternal)
             {
                 // the client doesn't support the bicep-cache scheme or we're dealing with a local module
                 // just use the file URI
@@ -186,12 +196,22 @@ namespace Bicep.LanguageServer.Handlers
             // the client expectation when the user navigates to a file with a bicep-cache:// URI is to request file content
             // via the textDocument/bicepCache LSP request implemented in the BicepRegistryCacheRequestHandler.
 
-            // The file path and fully qualified reference may contain special characters (like :) that needs to be url-encoded.
-            var sourceFilePath = WebUtility.UrlEncode(sourceFile.FileUri.AbsolutePath);
+            var sourceFilePath = sourceFile.FileUri.AbsolutePath;
+
+            if (moduleDispatcher.TryGetModuleSources(moduleReference) is SourceArchive sourceArchive) {
+                // Replace the local path (main.json) with the actual source entrypoint filename
+                var entrypointFilename = Path.GetFileName(sourceArchive.GetEntrypointPath());
+                sourceFilePath = Path.Join(Path.GetDirectoryName(sourceFilePath), entrypointFilename);
+            }
+
+            // The file path and fully qualified reference may contain special characters (like :) that need to be url-encoded.
+            sourceFilePath = WebUtility.UrlEncode(sourceFilePath);
             var fullyQualifiedReference = WebUtility.UrlEncode(moduleReference.FullyQualifiedReference);
 
             // Encode the source file path as a path and the fully qualified reference as a fragment.
-            return new Uri($"bicep-cache:{sourceFilePath}#{fullyQualifiedReference}");
+            // VsCode will pass it to our language client, which will respond by requesting the source to display via
+            //   a textDocument/bicepCache request (see BicepCacheHandler)
+            return new Uri($"bicep-cache:{fullyQualifiedReference}#{sourceFilePath}");
         }
 
         private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, DefinitionParams request, SymbolResolutionResult result, WildcardImportSymbol wildcardImport)
@@ -200,7 +220,7 @@ namespace Bicep.LanguageServer.Handlers
                 wildcardImport.TryGetModuleReference().IsSuccess(out var moduleReference))
             {
                 return GetFileDefinitionLocation(
-                    GetDocumentLinkUri(sourceFile, moduleReference),
+                    GetModuleSourceLinkUri(sourceFile, moduleReference),
                     wildcardImport.DeclaringSyntax,
                     context,
                     new() { Start = new(0, 0), End = new(0, 0) });
@@ -335,7 +355,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private LocationOrLocationLinks HandleParameterAssignment(DefinitionParams request, SymbolResolutionResult result, CompilationContext context, ParameterAssignmentSymbol param)
         {
-            if (param.NameSource is not {} nameSyntax)
+            if (param.NameSource is not { } nameSyntax)
             {
                 return new();
             }
@@ -523,7 +543,8 @@ namespace Bicep.LanguageServer.Handlers
             _ => null,
         };
 
-        private bool CanSendRegistryContent()
+        // True if the client knows how (like our vscode extension) to handle the "bicep-cache:" schema
+        private bool CanClientAcceptRegistryContent()
         {
             if (this.languageServer.ClientSettings.InitializationOptions is not JObject obj ||
                 obj.Property("enableRegistryContent") is not { } property ||
