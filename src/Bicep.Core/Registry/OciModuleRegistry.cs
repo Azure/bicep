@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,6 +16,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
 using Newtonsoft.Json;
 
@@ -33,6 +32,8 @@ namespace Bicep.Core.Registry
 
         private readonly Uri parentModuleUri;
 
+        private readonly IFeatureProvider features;
+
         private const string NewerVersionMightBeRequired = "A newer version of Bicep might be required to reference this artifact.";
 
         public OciModuleRegistry(
@@ -46,10 +47,13 @@ namespace Bicep.Core.Registry
             this.cachePath = Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
             this.client = new AzureContainerRegistryManager(clientFactory);
             this.configuration = configuration;
+            this.features = features;
             this.parentModuleUri = parentModuleUri;
         }
 
         public override string Scheme => ModuleReferenceSchemes.Oci;
+
+        public string CacheRootDirectory => this.features.CacheRootDirectory;
 
         public override RegistryCapabilities GetCapabilities(OciModuleReference reference)
         {
@@ -70,7 +74,9 @@ namespace Bicep.Core.Registry
         public override bool IsArtifactRestoreRequired(OciModuleReference reference)
         {
             /*
-             * this should be kept in sync with the WriteArtifactContentToCache() implementation
+             * this should be kept in sync with the WriteModuleContent() implementation
+             * but beware that it's possible older versions of Bicep and newer versions of Bicep
+             * may be sharing this cache on the same machine.
              *
              * when we write content to the module cache, we attempt to get a lock so that no other writes happen in the directory
              * the code here appears to implement a lock-free read by checking existence of several files that are expected in a fully restored module
@@ -79,10 +85,9 @@ namespace Bicep.Core.Registry
              * when we need to invalidate the cache, the module directory (or even a single file) should be deleted from the cache
              */
 
-            // TODO: Provider artifacts don't write a ModuleMain file, so this code is incorrect.  Also, as we add more layer types,
-            //  the list of files will grow, some of which may be optional.  Also, what if writing one of these additional layers
-            //  fails?  Does the cache get invalidated? It's probably better to have a sentinel file written that must exist for the
-            //  restore to be considered complete.
+            // TODO: Provider artifacts don't write a ModuleMain file, so this code is incorrect.
+            //   That can be solved by only writing layer data files only (see code under features.PublishSourceEnabled)
+            //   and not main.json directly (https://github.com/Azure/bicep/issues/11900)
             return
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain)) ||
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Manifest)) ||
@@ -146,7 +151,7 @@ namespace Bicep.Core.Registry
             }
 
             // Ignore layers we don't recognize for now.
-            var mainLayers = result.Layers.Where(l => allowedMainLayerMediaTypes.Contains(l.MediaType, MediaTypeComparer)).ToArray();
+            var mainLayers = result.Layers.Where(l => allowedMainLayerMediaTypes.Contains(l.MediaType, BicepMediaTypes.MediaTypeComparer)).ToArray();
             if (mainLayers.Count() == 0)
             {
                 throw new InvalidModuleException($"Did not expect only layer media types {string.Join(", ", result.Layers.Select(l => l.MediaType).ToArray())}", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
@@ -166,7 +171,7 @@ namespace Bicep.Core.Registry
 
             // (Bicep v0.20.0 and lower use null for this field, so assume valid in that case
             if (artifactType is not null &&
-                !allowedArtifactMediaTypes.Contains(artifactType, MediaTypeComparer))
+                !allowedArtifactMediaTypes.Contains(artifactType, BicepMediaTypes.MediaTypeComparer))
             {
                 throw new InvalidModuleException(
                     $"Expected OCI manifest artifactType value of '{BicepMediaTypes.BicepModuleArtifactType}' but found '{artifactType}'. {NewerVersionMightBeRequired}",
@@ -175,7 +180,7 @@ namespace Bicep.Core.Registry
             var config = manifest.Config;
             var configMediaType = config.MediaType;
             if (configMediaType is not null &&
-                !allowedConfigMediaTypes.Contains(configMediaType, MediaTypeComparer))
+                !allowedConfigMediaTypes.Contains(configMediaType, BicepMediaTypes.MediaTypeComparer))
             {
                 throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\". {NewerVersionMightBeRequired}");
             }
@@ -230,31 +235,30 @@ namespace Bicep.Core.Registry
             return Task.FromResult(DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations));
         }
 
+        private OciManifest GetCachedManifest(OciModuleReference ociArtifactModuleReference)
+        {
+            string manifestFilePath = this.GetModuleFilePath(ociArtifactModuleReference, ModuleFileType.Manifest);
+
+            try
+            {
+                string manifestFileContents = File.ReadAllText(manifestFilePath);
+                OciManifest ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents)
+                    ?? throw new Exception($"Deserialization of cached manifest \"{manifestFilePath}\" failed");
+                return ociManifest;
+            }
+            catch (Exception ex)
+            {
+                throw new ExternalArtifactException($"Could not retrieve artifact manifest from \"{manifestFilePath}\"", ex);
+            }
+        }
+
         private ImmutableDictionary<string, string>? TryGetOciAnnotations(OciModuleReference ociArtifactModuleReference)
         {
             try
             {
-                string manifestFilePath = this.GetModuleFilePath(ociArtifactModuleReference, ModuleFileType.Manifest);
-                if (!File.Exists(manifestFilePath))
-                {
-                    return null;
-                }
-
-                string manifestFileContents = File.ReadAllText(manifestFilePath);
-                if (string.IsNullOrWhiteSpace(manifestFileContents))
-                {
-                    return null;
-                }
-
-                OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
-                if (ociManifest is null)
-                {
-                    return null;
-                }
-
-                return ociManifest.Annotations;
+                return GetCachedManifest(ociArtifactModuleReference).Annotations;
             }
-            catch
+            catch (Exception)
             {
                 return null;
             }
@@ -267,7 +271,7 @@ namespace Bicep.Core.Registry
             foreach (var reference in references)
             {
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
-                var (result, errorMessage) = await this.TryPullArtifactAsync(configuration, reference);
+                var (result, errorMessage) = await this.TryRestoreArtifactAsync(configuration, reference);
 
                 if (result is null)
                 {
@@ -292,20 +296,34 @@ namespace Bicep.Core.Registry
             return await base.InvalidateArtifactsCacheInternal(references);
         }
 
-        public override async Task PublishArtifact(OciModuleReference moduleReference, Stream compiled, string? documentationUri, string? description)
+        public override async Task PublishArtifact(OciModuleReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description)
         {
             // Write out an empty config for now
             // NOTE: Bicep v0.20 and earlier will throw if it finds a non-empty config
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
 
-            // Write out a single layer with the compiled JSON
-            // NOTE: Bicep v0.20 and earlier will throw if it finds more than one layer
-            var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
+            List<StreamDescriptor> layers = new List<StreamDescriptor>();
+            layers.Add(new StreamDescriptor(compiledArmTemplate, BicepMediaTypes.BicepModuleLayerV1Json));
+            if (bicepSources is { } && features.PublishSourceEnabled)
+            {
+                layers.Add(new StreamDescriptor(bicepSources, BicepMediaTypes.BicepSourceV1Layer));
+            }
+
+            var annotations = new OciManifestAnnotationsBuilder()
+                .WithDescription(description)
+                .WithDocumentationUri(documentationUri);
 
             try
             {
-                // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
-                await this.client.PushArtifactAsync(configuration, moduleReference, ManifestMediaType.OciImageManifest.ToString(), BicepMediaTypes.BicepModuleArtifactType, config, documentationUri, description, layer);
+                await this.client.PushArtifactAsync(
+                    configuration,
+                    moduleReference,
+                    // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
+                    ManifestMediaType.OciImageManifest.ToString(),
+                    BicepMediaTypes.BicepModuleArtifactType,
+                    config,
+                    layers,
+                    annotations);
             }
             catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
             {
@@ -319,13 +337,12 @@ namespace Bicep.Core.Registry
             }
         }
 
-        // media types are case-insensitive (they are lowercase by convention only)
-        public static readonly IEqualityComparer<string> MediaTypeComparer = StringComparer.OrdinalIgnoreCase;
-
         protected override void WriteArtifactContentToCache(OciModuleReference reference, OciArtifactResult result)
         {
             /*
              * this should be kept in sync with the IsModuleRestoreRequired() implementation
+             * but beware that it's currently possible older versions of Bicep and newer versions of Bicep
+             * may be sharing this cache on the same machine.
              */
 
 
@@ -341,7 +358,9 @@ namespace Bicep.Core.Registry
 
             // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
             // but this may change in the future if we chose to publish providers in multiple layers.
-            // TODO: IsArtifactRestoreRequired assumes there must be a ModuleMain file, which isn't true for provider artifacts
+            // TODO: IsArtifactRestoreRequired assumes there must be a ModuleMain file, which isn't true for provider artifacts.
+            //   That can be solved by only writing layer data files only (see code under features.PublishSourceEnabled)
+            //   and not main.json directly (https://github.com/Azure/bicep/issues/11900)
             var moduleFileType = mainLayer.mediaType switch
             {
                 BicepMediaTypes.BicepModuleLayerV1Json => ModuleFileType.ModuleMain,
@@ -357,6 +376,19 @@ namespace Bicep.Core.Registry
             OciSerialization.Serialize(metadataStream, metadata);
             metadataStream.Position = 0;
             this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Metadata), metadataStream);
+
+            // TODO: do we need to delete this file if there is no source layer?
+            if (this.features.PublishSourceEnabled && result.GetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
+            {
+                // TODO: Write all layers as separate binary files instead of separate files for source.tar.gz and provider files.
+                // We should do this rather than writing individual files we know about,
+                //   (e.g. "source.tar.gz") because this way we can restore all layers even if we don't know what they're for.
+                //   If an optional layer is added, we don't need to version the cache because all versions have the same complete
+                //   info on disk and can handle the layer data as they want to.
+                // The manifest can be used to determine what's in each layer file.
+                //  (https://github.com/Azure/bicep/issues/11900)
+                this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Source), sourceData.ToStream());
+            }
         }
 
         protected override string GetArtifactDirectoryPath(OciModuleReference reference)
@@ -402,7 +434,7 @@ namespace Bicep.Core.Registry
 
         protected override Uri GetArtifactLockFileUri(OciModuleReference reference) => this.GetModuleFileUri(reference, ModuleFileType.Lock);
 
-        private async Task<(OciArtifactResult?, string? errorMessage)> TryPullArtifactAsync(RootConfiguration configuration, OciModuleReference reference)
+        private async Task<(OciArtifactResult?, string? errorMessage)> TryRestoreArtifactAsync(RootConfiguration configuration, OciModuleReference reference)
         {
             try
             {
@@ -410,7 +442,7 @@ namespace Bicep.Core.Registry
                 // TODO(asilverman): Refactor validation to switch by mediaType
                 ValidateModule(result);
 
-                await this.TryWriteArtifactContentAsync(reference, result);
+                await this.WriteArtifactContentToCacheAsync(reference, result);
 
                 return (result, null);
             }
@@ -459,10 +491,25 @@ namespace Bicep.Core.Registry
                 ModuleFileType.Manifest => "manifest",
                 ModuleFileType.Metadata => "metadata",
                 ModuleFileType.Provider => "types.tgz",
+                ModuleFileType.Source => "source.tar.gz",
                 _ => throw new NotImplementedException($"Unexpected module file type '{fileType}'.")
             };
 
             return Path.Combine(this.GetArtifactDirectoryPath(reference), fileName);
+        }
+
+        public override SourceArchive? TryGetSource(OciModuleReference reference)
+        {
+            if (features.PublishSourceEnabled)
+            {
+                var zipPath = GetModuleFilePath(reference, ModuleFileType.Source);
+                if (File.Exists(zipPath))
+                {
+                    return SourceArchive.FromStream(File.OpenRead(zipPath));
+                }
+            }
+
+            return null;
         }
 
         private enum ModuleFileType
@@ -471,7 +518,8 @@ namespace Bicep.Core.Registry
             Manifest,
             Lock,
             Metadata,
-            Provider
+            Provider,
+            Source,
         };
     }
 }

@@ -4,18 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Linq;
-using System.Security.Policy;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
+using Bicep.Core.SourceCode;
 
 namespace Bicep.Core.Registry
 {
@@ -74,7 +69,7 @@ namespace Bicep.Core.Registry
 
         public override bool IsArtifactRestoreRequired(LocalModuleReference reference) => false;
 
-        public override Task PublishArtifact(LocalModuleReference moduleReference, Stream compiled, string? documentationUri, string? description) => throw new NotSupportedException("Local modules cannot be published.");
+        public override Task PublishArtifact(LocalModuleReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description) => throw new NotSupportedException("Local modules cannot be published.");
 
         public override Task<bool> CheckArtifactExists(LocalModuleReference reference) => throw new NotSupportedException("Local modules cannot be published.");
 
@@ -100,6 +95,11 @@ namespace Bicep.Core.Registry
                 // ignore
             }
 
+            return null;
+        }
+
+        public override SourceArchive? TryGetSource(LocalModuleReference reference)
+        {
             return null;
         }
     }

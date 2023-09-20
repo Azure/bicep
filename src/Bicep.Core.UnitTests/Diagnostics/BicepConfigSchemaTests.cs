@@ -26,6 +26,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+        private const string BicepRootConfigFilePath = "src/Bicep.Core/Configuration/bicepconfig.json";
+        private const string BicepConfigSchemaFilePath = "src/vscode-bicep/schemas/bicepconfig.schema.json";
+
         private (IBicepAnalyzerRule[] rules, JObject configSchema) GetRulesAndSchema()
         {
             var linter = new LinterAnalyzer();
@@ -162,9 +165,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void NoHardCodedEnvUrls_DefaultsShouldMatchInConfigAndSchema()
         {
-            const string configPath = "src/Bicep.Core/Configuration/bicepconfig.json";
-            const string schemaPath = "src/vscode-bicep/schemas/bicepconfig.schema.json";
-
             // From schema
             var (rules, schema) = GetRulesAndSchema();
             IDictionary<string, JObject>? ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
@@ -179,13 +179,13 @@ namespace Bicep.Core.UnitTests.Diagnostics
             string[]? excludedHostsInConfig = builtinConfig.Analyzers.GetValue<string[]?>("core.rules.no-hardcoded-env-urls.excludedhosts", null);
             excludedHostsInConfig.Should().NotBeNull();
 
-            disallowedHostsInSchema.Should().BeEquivalentTo(disallowedHostsInConfig, $"default of no-hardcoded-env-urls.disallowedHosts should be the same in {configPath} and {schemaPath}");
-            disallowedHostsInSchema.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.disallowedHosts should be in alphabetical order in {schemaPath}");
-            disallowedHostsInConfig.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.disallowedHosts should be in alphabetical order in {configPath}");
+            disallowedHostsInSchema.Should().BeEquivalentTo(disallowedHostsInConfig, $"default of no-hardcoded-env-urls.disallowedHosts should be the same in {BicepRootConfigFilePath} and {BicepConfigSchemaFilePath}");
+            disallowedHostsInSchema.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.disallowedHosts should be in alphabetical order in {BicepConfigSchemaFilePath}");
+            disallowedHostsInConfig.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.disallowedHosts should be in alphabetical order in {BicepRootConfigFilePath}");
 
-            excludedHostsInSchema.Should().BeEquivalentTo(excludedHostsInConfig, $"default of no-hardcoded-env-urls.excluded should be the same in {configPath} and {schemaPath}");
-            excludedHostsInSchema.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.excluded should be in alphabetical order in {schemaPath}");
-            excludedHostsInConfig.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.excluded should be in alphabetical order in {configPath}");
+            excludedHostsInSchema.Should().BeEquivalentTo(excludedHostsInConfig, $"default of no-hardcoded-env-urls.excluded should be the same in {BicepRootConfigFilePath} and {BicepConfigSchemaFilePath}");
+            excludedHostsInSchema.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.excluded should be in alphabetical order in {BicepConfigSchemaFilePath}");
+            excludedHostsInConfig.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.excluded should be in alphabetical order in {BicepRootConfigFilePath}");
         }
     }
 }

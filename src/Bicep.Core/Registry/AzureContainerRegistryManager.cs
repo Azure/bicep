@@ -5,18 +5,25 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
+using Azure.Core;
 using Azure.Identity;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
+using Bicep.Core.Features;
+using Bicep.Core.Json;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OciDescriptor = Bicep.Core.Registry.Oci.OciDescriptor;
 using OciManifest = Bicep.Core.Registry.Oci.OciManifest;
+
 
 namespace Bicep.Core.Registry
 {
@@ -26,6 +33,10 @@ namespace Bicep.Core.Registry
         private const StringComparison DigestComparison = StringComparison.Ordinal;
 
         private readonly IContainerRegistryClientFactory clientFactory;
+
+        // https://docs.docker.com/registry/spec/api/#content-digests
+        // "While the algorithm does allow one to implement a wide variety of algorithms, compliant implementations should use sha256."
+        private static readonly string DigestAlgorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
 
         public AzureContainerRegistryManager(IContainerRegistryClientFactory clientFactory)
         {
@@ -39,7 +50,7 @@ namespace Bicep.Core.Registry
             async Task<OciArtifactResult> DownloadManifestInternalAsync(bool anonymousAccess)
             {
                 var client = CreateBlobClient(configuration, artifactReference, anonymousAccess);
-                return await DownloadManifestAsync(artifactReference, client);
+                return await DownloadManifestAndLayersAsync(artifactReference, client);
             }
 
             try
@@ -68,46 +79,54 @@ namespace Bicep.Core.Registry
             string? mediaType,
             string? artifactType,
             StreamDescriptor config,
-            string? documentationUri = null,
-            string? description = null,
-            params StreamDescriptor[] layers)
+            IEnumerable<StreamDescriptor> layers,
+            OciManifestAnnotationsBuilder annotations)
         {
-            // TODO: How do we choose this? Does it ever change?
-            var algorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
 
             // push is not supported anonymously
             var blobClient = this.CreateBlobClient(configuration, artifactReference, anonymousAccess: false);
 
             config.ResetStream();
-            var configDescriptor = DescriptorFactory.CreateDescriptor(algorithmIdentifier, config);
+            var configDescriptor = DescriptorFactory.CreateDescriptor(DigestAlgorithmIdentifier, config);
 
             config.ResetStream();
             _ = await blobClient.UploadBlobAsync(config.Stream);
 
-            var layerDescriptors = new List<OciDescriptor>(layers.Length);
+            var layerDescriptors = new List<OciDescriptor>(layers.Count());
             foreach (var layer in layers)
             {
                 layer.ResetStream();
-                var layerDescriptor = DescriptorFactory.CreateDescriptor(algorithmIdentifier, layer);
+                var layerDescriptor = DescriptorFactory.CreateDescriptor(DigestAlgorithmIdentifier, layer);
                 layerDescriptors.Add(layerDescriptor);
 
                 layer.ResetStream();
                 _ = await blobClient.UploadBlobAsync(layer.Stream);
             }
 
-            var annotations = new Dictionary<string, string>();
-
-            if (!string.IsNullOrWhiteSpace(documentationUri))
-            {
-                annotations[LanguageConstants.OciOpenContainerImageDocumentationAnnotation] = documentationUri;
-            }
-
-            if (!string.IsNullOrWhiteSpace(description))
-            {
-                annotations[LanguageConstants.OciOpenContainerImageDescriptionAnnotation] = description;
-            }
-
-            var manifest = new OciManifest(2, mediaType, artifactType, configDescriptor, layerDescriptors.ToImmutableArray(), annotations.ToImmutableDictionary());
+            /* Sample artifact manifest:
+                {
+                    "schemaVersion": 2,
+                    "artifactType": "application/vnd.ms.bicep.module.artifact",
+                    "config": {
+                        "mediaType": "application/vnd.ms.bicep.module.config.v1+json",
+                        "digest": "sha256:...",
+                        "size": 2
+                    },
+                    "layers": [
+                        {
+                        "mediaType": "application/vnd.ms.bicep.module.layer.v1+json",
+                        "digest": "sha256:...",
+                        "size": 2774
+                        }
+                    ],
+                    "annotations": {
+                        "org.opencontainers.image.description": "module description"
+                        "org.opencontainers.image.documentation": "https://www.contoso.com/moduledocumentation.html"
+                    }
+                }
+             */
+             
+            var manifest = new OciManifest(2, mediaType, artifactType, configDescriptor, layerDescriptors.ToImmutableArray(), annotations.Build());
 
             using var manifestStream = new MemoryStream();
             OciSerialization.Serialize(manifestStream, manifest);
@@ -126,7 +145,7 @@ namespace Bicep.Core.Registry
             ? this.clientFactory.CreateAnonymousBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository)
             : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(artifactReference), artifactReference.Repository);
 
-        private static async Task<OciArtifactResult> DownloadManifestAsync(IOciArtifactReference artifactReference, ContainerRegistryContentClient client)
+        private static async Task<OciArtifactResult> DownloadManifestAndLayersAsync(IOciArtifactReference artifactReference, ContainerRegistryContentClient client)
         {
             Response<GetManifestResult> manifestResponse;
             try
@@ -144,8 +163,9 @@ namespace Bicep.Core.Registry
                 Trace.WriteLine($"Manifest for module {artifactReference.FullyQualifiedReference} could not be found in the registry.");
                 throw new OciModuleRegistryException("The artifact does not exist in the registry.", exception);
             }
+            Debug.Assert(manifestResponse.Value.Manifest.ToArray().Length > 0);
 
-            // the Value is disposable, but we are not calling it because we need to pass the stream outside of this scope
+            // the Value is disposable, but we are not calling it because we need to pass the stream outside of this scope (and it will GC correctly)
             using var stream = manifestResponse.Value.Manifest.ToStream();
 
             // BUG: The SDK internally consumed the stream for validation purposes and left position at the end
@@ -189,7 +209,7 @@ namespace Bicep.Core.Registry
             }
 
             stream.Position = 0;
-            string digestFromContents = DescriptorFactory.ComputeDigest(DescriptorFactory.AlgorithmIdentifierSha256, stream);
+            string digestFromContents = DescriptorFactory.ComputeDigest(DigestAlgorithmIdentifier, stream);
             stream.Position = 0;
 
             if (!string.Equals(descriptor.Digest, digestFromContents, StringComparison.Ordinal))
@@ -203,8 +223,7 @@ namespace Bicep.Core.Registry
             var digestFromRegistry = manifestResponse.Value.Digest;
             var stream = manifestResponse.Value.Manifest.ToStream();
 
-            // TODO: The registry may use a different digest algorithm - we need to handle that
-            string digestFromContent = DescriptorFactory.ComputeDigest(DescriptorFactory.AlgorithmIdentifierSha256, stream);
+            string digestFromContent = DescriptorFactory.ComputeDigest(DigestAlgorithmIdentifier, stream);
 
             if (!string.Equals(digestFromRegistry, digestFromContent, DigestComparison))
             {

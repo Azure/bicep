@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.SourceCode;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -22,8 +23,10 @@ namespace Bicep.Core.Registry
 
         Task<bool> CheckModuleExists(ArtifactReference moduleReference);
 
-        Task PublishModule(ArtifactReference moduleReference, Stream compiled, string? documentationUri);
+        Task PublishModule(ArtifactReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri);
 
         void PruneRestoreStatuses();
+
+        SourceArchive? TryGetModuleSources(ArtifactReference moduleReference);
     }
 }

@@ -8,7 +8,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
-namespace Bicep.Core.UnitTests.Registry.Oci
+namespace Bicep.Core.UnitTests.Registry
 {
     /// <summary>
     /// Tests related to deserialization of OciArtifactResult class

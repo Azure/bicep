@@ -2,20 +2,26 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.SourceCode;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Handlers
 {
     [Method(BicepRegistryCacheRequestHandler.BicepCacheLspMethod, Direction.ClientToServer)]
-    public record BicepRegistryCacheParams(TextDocumentIdentifier TextDocument, string Target) : ITextDocumentIdentifierParams, IRequest<BicepRegistryCacheResponse>;
+    public record BicepRegistryCacheParams(
+        TextDocumentIdentifier TextDocument, // The bicep file which contains a reference to the target module
+        string Target                        // The module reference to display sources for
+    ) : ITextDocumentIdentifierParams, IRequest<BicepRegistryCacheResponse>;
 
     public record BicepRegistryCacheResponse(string Content);
 
@@ -28,13 +34,14 @@ namespace Bicep.LanguageServer.Handlers
         public const string BicepCacheLspMethod = "textDocument/bicepCache";
 
         private readonly IModuleDispatcher moduleDispatcher;
-
         private readonly IFileResolver fileResolver;
+        private readonly IFeatureProviderFactory featureProviderFactory;
 
-        public BicepRegistryCacheRequestHandler(IModuleDispatcher moduleDispatcher, IFileResolver fileResolver)
+        public BicepRegistryCacheRequestHandler(IModuleDispatcher moduleDispatcher, IFileResolver fileResolver, IFeatureProviderFactory featureProviderFactory)
         {
             this.moduleDispatcher = moduleDispatcher;
             this.fileResolver = fileResolver;
+            this.featureProviderFactory = featureProviderFactory;
         }
 
         public Task<BicepRegistryCacheResponse> Handle(BicepRegistryCacheParams request, CancellationToken cancellationToken)
@@ -67,6 +74,14 @@ namespace Bicep.LanguageServer.Handlers
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
             }
 
+            if (moduleDispatcher.TryGetModuleSources(moduleReference) is SourceArchive sourceArchive)
+            {
+                // TODO: For now, we just proffer the main source file
+                var entrypointFile = sourceArchive.SourceFiles.Single(f => f.Path == sourceArchive.EntrypointPath);
+                return Task.FromResult(new BicepRegistryCacheResponse(entrypointFile.Contents));
+            }
+
+            // No sources available, just retrieve the JSON source
             if (!this.fileResolver.TryRead(uri).IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
