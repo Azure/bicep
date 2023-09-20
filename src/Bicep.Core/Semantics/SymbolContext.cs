@@ -23,7 +23,7 @@ namespace Bicep.Core.Semantics
 
         public IBinder Binder => WithLockCheck(() => this.semanticModel.Binder);
 
-        public ISourceFile SourceFile => WithLockCheck(() => this.semanticModel.SourceFile);
+        public BicepSourceFile SourceFile => WithLockCheck(() => this.semanticModel.SourceFile);
 
         public void Unlock() => this.unlocked = true;
 

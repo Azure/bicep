@@ -13,6 +13,6 @@ namespace Bicep.Core.Semantics
 
         IBinder Binder { get; }
 
-        ISourceFile SourceFile { get; }
+        BicepSourceFile SourceFile { get; }
     }
 }

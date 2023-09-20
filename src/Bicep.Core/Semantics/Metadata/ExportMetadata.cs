@@ -22,4 +22,4 @@ public record ExportedVariableMetadata(string Name, ITypeReference TypeReference
     : ExportMetadata(ExportMetadataKind.Variable, Name, TypeReference, Description) {}
 
 public record DuplicatedExportMetadata(string Name, ImmutableArray<string> ExportKindsWithSameName)
-    : ExportMetadata(ExportMetadataKind.Error, Name, ErrorType.Empty(), DiagnosticBuilder.ForDocumentStart().AmbiguousExportFromArmTemplate(Name, ExportKindsWithSameName).Message);
+    : ExportMetadata(ExportMetadataKind.Error, Name, ErrorType.Empty(), $"The name \"{Name}\" is ambiguous because it refers to exports of the following kinds: {string.Join(", ", ExportKindsWithSameName)}.");

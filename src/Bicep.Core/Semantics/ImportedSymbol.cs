@@ -8,6 +8,7 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics;
 
@@ -55,9 +56,21 @@ public class ImportedSymbol : DeclaredSymbol
 
     public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
     {
-        if (TryGetExportMetadata() is DuplicatedExportMetadata duplicatedExportMetadata)
+        if (TryGetExportMetadata() is ExportMetadata exportMetadata)
         {
-            yield return DiagnosticBuilder.ForPosition(DeclaringImportedSymbolsListItem.OriginalSymbolName).AmbiguousExportFromArmTemplate(duplicatedExportMetadata.Name, duplicatedExportMetadata.ExportKindsWithSameName);
+            if (exportMetadata.Kind == ExportMetadataKind.Error)
+            {
+                yield return DiagnosticBuilder.ForPosition(DeclaringImportedSymbolsListItem.OriginalSymbolName)
+                    .ImportedSymbolHasErrors(exportMetadata.Name, exportMetadata.Description ?? "unknown error");
+                // if we're already reporting an error from the source model, no need to check for import-context specific error conditions
+                yield break;
+            }
+
+            if (!IsSupportedImportKind(exportMetadata.Kind))
+            {
+                yield return DiagnosticBuilder.ForPosition(DeclaringImportedSymbolsListItem.OriginalSymbolName)
+                    .ImportedSymbolKindNotSupportedInSourceFileKind(exportMetadata.Name, exportMetadata.Kind, Context.SourceFile.FileKind);
+            }
         }
     }
 
@@ -72,4 +85,20 @@ public class ImportedSymbol : DeclaredSymbol
     private ExportMetadata? TryGetExportMetadata() => OriginalSymbolName is string nonNullName && TryGetSemanticModel()?.Exports.TryGetValue(nonNullName, out var exportMetadata) is true
         ? exportMetadata
         : null;
+
+    private bool IsSupportedImportKind(ExportMetadataKind exportKind) => Context.SourceFile switch
+    {
+        BicepFile => exportKind switch
+        {
+            ExportMetadataKind.Type or
+            ExportMetadataKind.Variable => true,
+            _ => false,
+        },
+        BicepParamFile => exportKind switch
+        {
+            ExportMetadataKind.Variable => true,
+            _ => false,
+        },
+        _ => false,
+    };
 }

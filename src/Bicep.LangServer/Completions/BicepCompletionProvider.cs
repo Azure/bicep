@@ -2057,6 +2057,12 @@ namespace Bicep.LanguageServer.Completions
 
                         foreach (var exported in importedModel.Exports)
                         {
+                            if (exported.Value.Kind == ExportMetadataKind.Type && model.SourceFileKind == BicepSourceFileKind.ParamsFile)
+                            {
+                                // types cannot be imported into .bicepparam files, so don't propose them as completions
+                                continue;
+                            }
+
                             var edit = exported.Key switch
                             {
                                 string key when !Lexer.IsValidIdentifier(key) => $"'{key.Replace("'", @"\'")}' as ",

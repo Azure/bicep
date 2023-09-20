@@ -14,8 +14,10 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Diagnostics
 {
@@ -2077,10 +2079,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP372",
                 @$"The ""@export()"" decorator may not be applied to variables that refer to parameters, modules, or resource, either directly or indirectly. The target of this decorator contains direct or transitive references to the following unexportable symbols: {ToQuotedString(nonExportableSymbols)}.");
 
-            public ErrorDiagnostic AmbiguousExportFromArmTemplate(string exportName, IEnumerable<string> exportKindsUsingName) => new(
+            public ErrorDiagnostic ImportedSymbolHasErrors(string name, string message) => new(
                 TextSpan,
                 "BCP373",
-                $"The name \"{exportName}\" is ambiguous because it refers to exports of the following kinds: {ToQuotedString(exportKindsUsingName)}.");
+                $"Unable to import the symbol named \"{name}\": {message}");
 
             public ErrorDiagnostic ImportedModelContainsAmbiguousExports(IEnumerable<string> ambiguousExportNames) => new(
                 TextSpan,
@@ -2091,6 +2093,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP375",
                 "An import list item that identifies its target with a quoted string must include an 'as <alias>' clause.");
+
+            public ErrorDiagnostic ImportedSymbolKindNotSupportedInSourceFileKind(string name, ExportMetadataKind exportMetadataKind, BicepSourceFileKind sourceFileKind) => new(
+                TextSpan,
+                "BCP376",
+                $"The \"{name}\" symbol cannot be imported because imports of kind {exportMetadataKind} are not supported in files of kind {sourceFileKind}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

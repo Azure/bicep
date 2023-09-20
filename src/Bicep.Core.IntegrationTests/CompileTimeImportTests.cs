@@ -131,12 +131,11 @@ public class CompileTimeImportTests
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
             ("main.bicep", """
-                import {foo} from 'main.bicepparam'
+                import {} from 'main.bicepparam'
                 """),
             ("main.bicepparam", """
                 using 'mod.bicep'
 
-                @export()
                 var foo = 'bar'
 
                 param bar = foo
@@ -795,7 +794,7 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP373", DiagnosticLevel.Error, "The name \"foo\" is ambiguous because it refers to exports of the following kinds: \"Type\", \"Variable\"."),
+            ("BCP373", DiagnosticLevel.Error, "Unable to import the symbol named \"foo\": The name \"foo\" is ambiguous because it refers to exports of the following kinds: Type, Variable."),
         });
     }
 
@@ -1092,18 +1091,16 @@ public class CompileTimeImportTests
                 """),
             ("parameters.bicepparam", """
                 using 'main.bicep'
-                import {a} from 'mod.bicep'
-                import {b} from 'mod.bicepparam'
+                import {a} from 'mod1.bicep'
+                import {b} from 'mod2.bicep'
 
                 param intParam = a + b + 4
                 """),
-            ("mod.bicep", """
+            ("mod1.bicep", """
                 @export()
                 var a = 2
                 """),
-            ("mod.bicepparam", """
-                using 'mod.bicep'
-
+            ("mod2.bicep", """
                 @export()
                 var b = 3
                 """));
@@ -1123,18 +1120,16 @@ public class CompileTimeImportTests
                 """),
             ("parameters.bicepparam", """
                 using 'main.bicep'
-                import * as modTemplate from 'mod.bicep'
-                import * as modParams from 'mod.bicepparam'
+                import * as mod1 from 'mod1.bicep'
+                import * as mod2 from 'mod2.bicep'
 
-                param intParam = modTemplate.a + modParams.b + 4
+                param intParam = mod1.a + mod2.b + 4
                 """),
-            ("mod.bicep", """
+            ("mod1.bicep", """
                 @export()
                 var a = 2
                 """),
-            ("mod.bicepparam", """
-                using 'mod.bicep'
-
+            ("mod2.bicep", """
                 @export()
                 var b = 3
                 """));
@@ -1143,5 +1138,26 @@ public class CompileTimeImportTests
 
         var parameters = TemplateEvaluator.ParseParametersFile(result.Parameters);
         parameters["intParam"].Should().DeepEqual(9);
+    }
+
+    [TestMethod]
+    public void Importing_types_is_blocked_in_bicepparam_files()
+    {
+        var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                import {foo} from 'mod.bicep'
+                """),
+            ("main.bicep", string.Empty),
+            ("mod.bicep", """
+                @export()
+                type foo = string
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP376", DiagnosticLevel.Error, "The \"foo\" symbol cannot be imported because imports of kind Type are not supported in files of kind ParamsFile."),
+        });
     }
 }
