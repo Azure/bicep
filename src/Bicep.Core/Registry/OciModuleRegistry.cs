@@ -500,13 +500,10 @@ namespace Bicep.Core.Registry
 
         public override SourceArchive? TryGetSource(OciModuleReference reference)
         {
-            if (features.PublishSourceEnabled)
+            var zipPath = GetModuleFilePath(reference, ModuleFileType.Source);
+            if (File.Exists(zipPath))
             {
-                var zipPath = GetModuleFilePath(reference, ModuleFileType.Source);
-                if (File.Exists(zipPath))
-                {
-                    return SourceArchive.FromStream(File.OpenRead(zipPath));
-                }
+                return SourceArchive.FromStream(File.OpenRead(zipPath));
             }
 
             return null;

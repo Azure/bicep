@@ -27,6 +27,7 @@ namespace Bicep.Core.Registry
 
         void PruneRestoreStatuses();
 
+        // Retrieves the sources that have been restored along with the module into the cache (if available)
         SourceArchive? TryGetModuleSources(ArtifactReference moduleReference);
     }
 }
