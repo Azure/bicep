@@ -220,7 +220,7 @@ namespace Bicep.Core.FileSystem
                 relativePath = $"./{relativePath}";
             }
 
-            return relativePath.StartsWith(".") ? relativePath : $"./{relativePath}";
+            return relativePath;
         }
     }
 }
