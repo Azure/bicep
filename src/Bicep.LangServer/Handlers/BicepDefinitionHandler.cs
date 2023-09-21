@@ -216,9 +216,9 @@ namespace Bicep.LanguageServer.Handlers
             // Encode the source file path as a path and the fully qualified reference as a fragment.
             // VsCode will pass it to our language client, which will respond by requesting the source to display via
             //   a textDocument/bicepCache request (see BicepCacheHandler)
-            // Example: bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/main.json
+            // Example: bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/main.json (encoded)
             //   or if source is available:
-            // Example: bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/entrypoint.bicep
+            // Example: bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/entrypoint.bicep (encoded)
             return new Uri($"bicep-cache:{fullyQualifiedReference}#{sourceFilePath}");
         }
 
