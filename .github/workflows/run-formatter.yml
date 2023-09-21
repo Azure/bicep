@@ -1,0 +1,75 @@
+name: Run formatter
+# This action will be run weekly against main and can be run on-demand against main.
+# It will run an automated code formatter and commit and push the changes (if any). If the source branch is protected, then the workflow will create a new to commit and push the changes.
+
+on:
+  # schedule:
+  #   - cron: '30 4 * * SUN'
+  workflow_dispatch:
+
+jobs:
+  main:
+    name: Reformat code
+    runs-on: ubuntu-latest
+
+    env:
+      # don't print dotnet logo
+      DOTNET_NOLOGO: true
+
+      # disable telemetry (reduces dotnet tool output in logs)
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+
+      - name: Format
+        run: dotnet format
+
+      - name: Commit and push formatting updates
+        if: (!github.ref_protected)
+        run: |
+          git config --global user.email "bicep@noreply.github.com"
+          git config --global user.name "Bicep Automation"
+
+          git add .
+
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "Run code formatter"
+            git push
+          fi
+
+      - name: Commit formatting updates to branch.
+        id: commit_for_pr
+        if: github.ref_protected
+        env:
+          BRANCH_ID: formatted-${{ github.ref }}
+        run: |
+          git checkout -b $BRANCH_ID
+
+          git config --global user.email "bicep@noreply.github.com"
+          git config --global user.name "Bicep Automation"
+
+          git add .
+
+          if ! git diff-index --quiet HEAD --; then
+            git commit -m "Run code formatter"
+            git push -fu origin $BRANCH_ID
+            echo "UPDATES_BRANCH=$BRANCH_ID" >> "$GITHUB_OUTPUT"
+          else
+            echo "UPDATES_BRANCH=nil" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open issue to merge updates
+        if: ${{ github.ref_protected && steps.commit_for_pr.outputs.UPDATES_BRANCH != 'nil' }}
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SOURCE_BRANCH: ${{ steps.commit_for_pr.outputs.UPDATES_BRANCH }}
+        with:
+          update_existing: true
+          filename: .github/workflows/formatter_update.md
