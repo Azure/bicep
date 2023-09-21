@@ -10,7 +10,7 @@ configuration:
     eventResponderTasks:
     - description: Create PRs when code formatting is run
       if:
-        - payloadType: Issue
+        - payloadType: Issues
         - isOpen: true
         - isAction:
             action: Opened
