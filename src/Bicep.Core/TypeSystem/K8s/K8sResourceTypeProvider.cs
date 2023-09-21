@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Resources;
-using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.K8s
 {

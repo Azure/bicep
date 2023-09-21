@@ -1,35 +1,35 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
+using Bicep.Core;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using System;
-using Bicep.Core.Parsing;
-using System.Collections.Generic;
-using Bicep.Core;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
-using System.Linq;
-using Bicep.Core.Workspaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Newtonsoft.Json.Linq;
-using Bicep.Core.Registry;
-using System.Net;
-using Bicep.Core.Navigation;
-using Bicep.Core.TypeSystem;
-using Newtonsoft.Json;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -66,7 +66,7 @@ namespace Bicep.LanguageServer.Handlers
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
 
             // No parent Symbol: ad hoc syntax matching
-            var response =  result switch
+            var response = result switch
             {
                 null => HandleUnboundSymbolLocation(request, context),
 
@@ -285,7 +285,7 @@ namespace Bicep.LanguageServer.Handlers
                 if (propertyAccesses.Count == 1 && ancestorSymbol is WildcardImportSymbol wildcardImport)
                 {
                     if (wildcardImport.TryGetSemanticModel() is SemanticModel importedTargetBicepModel &&
-                        importedTargetBicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, propertyAccesses.Single().IdentifierName)).FirstOrDefault() is {} originalDeclaration)
+                        importedTargetBicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, propertyAccesses.Single().IdentifierName)).FirstOrDefault() is { } originalDeclaration)
                     {
                         var range = PositionHelper.GetNameRange(importedTargetBicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);
 
@@ -303,7 +303,7 @@ namespace Bicep.LanguageServer.Handlers
 
                     return GetArmSourceTemplateInfo(context, wildcardImport.EnclosingDeclaration) switch
                     {
-                        (Template template, Uri localFileUri) when template.Definitions?.TryGetValue(propertyAccesses.Single().IdentifierName, out var definition) == true && ToRange(definition) is {} range
+                        (Template template, Uri localFileUri) when template.Definitions?.TryGetValue(propertyAccesses.Single().IdentifierName, out var definition) == true && ToRange(definition) is { } range
                             => new(new LocationOrLocationLink(new LocationLink
                             {
                                 OriginSelectionRange = result.Origin.ToRange(context.LineStarts),
@@ -335,7 +335,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private LocationOrLocationLinks HandleParameterAssignment(DefinitionParams request, SymbolResolutionResult result, CompilationContext context, ParameterAssignmentSymbol param)
         {
-            if (param.NameSource is not {} nameSyntax)
+            if (param.NameSource is not { } nameSyntax)
             {
                 return new();
             }
@@ -374,7 +374,7 @@ namespace Bicep.LanguageServer.Handlers
             var originSelectionRange = result.Origin.ToRange(context.LineStarts);
 
             if (imported.TryGetSemanticModel() is SemanticModel bicepModel &&
-                bicepModel.Root.Declarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is {} originalDeclaration)
+                bicepModel.Root.Declarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is { } originalDeclaration)
             {
                 // entire span of the declaredSymbol
                 var targetRange = PositionHelper.GetNameRange(bicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);

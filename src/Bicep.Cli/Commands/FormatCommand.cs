@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO;
 using Bicep.Cli.Arguments;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -11,7 +12,6 @@ using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.PrettyPrintV2;
 using Microsoft.Extensions.Logging;
-using System.IO;
 
 namespace Bicep.Cli.Commands;
 
@@ -85,9 +85,9 @@ public class FormatCommand : ICommand
         }
 
         var options = new PrettyPrintOptions(
-            args.Newline            ?? NewlineOption.Auto,
-            args.IndentKind         ?? IndentKindOption.Space,
-            args.IndentSize         ?? 2,
+            args.Newline ?? NewlineOption.Auto,
+            args.IndentKind ?? IndentKindOption.Space,
+            args.IndentSize ?? 2,
             args.InsertFinalNewline ?? false
         );
 

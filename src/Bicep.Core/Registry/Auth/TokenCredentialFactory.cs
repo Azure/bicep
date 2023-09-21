@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Core;
-using Azure.Identity;
-using Bicep.Core.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Azure.Core;
+using Azure.Identity;
+using Bicep.Core.Configuration;
 
 namespace Bicep.Core.Registry.Auth
 {

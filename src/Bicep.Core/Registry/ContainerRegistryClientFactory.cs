@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Tracing;
-using System;
 
 namespace Bicep.Core.Registry
 {

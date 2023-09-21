@@ -5,8 +5,8 @@ using System;
 using System.IO;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.UnitTests.Mock;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Utils
 {

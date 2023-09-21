@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Newtonsoft.Json;
 using System;
+using Newtonsoft.Json;
 
 namespace Bicep.Decompiler.Exceptions
 {

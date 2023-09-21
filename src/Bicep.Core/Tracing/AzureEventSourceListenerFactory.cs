@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Core.Diagnostics;
-using Bicep.Core.Features;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Globalization;
 using System.Linq;
+using Azure.Core.Diagnostics;
+using Bicep.Core.Features;
 
 namespace Bicep.Core.Tracing
 {

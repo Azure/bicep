@@ -33,7 +33,7 @@ namespace Bicep.LanguageServer.Configuration
                 rootConfiguration = configurationManager.GetConfiguration(documentUri.ToUriEncoded());
                 return true;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 rootConfiguration = null;
                 Trace.WriteLine($"Encountered issue while getting configuration: {e.Message}");

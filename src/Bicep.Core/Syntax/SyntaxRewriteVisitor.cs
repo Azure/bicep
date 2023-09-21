@@ -316,7 +316,7 @@ namespace Bicep.Core.Syntax
             return new TestDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
         }
         void ISyntaxVisitor.VisitTestDeclarationSyntax(TestDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceTestDeclarationSyntax);
-        
+
         protected virtual SyntaxBase ReplaceOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);

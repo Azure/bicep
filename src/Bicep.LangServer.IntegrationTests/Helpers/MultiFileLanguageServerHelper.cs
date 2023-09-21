@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Threading.Tasks;
-using Bicep.LanguageServer;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using System.Collections.Concurrent;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using System.Linq;
-using Bicep.LangServer.IntegrationTests.Helpers;
 using System;
-using FluentAssertions;
-using Bicep.Core.Workspaces;
+using System.Collections.Concurrent;
+using System.Linq;
+using System.Threading.Tasks;
 using Bicep.Core.Navigation;
+using Bicep.Core.Workspaces;
+using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.LanguageServer;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LangServer.IntegrationTests
 {

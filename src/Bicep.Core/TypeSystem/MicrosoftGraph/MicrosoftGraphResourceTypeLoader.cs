@@ -3,8 +3,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Azure.Bicep.Types;
-using Microsoft.Graph.Bicep.Types;
 using Bicep.Core.Resources;
+using Microsoft.Graph.Bicep.Types;
 
 namespace Bicep.Core.TypeSystem.MicrosoftGraph
 {

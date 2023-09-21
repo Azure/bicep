@@ -4,22 +4,22 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
+using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.FileSystem;
-using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using System.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.FileSystem;
-using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.LangServer.IntegrationTests
 {

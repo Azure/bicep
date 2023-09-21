@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -318,7 +318,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 // keep the output stream open while we attempt to write to it
                 // this should force an access denied error
-                await Bicep("decompile",jsonPath);
+                await Bicep("decompile", jsonPath);
                 var (output, error, result) = await Bicep("decompile", jsonPath);
 
                 output.Should().BeEmpty();

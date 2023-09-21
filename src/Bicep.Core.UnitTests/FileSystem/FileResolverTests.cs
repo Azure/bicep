@@ -2,15 +2,15 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Text;
-using System.Diagnostics.CodeAnalysis;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests.FileSystem

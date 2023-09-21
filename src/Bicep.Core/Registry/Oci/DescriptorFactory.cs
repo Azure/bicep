@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.IO;
 using System.Security.Cryptography;
-using System;
 using System.Text;
 
 namespace Bicep.Core.Registry.Oci

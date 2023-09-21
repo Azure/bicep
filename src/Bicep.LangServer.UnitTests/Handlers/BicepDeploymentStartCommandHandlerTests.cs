@@ -63,7 +63,7 @@ param foo = 'something'
 param bar = 1
             ";
 
-            var expectedParamJson = 
+            var expectedParamJson =
 @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -131,7 +131,7 @@ param bar = '1'
         [TestMethod]
         public void ExtractParametersObject_WithValidJsonReturns_ParametersPropertyValue()
         {
-            var paramJson = 
+            var paramJson =
 @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",

@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -10,8 +12,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using CompilationHelper = Bicep.LanguageServer.Utils.CompilationHelper;
-using Bicep.Core;
-using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Helpers
 {

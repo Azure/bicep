@@ -67,7 +67,7 @@ public class ServiceBuilder
 
     public static IDependencyHelper Create(Action<IServiceCollection>? registerAction = null)
     {
-        registerAction ??= services => {};
+        registerAction ??= services => { };
 
         return new ServiceBuilder().WithRegistration(registerAction).Build();
     }

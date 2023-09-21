@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -109,7 +109,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     if (declaredDependencies.Items.Count() == 1)
                     {
                         // we only have one entry - remove the whole dependsOn property
-                        if (SyntaxModifier.TryRemoveProperty(body, dependsOnProperty, model.ParsingErrorLookup) is {} newObject)
+                        if (SyntaxModifier.TryRemoveProperty(body, dependsOnProperty, model.ParsingErrorLookup) is { } newObject)
                         {
                             codeReplacement = new CodeReplacement(body.Span, newObject.ToTextPreserveFormatting());
                         }
@@ -117,7 +117,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     else
                     {
                         // we have multiple entries - just remove this one
-                        if (SyntaxModifier.TryRemoveItem(declaredDependencies, declaredDependency, model.ParsingErrorLookup) is {} newArray)
+                        if (SyntaxModifier.TryRemoveItem(declaredDependencies, declaredDependency, model.ParsingErrorLookup) is { } newArray)
                         {
                             codeReplacement = new CodeReplacement(declaredDependencies.Span, newArray.ToTextPreserveFormatting());
                         }

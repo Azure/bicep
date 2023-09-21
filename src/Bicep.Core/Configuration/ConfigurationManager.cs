@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,6 +8,10 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Security;
 using System.Text.Json;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Json;
 
 namespace Bicep.Core.Configuration
 {
@@ -43,9 +43,10 @@ namespace Bicep.Core.Configuration
         public (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(Uri configUri)
         {
             (RootConfiguration, RootConfiguration)? returnVal = null;
-            configFileUriToLoadedConfigCache.AddOrUpdate(configUri, LoadConfiguration, (uri, prev) => {
+            configFileUriToLoadedConfigCache.AddOrUpdate(configUri, LoadConfiguration, (uri, prev) =>
+            {
                 var reloaded = LoadConfiguration(uri);
-                if (prev.config is {} prevConfig && reloaded.Item1 is {} newConfig)
+                if (prev.config is { } prevConfig && reloaded.Item1 is { } newConfig)
                 {
                     returnVal = (prevConfig, newConfig);
                 }
@@ -119,7 +120,8 @@ namespace Bicep.Core.Configuration
                 var element = IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElementFromStream(stream));
 
                 return (RootConfiguration.Bind(element, configurationUri.LocalPath), null);
-            } catch (ConfigurationException exception)
+            }
+            catch (ConfigurationException exception)
             {
                 return (null, x => x.InvalidBicepConfigFile(configurationUri.LocalPath, exception.Message));
             }

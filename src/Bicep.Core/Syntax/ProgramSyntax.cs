@@ -3,8 +3,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Parsing;
 using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {

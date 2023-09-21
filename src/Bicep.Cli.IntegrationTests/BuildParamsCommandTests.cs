@@ -37,7 +37,7 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class BuildParamsCommandTests : TestBase
     {
-        
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -50,7 +50,7 @@ namespace Bicep.Cli.IntegrationTests
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
             File.Exists(outputFilePath).Should().BeFalse();
-            var(output, error, result) = await Bicep("build-params", bicepparamsPath,"--bicep-file", bicepPath, "--outfile", outputFilePath);
+            var (output, error, result) = await Bicep("build-params", bicepparamsPath, "--bicep-file", bicepPath, "--outfile", outputFilePath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
@@ -69,7 +69,7 @@ namespace Bicep.Cli.IntegrationTests
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
             File.Exists(outputFilePath).Should().BeFalse();
-            var result = await Bicep(settings, "build-params", bicepparamsPath,"--bicep-file", otherBicepPath, "--outfile", outputFilePath);
+            var result = await Bicep(settings, "build-params", bicepparamsPath, "--bicep-file", otherBicepPath, "--outfile", outputFilePath);
 
             result.Should().Fail().And.HaveStderrMatch($"Bicep file {otherBicepPath} provided with --bicep-file option doesn't match the Bicep file {bicepPath} referenced by the \"using\" declaration in the parameters file.*");
         }
@@ -77,7 +77,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Build_Params_Bicep_File_Reference_Mismatch_And_Other_Diagnostics_ShouldFail_WithAllExpectedErrorMessages()
         {
-            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam", 
+            var bicepparamsPath = FileHelper.SaveResultFile(TestContext, "input.bicepparam",
             @"
             using './main.bicep'
 
@@ -90,7 +90,7 @@ namespace Bicep.Cli.IntegrationTests
             var settings = new InvocationSettings(new(TestContext), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
 
-            var result = await Bicep(settings, "build-params", bicepparamsPath,"--bicep-file", otherBicepPath, "--outfile", outputFilePath);
+            var result = await Bicep(settings, "build-params", bicepparamsPath, "--bicep-file", otherBicepPath, "--outfile", outputFilePath);
 
             result.Should().Fail().And.HaveStderrMatch($"Bicep file {otherBicepPath} provided with --bicep-file option doesn't match the Bicep file {bicepPath} referenced by the \"using\" declaration in the parameters file.*");
             File.Exists(outputFilePath).Should().BeFalse();
@@ -120,10 +120,10 @@ namespace Bicep.Cli.IntegrationTests
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task Build_Valid_Params_File_ToStdOut_Should_Succeed(BaselineData_Bicepparam baselineData)
-        {   
+        {
             var data = baselineData.GetData(TestContext);
 
-            var settings = new InvocationSettings(new (), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "build-params", data.Parameters.OutputFilePath, "--bicep-file", data.Bicep.OutputFilePath, "--stdout");
 
@@ -190,7 +190,7 @@ namespace Bicep.Cli.IntegrationTests
             var clients = await MockRegistry.Build();
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clients.ContainerRegistry, clients.TemplateSpec);
 
-            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--bicep-file", bicepFile,  "--stdout");
+            var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--bicep-file", bicepFile, "--stdout");
             result.Should().Fail().And.HaveStderrMatch($"Bicep file * provided with --bicep-file can only be used if the Bicep parameters \"using\" declaration refers to a Bicep file on disk.*");
         }
 
@@ -237,7 +237,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var result = await Bicep(settings, "build-params", baselineFolder.EntryFile.OutputFilePath, "--stdout");
-            
+
             result.Should().Fail().And.NotHaveStdout();
             result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the module with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
         }

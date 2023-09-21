@@ -1,35 +1,35 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Containers.ContainerRegistry;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Azure;
+using Azure.Containers.ContainerRegistry;
+using Azure.Identity;
 using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
+using Bicep.Core.Emit;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry.Oci;
 using Microsoft.WindowsAzure.ResourceStack.Common.Memory;
-using System.Text;
-using Bicep.Core.Emit;
-using Azure.Identity;
-using Bicep.Core.UnitTests.Baselines;
+using Moq;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -617,7 +617,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
-            
+
             result.Should().Fail().And.NotHaveStdout();
             result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the module with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
         }

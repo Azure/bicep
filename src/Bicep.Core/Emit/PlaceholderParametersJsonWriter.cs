@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO;
+using System.Linq;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.IO;
-using System.Linq;
 
 namespace Bicep.Core.Emit
 {
@@ -104,7 +104,7 @@ namespace Bicep.Core.Emit
                                 break;
                             case "int":
                                 emitter.EmitProperty("value", () => jsonWriter.WriteValue(0));
-                            break;
+                                break;
                             case "bool":
                                 emitter.EmitProperty("value", () => jsonWriter.WriteValue(false));
                                 break;

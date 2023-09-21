@@ -13,7 +13,7 @@ namespace Bicep.Core.TypeSystem;
 public class TupleType : ArrayType
 {
     public TupleType(ImmutableArray<ITypeReference> items, TypeSymbolValidationFlags validationFlags)
-        : this(DeriveTupleName(items), items, validationFlags) {}
+        : this(DeriveTupleName(items), items, validationFlags) { }
 
     public TupleType(string name, ImmutableArray<ITypeReference> items, TypeSymbolValidationFlags validationFlags)
         : base(name, new DeferredTypeReference(() => TypeHelper.CreateTypeUnion(items)), validationFlags, minLength: items.Length, maxLength: items.Length)

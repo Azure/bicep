@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+using System.Text.Json;
 using Bicep.Cli.Arguments;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
 using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
-using System.Text.Json;
 
 namespace Bicep.Cli.Logging
 {

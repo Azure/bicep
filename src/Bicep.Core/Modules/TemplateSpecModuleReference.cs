@@ -125,7 +125,7 @@ namespace Bicep.Core.Modules
 
             if (!ResourceNameRegex.IsMatch(version))
             {
-                return new (x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue)));
+                return new(x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue)));
             }
 
             return new(new TemplateSpecModuleReference(subscriptionId, resourceGroupName, templateSpecName, version, parentModuleUri));

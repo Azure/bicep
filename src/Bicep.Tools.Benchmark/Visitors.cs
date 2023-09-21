@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using BenchmarkDotNet.Attributes;
-using Bicep.Core.Samples;
-using Bicep.Core.Syntax;
-using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Utils;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -15,6 +9,12 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
+using Bicep.Core.Samples;
+using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Tools.Benchmark;
 

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Registry;
 using System;
 using System.Collections.Immutable;
+using Bicep.Core.Registry;
 
 namespace Bicep.Wasm
 {

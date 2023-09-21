@@ -320,7 +320,7 @@ namespace Bicep.Core.TypeSystem
         /// </remarks>
         public static TypeSymbol? TryRemoveNullability(TypeSymbol type) => type switch
         {
-            UnionType union when union.Members.Where(m => !ReferenceEquals(m.Type, LanguageConstants.Null)).ToImmutableArray() is {} sansNull &&
+            UnionType union when union.Members.Where(m => !ReferenceEquals(m.Type, LanguageConstants.Null)).ToImmutableArray() is { } sansNull &&
                 sansNull.Length < union.Members.Length => CreateTypeUnion(sansNull),
             _ => null,
         };
@@ -428,7 +428,8 @@ namespace Bicep.Core.TypeSystem
             unionMembers.Select(m => m.Type.FormatNameForCompoundTypes()).ConcatString(" | ");
 
         public static bool SatisfiesCondition(TypeSymbol typeSymbol, Func<TypeSymbol, bool> conditionFunc)
-            => typeSymbol switch {
+            => typeSymbol switch
+            {
                 UnionType unionType => unionType.Members.All(t => conditionFunc(t.Type)),
                 _ => conditionFunc(typeSymbol),
             };

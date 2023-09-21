@@ -26,7 +26,7 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public void Negative_array_index_access_emits_error_diagnostic() 
+        public void Negative_array_index_access_emits_error_diagnostic()
         {
             var template = @"
 param anArray array

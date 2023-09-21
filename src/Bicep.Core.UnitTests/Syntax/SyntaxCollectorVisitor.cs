@@ -13,7 +13,7 @@ namespace Bicep.Core.UnitTests.Syntax
             public IEnumerable<SyntaxCollectorVisitor.SyntaxItem> GetAncestors()
             {
                 var data = this;
-                while (data.Parent is {} parent)
+                while (data.Parent is { } parent)
                 {
                     yield return parent;
                     data = parent;

@@ -252,7 +252,7 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitResourceTypeSyntax(ResourceTypeSyntax syntax)
         {
-             // This is intentional, we want 'resource' to look like 'object' or 'array'.
+            // This is intentional, we want 'resource' to look like 'object' or 'array'.
             AddTokenType(syntax.Keyword, SemanticTokenType.Type);
             base.VisitResourceTypeSyntax(syntax);
         }

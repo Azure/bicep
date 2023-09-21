@@ -1515,7 +1515,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithEvaluator((functionCall, decorated) =>
                 {
                     if (decorated is DeclaredParameterExpression declaredParameterExpression &&
-                        functionCall.Parameters.FirstOrDefault() is {} allowedValues)
+                        functionCall.Parameters.FirstOrDefault() is { } allowedValues)
                     {
                         return declaredParameterExpression with { AllowedValues = allowedValues };
                     }
@@ -1533,7 +1533,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithEvaluator((functionCall, decorated) =>
                 {
                     if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
-                        functionCall.Parameters.FirstOrDefault() is {} minValue)
+                        functionCall.Parameters.FirstOrDefault() is { } minValue)
                     {
                         return typeDeclaringExpression with { MinValue = minValue };
                     }
@@ -1551,7 +1551,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithEvaluator((functionCall, decorated) =>
                 {
                     if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
-                        functionCall.Parameters.FirstOrDefault() is {} maxValue)
+                        functionCall.Parameters.FirstOrDefault() is { } maxValue)
                     {
                         return typeDeclaringExpression with { MaxValue = maxValue };
                     }
@@ -1569,7 +1569,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithEvaluator((functionCall, decorated) =>
                 {
                     if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
-                        functionCall.Parameters.FirstOrDefault() is {} minLength)
+                        functionCall.Parameters.FirstOrDefault() is { } minLength)
                     {
                         return typeDeclaringExpression with { MinLength = minLength };
                     }
@@ -1587,7 +1587,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithEvaluator((functionCall, decorated) =>
                 {
                     if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
-                        functionCall.Parameters.FirstOrDefault() is {} maxLength)
+                        functionCall.Parameters.FirstOrDefault() is { } maxLength)
                     {
                         return typeDeclaringExpression with { MaxLength = maxLength };
                     }
@@ -1605,7 +1605,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithEvaluator((functionCall, decorated) =>
                 {
                     if (decorated is TypeDeclaringExpression typeDeclaringExpression &&
-                        functionCall.Parameters.FirstOrDefault() is {} metadata)
+                        functionCall.Parameters.FirstOrDefault() is { } metadata)
                     {
                         return typeDeclaringExpression with { Metadata = metadata };
                     }
@@ -1621,7 +1621,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithEvaluator((functionCall, decorated) =>
                 {
                     if (decorated is DescribableExpression describable &&
-                        functionCall.Parameters.FirstOrDefault() is {} description)
+                        functionCall.Parameters.FirstOrDefault() is { } description)
                     {
                         return describable with { Description = description };
                     }

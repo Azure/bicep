@@ -338,7 +338,7 @@ param myArray array
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
             };
 
-            var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Should().SatisfyRespectively(
                 x =>
@@ -391,7 +391,7 @@ param customParam customType
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
             };
 
-            var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Should().SatisfyRespectively(
                 x =>
@@ -432,7 +432,7 @@ param customParam customType[]
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText,
             };
 
-            var completions = await RunCompletionScenario(paramTextWithCursor , fileTextsByUri.ToImmutableDictionary(), '|');
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Any(x => x.Label == "required-properties");
         }

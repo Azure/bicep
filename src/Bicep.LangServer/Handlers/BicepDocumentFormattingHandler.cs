@@ -2,19 +2,19 @@
 // Licensed under the MIT License.
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.Features;
 using Bicep.Core.PrettyPrint;
+using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.PrettyPrintV2;
+using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
+using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Bicep.Core.PrettyPrint.Options;
-using Microsoft.Extensions.Logging;
-using Bicep.Core.Syntax;
-using Bicep.LanguageServer.Extensions;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using Bicep.Core.Features;
-using Bicep.Core.PrettyPrintV2;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Handlers
 {

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Linq;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 
@@ -115,7 +115,7 @@ namespace Bicep.Core.TypeSystem.Az
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch
                     {
-                        #pragma warning disable 618
+#pragma warning disable 618
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Any => LanguageConstants.Any,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Null => LanguageConstants.Null,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Bool => LanguageConstants.Bool,
@@ -124,7 +124,7 @@ namespace Bicep.Core.TypeSystem.Az
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Object => LanguageConstants.Object,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Array => LanguageConstants.Array,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.ResourceRef => LanguageConstants.ResourceRef,
-                        #pragma warning restore 618
+#pragma warning restore 618
                         _ => throw new ArgumentException(),
                     };
                 case Azure.Bicep.Types.Concrete.ObjectType objectType:
@@ -188,7 +188,8 @@ namespace Bicep.Core.TypeSystem.Az
         private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceFlags input)
         {
             var output = ResourceFlags.None;
-            if (input.HasFlag(Azure.Bicep.Types.Concrete.ResourceFlags.ReadOnly)) {
+            if (input.HasFlag(Azure.Bicep.Types.Concrete.ResourceFlags.ReadOnly))
+            {
                 output |= ResourceFlags.ReadOnly;
             }
 

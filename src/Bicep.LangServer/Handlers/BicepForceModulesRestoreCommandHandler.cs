@@ -3,17 +3,17 @@
 
 using System;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using System.Text;
-using Bicep.Core.Syntax;
-using Bicep.Core.Features;
 
 namespace Bicep.LanguageServer.Handlers
 {

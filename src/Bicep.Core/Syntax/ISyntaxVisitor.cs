@@ -101,7 +101,7 @@ namespace Bicep.Core.Syntax
         void VisitLocalVariableSyntax(LocalVariableSyntax syntax);
 
         void VisitAssertDeclarationSyntax(AssertDeclarationSyntax syntax);
-        
+
         void VisitIfConditionSyntax(IfConditionSyntax syntax);
 
         void VisitForSyntax(ForSyntax syntax);

@@ -202,14 +202,14 @@ namespace Bicep.Core.Semantics
 
         private ImmutableSortedDictionary<string, ExportMetadata> FindExports()
         {
-            if (SourceFile.Template is not {} template || SourceFile.TemplateObject is not {} templateObject)
+            if (SourceFile.Template is not { } template || SourceFile.TemplateObject is not { } templateObject)
             {
                 return ImmutableSortedDictionary<string, ExportMetadata>.Empty;
             }
 
             List<ExportMetadata> exports = new();
 
-            if (template.Definitions is {} typeDefinitions)
+            if (template.Definitions is { } typeDefinitions)
             {
                 exports.AddRange(typeDefinitions.Where(kvp => IsExported(kvp.Value))
                     .Select(kvp => new ExportedTypeMetadata(kvp.Key, GetType(kvp.Value), GetMostSpecificDescription(kvp.Value))));

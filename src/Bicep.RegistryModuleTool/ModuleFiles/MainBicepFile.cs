@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Metadata;
-using Bicep.Core.Syntax;
-using Bicep.RegistryModuleTool.Extensions;
-using Bicep.RegistryModuleTool.ModuleFileValidators;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -15,6 +9,12 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bicep.Core;
+using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Syntax;
+using Bicep.RegistryModuleTool.Extensions;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
@@ -109,7 +109,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             if (!metadataNames.Contains(ModuleOwnerMetadataName))
             {
-                metadataLinesToInsert.AppendLine(DefaultModuleOwnerMetadata);;
+                metadataLinesToInsert.AppendLine(DefaultModuleOwnerMetadata); ;
             }
 
             if (metadataLinesToInsert.Length > 0)

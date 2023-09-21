@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Core;
 using System.Collections.Immutable;
+using Azure.Core;
 
 namespace Bicep.Core.Tracing
 {

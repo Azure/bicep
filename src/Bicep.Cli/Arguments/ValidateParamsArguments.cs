@@ -17,7 +17,7 @@ namespace Bicep.Cli.Arguments
                 {
                     throw new CommandLineException($"The bicep file path cannot be specified multiple times");
                 }
-                BicepFile = args[i];                
+                BicepFile = args[i];
             }
 
             if (BicepFile is null)

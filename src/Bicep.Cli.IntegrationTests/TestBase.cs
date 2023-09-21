@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Features;
@@ -15,9 +18,6 @@ using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -86,7 +86,7 @@ namespace Bicep.Cli.IntegrationTests
             var semanticModel = compilation.GetEntrypointSemanticModel();
 
             var output = new List<string>();
-            foreach(var diagnostic in semanticModel.GetAllDiagnostics())
+            foreach (var diagnostic in semanticModel.GetAllDiagnostics())
             {
                 var (line, character) = TextCoordinateConverter.GetPosition(semanticModel.SourceFile.LineStarts, diagnostic.Span.Position);
                 var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";

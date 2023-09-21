@@ -29,7 +29,8 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Body { get; }
 
         public IEnumerable<LocalVariableSyntax> GetLocalVariables()
-            => VariableSection switch {
+            => VariableSection switch
+            {
                 LocalVariableSyntax var => var.AsEnumerable(),
                 VariableBlockSyntax vars => vars.Arguments,
                 _ => Enumerable.Empty<LocalVariableSyntax>(),

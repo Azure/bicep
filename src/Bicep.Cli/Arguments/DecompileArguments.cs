@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO;
 using Bicep.Core.FileSystem;
 using LanguageConstants = Bicep.Core.LanguageConstants;
-
-
-using System.IO;
 
 namespace Bicep.Cli.Arguments
 {

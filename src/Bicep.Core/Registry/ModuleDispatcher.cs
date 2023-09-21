@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Modules;
-using Bicep.Core.Navigation;
-using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,6 +9,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Modules;
+using Bicep.Core.Navigation;
+using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Registry
 {
@@ -36,7 +36,7 @@ namespace Bicep.Core.Registry
 
         private ImmutableDictionary<string, IArtifactRegistry> Registries(Uri parentModuleUri)
             => registryProvider.Registries(parentModuleUri).ToImmutableDictionary(r => r.Scheme);
-        
+
         public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
             => Registries(parentModuleUri).Keys.OrderBy(s => s).ToImmutableArray();
 
@@ -101,7 +101,7 @@ namespace Bicep.Core.Registry
         }
 
         public ArtifactRestoreStatus GetArtifactRestoreStatus(
-            ArtifactReference artifactReference, 
+            ArtifactReference artifactReference,
             out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var registry = this.GetRegistry(artifactReference);
@@ -142,7 +142,7 @@ namespace Bicep.Core.Registry
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
-            if (!forceModulesRestore && 
+            if (!forceModulesRestore &&
                 moduleReferences.All(module => this.GetArtifactRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything

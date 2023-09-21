@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Json.Schema;
 using System;
 using System.Reflection;
 using System.Text.Json;
+using Json.Schema;
 
 namespace Bicep.RegistryModuleTool.Schemas
 {

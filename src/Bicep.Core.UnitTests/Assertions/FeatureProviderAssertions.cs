@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.UnitTests.Features;
-using FluentAssertions;
-using FluentAssertions.Primitives;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using Bicep.Core.UnitTests.Features;
+using FluentAssertions;
+using FluentAssertions.Primitives;
 
 namespace Bicep.Core.UnitTests.Assertions
 {

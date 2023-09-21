@@ -88,7 +88,7 @@ public class JsonElementTests
   ""experimentalFeaturesEnabled"": {}
 }";
 
-            var target = @"{
+        var target = @"{
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,
@@ -101,13 +101,13 @@ public class JsonElementTests
     }
   }
 }";
-            var element = JsonElementFactory.CreateElement(target);
-            var config = JsonElementFactory.CreateElement(source);
+        var element = JsonElementFactory.CreateElement(target);
+        var config = JsonElementFactory.CreateElement(source);
 
-            Parallel.ForEach(Enumerable.Range(1, 1000000).ToList().AsParallel(), i =>
-            {
-                var result = config.Merge(element);
-                JToken.Parse(result.ToJsonString()).Should().DeepEqual(JToken.Parse(@"{
+        Parallel.ForEach(Enumerable.Range(1, 1000000).ToList().AsParallel(), i =>
+        {
+            var result = config.Merge(element);
+            JToken.Parse(result.ToJsonString()).Should().DeepEqual(JToken.Parse(@"{
   ""cloud"": {
     ""currentProfile"": ""AzureCloud"",
     ""profiles"": {

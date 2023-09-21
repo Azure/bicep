@@ -114,7 +114,8 @@ namespace Bicep.Core.UnitTests.Utils
             }
 
             var lineStarts = TextCoordinateConverter.GetLineStarts(bicepOutput);
-            var sourceMapDiags = fileEntry.SourceMap.Select(entry => {
+            var sourceMapDiags = fileEntry.SourceMap.Select(entry =>
+            {
                 var offset = TextCoordinateConverter.GetOffset(lineStarts, entry.SourceLine, 0);
                 var jsonLine = jsonLines[entry.TargetLine];
 

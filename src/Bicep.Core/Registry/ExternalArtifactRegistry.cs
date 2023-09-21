@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Tracing;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry
 {
@@ -124,7 +124,7 @@ namespace Bicep.Core.Registry
 
             while (stopwatch.Elapsed < ArtifactDirectoryContentionTimeout)
             {
-                if(!this.FileResolver.FileExists(lockFileUri))
+                if (!this.FileResolver.FileExists(lockFileUri))
                 {
                     // no lock exists, proceed
                     var artifactDirectoryPath = this.GetArtifactDirectoryPath(reference);
@@ -133,8 +133,11 @@ namespace Bicep.Core.Registry
                     DeleteArtifactDirectory(artifactDirectoryPath);
 
                     return;
-                } else {
-                    try {
+                }
+                else
+                {
+                    try
+                    {
                         // Even if the FileLock is disposed, the file remain there. See comments in FileLock.cs
                         // saying there's a race condition on Linux with the DeleteOnClose flag on the FileStream.
                         // We will attempt to delete the file. If it throws, the lock is still open and will continue
@@ -163,7 +166,8 @@ namespace Bicep.Core.Registry
                 using var timer = new ExecutionTimer($"Delete artifact {reference.FullyQualifiedReference} from cache");
                 try
                 {
-                    if(Directory.Exists(GetArtifactDirectoryPath(reference))) {
+                    if (Directory.Exists(GetArtifactDirectoryPath(reference)))
+                    {
                         await this.TryDeleteArtifactDirectoryAsync(reference);
                     }
                 }

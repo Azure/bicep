@@ -66,13 +66,16 @@ namespace Bicep.Core.Syntax
             if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.String))
             {
                 assignedType = UnionIfLiterals<StringLiteralType>(assignedType, assignedType, allowedItemTypes);
-            } else if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.Int))
+            }
+            else if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.Int))
             {
                 assignedType = UnionIfLiterals<IntegerLiteralType>(assignedType, assignedType, allowedItemTypes);
-            } else if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.Bool))
+            }
+            else if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.Bool))
             {
                 assignedType = UnionIfLiterals<BooleanLiteralType>(assignedType, assignedType, allowedItemTypes);
-            } else if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.Array) && allowedItemTypes is not null && allowedItemTypes.All(TypeHelper.IsLiteralType))
+            }
+            else if (TypeValidator.AreTypesAssignable(assignedType, LanguageConstants.Array) && allowedItemTypes is not null && allowedItemTypes.All(TypeHelper.IsLiteralType))
             {
                 // @allowed has special semantics when applied to an array if none of the allowed values are themselves arrays (ARM will permit any array containing
                 // a subset of the allowed values). If any of the allowed item types is a tuple, treat @allowed([...]) as supplying a list of allowed values;

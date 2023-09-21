@@ -31,7 +31,7 @@ namespace Bicep.Core.Semantics
                 return;
             }
 
-            if (semanticModel.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax) is {} nestedParentSyntax)
+            if (semanticModel.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax) is { } nestedParentSyntax)
             {
                 // nested resource parent syntax
                 if (semanticModel.ResourceMetadata.TryLookup(nestedParentSyntax) is DeclaredResourceMetadata parentResource)

@@ -137,7 +137,8 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Keyword);
                 this.Visit(syntax.Name);
                 this.Visit(syntax.Lambda);
-            }, children => {
+            }, children =>
+            {
                 var leadingNodes = children[0..^3];
                 var keyword = children[^3];
                 var name = children[^2];
@@ -312,14 +313,16 @@ namespace Bicep.Core.PrettyPrint
         }
 
         public override void VisitVariableBlockSyntax(VariableBlockSyntax syntax) =>
-            this.BuildWithConcat(() => {
+            this.BuildWithConcat(() =>
+            {
                 this.Visit(syntax.OpenParen);
                 this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
                 this.Visit(syntax.CloseParen);
             });
 
         public override void VisitTypedVariableBlockSyntax(TypedVariableBlockSyntax syntax) =>
-            this.BuildWithConcat(() => {
+            this.BuildWithConcat(() =>
+            {
                 this.Visit(syntax.OpenParen);
                 this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
                 this.Visit(syntax.CloseParen);
@@ -370,7 +373,8 @@ namespace Bicep.Core.PrettyPrint
                 nodes = nodes.RemoveAt(nodes.Length - 1);
             }
 
-            this.Build(() => {
+            this.Build(() =>
+            {
                 this.Visit(leadingNewLine);
                 if (leadingAndTrailingSpace && nodes.Any() && leadingNewLine is null)
                 {
@@ -406,7 +410,8 @@ namespace Bicep.Core.PrettyPrint
                     this.PushDocument(Space);
                 }
                 this.Visit(trailingNewLine);
-            }, children => {
+            }, children =>
+            {
                 // This logic ensures that syntax with only a single child is not doubly-nested,
                 // and that the final newline does not cause the next piece of text to be indented
                 // e.g. 'bar' in the following is only indented once, and '})' is not indented:
@@ -428,7 +433,8 @@ namespace Bicep.Core.PrettyPrint
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax) =>
-            this.BuildWithConcat(() => {
+            this.BuildWithConcat(() =>
+            {
                 this.Visit(syntax.Name);
                 this.Visit(syntax.OpenParen);
                 this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
@@ -436,7 +442,8 @@ namespace Bicep.Core.PrettyPrint
             });
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) =>
-            this.BuildWithConcat(() => {
+            this.BuildWithConcat(() =>
+            {
                 this.Visit(syntax.BaseExpression);
                 this.Visit(syntax.Dot);
                 this.Visit(syntax.Name);
@@ -615,7 +622,8 @@ namespace Bicep.Core.PrettyPrint
             });
 
         public override void VisitObjectTypeSyntax(ObjectTypeSyntax syntax) =>
-            this.BuildWithConcat(() => {
+            this.BuildWithConcat(() =>
+            {
                 this.Visit(syntax.OpenBrace);
                 this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
                 this.Visit(syntax.CloseBrace);

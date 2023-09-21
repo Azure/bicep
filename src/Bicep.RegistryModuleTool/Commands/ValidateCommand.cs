@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.CommandLine;
+using System.CommandLine.Invocation;
+using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Microsoft.Extensions.Logging;
-using System;
-using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.IO.Abstractions;
-using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.Commands
 {

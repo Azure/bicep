@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -30,7 +30,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Decompile_ValidParamFile_ShouldSucceed()
         {
-            var paramFile = 
+            var paramFile =
   @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -55,7 +55,7 @@ namespace Bicep.Cli.IntegrationTests
     }
   }
 }";
-            var expectedOutput = 
+            var expectedOutput =
 @"using '' /*TODO: Provide a path to a bicep template*/
 
 param first = 'test'
@@ -70,7 +70,7 @@ param third = [
 param fourth = {
   firstKey: 'bar'
   secondKey: 1
-}";  
+}";
 
             var (jsonPath, bicepparamPath) = Setup(TestContext, paramFile);
 
@@ -88,7 +88,7 @@ param fourth = {
         [TestMethod]
         public async Task Decompile_ValidParamFileWithBicepPath_ShouldSucceed()
         {
-            var paramFile = 
+            var paramFile =
   @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -98,7 +98,7 @@ param fourth = {
     }
   }
 }";
-            var expectedOutput = 
+            var expectedOutput =
 @"using './dir/main.bicep'
 
 param foo = 'bar'";
@@ -120,7 +120,7 @@ param foo = 'bar'";
         [TestMethod]
         public async Task Decompile_ValidParamFileWithStdOut_ShouldSucceed()
         {
-            var paramFile = 
+            var paramFile =
   @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -130,7 +130,7 @@ param foo = 'bar'";
     }
   }
 }";
-            var expectedOutput = 
+            var expectedOutput =
 @"using '' /*TODO: Provide a path to a bicep template*/
 
 param foo = 'bar'";
@@ -150,7 +150,7 @@ param foo = 'bar'";
         [TestMethod]
         public async Task Decompile_InvalidParamFile_ShouldFailWithErrors()
         {
-            var paramFile = 
+            var paramFile =
   @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -170,7 +170,7 @@ param foo = 'bar'";
                 error.AsLines().Should().Contain($"{jsonPath}: Decompilation failed with fatal error \"No value found parameter foo\"");
                 result.Should().Be(1);
             }
-        }            
+        }
 
         private static (string jsonPath, string bicepparamPath) Setup(TestContext context, string template, string? inputFile = null, string? outputDir = null)
         {
@@ -188,6 +188,6 @@ param foo = 'bar'";
             }
 
             return (jsonPath, bicepparamPath);
-        }       
+        }
     }
 }

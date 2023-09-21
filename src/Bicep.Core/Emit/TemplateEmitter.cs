@@ -67,28 +67,28 @@ public class TemplateEmitter
         switch (outputFormat)
         {
             case OutputFormatOption.BicepParam:
-            {
-                var bicepParamEmitter = new PlaceholderParametersBicepParamWriter(bicepSemanticModel, includeParams);
-                bicepParamEmitter.Write(textWriter, existingContent);
+                {
+                    var bicepParamEmitter = new PlaceholderParametersBicepParamWriter(bicepSemanticModel, includeParams);
+                    bicepParamEmitter.Write(textWriter, existingContent);
 
-                break;
-            }
+                    break;
+                }
             case OutputFormatOption.Json:
             default:
-            {
-                using var writer = new JsonTextWriter(textWriter)
                 {
-                    // don't close the textWriter when writer is disposed
-                    CloseOutput = false,
-                    Formatting = Formatting.Indented
-                };
+                    using var writer = new JsonTextWriter(textWriter)
+                    {
+                        // don't close the textWriter when writer is disposed
+                        CloseOutput = false,
+                        Formatting = Formatting.Indented
+                    };
 
-                var jsonEmitter = new PlaceholderParametersJsonWriter(bicepSemanticModel, includeParams);
-                jsonEmitter.Write(writer, existingContent);
-                writer.Flush();
+                    var jsonEmitter = new PlaceholderParametersJsonWriter(bicepSemanticModel, includeParams);
+                    jsonEmitter.Write(writer, existingContent);
+                    writer.Flush();
 
-                break;
-            }
+                    break;
+                }
         }
 
         return null;
@@ -112,7 +112,8 @@ public class TemplateEmitter
     public EmitResult Emit(TextWriter textWriter) => EmitOrFail(() =>
     {
         var fileResolver = compilation.GetEntrypointSemanticModel().FileResolver;
-        var sourceFileToTrack = model switch {
+        var sourceFileToTrack = model switch
+        {
             SemanticModel bicepModel when bicepModel.Features.SourceMappingEnabled => bicepModel.SourceFile,
             _ => null,
         };
@@ -133,7 +134,8 @@ public class TemplateEmitter
     private EmitResult EmitOrFail(Func<SourceMap?> write)
     {
         // collect all the diagnostics
-        var diagnostics = model switch {
+        var diagnostics = model switch
+        {
             SemanticModel x => x.GetAllDiagnostics(),
             _ => ImmutableArray<IDiagnostic>.Empty,
         };

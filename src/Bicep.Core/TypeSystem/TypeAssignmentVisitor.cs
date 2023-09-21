@@ -203,7 +203,7 @@ namespace Bicep.Core.TypeSystem
                             _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
                         };
 
-                        if (binder.GetParent(lambda) is {} lambdaParent &&
+                        if (binder.GetParent(lambda) is { } lambdaParent &&
                             typeManager.GetDeclaredType(lambdaParent) is LambdaType lambdaType &&
                             argumentIndex < lambdaType.ArgumentTypes.Length)
                         {
@@ -220,7 +220,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitTypedLocalVariableSyntax(TypedLocalVariableSyntax syntax)
             => AssignType(syntax, () =>
             {
-                if (typeManager.GetDeclaredType(syntax) is not {} declaredType)
+                if (typeManager.GetDeclaredType(syntax) is not { } declaredType)
                 {
                     return ErrorType.Empty();
                 }
@@ -343,9 +343,9 @@ namespace Bicep.Core.TypeSystem
                     return singleDeclaredType;
                 }
 
-                 if (this.binder.GetSymbolInfo(syntax) is TestSymbol testSymbol &&
-                    testSymbol.TryGetSemanticModel().IsSuccess(out var testSemanticModel, out var _) &&
-                    testSemanticModel.HasErrors())
+                if (this.binder.GetSymbolInfo(syntax) is TestSymbol testSymbol &&
+                   testSymbol.TryGetSemanticModel().IsSuccess(out var testSemanticModel, out var _) &&
+                   testSemanticModel.HasErrors())
                 {
                     diagnostics.Write(testSemanticModel is ArmTemplateSemanticModel
                         ? DiagnosticBuilder.ForPosition(syntax.Path).ReferencedArmTemplateHasErrors()
@@ -616,7 +616,7 @@ namespace Bicep.Core.TypeSystem
 
                 switch (TypeHelper.CreateTypeUnion(memberTypes.Select(t => GetNonLiteralType(t.memberType)).WhereNotNull()))
                 {
-                    case UnionType union when TypeHelper.TryRemoveNullability(union) is {} nonNullable && LanguageConstants.DeclarationTypes.ContainsValue(nonNullable):
+                    case UnionType union when TypeHelper.TryRemoveNullability(union) is { } nonNullable && LanguageConstants.DeclarationTypes.ContainsValue(nonNullable):
                         ValidateAllowedValuesUnion(union, memberTypes, diagnostics);
                         break;
 
@@ -645,7 +645,8 @@ namespace Bicep.Core.TypeSystem
             TypeSymbol otherwise => (otherwise, memberSyntax).AsEnumerable(),
         };
 
-        private static TypeSymbol? GetNonLiteralType(TypeSymbol? type) => type switch {
+        private static TypeSymbol? GetNonLiteralType(TypeSymbol? type) => type switch
+        {
             StringLiteralType => LanguageConstants.String,
             IntegerLiteralType => LanguageConstants.Int,
             BooleanLiteralType => LanguageConstants.Bool,
@@ -667,7 +668,7 @@ namespace Bicep.Core.TypeSystem
         {
             foreach (var (memberType, memberSyntax) in memberTypes)
             {
-                if (GetNonLiteralUnionMemberDiagnostic(memberType, memberSyntax) is {} diagnostic)
+                if (GetNonLiteralUnionMemberDiagnostic(memberType, memberSyntax) is { } diagnostic)
                 {
                     diagnostics.Write(diagnostic);
                 }
@@ -678,7 +679,7 @@ namespace Bicep.Core.TypeSystem
         {
             foreach (var (memberType, memberSyntax) in memberTypes)
             {
-                if (GetNonLiteralUnionMemberDiagnostic(memberType, memberSyntax) is {} diagnostic)
+                if (GetNonLiteralUnionMemberDiagnostic(memberType, memberSyntax) is { } diagnostic)
                 {
                     diagnostics.Write(diagnostic);
                 }
@@ -712,7 +713,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 // If the resource type was explicitly specified, emit a warning if no types can be found
-                if (syntax.Type is {} explicitResourceType && declaredType is ResourceType resourceType && !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
+                if (syntax.Type is { } explicitResourceType && declaredType is ResourceType resourceType && !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(explicitResourceType).ResourceTypesUnavailable(resourceType.TypeReference));
                 }
@@ -986,7 +987,7 @@ namespace Bicep.Core.TypeSystem
                 base.VisitWildcardImportSyntax(syntax);
 
                 if (binder.GetParent(syntax) is not CompileTimeImportDeclarationSyntax importDeclarationSyntax ||
-                    importableTypesByCompileTimeImportDeclaration.GetOrAdd(importDeclarationSyntax, d => GetImportablePropertiesForDeclaration(d, diagnostics)) is not {} importableTypes)
+                    importableTypesByCompileTimeImportDeclaration.GetOrAdd(importDeclarationSyntax, d => GetImportablePropertiesForDeclaration(d, diagnostics)) is not { } importableTypes)
                 {
                     return ErrorType.Empty();
                 }
@@ -1019,9 +1020,9 @@ namespace Bicep.Core.TypeSystem
             {
                 base.VisitImportedSymbolsListItemSyntax(syntax);
 
-                if (binder.GetParent(syntax) is not {} parentSyntax ||
+                if (binder.GetParent(syntax) is not { } parentSyntax ||
                     binder.GetParent(parentSyntax) is not CompileTimeImportDeclarationSyntax importDeclarationSyntax ||
-                    importableTypesByCompileTimeImportDeclaration.GetOrAdd(importDeclarationSyntax, d => GetImportablePropertiesForDeclaration(d, diagnostics)) is not {} importableTypes)
+                    importableTypesByCompileTimeImportDeclaration.GetOrAdd(importDeclarationSyntax, d => GetImportablePropertiesForDeclaration(d, diagnostics)) is not { } importableTypes)
                 {
                     return ErrorType.Empty();
                 }
@@ -1039,7 +1040,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                if (importableTypes.TryGetValue(importTarget) is not {} exportedType)
+                if (importableTypes.TryGetValue(importTarget) is not { } exportedType)
                 {
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.OriginalSymbolName).ImportedSymbolNotFound(importTarget));
                 }
@@ -1088,7 +1089,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 // if the value of this string expression can be determined at compile time, use that
-                if (ArmFunctionReturnTypeEvaluator.TryEvaluate("format", out _, TypeFactory.CreateStringLiteralType(StringFormatConverter.BuildFormatString(syntax.SegmentValues)).AsEnumerable().Concat(expressionTypes)) is {} folded)
+                if (ArmFunctionReturnTypeEvaluator.TryEvaluate("format", out _, TypeFactory.CreateStringLiteralType(StringFormatConverter.BuildFormatString(syntax.SegmentValues)).AsEnumerable().Concat(expressionTypes)) is { } folded)
                 {
                     return folded;
                 }
@@ -1103,7 +1104,8 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
-            => AssignType(syntax, () => syntax.Value switch {
+            => AssignType(syntax, () => syntax.Value switch
+            {
                 <= long.MaxValue => TypeFactory.CreateIntegerLiteralType((long)syntax.Value),
                 _ => LanguageConstants.Int,
             });
@@ -1295,7 +1297,7 @@ namespace Bicep.Core.TypeSystem
 
                 // operands don't appear to have errors
                 // let's fold the expression so that an operation with two literal typed operands will have a literal return type
-                if (OperationReturnTypeEvaluator.TryFoldBinaryExpression(syntax, operandType1, operandType2, diagnostics) is {} result)
+                if (OperationReturnTypeEvaluator.TryFoldBinaryExpression(syntax, operandType1, operandType2, diagnostics) is { } result)
                 {
                     return result;
                 }
@@ -1328,7 +1330,7 @@ namespace Bicep.Core.TypeSystem
 
                 // operand doesn't appear to have errors
                 // let's fold the expression so that an operation with a literal typed operand will have a literal return type
-                if (OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax, operandType, diagnostics) is {} result)
+                if (OperationReturnTypeEvaluator.TryFoldUnaryExpression(syntax, operandType, diagnostics) is { } result)
                 {
                     return result;
                 }
@@ -1366,7 +1368,7 @@ namespace Bicep.Core.TypeSystem
             baseType = UnwrapType(baseType);
 
             // if the index type is nullable but otherwise valid, emit a fixable warning
-            if (TypeHelper.TryRemoveNullability(indexType) is {} nonNullableIndex)
+            if (TypeHelper.TryRemoveNullability(indexType) is { } nonNullableIndex)
             {
                 var withNonNullableIndex = GetArrayItemType(syntax, diagnostics, baseType, nonNullableIndex);
 
@@ -1384,7 +1386,7 @@ namespace Bicep.Core.TypeSystem
                 long value when value >= baseType.Items.Length => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, value)),
                 // unlikely to hit this given that we've established that the tuple has a item at the given position
                 > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).IndexOutOfBounds(baseType.Name, baseType.Items.Length, indexType.Value)),
-                long otherwise => baseType.Items[(int) otherwise].Type,
+                long otherwise => baseType.Items[(int)otherwise].Type,
             };
 
             switch (baseType)
@@ -1659,7 +1661,7 @@ namespace Bicep.Core.TypeSystem
                     case DeclaredFunctionSymbol declaredFunction:
                         return GetFunctionSymbolType(declaredFunction, syntax, errors, diagnostics);
 
-                    case Symbol symbolInfo when binder.NamespaceResolver.GetKnownFunctions(symbolInfo.Name).FirstOrDefault() is {} knownFunction:
+                    case Symbol symbolInfo when binder.NamespaceResolver.GetKnownFunctions(symbolInfo.Name).FirstOrDefault() is { } knownFunction:
                         // A function exists, but it's being shadowed by another symbol in the file
                         return ErrorType.Create(
                             errors.Append(

@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading.Tasks;
 using Bicep.Cli.Logging;
 using Bicep.Core;
 using Bicep.Core.Configuration;
@@ -14,11 +19,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Bicep.Cli.Services
 {
@@ -126,9 +126,9 @@ namespace Bicep.Cli.Services
             inputPath = PathHelper.ResolvePath(inputPath);
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var outputUri = PathHelper.FilePathToFileUrl(outputPath);
-            var bicepUri = bicepPath is {} ? PathHelper.FilePathToFileUrl(bicepPath) : null;
+            var bicepUri = bicepPath is { } ? PathHelper.FilePathToFileUrl(bicepPath) : null;
 
-            var decompilation =  paramDecompiler.Decompile(inputUri, outputUri, bicepUri);
+            var decompilation = paramDecompiler.Decompile(inputUri, outputUri, bicepUri);
 
             foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
             {

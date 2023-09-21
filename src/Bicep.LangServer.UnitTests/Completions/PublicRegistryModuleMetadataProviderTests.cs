@@ -1,6 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -22,17 +33,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Win32;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using static Bicep.Core.UnitTests.Diagnostics.LinterRuleTests.UseRecentApiVersionRuleTests.GetAcceptableApiVersionsInvariantsTests;
 
 namespace Bicep.LangServer.UnitTests.Completions
@@ -340,7 +340,7 @@ namespace Bicep.LangServer.UnitTests.Completions
             PublicRegistryModuleMetadataProvider provider = new();
             var delay = provider.GetExponentialDelay(initial, 1, max);
 
-            delay.Should().Be(initial*2);
+            delay.Should().Be(initial * 2);
         }
 
         [TestMethod]

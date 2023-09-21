@@ -26,7 +26,7 @@ namespace Bicep.Core.CodeAction
             {
                 throw new ArgumentException($"Code fix title should not end with a period or exclamation mark: \"{title}\"", nameof(title));
             }
-            if (char.IsLower( title[0]))
+            if (char.IsLower(title[0]))
             {
                 throw new ArgumentException($"Code fix title should not start with a lowercase letter: \"{title}\"", nameof(title));
             }

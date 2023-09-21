@@ -31,18 +31,18 @@ namespace Bicep.Cli.Services
         public bool Success => FailedEvaluations == 0 && SkippedEvaluations == 0;
     }
     public class TestRunner
-    { 
+    {
         public static TestResults Run(ImmutableArray<TestSymbol> testDeclarations)
         {
             var templateOutputBuffer = new StringBuilder();
             using var textWriter = new StringWriter();
 
-            return EvaluateTemplates(testDeclarations, textWriter);    
+            return EvaluateTemplates(testDeclarations, textWriter);
         }
-        private static  TestResults EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter)
+        private static TestResults EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter)
         {
-            var testResults = ImmutableArray.CreateBuilder<TestResult>();;
-            foreach(var testDeclaration  in testDeclarations)
+            var testResults = ImmutableArray.CreateBuilder<TestResult>(); ;
+            foreach (var testDeclaration in testDeclarations)
             {
                 if (testDeclaration.TryGetSemanticModel().IsSuccess(out var semanticModel, out var failureDiagnostic) &&
                     semanticModel is SemanticModel testSemanticModel)
@@ -54,9 +54,9 @@ namespace Bicep.Cli.Services
                     var testResult = new TestResult(testDeclaration, evaluation);
 
                     testResults.Add(testResult);
-                
+
                 }
-                
+
             }
             return new TestResults(testResults.ToImmutable());
 

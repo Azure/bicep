@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
-using System;
 
 namespace Bicep.Core.Registry
 {

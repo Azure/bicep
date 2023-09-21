@@ -513,7 +513,7 @@ namespace Bicep.Core.UnitTests.Registry
             string manifestFileContents,
             string registory,
             string repository,
-            string? digest= null,
+            string? digest = null,
             string? tag = null,
             bool cacheRootDirectory = true)
         {

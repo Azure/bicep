@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System;
 using System.Linq;
-using Azure.Deployments.Templates.Expressions;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Templates.Expressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
@@ -57,7 +57,8 @@ namespace Bicep.Core.Emit
         public Result EvaluateParameter(ParameterAssignmentSymbol parameter)
             => Results.GetOrAdd(
                 parameter,
-                parameter => {
+                parameter =>
+                {
                     var context = GetExpressionEvaluationContext();
                     var converter = new ExpressionConverter(new(model));
 
@@ -82,7 +83,8 @@ namespace Bicep.Core.Emit
         public Result EvaluateVariable(VariableSymbol variable)
             => VarResults.GetOrAdd(
                 variable,
-                variable => {
+                variable =>
+                {
                     try
                     {
                         var context = GetExpressionEvaluationContext();
@@ -101,10 +103,12 @@ namespace Bicep.Core.Emit
         private ExpressionEvaluationContext GetExpressionEvaluationContext()
         {
             var helper = new TemplateExpressionEvaluationHelper();
-            helper.OnGetVariable = (name, _) => {
+            helper.OnGetVariable = (name, _) =>
+            {
                 return EvaluateVariable(variablesByName[name]).Value ?? throw new InvalidOperationException($"Variable {name} has an invalid value");
             };
-            helper.OnGetParameter = (name, _) => {
+            helper.OnGetParameter = (name, _) =>
+            {
                 return EvaluateParameter(paramsByName[name]).Value ?? throw new InvalidOperationException($"Parameter {name} has an invalid value");
             };
 

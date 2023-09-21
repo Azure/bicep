@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Azure.Containers.ContainerRegistry;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Threading.Tasks;
-using System.Threading;
-using Azure;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Azure;
+using Azure.Containers.ContainerRegistry;
 
 namespace Bicep.Core.Registry.Oci
 {

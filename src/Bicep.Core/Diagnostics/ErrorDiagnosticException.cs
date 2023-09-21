@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Exceptions;
 using System;
+using Bicep.Core.Exceptions;
 
 namespace Bicep.Core.Diagnostics
 {

@@ -41,7 +41,8 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         public Task<ImportKubernetesManifestResponse> Handle(ImportKubernetesManifestRequest request, CancellationToken cancellationToken)
-            => helper.ExecuteWithTelemetryAndErrorHandling(async () => {
+            => helper.ExecuteWithTelemetryAndErrorHandling(async () =>
+            {
                 var bicepFilePath = Path.ChangeExtension(request.ManifestFilePath, ".bicep");
                 var manifestContents = await File.ReadAllTextAsync(request.ManifestFilePath);
 
@@ -134,7 +135,8 @@ namespace Bicep.LanguageServer.Handlers
                 throw new YamlException(apiVersionKey.Start, apiVersionKey.End, "Unable to process 'apiVersion' for resource declaration.");
             }
 
-            var (type, apiVersion) = apiVersionNode.Value.LastIndexOf('/') switch {
+            var (type, apiVersion) = apiVersionNode.Value.LastIndexOf('/') switch
+            {
                 -1 => ($"core/{kindNode.Value}", apiVersionNode.Value),
                 int x => ($"{apiVersionNode.Value.Substring(0, x)}/{kindNode.Value}", apiVersionNode.Value.Substring(x + 1)),
             };
@@ -158,8 +160,8 @@ namespace Bicep.LanguageServer.Handlers
         private static string GetResourceSymbolName(string type, SyntaxBase resourceBody)
         {
             var identifier = type;
-            if ((resourceBody as ObjectSyntax)?.TryGetPropertyByNameRecursive("metadata", "name") is {} nameProperty &&
-                (nameProperty.Value as StringSyntax)?.TryGetLiteralValue() is {} nameString)
+            if ((resourceBody as ObjectSyntax)?.TryGetPropertyByNameRecursive("metadata", "name") is { } nameProperty &&
+                (nameProperty.Value as StringSyntax)?.TryGetLiteralValue() is { } nameString)
             {
                 identifier = $"{type}_{nameString}";
             }

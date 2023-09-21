@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core;
-using Bicep.RegistryModuleTool.Extensions;
-using Bicep.RegistryModuleTool.ModuleFiles;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.Linq;
 using System.Threading.Tasks;
+using Bicep.Core;
+using Bicep.RegistryModuleTool.Extensions;
+using Bicep.RegistryModuleTool.ModuleFiles;
+using Microsoft.Extensions.Logging;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {

@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
@@ -8,10 +12,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -127,7 +127,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     }
 
                     Exclusion[] exclusionsMatchingResourceType = allowedResourcesAndProperties.Where(allowed => allowed.ResourceType is null || allowed.ResourceType.IsMatch(resourceType)).ToArray();
-                    if (exclusionsMatchingResourceType.Any(excl => excl.propertyName is null)) {
+                    if (exclusionsMatchingResourceType.Any(excl => excl.propertyName is null))
+                    {
                         // All properties on this resource type are excluded
                         continue;
                     }

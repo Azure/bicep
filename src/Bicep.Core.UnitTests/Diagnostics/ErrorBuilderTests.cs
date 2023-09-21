@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
-using Bicep.Core.Resources;
-using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem;
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
+using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics
 {
@@ -227,7 +227,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         // There is leading whitespace in this one
         [DataRow(@"
                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                  "+@"
+                  " + @"
                 }",
            @"
                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {

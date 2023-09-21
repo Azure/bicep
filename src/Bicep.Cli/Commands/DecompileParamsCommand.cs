@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
+using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.FileSystem;
 using Bicep.Decompiler;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
 {

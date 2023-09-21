@@ -5,17 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Json;
 using Bicep.Core.Parsing;
+using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.Core.CodeAction;
-using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.Resources;
 
 #pragma warning disable CA1825 // Avoid zero-length array allocations
 

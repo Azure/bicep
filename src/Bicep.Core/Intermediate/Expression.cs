@@ -72,7 +72,7 @@ public record StringLiteralExpression(
 
 public record NullLiteralExpression(
     SyntaxBase? SourceSyntax
-): Expression(SourceSyntax)
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitNullLiteralExpression(this);
@@ -182,7 +182,8 @@ public abstract record AccessExpression(
     Expression Base,
     Expression Access,
     AccessExpressionFlags Flags
-) : Expression(SourceSyntax) { }
+) : Expression(SourceSyntax)
+{ }
 
 public record ArrayAccessExpression(
     SyntaxBase? SourceSyntax,
@@ -370,7 +371,8 @@ public record LambdaExpression(
 public abstract record DescribableExpression(
     SyntaxBase? SourceSyntax,
     Expression? Description
-) : Expression(SourceSyntax) {}
+) : Expression(SourceSyntax)
+{ }
 
 public record DeclaredMetadataExpression(
     SyntaxBase? SourceSyntax,
@@ -409,7 +411,8 @@ public abstract record TypeDeclaringExpression(
     Expression? MinValue,
     Expression? MaxValue,
     Expression? Sealed
-) : DescribableExpression(SourceSyntax, Description) {}
+) : DescribableExpression(SourceSyntax, Description)
+{ }
 
 public record DeclaredParameterExpression(
     SyntaxBase? SourceSyntax,

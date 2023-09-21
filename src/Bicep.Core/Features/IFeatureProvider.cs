@@ -35,7 +35,8 @@ public interface IFeatureProvider
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
     {
-        get {
+        get
+        {
             // `impactsCompilation` means that the CLI will emit a warning if this feature is enabled
             // `usesExperimentalArmEngineFeature` means that the compiled JSON template will use an experimental language version and include a warning in the template metadata
             foreach (var (enabled, name, impactsCompilation, usesExperimentalArmEngineFeature) in new[]

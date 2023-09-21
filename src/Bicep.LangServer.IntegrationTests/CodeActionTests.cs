@@ -72,7 +72,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BuiltInTestTypes.Create())));
 
-            ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext,services => services.WithNamespaceProvider(BicepTestConstants.NamespaceProvider)));
+            ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BicepTestConstants.NamespaceProvider)));
         }
 
         [ClassCleanup]

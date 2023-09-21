@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System.Collections.Immutable;
+using System.Threading.Tasks;
+using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Utils;
-using Bicep.Core.Navigation;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LangServer.IntegrationTests
 {

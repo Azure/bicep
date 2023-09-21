@@ -30,7 +30,7 @@ namespace Bicep.Core.Semantics
 
         public override void Accept(SymbolVisitor visitor)
         {
-           visitor.VisitParamAssignmentSymbol(this);
+            visitor.VisitParamAssignmentSymbol(this);
         }
     }
 }

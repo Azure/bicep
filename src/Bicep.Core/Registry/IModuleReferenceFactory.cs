@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 
 namespace Bicep.Core.Registry;
 

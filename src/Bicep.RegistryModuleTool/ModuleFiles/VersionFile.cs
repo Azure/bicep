@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Exceptions;
-using Bicep.Core.Extensions;
-using Bicep.Core.Json;
-using Bicep.RegistryModuleTool.ModuleFileValidators;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Bicep.Core.Exceptions;
+using Bicep.Core.Extensions;
+using Bicep.Core.Json;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {

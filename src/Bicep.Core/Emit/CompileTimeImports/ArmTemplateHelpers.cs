@@ -19,7 +19,7 @@ internal static class ArmTemplateHelpers
 
     internal static Template TemplateFor(ArmTemplateFile templateFile)
     {
-        if (templateFile.Template is not {} template)
+        if (templateFile.Template is not { } template)
         {
             throw new InvalidOperationException($"Source template of {templateFile.FileUri} is not valid");
         }
@@ -56,7 +56,7 @@ internal static class ArmTemplateHelpers
             yield return @ref;
         }
 
-        if (schemaNode.AdditionalProperties?.SchemaNode is {} addlPropertiesType)
+        if (schemaNode.AdditionalProperties?.SchemaNode is { } addlPropertiesType)
         {
             foreach (var nested in EnumerateTypeReferencesUsedIn(addlPropertiesType))
             {
@@ -64,7 +64,7 @@ internal static class ArmTemplateHelpers
             }
         }
 
-        if (schemaNode.Properties is {} properties)
+        if (schemaNode.Properties is { } properties)
         {
             foreach (var nested in properties.Values.SelectMany(EnumerateTypeReferencesUsedIn))
             {
@@ -72,7 +72,7 @@ internal static class ArmTemplateHelpers
             }
         }
 
-        if (schemaNode.Items?.SchemaNode is {} itemsType)
+        if (schemaNode.Items?.SchemaNode is { } itemsType)
         {
             foreach (var nested in EnumerateTypeReferencesUsedIn(itemsType))
             {
@@ -80,7 +80,7 @@ internal static class ArmTemplateHelpers
             }
         }
 
-        if (schemaNode.PrefixItems is {} prefixItemTypes)
+        if (schemaNode.PrefixItems is { } prefixItemTypes)
         {
             foreach (var nested in prefixItemTypes.SelectMany(EnumerateTypeReferencesUsedIn))
             {
@@ -96,7 +96,7 @@ internal static class ArmTemplateHelpers
             return EnumerateVariableReferencesUsedIn(variablesEvaluator, declaration);
         }
 
-        if (variablesEvaluator.TryGetUnevaluatedCopyDeclaration(variableName) is not {} copyDeclaration)
+        if (variablesEvaluator.TryGetUnevaluatedCopyDeclaration(variableName) is not { } copyDeclaration)
         {
             throw new InvalidOperationException($"Unable to locate declaration of '{variableName}' variable.");
         }

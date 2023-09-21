@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ILanguageServerFacade server;
 
         public BicepCreateConfigFileHandler(ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, ILogger<BicepCreateConfigFileHandler> logger, ISerializer serializer)
-            :base(LangServerConstants.CreateConfigFile, serializer)
+            : base(LangServerConstants.CreateConfigFile, serializer)
         {
             this.clientCapabilitiesProvider = clientCapabilitiesProvider;
             this.server = server;

@@ -153,7 +153,8 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            emitter.EmitObjectProperty("definitions", () => {
+            emitter.EmitObjectProperty("definitions", () =>
+            {
                 foreach (var type in types)
                 {
                     EmitTypeDeclaration(emitter, type);
@@ -168,11 +169,14 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            emitter.EmitArrayProperty("functions", () => {
-                emitter.EmitObject(() => {
+            emitter.EmitArrayProperty("functions", () =>
+            {
+                emitter.EmitObject(() =>
+                {
                     emitter.EmitProperty("namespace", EmitConstants.UserDefinedFunctionsNamespace);
 
-                    emitter.EmitObjectProperty("members", () => {
+                    emitter.EmitObjectProperty("members", () =>
+                    {
                         foreach (var function in functions)
                         {
                             EmitUserDefinedFunction(emitter, function);
@@ -189,7 +193,8 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            emitter.EmitObjectProperty("parameters", () => {
+            emitter.EmitObjectProperty("parameters", () =>
+            {
                 foreach (var parameter in parameters)
                 {
                     EmitParameter(emitter, parameter);
@@ -201,9 +206,9 @@ namespace Bicep.Core.Emit
         {
             var result = input;
 
-            if (expression.Secure is {} secure)
+            if (expression.Secure is { } secure)
             {
-                result = result.Properties.Where(p => p.Key is StringLiteralExpression { Value: string name} && name == "type").Single().Value switch
+                result = result.Properties.Where(p => p.Key is StringLiteralExpression { Value: string name } && name == "type").Single().Value switch
                 {
                     StringLiteralExpression { Value: string typeName } when typeName == LanguageConstants.TypeNameString
                         => result.MergeProperty("type", ExpressionFactory.CreateStringLiteral("securestring", secure.SourceSyntax)),
@@ -213,12 +218,12 @@ namespace Bicep.Core.Emit
                 };
             }
 
-            if (expression.Sealed is {} @sealed)
+            if (expression.Sealed is { } @sealed)
             {
                 result = result.MergeProperty("additionalProperties", ExpressionFactory.CreateBooleanLiteral(false, @sealed.SourceSyntax));
             }
 
-            if (expression is DeclaredTypeExpression declaredTypeExpression && declaredTypeExpression.Exported is {} exported)
+            if (expression is DeclaredTypeExpression declaredTypeExpression && declaredTypeExpression.Exported is { } exported)
             {
                 result = ApplyMetadataProperty(result, LanguageConstants.MetadataExportedPropertyName, ExpressionFactory.CreateBooleanLiteral(true, exported.SourceSyntax));
             }
@@ -230,7 +235,8 @@ namespace Bicep.Core.Emit
                 (expression.MaxLength, LanguageConstants.ParameterMaxLengthPropertyName),
                 (expression.MinValue, LanguageConstants.ParameterMinValuePropertyName),
                 (expression.MaxValue, LanguageConstants.ParameterMaxValuePropertyName),
-            }) {
+            })
+            {
                 if (modifier is not null)
                 {
                     result = result.MergeProperty(propertyName, modifier);
@@ -278,19 +284,22 @@ namespace Bicep.Core.Emit
 
             emitter.EmitObjectProperty(function.Name, () =>
             {
-                emitter.EmitArrayProperty("parameters", () => {
+                emitter.EmitArrayProperty("parameters", () =>
+                {
                     for (var i = 0; i < lambda.Parameters.Length; i++)
                     {
                         var parameterObject = TypePropertiesForTypeExpression(lambda.ParameterTypes[i]!);
                         parameterObject = parameterObject.MergeProperty("name", new StringLiteralExpression(null, lambda.Parameters[i]));
 
-                        emitter.EmitObject(() => {
+                        emitter.EmitObject(() =>
+                        {
                             EmitProperties(emitter, parameterObject);
                         });
                     }
                 });
 
-                emitter.EmitObjectProperty("output", () => {
+                emitter.EmitObjectProperty("output", () =>
+                {
                     var outputObject = TypePropertiesForTypeExpression(lambda.OutputType!);
                     outputObject = outputObject.MergeProperty("value", lambda.Body);
 
@@ -434,7 +443,7 @@ namespace Bicep.Core.Emit
         {
             var properties = new List<ObjectPropertyExpression> { TypeProperty(LanguageConstants.ArrayType, expression.SourceSyntax) };
 
-            if (TryGetAllowedValues(expression.BaseExpression) is {} allowedValues)
+            if (TryGetAllowedValues(expression.BaseExpression) is { } allowedValues)
             {
                 properties.Add(AllowedValuesProperty(allowedValues, expression.BaseExpression.SourceSyntax));
             }
@@ -645,14 +654,16 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            emitter.EmitObjectProperty("variables", () => {
+            emitter.EmitObjectProperty("variables", () =>
+            {
                 var loopVariables = variables.Where(x => x is { Value: ForLoopExpression });
                 var nonLoopVariables = variables.Where(x => x is { Value: not ForLoopExpression });
 
                 if (loopVariables.Any())
                 {
                     // we have variables whose values are loops
-                    emitter.EmitArrayProperty("copy", () => {
+                    emitter.EmitArrayProperty("copy", () =>
+                    {
                         foreach (var loopVariable in loopVariables)
                         {
                             var forLoopVariable = (ForLoopExpression)loopVariable.Value;
@@ -676,7 +687,8 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            emitter.EmitObjectProperty("imports", () => {
+            emitter.EmitObjectProperty("imports", () =>
+            {
                 foreach (var provider in providers)
                 {
                     var settings = provider.NamespaceType.Settings;
@@ -702,7 +714,8 @@ namespace Bicep.Core.Emit
         {
             if (!Context.Settings.EnableSymbolicNames)
             {
-                emitter.EmitArrayProperty("resources", () => {
+                emitter.EmitArrayProperty("resources", () =>
+                {
                     foreach (var resource in resources)
                     {
                         if (resource.ResourceMetadata.IsExistingResource)
@@ -721,7 +734,8 @@ namespace Bicep.Core.Emit
             }
             else
             {
-                emitter.EmitObjectProperty("resources", () => {
+                emitter.EmitObjectProperty("resources", () =>
+                {
                     foreach (var resource in resources)
                     {
                         emitter.EmitProperty(
@@ -745,7 +759,8 @@ namespace Bicep.Core.Emit
         {
             var metadata = resource.ResourceMetadata;
 
-            emitter.EmitObject(() => {
+            emitter.EmitObject(() =>
+            {
                 var body = resource.Body;
                 if (body is ForLoopExpression forLoop)
                 {
@@ -791,7 +806,8 @@ namespace Bicep.Core.Emit
                 }
                 else
                 {
-                    emitter.EmitObjectProperty("properties", () => {
+                    emitter.EmitObjectProperty("properties", () =>
+                    {
                         emitter.EmitObjectProperties((ObjectExpression)body);
                     });
                 }
@@ -815,10 +831,11 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            emitter.EmitObject(() => {
+            emitter.EmitObject(() =>
+            {
                 foreach (var property in paramsObject.Properties)
                 {
-                    if (property.TryGetKeyText() is not {} keyName)
+                    if (property.TryGetKeyText() is not { } keyName)
                     {
                         // should have been caught by earlier validation
                         throw new ArgumentException("Disallowed interpolation in test parameter");
@@ -837,10 +854,11 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            emitter.EmitObjectProperty("parameters", () => {
+            emitter.EmitObjectProperty("parameters", () =>
+            {
                 foreach (var property in paramsObject.Properties)
                 {
-                    if (property.TryGetKeyText() is not {} keyName)
+                    if (property.TryGetKeyText() is not { } keyName)
                     {
                         // should have been caught by earlier validation
                         throw new ArgumentException("Disallowed interpolation in module parameter");
@@ -852,10 +870,12 @@ namespace Bicep.Core.Emit
                     {
                         // the value is a for-expression
                         // write a single property copy loop
-                        emitter.EmitObjectProperty(keyName, () => {
+                        emitter.EmitObjectProperty(keyName, () =>
+                        {
                             emitter.EmitCopyProperty(() =>
                             {
-                                emitter.EmitArray(() => {
+                                emitter.EmitArray(() =>
+                                {
                                     emitter.EmitCopyObject("value", @for.Expression, @for.Body, "value");
                                 }, @for.SourceSyntax);
                             });
@@ -1052,7 +1072,8 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            emitter.EmitArrayProperty("dependsOn", () => {
+            emitter.EmitArrayProperty("dependsOn", () =>
+            {
                 foreach (var dependency in dependencies)
                 {
                     if (Context.Settings.EnableSymbolicNames)
@@ -1074,7 +1095,8 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            emitter.EmitObjectProperty("outputs", () => {
+            emitter.EmitObjectProperty("outputs", () =>
+            {
                 foreach (var output in outputs)
                 {
                     EmitOutput(emitter, output);
@@ -1124,7 +1146,8 @@ namespace Bicep.Core.Emit
 
         private void EmitMetadata(ExpressionEmitter emitter, ImmutableArray<DeclaredMetadataExpression> metadata)
         {
-            emitter.EmitObjectProperty("metadata", () => {
+            emitter.EmitObjectProperty("metadata", () =>
+            {
                 if (Context.Settings.UseExperimentalTemplateLanguageVersion)
                 {
                     emitter.EmitProperty("_EXPERIMENTAL_WARNING", "This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!");
@@ -1137,7 +1160,8 @@ namespace Bicep.Core.Emit
                     });
                 }
 
-                emitter.EmitObjectProperty("_generator", () => {
+                emitter.EmitObjectProperty("_generator", () =>
+                {
                     emitter.EmitProperty("name", LanguageConstants.LanguageId);
                     emitter.EmitProperty("version", this.Context.SemanticModel.Features.AssemblyVersion);
                 });

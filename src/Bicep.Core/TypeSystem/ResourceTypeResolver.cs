@@ -120,7 +120,7 @@ namespace Bicep.Core.TypeSystem
                                 // Remove ReadableAtDeployTime flag from the name property.
                                 if (diagnosticWriter.HasDiagnostics())
                                 {
-                                    existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearReadableAtDeployTimeFlags(propertyName, existingResourceBodyType);;
+                                    existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearReadableAtDeployTimeFlags(propertyName, existingResourceBodyType); ;
                                 }
                             }
                         }

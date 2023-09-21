@@ -1,13 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Semantics.Metadata;
-using Bicep.Core.TypeSystem;
-using Bicep.RegistryModuleTool.Extensions;
-using Bicep.RegistryModuleTool.ModuleFileValidators;
-using Markdig;
-using Markdig.Syntax;
-using Markdig.Syntax.Inlines;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,6 +8,13 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.TypeSystem;
+using Bicep.RegistryModuleTool.Extensions;
+using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Markdig;
+using Markdig.Syntax;
+using Markdig.Syntax.Inlines;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
@@ -192,7 +192,8 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return null;
         }
 
-        private static string ConvertToPrimitiveTypeName(ITypeReference typeReference) => typeReference.Type switch {
+        private static string ConvertToPrimitiveTypeName(ITypeReference typeReference) => typeReference.Type switch
+        {
             NullType => "null",
             IntegerType or IntegerLiteralType => "int",
             BooleanType or BooleanLiteralType => "bool",

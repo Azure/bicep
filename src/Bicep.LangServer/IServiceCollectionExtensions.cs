@@ -38,7 +38,7 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepDecompiler>();
-    
+
     public static IServiceCollection AddBicepparamDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepparamDecompiler>();
 }

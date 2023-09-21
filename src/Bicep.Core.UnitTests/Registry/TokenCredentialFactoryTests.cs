@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Linq;
+using System.Reflection;
 using Azure.Core;
 using Azure.Identity;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Linq;
-using System.Reflection;
 
 namespace Bicep.Core.UnitTests.Registry
 {

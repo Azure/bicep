@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.IO;
 using System.Linq;
-using FluentAssertions;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using FluentAssertions;
 
 namespace Bicep.Core.UnitTests.Baselines
 {
@@ -15,7 +15,8 @@ namespace Bicep.Core.UnitTests.Baselines
         Assembly Assembly,
         string StreamPath)
     {
-        private readonly Lazy<string> contentsLazy = new(() => {
+        private readonly Lazy<string> contentsLazy = new(() =>
+        {
             var stream = Assembly.GetManifestResourceStream(StreamPath);
 
             return new StreamReader(stream!).ReadToEnd();

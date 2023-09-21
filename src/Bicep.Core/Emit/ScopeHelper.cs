@@ -252,7 +252,7 @@ namespace Bicep.Core.Emit
                         throw new InvalidOperationException("Cannot format resourceId with non-null resource scope symbol");
                     }
 
-                    var scopingResourceNameSegments = scopeData.ResourceScopeNameSyntaxSegments is {} segments
+                    var scopingResourceNameSegments = scopeData.ResourceScopeNameSyntaxSegments is { } segments
                         ? converter.GetResourceNameSegments(resource, segments)
                         : converter.GetResourceNameSegments(resource);
 
@@ -458,7 +458,7 @@ namespace Bicep.Core.Emit
                         ResourceGroupProperty = parentResourceGroupName is not null
                             ? ExpressionBuilder.MoveSyntax(semanticModel, parentResourceGroupName, immediateParent.IndexExpression, resource.NameSyntax)
                             : null,
-                        ResourceScopeNameSyntaxSegments = (parentResourceScopeNameSegments ?? (parentResourceScope is not null ? ExpressionBuilder.GetResourceNameSyntaxSegments(semanticModel, parentResourceScope) : null)) is {} syntaxSegments
+                        ResourceScopeNameSyntaxSegments = (parentResourceScopeNameSegments ?? (parentResourceScope is not null ? ExpressionBuilder.GetResourceNameSyntaxSegments(semanticModel, parentResourceScope) : null)) is { } syntaxSegments
                             ? syntaxSegments.Select(segment => ExpressionBuilder.MoveSyntax(semanticModel, segment, immediateParent.IndexExpression, resource.NameSyntax)).ToImmutableArray()
                             : null,
                         IndexExpression = parentIndexExpression is not null
@@ -478,7 +478,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
                 // This check has to live here because if here because this case is not handled when building the resource ancestor graph.
-                else if (resource.Symbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax &&
+                else if (resource.Symbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax &&
                     semanticModel.ResourceMetadata.TryLookup(referenceParentSyntax) is ParameterResourceMetadata parentMetadata)
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(referenceParentSyntax).InvalidResourceScopeCannotBeResourceTypeParameter(parentMetadata.Symbol.Name));

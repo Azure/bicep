@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Runtime;
+using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
@@ -15,11 +20,6 @@ using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime;
-using System.Threading.Tasks;
 
 namespace Bicep.Cli
 {
@@ -91,7 +91,7 @@ namespace Bicep.Cli
 
                     case DecompileArguments decompileArguments when decompileArguments.CommandName == Constants.Command.Decompile: // bicep decompile [options]
                         return await services.GetRequiredService<DecompileCommand>().RunAsync(decompileArguments);
-                    
+
                     case DecompileParamsArguments decompileParamsArguments when decompileParamsArguments.CommandName == Constants.Command.DecompileParams:
                         return services.GetRequiredService<DecompileParamsCommand>().Run(decompileParamsArguments);
 

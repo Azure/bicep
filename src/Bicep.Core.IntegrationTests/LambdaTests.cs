@@ -19,33 +19,33 @@ namespace Bicep.Core.IntegrationTests
         public void Parentheses_without_arrow_are_not_interpreted_as_lambdas()
         {
             CompilationHelper.Compile("var noElements = ()")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                 });
 
             CompilationHelper.Compile("var justAComma = (,)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
                     ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                 });
 
             CompilationHelper.Compile("var twoElements = (1, 2)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                 });
 
             CompilationHelper.Compile("var threeElements = (1, 2, 3)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                 });
 
             CompilationHelper.Compile("var unterminated1 = (")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
                 });
 
             CompilationHelper.Compile("var unterminated2 = (,")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
                     ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
@@ -65,19 +65,19 @@ namespace Bicep.Core.IntegrationTests
                 .ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             CompilationHelper.Compile("var asfsasdf = map([1], true ? i => i + 1 : i => i)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 });
 
             CompilationHelper.Compile("var asfsasdf = map([1], true ? (i => i + 1) : (i => i))")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 });
 
             CompilationHelper.Compile("var asfsasdf = map([1], [i => i])")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                     ("BCP070", DiagnosticLevel.Error, "Argument of type \"[any => any]\" is not assignable to parameter of type \"any => any\"."),
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 });
@@ -304,7 +304,7 @@ output accessTiers2 array = map(range(0, 2), x => map(range(0, 2), y => stg[x / 
 output accessTiers3 array = map(ids, foo => reference('${foo}').accessTier)
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP247", DiagnosticLevel.Error, "Using lambda variables inside resource or module array access is not currently supported. Found the following lambda variable(s) being accessed: \"i\"."),
                 ("BCP247", DiagnosticLevel.Error, "Using lambda variables inside resource or module array access is not currently supported. Found the following lambda variable(s) being accessed: \"j\"."),
                 ("BCP248", DiagnosticLevel.Error, "Using lambda variables inside the \"listKeys\" function is not currently supported. Found the following lambda variable(s) being accessed: \"id\"."),
@@ -328,7 +328,7 @@ output modOutputs array = map(range(0, 2), i => myMod[i].outputs.foo)"),
 output foo string = 'HELLO!'
 "));
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP247", DiagnosticLevel.Error, "Using lambda variables inside resource or module array access is not currently supported. Found the following lambda variable(s) being accessed: \"i\"."),
             });
         }
@@ -353,7 +353,7 @@ resource stg2 'Microsoft.Storage/storageAccounts@2021-09-01' = {
 }
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"nonDtcArr\" -> \"stg\"). Properties of stg which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
             });
         }

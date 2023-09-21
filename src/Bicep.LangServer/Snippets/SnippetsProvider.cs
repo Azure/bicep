@@ -74,7 +74,7 @@ public class SnippetsProvider : ISnippetsProvider
             }
             else
             {
-                if (GetResourceBodyCompletionSnippetFromTemplate(resourceTypeReference) is {} snippetFromExistingTemplate)
+                if (GetResourceBodyCompletionSnippetFromTemplate(resourceTypeReference) is { } snippetFromExistingTemplate)
                 {
                     snippets.Add(snippetFromExistingTemplate);
                 }
@@ -138,7 +138,8 @@ public class SnippetsProvider : ISnippetsProvider
         int index = 1;
         StringBuilder sb = new StringBuilder();
 
-        var sortedProperties = objectType.Properties.OrderBy(x => {
+        var sortedProperties = objectType.Properties.OrderBy(x =>
+        {
             var index = propertiesSortPreferenceList.IndexOf(x.Key);
 
             return (index > -1) ? index : (propertiesSortPreferenceList.Length - 1);

@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Bicep.Core.Resources;
-using Bicep.Core.Emit;
 using System.Collections.Immutable;
+using System.Linq;
+using Bicep.Core.Emit;
+using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.MicrosoftGraph
 {

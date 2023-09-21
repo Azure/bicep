@@ -847,7 +847,7 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ForSyntax>(matchingNodes, (module, @for) => module.Value == @for) ||
             // [for x in y:|]
             SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ForSyntax, Token>(matchingNodes, (module, @for, token) => module.Value == @for && @for.Colon == token && token.Type == TokenType.Colon && offset == token.Span.GetEndPosition());
-        
+
         private static bool IsTestBodyContext(List<SyntaxBase> matchingNodes, int offset) =>
             // tests only allow {} as the body so we don't need to worry about
             // providing completions for a partially-typed identifier

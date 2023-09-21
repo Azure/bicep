@@ -56,7 +56,8 @@ namespace Bicep.Core.Emit
                     return CreateFunction(@bool.Value ? "true" : "false");
 
                 case IntegerLiteralExpression @int:
-                    return @int.Value switch {
+                    return @int.Value switch
+                    {
                         // Bicep permits long values, but ARM's parser only permits int jtoken expressions.
                         // We can work around this by using the `json()` function to represent non-integer numerics.
                         > int.MaxValue or < int.MinValue => CreateFunction("json", new JTokenExpression(@int.Value.ToString(CultureInfo.InvariantCulture))),
@@ -101,27 +102,28 @@ namespace Bicep.Core.Emit
                         $"{EmitConstants.UserDefinedFunctionsNamespace}.{function.Name}",
                         function.Parameters.Select(p => ConvertExpression(p)));
 
-                case ResourceFunctionCallExpression listFunction when listFunction.Name.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix): {
-                    var resource = listFunction.Resource.Metadata;
-                    var resourceIdExpression = new PropertyAccessExpression(
-                        listFunction.Resource.SourceSyntax,
-                        listFunction.Resource,
-                        "id",
-                        AccessExpressionFlags.None);
-
-                    var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
-                    var apiVersionExpression = new StringLiteralExpression(listFunction.Resource.SourceSyntax, apiVersion);
-
-                    var listArgs = listFunction.Parameters.Length switch
+                case ResourceFunctionCallExpression listFunction when listFunction.Name.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix):
                     {
-                        0 => new Expression[] { resourceIdExpression, apiVersionExpression, },
-                        _ => new Expression[] { resourceIdExpression, }.Concat(listFunction.Parameters),
-                    };
+                        var resource = listFunction.Resource.Metadata;
+                        var resourceIdExpression = new PropertyAccessExpression(
+                            listFunction.Resource.SourceSyntax,
+                            listFunction.Resource,
+                            "id",
+                            AccessExpressionFlags.None);
 
-                    return CreateFunction(
-                        listFunction.Name,
-                        listArgs.Select(p => ConvertExpression(p)));
-                }
+                        var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
+                        var apiVersionExpression = new StringLiteralExpression(listFunction.Resource.SourceSyntax, apiVersion);
+
+                        var listArgs = listFunction.Parameters.Length switch
+                        {
+                            0 => new Expression[] { resourceIdExpression, apiVersionExpression, },
+                            _ => new Expression[] { resourceIdExpression, }.Concat(listFunction.Parameters),
+                        };
+
+                        return CreateFunction(
+                            listFunction.Name,
+                            listArgs.Select(p => ConvertExpression(p)));
+                    }
 
                 case AccessChainExpression exp:
                     return ConvertAccessChain(exp);

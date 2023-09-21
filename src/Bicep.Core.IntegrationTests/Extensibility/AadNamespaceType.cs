@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.IntegrationTests.Extensibility
 {

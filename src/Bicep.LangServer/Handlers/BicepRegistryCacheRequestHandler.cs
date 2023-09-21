@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -8,9 +11,6 @@ using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Handlers
 {

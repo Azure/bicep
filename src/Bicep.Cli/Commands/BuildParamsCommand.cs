@@ -57,7 +57,8 @@ namespace Bicep.Cli.Commands
             var paramsCompilation = await compilationService.CompileAsync(
                 paramsInputPath,
                 args.NoRestore,
-                compilation => {
+                compilation =>
+                {
                     if (bicepFileArgPath is not null &&
                         compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
                     {
@@ -73,7 +74,7 @@ namespace Bicep.Cli.Commands
                     }
                 });
 
-            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(paramsCompilation.SourceFileGrouping, featureProviderFactory) is {} message)
+            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(paramsCompilation.SourceFileGrouping, featureProviderFactory) is { } message)
             {
                 logger.LogWarning(message);
             }

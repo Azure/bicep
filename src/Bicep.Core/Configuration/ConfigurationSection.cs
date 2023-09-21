@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Json;
 using System.Text.Json;
+using Bicep.Core.Json;
 
 namespace Bicep.Core.Configuration
 {

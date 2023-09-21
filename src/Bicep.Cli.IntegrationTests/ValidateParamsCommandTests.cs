@@ -22,7 +22,7 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class ValidateParamsCommandTests : TestBase
     {
-        
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -57,10 +57,10 @@ namespace Bicep.Cli.IntegrationTests
                     "secondProp": [1, 2, 3] 
                   }
                 }
-                """;       
+                """;
             Environment.SetEnvironmentVariable("BICEP_PARAMETER_INPUT", paramsInput);
 
-            var(output, error, result) = await Bicep("validate-params", bicepPath);
+            var (output, error, result) = await Bicep("validate-params", bicepPath);
 
             result.Should().Be(0);
             output.Should().BeEmpty();
@@ -93,13 +93,13 @@ namespace Bicep.Cli.IntegrationTests
 
             Environment.SetEnvironmentVariable("BICEP_PARAMETER_INPUT", paramsInput);
 
-            var(output, error, result) = await Bicep("validate-params", bicepPath);
+            var (output, error, result) = await Bicep("validate-params", bicepPath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().NotBeEmpty();
             error.Should().Contain($"Error BCP370: Assigned type of parameter \"intParam\" does not match the declared type \"int\" in the bicep template");
-            error.Should().Contain($"Error BCP370: Assigned type of parameter \"strParam\" does not match the declared type \"'bar' | 'foo'\" in the bicep template");        
+            error.Should().Contain($"Error BCP370: Assigned type of parameter \"strParam\" does not match the declared type \"'bar' | 'foo'\" in the bicep template");
         }
 
         [TestMethod]
@@ -115,7 +115,7 @@ namespace Bicep.Cli.IntegrationTests
                 """;
             Environment.SetEnvironmentVariable("BICEP_PARAMETER_INPUT", paramsInput);
 
-            var(output, error, result) = await Bicep("validate-params", bicepPath);
+            var (output, error, result) = await Bicep("validate-params", bicepPath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();

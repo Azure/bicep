@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
+using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Bicep.Core.Diagnostics;
 using Newtonsoft.Json.Linq;
-using Bicep.Core.UnitTests.FileSystem;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 
 namespace Bicep.Core.IntegrationTests.Scenarios
 {

@@ -1,17 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Parsing;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using FluentAssertions;
+using FluentAssertions.Collections;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.Core.Parsing;
-using System.Collections.Generic;
-using System;
-using FluentAssertions.Collections;
 
 namespace Bicep.Core.UnitTests.Assertions
 {

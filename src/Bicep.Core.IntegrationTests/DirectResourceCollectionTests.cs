@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
@@ -20,7 +20,7 @@ namespace Bicep.Core.IntegrationTests
 
             result.WithErrorDiagnosticsOnly()
                 .Should()
-                .HaveDiagnostics(new []
+                .HaveDiagnostics(new[]
                 {
                     ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),
                     ("BCP144", DiagnosticLevel.Error, "Directly referencing a resource or module collection is not currently supported here. Apply an array indexer to the expression."),

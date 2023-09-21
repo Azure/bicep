@@ -30,12 +30,12 @@ namespace Bicep.LanguageServer.Handlers
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
         {
-            if(ConfigurationHelper.IsBicepConfigFile(uri))
+            if (ConfigurationHelper.IsBicepConfigFile(uri))
             {
                 return new TextDocumentAttributes(uri, LanguageConstants.JsoncLanguageId);
             }
 
-            if(PathHelper.HasBicepparamsExension(uri.ToUriEncoded()))
+            if (PathHelper.HasBicepparamsExension(uri.ToUriEncoded()))
             {
                 return new TextDocumentAttributes(uri, LanguageConstants.ParamsLanguageId);
             }

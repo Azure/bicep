@@ -539,7 +539,7 @@ output quux string = foos[0].?bar.baz.quux
 ";
 
         var result = CompilationHelper.Compile(templateWithPossiblyNullDeref);
-        result.Should().HaveDiagnostics(new []
+        result.Should().HaveDiagnostics(new[]
         {
           ("BCP318", DiagnosticLevel.Warning, @"The value of type ""null | { bar: { baz: { quux: 'quux' } } }"" may be null at the start of the deployment, which would cause this access expression (and the overall deployment with it) to fail."),
         });
@@ -659,7 +659,7 @@ type shortString = string
 param myString shortString = 'foo'
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP332", DiagnosticLevel.Error, "The provided value (whose length will always be greater than or equal to 3) is too long to assign to a target for which the maximum allowable length is 2."),
         });
@@ -674,7 +674,7 @@ param myString shortString = 'foo'
 param myParam int
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP331", DiagnosticLevel.Error, "A type's \"minValue\" must be less than or equal to its \"maxValue\", but a minimum of 1 and a maximum of 0 were specified."),
         });
@@ -689,7 +689,7 @@ param myParam int
 param myParam array
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP331", DiagnosticLevel.Error, "A type's \"minLength\" must be less than or equal to its \"maxLength\", but a minimum of 1 and a maximum of 0 were specified."),
         });
@@ -704,7 +704,7 @@ param myParam array
 param myParam string
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP331", DiagnosticLevel.Error, "A type's \"minLength\" must be less than or equal to its \"maxLength\", but a minimum of 1 and a maximum of 0 were specified."),
         });

@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.RegistryModuleTool.Options;
 using System.CommandLine.Builder;
 using System.Linq;
+using Bicep.RegistryModuleTool.Options;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
