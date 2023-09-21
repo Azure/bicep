@@ -199,7 +199,12 @@ namespace Bicep.LanguageServer.Handlers
             var sourceFilePath = sourceFile.FileUri.AbsolutePath;
 
             if (moduleDispatcher.TryGetModuleSources(moduleReference) is SourceArchive sourceArchive) {
-                // Replace the local path (main.json) with the actual source entrypoint filename
+                // We have Bicep source code available.
+                // Replace the local cached JSON name (always main.json) with the actual source entrypoint filename (e.g.
+                //   myentrypoint.bicep) so clients know to request the bicep instead of json, and so they know to use the
+                //   bicep language server to display the code.
+                //   e.g. "path/main.json" -> "path/myentrypoint.bicep"
+                // The "path/myentrypoint.bicep" path is virtual (doesn't actually exist).
                 var entrypointFilename = Path.GetFileName(sourceArchive.EntrypointPath);
                 sourceFilePath = Path.Join(Path.GetDirectoryName(sourceFilePath), entrypointFilename);
             }
@@ -211,6 +216,9 @@ namespace Bicep.LanguageServer.Handlers
             // Encode the source file path as a path and the fully qualified reference as a fragment.
             // VsCode will pass it to our language client, which will respond by requesting the source to display via
             //   a textDocument/bicepCache request (see BicepCacheHandler)
+            // Example: bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/main.json
+            //   or if source is available:
+            // Example: bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/entrypoint.bicep
             return new Uri($"bicep-cache:{fullyQualifiedReference}#{sourceFilePath}");
         }
 
