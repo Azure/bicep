@@ -22,18 +22,15 @@ namespace Bicep.LanguageServer.Handlers
 {   
     public record BicepDecompileParamsCommandParams(
         DocumentUri jsonUri,
-        string? bicepPath
-    );
+        DocumentUri? bicepUri);
 
     public record DecompiledBicepparamFile(
         string contents,
-        string absolutePath
-    );
+        DocumentUri uri);
 
     public record BicepDecompileParamsCommandResult(
         DecompiledBicepparamFile? decompiledBicepparamFile,
-        string? errorMessage
-    );
+        string? errorMessage);
 
     /// <summary>
     /// Handles a request from the client to decompile a JSON file for given a file path, creating a bicepparam file
@@ -50,20 +47,23 @@ namespace Bicep.LanguageServer.Handlers
             this.bicepparamDecompiler = bicepparamDecompiler;
         }
 
-        public override Task<BicepDecompileParamsCommandResult> Handle(BicepDecompileParamsCommandParams parameters, CancellationToken cancellationToken)
+        public override async Task<BicepDecompileParamsCommandResult> Handle(BicepDecompileParamsCommandParams parameters, CancellationToken cancellationToken)
         {
+            await Task.Yield();
             try
             {
-                Uri jsonUri = new Uri(parameters.jsonUri.GetFileSystemPath());
-                var (entryUri, filesToSave) = bicepparamDecompiler.Decompile(jsonUri, PathHelper.ChangeToBicepparamExtension(jsonUri), parameters.bicepPath);
+                var jsonUri = parameters.jsonUri.ToUriEncoded();
+                var bicepUri = parameters.bicepUri?.ToUriEncoded();
+
+                var (entryUri, filesToSave) = bicepparamDecompiler.Decompile(jsonUri, PathHelper.ChangeToBicepparamExtension(jsonUri), bicepUri);
                 
-                return Task.FromResult(new BicepDecompileParamsCommandResult(new DecompiledBicepparamFile(filesToSave[entryUri], entryUri.AbsolutePath), null));
+                return new(new(filesToSave[entryUri], entryUri), null);
             }
             catch (Exception ex)
             {   
                 var message = string.Format(LangServerResources.Decompile_DecompilationFailed, ex.Message);
                 
-                return Task.FromResult(new BicepDecompileParamsCommandResult(null, message));
+                return new(null, message);
             }
         }
     }

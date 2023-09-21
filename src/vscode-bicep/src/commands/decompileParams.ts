@@ -15,17 +15,17 @@ import assert from "assert";
 
 interface DecompileParamsCommandParams {
   jsonUri: DocumentUri;
-  bicepPath: string | undefined;
+  bicepUri?: DocumentUri;
 }
 
 interface DecompiledBicepparamFile {
   contents: string;
-  absolutePath: string;
+  uri: DocumentUri;
 }
 
 interface DecompileParamsCommandResult {
-  decompiledBicepparamFile: DecompiledBicepparamFile | undefined;
-  errorMessage: string | undefined;
+  decompiledBicepparamFile?: DecompiledBicepparamFile;
+  errorMessage?: string;
 }
 
 export class DecompileParamsCommand implements Command {
@@ -57,14 +57,13 @@ export class DecompileParamsCommand implements Command {
       );
     }
 
-    const bicepFileRelativePath = await DecompileParamsCommand.selectBicepFile(
-      context,
-      path.dirname(documentUri.fsPath),
-    );
+    const bicepFileUri = await DecompileParamsCommand.selectBicepFile(context);
 
     const decompileParamsCommandParams: DecompileParamsCommandParams = {
       jsonUri: documentUri.path,
-      bicepPath: bicepFileRelativePath,
+      bicepUri: bicepFileUri
+        ? this.client.code2ProtocolConverter.asUri(bicepFileUri)
+        : undefined,
     };
 
     this.outputChannelManager.appendToOutputChannel(
@@ -82,39 +81,37 @@ export class DecompileParamsCommand implements Command {
     }
 
     assert(decompileParamsResult.decompiledBicepparamFile !== undefined);
+    let bicepparamPath = this.client.protocol2CodeConverter.asUri(
+      decompileParamsResult.decompiledBicepparamFile.uri,
+    ).fsPath;
 
-    if (
-      await fse.pathExists(
-        decompileParamsResult.decompiledBicepparamFile.absolutePath.toString(),
-      )
-    ) {
+    if (await fse.pathExists(bicepparamPath)) {
       const fileSaveOption = await DecompileParamsCommand.getFileSaveOption(
         context,
       );
 
       if (fileSaveOption === "Copy") {
-        decompileParamsResult.decompiledBicepparamFile.absolutePath =
-          await DecompileParamsCommand.getUniquePath(
-            decompileParamsResult.decompiledBicepparamFile.absolutePath,
-          );
+        bicepparamPath = await DecompileParamsCommand.getUniquePath(
+          bicepparamPath,
+        );
         this.outputChannelManager.appendToOutputChannel(
-          `Saving Decompiled file (copy): ${decompileParamsResult.decompiledBicepparamFile.absolutePath}`,
+          `Saving Decompiled file (copy): ${bicepparamPath}`,
         );
       }
 
       if (fileSaveOption === "Overwrite") {
         this.outputChannelManager.appendToOutputChannel(
-          `Overwriting Decompiled file: ${decompileParamsResult.decompiledBicepparamFile.absolutePath}`,
+          `Overwriting Decompiled file: ${bicepparamPath}`,
         );
       }
     } else {
       this.outputChannelManager.appendToOutputChannel(
-        `Saving Decompiled file: ${decompileParamsResult.decompiledBicepparamFile.absolutePath}`,
+        `Saving Decompiled file: ${bicepparamPath}`,
       );
     }
 
     await fse.writeFile(
-      decompileParamsResult.decompiledBicepparamFile.absolutePath,
+      bicepparamPath,
       decompileParamsResult.decompiledBicepparamFile.contents,
     );
   }
@@ -136,8 +133,7 @@ export class DecompileParamsCommand implements Command {
 
   private static async selectBicepFile(
     context: IActionContext,
-    inputDirPath: string,
-  ): Promise<string | undefined> {
+  ): Promise<Uri | undefined> {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       const quickPickItems: IAzureQuickPickItem<string>[] = [
@@ -154,7 +150,7 @@ export class DecompileParamsCommand implements Command {
       const result: IAzureQuickPickItem<string> =
         await context.ui.showQuickPick(quickPickItems, {
           canPickMany: false,
-          placeHolder: `Select a parameter file`,
+          placeHolder: `Link to a Bicep file?`,
         });
 
       if (result.label === "None") {
@@ -165,17 +161,14 @@ export class DecompileParamsCommand implements Command {
         const bicepPaths: Uri[] | undefined =
           await vscode.window.showOpenDialog({
             canSelectMany: false,
-            openLabel: "Select Path File",
+            openLabel: "Select Bicep File",
             filters: {
-              "Bicp Files": ["bicep"],
+              "Bicep Files": ["bicep"],
             },
           });
         if (bicepPaths) {
           assert(bicepPaths.length === 1, "Expected bicepPaths.length === 1");
-          const bicepFileAbsolutePath = bicepPaths[0].fsPath;
-          return path
-            .relative(inputDirPath, bicepFileAbsolutePath)
-            .replaceAll("\\", "/");
+          return bicepPaths[0];
         }
       }
     }
