@@ -5103,4 +5103,60 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    // https://github.com/Azure/bicep/issues/11902
+    [TestMethod]
+    public void Test_Issue11902()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("main.bicep", """
+                param rgName string
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                var rg = resourceGroup().name
+                param rgName = rg
+                """));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP057", DiagnosticLevel.Error, "The name \"resourceGroup\" does not exist in the current context."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"rg\" is not valid."),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/11902
+    [TestMethod]
+    public void Array_access_into_for_expression_should_not_cause_stack_overflow()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("main.bicep", """
+                param rgName string
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                var groups = [
+                  {
+                    name: 'foo'
+                    abrv: 'f'
+                  }
+                  {
+                    name: 'bar'
+                    abrv: 'b'
+                  }
+                ]
+
+                var rg = [for group in groups: group.name == resourceGroup().name ? group : []][0].abrv
+                param rgName = rg
+                """));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP138", DiagnosticLevel.Error, "For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties."),
+            ("BCP057", DiagnosticLevel.Error, "The name \"resourceGroup\" does not exist in the current context."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"rg\" is not valid."),
+        });
+    }
 }
