@@ -8,8 +8,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.SourceCode;
 using FluentAssertions;
 
 namespace Bicep.Core.UnitTests.Registry;
@@ -52,7 +51,7 @@ public record CachedModule(
         var sourceArchivePath = Path.Combine(ModuleCacheFolder, $"source.zip");
         if (File.Exists(sourceArchivePath))
         {
-            return new SourceArchive(File.OpenRead(sourceArchivePath));
+            return SourceArchive.FromStream(File.OpenRead(sourceArchivePath));
         }
 
         return null;

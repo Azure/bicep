@@ -1,36 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry;
-using Bicep.Core.Syntax;
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.Workspaces;
-using FluentAssertions;
-using FluentAssertions.Execution;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Formats.Tar;
 using System.IO;
-using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Linq;
-using System.Threading.Tasks;
-using static Bicep.Core.Diagnostics.DiagnosticBuilder;
+using System.Text;
+using Bicep.Core.SourceCode;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
-namespace Bicep.Core.UnitTests.Registry;
+namespace Bicep.Core.UnitTests.SourceCode;
 
 [TestClass]
 public class SourceArchiveTests
 {
+    public TestContext? TestContext { get; set; }
+
     private const string MainDotBicepSource = @"
         targetScope = 'subscription'
         // Module description
@@ -151,20 +143,21 @@ public class SourceArchiveTests
         var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "Main template.json", SourceArchive.SourceKind_TemplateSpec, TemplateSpecJsonSource);
         var localModuleJson = CreateSourceFile(fs, projectFolder, "localModule.json", SourceArchive.SourceKind_ArmTemplate, LocalModuleDotJsonSource);
 
-        using var stream = SourceArchive.PackSources(mainBicep.FileUri, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson);
+        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.FileUri, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson);
+        stream.Length.Should().BeGreaterThan(0);
 
-        SourceArchive sourceArchive = new SourceArchive(stream);
+        SourceArchive sourceArchive = SourceArchive.FromStream(stream);
+        sourceArchive.EntrypointPath.Should().Be("main.bicep");
 
-        sourceArchive.GetEntrypointPath().Should().Be("main.bicep");
 
-        var archivedFiles = sourceArchive.GetSourceFiles().ToArray();
+        var archivedFiles = sourceArchive.SourceFiles.ToArray();
         archivedFiles.Should().BeEquivalentTo(
-            new (SourceArchive.FileMetadata, string)[] {
-                (new ("main.bicep", "main.bicep", SourceArchive.SourceKind_Bicep), MainDotBicepSource),
-                (new ("main.json", "main.json", SourceArchive.SourceKind_ArmTemplate), MainDotJsonSource ),
-                (new ("standalone.json", "standalone.json", SourceArchive.SourceKind_ArmTemplate), StandaloneJsonSource),
-                (new ("Main template.json", "Main template.json", SourceArchive.SourceKind_TemplateSpec),  TemplateSpecJsonSource),
-                (new ("localModule.json", "localModule.json", SourceArchive.SourceKind_ArmTemplate),  LocalModuleDotJsonSource),
+            new SourceArchive.SourceFileInfo[] {
+                new ("main.bicep", "main.bicep", SourceArchive.SourceKind_Bicep, MainDotBicepSource),
+                new ("main.json", "main.json", SourceArchive.SourceKind_ArmTemplate, MainDotJsonSource ),
+                new ("standalone.json", "standalone.json", SourceArchive.SourceKind_ArmTemplate, StandaloneJsonSource),
+                new ("Main template.json", "Main template.json", SourceArchive.SourceKind_TemplateSpec,  TemplateSpecJsonSource),
+                new ("localModule.json", "localModule.json", SourceArchive.SourceKind_ArmTemplate,  LocalModuleDotJsonSource),
             });
     }
 
@@ -199,11 +192,11 @@ public class SourceArchiveTests
         DisplayName = "HandlesPathsCorrectly: separate drives")]
     public void HandlesPathsCorrectly(
         string pathRelativeToMainBicepLocation,
-        string expectedArchivedUri,
-        string? expectedArchivedPath = null)
+        string expecteArchivedUri,
+        string? expecteArchivePath = null)
     {
         string mainBicepPath = MockUnixSupport.Path("c:/my root/my project/my main.bicep");
-        expectedArchivedPath ??= expectedArchivedUri;
+        expecteArchivePath ??= expecteArchivedUri;
 
         Uri entrypointUri = DocumentUri.FromFileSystemPath(mainBicepPath).ToUriEncoded();
         var fs = new MockFileSystem();
@@ -214,22 +207,22 @@ public class SourceArchiveTests
         var mainBicep = CreateSourceFile(fs, mainBicepFolder, Path.GetFileName(mainBicepPath), SourceArchive.SourceKind_Bicep, MainDotBicepSource);
         var testFile = CreateSourceFile(fs, mainBicepFolder, pathRelativeToMainBicepLocation, SourceArchive.SourceKind_Bicep, SecondaryDotBicepSource);
 
-        using var stream = SourceArchive.PackSources(mainBicep.FileUri, mainBicep, testFile);
+        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.FileUri, mainBicep, testFile);
 
-        SourceArchive sourceArchive = new SourceArchive(stream);
+        SourceArchive sourceArchive = SourceArchive.FromStream(stream);
 
-        sourceArchive.GetEntrypointPath().Should().Be("my main.bicep");
+        sourceArchive.EntrypointPath.Should().Be("my main.bicep");
 
-        var archivedTestFile = sourceArchive.GetSourceFiles().Single(f => f.Metadata.Path != "my main.bicep");
-        archivedTestFile.Metadata.Path.Should().Be(expectedArchivedUri);
-        archivedTestFile.Metadata.ArchivedPath.Should().Be(expectedArchivedPath);
+        var archivedTestFile = sourceArchive.SourceFiles.Single(f => f.Path != "my main.bicep");
+        archivedTestFile.Path.Should().Be(expecteArchivedUri);
+        archivedTestFile.ArchivePath.Should().Be(expecteArchivePath);
         archivedTestFile.Contents.Should().Be(SecondaryDotBicepSource);
     }
 
     [TestMethod]
     public void GetSourceFiles_ForwardsCompat_ShouldIgnoreUnrecognizedPropertiesInMetadata()
     {
-        var zip = CreateZipFileStream(
+        var zip = CreateZippedFileStream(
             (
                 "__metadata.json",
                 @"
@@ -239,7 +232,7 @@ public class SourceArchiveTests
                   ""sourceFiles"": [
                     {
                       ""path"": ""file:///main.bicep"",
-                      ""archivedPath"": ""main.bicep"",
+                      ""archivePath"": ""main.bicep"",
                       ""kind"": ""bicep"",
                       ""I am also recognition challenged"": ""Hi, Mom!""
                     }
@@ -252,12 +245,12 @@ public class SourceArchiveTests
             )
         );
 
-        var sut = new SourceArchive(zip);
-        var file = sut.GetSourceFiles().Single();
+        var sut = SourceArchive.FromStream(zip);
+        var file = sut.SourceFiles.Single();
 
-        file.Metadata.Kind.Should().Be("bicep");
+        file.Kind.Should().Be("bicep");
         file.Contents.Should().Be("bicep contents");
-        file.Metadata.Path.Should().Contain("main.bicep");
+        file.Path.Should().Contain("main.bicep");
     }
 
     [TestMethod]
@@ -265,7 +258,7 @@ public class SourceArchiveTests
     {
         // DO NOT ADD TO THIS DATA - IT IS MEANT TO TEST READING
         // OLD FILE VERSIONS WITH MINIMAL DATA
-        var zip = CreateZipFileStream(
+        var zip = CreateZippedFileStream(
             (
                 "__metadata.json",
                 @"
@@ -274,7 +267,7 @@ public class SourceArchiveTests
                   ""sourceFiles"": [
                     {
                       ""path"": ""file:///main.bicep"",
-                      ""archivedPath"": ""main.bicep"",
+                      ""archivePath"": ""main.bicep"",
                       ""kind"": ""bicep""
                     }
                   ]
@@ -286,18 +279,18 @@ public class SourceArchiveTests
             )
         );
 
-        var sut = new SourceArchive(zip);
-        var file = sut.GetSourceFiles().Single();
+        var sut = SourceArchive.FromStream(zip);
+        var file = sut.SourceFiles.Single();
 
-        file.Metadata.Kind.Should().Be("bicep");
+        file.Kind.Should().Be("bicep");
         file.Contents.Should().Be("bicep contents");
-        file.Metadata.Path.Should().Contain("main.bicep");
+        file.Path.Should().Contain("main.bicep");
     }
 
     [TestMethod]
     public void GetSourceFiles_ForwardsCompat_ShouldIgnoreFileEntriesNotInMetadata()
     {
-        var zip = CreateZipFileStream(
+        var zip = CreateZippedFileStream(
             (
                 "__metadata.json",
                 @"
@@ -307,7 +300,7 @@ public class SourceArchiveTests
                   ""sourceFiles"": [
                     {
                       ""path"": ""file:///main.bicep"",
-                      ""archivedPath"": ""main.bicep"",
+                      ""archivePath"": ""main.bicep"",
                       ""kind"": ""bicep"",
                       ""I am also recognition challenged"": ""Hi, Mom!""
                     }
@@ -324,24 +317,27 @@ public class SourceArchiveTests
             )
         );
 
-        var sut = new SourceArchive(zip);
-        var file = sut.GetSourceFiles().Single();
+        var sut = SourceArchive.FromStream(zip);
+        var file = sut.SourceFiles.Single();
 
-        file.Metadata.Kind.Should().Be("bicep");
+        file.Kind.Should().Be("bicep");
         file.Contents.Should().Be("bicep contents");
-        file.Metadata.Path.Should().Contain("main.bicep");
+        file.Path.Should().Contain("main.bicep");
     }
 
-    private Stream CreateZipFileStream(params (string relativePath, string contents)[] files)
+    private Stream CreateZippedFileStream(params (string relativePath, string contents)[] files)
     {
+        var outFolder = FileHelper.GetUniqueTestOutputPath(TestContext!);
         var stream = new MemoryStream();
-        using (var archive = new ZipArchive(stream, ZipArchiveMode.Create, leaveOpen: true))
+        using (var tarWriter = new TarWriter(stream, leaveOpen: true))
         {
             foreach (var (relativePath, contents) in files)
             {
-                using var entryStream = archive.CreateEntry(relativePath).Open();
-                using var sw = new StreamWriter(entryStream);
-                sw.Write(contents);
+                // Intentionally creating the archive differently than SourceArchive does it.
+                Directory.CreateDirectory(outFolder);
+                var fileName = Path.Join(outFolder, new Guid().ToString());
+                File.WriteAllText(fileName, contents, Encoding.UTF8);
+                tarWriter.WriteEntry(fileName, relativePath);
             }
         }
 

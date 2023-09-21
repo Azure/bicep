@@ -5,13 +5,13 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.SourceCode;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -77,7 +77,7 @@ namespace Bicep.LanguageServer.Handlers
             if (moduleDispatcher.TryGetModuleSources(moduleReference) is SourceArchive sourceArchive)
             {
                 // TODO: For now, we just proffer the main source file
-                var entrypointFile = sourceArchive.GetSourceFiles().Single(f => f.Metadata.Path == sourceArchive.GetEntrypointPath());
+                var entrypointFile = sourceArchive.SourceFiles.Single(f => f.Path == sourceArchive.EntrypointPath);
                 return Task.FromResult(new BicepRegistryCacheResponse(entrypointFile.Contents));
             }
 

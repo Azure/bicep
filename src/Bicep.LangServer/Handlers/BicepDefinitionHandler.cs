@@ -1,37 +1,38 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
+using Bicep.Core;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using System;
-using Bicep.Core.Parsing;
-using System.Collections.Generic;
-using Bicep.Core;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
-using System.Linq;
-using Bicep.Core.Workspaces;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Newtonsoft.Json.Linq;
-using Bicep.Core.Registry;
-using System.Net;
-using Bicep.Core.Navigation;
-using Bicep.Core.TypeSystem;
-using System.IO;
-using Bicep.Core.Features;
-using Newtonsoft.Json;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 //asdfg separate out?
 namespace Bicep.LanguageServer.Handlers
@@ -200,7 +201,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (moduleDispatcher.TryGetModuleSources(moduleReference) is SourceArchive sourceArchive) {
                 // Replace the local path (main.json) with the actual source entrypoint filename
-                var entrypointFilename = Path.GetFileName(sourceArchive.GetEntrypointPath());
+                var entrypointFilename = Path.GetFileName(sourceArchive.EntrypointPath);
                 sourceFilePath = Path.Join(Path.GetDirectoryName(sourceFilePath), entrypointFilename);
             }
 

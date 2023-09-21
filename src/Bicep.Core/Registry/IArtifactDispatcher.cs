@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.SourceCode;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

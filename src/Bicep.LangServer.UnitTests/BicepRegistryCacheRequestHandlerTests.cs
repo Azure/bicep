@@ -19,6 +19,7 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Collections.Generic;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.Core.SourceCode;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -242,7 +243,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(fileUri, null));
 
             var bicepSource = "metadata hi 'mom'";
-            var sourceArchive = new SourceArchive(SourceArchive.PackSources(fileUri, new Core.Workspaces.ISourceFile[] {
+            var sourceArchive = SourceArchive.FromStream(SourceArchive.PackSourcesIntoStream(fileUri, new Core.Workspaces.ISourceFile[] {
                 SourceFileFactory.CreateBicepFile(fileUri, bicepSource)}));
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
 

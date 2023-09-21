@@ -4,25 +4,20 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
+using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using System.Linq;
-using Bicep.Core.Registry.Oci;
-using Azure.Deployments.Core.Definitions.Schema;
-using Microsoft.VisualStudio.TestPlatform.CommunicationUtilities.Resources;
-using Bicep.Core.Diagnostics;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.UnitTests.Registry
 {
@@ -687,7 +682,7 @@ namespace Bicep.Core.UnitTests.Registry
             if (sourceStream is { })
             {
                 actualSource.Should().NotBeNull();
-                actualSource.Should().BeEquivalentTo(new SourceArchive(sourceStream));
+                actualSource.Should().BeEquivalentTo(SourceArchive.FromStream(sourceStream));
             }
             else
             {
@@ -788,7 +783,7 @@ namespace Bicep.Core.UnitTests.Registry
         private Stream CreateSourceStream(string mainBicepContent)
         {
             var mainBicepUri = new Uri("https://hello/main.bicep", UriKind.Absolute);
-            return SourceArchive.PackSources(mainBicepUri, new ISourceFile[] {
+            return SourceArchive.PackSourcesIntoStream(mainBicepUri, new ISourceFile[] {
                 SourceFileFactory.CreateBicepFile(mainBicepUri, "metadata description = 'this is my test bicep file'")
             });
         }

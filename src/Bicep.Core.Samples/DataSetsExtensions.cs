@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -8,11 +9,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
@@ -206,7 +207,7 @@ namespace Bicep.Core.Samples
             }
             stream.Position = 0;
 
-            using Stream? sourcesStream = publishSource ? SourceArchive.PackSources(result.Compilation.SourceFileGrouping) : null;
+            using Stream? sourcesStream = publishSource ? SourceArchive.PackSourcesIntoStream(result.Compilation.SourceFileGrouping) : null;
 
             await dispatcher.PublishModule(targetReference, stream, sourcesStream, documentationUri);
         }

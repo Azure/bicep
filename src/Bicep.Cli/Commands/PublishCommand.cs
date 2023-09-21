@@ -4,16 +4,15 @@
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.SourceCode;
 using System;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
@@ -73,7 +72,7 @@ namespace Bicep.Cli.Commands
             compilationWriter.ToStream(compilation, compiledArmTemplateStream);
             compiledArmTemplateStream.Position = 0;
 
-            using var sourcesStream = features.PublishSourceEnabled ? SourceArchive.PackSources(compilation.SourceFileGrouping) : null;
+            using var sourcesStream = features.PublishSourceEnabled ? SourceArchive.PackSourcesIntoStream(compilation.SourceFileGrouping) : null;
 
             await this.PublishModuleAsync(moduleReference, compiledArmTemplateStream, sourcesStream, documentationUri, overwriteIfExists);
 

@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,8 +16,8 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
-using Bicep.Core.Workspaces;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Registry
@@ -507,7 +505,7 @@ namespace Bicep.Core.Registry
                 var zipPath = GetModuleFilePath(reference, ModuleFileType.Source);
                 if (File.Exists(zipPath))
                 {
-                    return new SourceArchive(File.OpenRead(zipPath));
+                    return SourceArchive.FromStream(File.OpenRead(zipPath));
                 }
             }
 

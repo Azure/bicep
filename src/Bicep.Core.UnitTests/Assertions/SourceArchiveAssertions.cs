@@ -1,14 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Modules;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
+using Bicep.Core.SourceCode;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
-using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions
@@ -32,12 +28,11 @@ namespace Bicep.Core.UnitTests.Assertions
 
             Subject.Should().NotBeNull();
 
-            Subject!.GetEntrypointPath().Should().Be(archive.GetEntrypointPath());
-            Subject.GetSourceFiles().Select(entry => entry.Metadata.Path).Should().BeEquivalentTo(archive.GetSourceFiles().Select(entry => entry.Metadata.Path));
-            Subject.GetMetadataFileContents().Should().Be(archive.GetMetadataFileContents());
+            Subject!.EntrypointPath.Should().Be(archive.EntrypointPath);
+            Subject.SourceFiles.Select(entry => entry.Path).Should().BeEquivalentTo(archive.SourceFiles.Select(entry => entry.Path));
 
-            var ourFiles = Subject.GetSourceFiles().ToArray();
-            var theirFiles = archive.GetSourceFiles().ToArray();
+            var ourFiles = Subject.SourceFiles.ToArray();
+            var theirFiles = archive.SourceFiles.ToArray();
 
             ourFiles.Count().Should().Be(theirFiles.Count());
 
@@ -45,11 +40,11 @@ namespace Bicep.Core.UnitTests.Assertions
                 var ourFile = ourFiles[i];
                 var theirFile = theirFiles[i];
 
-                ourFile.Metadata.Path.Should().Be(theirFile.Metadata.Path);
-                ourFile.Metadata.Kind.Should().Be(theirFile.Metadata.Kind);
-                ourFile.Metadata.ArchivedPath.Should().Be(theirFile.Metadata.ArchivedPath);
+                ourFile.Path.Should().Be(theirFile.Path);
+                ourFile.Kind.Should().Be(theirFile.Kind);
+                ourFile.ArchivePath.Should().Be(theirFile.ArchivePath);
 
-                using var _scope2 = new AssertionScope($"archived path: {ourFile.Metadata.ArchivedPath}");
+                using var _scope2 = new AssertionScope($"archived path: {ourFile.ArchivePath}");
                 ourFile.Contents.Should().Be(theirFile.Contents);
             }
 

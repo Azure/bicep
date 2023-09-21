@@ -3,12 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Modules;
+using Bicep.Core.SourceCode;
 
 namespace Bicep.Core.Registry
 {

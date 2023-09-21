@@ -3,6 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
+using Bicep.Core.SourceCode;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

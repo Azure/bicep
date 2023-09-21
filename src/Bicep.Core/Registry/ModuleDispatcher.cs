@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
 using System;
 using System.Collections.Concurrent;
