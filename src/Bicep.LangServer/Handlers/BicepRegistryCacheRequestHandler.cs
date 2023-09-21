@@ -35,13 +35,11 @@ namespace Bicep.LanguageServer.Handlers
 
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFileResolver fileResolver;
-        private readonly IFeatureProviderFactory featureProviderFactory;
 
-        public BicepRegistryCacheRequestHandler(IModuleDispatcher moduleDispatcher, IFileResolver fileResolver, IFeatureProviderFactory featureProviderFactory)
+        public BicepRegistryCacheRequestHandler(IModuleDispatcher moduleDispatcher, IFileResolver fileResolver)
         {
             this.moduleDispatcher = moduleDispatcher;
             this.fileResolver = fileResolver;
-            this.featureProviderFactory = featureProviderFactory;
         }
 
         public Task<BicepRegistryCacheResponse> Handle(BicepRegistryCacheParams request, CancellationToken cancellationToken)

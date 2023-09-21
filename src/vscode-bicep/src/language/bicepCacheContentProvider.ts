@@ -63,6 +63,9 @@ export class BicepCacheContentProvider
     //
     // Example decoded URI:
     //   bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/main.json
+    //
+    // It's important that the path end in the correct file extension so that VS Code can
+    // correctly determine the language ID.
     const registry = decodeURIComponent(uri.path);
     const cachePath = decodeURIComponent(uri.fragment);
 

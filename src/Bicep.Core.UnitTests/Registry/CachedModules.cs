@@ -7,11 +7,14 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using Bicep.Core.Registry;
+using Bicep.Core.SourceCode;
 using FluentAssertions;
 
 namespace Bicep.Core.UnitTests.Registry;
 
+// Represents the current state of the local on-disk registry cache
 
 public static class CachedModules
 {
@@ -46,5 +49,50 @@ public static class CachedModules
     private static string UnobfuscateFolderName(string folderName)
     {
         return folderName.Replace("$", "/").TrimEnd('/');
+    }
+}
+
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+record Module(Layer[] layers);
+
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+record Layer(string mediaType);
+
+// Represents a cached module in the local on-disk registry cache
+public record CachedModule(
+    string ModuleCacheFolder,
+    string Registry,
+    string Repository,
+    string Tag)
+{
+    public string ManifestContents => File.ReadAllText(Path.Combine(ModuleCacheFolder, "manifest"));
+    public JsonObject ManifestJson => (JsonObject)JsonNode.Parse(ManifestContents)!;
+
+    public string MetadataContents => File.ReadAllText(Path.Combine(ModuleCacheFolder, "metadata"));
+    public JsonObject MetadataJson => (JsonObject)JsonNode.Parse(MetadataContents)!;
+
+    public string[] LayerMediaTypes
+    {
+        get
+        {
+            // Deserialize the JSON into an object
+            var module = JsonSerializer.Deserialize<Module>(ManifestJson)!;
+            module.layers.Should().NotBeNull("layers property should exist in manifest");
+            string[] layerMediaTypes = module.layers.Select(layer => layer.mediaType).ToArray();
+            return layerMediaTypes;
+        }
+    }
+
+    public bool HasSourceLayer => LayerMediaTypes.Contains("application/vnd.ms.bicep.module.source.v1.tar+gzip");
+
+    public SourceArchive? TryGetSource()
+    {
+        var sourceArchivePath = Path.Combine(ModuleCacheFolder, $"source.tar.gz");
+        if (File.Exists(sourceArchivePath))
+        {
+            return SourceArchive.FromStream(File.OpenRead(sourceArchivePath));
+        }
+
+        return null;
     }
 }

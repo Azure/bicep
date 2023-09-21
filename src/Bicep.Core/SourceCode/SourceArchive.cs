@@ -24,7 +24,7 @@ using Bicep.Core.Exceptions;
 
 namespace Bicep.Core.SourceCode
 {
-
+    // Contains the individual source code files for a Bicep file and all of its dependencies.
     public partial class SourceArchive
     {
         public ImmutableArray<SourceFileInfo> SourceFiles { get; init; }
@@ -74,6 +74,11 @@ namespace Bicep.Core.SourceCode
             return new SourceArchive(stream);
         }
 
+        /// <summary>
+        /// Bundles all the sources from a compilation group (thus source for a bicep file and all its dependencies
+        /// in JSON form)
+        /// </summary>
+        /// <returns></returns>
         public static Stream PackSourcesIntoStream(SourceFileGrouping sourceFileGrouping)
         {
             return PackSourcesIntoStream(sourceFileGrouping.EntryFileUri, sourceFileGrouping.SourceFiles.ToArray());

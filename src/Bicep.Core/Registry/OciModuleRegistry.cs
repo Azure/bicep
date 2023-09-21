@@ -377,6 +377,7 @@ namespace Bicep.Core.Registry
             metadataStream.Position = 0;
             this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Metadata), metadataStream);
 
+            // write source archive file
             // TODO: do we need to delete this file if there is no source layer?
             if (this.features.PublishSourceEnabled && result.GetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
             {

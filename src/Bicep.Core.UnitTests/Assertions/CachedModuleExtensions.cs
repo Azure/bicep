@@ -17,6 +17,7 @@ using System.Text.Json.Nodes;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
+    // Allows asserting against the current state of the local on-disk registry cache
     public static class CachedModuleExtensions
     {
         public static CachedModuleAssertions Should(this CachedModule CachedModule) => new(CachedModule);
