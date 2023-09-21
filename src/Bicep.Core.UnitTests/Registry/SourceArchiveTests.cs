@@ -6,6 +6,7 @@ using System.Formats.Tar;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
+using System.IO.Pipes;
 using System.Linq;
 using System.Text;
 using Bicep.Core.SourceCode;
@@ -222,7 +223,7 @@ public class SourceArchiveTests
     [TestMethod]
     public void GetSourceFiles_ForwardsCompat_ShouldIgnoreUnrecognizedPropertiesInMetadata()
     {
-        var zip = CreateZippedFileStream(
+        var zip = CreateGzippedTarredFileStream(
             (
                 "__metadata.json",
                 @"
@@ -258,7 +259,7 @@ public class SourceArchiveTests
     {
         // DO NOT ADD TO THIS DATA - IT IS MEANT TO TEST READING
         // OLD FILE VERSIONS WITH MINIMAL DATA
-        var zip = CreateZippedFileStream(
+        var zip = CreateGzippedTarredFileStream(
             (
                 "__metadata.json",
                 @"
@@ -290,7 +291,7 @@ public class SourceArchiveTests
     [TestMethod]
     public void GetSourceFiles_ForwardsCompat_ShouldIgnoreFileEntriesNotInMetadata()
     {
-        var zip = CreateZippedFileStream(
+        var zip = CreateGzippedTarredFileStream(
             (
                 "__metadata.json",
                 @"
@@ -325,23 +326,26 @@ public class SourceArchiveTests
         file.Path.Should().Contain("main.bicep");
     }
 
-    private Stream CreateZippedFileStream(params (string relativePath, string contents)[] files)
+    private Stream CreateGzippedTarredFileStream(params (string relativePath, string contents)[] files)
     {
         var outFolder = FileHelper.GetUniqueTestOutputPath(TestContext!);
-        var stream = new MemoryStream();
-        using (var tarWriter = new TarWriter(stream, leaveOpen: true))
+        var ms = new MemoryStream();
+        using (var gz = new GZipStream(ms, CompressionMode.Compress, leaveOpen: true))
         {
-            foreach (var (relativePath, contents) in files)
+            using (var tarWriter = new TarWriter(gz, leaveOpen: true))
             {
-                // Intentionally creating the archive differently than SourceArchive does it.
-                Directory.CreateDirectory(outFolder);
-                var fileName = Path.Join(outFolder, new Guid().ToString());
-                File.WriteAllText(fileName, contents, Encoding.UTF8);
-                tarWriter.WriteEntry(fileName, relativePath);
+                foreach (var (relativePath, contents) in files)
+                {
+                    // Intentionally creating the archive differently than SourceArchive does it.
+                    Directory.CreateDirectory(outFolder);
+                    var fileName = Path.Join(outFolder, new Guid().ToString());
+                    File.WriteAllText(fileName, contents, Encoding.UTF8);
+                    tarWriter.WriteEntry(fileName, relativePath);
+                }
             }
         }
 
-        stream.Seek(0, SeekOrigin.Begin);
-        return stream;
+        ms.Seek(0, SeekOrigin.Begin);
+        return ms;
     }
 }

@@ -20,6 +20,7 @@ using System.Collections.Immutable;
 using static Bicep.Core.SourceCode.SourceArchive;
 using System.Text.Json.Serialization;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Exceptions;
 
 namespace Bicep.Core.SourceCode
 {
@@ -88,47 +89,48 @@ namespace Bicep.Core.SourceCode
             var baseFolderUri = baseFolderBuilder.Uri;
 
             var stream = new MemoryStream();
-            //using FileStream tarFileStream = new FileStream(tarFilePath, FileMode.Create); asdfg
-
-            using (var tarWriter = new TarWriter(stream, leaveOpen: true))
+            using (var gz = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
             {
-                var filesMetadata = new List<SourceFileInfoEntry>();
-                string? entryPointPath = null;
-
-                foreach (var file in sourceFiles)
+                using (var tarWriter = new TarWriter(gz, leaveOpen: true))
                 {
-                    string source = file.GetOriginalSource();
-                    string kind = file switch
-                    {
-                        BicepFile bicepFile => SourceKind_Bicep,
-                        ArmTemplateFile armTemplateFile => SourceKind_ArmTemplate,
-                        TemplateSpecFile => SourceKind_TemplateSpec,
-                        _ => throw new ArgumentException($"Unexpected source file type {file.GetType().Name}"),
-                    };
+                    var filesMetadata = new List<SourceFileInfoEntry>();
+                    string? entryPointPath = null;
 
-                    var (location, archivePath) = CalculateFilePathsFromUri(file.FileUri);
-                    WriteNewFileEntry(tarWriter, archivePath, source);
-                    filesMetadata.Add(new SourceFileInfoEntry(location, archivePath, kind));
-
-                    if (file.FileUri == entrypointFileUri)
+                    foreach (var file in sourceFiles)
                     {
-                        if (entryPointPath is not null)
+                        string source = file.GetOriginalSource();
+                        string kind = file switch
                         {
-                            throw new ArgumentException($"{nameof(SourceArchive)}.{nameof(PackSourcesIntoStream)}: Multiple source files with the entrypoint \"{entrypointFileUri.AbsoluteUri}\" were passed in.");
+                            BicepFile bicepFile => SourceKind_Bicep,
+                            ArmTemplateFile armTemplateFile => SourceKind_ArmTemplate,
+                            TemplateSpecFile => SourceKind_TemplateSpec,
+                            _ => throw new ArgumentException($"Unexpected source file type {file.GetType().Name}"),
+                        };
+
+                        var (location, archivePath) = CalculateFilePathsFromUri(file.FileUri);
+                        WriteNewFileEntry(tarWriter, archivePath, source);
+                        filesMetadata.Add(new SourceFileInfoEntry(location, archivePath, kind));
+
+                        if (file.FileUri == entrypointFileUri)
+                        {
+                            if (entryPointPath is not null)
+                            {
+                                throw new ArgumentException($"{nameof(SourceArchive)}.{nameof(PackSourcesIntoStream)}: Multiple source files with the entrypoint \"{entrypointFileUri.AbsoluteUri}\" were passed in.");
+                            }
+
+                            entryPointPath = location;
                         }
-
-                        entryPointPath = location;
                     }
-                }
 
-                if (entryPointPath is null)
-                {
-                    throw new ArgumentException($"{nameof(SourceArchive)}.{nameof(PackSourcesIntoStream)}: No source file with entrypoint \"{entrypointFileUri.AbsoluteUri}\" was passed in.");
-                }
+                    if (entryPointPath is null)
+                    {
+                        throw new ArgumentException($"{nameof(SourceArchive)}.{nameof(PackSourcesIntoStream)}: No source file with entrypoint \"{entrypointFileUri.AbsoluteUri}\" was passed in.");
+                    }
 
-                // Add the metadata file
-                var metadataContents = CreateMetadataFileContents(entryPointPath, filesMetadata);
-                WriteNewFileEntry(tarWriter, MetadataArchivedFileName, metadataContents);
+                    // Add the metadata file
+                    var metadataContents = CreateMetadataFileContents(entryPointPath, filesMetadata);
+                    WriteNewFileEntry(tarWriter, MetadataArchivedFileName, metadataContents);
+                }
             }
 
             stream.Seek(0, SeekOrigin.Begin);
@@ -152,8 +154,8 @@ namespace Bicep.Core.SourceCode
             var filesBuilder = ImmutableDictionary.CreateBuilder<string, string>();
 
             stream.Position = 0;
-            //asdfg var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
-            using var tarReader = new TarReader(stream);
+            var gz = new GZipStream(stream, CompressionMode.Decompress);
+            using var tarReader = new TarReader(gz);
 
             while (tarReader.GetNextEntry() is { } entry)
             {
@@ -163,13 +165,16 @@ namespace Bicep.Core.SourceCode
 
             var dictionary = filesBuilder.ToImmutableDictionary();
 
-            var metadataJson = dictionary[MetadataArchivedFileName]; //asdfg if fails?
+            var metadataJson = dictionary[MetadataArchivedFileName]
+                ?? throw new BicepException("Incorrectly formatted source file: No {MetadataArchivedFileName} entry");
             var metadata = JsonSerializer.Deserialize<MetadataEntry>(metadataJson, MetadataSerializationContext.Default.MetadataEntry)
-                ?? throw new Exception("Source archive has invalid metadata entry");
+                ?? throw new BicepException("Source archive has invalid metadata entry");
 
             var infos = new List<SourceFileInfo>();
             foreach (var info in metadata.SourceFiles.OrderBy(e => e.Path).ThenBy(e => e.ArchivePath))
             {
+                var contents = dictionary[info.ArchivePath]
+                    ?? throw new BicepException("Incorrectly formatted source file: File entry not found: \"{info.ArchivePath}\"");
                 infos.Add(new SourceFileInfo(info.Path, info.ArchivePath, info.Kind, dictionary[info.ArchivePath])); //asdfg failure?
             }
 
