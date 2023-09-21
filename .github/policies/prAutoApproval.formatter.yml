@@ -15,7 +15,7 @@ configuration:
             action: Opened
         - bodyContains:
             pattern: formatted-refs/heads/main
-            isRegex: false
+            isRegex: False
         - hasLabel:
             label: 'code-formatting-automation'
         - isActivitySender:
