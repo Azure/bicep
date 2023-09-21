@@ -1,0 +1,50 @@
+id: prAutoApproval.formatter
+name: GitOps.PullRequestIssueManagement
+description: Automatically approves formatting PRs cut by automation
+owner:
+resource: repository
+disabled: true
+where:
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+    - description: Create PRs when code formatting is run
+      if:
+        - payloadType: Issue
+        - isOpen: true
+        - isAction:
+            action: Opened
+        - bodyContains:
+            pattern: formatted-refs/heads/main
+            isRegex: false
+        - hasLabel:
+            label: 'code-formatting-automation'
+        - isActivitySender:
+            user: github-actions[bot]
+            issueAuthor: True
+      then:
+        - createPullRequest:
+            head: formatted-refs/heads/main
+            base: main
+            title: "Reformat code"
+            body: "Resolves #${number}"
+    - description: Approve PRs submitted by microsoft-github-policy-service with the "code-formatting-automation" label
+      if:
+      - payloadType: Pull_Request
+      - hasLabel:
+          label: 'code-formatting-automation'
+      - not:
+          hasLabel:
+            label: auto-merge
+      - isActivitySender:
+          user: microsoft-github-policy-service[bot]
+          issueAuthor: False
+      then:
+      - approvePullRequest:
+          comment: ':shipit:'
+      - addLabel:
+          label: auto-merge
+      - enableAutoMerge:
+          mergeMethod: Squash
+onFailure:
+onSuccess:
