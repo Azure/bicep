@@ -1134,7 +1134,7 @@ namespace Bicep.Core.TypeSystem
             Stack<AccessExpressionSyntax> chainedAccesses = syntax.ToAccessExpressionStack();
             var baseAssignment = chainedAccesses.Peek() switch
             {
-                PropertyAccessSyntax access when access.BaseExpression is ForSyntax
+                AccessExpressionSyntax access when access.BaseExpression is ForSyntax
                     // in certain parser recovery scenarios, the parser can produce a PropertyAccessSyntax operating on a ForSyntax
                     // this leads to a stack overflow which we don't really want, so let's short circuit here.
                     => null,
