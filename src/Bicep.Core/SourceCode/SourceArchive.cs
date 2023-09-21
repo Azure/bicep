@@ -76,9 +76,9 @@ namespace Bicep.Core.SourceCode
 
         /// <summary>
         /// Bundles all the sources from a compilation group (thus source for a bicep file and all its dependencies
-        /// in JSON form)
+        /// in JSON form) into an archive (as a stream)
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A .tar.gz file as a binary stream</returns>
         public static Stream PackSourcesIntoStream(SourceFileGrouping sourceFileGrouping)
         {
             return PackSourcesIntoStream(sourceFileGrouping.EntryFileUri, sourceFileGrouping.SourceFiles.ToArray());
