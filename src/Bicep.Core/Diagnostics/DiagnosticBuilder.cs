@@ -2096,11 +2096,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP375",
                 "An import list item that identifies its target with a quoted string must include an 'as <alias>' clause.");
-
-            public ErrorDiagnostic ReferencedSymbolDefinedOutsideOfEvaluationContext(string symbolName) => new(
-                TextSpan,
-                "BCP376",
-                $"The symbol '{symbolName}' is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
