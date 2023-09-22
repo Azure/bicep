@@ -398,6 +398,16 @@
                     }
                   ]
                 },
+                "nested-deployment-template-scoping": {
+                  "allOf": [
+                    {
+                      "description": "Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used. See https://aka.ms/bicep/linter/nested-deployment-template-scoping"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
                 "no-unnecessary-dependson": {
                   "allOf": [
                     {

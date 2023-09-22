@@ -577,7 +577,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                           ]
                         }
                       }
-                    }                       
+                    }
                 ",
                 new string[]
                 {
@@ -621,7 +621,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                           ]
                         }
                       }
-                    }                       
+                    }
                 ",
                 new string[]
                 {
@@ -661,7 +661,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                           ]
                         }
                       }
-                    }                       
+                    }
                 ",
                 new string[]
                 {
@@ -704,7 +704,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
                 new[]
                 {
-                   "[6] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.", 
+                   "[6] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
                 });
         }
 
@@ -740,7 +740,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                           ]
                         }
                       }
-                    }]                       
+                    }]
                 ",
                 new string[]
                 {

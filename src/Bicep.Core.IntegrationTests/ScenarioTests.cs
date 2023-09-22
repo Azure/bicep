@@ -5069,12 +5069,125 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             """);
 
         result.Template.Should().NotBeNull();
-        // uncomment after merging https://github.com/Azure/bicep/pull/11740
-        // result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        // {
-        //     ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
-        //     ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
-        // });
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
+            ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/11846
+    [TestMethod]
+    public void Test_Issue11846()
+    {
+        var withOuterScopeEvaluation = """
+            param tags object
+            param tag1 string
+            var tag2 = 'tag2'
+            var deploymentName = 'name'
+            var deploymentMode = 'Incremental'
+
+            resource nestedDeployment 'Microsoft.Resources/deployments@2020-10-01' = {
+              name: deploymentName
+              properties: {
+                mode: deploymentMode
+                template: {
+                  '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                  contentVersion: '1.0.0.0'
+                  resources: [
+                    {
+                      apiVersion: '2022-09-01'
+                      type: 'Microsoft.Resources/tags'
+                      name: 'default'
+                      properties: {
+                        tags: union(tags, {tag1: tag1, tag2: tag2})
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+        var withExplicitInnerScopeEvaluation = """
+            param tags object
+            param tag1 string
+            var tag2 = 'tag2'
+            var deploymentName = 'name'
+            var deploymentMode = 'Incremental'
+
+            resource nestedDeployment 'Microsoft.Resources/deployments@2020-10-01' = {
+              name: deploymentName
+              properties: {
+                expressionEvaluationOptions: {
+                  scope: 'inner'
+                }
+                mode: deploymentMode
+                template: {
+                  '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                  contentVersion: '1.0.0.0'
+                  resources: [
+                    {
+                      apiVersion: '2022-09-01'
+                      type: 'Microsoft.Resources/tags'
+                      name: 'default'
+                      properties: {
+                        tags: union(tags, {tag1: tag1, tag2: tag2, tag3: join(map(['a'], x => x), ',')})
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+        var withImplicitInnerScopeEvaluation = """
+            param tags {*: string}
+            param tag1 string
+            var tag2 = 'tag2'
+            var deploymentName = 'name'
+            var deploymentMode = 'Incremental'
+
+            resource nestedDeployment 'Microsoft.Resources/deployments@2020-10-01' = {
+              name: deploymentName
+              properties: {
+                mode: deploymentMode
+                template: {
+                  '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                  contentVersion: '1.0.0.0'
+                  resources: [
+                    {
+                      apiVersion: '2022-09-01'
+                      type: 'Microsoft.Resources/tags'
+                      name: 'default'
+                      properties: {
+                        tags: union(tags, {tag1: tag1, tag2: tag2, tag3: join(map(['a'], x => x), ',')})
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+
+        using (new AssertionScope())
+        {
+            var result = CompilationHelper.Compile(withOuterScopeEvaluation);
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("no-deployments-resources", DiagnosticLevel.Warning, "Resource 'nestedDeployment' of type 'Microsoft.Resources/deployments@2020-10-01' should instead be declared as a Bicep module."),
+            });
+
+            foreach (var innerScoped in new[] { withExplicitInnerScopeEvaluation, withImplicitInnerScopeEvaluation })
+            {
+                result = CompilationHelper.Compile(innerScoped);
+                result.Should().HaveDiagnostics(new[]
+                {
+                    ("no-deployments-resources", DiagnosticLevel.Warning, "Resource 'nestedDeployment' of type 'Microsoft.Resources/deployments@2020-10-01' should instead be declared as a Bicep module."),
+                    ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tags\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
+                    ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tag1\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
+                    ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tag2\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
+                });
+            }
+        }
     }
 
     // https://github.com/Azure/bicep/issues/11883

@@ -46,12 +46,13 @@ namespace Bicep.Core.Syntax
         /// </summary>
         /// <param name="syntax">The object syntax node</param>
         /// <param name="propertyName">The property name</param>
-        public static ObjectPropertySyntax? TryGetPropertyByName(this ObjectSyntax syntax, string propertyName)
+        /// <param name="keyComparison">The comparison algorithm to use when matching object properties to the supplied name</param>
+        public static ObjectPropertySyntax? TryGetPropertyByName(this ObjectSyntax syntax, string propertyName, StringComparison? keyComparison = null)
         {
             ObjectPropertySyntax? result = null;
 
             var matchingValidProperties = syntax.Properties
-                .Where(p => p.TryGetKeyText() is { } validName && string.Equals(validName, propertyName, LanguageConstants.IdentifierComparison));
+                .Where(p => p.TryGetKeyText() is { } validName && string.Equals(validName, propertyName, keyComparison ?? LanguageConstants.IdentifierComparison));
 
             foreach (var property in matchingValidProperties)
             {
