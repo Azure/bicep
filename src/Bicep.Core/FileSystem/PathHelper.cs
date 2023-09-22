@@ -206,5 +206,21 @@ namespace Bicep.Core.FileSystem
 
             return child.AbsolutePath.StartsWith(parentPath);
         }
+
+        public static string GetRelativePath(Uri source, Uri target)
+        {
+            if (source.Scheme != target.Scheme)
+            {
+                throw new InvalidOperationException($"Source scheme '{source.Scheme}' does not match target scheme '{target.Scheme}'");
+            }
+
+            var relativePath = source.MakeRelativeUri(target).OriginalString;
+            if (!relativePath.StartsWith(".")) {
+                // follow the convention of './main.bicep' rather than 'main.bicep'
+                relativePath = $"./{relativePath}";
+            }
+
+            return relativePath;
+        }
     }
 }

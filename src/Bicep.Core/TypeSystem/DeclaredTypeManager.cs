@@ -1134,7 +1134,7 @@ namespace Bicep.Core.TypeSystem
             Stack<AccessExpressionSyntax> chainedAccesses = syntax.ToAccessExpressionStack();
             var baseAssignment = chainedAccesses.Peek() switch
             {
-                PropertyAccessSyntax access when access.BaseExpression is ForSyntax
+                AccessExpressionSyntax access when access.BaseExpression is ForSyntax
                     // in certain parser recovery scenarios, the parser can produce a PropertyAccessSyntax operating on a ForSyntax
                     // this leads to a stack overflow which we don't really want, so let's short circuit here.
                     => null,
@@ -1753,6 +1753,13 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var flags = parameter.IsRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly;
+
+                // add implicit nullability for optional parameters
+                if (!parameter.IsRequired)
+                {
+                    type = TypeHelper.CreateTypeUnion(type, LanguageConstants.Null);
+                }
+
                 parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
             }
 

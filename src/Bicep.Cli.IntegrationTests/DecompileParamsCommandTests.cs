@@ -104,8 +104,9 @@ param fourth = {
 param foo = 'bar'";
 
             var (jsonPath, bicepparamPath) = Setup(TestContext, paramFile);
+            var bicepPath = PathHelper.ResolvePath("./dir/main.bicep", Path.GetDirectoryName(jsonPath));
 
-            var (output, error, result) = await Bicep("decompile-params", jsonPath, "--bicep-file", "./dir/main.bicep");
+            var (output, error, result) = await Bicep("decompile-params", jsonPath, "--bicep-file", bicepPath);
 
             using (new AssertionScope())
             {

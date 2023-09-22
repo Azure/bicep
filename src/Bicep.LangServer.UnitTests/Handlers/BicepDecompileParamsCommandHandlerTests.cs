@@ -54,13 +54,14 @@ namespace Bicep.LangServer.UnitTests.Handlers
   }
 }";
             var expectedOutput =
-@"using '/main.bicep'
+@"using './main.bicep'
 
 param foo = 'bar'";
 
             var paramFilePath = FileHelper.SaveResultFile(TestContext, "param.json", paramFile);
+            var bicepPath = PathHelper.ResolvePath("./main.bicep", Path.GetDirectoryName(paramFilePath));
 
-            var requestParams = new BicepDecompileParamsCommandParams(DocumentUri.File(paramFilePath), "/main.bicep");
+            var requestParams = new BicepDecompileParamsCommandParams(DocumentUri.File(paramFilePath), DocumentUri.File(bicepPath));
 
             var decompileParamsCommandHandler = CreateHandler();
 
