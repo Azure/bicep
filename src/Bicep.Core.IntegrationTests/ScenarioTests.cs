@@ -5131,7 +5131,7 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
                       type: 'Microsoft.Resources/tags'
                       name: 'default'
                       properties: {
-                        tags: union(tags, {tag1: tag1, tag2: tag2})
+                        tags: union(tags, {tag1: tag1, tag2: tag2, tag3: join(map(['a'], x => x), ',')})
                       }
                     }
                   ]
@@ -5159,7 +5159,7 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
                       type: 'Microsoft.Resources/tags'
                       name: 'default'
                       properties: {
-                        tags: union(tags, {tag1: tag1, tag2: tag2})
+                        tags: union(tags, {tag1: tag1, tag2: tag2, tag3: join(map(['a'], x => x), ',')})
                       }
                     }
                   ]
@@ -5171,16 +5171,16 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         using (new AssertionScope())
         {
             var result = CompilationHelper.Compile(withOuterScopeEvaluation);
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Should().NotHaveAnyDiagnostics();
 
             foreach (var innerScoped in new[] { withExplicitInnerScopeEvaluation, withImplicitInnerScopeEvaluation })
             {
                 result = CompilationHelper.Compile(innerScoped);
-                result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+                result.Should().HaveDiagnostics(new[]
                 {
-                    ("BCP376", DiagnosticLevel.Error, "The symbol 'tags' is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
-                    ("BCP376", DiagnosticLevel.Error, "The symbol 'tag1' is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
-                    ("BCP376", DiagnosticLevel.Error, "The symbol 'tag2' is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
+                    ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tags\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
+                    ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tag1\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
+                    ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tag2\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
                 });
             }
         }

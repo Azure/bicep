@@ -2,19 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
-using Bicep.Core.Syntax.Comparers;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -56,7 +53,6 @@ namespace Bicep.Core.Emit
             BlockTestFrameworkWithoutExperimentalFeaure(model, diagnostics);
             BlockAssertsWithoutExperimentalFeatures(model, diagnostics);
             BlockNamesDistinguishedOnlyByCase(model, diagnostics);
-            BlockSymbolicReferencesInInnerScopedNestedDeployments(model, diagnostics);
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
@@ -507,8 +503,8 @@ namespace Bicep.Core.Emit
                 return ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty;
             }
 
-            var referencesInValues = model.Root.ParameterAssignments.Concat<DeclaredSymbol>(model.Root.VariableDeclarations)
-                .ToImmutableDictionary(p => p as Symbol, p => ReferenceGatheringVisitor.GatherReferences(model, p.DeclaringSyntax));
+            var referencesInValues = model.Binder.Bindings.Values.OfType<DeclaredSymbol>().Distinct()
+                .ToImmutableDictionary(p => p, p => SymbolicReferenceCollector.CollectSymbolsReferenced(model.Binder, p.DeclaringSyntax));
             var generated = ImmutableDictionary.CreateBuilder<ParameterAssignmentSymbol, ParameterAssignmentValue>();
             var evaluator = new ParameterAssignmentEvaluator(model);
             HashSet<Symbol> erroredSymbols = new();
@@ -573,10 +569,10 @@ namespace Bicep.Core.Emit
             return generated.ToImmutableDictionary();
         }
 
-        private static IEnumerable<Symbol> GetTopologicallySortedSymbols(ImmutableDictionary<Symbol, ImmutableDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>>>  referencesInValues)
+        private static IEnumerable<DeclaredSymbol> GetTopologicallySortedSymbols(ImmutableDictionary<DeclaredSymbol, ImmutableDictionary<DeclaredSymbol, ImmutableSortedSet<VariableAccessSyntax>>>  referencesInValues)
         {
-            HashSet<Symbol> processed = new();
-            IEnumerable<Symbol> YieldSymbolAndUnprocessedPredecessors(Symbol n)
+            HashSet<DeclaredSymbol> processed = new();
+            IEnumerable<DeclaredSymbol> YieldSymbolAndUnprocessedPredecessors(DeclaredSymbol n)
             {
                 if (processed.Contains(n))
                 {
@@ -593,37 +589,6 @@ namespace Bicep.Core.Emit
             }
 
             return referencesInValues.Keys.SelectMany(YieldSymbolAndUnprocessedPredecessors);
-        }
-
-        private class ReferenceGatheringVisitor : AstVisitor
-        {
-            private readonly SemanticModel model;
-            private readonly HashSet<Symbol> topLevelSymbols;
-            private readonly ConcurrentDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>.Builder> references = new();
-
-            private ReferenceGatheringVisitor(SemanticModel model)
-            {
-                this.model = model;
-                this.topLevelSymbols = model.Root.Declarations.ToHashSet<Symbol>();
-            }
-
-            internal static ImmutableDictionary<Symbol, ImmutableSortedSet<VariableAccessSyntax>> GatherReferences(SemanticModel model, SyntaxBase syntax)
-            {
-                var visitor = new ReferenceGatheringVisitor(model);
-                syntax.Accept(visitor);
-
-                return visitor.references.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutable());
-            }
-
-            public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
-            {
-                // Record an outgoing reference if this syntax refers to a top-level symbol (i.e., *not* to a lambda-local variable)
-                if (model.GetSymbolInfo(syntax) is Symbol signified && topLevelSymbols.Contains(signified))
-                {
-                    references.GetOrAdd(signified, _ => ImmutableSortedSet.CreateBuilder<VariableAccessSyntax>(SyntaxSourceOrderComparer.Instance))
-                        .Add(syntax);
-                }
-            }
         }
 
         private static void BlockUserDefinedFunctionsWithoutExperimentalFeaure(SemanticModel model, IDiagnosticWriter diagnostics)
@@ -705,34 +670,6 @@ namespace Bicep.Core.Emit
 
                 diagnostics.WriteMultiple(grouping.Select(
                     item => DiagnosticBuilder.ForPosition(nameSyntaxExtractor(item)).ItemsMustBeCaseInsensitivelyUnique(itemTypePluralName, clashingNames)));
-            }
-        }
-
-        private static void BlockSymbolicReferencesInInnerScopedNestedDeployments(SemanticModel model, IDiagnosticWriter diagnostics)
-        {
-            var innerScopedEvaluationIsDefault = model.EmitterSettings.EnableSymbolicNames;
-
-            foreach (var resource in model.DeclaredResources.Where(r => r.IsAzResource))
-            {
-                if (!LanguageConstants.ResourceTypeComparer.Equals(resource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeDeployments) ||
-                    resource.Symbol.DeclaringResource.TryGetBody()?.TryGetPropertyByName("properties", StringComparison.OrdinalIgnoreCase)?.Value is not ObjectSyntax propertiesObject ||
-                    propertiesObject.TryGetPropertyByName("template", StringComparison.OrdinalIgnoreCase)?.Value is not SyntaxBase nestedTemplate)
-                {
-                    continue;
-                }
-
-                bool explicitInnerScope = (propertiesObject.TryGetPropertyByName("expressionEvaluationOptions", StringComparison.OrdinalIgnoreCase)?.Value as ObjectSyntax)
-                    ?.TryGetPropertyByName("scope", StringComparison.OrdinalIgnoreCase)?.Value is SyntaxBase explicitScope &&
-                    model.GetTypeInfo(explicitScope) is StringLiteralType folded &&
-                    folded.RawStringValue.Equals("inner", StringComparison.OrdinalIgnoreCase);
-
-                if (explicitInnerScope || innerScopedEvaluationIsDefault)
-                {
-                    foreach (var (name, signifier) in ReferenceGatheringVisitor.GatherReferences(model, nestedTemplate).SelectMany(kvp => kvp.Value.Select(v => (kvp.Key.Name, v))))
-                    {
-                        diagnostics.Write(DiagnosticBuilder.ForPosition(signifier).ReferencedSymbolDefinedOutsideOfEvaluationContext(name));
-                    }
-                }
             }
         }
     }
