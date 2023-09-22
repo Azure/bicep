@@ -715,7 +715,7 @@ namespace Bicep.Core.Emit
             foreach (var resource in model.DeclaredResources.Where(r => r.IsAzResource))
             {
                 if (!LanguageConstants.ResourceTypeComparer.Equals(resource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeDeployments) ||
-                    resource.Symbol.DeclaringResource.GetBody().TryGetPropertyByName("properties", StringComparison.OrdinalIgnoreCase)?.Value is not ObjectSyntax propertiesObject ||
+                    resource.Symbol.DeclaringResource.TryGetBody()?.TryGetPropertyByName("properties", StringComparison.OrdinalIgnoreCase)?.Value is not ObjectSyntax propertiesObject ||
                     propertiesObject.TryGetPropertyByName("template", StringComparison.OrdinalIgnoreCase)?.Value is not SyntaxBase nestedTemplate)
                 {
                     continue;
