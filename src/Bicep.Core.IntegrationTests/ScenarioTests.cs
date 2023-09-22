@@ -5171,13 +5171,17 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         using (new AssertionScope())
         {
             var result = CompilationHelper.Compile(withOuterScopeEvaluation);
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("no-deployments-resources", DiagnosticLevel.Warning, "Resource 'nestedDeployment' of type 'Microsoft.Resources/deployments@2020-10-01' should instead be declared as a Bicep module."),
+            });
 
             foreach (var innerScoped in new[] { withExplicitInnerScopeEvaluation, withImplicitInnerScopeEvaluation })
             {
                 result = CompilationHelper.Compile(innerScoped);
                 result.Should().HaveDiagnostics(new[]
                 {
+                    ("no-deployments-resources", DiagnosticLevel.Warning, "Resource 'nestedDeployment' of type 'Microsoft.Resources/deployments@2020-10-01' should instead be declared as a Bicep module."),
                     ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tags\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
                     ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tag1\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
                     ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tag2\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
