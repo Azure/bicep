@@ -46,9 +46,24 @@ export type DeploymentScope =
       scopeType: "subscription";
       location: string;
       subscriptionId: string;
+    })
+  | (DeploymentScopeBase & {
+      scopeType: "managementGroup";
+      associatedSubscriptionId: string;
+      location: string;
+      managementGroup: string;
+    })
+  | (DeploymentScopeBase & {
+      scopeType: "tenant";
+      associatedSubscriptionId: string;
+      location: string;
     });
 
-export type DeploymentScopeType = "resourceGroup" | "subscription";
+export type DeploymentScopeType =
+  | "resourceGroup"
+  | "subscription"
+  | "managementGroup"
+  | "tenant";
 
 export interface DeployPaneState {
   scope: DeploymentScope;
