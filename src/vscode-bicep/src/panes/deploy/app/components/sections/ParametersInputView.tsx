@@ -25,7 +25,7 @@ export const ParametersInputView: FC<ParametersInputViewProps> = ({ template, pa
     <FormSection title="Parameters">
       {sourceFilePath && <VSCodeTextField value={sourceFilePath} disabled={true}>File Path</VSCodeTextField>}
       {sourceFilePath && !sourceFilePath.endsWith('.bicepparam') && <VSCodeButton onClick={onEnableEditing}>Edit Parameters</VSCodeButton>}
-      {!sourceFilePath && <VSCodeButton onClick={onPickParametersFile}>Pick Parameters File</VSCodeButton>}
+      {!sourceFilePath && <VSCodeButton onClick={onPickParametersFile}>Pick JSON Parameters File</VSCodeButton>}
       {!sourceFilePath && parameterDefinitions.map(definition => (
         <ParamInputBox
           key={definition.name}
