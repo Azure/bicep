@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JsonPath.Net" Version="0.6.5" />
+    <PackageReference Include="JsonPath.Net" Version="0.6.7" />
     <PackageReference Include="JsonSchema.Net" Version="4.1.8" />
     <PackageReference Include="Markdig" Version="0.31.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
