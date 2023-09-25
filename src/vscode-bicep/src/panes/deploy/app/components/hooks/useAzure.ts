@@ -47,11 +47,20 @@ export function useAzure(props: UseAzureProps) {
       getToken: async () => accessToken,
     };
 
-    return new ResourceManagementClient(tokenProvider, scope.subscriptionId, {
-      userAgentOptions: {
-        userAgentPrefix: "bicepdeploypane",
+    const authenticatedSubscriptionId =
+      scope.scopeType === "managementGroup" || scope.scopeType === "tenant"
+        ? scope.associatedSubscriptionId
+        : scope.subscriptionId;
+
+    return new ResourceManagementClient(
+      tokenProvider,
+      authenticatedSubscriptionId,
+      {
+        userAgentOptions: {
+          userAgentPrefix: "bicepdeploypane",
+        },
       },
-    });
+    );
   }
 
   async function doDeploymentOperation(
@@ -249,6 +258,10 @@ function getScopeId(scope: DeploymentScope) {
       return `/subscriptions/${scope.subscriptionId}/resourceGroups/${scope.resourceGroup}`;
     case "subscription":
       return `/subscriptions/${scope.subscriptionId}`;
+    case "managementGroup":
+      return `/providers/Microsoft.Management/managementGroups/${scope.managementGroup}`;
+    case "tenant":
+      return `/`;
   }
 }
 
@@ -267,6 +280,17 @@ async function beginWhatIfAndWait(
       );
     case "subscription":
       return await client.deployments.beginWhatIfAtSubscriptionScopeAndWait(
+        deploymentName,
+        { ...deployment, location: scope.location },
+      );
+    case "managementGroup":
+      return await client.deployments.beginWhatIfAtManagementGroupScopeAndWait(
+        scope.managementGroup,
+        deploymentName,
+        { ...deployment, location: scope.location },
+      );
+    case "tenant":
+      return await client.deployments.beginWhatIfAtTenantScopeAndWait(
         deploymentName,
         { ...deployment, location: scope.location },
       );

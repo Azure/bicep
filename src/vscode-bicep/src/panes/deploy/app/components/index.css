@@ -1,13 +1,44 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
 #webview-body {
+  max-width: 1024px;
+  min-width: 500px;
+  overflow: scroll;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
 }
 
-.form-section {
+.form-section .form-title {
+  display: flex;
+  user-select: none;
+  cursor: pointer;
+}
+
+.form-title h3 {
+  margin: 0;
+  text-transform: uppercase;
+  font-size: 13px;
+  min-width: 3ch;
+}
+
+.form-section .form-content {
   display: grid;
   grid-auto-flow: row;
-  grid-row-gap: 1rem;
-  overflow-x: scroll;
+  grid-row-gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.alert-error {
+  color: var(--vscode-statusBarItem-errorForeground);
+  background-color: var(--vscode-statusBarItem-errorBackground);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  align-self: center;
 }
 
 .input-row {
@@ -15,12 +46,8 @@
   grid-auto-flow: row;
 }
 
-@media screen and (min-width: 1024px) {
-  #webview-body {
-    padding: 0 8rem;
-    max-width: 1024px;
-    margin: 0 auto;
-  }
+vscode-badge {
+  white-space: nowrap;
 }
 
 vscode-button {
@@ -54,8 +81,4 @@ vscode-button {
   white-space: pre-wrap;
   word-wrap: break-word;
   overflow-x: auto;
-}
-
-.form-section h2 {
-  margin: 0;
 }

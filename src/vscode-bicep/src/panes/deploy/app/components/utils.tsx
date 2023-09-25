@@ -7,6 +7,8 @@ function getScopeTypeFromSchema(template: Record<string, unknown>): DeploymentSc
   const lookup: Record<string, DeploymentScopeType> = {
     'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#': 'resourceGroup',
     'https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#': 'subscription',
+    'https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#': 'managementGroup',
+    'https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#': 'tenant',
   }
 
   return lookup[template['$schema'] as string];
