@@ -10,12 +10,14 @@ export const FormSection: FC<FormSectionProps> = ({ title, children, }) => {
 
   return (
     <section className="form-section">
-      <h2 onClick={() => setOpen(!open)} style={{ userSelect: 'none', cursor: 'pointer' }}>
-        <span className={`codicon codicon-${open ? 'chevron-up' : 'chevron-down'}`} />
-        {title}
-      </h2>
-      {open && children}
       <VSCodeDivider />
+      <div className="form-title" onClick={() => setOpen(!open)}>
+        <span className={`codicon codicon-${open ? 'chevron-up' : 'chevron-down'}`} />
+        <h3>{title}</h3>
+      </div>
+      {open && <div className="form-content">
+        {children}
+      </div>}
     </section>
   );
 };
