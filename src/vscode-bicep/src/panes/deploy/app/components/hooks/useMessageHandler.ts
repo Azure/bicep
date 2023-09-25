@@ -60,7 +60,7 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
         if (!templateMetadata.scopeType) {
           setTemplateMetadata(undefined);
           setErrorMessage(
-            "The deployment pane currently only supports resourceGroup and subscription-scoped Bicep files.",
+            "Failed to obtain the deployment scope from compiled Bicep file.",
           );
           return;
         }
