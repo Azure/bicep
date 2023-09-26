@@ -290,17 +290,6 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static IEnumerable<FunctionOverload> GetAzOverloads(ResourceScope resourceScope, BicepSourceFileKind sourceFileKind)
         {
-            foreach (var (functionOverload, allowedScopes) in GetScopeFunctions())
-            {
-                // we only include it if it's valid at all of the scopes that the template is valid at
-                if (resourceScope == (resourceScope & allowedScopes))
-                {
-                    yield return functionOverload;
-                }
-
-                // TODO: add banned function to explain why a given function isn't available
-            }
-
             if (sourceFileKind == BicepSourceFileKind.ParamsFile)
             {
                 yield return new FunctionOverloadBuilder(GetSecretFunctionName)
@@ -348,6 +337,17 @@ namespace Bicep.Core.Semantics.Namespaces
             }
             else
             {
+                foreach (var (functionOverload, allowedScopes) in GetScopeFunctions())
+                {
+                    // we only include it if it's valid at all of the scopes that the template is valid at
+                    if (resourceScope == (resourceScope & allowedScopes))
+                    {
+                        yield return functionOverload;
+                    }
+
+                    // TODO: add banned function to explain why a given function isn't available
+                }
+
                 // TODO: Add schema for return type
                 yield return new FunctionOverloadBuilder("deployment")
                     .WithReturnType(GetDeploymentReturnType(resourceScope))

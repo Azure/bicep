@@ -446,6 +446,12 @@
   <data name="NoConflictingMetadataRuleMessageFormat" xml:space="preserve">
     <value>The "{0}" metadata property conflicts with the "{1}" decorator and will be overwritten.</value>
   </data>
+  <data name="NoDeploymentsResourcesRuleDescription" xml:space="preserve">
+    <value>Bicep modules are recommended instead of representing nested or linked deployments as a resource.</value>
+  </data>
+  <data name="NoDeploymentsResourcesRuleMessageFormat" xml:space="preserve">
+    <value>Resource '{0}' of type '{1}' should instead be declared as a Bicep module.</value>
+  </data>
   <data name="ExperimentalFeatureNames_Asserts" xml:space="preserve">
     <value>Asserts</value>
   </data>
@@ -478,5 +484,11 @@
   </data>
   <data name="ExperimentalFeatureNames_MicrosoftGraphPreview" xml:space="preserve">
     <value>MicrosoftGraph Preview</value>
+  </data>
+  <data name="NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription" xml:space="preserve">
+    <value>Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used.</value>
+  </data>
+  <data name="NoSymbolicReferencesInInnerScopedDeploymentResourcesMessageFormat" xml:space="preserve">
+    <value>The symbol "{0}" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation.</value>
   </data>
 </root>

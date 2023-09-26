@@ -62,7 +62,8 @@ namespace Bicep.Core.Semantics
             => this.cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle) ? cycle : null;
 
         public ImmutableHashSet<DeclaredSymbol> GetSymbolsReferencedInDeclarationOf(DeclaredSymbol symbol)
-            => symbolsDirectlyReferencedInDeclarations.GetOrAdd(symbol, s => SymbolicReferenceCollector.CollectSymbolsReferenced(this, s));
+            => symbolsDirectlyReferencedInDeclarations.GetOrAdd(symbol,
+                s => SymbolicReferenceCollector.CollectSymbolsReferenced(this, s.DeclaringSyntax).Keys.ToImmutableHashSet());
 
         public ImmutableHashSet<DeclaredSymbol> GetReferencedSymbolClosureFor(DeclaredSymbol symbol)
             => referencedSymbolClosures.GetOrAdd(symbol, CalculateReferencedSymbolClosure);
@@ -89,32 +90,6 @@ namespace Bicep.Core.Semantics
         private static NamespaceResolver GetNamespaceResolver(IFeatureProvider features, INamespaceProvider namespaceProvider, BicepSourceFile sourceFile, ResourceScope targetScope, ILanguageScope fileScope)
         {
             return NamespaceResolver.Create(features, namespaceProvider, sourceFile, targetScope, fileScope);
-        }
-
-        private class SymbolicReferenceCollector : AstVisitor
-        {
-            private readonly ImmutableHashSet<DeclaredSymbol>.Builder symbolsReferenced = ImmutableHashSet.CreateBuilder<DeclaredSymbol>();
-            private readonly IBinder binder;
-
-            private SymbolicReferenceCollector(IBinder binder)
-            {
-                this.binder = binder;
-            }
-
-            internal static ImmutableHashSet<DeclaredSymbol> CollectSymbolsReferenced(IBinder binder, DeclaredSymbol symbol)
-            {
-                SymbolicReferenceCollector collector = new(binder);
-                symbol.DeclaringSyntax.Accept(collector);
-                return collector.symbolsReferenced.ToImmutable();
-            }
-
-            public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
-            {
-                if (binder.GetSymbolInfo(syntax) is DeclaredSymbol symbolReferenced)
-                {
-                    symbolsReferenced.Add(symbolReferenced);
-                }
-            }
         }
     }
 }

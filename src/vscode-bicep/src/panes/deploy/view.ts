@@ -282,6 +282,42 @@ export class DeployPaneView extends Disposable {
               );
               return;
             }
+            case "managementGroup": {
+              const scopeId = `/subscriptions/${message.scope.associatedSubscriptionId}`;
+              const treeItem =
+                await this.treeManager.azLocationTree.findTreeItem(
+                  scopeId,
+                  this.context,
+                );
+              if (!treeItem) {
+                throw `Failed to find authenticated context for scope ${scopeId}`;
+              }
+
+              const accessToken =
+                await treeItem.subscription.credentials.getToken();
+              await this.webviewPanel.webview.postMessage(
+                createGetAccessTokenResultMessage(accessToken),
+              );
+              return;
+            }
+            case "tenant": {
+              const scopeId = `/subscriptions/${message.scope.associatedSubscriptionId}`;
+              const treeItem =
+                await this.treeManager.azLocationTree.findTreeItem(
+                  scopeId,
+                  this.context,
+                );
+              if (!treeItem) {
+                throw `Failed to find authenticated context for scope ${scopeId}`;
+              }
+
+              const accessToken =
+                await treeItem.subscription.credentials.getToken();
+              await this.webviewPanel.webview.postMessage(
+                createGetAccessTokenResultMessage(accessToken),
+              );
+              return;
+            }
           }
         } catch (error) {
           await this.webviewPanel.webview.postMessage(
@@ -301,7 +337,7 @@ export class DeployPaneView extends Disposable {
               );
             await this.webviewPanel.webview.postMessage(
               createGetDeploymentScopeResultMessage({
-                scopeType: "resourceGroup",
+                scopeType: message.scopeType,
                 portalUrl: treeItem.subscription.environment.portalUrl,
                 tenantId: treeItem.subscription.tenantId,
                 subscriptionId: treeItem.subscription.subscriptionId,
@@ -318,11 +354,53 @@ export class DeployPaneView extends Disposable {
               );
             await this.webviewPanel.webview.postMessage(
               createGetDeploymentScopeResultMessage({
-                scopeType: "subscription",
+                scopeType: message.scopeType,
                 portalUrl: treeItem.subscription.environment.portalUrl,
                 tenantId: treeItem.subscription.tenantId,
                 subscriptionId: treeItem.subscription.subscriptionId,
                 location: treeItem.label,
+              }),
+            );
+            return;
+          }
+          case "managementGroup": {
+            const locationItem =
+              await this.treeManager.azLocationTree.showTreeItemPicker(
+                "",
+                this.context,
+              );
+            const treeItem =
+              await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker(
+                "",
+                this.context,
+              );
+            await this.webviewPanel.webview.postMessage(
+              createGetDeploymentScopeResultMessage({
+                scopeType: message.scopeType,
+                portalUrl: locationItem.subscription.environment.portalUrl,
+                tenantId: treeItem.subscription.tenantId,
+                managementGroup: treeItem.label,
+                associatedSubscriptionId:
+                  locationItem.subscription.subscriptionId,
+                location: locationItem.label,
+              }),
+            );
+            return;
+          }
+          case "tenant": {
+            const locationItem =
+              await this.treeManager.azLocationTree.showTreeItemPicker(
+                "",
+                this.context,
+              );
+            await this.webviewPanel.webview.postMessage(
+              createGetDeploymentScopeResultMessage({
+                scopeType: message.scopeType,
+                portalUrl: locationItem.subscription.environment.portalUrl,
+                tenantId: locationItem.subscription.tenantId,
+                associatedSubscriptionId:
+                  locationItem.subscription.subscriptionId,
+                location: locationItem.label,
               }),
             );
             return;
