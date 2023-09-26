@@ -655,6 +655,9 @@
         },
         "compileTimeImports": {
           "type": "boolean"
+        },
+        "publishSource": {
+          "type": "boolean"
         }
       }
     },
