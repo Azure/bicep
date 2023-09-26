@@ -19,15 +19,15 @@ namespace Bicep.LanguageServer.Configuration
     /// </summary>
     public class JsonEditor
     {
-        private string _json;
-        private int _indent;
-        private ImmutableArray<int> _lineStarts;
+        private string json;
+        private int indent;
+        private ImmutableArray<int> lineStarts;
 
         public JsonEditor(string json, int indent = 2)
         {
-            _json = json;
-            _indent = indent;
-            _lineStarts = TextCoordinateConverter.GetLineStarts(json);
+            this.json = json;
+            this.indent = indent;
+            lineStarts = TextCoordinateConverter.GetLineStarts(json);
         }
 
         // If the insertion path already exists, or can't be added (eg array instead of object exists on the path), returns null
@@ -38,12 +38,12 @@ namespace Bicep.LanguageServer.Configuration
                 throw new ArgumentException($"{nameof(propertyPaths)} must not be empty");
             }
 
-            if (string.IsNullOrWhiteSpace(_json))
+            if (string.IsNullOrWhiteSpace(json))
             {
                 return AppendToEndOfJson(Stringify(PropertyPathToObject(propertyPaths, valueIfNotExist)));
             }
 
-            TextReader textReader = new StringReader(_json);
+            TextReader textReader = new StringReader(json);
             JsonReader jsonReader = new JsonTextReader(textReader);
 
             JObject? jObject = null;
@@ -94,7 +94,7 @@ namespace Bicep.LanguageServer.Configuration
                     bool hasSiblings = currentObject.Children().Any(child => child.Type != JTokenType.Comment);
                     insertLine = line;
                     insertColumn = column + 1;
-                    currentIndent = GetIndentationOfLine(line) + _indent; // use indent of line with the starting "{" as the nested indent level
+                    currentIndent = GetIndentationOfLine(line) + indent; // use indent of line with the starting "{" as the nested indent level
 
                     // We will insert before the first sibling
                     string propertyInsertion =
@@ -108,9 +108,9 @@ namespace Bicep.LanguageServer.Configuration
                     }
 
                     // Need a newline after the insertion if there's anything else on the line
-                    var lineStarts = TextCoordinateConverter.GetLineStarts(_json);
+                    var lineStarts = TextCoordinateConverter.GetLineStarts(json);
                     int offset = TextCoordinateConverter.GetOffset(lineStarts, line, column);
-                    char? charAfterInsertion = _json.Length > offset ? _json[offset + 1] : null;
+                    char? charAfterInsertion = json.Length > offset ? json[offset + 1] : null;
                     if (charAfterInsertion != '\n' && charAfterInsertion != '\r')
                     {
                         propertyInsertion += '\n';
@@ -147,9 +147,9 @@ namespace Bicep.LanguageServer.Configuration
 
         private (int line, int column, string insertText)? AppendToEndOfJson(string text)
         {
-            var lastLine = _lineStarts.Length - 1;
-            var lastLineLength = _json.Length - _lineStarts[_lineStarts.Length - 1];
-            Debug.Assert(lastLine >= 0 && lastLine < _lineStarts.Length, $"{nameof(lastLine)} out of bounds");
+            var lastLine = lineStarts.Length - 1;
+            var lastLineLength = json.Length - lineStarts[lineStarts.Length - 1];
+            Debug.Assert(lastLine >= 0 && lastLine < lineStarts.Length, $"{nameof(lastLine)} out of bounds");
             Debug.Assert(lastLineLength >= 0, $"{nameof(lastLineLength)} out of bounds");
 
             if (lastLineLength > 0)
@@ -192,7 +192,7 @@ namespace Bicep.LanguageServer.Configuration
 
         private string Stringify(object value, int? indent = null)
         {
-            indent ??= _indent;
+            indent ??= this.indent;
 
             StringBuilder sb = new StringBuilder();
             TextWriter textWriter = new StringWriter(sb);
@@ -214,10 +214,10 @@ namespace Bicep.LanguageServer.Configuration
 
         private int GetIndentationOfLine(int line)
         {
-            var startOfLine = _lineStarts[line];
-            for (int i = startOfLine; i < _json.Length; ++i)
+            var startOfLine = lineStarts[line];
+            for (int i = startOfLine; i < json.Length; ++i)
             {
-                char ch = _json[i];
+                char ch = json[i];
                 if (ch == '\n' || ch == '\r' || !char.IsWhiteSpace(ch))
                 {
                     return i - startOfLine;
@@ -225,7 +225,7 @@ namespace Bicep.LanguageServer.Configuration
             }
 
             // Last line, either empty or just whitespace
-            return _json.Length - startOfLine;
+            return json.Length - startOfLine;
         }
     }
 }
