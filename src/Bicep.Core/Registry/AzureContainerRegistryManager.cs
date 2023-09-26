@@ -34,8 +34,8 @@ namespace Bicep.Core.Registry
 
         private readonly IContainerRegistryClientFactory clientFactory;
 
-        // https://docs.docker.com/registry/spec/api/#content-digests
-        // "While the algorithm does allow one to implement a wide variety of algorithms, compliant implementations should use sha256."
+        // From the spec: "While the algorithm does allow one to implement a wide variety of algorithms, compliant implementations should use sha256."
+        // (https://docs.docker.com/registry/spec/api/#content-digests)
         private static readonly string DigestAlgorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
 
         public AzureContainerRegistryManager(IContainerRegistryClientFactory clientFactory)
