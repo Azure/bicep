@@ -36,12 +36,12 @@ The Bicep solution is comprised of the following main components:
 * Running VS Code extension unit tests
   * From src\vscode-bicep:
     * `npm i`
-    * `npm run test:unit` or run launch vscode from src\vscode-bicep and run "Launch Tests: Unit Tests (dev)" 
+    * `npm run test:unit` or run launch vscode from src\vscode-bicep and run "Launch Tests: Unit Tests (dev)"
 * Running VS Code extension end-to-end tests
   * From repo root folder: `dotnet build`
   * From src\vscode-bicep:
     * `npm i`
-    * `npm run testlocal:e2e` or run launch vscode from src\vscode-bicep and run "Launch Tests: E2E (dev)" 
+    * `npm run testlocal:e2e` or run launch vscode from src\vscode-bicep and run "Launch Tests: E2E (dev)"
 
 ### Updating test baselines
 
@@ -94,7 +94,7 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 ### Running the Bicep CLI
 
 * In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep CLI" task, and press the "Start" button. This will build and run the Bicep CLI and allow you to step through the code.
-* Note that usually you will want to pass your own custom arguments to the Bicep CLI. This can be done by modifying the `launch.json` configuration to add arguments to the "args" array for the "Bicep CLI" task. 
+* Note that usually you will want to pass your own custom arguments to the Bicep CLI. This can be done by modifying the `launch.json` configuration to add arguments to the "args" array for the "Bicep CLI" task.
 
 ### 3rd party Syntax Highlighting libraries
 See [Syntax Highlighting Libraries](./docs/highlighting.md) for information on the various 3rd party highlighting libraries that Bicep supports, where they are used, and how to contribute to them.
@@ -117,7 +117,7 @@ We are integrating the Bicep examples into the [Azure QuickStart Templates](http
 
 ### Snippets
 
-If you'd like to contribute to the collection of snippets:  
+If you'd like to contribute to the collection of snippets:
 
 * A snippet should either be a single, generic resource or follow [parent-child syntax](https://docs.microsoft.com/azure/azure-resource-manager/bicep/child-resource-name-type). Ensure your snippet meets this criteria.
 * Add a Bicep file to [`./src/Bicep.LangServer/Files/SnippetTemplates`](./src/Bicep.LangServer/Files/SnippetTemplates) using the naming convention res-RESOURCENAME.bicep
@@ -143,6 +143,12 @@ If you'd like to contribute to the collection of snippets:
 * See [Running the tests](#running-the-tests) if you'd like to test locally before submitting a PR.
 
 * Submit a PR for review
+
+### Repository management and automation
+
+Wherever possible, Bicep uses versioned files for repository management and automation. Bicep primarily relies on:
+* [GitHub actions](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions) maintained in `.github/workflows`, and
+* [Microsoft GitHub Policy Service policies](https://microsoft.github.io/GitOps/policies/resource-management.html) maintained in `.github/policies`.
 
 ## Feature Suggestions
 
