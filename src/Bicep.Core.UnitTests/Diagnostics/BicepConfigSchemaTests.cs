@@ -36,7 +36,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 $"{typeof(BicepConfigSchemaTests).Assembly.GetName().Name}.bicepconfig.schema.json");
             Assert.IsNotNull(configStream);
 
-            using var document = JsonDocument.Parse(configStream);
+            var document = JsonDocument.Parse(configStream);
             return (ruleSet.ToArray(), document.RootElement);
         }
 
