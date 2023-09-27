@@ -25,6 +25,7 @@ using Bicep.Core.Exceptions;
 namespace Bicep.Core.SourceCode
 {
     // Contains the individual source code files for a Bicep file and all of its dependencies.
+    // (has to be partial for dotnet to generate code for JsonSerializable nested classes
     public partial class SourceArchive
     {
         public ImmutableArray<SourceFileInfo> SourceFiles { get; init; }
@@ -35,8 +36,6 @@ namespace Bicep.Core.SourceCode
         public const string SourceKind_TemplateSpec = "templateSpec";
 
         private const string MetadataArchivedFileName = "__metadata.json";
-
-        private bool isDisposed = false;//asfdg remove
 
         // WARNING: Only change this value if there is a breaking change such that old versions of Bicep should fail on reading this source archive
         private const int CurrentMetadataVersion = 0; // TODO: Change to 1 when remove experimental flag
@@ -151,11 +150,6 @@ namespace Bicep.Core.SourceCode
 
         private SourceArchive(Stream stream)
         {
-            if (isDisposed)
-            {
-                throw new ObjectDisposedException(nameof(SourceArchive));
-            }
-
             var filesBuilder = ImmutableDictionary.CreateBuilder<string, string>();
 
             stream.Position = 0;
