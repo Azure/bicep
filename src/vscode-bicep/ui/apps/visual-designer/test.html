@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        canvas {
+            border: 1px solid #ccc;
+        }
+    </style>
+    <title>Graph Visualization</title>
+</head>
+<body>
+    <canvas id="graphCanvas" width="500" height="300"></canvas>
+
+    <script>
+        function calculateRelativePosition(nodeId, relativePosition, graph) {
+            const { offset, scale } = graph;
+            const relativeX = (relativePosition.x - offset.x) / scale;
+            const relativeY = (relativePosition.y - offset.y) / scale;
+            return { x: relativeX, y: relativeY };
+        }
+
+        function drawGraph(nodeId, relativePosition, graph) {
+            const canvas = document.getElementById("graphCanvas");
+            const ctx = canvas.getContext("2d");
+
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Calculate relative position
+            const relativeNodePosition = calculateRelativePosition(nodeId, relativePosition, graph);
+
+            // Draw the graph
+            ctx.fillStyle = "#eee";
+            ctx.fillRect(graph.offset.x, graph.offset.y, canvas.width / graph.scale, canvas.height / graph.scale);
+
+            // Draw the node
+            const nodeSize = 20;
+            ctx.fillStyle = "blue";
+            ctx.beginPath();
+            ctx.arc(relativeNodePosition.x * graph.scale + graph.offset.x, relativeNodePosition.y * graph.scale + graph.offset.y, nodeSize, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        // Example graph
+        const graph = {
+            offset: { x: 50, y: 30 },
+            scale: 2,
+        };
+
+        // Example node
+        const nodeId = 1;
+        const relativePosition = { x: 100, y: 50 };
+
+        // Draw the graph with the node
+        drawGraph(nodeId, relativePosition, graph);
+    </script>
+</body>
+</html>

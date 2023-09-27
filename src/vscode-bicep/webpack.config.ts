@@ -45,7 +45,7 @@ const extensionConfig: webpack.Configuration = {
           loader: "ts",
           target: "es2019",
         },
-        exclude: [/node_modules/, /panes\/deploy\/app/, /visualizer\/app/, /test/],
+        exclude: [/node_modules/, /panes\/deploy\/app/, /visualizer\/app/, /test/, /webview-apps/],
       },
     ],
   },

@@ -61,6 +61,7 @@ import { DeployPaneViewManager } from "./panes/deploy";
 import { AzureUiManager } from "./azure/AzureUiManager";
 import { BicepExternalSourceScheme } from "./language/decodeExternalSourceUri";
 import { ShowModuleSourceFileCommand } from "./commands/ShowModuleSourceFileCommand";
+import { DraggableResourcesViewProvider } from "./webviews/draggable-resources-view/provider";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -230,6 +231,16 @@ export async function activate(
           workspace.onDidSaveTextDocument(async (_d: TextDocument) => {
             await updateUiContext(window.activeTextEditor?.document);
           }),
+        );
+
+        const draggableResourcesViewProvider =
+          new DraggableResourcesViewProvider(extension.extensionUri);
+
+        extension.register(
+          window.registerWebviewViewProvider(
+            "bicep-draggable-resources.view",
+            draggableResourcesViewProvider,
+          ),
         );
 
         await languageClient.start();

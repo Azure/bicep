@@ -222,8 +222,26 @@ export class BicepVisualizerView extends Disposable {
   private createWebviewHtml() {
     const { cspSource } = this.webviewPanel.webview;
     const nonce = crypto.randomBytes(16).toString("hex");
+    const styleUri = this.webviewPanel.webview.asWebviewUri(
+      vscode.Uri.joinPath(
+        this.extensionUri,
+        "ui",
+        "apps",
+        "visual-designer",
+        "dist",
+        "assets",
+        "index.css",
+      ),
+    );
     const scriptUri = this.webviewPanel.webview.asWebviewUri(
-      vscode.Uri.joinPath(this.extensionUri, "out", "visualizer.js"),
+      vscode.Uri.joinPath(
+        this.extensionUri,
+        "ui",
+        "apps",
+        "visual-designer",
+        "dist",
+        "index.js",
+      ),
     );
 
     return `
@@ -235,12 +253,13 @@ export class BicepVisualizerView extends Disposable {
         Use a content security policy to only allow loading images from our extension directory,
         and only allow scripts that have a specific nonce.
         -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:;">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${cspSource}; style-src ${cspSource} 'unsafe-inline'; img-src ${cspSource} data:; script-src 'nonce-${nonce}' vscode-webview-resource:;">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="${styleUri}">
       </head>
       <body>
         <div id="root"></div>
-        <script nonce="${nonce}" src="${scriptUri}" />
+        <script type="module" nonce="${nonce}" src="${scriptUri}" />
       </body>
       </html>`;
   }

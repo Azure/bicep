@@ -18,3 +18,7 @@ enableParams.js
 jest.config.e2e.js
 jest.config.unit.js
 jest.config.snapshot.js
+
+# Ignore all webview app files except the out/assets directory
+webview-apps/**
+!webview-apps/**/out/assets/**
