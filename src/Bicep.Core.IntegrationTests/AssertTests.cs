@@ -267,14 +267,14 @@ namespace Bicep.Core.IntegrationTests
                     ""languageVersion"": ""2.1-experimental"",
                     ""contentVersion"": ""1.0.0.0"",
                     ""metadata"": {
-                        ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!"",
+                        ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantee about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking."",
                         ""_EXPERIMENTAL_FEATURES_ENABLED"": [
                             ""Asserts""
                         ],
                         ""_generator"": {
                             ""name"": ""bicep"",
                             ""version"": ""dev"",
-                            ""templateHash"": ""1702433823331399255""
+                            ""templateHash"": ""840376226115775552""
                         }
                     },
                     ""parameters"": {
@@ -342,7 +342,7 @@ namespace Bicep.Core.IntegrationTests
                     ""languageVersion"": ""2.1-experimental"",
                     ""contentVersion"": ""1.0.0.0"",
                     ""metadata"": {
-                        ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!"",
+                        ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantee about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking."",
                         ""_EXPERIMENTAL_FEATURES_ENABLED"": [
                             ""Asserts""
                         ],
