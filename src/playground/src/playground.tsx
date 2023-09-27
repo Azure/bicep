@@ -8,11 +8,12 @@ import { JsonEditor } from './jsonEditor';
 import { BicepEditor } from './bicepEditor';
 import { copyShareLinkToClipboard, handleShareLink } from './utils';
 import { quickstartsPaths, getQuickstartsLink } from './examples';
-import { decompile } from './lspInterop';
 import { IApplicationInsights } from '@microsoft/applicationinsights-web';
+import { BaseLanguageClient } from 'vscode-languageclient';
 
 interface Props {
   insights: IApplicationInsights,
+  client: BaseLanguageClient,
 }
 
 export const Playground : React.FC<Props> = (props) => {
@@ -78,9 +79,20 @@ export const Playground : React.FC<Props> = (props) => {
       withLoader(async () => {
         try {
           insights.trackEvent({ name: 'decompileJson' });
-          const jsonContents = e.target.result.toString();
-          const bicepContents = await decompile(jsonContents);
-          setInitialContent(bicepContents);
+          const jsonContent = e.target.result.toString();
+
+          const { entrypointUri, filesToSave }: { entrypointUri: string, filesToSave: Record<string, string> } = await props.client.sendRequest(
+            "workspace/executeCommand",
+            {
+              command: "decompileInMemory",
+              arguments: [{
+                bicepUri: 'inmemory:///main.bicep',
+                jsonContent,
+              }],
+            }
+          );
+
+          setInitialContent(filesToSave[entrypointUri]);
         } catch (err) {
           alert(err);
         }
@@ -141,7 +153,7 @@ export const Playground : React.FC<Props> = (props) => {
       </Container> :
       <>
         <div className="playground-editorpane">
-          <BicepEditor onBicepChange={setBicepContent} onJsonChange={setJsonContent} initialContent={initialContent} />
+          <BicepEditor onBicepChange={setBicepContent} onJsonChange={setJsonContent} client={props.client} initialContent={initialContent} />
         </div>
         <div className="playground-editorpane">
           <JsonEditor content={jsonContent} />

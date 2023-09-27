@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <RazorLangVersion>3.0</RazorLangVersion>
+    <PublishTrimmed>false</PublishTrimmed>
+    <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,11 +13,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
-    <ProjectReference Include="../Bicep.Decompiler/Bicep.Decompiler.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
+    <ProjectReference Include="../Bicep.LangServer/Bicep.LangServer.csproj" />
   </ItemGroup>
 </Project>

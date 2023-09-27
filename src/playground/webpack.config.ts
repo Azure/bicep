@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 import CopyPlugin from 'copy-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
@@ -30,6 +32,9 @@ const config: Configuration = {
   },
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ],
+    fallback: {
+      path: require.resolve("path-browserify"),
+    }
   },
   plugins: [
     new CopyPlugin({

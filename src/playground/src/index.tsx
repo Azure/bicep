@@ -9,6 +9,9 @@ import { aiKey } from '../package.json';
 import './index.css';
 import { initializeInterop } from './lspInterop';
 import { Playground } from './playground';
+import { initServices } from 'monaco-languageclient';
+import { createLanguageClient } from './client';
+import { LogMessageNotification, MessageType } from 'vscode-languageserver-protocol';
 
 ReactDOM.render(
   // Loading spinner while we initialize Blazor
@@ -32,9 +35,29 @@ async function initialize() {
 
   await initializeInterop(self);
 
+  await initServices();
+  const client = createLanguageClient();
+  client.onNotification(LogMessageNotification.type, message => {
+    switch (message.type) {
+      case MessageType.Error:
+        console.error(message.message);
+        break;
+      case MessageType.Warning:
+        console.warn(message.message);
+        break;
+      case MessageType.Info:
+        console.info(message.message);
+        break;
+      case MessageType.Log:
+        console.log(message.message);
+        break;
+    }
+  });
+  await client.start();
+
   ReactDOM.render(
     <div className="app-container">
-      <Playground insights={insights} />
+      <Playground insights={insights} client={client} />
     </div>,
     document.getElementById('root')
   );

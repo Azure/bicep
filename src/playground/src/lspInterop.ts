@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { editor, languages } from 'monaco-editor/esm/vs/editor/editor.api';
+import { Message } from 'vscode-jsonrpc';
 
 let interop: any; /* eslint-disable-line */
 
 export function initializeInterop(self: any): Promise<boolean> { /* eslint-disable */ /* eslint-disable-line */
   return new Promise<boolean>((resolve, reject) => {
-    self['BicepInitialize'] = (newInterop: any) => {
+    self['LspInitialized'] = (newInterop: any) => {
       interop = newInterop;
       resolve(true);
     }
@@ -18,20 +18,33 @@ export function initializeInterop(self: any): Promise<boolean> { /* eslint-disab
   });
 }
 
-export function getSemanticTokensLegend(): languages.SemanticTokensLegend {
-  return interop.invokeMethod('GetSemanticTokensLegend');
+export async function sendLspData(message: Message) {
+  const messageString = JSON.stringify(message);
+  const lspData = `Content-Length: ${messageString.length}\r\n\r\n${messageString}`;
+
+  return await interop.invokeMethodAsync('SendLspDataAsync', lspData);
 }
 
-export async function getSemanticTokens(content: string): Promise<languages.SemanticTokens> {
-  return await interop.invokeMethodAsync('GetSemanticTokens', content);
+export function onLspData(callback: (message: Message) => void) {
+  (self as any)['ReceiveLspDataAsync'] = async (lspData: string) => {
+    while (lspData.length > 0) {
+      const headerSplitIndex = lspData.indexOf('\r\n\r\n');
+      const header = lspData.substring(0, headerSplitIndex);
+      const contentLengthMatch = header.match(/^Content-Length: (?<length>[0-9]+)$/);
+      const messageLength = parseInt(contentLengthMatch.groups['length']);
+      const messageEnd = headerSplitIndex + 4 + messageLength;
+
+      const messageString = lspData.substring(headerSplitIndex + 4, messageEnd);
+      const message: Message = JSON.parse(messageString);
+
+      callback(message);
+      lspData = lspData.substring(messageEnd);
+    }
+  }
 }
 
-export async function compileAndEmitDiagnostics(content: string): Promise<{template: string, diagnostics: editor.IMarkerData[]}> {
-  return await interop.invokeMethodAsync('CompileAndEmitDiagnostics', content);
-}
-
-export async function decompile(jsonContent: string): Promise<string> {
-  const { bicepFile, error } = await interop.invokeMethodAsync('Decompile', jsonContent);
+export function decompile(jsonContent: string): string {
+  const { bicepFile, error } = interop.invokeMethod('Decompile', jsonContent);
 
   if (error) {
     throw error;

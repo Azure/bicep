@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 import * as monaco from 'monaco-editor';
 import React, { createRef, useEffect, useState } from 'react';
-import { compileAndEmitDiagnostics, getSemanticTokens, getSemanticTokensLegend } from './lspInterop';
+import { BaseLanguageClient } from 'vscode-languageclient';
 
 interface Props {
+  client: BaseLanguageClient,
   initialContent: string,
   onBicepChange: (bicepContent: string) => void,
   onJsonChange: (jsonContent: string) => void,
@@ -34,18 +35,6 @@ export const BicepEditor : React.FC<Props> = (props) => {
 
   useEffect(() => {
     async function initializeEditor() {
-      monaco.languages.register({
-        id: 'bicep',
-        extensions: ['.bicep'],
-        aliases: ['bicep'],
-      });
-    
-      monaco.languages.registerDocumentSemanticTokensProvider('bicep', {
-        getLegend: () => getSemanticTokensLegend(),
-        provideDocumentSemanticTokens: async (model) => await getSemanticTokens(model.getValue()),
-        releaseDocumentSemanticTokens: () => { return; }
-      });
-
       const editor = monaco.editor.create(editorRef.current, editorOptions);
       const model = editor.getModel();
 
@@ -94,10 +83,20 @@ export const BicepEditor : React.FC<Props> = (props) => {
       editor.onDidChangeModelContent(async () => {
         const text = model.getValue();
 
-        const { template, diagnostics } = await compileAndEmitDiagnostics(text);
-        monaco.editor.setModelMarkers(model, 'default', diagnostics);
         props.onBicepChange(text);
-        props.onJsonChange(template);
+    
+        setTimeout(async () => {
+          const jsonContent: {output?: string} = await props.client.sendRequest(
+            "workspace/executeCommand",
+            {
+              command: "buildActiveCompilation",
+              arguments: [{
+                bicepUri: model.uri.toString()
+              }],
+            }
+          );
+          props.onJsonChange(jsonContent.output ?? "Compilation failed!");
+        });
       });
 
       setModel(model);

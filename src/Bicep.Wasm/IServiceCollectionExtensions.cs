@@ -1,40 +1,47 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using Bicep.Core;
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Configuration;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem.Az;
-using Bicep.Decompiler;
+using Bicep.Core.Workspaces;
+using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Registry;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Bicep.Core.TypeSystem;
+using System;
+using Bicep.Core.Resources;
+using System.Collections.Immutable;
+using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.Registry;
 
-namespace Bicep.Wasm;
+namespace Bicep.LanguageServer;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
-        .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
-        .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
-        .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-        .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-        .AddSingleton<IArtifactRegistryProvider, EmptyModuleRegistryProvider>()
-        .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-        .AddSingleton<IFileResolver, FileResolver>()
-        .AddSingleton<IFileSystem, MockFileSystem>()
-        .AddSingleton<IConfigurationManager, ConfigurationManager>()
-        .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
-        .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
-        .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()
-        .AddSingleton<BicepCompiler>();
+    private class EmptyModuleRestoreScheduler : IModuleRestoreScheduler
+    {
+        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ArtifactResolutionInfo> references) {}
 
-    public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
-        .AddSingleton<BicepDecompiler>();
+        public void Start() {}
+    }
+
+    private class EmptyArtifactRegistryProvider : IArtifactRegistryProvider
+    {
+        public ImmutableArray<IArtifactRegistry> Registries(Uri _) => ImmutableArray<IArtifactRegistry>.Empty;
+    }
+
+    private class EmptyPublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadataProvider
+    {
+        public Task<IEnumerable<PublicRegistryModule>> GetModules()
+            => Task.FromResult<IEnumerable<PublicRegistryModule>>(ImmutableArray<PublicRegistryModule>.Empty);
+
+        public Task<IEnumerable<PublicRegistryModuleVersion>> GetVersions(string modulePath)
+            => Task.FromResult<IEnumerable<PublicRegistryModuleVersion>>(ImmutableArray<PublicRegistryModuleVersion>.Empty);
+    }
+
+    public static IServiceCollection RegisterStubs(this IServiceCollection services) => services
+        .AddSingleton<IModuleRestoreScheduler>(new EmptyModuleRestoreScheduler())
+        .AddSingleton<IArtifactRegistryProvider>(new EmptyArtifactRegistryProvider())
+        .AddSingleton<IPublicRegistryModuleMetadataProvider>(new EmptyPublicRegistryModuleMetadataProvider());
 }
