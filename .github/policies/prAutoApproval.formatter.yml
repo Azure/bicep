@@ -3,7 +3,7 @@ name: GitOps.PullRequestIssueManagement
 description: Automatically approves formatting PRs cut by automation
 owner:
 resource: repository
-disabled: true
+disabled: False
 where:
 configuration:
   resourceManagementConfiguration:

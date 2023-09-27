@@ -1,6 +1,6 @@
 name: Run formatter
 # This action will be run weekly against main and can be run on-demand against main.
-# It will run an automated code formatter and commit and push the changes (if any). If the source branch is protected, then the workflow will create a new to commit and push the changes.
+# It will run an automated code formatter and commit and push the changes (if any). If the source branch is protected, then the workflow will create a new branch to commit and push the changes.
 
 on:
   schedule:
