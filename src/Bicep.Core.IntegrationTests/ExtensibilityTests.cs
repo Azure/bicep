@@ -515,14 +515,14 @@ Hello from Bicep!"));
   ""languageVersion"": ""2.1-experimental"",
   ""contentVersion"": ""1.0.0.0"",
   ""metadata"": {
-    ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantee about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking."",
+    ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking."",
     ""_EXPERIMENTAL_FEATURES_ENABLED"": [
       ""Extensibility""
     ],
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""11407534494645206942""
+      ""templateHash"": ""8047397120272533347""
     }
   },
   ""parameters"": {
@@ -560,14 +560,14 @@ Hello from Bicep!"));
           ""languageVersion"": ""2.1-experimental"",
           ""contentVersion"": ""1.0.0.0"",
           ""metadata"": {
-            ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantee about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking."",
+            ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking."",
             ""_EXPERIMENTAL_FEATURES_ENABLED"": [
               ""Extensibility""
             ],
             ""_generator"": {
               ""name"": ""bicep"",
               ""version"": ""dev"",
-              ""templateHash"": ""13856777742068603796""
+              ""templateHash"": ""9291856092125740926""
             }
           },
           ""parameters"": {
