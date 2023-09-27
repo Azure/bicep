@@ -17,14 +17,14 @@ fi
 case "$(uname -s)" in
   Linux*)     platform=linux;;
   Darwin*)    platform=osx;;
-  *)          echo "Unknown platform '$(uname -s)'"; exit 1;;
+  *)          echo "Unsupported platform '$(uname -s)'"; exit 1;;
 esac
 
 case "$(uname -m)" in
   x86_64)     arch="x64" ;;
   arm64)      arch="arm64" ;;
   aarch64)    arch="arm64" ;;
-  *)          echo "Unknown architecture '$(uname -m)'"; exit 1;;
+  *)          echo "Unsupported architecture '$(uname -m)'"; exit 1;;
 esac
 
 # Fetch

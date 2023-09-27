@@ -119,8 +119,7 @@ param second = 1
 param third = true";
 
             var paramFileUri = new Uri("file:///path/to/main.json");
-
-            var bicepFilePath = "./dir/main.bicep";
+            var bicepFileUri = new Uri("file:///path/to/dir/main.bicep");
 
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
             {
@@ -132,7 +131,7 @@ param third = true";
             var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(
               paramFileUri, 
               PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), 
-              bicepFilePath);
+              bicepFileUri);
 
             filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);         
         }

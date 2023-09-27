@@ -31,9 +31,10 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
         private readonly Lazy<ImmutableSortedDictionary<string, ParameterMetadata>> parametersLazy;
-        private readonly Lazy<ImmutableSortedDictionary<string, ExportedTypeMetadata>> exportedTypesLazy;
+        private readonly Lazy<ImmutableSortedDictionary<string, ExportMetadata>> exportsLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
         private readonly Lazy<IApiVersionProvider> apiVersionProviderLazy;
+        private readonly Lazy<EmitterSettings> emitterSettingsLazy;
 
         // needed to support param file go to def
         private readonly Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterMetadata?>> declarationsByAssignment;
@@ -66,6 +67,7 @@ namespace Bicep.Core.Semantics
             // allow type queries now
             symbolContext.Unlock();
 
+            this.emitterSettingsLazy = new(() => new(this));
             this.emitLimitationInfoLazy = new(() => EmitLimitationCalculator.Calculate(this));
             this.symbolHierarchyLazy = new(() =>
             {
@@ -112,14 +114,9 @@ namespace Bicep.Core.Semantics
                 return parameters.ToImmutable();
             });
 
-            this.exportedTypesLazy = new(() => Root.TypeDeclarations.DistinctBy(t => t.Name)
-                // skip over any type without an `@export()` decorator
-                .Where(t => SemanticModelHelper.TryGetDecoratorInNamespace(this,
-                    t.DeclaringType,
-                    SystemNamespaceType.BuiltInName,
-                    LanguageConstants.ExportPropertyName) is not null)
-                .ToImmutableSortedDictionary(t => t.Name,
-                    t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType))));
+            this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables())
+                .DistinctBy(export => export.Name, LanguageConstants.IdentifierComparer)
+                .ToImmutableSortedDictionary(export => export.Name, export => export, LanguageConstants.IdentifierComparer));
 
             this.outputsLazy = new(() =>
             {
@@ -144,6 +141,17 @@ namespace Bicep.Core.Semantics
                 return outputs.ToImmutableArray();
             });
         }
+
+        private IEnumerable<ExportMetadata> FindExportedTypes() => Root.TypeDeclarations
+            .Where(t => IsExported(t.DeclaringType))
+            .Select(t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType)));
+
+        private IEnumerable<ExportMetadata> FindExportedVariables() => Root.VariableDeclarations
+            .Where(v => IsExported(v.DeclaringVariable))
+            .Select(v => new ExportedVariableMetadata(v.Name, v.Type, DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable)));
+
+        private bool IsExported(DecorableSyntax syntax)
+            => SemanticModelHelper.TryGetDecoratorInNamespace(this, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is not null;
 
         private static void TraceBuildOperation(BicepSourceFile sourceFile, RootConfiguration configuration)
         {
@@ -223,6 +231,8 @@ namespace Bicep.Core.Semantics
 
         public IFileResolver FileResolver { get; }
 
+        public EmitterSettings EmitterSettings => emitterSettingsLazy.Value;
+
         public IDiagnosticLookup LexingErrorLookup => this.SourceFile.LexingErrorLookup;
 
         public IDiagnosticLookup ParsingErrorLookup => this.SourceFile.ParsingErrorLookup;
@@ -237,7 +247,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableSortedDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
 
-        public ImmutableSortedDictionary<string, ExportedTypeMetadata> ExportedTypes => exportedTypesLazy.Value;
+        public ImmutableSortedDictionary<string, ExportMetadata> Exports => exportsLazy.Value;
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
@@ -512,7 +522,7 @@ namespace Bicep.Core.Semantics
                 .Where(kvp =>
                 {
                     var (parameterName, parameterMetadata) = kvp;
-                    
+
                     if (!usingModel.Parameters.TryGetValue(parameterName, out var md) || !md.IsRequired)
                     {
                         return false;

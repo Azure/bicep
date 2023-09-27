@@ -705,6 +705,52 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.NullabilityMarker);
             });
 
+        public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax) =>
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.ImportExpression);
+                this.Visit(syntax.FromClause);
+            });
+
+        public override void VisitImportedSymbolsListSyntax(ImportedSymbolsListSyntax syntax) =>
+            this.BuildWithConcat(() =>
+            {
+                this.Visit(syntax.OpenBrace);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
+                this.Visit(syntax.CloseBrace);
+            });
+
+        public override void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax) =>
+            this.BuildWithSpread(() =>
+            {
+                this.Visit(syntax.OriginalSymbolName);
+                this.Visit(syntax.AsClause);
+            });
+
+        public override void VisitAliasAsClauseSyntax(AliasAsClauseSyntax syntax) =>
+            this.BuildWithSpread(() =>
+            {
+                this.Visit(syntax.Keyword);
+                this.Visit(syntax.Alias);
+            });
+
+        public override void VisitWildcardImportSyntax(WildcardImportSyntax syntax) =>
+            this.BuildWithSpread(() =>
+            {
+                this.Visit(syntax.Wildcard);
+                this.Visit(syntax.AliasAsClause);
+            });
+
+        public override void VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax) =>
+            this.BuildWithSpread(() =>
+            {
+                this.Visit(syntax.Keyword);
+                this.Visit(syntax.Path);
+            });
+
         private static ILinkedDocument Text(string text) =>
             CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text);
 

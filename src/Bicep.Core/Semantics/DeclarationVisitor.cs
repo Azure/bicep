@@ -278,7 +278,7 @@ namespace Bicep.Core.Semantics
                 case ImportedSymbolsListSyntax importedSymbolsList:
                     foreach (var item in importedSymbolsList.ImportedSymbols)
                     {
-                        DeclareSymbol(new ImportedTypeSymbol(context, item, syntax));
+                        DeclareSymbol(new ImportedSymbol(context, item, syntax));
                     }
                     break;
             }

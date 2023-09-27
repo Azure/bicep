@@ -96,6 +96,23 @@ namespace Bicep.Core.UnitTests.FileSystem
             PathHelper.GetDefaultDecompileOutputPath(path).Should().Be(expectedPath);
         }
 
+        [DataRow("file:///path/to/source.txt", "file:///path/to/target.exe", "./target.exe")]
+        [DataRow("file:///path/to/source.txt", "file:///path/target.exe", "../target.exe")]
+        [DataRow("file:///path/source.txt", "file:///path/to/target.exe", "./to/target.exe")]
+        [DataRow("inmemory:///path/source.txt", "inmemory:///path/to/target.exe", "./to/target.exe")]
+        [TestMethod]
+        public void GetRelativePath_should_return_expected_output(string source, string target, string expected)
+        {
+            PathHelper.GetRelativePath(new Uri(source), new Uri(target)).Should().Be(expected);
+        }
+
+        [TestMethod]
+        public void GetRelativePath_should_fail_for_unexpected_input()
+        {
+            FluentActions.Invoking(() => PathHelper.GetRelativePath(new Uri("file:///foo.txt"), new Uri("inmemory:///bar.txt")))
+                .Should().Throw<InvalidOperationException>().WithMessage("Source scheme 'file' does not match target scheme 'inmemory'");
+        }
+
         public static string GetDisplayName(MethodInfo info, object[] row)
         {
             row.Should().HaveCount(2);

@@ -2066,16 +2066,36 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP369",
                 $"The value of the \"{targetName}\" parameter cannot be known until the template deployment has started because it uses the default value defined in the template. Expressions that refer to the \"{targetName}\" parameter may be used in {LanguageConstants.LanguageFileExtension} files but not in {LanguageConstants.ParamsFileExtension} files.");
-            
+
             public ErrorDiagnostic InvalidParameterValueAssignmentType(string parameterName, TypeSymbol declaredType) => new(
-                TextSpan, 
-                "BCP370", 
+                TextSpan,
+                "BCP370",
                 $"Assigned type of parameter \"{parameterName}\" does not match the declared type \"{declaredType}\" in the bicep template");
-        
+
             public ErrorDiagnostic ParameterNotPresentInTemplate(string parameterName, string bicepFilePath) => new(
-                TextSpan, 
-                "BCP371", 
+                TextSpan,
+                "BCP371",
                 $"A value for parameter \"{parameterName}\" is provided but it is not declared in the bicep template \"{bicepFilePath}\"");
+
+            public ErrorDiagnostic ClosureContainsNonExportableSymbols(IEnumerable<string> nonExportableSymbols) => new(
+                TextSpan,
+                "BCP372",
+                @$"The ""@export()"" decorator may not be applied to variables that refer to parameters, modules, or resource, either directly or indirectly. The target of this decorator contains direct or transitive references to the following unexportable symbols: {ToQuotedString(nonExportableSymbols)}.");
+
+            public ErrorDiagnostic AmbiguousExportFromArmTemplate(string exportName, IEnumerable<string> exportKindsUsingName) => new(
+                TextSpan,
+                "BCP373",
+                $"The name \"{exportName}\" is ambiguous because it refers to exports of the following kinds: {ToQuotedString(exportKindsUsingName)}.");
+
+            public ErrorDiagnostic ImportedModelContainsAmbiguousExports(IEnumerable<string> ambiguousExportNames) => new(
+                TextSpan,
+                "BCP374",
+                $"The imported model cannot be loaded with a wildcard because it contains the following duplicated exports: {ToQuotedString(ambiguousExportNames)}.");
+
+            public ErrorDiagnostic ImportListItemDoesNotIncludeDeclaredSymbolName() => new(
+                TextSpan,
+                "BCP375",
+                "An import list item that identifies its target with a quoted string must include an 'as <alias>' clause.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

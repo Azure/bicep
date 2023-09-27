@@ -23,7 +23,7 @@ if [ -z "$runId" ]; then
   runId=$(gh run list -R $REPO --branch $branch --workflow build --status success -L 1 --json databaseId -q ".[0].databaseId")
 fi
 tmpDir=$(mktemp -d)
-gh run download -R $REPO $runId -n vscode-bicep.vsix --dir $tmpDir
+gh run download -R $REPO $runId -n "vscode-bicep.vsix" --dir $tmpDir
 
 # Install
 code --install-extension "$tmpDir/vscode-bicep.vsix" --force

@@ -485,8 +485,8 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return expression;
     }
 
-    void IExpressionVisitor.VisitWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression) => ReplaceCurrent(expression, ReplaceWildcardImportPropertyReferenceExpression);
-    public virtual Expression ReplaceWildcardImportPropertyReferenceExpression(WildcardImportPropertyReferenceExpression expression)
+    void IExpressionVisitor.VisitWildcardImportTypePropertyReferenceExpression(WildcardImportTypePropertyReferenceExpression expression) => ReplaceCurrent(expression, ReplaceWildcardImportPropertyReferenceExpression);
+    public virtual Expression ReplaceWildcardImportPropertyReferenceExpression(WildcardImportTypePropertyReferenceExpression expression)
     {
         return expression;
     }
@@ -504,6 +504,18 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     void IExpressionVisitor.VisitParameterKeyVaultReferenceExpression(ParameterKeyVaultReferenceExpression expression) => ReplaceCurrent(expression, ReplaceParameterKeyVaultReferenceExpression);
 
     public virtual Expression ReplaceParameterKeyVaultReferenceExpression(ParameterKeyVaultReferenceExpression expression)
+    {
+        return expression;
+    }
+
+    void IExpressionVisitor.VisitImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression) => ReplaceCurrent(expression, ReplaceImportedVariableReferenceExpression);
+    public virtual Expression ReplaceImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression)
+    {
+        return expression;
+    }
+
+    void IExpressionVisitor.VisitWildcardImportVariablePropertyReferenceExpression(WildcardImportVariablePropertyReferenceExpression expression) => ReplaceCurrent(expression, ReplaceWildcardImportVariablePropertyReferenceExpression);
+    public virtual Expression ReplaceWildcardImportVariablePropertyReferenceExpression(WildcardImportVariablePropertyReferenceExpression expression)
     {
         return expression;
     }

@@ -315,6 +315,16 @@
                     }
                   ]
                 },
+                "no-deployments-resources": {
+                  "allOf": [
+                    {
+                      "description": "Bicep modules are recommended instead of representing nested or linked deployments as a resource. See https://aka.ms/bicep/linter/no-deployments-resources"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "no-hardcoded-env-urls": {
                   "allOf": [
                     {
@@ -385,6 +395,16 @@
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "nested-deployment-template-scoping": {
+                  "allOf": [
+                    {
+                      "description": "Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used. See https://aka.ms/bicep/linter/nested-deployment-template-scoping"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
                     }
                   ]
                 },

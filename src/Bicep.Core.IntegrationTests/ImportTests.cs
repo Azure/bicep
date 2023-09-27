@@ -235,7 +235,7 @@ import 'kubernetes@1.0.0' with {
                         ConfigurationType: null,
                         ArmTemplateProviderName: "Ns1-Unused",
                         ArmTemplateProviderVersion: "1.0"),
-                    ImmutableArray<TypeTypeProperty>.Empty,
+                    ImmutableArray<TypeProperty>.Empty,
                     new[] {
                         new FunctionOverloadBuilder("ns1Func").Build(),
                         new FunctionOverloadBuilder("dupeFunc").Build(),
@@ -251,7 +251,7 @@ import 'kubernetes@1.0.0' with {
                         ConfigurationType: null,
                         ArmTemplateProviderName: "Ns2-Unused",
                         ArmTemplateProviderVersion: "1.0"),
-                    ImmutableArray<TypeTypeProperty>.Empty,
+                    ImmutableArray<TypeProperty>.Empty,
                     new[] {
                         new FunctionOverloadBuilder("ns2Func").Build(),
                         new FunctionOverloadBuilder("dupeFunc").Build(),
@@ -309,7 +309,7 @@ output ns2Result string = ns2Func()
                             null),
                         ArmTemplateProviderName: "Unused",
                         ArmTemplateProviderVersion: "1.0.0"),
-                    ImmutableArray<TypeTypeProperty>.Empty,
+                    ImmutableArray<TypeProperty>.Empty,
                     ImmutableArray<FunctionOverload>.Empty,
                     ImmutableArray<BannedFunction>.Empty,
                     ImmutableArray<Decorator>.Empty,

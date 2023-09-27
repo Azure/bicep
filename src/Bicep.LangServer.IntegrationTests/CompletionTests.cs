@@ -29,6 +29,7 @@ using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
+using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +43,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
+using System.Collections.Immutable;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -4124,6 +4127,68 @@ var arr6 = [
         }
 
         [TestMethod]
+        public async Task Imported_symbol_list_item_completions_quote_and_escape_names_when_name_is_not_a_valid_identifier()
+        {
+            var jsonModContent = $$"""
+              {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "metadata": {
+                  "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                    {
+                      "name": "foo.bar"
+                    },
+                    {
+                      "name": "'"
+                    }
+                  ]
+                },
+                "variables": {
+                  "foo.bar": "baz",
+                  "'": "apostrophe"
+                },
+                "resources": []
+              }
+              """;
+
+            var mainContent = "import {|} from 'mod.json'";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.json")] = jsonModContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            HashSet<string> expectedContent = new()
+            {
+                "import {'foo.bar' as } from 'mod.json'",
+                @"import {'\'' as } from 'mod.json'",
+            };
+
+            foreach (var completion in await file.RequestCompletion(cursors[0]))
+            {
+                var start = PositionHelper.GetOffset(bicepFile.LineStarts, completion.TextEdit!.TextEdit!.Range.Start);
+                var end = PositionHelper.GetOffset(bicepFile.LineStarts, completion.TextEdit!.TextEdit!.Range.End);
+                var textToInsert = completion.TextEdit!.TextEdit!.NewText;
+                var updated = text[..start] + textToInsert + text[end..];
+                expectedContent.Remove(updated).Should().BeTrue();
+            }
+
+            expectedContent.Should().BeEmpty();
+        }
+
+        [TestMethod]
         public async Task Compile_time_imports_offer_imported_wildcard_property_completions()
         {
             var modContent = """
@@ -4179,6 +4244,67 @@ var arr6 = [
             completions.Should().Contain(c => c.Label == "buzz");
             completions.Should().NotContain(c => c.Label == "foo");
             completions.Should().NotContain(c => c.Label == "bar");
+        }
+
+        [TestMethod]
+        public async Task Imported_wildcard_property_completions_use_array_access_when_name_is_not_a_valid_identifier()
+        {
+            var jsonModContent = $$"""
+              {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "languageVersion": "2.0",
+                "definitions": {
+                  "foo.bar": {
+                    "type": "string",
+                    "metadata": {
+                      "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                    }
+                  },
+                  "'": {
+                    "type": "string",
+                    "metadata": {
+                      "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                    }
+                  },
+                  "fizz": {
+                    "type": "string",
+                    "metadata": {
+                      "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                    }
+                  }
+                },
+                "resources": {}
+              }
+              """;
+
+            var mainContent = """
+              import * as mod from 'mod.json'
+
+              type a = |
+              """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.json")] = jsonModContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestCompletion(cursors[0]);
+            completions.Should().Contain(c => c.Label == "mod['foo.bar']");
+            completions.Should().Contain(c => c.Label == @"mod['\'']");
+            completions.Should().Contain(c => c.Label == "mod.fizz");
         }
 
         [TestMethod]

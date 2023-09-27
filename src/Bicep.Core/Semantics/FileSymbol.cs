@@ -50,7 +50,7 @@ namespace Bicep.Core.Semantics
             this.AssertDeclarations = fileScope.Declarations.OfType<AssertSymbol>().ToImmutableArray();
             this.ParameterAssignments = fileScope.Declarations.OfType<ParameterAssignmentSymbol>().ToImmutableArray();
             this.TestDeclarations = fileScope.Declarations.OfType<TestSymbol>().ToImmutableArray();
-            this.TypeImports = fileScope.Declarations.OfType<ImportedTypeSymbol>().ToImmutableArray();
+            this.ImportedSymbols = fileScope.Declarations.OfType<ImportedSymbol>().ToImmutableArray();
             this.WildcardImports = fileScope.Declarations.OfType<WildcardImportSymbol>().ToImmutableArray();
 
             this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
@@ -73,7 +73,7 @@ namespace Bicep.Core.Semantics
             .Concat(this.AssertDeclarations)
             .Concat(this.ParameterAssignments)
             .Concat(this.TestDeclarations)
-            .Concat(this.TypeImports)
+            .Concat(this.ImportedSymbols)
             .Concat(this.WildcardImports);
 
         public IEnumerable<Symbol> Namespaces =>
@@ -118,7 +118,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<ParameterAssignmentSymbol> ParameterAssignments { get; }
 
-        public ImmutableArray<ImportedTypeSymbol> TypeImports { get; }
+        public ImmutableArray<ImportedSymbol> ImportedSymbols { get; }
 
         public ImmutableArray<WildcardImportSymbol> WildcardImports { get; }
 

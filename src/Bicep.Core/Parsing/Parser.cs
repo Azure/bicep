@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
@@ -310,8 +312,27 @@ namespace Bicep.Core.Parsing
             return new(openBrace, itemsOrTokens, closeBrace);
         }
 
-        private ImportedSymbolsListItemSyntax ImportedSymbolsListItem()
-            => new(Identifier(b => b.ExpectedExportedSymbolName()), ImportedSymbolsListItemAsClause());
+        private SyntaxBase ImportedSymbolsListItem()
+        {
+            SyntaxBase originalSymbolName = reader.Peek().Type switch
+            {
+                TokenType.Identifier => Identifier(b => b.ExpectedExportedSymbolName()),
+                TokenType.StringComplete => InterpolableString(),
+                TokenType.StringLeftPiece => Skip(InterpolableString(), b => b.CompileTimeConstantRequired()),
+                _ => Skip(reader.Read(), b => b.ExpectedExportedSymbolName()),
+            };
+
+            var aliasAsClause = ImportedSymbolsListItemAsClause();
+
+            if (originalSymbolName is StringSyntax && aliasAsClause is null)
+            {
+                return new SkippedTriviaSyntax(originalSymbolName.Span,
+                    originalSymbolName.AsEnumerable(),
+                    DiagnosticBuilder.ForPosition(originalSymbolName).ImportListItemDoesNotIncludeDeclaredSymbolName().AsEnumerable());
+            }
+
+            return new ImportedSymbolsListItemSyntax(originalSymbolName, aliasAsClause);
+        }
 
         private AliasAsClauseSyntax? ImportedSymbolsListItemAsClause() => Check(reader.Peek(), TokenType.AsKeyword)
             ? new(Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword)),

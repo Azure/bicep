@@ -105,12 +105,13 @@ namespace Bicep.LanguageServer.Handlers
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"type {declaredType.Name}: {declaredType.Type}", declaredType.Type), TryGetDescriptionMarkdown(result, declaredType)));
 
-                case ImportedTypeSymbol importedType:
+                case ImportedSymbol imported when imported.Kind == Bicep.Core.Semantics.SymbolKind.TypeAlias:
                     return AsMarkdown(CodeBlockWithDescription(
-                        WithTypeModifiers($"type {importedType.Name}: {importedType.Type}", importedType.Type),
-                        importedType.TryGetSemanticModel().IsSuccess(out var model) && model.ExportedTypes.TryGetValue(importedType.OriginalSymbolName, out var exportedTypeMetadata)
-                            ? exportedTypeMetadata.Description
-                            : null));
+                        WithTypeModifiers($"type {imported.Name}: {imported.Type}", imported.Type),
+                        imported.TryGetDescription()));
+
+                case ImportedSymbol imported when imported.Kind == Bicep.Core.Semantics.SymbolKind.Variable:
+                    return AsMarkdown(CodeBlockWithDescription($"var {imported.Name}: {imported.Type}", imported.TryGetDescription()));
 
                 case AmbientTypeSymbol ambientType:
                     return AsMarkdown(CodeBlock(WithTypeModifiers($"type {ambientType.Name}: {ambientType.Type}", ambientType.Type)));

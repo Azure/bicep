@@ -38,7 +38,7 @@ public class BicepparamDecompiler
         this.fileResolver = fileResolver;
     }
 
-    public DecompileResult Decompile(Uri entryJsonUri, Uri entryBicepparamUri, string? bicepFilePath)
+    public DecompileResult Decompile(Uri entryJsonUri, Uri entryBicepparamUri, Uri? bicepFileUri)
     {
         var workspace = new Workspace();
 
@@ -47,7 +47,7 @@ public class BicepparamDecompiler
             throw new InvalidOperationException($"Failed to read {entryJsonUri}");
         }
 
-        var program = DecompileParamFile(jsonInput, entryBicepparamUri, bicepFilePath);
+        var program = DecompileParamFile(jsonInput, entryBicepparamUri, bicepFileUri);
 
         var bicepparamFile = SourceFileFactory.CreateBicepParamFile(entryBicepparamUri, program.ToText());
 
@@ -56,16 +56,17 @@ public class BicepparamDecompiler
         return new DecompileResult(entryBicepparamUri, PrintFiles(workspace));
     }
 
-    private ProgramSyntax DecompileParamFile(string jsonInput, Uri entryBicepparamUri, string? bicepFilePath)
+    private ProgramSyntax DecompileParamFile(string jsonInput, Uri entryBicepparamUri, Uri? bicepFileUri)
     {
         var statements = new List<SyntaxBase>();
 
         var jsonObject = JTokenHelpers.LoadJson(jsonInput, JObject.Load, ignoreTrailingContent: false);
+        var bicepPath = bicepFileUri is {} ? PathHelper.GetRelativePath(entryBicepparamUri, bicepFileUri) : null;
 
         statements.Add(new UsingDeclarationSyntax(
             SyntaxFactory.CreateIdentifierToken("using"), 
-            bicepFilePath is { } ?
-            SyntaxFactory.CreateStringLiteral(bicepFilePath): 
+            bicepPath is { } ?
+            SyntaxFactory.CreateStringLiteral(bicepPath): 
             SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template")));        
 
             statements.Add(SyntaxFactory.DoubleNewlineToken);

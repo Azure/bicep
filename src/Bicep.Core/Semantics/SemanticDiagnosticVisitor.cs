@@ -69,12 +69,22 @@ namespace Bicep.Core.Semantics
             }
 
             // find instances where the same symbol is imported multiple times under different names
-            foreach (var grouping in symbol.TypeImports.ToLookup(t => (t.TryGetSemanticModel().IsSuccess(out var model) ? model : null, t.OriginalSymbolName)).Where(g => g.Count() > 1))
+            foreach (var grouping in symbol.ImportedSymbols.ToLookup(t => (t.TryGetSemanticModel(), t.OriginalSymbolName)))
             {
-                var importedAs = grouping.Select(s => s.Name).ToArray();
-                foreach (var import in grouping)
+                if (grouping.Key.Item1 is null || grouping.Key.OriginalSymbolName is null)
                 {
-                    this.diagnosticWriter.Write(import.DeclaringSyntax, x => x.SymbolImportedMultipleTimes(importedAs));
+                    // these import symbols had errors that prevented them from being loaded correctly, so it's unclear if they refer to the same original symbol.
+                    // We're already reporting a load error for these, so add a potentially false diagnostic about duplicate imports of the same symbol
+                    continue;
+                }
+
+                if (grouping.Count() > 1)
+                {
+                    var importedAs = grouping.Select(s => s.Name).ToArray();
+                    foreach (var import in grouping)
+                    {
+                        this.diagnosticWriter.Write(import.DeclaringSyntax, x => x.SymbolImportedMultipleTimes(importedAs));
+                    }
                 }
             }
         }
@@ -145,9 +155,9 @@ namespace Bicep.Core.Semantics
             this.CollectDiagnostics(symbol);
         }
 
-        public override void VisitImportedTypeSymbol(ImportedTypeSymbol symbol)
+        public override void VisitImportedSymbol(ImportedSymbol symbol)
         {
-            base.VisitImportedTypeSymbol(symbol);
+            base.VisitImportedSymbol(symbol);
             this.CollectDiagnostics(symbol);
         }
 

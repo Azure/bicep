@@ -140,6 +140,7 @@ output siteApiVersion string = site.apiVersion
 output siteType string = site.type
 
 resource nested 'Microsoft.Resources/deployments@2019-10-01' = {
+//@[16:60) [no-deployments-resources (Warning)] Resource 'nested' of type 'Microsoft.Resources/deployments@2019-10-01' should instead be declared as a Bicep module. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-deployments-resources)) |'Microsoft.Resources/deployments@2019-10-01'|
   name: 'nestedTemplate1'
   properties: {
     mode: 'Incremental'
