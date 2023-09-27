@@ -7,6 +7,7 @@ using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
@@ -51,8 +52,10 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
                 .AddSingleton<IWorkspace>(workspace)
-                // This is necessary to avoid hard-coding a particular version number into a compiled template
-                .WithFeatureOverrides(new(AssemblyVersion: BicepTestConstants.DevAssemblyFileVersion))
+                .WithFeatureOverrides(new FeatureProviderOverrides(
+                    // This is necessary to avoid hard-coding a particular version number into a compiled template
+                    AssemblyVersion: BicepTestConstants.DevAssemblyFileVersion,
+                    PublishSourceEnabled: true))
                 .AddSingleton<BicepCompilationManager>());
 
             return helper.Construct<BicepCompilationManager>();

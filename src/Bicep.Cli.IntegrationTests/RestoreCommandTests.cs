@@ -30,6 +30,11 @@ using System.Text;
 using Bicep.Core.Emit;
 using Azure.Identity;
 using Bicep.Core.UnitTests.Baselines;
+using System.Reflection;
+using System.IO.Abstractions.TestingHelpers;
+using Bicep.Core.FileSystem;
+using Bicep.Core.UnitTests.Features;
+using Bicep.Core.Features;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -38,44 +43,6 @@ namespace Bicep.Cli.IntegrationTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
-
-        private async Task<(MockRegistryBlobClient, Mock<IContainerRegistryClientFactory>)> PublishToMockClient(string tempDirectory, string registry, Uri registryUri, string repository, DataSet dataSet, string? mediaType, string? artifactType, string? configContents, IEnumerable<string> layerMediaTypes)
-        {
-            var client = new MockRegistryBlobClient();
-
-            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
-            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
-
-            var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
-
-            Directory.CreateDirectory(tempDirectory);
-
-            var containerRegistryManager = new AzureContainerRegistryManager(clientFactory.Object);
-            var configuration = BicepTestConstants.BuiltInConfiguration;
-
-            using (var compiledStream = new BufferedMemoryStream())
-            {
-                OciModuleReference.TryParse(null, $"{registry}/{repository}:v1", configuration, new Uri("file:///main.bicep")).IsSuccess(out var artifactReference).Should().BeTrue();
-
-                compiledStream.Write(TemplateEmitter.UTF8EncodingWithoutBom.GetBytes(dataSet.Compiled!));
-                compiledStream.Position = 0;
-
-                await containerRegistryManager.PushArtifactAsync(
-                    configuration: configuration,
-                    artifactReference: artifactReference!,
-                    mediaType: mediaType,
-                    artifactType: artifactType,
-                    config: new StreamDescriptor(new TextByteArray(configContents ?? string.Empty).ToStream(), BicepMediaTypes.BicepModuleConfigV1),
-                    layers: layerMediaTypes.Select(mt => new StreamDescriptor(compiledStream, mt)).ToArray()
-                    );
-            }
-
-            /*
-             * TODO: Publish via code
-             */
-
-            return (client, clientFactory);
-        }
 
         [TestMethod]
         public async Task Restore_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
@@ -93,17 +60,19 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Restore_ShouldSucceed(DataSet dataSet)
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        public async Task Restore_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients().Object;
+            TestContext.WriteLine(testName);
+
+            var clientFactory = dataSet.CreateMockRegistryClients(publishSource).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
@@ -117,7 +86,8 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                settings.FeatureOverrides.Should().HaveValidModules();
+                CachedModules.GetCachedRegistryModules(settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                    .And.AllSatisfy(m => m.Should().HaveSource(publishSource));
             }
         }
 
@@ -135,17 +105,20 @@ namespace Bicep.Cli.IntegrationTests
             result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
 
             // ensure something got restored
-            settings.FeatureOverrides.Should().HaveValidModules();
+            CachedModules.GetCachedRegistryModules(settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                .And.AllSatisfy(m => m.Should().NotHaveSource());
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetAllDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Restore_ShouldSucceedWithAnonymousClient(DataSet dataSet)
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        public async Task Restore_ShouldSucceedWithAnonymousClient(string testName, DataSet dataSet, bool publishSource)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients().Object;
+            TestContext.WriteLine(testName);
+
+            var clientFactory = dataSet.CreateMockRegistryClients(publishSource).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
@@ -167,7 +140,7 @@ namespace Bicep.Cli.IntegrationTests
                 .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns<RootConfiguration, Uri, string>(clientFactory.CreateAnonymousBlobClient);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactoryForRestore.Object, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: publishSource), clientFactoryForRestore.Object, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
@@ -181,7 +154,8 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                settings.FeatureOverrides.Should().HaveValidModules();
+                CachedModules.GetCachedRegistryModules(settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                    .And.AllSatisfy(m => m.Should().HaveSource(publishSource));
             }
         }
 
@@ -213,16 +187,15 @@ namespace Bicep.Cli.IntegrationTests
             var dataSet = DataSets.Empty;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
 
-            var (client, clientFactory) = await PublishToMockClient(
+            var (client, clientFactory) = await OciModuleRegistryHelper.PublishArtifactLayersToMockClient(
                 tempDirectory,
                 registry,
                 registryUri,
                 repository,
-                dataSet,
                 mediaType,
                 artifactType,
                 configContents,
-                new string[] { BicepMediaTypes.BicepModuleLayerV1Json });
+                new (string, string)[] { (BicepMediaTypes.BicepModuleLayerV1Json, "data") });
 
             client.Blobs.Should().HaveCount(2);
             client.Manifests.Should().HaveCount(1);
@@ -288,16 +261,15 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var dataSet = DataSets.Empty;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
 
-            var (client, clientFactory) = await PublishToMockClient(
+            var (client, clientFactory) = await OciModuleRegistryHelper.PublishArtifactLayersToMockClient(
                 tempDirectory,
                 registry,
                 registryUri,
                 repository,
-                dataSet,
                 "application/vnd.oci.image.manifest.v1+json",
                 "application/vnd.ms.bicep.module.artifact",
-                null,
-                layerMediaTypes);
+                "{}",
+                layerMediaTypes.Select(l => (l, "layer contents")).ToArray());
 
             client.Manifests.Should().HaveCount(1);
             client.ManifestTags.Should().HaveCount(1);
@@ -305,10 +277,10 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             string digest = client.Manifests.Single().Key;
 
             var bicep = $@"
-module empty 'br:{registry}/{repository}@{digest}' = {{
-  name: 'empty'
-}}
-";
+            module empty 'br:{registry}/{repository}@{digest}' = {{
+              name: 'empty'
+            }}
+            ";
 
             var restoreBicepFilePath = Path.Combine(tempDirectory, "restored.bicep");
             File.WriteAllText(restoreBicepFilePath, bicep);
@@ -333,8 +305,10 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             }
         }
 
-        [TestMethod]
-        public async Task Restore_With_Force_Should_Overwrite_Existing_Cache()
+        [DataTestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task Restore_With_Force_Should_Overwrite_Existing_Cache(bool publishSource)
         {
             var registry = "example.com";
             var registryUri = new Uri("https://" + registry);
@@ -347,7 +321,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: publishSource), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -365,11 +339,11 @@ output o1 string = p1");
                 publishError.Should().BeEmpty();
             }
 
-            client.Blobs.Should().HaveCount(2);
+            client.Blobs.Should().HaveCount(publishSource ? 3 : 2);
             client.Manifests.Should().HaveCount(1);
             client.ManifestTags.Should().HaveCount(1);
 
-            string digest = client.Manifests.Single().Key;
+            string digest = client.ModuleManifestObjects.Single().Key;
 
             var bicep = $@"
 module mymodule 'br:{registry}/{repository}:v1' = {{
@@ -452,8 +426,10 @@ output o1 string = '${p1}${p2}'");
             }
         }
 
-        [TestMethod]
-        public async Task Restore_ByDigest_ShouldSucceed()
+        [DataTestMethod]
+        [DataRow(false)]
+        [DataRow(true)]
+        public async Task Restore_ByDigest_ShouldSucceed(bool publishSource) // TODO: test publishSource
         {
             var registry = "example.com";
             var registryUri = new Uri("https://" + registry);
@@ -466,7 +442,7 @@ output o1 string = '${p1}${p2}'");
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: publishSource), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -482,14 +458,14 @@ output o1 string = '${p1}${p2}'");
                 publishError.Should().BeEmpty();
             }
 
-            client.Blobs.Should().HaveCount(2);
-            client.Manifests.Should().HaveCount(1);
+            client.Blobs.Should().HaveCount(publishSource ? 3 : 2); // 2 for main manifest/config, 1 for sources layer blob
+            client.Manifests.Should().HaveCount(1); // main manifest, sources manifest
             client.ManifestTags.Should().HaveCount(1);
 
-            string digest = client.Manifests.Single().Key;
+            string moduleDigest = client.ModuleManifestObjects.Select(kvp => kvp.Key).Single();
 
             var bicep = $@"
-module empty 'br:{registry}/{repository}@{digest}' = {{
+module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
   name: 'empty'
 }}
 ";
@@ -507,10 +483,10 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Restore_NonExistentModules_ShouldFail(DataSet dataSet)
+        [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        public async Task Restore_NonExistentModules_ShouldFail(string testName, DataSet dataSet, bool publishSource)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients().Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(publishSource).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
@@ -518,7 +494,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
             TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
             var (output, error, exitCode) = await Bicep(settings, "restore", bicepFilePath);
 
@@ -617,13 +593,32 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
-            
+
             result.Should().Fail().And.NotHaveStdout();
             result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the module with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
         }
 
-        private static IEnumerable<object[]> GetAllDataSets() => DataSets.AllDataSets.ToDynamicTestData();
+        private static IEnumerable<object[]> GetAllDataSetsWithPublishSource()
+        {
+            foreach (DataSet ds in DataSets.AllDataSets)
+            {
+                yield return new object[] { $"{ds.Name}, not publishing source", ds, false };
+                yield return new object[] { $"{ds.Name}, publishing source", ds, true };
+            }
+        }
 
-        private static IEnumerable<object[]> GetValidDataSetsWithExternalModules() => DataSets.AllDataSets.Where(ds => ds.IsValid && ds.HasExternalModules).ToDynamicTestData();
+        private static IEnumerable<object[]> GetValidDataSetsWithExternalModulesAndPublishSource()
+        {
+            foreach (DataSet ds in DataSets.AllDataSets.Where(ds => ds.IsValid && ds.HasExternalModules))
+            {
+                yield return new object[] { $"{ds.Name}, not publishing source", ds, false };
+                yield return new object[] { $"{ds.Name}, publishing source", ds, true };
+            }
+        }
+
+        public static string GetTestDisplayName(MethodInfo _, object[] objects)
+        {
+            return (string)objects[0];
+        }
     }
 }
