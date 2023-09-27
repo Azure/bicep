@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
@@ -279,79 +277,6 @@ namespace Bicep.Core.Parsing
                 TokenType.LeftBrace or TokenType.Asterisk => CompileTimeImportDeclaration(keyword, leadingNodes),
                 _ => ProviderImportDeclaration(keyword, leadingNodes),
             };
-        }
-
-        private CompileTimeImportDeclarationSyntax CompileTimeImportDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
-        {
-            SyntaxBase importExpression = reader.Peek().Type switch
-            {
-                TokenType.EndOfFile or
-                TokenType.NewLine or
-                TokenType.Identifier => SkipEmpty(b => b.ExpectedSymbolListOrWildcard()),
-                TokenType.LeftBrace => ImportedSymbolsList(),
-                TokenType.Asterisk => WithRecovery(WildcardImport, GetSuppressionFlag(keyword), TokenType.NewLine),
-                _ => Skip(reader.Read(), b => b.ExpectedSymbolListOrWildcard()),
-            };
-
-            return new(leadingNodes,
-                keyword,
-                importExpression,
-                WithRecovery(CompileTimeImportFromClause, GetSuppressionFlag(keyword), TokenType.NewLine));
-        }
-
-        private ImportedSymbolsListSyntax ImportedSymbolsList()
-        {
-            var openBrace = Expect(TokenType.LeftBrace, b => b.ExpectedCharacter("{"));
-
-            var itemsOrTokens = HandleArrayOrObjectElements(
-                closingTokenType: TokenType.RightBrace,
-                parseChildElement: ImportedSymbolsListItem);
-
-            var closeBrace = Expect(TokenType.RightBrace, b => b.ExpectedCharacter("}"));
-
-            return new(openBrace, itemsOrTokens, closeBrace);
-        }
-
-        private SyntaxBase ImportedSymbolsListItem()
-        {
-            SyntaxBase originalSymbolName = reader.Peek().Type switch
-            {
-                TokenType.Identifier => Identifier(b => b.ExpectedExportedSymbolName()),
-                TokenType.StringComplete => InterpolableString(),
-                TokenType.StringLeftPiece => Skip(InterpolableString(), b => b.CompileTimeConstantRequired()),
-                _ => Skip(reader.Read(), b => b.ExpectedExportedSymbolName()),
-            };
-
-            var aliasAsClause = ImportedSymbolsListItemAsClause();
-
-            if (originalSymbolName is StringSyntax && aliasAsClause is null)
-            {
-                return new SkippedTriviaSyntax(originalSymbolName.Span,
-                    originalSymbolName.AsEnumerable(),
-                    DiagnosticBuilder.ForPosition(originalSymbolName).ImportListItemDoesNotIncludeDeclaredSymbolName().AsEnumerable());
-            }
-
-            return new ImportedSymbolsListItemSyntax(originalSymbolName, aliasAsClause);
-        }
-
-        private AliasAsClauseSyntax? ImportedSymbolsListItemAsClause() => Check(reader.Peek(), TokenType.AsKeyword)
-            ? new(Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword)),
-                IdentifierWithRecovery(b => b.ExpectedTypeIdentifier(), RecoveryFlags.None, TokenType.Comma, TokenType.NewLine))
-            : null;
-
-        private WildcardImportSyntax WildcardImport() => new(Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*")),
-            new AliasAsClauseSyntax(Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword)),
-                Identifier(b => b.ExpectedNamespaceIdentifier())));
-
-        private CompileTimeImportFromClauseSyntax CompileTimeImportFromClause()
-        {
-            var keyword = ExpectKeyword(LanguageConstants.FromKeyword);
-            var path = WithRecovery(
-                () => ThrowIfSkipped(InterpolableString, b => b.ExpectedModulePathString()),
-                GetSuppressionFlag(keyword),
-                TokenType.NewLine);
-
-            return new(keyword, path);
         }
 
         private ProviderDeclarationSyntax ProviderImportDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)

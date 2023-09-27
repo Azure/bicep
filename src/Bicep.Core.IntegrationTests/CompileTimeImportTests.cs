@@ -127,25 +127,24 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Importing_non_template_should_raise_diagnostic()
+    public void Importing_non_template_should_not_raise_diagnostic()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
             ("main.bicep", """
-                import {foo} from 'main.bicepparam'
+                import {} from 'main.bicepparam'
                 """),
             ("main.bicepparam", """
                 using 'mod.bicep'
 
-                param bar = 'bar'
+                var foo = 'bar'
+
+                param bar = foo
                 """),
             ("mod.bicep", """
                 param bar string
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP359", DiagnosticLevel.Error, "A compile-time import can only reference a Bicep file, an ARM template, a registry artifact, or a template spec.")
-        });
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
@@ -795,7 +794,7 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
-            ("BCP373", DiagnosticLevel.Error, "The name \"foo\" is ambiguous because it refers to exports of the following kinds: \"Type\", \"Variable\"."),
+            ("BCP373", DiagnosticLevel.Error, "Unable to import the symbol named \"foo\": The name \"foo\" is ambiguous because it refers to exports of the following kinds: Type, Variable."),
         });
     }
 
@@ -1081,5 +1080,84 @@ public class CompileTimeImportTests
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotHaveValueAtPath("languageVersion");
+    }
+
+    [TestMethod]
+    public void Named_imports_into_bicepparam_file_are_supported()
+    {
+        var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                param intParam int
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+                import {a} from 'mod1.bicep'
+                import {b} from 'mod2.bicep'
+
+                param intParam = a + b + 4
+                """),
+            ("mod1.bicep", """
+                @export()
+                var a = 2
+                """),
+            ("mod2.bicep", """
+                @export()
+                var b = 3
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var parameters = TemplateEvaluator.ParseParametersFile(result.Parameters);
+        parameters["intParam"].Should().DeepEqual(9);
+    }
+
+    [TestMethod]
+    public void Wildcard_imports_into_bicepparam_file_are_supported()
+    {
+        var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                param intParam int
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+                import * as mod1 from 'mod1.bicep'
+                import * as mod2 from 'mod2.bicep'
+
+                param intParam = mod1.a + mod2.b + 4
+                """),
+            ("mod1.bicep", """
+                @export()
+                var a = 2
+                """),
+            ("mod2.bicep", """
+                @export()
+                var b = 3
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+        var parameters = TemplateEvaluator.ParseParametersFile(result.Parameters);
+        parameters["intParam"].Should().DeepEqual(9);
+    }
+
+    [TestMethod]
+    public void Importing_types_is_blocked_in_bicepparam_files()
+    {
+        var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                import {foo} from 'mod.bicep'
+                """),
+            ("main.bicep", string.Empty),
+            ("mod.bicep", """
+                @export()
+                type foo = string
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP376", DiagnosticLevel.Error, "The \"foo\" symbol cannot be imported because imports of kind Type are not supported in files of kind ParamsFile."),
+        });
     }
 }
