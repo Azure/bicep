@@ -3,17 +3,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Json;
 using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry
@@ -56,7 +54,7 @@ namespace Bicep.Core.Registry
         public override bool IsArtifactRestoreRequired(TemplateSpecModuleReference reference) =>
             !this.FileResolver.FileExists(this.GetModuleEntryPointUri(reference));
 
-        public override Task PublishArtifact(TemplateSpecModuleReference reference, Stream compiled, string? documentationUri, string? description) => throw new NotSupportedException("Template Spec modules cannot be published.");
+        public override Task PublishArtifact(TemplateSpecModuleReference reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
         public override Task<bool> CheckArtifactExists(TemplateSpecModuleReference reference) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
@@ -78,7 +76,7 @@ namespace Bicep.Core.Registry
                     var repository = this.repositoryFactory.CreateRepository(configuration, reference.SubscriptionId);
                     var templateSpecEntity = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
 
-                    await this.TryWriteArtifactContentAsync(reference, templateSpecEntity);
+                    await this.WriteArtifactContentToCacheAsync(reference, templateSpecEntity);
                 }
                 catch (ExternalArtifactException templateSpecException)
                 {
@@ -144,6 +142,11 @@ namespace Bicep.Core.Registry
             }
 
             return Task.FromResult<string?>(null);
+        }
+
+        public override SourceArchive? TryGetSource(TemplateSpecModuleReference reference)
+        {
+            return null;
         }
     }
 }

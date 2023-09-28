@@ -130,7 +130,6 @@ namespace Bicep.LangServer.IntegrationTests
 
             response.Should().NotBeNull();
 
-
             // go to def should produce single result in all cases
             response.Should().HaveCount(1);
             var single = response.Single();
@@ -189,7 +188,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         public async Task<FileRequestHelper> OpenFile(Uri fileUri, string text)
         {
-            BicepSourceFile bicepFile = PathHelper.HasBicepparamsExension(fileUri) ? 
+            BicepSourceFile bicepFile = PathHelper.HasBicepparamsExension(fileUri) ?
                 SourceFileFactory.CreateBicepParamFile(fileUri, text) :
                 SourceFileFactory.CreateBicepFile(fileUri, text);
 

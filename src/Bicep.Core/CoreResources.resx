@@ -485,6 +485,9 @@
   <data name="ExperimentalFeatureNames_MicrosoftGraphPreview" xml:space="preserve">
     <value>MicrosoftGraph Preview</value>
   </data>
+  <data name="ExperimentalFeatureNames_PublishSource" xml:space="preserve">
+    <value>Publish source with modules</value>
+  </data>
   <data name="NoSymbolicReferencesInInnerScopedDeploymentResourcesDescription" xml:space="preserve">
     <value>Nested deployment resources cannot refer to top-level symbols from within the 'template' property when inner-scoped evaluation is used.</value>
   </data>

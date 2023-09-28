@@ -4127,6 +4127,43 @@ var arr6 = [
         }
 
         [TestMethod]
+        public async Task Compile_time_imports_do_not_offer_types_as_imported_symbol_list_item_completions_in_bicepparam_files()
+        {
+            var modContent = """
+              @export()
+              type foo = string
+
+              @export()
+              var bar = 'bar'
+              """;
+
+            var paramsContent = """
+              import {|} from 'mod.bicep'
+              """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(paramsContent, '|');
+            Uri mainUri = new("file:///params.bicepparam");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = modContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepParamFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestCompletion(cursors[0]);
+            completions.Should().NotContain(c => c.Label == "foo");
+            completions.Should().Contain(c => c.Label == "bar");
+        }
+
+        [TestMethod]
         public async Task Imported_symbol_list_item_completions_quote_and_escape_names_when_name_is_not_a_valid_identifier()
         {
             var jsonModContent = $$"""
