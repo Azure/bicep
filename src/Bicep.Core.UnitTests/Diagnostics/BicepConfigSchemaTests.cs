@@ -23,21 +23,24 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+        public IEnumerable<IBicepAnalyzerRule> rules { get; init; }
+        public JsonDocument schema{ get; init; }
+
         private const string BicepRootConfigFilePath = "src/Bicep.Core/Configuration/bicepconfig.json";
         private const string BicepConfigSchemaFilePath = "src/vscode-bicep/schemas/bicepconfig.schema.json";
 
-        private (IBicepAnalyzerRule[] rules, JsonElement configSchema) GetRulesAndSchema()
+        public BicepConfigSchemaTests()
         {
+            // Retrieve set of linter rules via reflection
             var linter = new LinterAnalyzer();
-            var ruleSet = linter.GetRuleSet();
-            ruleSet.Should().NotBeEmpty();
+            rules = linter.GetRuleSet();
+            rules.Should().NotBeEmpty();
 
+            // Retrieve bicep config schema used for Intellisense
             var configStream = typeof(BicepConfigSchemaTests).Assembly.GetManifestResourceStream(
                 $"{typeof(BicepConfigSchemaTests).Assembly.GetName().Name}.bicepconfig.schema.json");
             Assert.IsNotNull(configStream);
-
-            var document = JsonDocument.Parse(configStream);
-            return (ruleSet.ToArray(), document.RootElement);
+            schema = JsonDocument.Parse(configStream);
         }
 
         //asdfg
@@ -52,7 +55,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void Config_ShouldIncludeCurrentAllCoreRules()
         {
-            var (rules, schema) = GetRulesAndSchema();
             var ruleConfigs = schema.GetProperty("properties")
                 .GetProperty("analyzers").GetProperty("properties").GetProperty("core").GetProperty("properties")
                 .GetProperty("rules").GetProperty("properties").EnumerateObject().ToDictionary(p => p.Name);
@@ -63,7 +65,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void RuleConfigs_ShouldBeCorrectlyDefined()
         {
-            var (rules, schema) = GetRulesAndSchema();
             var ruleConfigs = schema
                 .GetProperty("properties")
                 .GetProperty("analyzers")
@@ -120,7 +121,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
         public void NoHardCodedEnvUrls_DefaultsShouldMatchInConfigAndSchema()
         {
             // From schema
-            var (rules, schema) = GetRulesAndSchema();
             var ruleConfigs = schema
                 .GetProperty("properties")
                 .GetProperty("analyzers")
@@ -160,7 +160,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
         public void ExperimentalFeatures_SameAsGenerated()
         {
             // From schema
-            var (rules, schema) = GetRulesAndSchema();
             var ruleConfigs = schema
                 .GetProperty("properties")
                 .GetProperty("analyzers")
