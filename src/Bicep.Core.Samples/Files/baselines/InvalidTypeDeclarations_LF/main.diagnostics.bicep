@@ -237,16 +237,19 @@ type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
 
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP124 (Error)] The decorator "discriminator" can only be attached to targets of type "object", but the target has type "[typeA, typeB]". (CodeDescription: none) |@discriminator('type')|
 type discriminatorTupleBadType1 = [typeA, typeB]
 
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP124 (Error)] The decorator "discriminator" can only be attached to targets of type "object", but the target has type "[typeA | typeB]". (CodeDescription: none) |@discriminator('type')|
 type discriminatorTupleBadType2 = [typeA | typeB]
 //@[35:040) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeA|
 //@[43:048) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeB|
 
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[00:022) [BCP124 (Error)] The decorator "discriminator" can only be attached to targets of type "object", but the target has type "[typeA | typeB, typeC | typeD]". (CodeDescription: none) |@discriminator('type')|
 type discriminatorTupleBadType3 = [typeA | typeB, typeC | typeD]
 //@[35:040) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeA|
 //@[43:048) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeB|
@@ -268,6 +271,7 @@ type discriminatorInlineAdditionalPropsBadType2 = {
 type discriminatorInlineAdditionalPropsBadType3 = {
   @discriminator('type')
 //@[02:024) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
+//@[02:024) [BCP124 (Error)] The decorator "discriminator" can only be attached to targets of type "object", but the target has type "string". (CodeDescription: none) |@discriminator('type')|
   *: string
 }
 

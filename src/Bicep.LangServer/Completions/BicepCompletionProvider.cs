@@ -1082,7 +1082,9 @@ namespace Bicep.LanguageServer.Completions
                     return result;
                 }
 
-                result = GetAccessibleDecoratorFunctions(namespaceType, enclosingDeclarationSymbol);
+                result = GetAccessibleDecoratorFunctions(namespaceType,
+                    context.EnclosingDecorable is null ? null : model.GetDeclaredType(context.EnclosingDecorable),
+                    enclosingDeclarationSymbol);
                 accessibleDecoratorFunctionsCache.Add(namespaceType, result);
 
                 return result;
@@ -1162,7 +1164,7 @@ namespace Bicep.LanguageServer.Completions
             return completions.Values;
         }
 
-        private static IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctions(NamespaceType namespaceType, Symbol? enclosingDeclarationSymbol)
+        private static IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctions(NamespaceType namespaceType, TypeSymbol? targetType, Symbol? enclosingDeclarationSymbol)
         {
             // Local function.
             IEnumerable<FunctionSymbol> GetAccessible(IEnumerable<FunctionSymbol> symbols, TypeSymbol targetType, FunctionFlags flags) =>
@@ -1176,7 +1178,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 MetadataSymbol metadataSymbol => GetAccessible(knownDecoratorFunctions, metadataSymbol.Type, FunctionFlags.MetadataDecorator),
                 ParameterSymbol parameterSymbol => GetAccessible(knownDecoratorFunctions, parameterSymbol.Type, FunctionFlags.ParameterDecorator),
-                TypeAliasSymbol declaredTypeSymbol => GetAccessible(knownDecoratorFunctions, declaredTypeSymbol.UnwrapType(), FunctionFlags.TypeDecorator),
+                TypeAliasSymbol declaredTypeSymbol when targetType is not null => GetAccessible(knownDecoratorFunctions, (targetType as TypeType)?.Unwrapped ?? targetType, FunctionFlags.TypeDecorator),
                 VariableSymbol variableSymbol => GetAccessible(knownDecoratorFunctions, variableSymbol.Type, FunctionFlags.VariableDecorator),
                 DeclaredFunctionSymbol functionSymbol => GetAccessible(knownDecoratorFunctions, functionSymbol.Type, FunctionFlags.FunctionDecorator),
                 ResourceSymbol resourceSymbol => GetAccessible(knownDecoratorFunctions, resourceSymbol.Type, FunctionFlags.ResourceDecorator),
@@ -1204,8 +1206,9 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName) && declaredType is NamespaceType namespaceType)
             {
                 var enclosingDeclarationSymbol = context.EnclosingDeclaration is null ? null : model.GetSymbolInfo(context.EnclosingDeclaration);
+                var decoratorTargetType = context.EnclosingDecorable is null ? null : model.GetDeclaredType(context.EnclosingDecorable);
 
-                return GetAccessibleDecoratorFunctions(namespaceType, enclosingDeclarationSymbol)
+                return GetAccessibleDecoratorFunctions(namespaceType, decoratorTargetType, enclosingDeclarationSymbol)
                     .Select(symbol => CreateSymbolCompletion(symbol, context.ReplacementRange, model));
             }
 

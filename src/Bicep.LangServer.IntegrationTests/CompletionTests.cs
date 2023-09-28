@@ -2014,6 +2014,29 @@ output stringOutput |
         }
 
         [TestMethod]
+        public async Task TypePropertyDecoratorsShouldAlignWithPropertyType()
+        {
+            var fileWithCursors = """
+                type obj = {
+                  @|
+                  intProp: int
+                }
+                """;
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+
+            completions.Should().Contain(x => x.Label == "description");
+            completions.Should().Contain(x => x.Label == "metadata");
+            completions.Should().Contain(x => x.Label == "minValue");
+            completions.Should().Contain(x => x.Label == "maxValue");
+
+            completions.Should().NotContain(x => x.Label == "sealed");
+            completions.Should().NotContain(x => x.Label == "secure");
+            completions.Should().NotContain(x => x.Label == "discriminator");
+        }
+
+        [TestMethod]
         public async Task ModuleCompletionsShouldNotBeUrlEscaped()
         {
             var fileWithCursors = @"
