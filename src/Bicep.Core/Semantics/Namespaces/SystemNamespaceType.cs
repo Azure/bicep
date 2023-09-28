@@ -1676,6 +1676,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("value", LanguageConstants.String, "The discriminator property name.")
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithValidator(ValidateTypeDiscriminator)
+                .WithAttachableType(LanguageConstants.Object)
                 .Build();
         }
 
