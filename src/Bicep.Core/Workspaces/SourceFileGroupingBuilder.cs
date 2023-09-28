@@ -138,70 +138,47 @@ namespace Bicep.Core.Workspaces
             return resolutionResult;
         }
 
-        private ResultWithDiagnostic<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild, IFeatureProviderFactory featuresFactory)
+        private ResultWithDiagnostic<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild, IFeatureProviderFactory featuresFactory)
         {
             var fileResult = GetFileResolutionResultWithCaching(fileUri, moduleReference);
-            var features = featuresFactory.GetFeatureProvider(fileUri);
-            switch (fileResult.TryUnwrap())
+            if (fileResult.TryUnwrap() is BicepSourceFile bicepSource)
             {
-                case BicepFile bicepFile:
-                    {
-                        foreach (var restorable in bicepFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>())
-                        {
-                            // NOTE(asilverman): The below check is ugly but temporary until we have a better way to
-                            // handle dynamic type loading in a way that is decoupled from modules.
-                            if (restorable is ProviderDeclarationSyntax providerImport &&
-                                (providerImport.Specification.Name != AzNamespaceType.BuiltInName || !features.DynamicTypeLoadingEnabled))
-                            {
-                                continue;
-                            }
-                            var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, restorable);
-
-                            uriResultByArtifactReference.GetOrAdd(bicepFile, f => new())[restorable] = uriResult;
-
-                            if (!uriResult.IsSuccess(out var moduleFileUri))
-                            {
-                                continue;
-                            }
-
-                            if (!fileResultByUri.TryGetValue(moduleFileUri, out var childResult) ||
-                                (childResult.IsSuccess(out var childFile) && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childFile)))
-                            {
-                                // only recurse if we've not seen this file before - to avoid infinite loops
-                                childResult = PopulateRecursive(moduleFileUri, childModuleReference, sourceFileToRebuild, featuresFactory);
-                            }
-
-                            fileResultByUri[moduleFileUri] = childResult;
-                        }
-                        break;
-                    }
-                case BicepParamFile paramsFile:
-                    {
-                        foreach (var usingDeclaration in paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>())
-                        {
-                            var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, usingDeclaration);
-
-                            uriResultByArtifactReference.GetOrAdd(paramsFile, f => new())[usingDeclaration] = uriResult;
-
-                            if (!uriResult.IsSuccess(out var usingFileUri))
-                            {
-                                continue;
-                            }
-
-                            if (!fileResultByUri.TryGetValue(usingFileUri, out var childResult) ||
-                                (childResult.IsSuccess(out var childFile) && sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childFile)))
-                            {
-                                // only recurse if we've not seen this file before - to avoid infinite loops
-                                childResult = PopulateRecursive(usingFileUri, childModuleReference, sourceFileToRebuild, featuresFactory);
-                            }
-
-                            fileResultByUri[usingFileUri] = childResult;
-                        }
-                        break;
-                    }
+                PopulateRecursive(bicepSource, featuresFactory, sourceFilesToRebuild);
             }
 
             return fileResult;
+        }
+
+        private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild)
+        {
+            var features = featureProviderFactory.GetFeatureProvider(file.FileUri);
+            foreach (var restorable in file.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>())
+            {
+                // NOTE(asilverman): The below check is ugly but temporary until we have a better way to
+                // handle dynamic type loading in a way that is decoupled from modules.
+                if (restorable is ProviderDeclarationSyntax providerImport &&
+                    (providerImport.Specification.Name != AzNamespaceType.BuiltInName || !features.DynamicTypeLoadingEnabled))
+                {
+                    continue;
+                }
+                var (childModuleReference, uriResult) = GetModuleRestoreResult(file.FileUri, restorable);
+
+                uriResultByArtifactReference.GetOrAdd(file, f => new())[restorable] = uriResult;
+
+                if (!uriResult.IsSuccess(out var artifactUri))
+                {
+                    continue;
+                }
+
+                if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
+                    (childResult.IsSuccess(out var childFile) && sourceFilesToRebuild is not null && sourceFilesToRebuild.Contains(childFile)))
+                {
+                    // only recurse if we've not seen this file before - to avoid infinite loops
+                    childResult = PopulateRecursive(artifactUri, childModuleReference, sourceFilesToRebuild, featureProviderFactory);
+                }
+
+                fileResultByUri[artifactUri] = childResult;
+            }
         }
 
         private (ArtifactReference? reference, Result<Uri, UriResolutionError> result) GetModuleRestoreResult(Uri parentFileUri, IArtifactReferenceSyntax foreignTemplateReference)

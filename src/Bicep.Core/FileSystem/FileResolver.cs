@@ -247,7 +247,7 @@ namespace Bicep.Core.FileSystem
             }
 
             string fileName = Path.GetFileNameWithoutExtension(localPath);
-            if(!string.Equals(fileName, "CON", StringComparison.InvariantCultureIgnoreCase))
+            if (!string.Equals(fileName, "CON", StringComparison.InvariantCultureIgnoreCase))
             {
                 // file is not named CON or CON.<any extension>, so we can proceed normally
                 return;

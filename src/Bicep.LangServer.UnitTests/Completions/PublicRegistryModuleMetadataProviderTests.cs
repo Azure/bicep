@@ -389,7 +389,7 @@ namespace Bicep.LangServer.UnitTests.Completions
         public void GetModules_ForwardsCompatibleWithOriginalVersion()
         {
             // Earlier Bicep versions should not be confused by new metadata formats
-            var metadataStream = new MemoryStream(UTF8Encoding.UTF8.GetBytes(ModuleIndex));
+            var metadataStream = new MemoryStream(Encoding.UTF8.GetBytes(ModuleIndex));
             ModuleMetadata_Original[] metadata = JsonSerializer.Deserialize<ModuleMetadata_Original[]>(metadataStream)!.ToArray();
 
             metadata.Length.Should().BeGreaterThanOrEqualTo(29);

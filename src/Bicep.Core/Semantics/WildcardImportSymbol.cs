@@ -33,9 +33,8 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
     public NamespaceType? TryGetNamespaceType() => this.Type as NamespaceType;
 
     public ISemanticModel? TryGetSemanticModel()
-        => SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
+        => SemanticModelHelper.TryGetModelForArtifactReference(Context.Compilation.SourceFileGrouping,
             EnclosingDeclaration,
-            b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
             Context.Compilation)
             .TryUnwrap();
 

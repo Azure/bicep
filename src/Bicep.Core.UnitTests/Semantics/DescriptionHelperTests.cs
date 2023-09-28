@@ -90,7 +90,7 @@ public class DescriptionHelperTests
                 }
               },
               ""variables"": {
-                ""prefix"": ""stephwe""
+                ""prefix"": ""user""
               },
               ""resources"": [
                 {
@@ -107,10 +107,10 @@ public class DescriptionHelperTests
             }
           },
           ""systemData"": {
-            ""createdBy"": ""stephwe@microsoft.com"",
+            ""createdBy"": ""user@microsoft.com"",
             ""createdByType"": ""User"",
             ""createdAt"": ""2023-05-20T20:59:12.912719Z"",
-            ""lastModifiedBy"": ""stephwe@microsoft.com"",
+            ""lastModifiedBy"": ""user@microsoft.com"",
             ""lastModifiedByType"": ""User"",
             ""lastModifiedAt"": ""2023-05-20T20:59:12.912719Z""
           },
@@ -152,7 +152,7 @@ public class DescriptionHelperTests
                 }
               },
               ""variables"": {
-                ""prefix"": ""stephwe""
+                ""prefix"": ""user""
               },
               ""resources"": [
                 {
@@ -169,10 +169,10 @@ public class DescriptionHelperTests
             }
           },
           ""systemData"": {
-            ""createdBy"": ""stephwe@microsoft.com"",
+            ""createdBy"": ""user@microsoft.com"",
             ""createdByType"": ""User"",
             ""createdAt"": ""2023-05-20T20:59:12.912719Z"",
-            ""lastModifiedBy"": ""stephwe@microsoft.com"",
+            ""lastModifiedBy"": ""user@microsoft.com"",
             ""lastModifiedByType"": ""User"",
             ""lastModifiedAt"": ""2023-05-20T20:59:12.912719Z""
           },

@@ -1359,7 +1359,7 @@ namespace Bicep.Core.Semantics.Namespaces
             BannedFunction.CreateForOperator("coalesce", "??")
         }.ToImmutableArray();
 
-        private static IEnumerable<Decorator> GetSystemDecorators(IFeatureProvider featureProvider)
+        private static IEnumerable<Decorator> GetSystemDecorators(IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
         {
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
@@ -1440,7 +1440,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 })
                 .Build();
 
-            if (featureProvider.CompileTimeImportsEnabled)
+            if (featureProvider.CompileTimeImportsEnabled && sourceFileKind == BicepSourceFileKind.BicepFile)
             {
                 yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
                     .WithDescription("Allows a type or variable to be imported into other Bicep files.")
@@ -1733,7 +1733,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 GetSystemAmbientSymbols(),
                 GetSystemOverloads(featureProvider, sourceFileKind),
                 BannedFunctions,
-                GetSystemDecorators(featureProvider),
+                GetSystemDecorators(featureProvider, sourceFileKind),
                 new EmptyResourceTypeProvider());
         }
     }

@@ -1127,7 +1127,7 @@ namespace Bicep.Core.Emit
             emitter.EmitObjectProperty("metadata", () => {
                 if (Context.Settings.UseExperimentalTemplateLanguageVersion)
                 {
-                    emitter.EmitProperty("_EXPERIMENTAL_WARNING", "This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!");
+                    emitter.EmitProperty("_EXPERIMENTAL_WARNING", "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
                     emitter.EmitArrayProperty("_EXPERIMENTAL_FEATURES_ENABLED", () =>
                     {
                         foreach (var (featureName, _, _) in this.Context.SemanticModel.Features.EnabledFeatureMetadata.Where(f => f.usesExperimentalArmEngineFeature))
