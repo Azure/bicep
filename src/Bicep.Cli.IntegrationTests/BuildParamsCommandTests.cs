@@ -30,6 +30,7 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.IntegrationTests
@@ -98,7 +99,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Build_params_with_overrides_succeeds_with_values_overridden()
+        public async Task Build_params_with_correct_overrides_succeeds_with_values_overridden()
         {
             var bicepparamsPath = FileHelper.SaveResultFile(
                 TestContext, 
@@ -106,24 +107,36 @@ namespace Bicep.Cli.IntegrationTests
                 """
                 using './main.bicep'
 
-                param foo = 'abc'
-                param bar = foo
+                param strParam = 'foo'
+                param intParam = 0
+                param boolParam = false
+                param arrParam = [1, 2]
+                param objParam = {
+                    someProp: 'someValue'
+                }
                 """);
                 
-            var bicepPath = FileHelper.SaveResultFile(
+            FileHelper.SaveResultFile(
                 TestContext, 
                 "main.bicep", 
                 """
-                param foo string
-                param bar string
-
-                output baz string = '${foo}-${bar}'
+                param strParam string
+                param intParam int
+                param boolParam bool
+                param arrParam array
+                param objParam object
                 """, 
                 Path.GetDirectoryName(bicepparamsPath));
 
             var paramsOverrides = """
                 {
-                  "foo": "def"
+                    "strParam" : "bar",
+                    "intParam" : 1,
+                    "boolParam" : true,
+                    "arrParam" : [3, 4],
+                    "objParam" : {
+                        otherProp: "otherValue"
+                    }
                 }
                 """;    
 
@@ -134,13 +147,56 @@ namespace Bicep.Cli.IntegrationTests
             File.Exists(outputFilePath).Should().BeFalse();            
             var result = await Bicep("build-params", bicepparamsPath, "--stdout");
 
-            result.Should().NotHaveStderr().And.Succeed();
+            result.Should().Succeed();
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
 
-            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();                        
 
-            paramsObject.Should().HaveValueAtPath("parameters.foo.value", "def");
-            paramsObject.Should().HaveValueAtPath("parameters.bar.value", "def");
+            paramsObject.Should().HaveValueAtPath("parameters.strParam.value", "bar");
+            paramsObject.Should().HaveValueAtPath("parameters.intParam.value", 1);
+            paramsObject.Should().HaveValueAtPath("parameters.boolParam.value", true);
+            paramsObject.Should().HaveValueAtPath("parameters.arrParam.value", JToken.Parse("[3, 4]"));
+            paramsObject.Should().HaveValueAtPath("parameters.objParam.value", JToken.Parse(
+            """
+            {
+                otherProp: "otherValue"
+            }
+            """));
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_overrides_with_mismatch_type_fails_with_error()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(
+                TestContext, 
+                "input.bicepparam", 
+                """
+                using './main.bicep'
+                param intParam = 0
+                """);
+                
+            FileHelper.SaveResultFile(
+                TestContext, 
+                "main.bicep", 
+                """
+                param intParam int
+                """, 
+                Path.GetDirectoryName(bicepparamsPath));
+
+            var paramsOverrides = """
+                {
+                    "intParam" : "bar"
+                }
+                """;    
+
+            Environment.SetEnvironmentVariable("BICEP_PARAMETERS_OVERRIDES", paramsOverrides);
+
+            var outputFilePath = FileHelper.GetResultFilePath(TestContext, "output.json");
+
+            File.Exists(outputFilePath).Should().BeFalse();            
+            var result = await Bicep("build-params", bicepparamsPath, "--stdout");
+            result.Should().Fail().And.NotHaveStdout();
+            result.Stderr.Should().Contain("Error BCP260: The parameter \"intParam\" expects a value of type \"int\" but the provided value is of type \"'bar'\"");
         }
 
         [DataTestMethod]
@@ -181,7 +237,7 @@ namespace Bicep.Cli.IntegrationTests
                 AssertNoErrors(error);
             }
 
-            var parametersStdout = JsonSerializer.Deserialize<BuildParamsStdout>(output)!;
+            var parametersStdout = output.FromJson<BuildParamsStdout>();
             data.Compiled!.WriteToOutputFolder(parametersStdout.parametersJson);
             data.Compiled.ShouldHaveExpectedJsonValue();
         }

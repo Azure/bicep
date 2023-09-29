@@ -67,7 +67,7 @@ namespace Bicep.Cli.Commands
                 return 1;
             }
 
-            var paramsOverrides = System.Environment.GetEnvironmentVariable("BICEP_PARAMETERS_OVERRIDES");
+            var paramsOverrides = Environment.GetEnvironmentVariable("BICEP_PARAMETERS_OVERRIDES");
 
             if (paramsOverrides is { })
             {
