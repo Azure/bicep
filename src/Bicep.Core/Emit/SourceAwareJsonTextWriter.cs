@@ -24,7 +24,7 @@ namespace Bicep.Core.Emit
         public readonly PositionTrackingJsonTextWriter TrackingJsonWriter;
 
         /// <summary>
-        /// Creates a JsonTextWriter that is capable of generated a source map for the compiled JSON
+        /// Creates a JsonTextWriter that is capable of generating a source map for the compiled JSON
         /// </summary>
         /// <param name="fileResolver"></param>
         /// <param name="textWriter"></param>
