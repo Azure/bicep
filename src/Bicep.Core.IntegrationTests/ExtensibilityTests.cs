@@ -23,10 +23,10 @@ namespace Bicep.Core.IntegrationTests
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory));
 
         [TestMethod]
-        public void Storage_import_bad_config_is_blocked()
+        public void Bar_import_bad_config_is_blocked()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   madeUpProperty: 'asdf'
 } as stg
 ");
@@ -37,14 +37,14 @@ import 'storage@1.0.0' with {
         }
 
         [TestMethod]
-        public void Storage_import_can_be_duplicated()
+        public void Bar_import_can_be_duplicated()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: 'connectionString1'
 } as stg
 
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: 'connectionString2'
 } as stg2
 ");
@@ -52,10 +52,10 @@ import 'storage@1.0.0' with {
         }
 
         [TestMethod]
-        public void Storage_import_basic_test()
+        public void Bar_import_basic_test()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
@@ -76,11 +76,11 @@ resource blob 'blob' = {
         public void Ambiguous_type_references_return_errors()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg2
 
@@ -93,11 +93,11 @@ resource container 'container' = {
             });
 
             result = CompilationHelper.Compile(Services, @"
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg2
 
@@ -109,10 +109,10 @@ resource container 'stg2:container' = {
         }
 
         [TestMethod]
-        public void Storage_import_basic_test_loops_and_referencing()
+        public void Bar_import_basic_test_loops_and_referencing()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
@@ -149,10 +149,10 @@ output base64Content string = blobs[3]['base64Content']
         }
 
         [TestMethod]
-        public void Aad_import_basic_test_loops_and_referencing()
+        public void Foo_import_basic_test_loops_and_referencing()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'aad@1.0.0' as aad
+import 'foo@1.2.3' as foo
 param numApps int
 
 resource myApp 'application' = {
@@ -178,11 +178,11 @@ output myAppsLoopId2 string = myAppsLoop[3]['appId']
         }
 
         [TestMethod]
-        public void Aad_import_existing_requires_uniqueName()
+        public void Foo_import_existing_requires_uniqueName()
         {
             // we've accidentally used 'name' even though this resource type doesn't support it
             var result = CompilationHelper.Compile(Services, @"
-import 'aad@1.0.0'
+import 'foo@1.2.3'
 
 resource myApp 'application' existing = {
   name: 'foo'
@@ -198,7 +198,7 @@ resource myApp 'application' existing = {
 
             // oops! let's change it to 'uniqueName'
             result = CompilationHelper.Compile(Services, @"
-import 'aad@1.0.0' as aad
+import 'foo@1.2.3' as foo
 
 resource myApp 'application' existing = {
   uniqueName: 'foo'
@@ -395,10 +395,10 @@ resource secret 'core/Secret@v1' = {
         }
 
         [TestMethod]
-        public void Storage_import_basic_test_with_qualified_type()
+        public void Bar_import_basic_test_with_qualified_type()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
@@ -419,7 +419,7 @@ resource blob 'stg:blob' = {
         public void Invalid_namespace_qualifier_returns_error()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
@@ -444,7 +444,7 @@ resource blob 'bar:blob' = {
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
@@ -464,7 +464,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         }
 
         [TestMethod]
-        public void Storage_import_end_to_end_test()
+        public void Bar_import_end_to_end_test()
         {
             var result = CompilationHelper.Compile(Services,
                 ("main.bicep", @"
@@ -492,7 +492,7 @@ module website './website.bicep' = {
 @secure()
 param connectionString string
 
-import 'storage@1.0.0' with {
+import 'bar@0.0.1' with {
   connectionString: connectionString
 } as stg
 
@@ -510,112 +510,114 @@ resource blob 'blob' = {
 Hello from Bicep!"));
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-            result.Template.Should().DeepEqual(JToken.Parse(@"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""languageVersion"": ""2.1-experimental"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""metadata"": {
-    ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!"",
-    ""_EXPERIMENTAL_FEATURES_ENABLED"": [
-      ""Extensibility""
+            result.Template.Should().DeepEqual(JToken.Parse("""
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.1-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!",
+    "_EXPERIMENTAL_FEATURES_ENABLED": [
+      "Extensibility"
     ],
-    ""_generator"": {
-      ""name"": ""bicep"",
-      ""version"": ""dev"",
-      ""templateHash"": ""5467429402825561944""
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15743738092890485675"
     }
   },
-  ""parameters"": {
-    ""accountName"": {
-      ""type"": ""string""
+  "parameters": {
+    "accountName": {
+      "type": "string"
     }
   },
-  ""resources"": {
-    ""stgAccount"": {
-      ""type"": ""Microsoft.Storage/storageAccounts"",
-      ""apiVersion"": ""2019-06-01"",
-      ""name"": ""[toLower(parameters('accountName'))]"",
-      ""location"": ""[resourceGroup().location]"",
-      ""kind"": ""Storage"",
-      ""sku"": {
-        ""name"": ""Standard_LRS""
+  "resources": {
+    "stgAccount": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[toLower(parameters('accountName'))]",
+      "location": "[resourceGroup().location]",
+      "kind": "Storage",
+      "sku": {
+        "name": "Standard_LRS"
       }
     },
-    ""website"": {
-      ""type"": ""Microsoft.Resources/deployments"",
-      ""apiVersion"": ""2022-09-01"",
-      ""name"": ""website"",
-      ""properties"": {
-        ""expressionEvaluationOptions"": {
-          ""scope"": ""inner""
+    "website": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "website",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
         },
-        ""mode"": ""Incremental"",
-        ""parameters"": {
-          ""connectionString"": {
-            ""value"": ""[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', toLower(parameters('accountName')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(parameters('accountName'))), '2019-06-01').keys[0].value)]""
+        "mode": "Incremental",
+        "parameters": {
+          "connectionString": {
+            "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', toLower(parameters('accountName')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(parameters('accountName'))), '2019-06-01').keys[0].value)]"
           }
         },
-        ""template"": {
-          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-          ""languageVersion"": ""2.1-experimental"",
-          ""contentVersion"": ""1.0.0.0"",
-          ""metadata"": {
-            ""_EXPERIMENTAL_WARNING"": ""This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!"",
-            ""_EXPERIMENTAL_FEATURES_ENABLED"": [
-              ""Extensibility""
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "2.1-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+              "Extensibility"
             ],
-            ""_generator"": {
-              ""name"": ""bicep"",
-              ""version"": ""dev"",
-              ""templateHash"": ""4726710895277962729""
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "15691299864172979005"
             }
           },
-          ""parameters"": {
-            ""connectionString"": {
-              ""type"": ""securestring""
+          "parameters": {
+            "connectionString": {
+              "type": "securestring"
             }
           },
-          ""variables"": {
-            ""$fxv#0"": ""\nHello from Bicep!""
+          "variables": {
+            "$fxv#0": "\nHello from Bicep!"
           },
-          ""imports"": {
-            ""stg"": {
-              ""provider"": ""AzureStorage"",
-              ""version"": ""1.0.0"",
-              ""config"": {
-                ""connectionString"": ""[parameters('connectionString')]""
+          "imports": {
+            "stg": {
+              "provider": "Bar",
+              "version": "0.0.1",
+              "config": {
+                "connectionString": "[parameters('connectionString')]"
               }
             }
           },
-          ""resources"": {
-            ""container"": {
-              ""import"": ""stg"",
-              ""type"": ""container"",
-              ""properties"": {
-                ""name"": ""bicep""
+          "resources": {
+            "container": {
+              "import": "stg",
+              "type": "container",
+              "properties": {
+                "name": "bicep"
               }
             },
-            ""blob"": {
-              ""import"": ""stg"",
-              ""type"": ""blob"",
-              ""properties"": {
-                ""name"": ""blob.txt"",
-                ""containerName"": ""[reference('container').name]"",
-                ""base64Content"": ""[base64(variables('$fxv#0'))]""
+            "blob": {
+              "import": "stg",
+              "type": "blob",
+              "properties": {
+                "name": "blob.txt",
+                "containerName": "[reference('container').name]",
+                "base64Content": "[base64(variables('$fxv#0'))]"
               },
-              ""dependsOn"": [
-                ""container""
+              "dependsOn": [
+                "container"
               ]
             }
           }
         }
       },
-      ""dependsOn"": [
-        ""stgAccount""
+      "dependsOn": [
+        "stgAccount"
       ]
     }
   }
-}"));
+}
+"""));
         }
 
         [TestMethod]

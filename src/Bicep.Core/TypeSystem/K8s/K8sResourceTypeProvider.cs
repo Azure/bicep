@@ -8,7 +8,7 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.K8s
 {
-    public class K8sResourceTypeProvider : IResourceTypeProvider
+    public class K8sResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
         public const string NamePropertyName = "name";
         public const string MetadataPropertyName = "metadata";
@@ -17,7 +17,6 @@ namespace Bicep.Core.TypeSystem.K8s
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
         private readonly K8sResourceTypeLoader resourceTypeLoader;
-        private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
@@ -26,17 +25,12 @@ namespace Bicep.Core.TypeSystem.K8s
             NamePropertyName,
         }.ToImmutableHashSet();
 
-        public ImmutableDictionary<string, ImmutableArray<ResourceTypeReference>> TypeReferencesByType { get; }
-
         public K8sResourceTypeProvider(K8sResourceTypeLoader resourceTypeLoader)
+            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
             this.resourceTypeLoader = resourceTypeLoader;
-            this.availableResourceTypes = resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet();
             this.definedTypeCache = new ResourceTypeCache();
             this.generatedTypeCache = new ResourceTypeCache();
-            this.TypeReferencesByType = availableResourceTypes
-                .GroupBy(x => x.Type, StringComparer.OrdinalIgnoreCase)
-                .ToImmutableDictionary(x => x.Key, x => x.ToImmutableArray());
         }
 
         private static ResourceTypeComponents SetBicepResourceProperties(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
