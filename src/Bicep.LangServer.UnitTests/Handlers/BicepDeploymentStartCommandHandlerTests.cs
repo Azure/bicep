@@ -53,7 +53,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var bicepFileContents = @"
 param foo string
-param bar int            
+param bar int
             ";
 
             var bicepparamFileContents = @"
@@ -63,7 +63,7 @@ param foo = 'something'
 param bar = 1
             ";
 
-            var expectedParamJson = 
+            var expectedParamJson =
 @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -99,7 +99,7 @@ param bar = 1
         {
             var bicepFileContents = @"
 param foo string
-param bar int            
+param bar int
             ";
 
             var bicepparamFileContents = @"
@@ -109,7 +109,7 @@ param foo = 'something'
 param bar = '1'
             ";
 
-            var expectedError = @"Error BCP260: The parameter ""bar"" expects a value of type ""int"" but the provided value is of type ""'1'""";
+            var expectedError = @"Error BCP033: Expected a value of type ""int"" but the provided value is of type ""'1'""";
 
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
             var dir = Path.GetDirectoryName(bicepFilePath);
@@ -131,7 +131,7 @@ param bar = '1'
         [TestMethod]
         public void ExtractParametersObject_WithValidJsonReturns_ParametersPropertyValue()
         {
-            var paramJson = 
+            var paramJson =
 @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",

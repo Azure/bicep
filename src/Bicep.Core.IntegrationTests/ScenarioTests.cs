@@ -5272,4 +5272,30 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"rg\" is not valid."),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/11981
+    [TestMethod]
+    public void Test_Issue11981()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("main.bicep", """
+                @sealed()
+                param foo {
+                  bar: string
+                }
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                param foo = {
+                  bar: 'bar'
+                  baz: 'baz'
+                }
+                """));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP037", DiagnosticLevel.Error, "The property \"baz\" is not allowed on objects of type \"{ bar: string }\". No other properties are allowed."),
+        });
+    }
 }
