@@ -14,7 +14,7 @@ configuration:
         - isAction:
             action: Opened
         - bodyContains:
-            pattern: formatted-main
+            pattern: chores/format/main
             isRegex: False
         - hasLabel:
             label: 'code-formatting-automation'
@@ -23,7 +23,7 @@ configuration:
             issueAuthor: True
       then:
         - createPullRequest:
-            head: formatted-main
+            head: chores/format/main
             base: main
             title: "Reformat code"
             body: "Resolves #${number}"
