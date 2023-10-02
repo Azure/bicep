@@ -33,6 +33,7 @@ namespace Bicep.Cli.Services
         private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IFileResolver fileResolver;
         private readonly Workspace workspace;
+        public Workspace Workspace => workspace;
 
         public CompilationService(
             BicepCompiler bicepCompiler,
