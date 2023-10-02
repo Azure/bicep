@@ -1,0 +1,24 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
+using System.Linq;
+using Bicep.Core.Resources;
+using System.Collections.Immutable;
+
+namespace Bicep.Core.TypeSystem;
+
+public abstract class ResourceTypeProviderBase
+{
+    protected readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
+    protected readonly Lazy<ImmutableDictionary<string, ImmutableArray<ResourceTypeReference>>> typeReferencesByTypeLazy;
+
+    public ImmutableDictionary<string, ImmutableArray<ResourceTypeReference>> TypeReferencesByType => typeReferencesByTypeLazy.Value;
+
+    protected ResourceTypeProviderBase(ImmutableHashSet<ResourceTypeReference> availableResourceTypes)
+    {
+        this.availableResourceTypes = availableResourceTypes;
+        typeReferencesByTypeLazy = new(() => availableResourceTypes
+            .GroupBy(x => x.Type, StringComparer.OrdinalIgnoreCase)
+            .ToImmutableDictionary(x => x.Key, x => x.ToImmutableArray()));
+    }
+}

@@ -7,6 +7,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -145,6 +146,13 @@ namespace Bicep.Core.Semantics.Namespaces
             // Here we are not handling any deduplication between namespaces. This is OK for now, because there
             // are only two supported namespaces ("az" & "sys"), both singletons. "sys" does not contain any resource types.
             return namespaceTypes.Values.SelectMany(type => type.ResourceTypeProvider.GetAvailableTypes());
+        }
+
+        public ILookup<string, ImmutableArray<ResourceTypeReference>> GetGroupedResourceTypes()
+        {
+            return namespaceTypes.Values
+                .SelectMany(x => x.ResourceTypeProvider.TypeReferencesByType)
+                .ToLookup(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
         }
     }
 }
