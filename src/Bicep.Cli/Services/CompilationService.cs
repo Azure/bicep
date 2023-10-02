@@ -31,6 +31,7 @@ namespace Bicep.Cli.Services
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IConfigurationManager configurationManager;
         private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly IFileResolver fileResolver;
         private readonly Workspace workspace;
 
         public CompilationService(
@@ -40,7 +41,8 @@ namespace Bicep.Cli.Services
             IDiagnosticLogger diagnosticLogger,
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager,
-            IFeatureProviderFactory featureProviderFactory)
+            IFeatureProviderFactory featureProviderFactory,
+            IFileResolver fileResolver)
         {
             this.bicepCompiler = bicepCompiler;
             this.decompiler = decompiler;
@@ -50,6 +52,7 @@ namespace Bicep.Cli.Services
             this.configurationManager = configurationManager;
             this.workspace = new Workspace();
             this.featureProviderFactory = featureProviderFactory;
+            this.fileResolver = fileResolver;
         }
 
         public async Task RestoreAsync(string inputPath, bool forceModulesRestore)
@@ -107,8 +110,12 @@ namespace Bicep.Cli.Services
             inputPath = PathHelper.ResolvePath(inputPath);
             Uri inputUri = PathHelper.FilePathToFileUrl(inputPath);
             Uri outputUri = PathHelper.FilePathToFileUrl(outputPath);
+            if (!fileResolver.TryRead(inputUri).IsSuccess(out var jsonContents))
+            {
+                throw new InvalidOperationException($"Failed to read {inputUri}");
+            }
 
-            var decompilation = await decompiler.Decompile(inputUri, outputUri);
+            var decompilation = await decompiler.Decompile(outputUri, jsonContents);
 
             foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
             {
