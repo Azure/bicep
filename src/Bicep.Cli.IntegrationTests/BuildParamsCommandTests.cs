@@ -200,7 +200,7 @@ namespace Bicep.Cli.IntegrationTests
             File.Exists(outputFilePath).Should().BeFalse();            
             var result = await Bicep("build-params", bicepparamsPath, "--stdout");
             result.Should().Fail().And.NotHaveStdout();
-            result.Stderr.Should().Contain("Error BCP260: The parameter \"intParam\" expects a value of type \"int\" but the provided value is of type \"'bar'\"");
+            result.Stderr.Should().Contain("Error BCP033: Expected a value of type \"int\" but the provided value is of type \"'bar'\".");
         
             Environment.SetEnvironmentVariable("BICEP_PARAMETERS_OVERRIDES", null);
         }
