@@ -9,7 +9,7 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.MicrosoftGraph
 {
-    public class MicrosoftGraphResourceTypeProvider : IResourceTypeProvider
+    public class MicrosoftGraphResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
         public const string NamePropertyName = "name";
         public const string AppIdPropertyName = "appId";
@@ -17,7 +17,6 @@ namespace Bicep.Core.TypeSystem.MicrosoftGraph
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
         private readonly MicrosoftGraphResourceTypeLoader resourceTypeLoader;
-        private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
@@ -36,9 +35,9 @@ namespace Bicep.Core.TypeSystem.MicrosoftGraph
                 NamePropertyName);
 
         public MicrosoftGraphResourceTypeProvider(MicrosoftGraphResourceTypeLoader resourceTypeLoader)
+            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
             this.resourceTypeLoader = resourceTypeLoader;
-            this.availableResourceTypes = resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet();
             this.definedTypeCache = new ResourceTypeCache();
             this.generatedTypeCache = new ResourceTypeCache();
         }

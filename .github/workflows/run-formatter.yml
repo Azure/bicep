@@ -47,7 +47,7 @@ jobs:
         id: commit_for_pr
         if: github.ref_protected
         env:
-          BRANCH_ID: formatted-${{ github.ref }}
+          BRANCH_ID: chores/format/${{ github.ref_name }}
         run: |
           git checkout -b $BRANCH_ID
 

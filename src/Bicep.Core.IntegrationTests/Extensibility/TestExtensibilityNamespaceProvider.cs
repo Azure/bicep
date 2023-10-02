@@ -8,44 +8,43 @@ using Bicep.Core.Workspaces;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Bicep.Core.IntegrationTests.Extensibility
+namespace Bicep.Core.IntegrationTests.Extensibility;
+
+public class TestExtensibilityNamespaceProvider : INamespaceProvider
 {
-    public class TestExtensibilityNamespaceProvider : INamespaceProvider
+    private readonly INamespaceProvider defaultNamespaceProvider;
+
+    public TestExtensibilityNamespaceProvider(IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory)
     {
-        private readonly INamespaceProvider defaultNamespaceProvider;
+        defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoaderFactory);
+    }
 
-        public TestExtensibilityNamespaceProvider(IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory)
+    public IEnumerable<string> AvailableNamespaces => defaultNamespaceProvider.AvailableNamespaces.Concat(new[] {
+        FooNamespaceType.BuiltInName,
+        BarNamespaceType.BuiltInName,
+    });
+
+    public NamespaceType? TryGetNamespace(
+        string providerName,
+        string aliasName,
+        ResourceScope resourceScope,
+        IFeatureProvider featureProvider,
+        BicepSourceFileKind sourceFileKind,
+        string? version = null)
+    {
+        if (defaultNamespaceProvider.TryGetNamespace(providerName, aliasName, resourceScope, featureProvider, sourceFileKind) is { } namespaceType)
         {
-            defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoaderFactory);
+            return namespaceType;
         }
 
-        public IEnumerable<string> AvailableNamespaces => defaultNamespaceProvider.AvailableNamespaces.Concat(new[] {
-            StorageNamespaceType.BuiltInName,
-            AadNamespaceType.BuiltInName,
-        });
-
-        public NamespaceType? TryGetNamespace(
-            string providerName,
-            string aliasName,
-            ResourceScope resourceScope,
-            IFeatureProvider featureProvider,
-            BicepSourceFileKind sourceFileKind,
-            string? version = null)
+        switch (providerName)
         {
-            if (defaultNamespaceProvider.TryGetNamespace(providerName, aliasName, resourceScope, featureProvider, sourceFileKind) is { } namespaceType)
-            {
-                return namespaceType;
-            }
-
-            switch (providerName)
-            {
-                case StorageNamespaceType.BuiltInName:
-                    return StorageNamespaceType.Create(aliasName);
-                case AadNamespaceType.BuiltInName:
-                    return AadNamespaceType.Create(aliasName);
-            }
-
-            return default;
+            case FooNamespaceType.BuiltInName:
+                return FooNamespaceType.Create(aliasName);
+            case BarNamespaceType.BuiltInName:
+                return BarNamespaceType.Create(aliasName);
         }
+
+        return default;
     }
 }

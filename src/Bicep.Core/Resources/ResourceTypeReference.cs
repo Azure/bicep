@@ -14,27 +14,31 @@ namespace Bicep.Core.Resources
         private const string VersionPattern = "[a-z0-9][a-z0-9-]+";
 
         private const RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
-        private static readonly Regex ResourceTypePattern = new Regex(@$"^(?<type>{TypeSegmentPattern})(/(?<type>{TypeSegmentPattern}))*(@(?<version>{VersionPattern}))?$", PatternRegexOptions);
-        private static readonly Regex ResourceTypePrefixPattern = new Regex(@$"^(?<type>{TypeSegmentPattern})(/(?<type>{TypeSegmentPattern}))*@", PatternRegexOptions);
+        private static readonly Regex ResourceTypePattern = new Regex(@$"^(?<types>{TypeSegmentPattern}(/{TypeSegmentPattern})*)(@(?<version>{VersionPattern}))?$", PatternRegexOptions);
+        private static readonly Regex ResourceTypePrefixPattern = new Regex(@$"^(?<types>{TypeSegmentPattern}(/{TypeSegmentPattern})*)@", PatternRegexOptions);
 
-        public ResourceTypeReference(ImmutableArray<string> typeSegments, string? version)
+        public ResourceTypeReference(string type, string? version)
         {
-            if (typeSegments.Length <= 0)
+            if (type.Length <= 0)
             {
-                throw new ArgumentException("At least one type must be specified.");
+                throw new ArgumentException("Type must be non-empty.");
             }
 
-            TypeSegments = typeSegments;
+            Name = version is null ? type : $"{type}@{version}";
+            Type = type;
+            TypeSegments = type.Split('/').ToImmutableArray();
             ApiVersion = version;
         }
 
-        public string FormatName()
-            => $"{FormatType()}{(this.ApiVersion == null ? "" : $"@{this.ApiVersion}")}";
+        public string FormatName() => Name;
 
-        public string FormatType()
-            => string.Join('/', this.TypeSegments);
+        public string FormatType() => Type;
 
         public ImmutableArray<string> TypeSegments { get; }
+
+        public string Name { get; }
+
+        public string Type { get; }
 
         public string? ApiVersion { get; }
 
@@ -54,9 +58,7 @@ namespace Bicep.Core.Resources
                 return null;
             }
 
-            var types = match.Groups["type"].Captures.Cast<Capture>()
-                .Select(c => c.Value)
-                .ToImmutableArray();
+            var types = match.Groups["types"].Value;
             var version = match.Groups["version"].Value;
 
             if (string.IsNullOrEmpty(version))
@@ -70,7 +72,7 @@ namespace Bicep.Core.Resources
         public static ResourceTypeReference Combine(ResourceTypeReference baseType, ResourceTypeReference nestedType)
         {
             return new ResourceTypeReference(
-                baseType.TypeSegments.AddRange(nestedType.TypeSegments),
+                $"{baseType.Type}/{nestedType.Type}",
                 nestedType.ApiVersion ?? baseType.ApiVersion);
         }
 

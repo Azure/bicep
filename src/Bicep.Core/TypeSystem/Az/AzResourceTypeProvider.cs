@@ -8,10 +8,11 @@ using Bicep.Core.Semantics;
 using System.Collections.Immutable;
 using Bicep.Core.Emit;
 using System.Text.RegularExpressions;
+using Azure.Deployments.Core.Comparers;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class AzResourceTypeProvider : IResourceTypeProvider
+    public class AzResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
         private static readonly RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
         private static readonly Regex ResourceTypePattern = new Regex(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+$", PatternRegexOptions);
@@ -71,7 +72,6 @@ namespace Bicep.Core.TypeSystem.Az
         public string Version { get; } = "1.0.0";
 
         private readonly IAzResourceTypeLoader resourceTypeLoader;
-        private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
@@ -192,10 +192,10 @@ namespace Bicep.Core.TypeSystem.Az
         }
 
         public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader, string providerVersion)
+            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
             this.Version = providerVersion;
             this.resourceTypeLoader = resourceTypeLoader;
-            this.availableResourceTypes = resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet();
             this.definedTypeCache = new ResourceTypeCache();
             this.generatedTypeCache = new ResourceTypeCache();
         }

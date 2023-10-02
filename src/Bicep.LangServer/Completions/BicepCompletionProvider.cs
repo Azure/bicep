@@ -516,26 +516,23 @@ namespace Bicep.LanguageServer.Completions
             // If the current value passes the namespace and type notation ("<Namespace>/<type>") format, we return the fully qualified resource types
             if (TryGetFullyQualfiedResourceType(context.EnclosingDeclaration) is string qualified)
             {
+                var resourceType = qualified.Split('@')[0];
+
                 // newest api versions should be shown first
                 // strict filtering on type so that we show api versions for only the selected type
-                return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
-                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(qualified.Split('@')[0], rt.FormatType()))
-                    .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
-                    .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
-                    .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
-                    .ToList();
+                return model.Binder.NamespaceResolver.GetGroupedResourceTypes()[resourceType]
+                    .SelectMany(x => x)
+                    .OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
+                    .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true));
             }
 
             // if we do not have the namespace and type notation, we only return unique resource types without their api-versions
             // we need to ensure that Microsoft.Compute/virtualMachines comes before Microsoft.Compute/virtualMachines/extensions
             // we still order by apiVersion first to have consistent indexes
-            return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
-                .OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
-                .GroupBy(rt => rt.FormatType())
-                .Select(rt => rt.First())
-                .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
-                .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false))
-                .ToList();
+            return model.Binder.NamespaceResolver.GetGroupedResourceTypes()
+                .Select(rt => rt.SelectMany(x => x).OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance).First())
+                .OrderBy(rt => rt.Type, StringComparer.OrdinalIgnoreCase)
+                .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false));
         }
 
         private IEnumerable<CompletionItem> GetResourceTypeFollowerCompletions(BicepCompletionContext context)
@@ -1082,7 +1079,9 @@ namespace Bicep.LanguageServer.Completions
                     return result;
                 }
 
-                result = GetAccessibleDecoratorFunctions(namespaceType, enclosingDeclarationSymbol);
+                result = GetAccessibleDecoratorFunctions(namespaceType,
+                    context.EnclosingDecorable is null ? null : model.GetDeclaredType(context.EnclosingDecorable),
+                    enclosingDeclarationSymbol);
                 accessibleDecoratorFunctionsCache.Add(namespaceType, result);
 
                 return result;
@@ -1162,7 +1161,7 @@ namespace Bicep.LanguageServer.Completions
             return completions.Values;
         }
 
-        private static IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctions(NamespaceType namespaceType, Symbol? enclosingDeclarationSymbol)
+        private static IEnumerable<FunctionSymbol> GetAccessibleDecoratorFunctions(NamespaceType namespaceType, TypeSymbol? targetType, Symbol? enclosingDeclarationSymbol)
         {
             // Local function.
             IEnumerable<FunctionSymbol> GetAccessible(IEnumerable<FunctionSymbol> symbols, TypeSymbol targetType, FunctionFlags flags) =>
@@ -1176,7 +1175,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 MetadataSymbol metadataSymbol => GetAccessible(knownDecoratorFunctions, metadataSymbol.Type, FunctionFlags.MetadataDecorator),
                 ParameterSymbol parameterSymbol => GetAccessible(knownDecoratorFunctions, parameterSymbol.Type, FunctionFlags.ParameterDecorator),
-                TypeAliasSymbol declaredTypeSymbol => GetAccessible(knownDecoratorFunctions, declaredTypeSymbol.UnwrapType(), FunctionFlags.TypeDecorator),
+                TypeAliasSymbol declaredTypeSymbol when targetType is not null => GetAccessible(knownDecoratorFunctions, (targetType as TypeType)?.Unwrapped ?? targetType, FunctionFlags.TypeDecorator),
                 VariableSymbol variableSymbol => GetAccessible(knownDecoratorFunctions, variableSymbol.Type, FunctionFlags.VariableDecorator),
                 DeclaredFunctionSymbol functionSymbol => GetAccessible(knownDecoratorFunctions, functionSymbol.Type, FunctionFlags.FunctionDecorator),
                 ResourceSymbol resourceSymbol => GetAccessible(knownDecoratorFunctions, resourceSymbol.Type, FunctionFlags.ResourceDecorator),
@@ -1204,8 +1203,9 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName) && declaredType is NamespaceType namespaceType)
             {
                 var enclosingDeclarationSymbol = context.EnclosingDeclaration is null ? null : model.GetSymbolInfo(context.EnclosingDeclaration);
+                var decoratorTargetType = context.EnclosingDecorable is null ? null : model.GetDeclaredType(context.EnclosingDecorable);
 
-                return GetAccessibleDecoratorFunctions(namespaceType, enclosingDeclarationSymbol)
+                return GetAccessibleDecoratorFunctions(namespaceType, decoratorTargetType, enclosingDeclarationSymbol)
                     .Select(symbol => CreateSymbolCompletion(symbol, context.ReplacementRange, model));
             }
 
@@ -1802,24 +1802,22 @@ namespace Bicep.LanguageServer.Completions
             // Splitting ResourceType Completion in to two pieces, one for the 'Namespace/type', the second for '@<api-version>'
             if (showApiVersion && resourceType.ApiVersion is not null)
             {
-                var insertText = StringUtils.EscapeBicepString($"{resourceType.FormatType()}@{resourceType.ApiVersion}");
+                var insertText = StringUtils.EscapeBicepString(resourceType.Name);
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, resourceType.ApiVersion)
                     // Lower-case all resource types in filter text otherwise editor may prefer those with casing that match what the user has already typed (#9168)
                     .WithFilterText(insertText.ToLowerInvariant())
                     .WithPlainTextEdit(replacementRange, insertText)
-                    .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
-                    // 8 hex digits is probably overkill :)
+                    .WithDocumentation($"Type: `{resourceType.Type}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
                     .WithSortText(index.ToString("x8"))
                     .Build();
             }
             else
             {
-                var insertText = StringUtils.EscapeBicepString($"{resourceType.FormatType()}");
+                var insertText = StringUtils.EscapeBicepString(resourceType.Type);
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
-                    .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}@$0'")
-                    .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}`")
+                    .WithSnippetEdit(replacementRange, $"{insertText[..^1]}@$0'")
+                    .WithDocumentation($"Type: `{resourceType.Type}`{MarkdownNewLine}`")
                     .WithFollowupCompletion("resource type completion")
-                    // 8 hex digits is probably overkill :)
                     .WithSortText(index.ToString("x8"))
                     .Build();
             }

@@ -309,7 +309,7 @@ public class SnippetsProvider : ISnippetsProvider
         {
             foreach (var nestedResourceTypeReference in nestedResourceTypeReferences)
             {
-                var nestedTypeReference = new ResourceTypeReference(ImmutableArray.Create<string>(nestedResourceTypeReference.TypeSegments.Last()), nestedResourceTypeReference.ApiVersion);
+                var nestedTypeReference = new ResourceTypeReference(nestedResourceTypeReference.TypeSegments.Last(), nestedResourceTypeReference.ApiVersion);
 
                 if (snippetCache.ResourceTypeReferenceInfoMap.TryGetValue(nestedResourceTypeReference, out var resourceInfo))
                 {

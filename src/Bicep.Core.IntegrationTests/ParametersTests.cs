@@ -168,7 +168,7 @@ output id string = p.id
         public void Parameter_cannot_use_extensibility_resource_type()
         {
             var result = CompilationHelper.Compile(ServicesWithExtensibility, @"
-import 'storage@1.0.0' with {
+import 'bar@1.0.0' with {
   connectionString: 'asdf'
 } as stg
 
