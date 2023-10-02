@@ -67,15 +67,10 @@ namespace Bicep.Wasm
         {
             using var serviceScope = serviceProvider.CreateScope();
             var decompiler = serviceScope.ServiceProvider.GetRequiredService<BicepDecompiler>();
-            var fileSystem = serviceScope.ServiceProvider.GetRequiredService<IFileSystem>();
-
-            var jsonUri = new Uri("file:///main.json");
-            await fileSystem.File.WriteAllTextAsync(jsonUri.LocalPath, jsonContent);
 
             try
             {
-                var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
-                var (entrypointUri, filesToSave) = await decompiler.Decompile(jsonUri, bicepUri);
+                var (entrypointUri, filesToSave) = await decompiler.Decompile(new Uri("inmemory:///main.bicep"), jsonContent);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }
