@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
@@ -21,6 +22,7 @@ using Bicep.Core.Syntax.Rewriters;
 using Bicep.Core.Workspaces;
 using Microsoft.Diagnostics.Tracing.Parsers.FrameworkEventSource;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using SharpYaml.Tokens;
 
@@ -67,12 +69,16 @@ namespace Bicep.Cli.Commands
                 return 1;
             }
 
-            var paramsOverrides = Environment.GetEnvironmentVariable("BICEP_PARAMETERS_OVERRIDES");
+            var paramsOverridesJson = Environment.GetEnvironmentVariable("BICEP_PARAMETERS_OVERRIDES")?? "";
 
-            if (paramsOverrides is { })
+            var parameters = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(
+                paramsOverridesJson,
+                new JsonSerializerSettings() {
+                    DateParseHandling = DateParseHandling.None,
+                });
+        
+            if (parameters is { })
             {
-                var paramsOverridesJson = JObject.Parse(paramsOverrides);
-
                 var fileContents = await File.ReadAllTextAsync(paramsInputPath);
                 var sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
 
@@ -83,11 +89,9 @@ namespace Bicep.Cli.Commands
                         return syntax;
                     }
 
-                    var overrideJsonValue = paramsOverridesJson.GetValue(paramSyntax.Name.IdentifierName);
-
-                    if(overrideJsonValue is {})
+                    if(parameters.TryGetValue(paramSyntax.Name.IdentifierName, out var overrideValue))
                     {
-                        var replacementValue = ConvertJsonToBicepSyntax(overrideJsonValue);
+                        var replacementValue = ConvertJsonToBicepSyntax(overrideValue);
 
                         return new ParameterAssignmentSyntax(
                             paramSyntax.Keyword,
@@ -96,7 +100,7 @@ namespace Bicep.Cli.Commands
                             replacementValue
                         );
                     }
-                    
+
                     return syntax;
                 });
 
@@ -172,7 +176,7 @@ namespace Bicep.Cli.Commands
                 // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
                 JTokenType.Float => SyntaxFactory.CreateFunctionCall("json", SyntaxFactory.CreateStringLiteral(value.ToObject<double>().ToString(CultureInfo.InvariantCulture))),
                 JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.ToObject<bool>()),
-                JTokenType.Null => SyntaxFactory.CreateFunctionCall("null"),
+                JTokenType.Null => SyntaxFactory.CreateNullLiteral(),
                 _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported value token type: {value.Type}"),
             },
             _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported token: {token.Type}")
