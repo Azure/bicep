@@ -110,7 +110,7 @@ namespace Bicep.Cli.Services
             inputPath = PathHelper.ResolvePath(inputPath);
             Uri inputUri = PathHelper.FilePathToFileUrl(inputPath);
             Uri outputUri = PathHelper.FilePathToFileUrl(outputPath);
-            if (!fileResolver.TryRead(inputUri).IsSuccess(out var jsonContents, out _))
+            if (!fileResolver.TryRead(inputUri).IsSuccess(out var jsonContents))
             {
                 throw new InvalidOperationException($"Failed to read {inputUri}");
             }
