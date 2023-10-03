@@ -30,9 +30,10 @@ public class CompileTimeImportDeclarationSyntax : StatementSyntax, ITopLevelDecl
     SyntaxBase IArtifactReferenceSyntax.SourceSyntax
         => FromClause is CompileTimeImportFromClauseSyntax fromClauseSyntax ? fromClauseSyntax.Path : FromClause;
 
+    SyntaxBase? IArtifactReferenceSyntax.Path
+        => (FromClause as CompileTimeImportFromClauseSyntax)?.Path;
+
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitCompileTimeImportDeclarationSyntax(this);
 
     public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, this.FromClause);
-
-    public StringSyntax? TryGetPath() => (FromClause as CompileTimeImportFromClauseSyntax)?.Path as StringSyntax;
 }

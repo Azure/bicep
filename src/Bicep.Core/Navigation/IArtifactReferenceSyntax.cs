@@ -10,7 +10,7 @@ namespace Bicep.Core.Navigation;
 /// </summary>
 public interface IArtifactReferenceSyntax
 {
-    public SyntaxBase SourceSyntax { get; }
+    SyntaxBase SourceSyntax { get; }
 
-    public StringSyntax? TryGetPath();
+    SyntaxBase? Path { get; }
 }

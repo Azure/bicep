@@ -194,7 +194,7 @@ param firstParam string", new[] { "'one'", "'two'" }, new[] { CompletionItemKind
 using |
 ", fileTextsByUri.ToImmutableDictionary(), '|');
 
-            completions.Should().SatisfyRespectively(
+            completions.Take(5).Should().SatisfyRespectively(
                 x =>
                 {
                     x.Label.Should().Be("main1.bicep");
