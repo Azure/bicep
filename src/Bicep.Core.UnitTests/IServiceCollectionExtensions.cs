@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
@@ -18,6 +19,7 @@ using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Bicep.LanguageServer.CompilationManager;
@@ -41,6 +43,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
         .AddSingleton<IFileResolver, FileResolver>()
+        .AddSingleton<IEnvironment, Core.Utils.Environment>()
         .AddSingleton<IFileSystem, IOFileSystem>()
         .AddSingleton<IConfigurationManager, ConfigurationManager>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
@@ -68,6 +71,9 @@ public static class IServiceCollectionExtensions
         => Register(services, overrides)
             .AddSingleton<FeatureProviderFactory>()
             .AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>();
+
+    public static IServiceCollection WithEnvironmentVariables(this IServiceCollection services, params (string key, string? value)[] variables)
+        => Register(services, TestEnvironment.Create(variables));
 
     public static IServiceCollection WithNamespaceProvider(this IServiceCollection services, INamespaceProvider namespaceProvider)
         => Register(services, namespaceProvider);

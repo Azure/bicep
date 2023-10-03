@@ -9,6 +9,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core;
@@ -16,6 +17,7 @@ namespace Bicep.Core;
 public class BicepCompiler
 {
     private readonly IFeatureProviderFactory featureProviderFactory;
+    private readonly IEnvironment environment;
     private readonly INamespaceProvider namespaceProvider;
     private readonly IConfigurationManager configurationManager;
     private readonly IBicepAnalyzer bicepAnalyzer;
@@ -24,6 +26,7 @@ public class BicepCompiler
 
     public BicepCompiler(
         IFeatureProviderFactory featureProviderFactory,
+        IEnvironment environment,
         INamespaceProvider namespaceProvider,
         IConfigurationManager configurationManager,
         IBicepAnalyzer bicepAnalyzer,
@@ -31,6 +34,7 @@ public class BicepCompiler
         IModuleDispatcher moduleDispatcher)
     {
         this.featureProviderFactory = featureProviderFactory;
+        this.environment = environment;
         this.namespaceProvider = namespaceProvider;
         this.configurationManager = configurationManager;
         this.bicepAnalyzer = bicepAnalyzer;
@@ -57,6 +61,6 @@ public class BicepCompiler
             //TODO(asilverman): I want to inject here the logic that restores the providers
         }
 
-        return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, bicepAnalyzer, moduleDispatcher);
+        return new Compilation(featureProviderFactory, environment, namespaceProvider, sourceFileGrouping, configurationManager, bicepAnalyzer, moduleDispatcher);
     }
 }

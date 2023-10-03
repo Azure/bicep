@@ -21,7 +21,7 @@ namespace Bicep.Core.Semantics
             Description = string.Empty;
             ReturnType = LanguageConstants.Any;
             FixedParameters = ImmutableArray.CreateBuilder<FixedFunctionParameter>();
-            ResultBuilder = (_, _, _, _, _) => new(LanguageConstants.Any);
+            ResultBuilder = (_, _, _, _, _, _) => new(LanguageConstants.Any);
             VariableParameter = null;
         }
 
@@ -79,7 +79,7 @@ namespace Bicep.Core.Semantics
         public FunctionOverloadBuilder WithReturnType(TypeSymbol returnType)
         {
             ReturnType = returnType;
-            ResultBuilder = (_, _, _, _, _) => new(returnType);
+            ResultBuilder = (_, _, _, _, _, _) => new(returnType);
 
             return this;
         }

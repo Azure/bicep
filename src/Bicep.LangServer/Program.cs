@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer
                 });
 
                 await parser.ParseArguments<CommandLineOptions>(args)
-                    .WithNotParsed((x) => Environment.Exit(1))
+                    .WithNotParsed((x) => System.Environment.Exit(1))
                     .WithParsedAsync(async options => await RunServer(options, cancellationToken));
             });
 

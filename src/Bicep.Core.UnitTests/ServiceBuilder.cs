@@ -9,6 +9,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,7 @@ public static class IDependencyHelperExtensions
     public static Compilation BuildCompilation(this IDependencyHelper helper, SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         => new(
             helper.Construct<IFeatureProviderFactory>(),
+            helper.Construct<IEnvironment>(),
             helper.Construct<INamespaceProvider>(),
             sourceFileGrouping,
             helper.Construct<IConfigurationManager>(),

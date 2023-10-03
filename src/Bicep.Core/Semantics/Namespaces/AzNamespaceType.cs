@@ -11,6 +11,7 @@ using Bicep.Core.Intermediate;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -29,29 +30,29 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static FunctionOverload.ResultBuilderDelegate AddDiagnosticsAndReturnResult(TypeSymbol returnType, DiagnosticBuilder.DiagnosticBuilderDelegate writeDiagnostic)
         {
-            return (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
+            return (_, _, _, diagnostics, functionCall, argumentTypes) =>
             {
                 diagnostics.Write(functionCall.Name, writeDiagnostic);
                 return new(returnType);
             };
         }
 
-        private static FunctionResult GetRestrictedResourceGroupReturnResult(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetRestrictedResourceGroupReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
                 new ResourceGroupScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()),
                 new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
-        private static FunctionResult GetRestrictedSubscriptionReturnResult(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetRestrictedSubscriptionReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
                 new SubscriptionScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()),
                 new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
-        private static FunctionResult GetRestrictedManagementGroupReturnResult(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetRestrictedManagementGroupReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
                 new ManagementGroupScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()),
                 new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
-        private static FunctionResult GetTenantReturnResult(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetTenantReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(new TenantScopeType(functionCall.Arguments.ToImmutableArray(), new[]
             {
                 new TypeProperty("tenantId", LanguageConstants.String),
@@ -60,7 +61,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("displayName", LanguageConstants.String),
             }));
 
-        private static FunctionResult GetManagementGroupReturnResult(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetManagementGroupReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var summary = new ObjectType("summaryProperties", TypeSymbolValidationFlags.Default, new[]
             {
@@ -93,7 +94,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }));
         }
 
-        private static FunctionResult GetResourceGroupReturnResult(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetResourceGroupReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var properties = new ObjectType("properties", TypeSymbolValidationFlags.Default, new[]
             {
@@ -112,7 +113,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }));
         }
 
-        private static FunctionResult GetSubscriptionReturnResult(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetSubscriptionReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             return new(new SubscriptionScopeType(functionCall.Arguments.ToImmutableArray(), new[]
             {
@@ -295,7 +296,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new FunctionOverloadBuilder(GetSecretFunctionName)
                     .WithReturnType(LanguageConstants.SecureString)
                     .WithGenericDescription("Retrieve a value from an Azure Key Vault at the start of a deployment. All arguments must be compile-time constants.")
-                    .WithReturnResultBuilder((_, _, _, func, argumentTypes) =>
+                    .WithReturnResultBuilder((_, _, _, _, func, argumentTypes) =>
                     {
                         if ((argumentTypes[0] as StringLiteralType)?.RawStringValue is not { } subscriptionId)
                         {
