@@ -35,7 +35,7 @@ namespace Bicep.Core.Syntax
 
         public static ResultWithDiagnostic<string> TryGetForeignTemplatePath(IArtifactReferenceSyntax foreignTemplateReference)
         {
-            if (foreignTemplateReference.TryGetPath() is not StringSyntax pathSyntax)
+            if (foreignTemplateReference.Path is not StringSyntax pathSyntax)
             {
                 return new(OnMissingPathSyntaxErrorBuilder(foreignTemplateReference));
             }

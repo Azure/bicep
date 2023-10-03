@@ -16,6 +16,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -91,7 +92,6 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context))
                 .Concat(GetParamIdentifierCompletions(model, context))
                 .Concat(GetParamValueCompletions(model, context))
-                .Concat(GetUsingDeclarationPathCompletions(model, context))
                 .Concat(GetAssertValueCompletions(model, context))
                 .Concat(await moduleReferenceCompletionProvider.GetFilteredCompletions(model.SourceFile.FileUri, context, cancellationToken));
         }
@@ -132,36 +132,6 @@ namespace Bicep.LanguageServer.Completions
 
             // loops are not allowed in param files... yet!
             return GetValueCompletionsForType(paramsSemanticModel, paramsCompletionContext, declaredType, loopsAllowed: false);
-        }
-
-        private IEnumerable<CompletionItem> GetUsingDeclarationPathCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
-        {
-            if (!paramsCompletionContext.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
-            {
-                return Enumerable.Empty<CompletionItem>();
-            }
-
-            if(paramsCompletionContext.EnclosingDeclaration is not UsingDeclarationSyntax usingDeclarationSyntax ||
-               usingDeclarationSyntax.Path is not StringSyntax stringSyntax ||
-               stringSyntax.TryGetLiteralValue() is not string entered)
-            {
-                entered = "";
-            }
-
-
-             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (TryGetFilesForPathCompletions(paramsSemanticModel.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
-            {
-                return Enumerable.Empty<CompletionItem>();
-            }
-
-            // Prioritize .bicep files higher than other files.
-            var bicepFileItems = CreateFileCompletionItems(paramsSemanticModel.SourceFile.FileUri, paramsCompletionContext.ReplacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
-            var dirItems = CreateDirectoryCompletionItems(paramsCompletionContext.ReplacementRange, fileCompletionInfo);
-
-            return bicepFileItems.Concat(dirItems);
-
-            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
@@ -649,7 +619,8 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetLocalModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
+                !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -660,8 +631,8 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // To provide intellisense before the quotes are typed
-            if (context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
-                || declarationSyntax.Path is not StringSyntax stringSyntax
+            if (context.EnclosingDeclaration is not IArtifactReferenceSyntax artifactReference
+                || artifactReference.Path is not StringSyntax stringSyntax
                 || stringSyntax.TryGetLiteralValue() is not string entered)
             {
                 entered = "";
@@ -675,7 +646,8 @@ namespace Bicep.LanguageServer.Completions
                     return Enumerable.Empty<CompletionItem>();
                 }
 
-                var replacementRange = context.EnclosingDeclaration is ModuleDeclarationSyntax module ? module.Path.ToRange(model.SourceFile.LineStarts) : context.ReplacementRange;
+                var replacementSyntax = (context.EnclosingDeclaration as IArtifactReferenceSyntax)?.Path;
+                var replacementRange = replacementSyntax?.ToRange(model.SourceFile.LineStarts) ?? context.ReplacementRange;
 
                 // Prioritize .bicep files higher than other files.
                 var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);

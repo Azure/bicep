@@ -86,7 +86,8 @@ namespace Bicep.LanguageServer.Completions
         // I.e. typing with an empty path:  module m1 <CURSOR>
         private IEnumerable<CompletionItem> GetTopLevelCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath) &&
+                !context.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
