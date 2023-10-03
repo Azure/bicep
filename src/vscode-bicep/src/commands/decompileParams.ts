@@ -86,14 +86,12 @@ export class DecompileParamsCommand implements Command {
     ).fsPath;
 
     if (await fse.pathExists(bicepparamPath)) {
-      const fileSaveOption = await DecompileParamsCommand.getFileSaveOption(
-        context,
-      );
+      const fileSaveOption =
+        await DecompileParamsCommand.getFileSaveOption(context);
 
       if (fileSaveOption === "Copy") {
-        bicepparamPath = await DecompileParamsCommand.getUniquePath(
-          bicepparamPath,
-        );
+        bicepparamPath =
+          await DecompileParamsCommand.getUniquePath(bicepparamPath);
         this.outputChannelManager.appendToOutputChannel(
           `Saving Decompiled file (copy): ${bicepparamPath}`,
         );
