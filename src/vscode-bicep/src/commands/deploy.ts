@@ -747,9 +747,8 @@ export class DeployCommand implements Command {
       browseQuickPickItem,
     ]);
 
-    const jsonFilesInWorkspace = await this.getParameterFilesInWorkspace(
-      bicepFolder,
-    );
+    const jsonFilesInWorkspace =
+      await this.getParameterFilesInWorkspace(bicepFolder);
     parameterFilesQuickPickList =
       parameterFilesQuickPickList.concat(jsonFilesInWorkspace);
 

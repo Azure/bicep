@@ -3914,16 +3914,25 @@ var file = " + functionName + @"(templ|)
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'")]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|")]
-        [DataRow("module test 'br/public:|'")]
-        [DataRow("module test 'br/public:|")]
-        public async Task ModuleRegistryReferenceCompletions_GetPathCompletions(string inputWithCursors)
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:|", BicepSourceFileKind.BicepFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br/public:|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br/public:|", BicepSourceFileKind.ParamsFile)]
+        public async Task ModuleRegistryReferenceCompletions_GetPathCompletions(string inputWithCursors, BicepSourceFileKind kind)
         {
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
 
-            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", text, testOutputPath);
+            var fileName = kind switch {
+                BicepSourceFileKind.BicepFile => "main.bicep",
+                BicepSourceFileKind.ParamsFile => "main.bicepparam",
+                _ => throw new InvalidOperationException(),
+            };
+            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, fileName, text, testOutputPath);
             var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
 
             FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
@@ -3950,16 +3959,25 @@ var file = " + functionName + @"(templ|)
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br/public:app/dapr-containerapp:|'")]
-        [DataRow("module test 'br/public:app/dapr-containerapp:|")]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'")]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|")]
-        public async Task ModuleRegistryReferenceCompletions_GetVersionCompletions(string inputWithCursors)
+        [DataRow("module test 'br/public:app/dapr-containerapp:|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.BicepFile)]
+        [DataRow("using 'br/public:app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
+        public async Task ModuleRegistryReferenceCompletions_GetVersionCompletions(string inputWithCursors, BicepSourceFileKind kind)
         {
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
 
-            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", text, testOutputPath);
+            var fileName = kind switch {
+                BicepSourceFileKind.BicepFile => "main.bicep",
+                BicepSourceFileKind.ParamsFile => "main.bicepparam",
+                _ => throw new InvalidOperationException(),
+            };
+            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, fileName, text, testOutputPath);
             var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();

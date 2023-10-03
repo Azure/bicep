@@ -46,8 +46,6 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, this.Value);
 
-        public StringSyntax? TryGetPath() => Path as StringSyntax;
-
         SyntaxBase IArtifactReferenceSyntax.SourceSyntax => Path;
 
         public ObjectSyntax? TryGetBody() =>

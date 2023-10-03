@@ -101,9 +101,8 @@ export async function activate(
       },
       async (progress) => {
         progress.report({ message: "Acquiring dotnet runtime" });
-        const dotnetCommandPath = await ensureDotnetRuntimeInstalled(
-          actionContext,
-        );
+        const dotnetCommandPath =
+          await ensureDotnetRuntimeInstalled(actionContext);
 
         progress.report({ message: "Launching language service" });
         languageClient = await createLanguageService(
