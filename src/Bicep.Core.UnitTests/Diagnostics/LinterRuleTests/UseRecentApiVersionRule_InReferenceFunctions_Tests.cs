@@ -525,7 +525,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 string bicep = @"
                     targetScope = 'managementGroup'
-                    resource diagnostics_aa_deploy_policy 'Microsoft.Authorization/policyDefinitions@2021-06-01' = {
+                    resource diagnostics_aa_deploy_policy 'Microsoft.Authorization/policyDefinitions@2023-04-01' = {
                       name: 'diagnostics-aa-deploy-policy'
                       properties: {
                         parameters: {
