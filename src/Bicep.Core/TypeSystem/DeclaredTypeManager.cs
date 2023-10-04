@@ -214,13 +214,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol? GetDeclaredParameterAssignmentType(ParameterAssignmentSyntax syntax)
         {
-            if (this.binder.GetSymbolInfo(syntax) is not ParameterAssignmentSymbol parameterAssignmentSymbol)
-            {
-                // no access to the compilation to get something better
-                return null;
-            }
-
-            if(!parameterAssignmentSymbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out var failureDiagnostic))
+            if (!binder.FileSymbol.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var semanticModel, out var failureDiagnostic))
             {
                 // failed to resolve using
                 return failureDiagnostic is ErrorDiagnostic error
@@ -228,7 +222,7 @@ namespace Bicep.Core.TypeSystem
                     : null;
             }
 
-            if(bicepSemanticModel.Parameters.TryGetValue(parameterAssignmentSymbol.Name, out var parameterMetadata))
+            if(semanticModel.Parameters.TryGetValue(syntax.Name.IdentifierName, out var parameterMetadata))
             {
                 return parameterMetadata.TypeReference.Type;
             }
@@ -513,14 +507,14 @@ namespace Bicep.Core.TypeSystem
                 BuiltInNamespaceSymbol or ProviderNamespaceSymbol or WildcardImportSymbol
                     => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NamespaceSymbolUsedAsType(syntax.Name.IdentifierName)),
                 AmbientTypeSymbol ambientType => UnwrapType(ambientType.Type),
-                ImportedTypeSymbol importedType => UnwrapType(importedType.Type),
+                ImportedSymbol imported when imported.Kind == SymbolKind.TypeAlias => UnwrapType(imported.Type),
                 TypeAliasSymbol declaredType => TypeRefToType(syntax, declaredType),
                 DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
             };
 
         private IEnumerable<string> GetValidTypeNames() => binder.NamespaceResolver.GetKnownPropertyNames()
-            .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name))
+            .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name).Concat(binder.FileSymbol.ImportedSymbols.Where(i => i.Kind == SymbolKind.TypeAlias).Select(i => i.Name)))
             .Distinct();
 
         private ITypeReference TypeRefToType(VariableAccessSyntax signifier, TypeAliasSymbol signified) => new DeferredTypeReference(() =>
@@ -868,7 +862,9 @@ namespace Bicep.Core.TypeSystem
             }
 
             // Diagnostics will be surfaced by the TypeAssignmentVisitor, so we're only concerned here with whether the property access would be an error type
-            return UnwrapType(TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, new SimpleDiagnosticWriter()));
+            return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, new SimpleDiagnosticWriter()) is TypeType typeType
+                ? typeType.Unwrapped
+                : ErrorType.Empty();
         }
 
         private TypeSymbol UnwrapType(TypeSymbol type) => type switch
@@ -945,7 +941,7 @@ namespace Bicep.Core.TypeSystem
                 declaredTestType,
                 syntax);
         }
-        
+
         private DeclaredTypeAssignment? GetVariableAccessType(VariableAccessSyntax syntax)
         {
             // because all variable access nodes are normally bound to something, this should always return true
@@ -1132,7 +1128,7 @@ namespace Bicep.Core.TypeSystem
             Stack<AccessExpressionSyntax> chainedAccesses = syntax.ToAccessExpressionStack();
             var baseAssignment = chainedAccesses.Peek() switch
             {
-                PropertyAccessSyntax access when access.BaseExpression is ForSyntax
+                AccessExpressionSyntax access when access.BaseExpression is ForSyntax
                     // in certain parser recovery scenarios, the parser can produce a PropertyAccessSyntax operating on a ForSyntax
                     // this leads to a stack overflow which we don't really want, so let's short circuit here.
                     => null,
@@ -1727,7 +1723,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Empty();
             }
 
-            if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var failureDiagnostic))
+            if (!moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out var failureDiagnostic))
             {
                 return ErrorType.Create(failureDiagnostic);
             }
@@ -1751,6 +1747,13 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var flags = parameter.IsRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly;
+
+                // add implicit nullability for optional parameters
+                if (!parameter.IsRequired)
+                {
+                    type = TypeHelper.CreateTypeUnion(type, LanguageConstants.Null);
+                }
+
                 parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
             }
 
@@ -1781,7 +1784,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Empty();
             }
 
-            if (!testSymbol.TryGetSemanticModel(out var testSemanticModel, out var failureDiagnostic))
+            if (!testSymbol.TryGetSemanticModel().IsSuccess(out var testSemanticModel, out var failureDiagnostic))
             {
                 return ErrorType.Create(failureDiagnostic);
             }
@@ -1818,7 +1821,7 @@ namespace Bicep.Core.TypeSystem
 
             return new TestType(typeName, testBody);
         }
-        
+
         private TypeSymbol GetResourceTypeFromString(TextSpan span, string stringContent, ResourceTypeGenerationFlags typeGenerationFlags, ResourceType? parentResourceType)
         {
             var colonIndex = stringContent.IndexOf(':');

@@ -39,7 +39,7 @@ namespace Bicep.Core.Emit
 
         private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
-            if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
+            if (!moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel))
             {
                 // this should have already been checked during type assignment
                 throw new InvalidOperationException($"Unable to find referenced compilation for module {moduleSymbol.Name}");
@@ -130,7 +130,7 @@ namespace Bicep.Core.Emit
 
             this.EmitParametersIfPresent(emitter, program.Parameters);
 
-            this.EmitVariablesIfPresent(emitter, program.Variables);
+            this.EmitVariablesIfPresent(emitter, program.Variables.Concat(ImportClosureInfo.ImportedVariablesInClosure));
 
             this.EmitProviders(emitter, program.Providers);
 
@@ -342,8 +342,8 @@ namespace Bicep.Core.Emit
                 => TypePropertiesForQualifiedReference(fullyQualifiedAmbientTypeReference),
             TypeAliasReferenceExpression typeAliasReference => CreateRefSchemaNode(typeAliasReference.Name, typeAliasReference.SourceSyntax),
             ImportedTypeReferenceExpression importedTypeReference => CreateRefSchemaNode(importedTypeReference.Symbol.Name, importedTypeReference.SourceSyntax),
-            WildcardImportPropertyReferenceExpression wildcardProperty => CreateRefSchemaNode(
-                ImportClosureInfo.WildcardPropertyReferenceToImportedTypeName[new(wildcardProperty.ImportSymbol, wildcardProperty.PropertyName)],
+            WildcardImportTypePropertyReferenceExpression wildcardProperty => CreateRefSchemaNode(
+                ImportClosureInfo.WildcardPropertyReferenceToImportedSymbolName[new(wildcardProperty.ImportSymbol, wildcardProperty.PropertyName)],
                 wildcardProperty.SourceSyntax),
 
             // literals
@@ -638,7 +638,7 @@ namespace Bicep.Core.Emit
             _ => throw new ArgumentException("Unresolvable type name"),
         };
 
-        private void EmitVariablesIfPresent(ExpressionEmitter emitter, ImmutableArray<DeclaredVariableExpression> variables)
+        private void EmitVariablesIfPresent(ExpressionEmitter emitter, IEnumerable<DeclaredVariableExpression> variables)
         {
             if (!variables.Any())
             {
@@ -1127,7 +1127,7 @@ namespace Bicep.Core.Emit
             emitter.EmitObjectProperty("metadata", () => {
                 if (Context.Settings.UseExperimentalTemplateLanguageVersion)
                 {
-                    emitter.EmitProperty("_EXPERIMENTAL_WARNING", "This template uses ARM features that are experimental and should be enabled for testing purposes only. Do not enable these settings for any production usage, or you may be unexpectedly broken at any time!");
+                    emitter.EmitProperty("_EXPERIMENTAL_WARNING", "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
                     emitter.EmitArrayProperty("_EXPERIMENTAL_FEATURES_ENABLED", () =>
                     {
                         foreach (var (featureName, _, _) in this.Context.SemanticModel.Features.EnabledFeatureMetadata.Where(f => f.usesExperimentalArmEngineFeature))
@@ -1141,6 +1141,26 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty("name", LanguageConstants.LanguageId);
                     emitter.EmitProperty("version", this.Context.SemanticModel.Features.AssemblyVersion);
                 });
+
+                var exportedVariables = Context.SemanticModel.Exports.Values.OfType<ExportedVariableMetadata>().ToImmutableArray();
+
+                if (exportedVariables.Length > 0)
+                {
+                    emitter.EmitArrayProperty(LanguageConstants.TemplateMetadataExportedVariablesName, () =>
+                    {
+                        foreach (var exportedVariable in exportedVariables)
+                        {
+                            emitter.EmitObject(() =>
+                            {
+                                emitter.EmitProperty("name", exportedVariable.Name);
+                                if (exportedVariable.Description is string description)
+                                {
+                                    emitter.EmitProperty(LanguageConstants.MetadataDescriptionPropertyName, description);
+                                }
+                            });
+                        }
+                    });
+                }
 
                 foreach (var item in metadata)
                 {

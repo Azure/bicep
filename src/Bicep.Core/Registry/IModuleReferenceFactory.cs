@@ -13,7 +13,7 @@ public interface IModuleReferenceFactory
 {
     ImmutableArray<string> AvailableSchemes(Uri parentModuleUri);
 
-    bool TryGetModuleReference(string reference, Uri parentModuleUri, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+    ResultWithDiagnostic<ArtifactReference> TryGetModuleReference(string reference, Uri parentModuleUri);
 
-    bool TryGetModuleReference(IArtifactReferenceSyntax artifactDeclaration, Uri parentModuleUri, [NotNullWhen(true)] out ArtifactReference? artifactReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+    ResultWithDiagnostic<ArtifactReference> TryGetModuleReference(IArtifactReferenceSyntax artifactDeclaration, Uri parentModuleUri);
 }

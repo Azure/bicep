@@ -19,6 +19,7 @@ resource hostingPlan 'Microsoft.Web/serverfarms@2020-06-01' = {
 }
 
 resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  #disable-next-line BCP334
   name: '${replace(componentBase, '-', '')}st'
   location: location
   kind: 'StorageV2'

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -111,7 +112,7 @@ namespace Bicep.LanguageServer.Handlers
                         var hasChildren = false;
 
                         if (moduleFilePath is not null &&
-                            moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var _) &&
+                            moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out var _) &&
                             moduleSemanticModel is SemanticModel bicepModel &&
                             (bicepModel.Root.ResourceDeclarations.Any() || bicepModel.Root.ModuleDeclarations.Any()))
                         {

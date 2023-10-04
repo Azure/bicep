@@ -53,7 +53,7 @@ public class FormatCommand : ICommand
             return 1;
         }
 
-        if (!fileResolver.TryRead(inputUri, out var fileContents, out var failureBuilder))
+        if (!fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
         {
             var diagnostic = failureBuilder(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)));
             throw new ErrorDiagnosticException(diagnostic);

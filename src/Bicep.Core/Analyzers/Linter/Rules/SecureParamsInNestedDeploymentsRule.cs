@@ -8,6 +8,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +40,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
+            // outer scoped expression evaluation is blocked in symbolic name templates
+            if (model.EmitterSettings.EnableSymbolicNames)
+            {
+                yield break;
+            }
+
             foreach (ResourceSymbol resource in model.Root.ResourceDeclarations)
             {
                 if (GetPropertiesIfOuterScopedDeployment(resource) is ObjectSyntax propertiesObject)
@@ -80,7 +87,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return null;
             }
 
-            if (!resourceType.TypeReference.FormatType().Equals("microsoft.resources/deployments", LanguageConstants.ResourceTypeComparison))
+            if (!resourceType.TypeReference.FormatType().Equals(AzResourceTypeProvider.ResourceTypeDeployments, LanguageConstants.ResourceTypeComparison))
             {
                 // Not a deployment resource
                 return null;

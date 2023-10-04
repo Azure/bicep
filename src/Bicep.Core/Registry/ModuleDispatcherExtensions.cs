@@ -14,7 +14,7 @@ namespace Bicep.Core.Registry
     {
         public static IEnumerable<ArtifactReference> GetValidModuleReferences(this IModuleDispatcher moduleDispatcher, IEnumerable<ArtifactResolutionInfo> artifacts)
             => artifacts
-                .Select(t => moduleDispatcher.TryGetModuleReference(t.DeclarationSyntax, t.ParentTemplateFile.FileUri, out var moduleRef, out _) ? moduleRef : null)
+                .Select(t => moduleDispatcher.TryGetModuleReference(t.DeclarationSyntax, t.ParentTemplateFile.FileUri).TryUnwrap())
                 .WhereNotNull();
     }
 }

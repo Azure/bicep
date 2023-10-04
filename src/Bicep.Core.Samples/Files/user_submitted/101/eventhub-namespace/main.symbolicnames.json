@@ -6,13 +6,14 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8354930963191991873"
+      "templateHash": "14007929505764472642"
     }
   },
   "parameters": {
     "projectName": {
       "type": "string",
-      "defaultValue": "[uniqueString(resourceGroup().id)]"
+      "defaultValue": "[uniqueString(resourceGroup().id)]",
+      "minLength": 4
     },
     "location": {
       "type": "string",

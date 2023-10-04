@@ -5,12 +5,13 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15094956310531558961"
+      "templateHash": "4189540354325497866"
     }
   },
   "parameters": {
     "appName": {
-      "type": "string"
+      "type": "string",
+      "minLength": 1
     },
     "location": {
       "type": "string",

@@ -1,6 +1,7 @@
 param sku string = 'pergb2018'
 param dataRetention int = 30
 param location string = resourceGroup().location
+@minLength(1)
 param appName string = uniqueString(resourceGroup().id)
 
 var workspaceName = toLower('la-${appName}')

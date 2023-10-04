@@ -1,11 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests;
@@ -15,15 +24,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Registry
 {
@@ -177,7 +177,7 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public bool IsArtifactRestoreRequired(ArtifactReference reference) => true;
 
-            public Task PublishArtifact(ArtifactReference moduleReference, Stream compiled, string? documentationUri, string? description)
+            public Task PublishArtifact(ArtifactReference moduleReference, Stream compiledArmTemplates, Stream? bicepSources, string? documentationUri, string? description)
             {
                 throw new NotImplementedException();
             }
@@ -195,7 +195,7 @@ namespace Bicep.LangServer.UnitTests.Registry
                 return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>());
             }
 
-            public bool TryGetLocalArtifactEntryPointUri(ArtifactReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference)
             {
                 throw new NotImplementedException();
             }
@@ -204,12 +204,12 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public Task<string?> TryGetDescription(ArtifactReference reference) => Task.FromResult<string?>(null);
 
-            public bool TryParseArtifactReference(string? aliasName, string reference, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string reference)
             {
-                failureBuilder = null;
-                moduleReference = new MockModuleRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName()));
-                return true;
+                return new(new MockModuleRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
             }
+
+            public SourceArchive? TryGetSource(ArtifactReference artifactReference) => null;
         }
 
         private class MockModuleRef : ArtifactReference

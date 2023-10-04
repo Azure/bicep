@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -62,58 +63,49 @@ namespace Bicep.Core.Configuration
             return this.Data.TemplateSpecModuleAliases;
         }
 
-        public bool TryGetTemplateSpecModuleAlias(string aliasName, [NotNullWhen(true)] out TemplateSpecModuleAlias? alias, [NotNullWhen(false)] out ErrorBuilderDelegate? errorBuilder)
+        public ResultWithDiagnostic<TemplateSpecModuleAlias> TryGetTemplateSpecModuleAlias(string aliasName)
         {
-            if (!ValidateAliasName(aliasName, out errorBuilder))
+            if (!ValidateAliasName(aliasName, out var errorBuilder))
             {
-                alias = null;
-                return false;
+                return new(errorBuilder);
             }
 
-            if (!this.Data.TemplateSpecModuleAliases.TryGetValue(aliasName, out alias))
+            if (!this.Data.TemplateSpecModuleAliases.TryGetValue(aliasName, out var alias))
             {
-                errorBuilder = x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, this.configurationPath);
-                return false;
+                return new(x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, this.configurationPath));
             }
 
             if (alias.Subscription is null)
             {
-                errorBuilder = x => x.InvalidTemplateSpecAliasSubscriptionNullOrUndefined(aliasName, this.configurationPath);
-                return false;
+                return new(x => x.InvalidTemplateSpecAliasSubscriptionNullOrUndefined(aliasName, this.configurationPath));
             }
 
             if (alias.ResourceGroup is null)
             {
-                errorBuilder = x => x.InvalidTemplateSpecAliasResourceGroupNullOrUndefined(aliasName, this.configurationPath);
-                return false;
+                return new(x => x.InvalidTemplateSpecAliasResourceGroupNullOrUndefined(aliasName, this.configurationPath));
             }
 
-            errorBuilder = null;
-            return true;
+            return new(alias);
         }
 
-        public bool TryGetOciArtifactModuleAlias(string aliasName, [NotNullWhen(true)] out OciArtifactModuleAlias? alias, [NotNullWhen(false)] out ErrorBuilderDelegate? errorBuilder)
+        public ResultWithDiagnostic<OciArtifactModuleAlias> TryGetOciArtifactModuleAlias(string aliasName)
         {
-            if (!ValidateAliasName(aliasName, out errorBuilder))
+            if (!ValidateAliasName(aliasName, out var errorBuilder))
             {
-                alias = null;
-                return false;
+                return new(errorBuilder);
             }
 
-            if (!this.Data.OciArtifactModuleAliases.TryGetValue(aliasName, out alias))
+            if (!this.Data.OciArtifactModuleAliases.TryGetValue(aliasName, out var alias))
             {
-                errorBuilder = x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, this.configurationPath);
-                return false;
+                return new(x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, this.configurationPath));
             }
 
             if (alias.Registry is null)
             {
-                errorBuilder = x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, this.configurationPath);
-                return false;
+                return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, this.configurationPath));
             }
 
-            errorBuilder = null;
-            return true;
+            return new(alias);
         }
 
         private static bool ValidateAliasName(string aliasName, [NotNullWhen(false)] out ErrorBuilderDelegate? errorBuilder)

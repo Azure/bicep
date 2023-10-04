@@ -1,0 +1,6 @@
+{
+    "modules": {
+        "br:mockregistry.io/parameters/basic:v1": "parameters-basic.bicep",
+        "ts:11111111-1111-1111-1111-111111111111/prod-rg/parameters-basic:v1": "parameters-basic.bicep"
+    }
+}

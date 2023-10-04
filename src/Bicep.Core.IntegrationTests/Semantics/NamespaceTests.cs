@@ -48,7 +48,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             }
 
             var expected = JToken.Parse(expectedStr);
-            var expectedPath = Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestFunctionsDirectory, fileName);
+            var expectedPath = DataSet.GetBaselineUpdatePath(DataSet.TestFunctionsDirectory, fileName);
             actual.Should().EqualWithJsonDiffOutput(TestContext, expected, expectedPath, actualLocation);
         }
 

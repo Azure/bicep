@@ -29,7 +29,7 @@ namespace Bicep.Core.Registry
             this.serviceProvider = serviceProvider;
         }
 
-        // NOTE(stephwe): The templateUri affects how module aliases are resolved (depending on whether the bicepconfig.json is located for the given template)
+        // NOTE: The templateUri affects how module aliases are resolved, by determining how the bicepconfig.json is located, which contains alias definitions
         public ImmutableArray<IArtifactRegistry> Registries(Uri templateUri)
         {
             var configuration = configurationManager.GetConfiguration(templateUri);

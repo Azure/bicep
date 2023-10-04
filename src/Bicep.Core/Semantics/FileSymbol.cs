@@ -12,6 +12,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -49,7 +50,7 @@ namespace Bicep.Core.Semantics
             this.AssertDeclarations = fileScope.Declarations.OfType<AssertSymbol>().ToImmutableArray();
             this.ParameterAssignments = fileScope.Declarations.OfType<ParameterAssignmentSymbol>().ToImmutableArray();
             this.TestDeclarations = fileScope.Declarations.OfType<TestSymbol>().ToImmutableArray();
-            this.TypeImports = fileScope.Declarations.OfType<ImportedTypeSymbol>().ToImmutableArray();
+            this.ImportedSymbols = fileScope.Declarations.OfType<ImportedSymbol>().ToImmutableArray();
             this.WildcardImports = fileScope.Declarations.OfType<WildcardImportSymbol>().ToImmutableArray();
 
             this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
@@ -72,7 +73,7 @@ namespace Bicep.Core.Semantics
             .Concat(this.AssertDeclarations)
             .Concat(this.ParameterAssignments)
             .Concat(this.TestDeclarations)
-            .Concat(this.TypeImports)
+            .Concat(this.ImportedSymbols)
             .Concat(this.WildcardImports);
 
         public IEnumerable<Symbol> Namespaces =>
@@ -117,7 +118,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<ParameterAssignmentSymbol> ParameterAssignments { get; }
 
-        public ImmutableArray<ImportedTypeSymbol> TypeImports { get; }
+        public ImmutableArray<ImportedSymbol> ImportedSymbols { get; }
 
         public ImmutableArray<WildcardImportSymbol> WildcardImports { get; }
 
@@ -145,10 +146,8 @@ namespace Bicep.Core.Semantics
         /// Tries to get the semantic module of the Bicep File referenced via a using declaration from the current file.
         /// If current file is not a parameter file, the method will return false.
         /// </summary>
-        public bool TryGetBicepFileSemanticModelViaUsing([NotNullWhen(true)] out SemanticModel? semanticModel, [NotNullWhen(false)] out Diagnostic? failureDiagnostic)
+        public Result<ISemanticModel, ErrorDiagnostic> TryGetBicepFileSemanticModelViaUsing()
         {
-            semanticModel = null;
-            failureDiagnostic = null;
             if (this.FileKind == BicepSourceFileKind.BicepFile)
             {
                 throw new InvalidOperationException($"File '{this.FileUri}' cannot reference another Bicep file via a using declaration.");
@@ -158,33 +157,14 @@ namespace Bicep.Core.Semantics
             if (usingDeclaration is null)
             {
                 // missing using
-                failureDiagnostic = DiagnosticBuilder.ForDocumentStart().UsingDeclarationNotSpecified();
-                return false;
+                return new(DiagnosticBuilder.ForDocumentStart().UsingDeclarationNotSpecified());
             }
 
-            if(this.Context.Compilation.SourceFileGrouping.TryGetErrorDiagnostic(usingDeclaration) is { } errorBuilder)
-            {
-                failureDiagnostic = errorBuilder(DiagnosticBuilder.ForPosition(usingDeclaration.Path));
-                return false;
-            }
-
-            // SourceFileGroupingBuilder should have already visited every using declaration and either recorded a failure or mapped it to a syntax tree.
-            // So it is safe to assume that this lookup will succeed without throwing an exception.
-            var sourceFile = Context.Compilation.SourceFileGrouping.TryGetSourceFile(usingDeclaration) ?? throw new InvalidOperationException($"Failed to find source file for using declaration.");
-            if(sourceFile is not BicepFile)
-            {
-                // TODO: If we wanted to support referencing ARM templates via using, it probably wouldn't very difficult to do
-                failureDiagnostic = DiagnosticBuilder.ForPosition(usingDeclaration.Path).UsingDeclarationMustReferenceBicepFile();
-                return false;
-            }
-
-            if (this.Context.Compilation.GetSemanticModel(sourceFile) is SemanticModel model)
-            {
-                semanticModel = model;
-                return true;
-            }
-
-            throw new InvalidOperationException($"Unexpected semantic model type when following using declaration.");
+            return SemanticModelHelper.TryGetTemplateModelForArtifactReference(
+                Context.Compilation.SourceFileGrouping,
+                usingDeclaration,
+                b => b.UsingDeclarationMustReferenceBicepFile(),
+                Context.Compilation);
         }
 
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor

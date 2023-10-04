@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.SourceCode;
 
 namespace Bicep.Core.Registry
 {
@@ -21,25 +21,27 @@ namespace Bicep.Core.Registry
 
         public abstract Task<bool> CheckArtifactExists(T reference);
 
-        public abstract Task PublishArtifact(T reference, Stream compiled, string? documentationUri, string? description);
+        public abstract Task PublishArtifact(T reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description);
 
         public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<T> references);
 
         public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<T> references);
 
-        public abstract bool TryGetLocalArtifactEntryPointUri(T reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        public abstract ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(T reference);
 
-        public abstract bool TryParseArtifactReference(string? aliasName, string reference, [NotNullWhen(true)] out ArtifactReference? artifactReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        public abstract ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string reference);
 
         public abstract string? TryGetDocumentationUri(T reference);
 
         public abstract Task<string?> TryGetDescription(T reference);
 
+        public abstract SourceArchive? TryGetSource(T reference);
+
         public bool IsArtifactRestoreRequired(ArtifactReference reference) => this.IsArtifactRestoreRequired(ConvertReference(reference));
 
         public Task<bool> CheckArtifactExists(ArtifactReference reference) => this.CheckArtifactExists(ConvertReference(reference));
 
-        public Task PublishArtifact(ArtifactReference artifactReference, Stream compiled, string? documentationUri, string? description) => this.PublishArtifact(ConvertReference(artifactReference), compiled, documentationUri, description);
+        public Task PublishArtifact(ArtifactReference artifactReference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description) => this.PublishArtifact(ConvertReference(artifactReference), compiled, bicepSources, documentationUri, description);
 
         public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references) =>
             this.RestoreArtifacts(references.Select(ConvertReference));
@@ -47,12 +49,14 @@ namespace Bicep.Core.Registry
         public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> references) =>
              this.InvalidateArtifactsCache(references.Select(ConvertReference));
 
-        public bool TryGetLocalArtifactEntryPointUri(ArtifactReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
-            this.TryGetLocalArtifactEntryPointUri(ConvertReference(reference), out localUri, out failureBuilder);
+        public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference) =>
+            this.TryGetLocalArtifactEntryPointUri(ConvertReference(reference));
 
         public string? GetDocumentationUri(ArtifactReference reference) => this.TryGetDocumentationUri(ConvertReference(reference));
 
         public async Task<string?> TryGetDescription(ArtifactReference reference) => await this.TryGetDescription(ConvertReference(reference));
+
+        public SourceArchive? TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
 
         public abstract RegistryCapabilities GetCapabilities(T reference);
 

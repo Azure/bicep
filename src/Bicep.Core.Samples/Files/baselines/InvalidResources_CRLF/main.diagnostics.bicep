@@ -607,6 +607,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 //@[009:044) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "kind", "location", "sku". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |missingTopLevelPropertiesExceptName|
   // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
   name: 'me'
+//@[008:012) [BCP333 (Warning)] The provided value (whose length will always be less than or equal to 2) is too short to assign to a target for which the minimum allowable length is 3. (CodeDescription: none) |'me'|
   // do not remove whitespace before the closing curly
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
   

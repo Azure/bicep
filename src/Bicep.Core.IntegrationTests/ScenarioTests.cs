@@ -2076,7 +2076,7 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
     {
         var result = CompilationHelper.Compile(@"
 resource registry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' existing = {
-  name: 'foo'
+  name: 'foobar'
   resource importPipeline 'importPipelines' existing = {
     name: 'import'
   }
@@ -2084,7 +2084,7 @@ resource registry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' ex
 
 resource pipelineRun 'Microsoft.ContainerRegistry/registries/pipelineRuns@2021-06-01-preview' = [for index in range(0, 3): if(registry::importPipeline.properties.trigger.sourceTrigger.status == 'Disabled') {
   parent: registry
-  name: 'bar${index}'
+  name: 'barbaz${index}'
   properties: {
     request: {
       pipelineResourceId: registry::importPipeline.id
@@ -2472,7 +2472,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-04-01' = {
 }
 
 resource registry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {
-  name: 'foo'
+  name: 'foobar'
   location: 'westus'
   sku: {
     name: 'Premium'
@@ -4881,11 +4881,11 @@ module mod 'mod.bicep' = [for i in range(0, count): {
     {
         var result = CompilationHelper.CompileParams(
             ("parameters.bicepparam", """
-using 'main.bicep'
+                using 'main.bicep'
 
-param foo = 'asdf'
-param foo = 'asdf'
-"""),
+                param foo = 'asdf'
+                param foo = 'asdf'
+                """),
             ("main.bicep", """param foo string"""));
 
         result.Should().HaveDiagnostics(new[]
@@ -5069,11 +5069,233 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             """);
 
         result.Template.Should().NotBeNull();
-        // uncomment after merging https://github.com/Azure/bicep/pull/11740
-        // result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        // {
-        //     ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
-        //     ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
-        // });
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
+            ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 8) is too short to assign to a target for which the minimum allowable length is 36."),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/11846
+    [TestMethod]
+    public void Test_Issue11846()
+    {
+        var withOuterScopeEvaluation = """
+            param tags object
+            param tag1 string
+            var tag2 = 'tag2'
+            var deploymentName = 'name'
+            var deploymentMode = 'Incremental'
+
+            resource nestedDeployment 'Microsoft.Resources/deployments@2020-10-01' = {
+              name: deploymentName
+              properties: {
+                mode: deploymentMode
+                template: {
+                  '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                  contentVersion: '1.0.0.0'
+                  resources: [
+                    {
+                      apiVersion: '2022-09-01'
+                      type: 'Microsoft.Resources/tags'
+                      name: 'default'
+                      properties: {
+                        tags: union(tags, {tag1: tag1, tag2: tag2})
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+        var withExplicitInnerScopeEvaluation = """
+            param tags object
+            param tag1 string
+            var tag2 = 'tag2'
+            var deploymentName = 'name'
+            var deploymentMode = 'Incremental'
+
+            resource nestedDeployment 'Microsoft.Resources/deployments@2020-10-01' = {
+              name: deploymentName
+              properties: {
+                expressionEvaluationOptions: {
+                  scope: 'inner'
+                }
+                mode: deploymentMode
+                template: {
+                  '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                  contentVersion: '1.0.0.0'
+                  resources: [
+                    {
+                      apiVersion: '2022-09-01'
+                      type: 'Microsoft.Resources/tags'
+                      name: 'default'
+                      properties: {
+                        tags: union(tags, {tag1: tag1, tag2: tag2, tag3: join(map(['a'], x => x), ',')})
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+        var withImplicitInnerScopeEvaluation = """
+            param tags {*: string}
+            param tag1 string
+            var tag2 = 'tag2'
+            var deploymentName = 'name'
+            var deploymentMode = 'Incremental'
+
+            resource nestedDeployment 'Microsoft.Resources/deployments@2020-10-01' = {
+              name: deploymentName
+              properties: {
+                mode: deploymentMode
+                template: {
+                  '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                  contentVersion: '1.0.0.0'
+                  resources: [
+                    {
+                      apiVersion: '2022-09-01'
+                      type: 'Microsoft.Resources/tags'
+                      name: 'default'
+                      properties: {
+                        tags: union(tags, {tag1: tag1, tag2: tag2, tag3: join(map(['a'], x => x), ',')})
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+            """;
+
+        using (new AssertionScope())
+        {
+            var result = CompilationHelper.Compile(withOuterScopeEvaluation);
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("no-deployments-resources", DiagnosticLevel.Warning, "Resource 'nestedDeployment' of type 'Microsoft.Resources/deployments@2020-10-01' should instead be declared as a Bicep module."),
+            });
+
+            foreach (var innerScoped in new[] { withExplicitInnerScopeEvaluation, withImplicitInnerScopeEvaluation })
+            {
+                result = CompilationHelper.Compile(innerScoped);
+                result.Should().HaveDiagnostics(new[]
+                {
+                    ("no-deployments-resources", DiagnosticLevel.Warning, "Resource 'nestedDeployment' of type 'Microsoft.Resources/deployments@2020-10-01' should instead be declared as a Bicep module."),
+                    ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tags\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
+                    ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tag1\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
+                    ("nested-deployment-template-scoping", DiagnosticLevel.Error, "The symbol \"tag2\" is declared in the context of the outer deployment and cannot be accessed by expressions within a nested deployment template that uses inner scoping for expression evaluation."),
+                });
+            }
+        }
+    }
+
+    // https://github.com/Azure/bicep/issues/11883
+    [TestMethod]
+    public void Test_Issue11883()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                param nullable string?
+                param withNestedNullable {
+                  property: string?
+                }
+
+                module mod 'mod.bicep' = {
+                  name: 'mod'
+                  params: {
+                    withDefault: nullable
+                    nullable: withNestedNullable.?property
+                  }
+                }
+                """),
+            ("mod.bicep", """
+                param withDefault string = 'default'
+                param nullable string?
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/11902
+    [TestMethod]
+    public void Test_Issue11902()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("main.bicep", """
+                param rgName string
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                var rg = resourceGroup().name
+                param rgName = rg
+                """));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP057", DiagnosticLevel.Error, "The name \"resourceGroup\" does not exist in the current context."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"rg\" is not valid."),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/11902
+    [TestMethod]
+    public void Array_access_into_for_expression_should_not_cause_stack_overflow()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("main.bicep", """
+                param rgName string
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                var groups = [
+                  {
+                    name: 'foo'
+                    abrv: 'f'
+                  }
+                  {
+                    name: 'bar'
+                    abrv: 'b'
+                  }
+                ]
+
+                var rg = [for group in groups: group.name == resourceGroup().name ? group : []][0].abrv
+                param rgName = rg
+                """));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP138", DiagnosticLevel.Error, "For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties."),
+            ("BCP057", DiagnosticLevel.Error, "The name \"resourceGroup\" does not exist in the current context."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"rg\" is not valid."),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/11981
+    [TestMethod]
+    public void Test_Issue11981()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("main.bicep", """
+                @sealed()
+                param foo {
+                  bar: string
+                }
+                """),
+            ("parameters.bicepparam", """
+                using 'main.bicep'
+
+                param foo = {
+                  bar: 'bar'
+                  baz: 'baz'
+                }
+                """));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP037", DiagnosticLevel.Error, "The property \"baz\" is not allowed on objects of type \"{ bar: string }\". No other properties are allowed."),
+        });
     }
 }

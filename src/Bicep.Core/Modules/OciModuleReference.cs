@@ -32,21 +32,14 @@ namespace Bicep.Core.Modules
         public string? Digest => this.ociArtifactRef.Digest;
         public string ArtifactId => this.ociArtifactRef.ArtifactId;
 
-        public static bool TryParse(
-            string? aliasName,
-            string rawValue,
-            RootConfiguration configuration,
-            Uri parentModuleUri,
-            [NotNullWhen(true)] out OciModuleReference? moduleReference,
-            [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static ResultWithDiagnostic<OciModuleReference> TryParse(string? aliasName, string rawValue, RootConfiguration configuration, Uri parentModuleUri)
         {
-            if (OciArtifactReference.TryParse(aliasName, rawValue, configuration, out var artifactReference, out failureBuilder))
+            if (!OciArtifactReference.TryParse(aliasName, rawValue, configuration).IsSuccess(out var artifactReference, out var failureBuilder))
             {
-                moduleReference = new OciModuleReference(artifactReference, parentModuleUri);
-                return true;
+                return new(failureBuilder);
             }
-            moduleReference = null;
-            return false;
+
+            return new (new OciModuleReference(artifactReference, parentModuleUri));
         }
     }
 }

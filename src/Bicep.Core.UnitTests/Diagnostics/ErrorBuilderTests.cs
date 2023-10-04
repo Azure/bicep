@@ -15,6 +15,8 @@ using System.Reflection;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.UnitTests.Diagnostics
 {
@@ -178,6 +180,16 @@ namespace Bicep.Core.UnitTests.Diagnostics
             if (parameter.ParameterType == typeof(AccessExpressionSyntax))
             {
                 return TestSyntaxFactory.CreatePropertyAccess(TestSyntaxFactory.CreateVariableAccess("identifier"), "propertyName");
+            }
+
+            if (parameter.ParameterType == typeof(ExportMetadataKind))
+            {
+                return ExportMetadataKind.Error;
+            }
+
+            if (parameter.ParameterType == typeof(BicepSourceFileKind))
+            {
+                return BicepSourceFileKind.BicepFile;
             }
 
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");

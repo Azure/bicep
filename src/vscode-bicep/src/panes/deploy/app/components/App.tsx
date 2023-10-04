@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { FC, useState } from "react";
-import { VSCodeButton, VSCodeDivider, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
+import { VSCodeButton, VSCodeProgressRing } from "@vscode/webview-ui-toolkit/react";
 import "./index.css";
 import { ParamData } from "../../models";
 import { useMessageHandler } from "./hooks/useMessageHandler";
@@ -53,8 +53,6 @@ export const App: FC = () => {
 
   return (
     <main id="webview-body">
-      <VSCodeDivider />
-
       <DeploymentScopeInputView
         scope={messages.scope}
         onPickScope={messages.pickScope} />
@@ -68,15 +66,7 @@ export const App: FC = () => {
         onPickParametersFile={messages.pickParamsFile} />
 
       <FormSection title="Actions">
-        {errorMessage && <div
-          style={{
-            color: "var(--vscode-statusBarItem-errorForeground)",
-            backgroundColor: "var(--vscode-statusBarItem-errorBackground)",
-            padding: '5px 10px',
-            borderRadius: '4px',
-            fontSize: '14px',
-            alignSelf: 'center'
-          }}>
+        {errorMessage && <div className="alert-error">
           {errorMessage}
         </div>}
         <div className="controls">

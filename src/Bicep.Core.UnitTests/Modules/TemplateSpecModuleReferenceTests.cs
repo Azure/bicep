@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void TryParse_InvalidReference_ReturnsFalseAndSetsFailureBuilder(string rawValue)
         {
-            TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var parsed, out var failureBuilder).Should().BeFalse();
+            TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var parsed, out var failureBuilder).Should().BeFalse();
 
             parsed.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
@@ -74,7 +74,7 @@ namespace Bicep.Core.UnitTests.Modules
         {
             var configuration = BicepTestConstants.CreateMockConfiguration(configurationPath: configurationPath);
 
-            TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
+            TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().NotBeNull();
@@ -91,7 +91,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("foo bar ÄÄÄ")]
         public void TryParse_InvalidAliasName_ReturnsFalseAndSetsErrorDiagnostic(string aliasName)
         {
-            TemplateSpecModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
+            TemplateSpecModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().HaveCode("BCP211");
@@ -102,7 +102,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DynamicData(nameof(GetInvalidData), DynamicDataSourceType.Method)]
         public void TryParse_InvalidAlias_ReturnsFalseAndSetsError(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
         {
-            TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
+            TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().NotBeNull();
@@ -114,7 +114,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method)]
         public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
         {
-            TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeTrue();
+            TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeTrue();
 
             reference.Should().NotBeNull();
             reference!.FullyQualifiedReference.Should().Be(fullyQualifiedReferenceValue);
@@ -218,7 +218,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static TemplateSpecModuleReference Parse(string rawValue)
         {
-            TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var parsed, out var failureBuilder).Should().BeTrue();
+            TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
 
             parsed.Should().NotBeNull();
             failureBuilder!.Should().BeNull();

@@ -44,7 +44,7 @@ namespace Bicep.Cli.Services
             var testResults = ImmutableArray.CreateBuilder<TestResult>();;
             foreach(var testDeclaration  in testDeclarations)
             {
-                if (testDeclaration.TryGetSemanticModel(out var semanticModel, out var failureDiagnostic) &&
+                if (testDeclaration.TryGetSemanticModel().IsSuccess(out var semanticModel, out var failureDiagnostic) &&
                     semanticModel is SemanticModel testSemanticModel)
                 {
                     var parameters = TryGetParameters(testSemanticModel, testDeclaration);

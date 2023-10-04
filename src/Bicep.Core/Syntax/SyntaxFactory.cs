@@ -417,5 +417,12 @@ namespace Bicep.Core.Syntax
 
         public static PropertyAccessSyntax CreatePropertyAccess(SyntaxBase @base, string propertyName)
             => new(@base, DotToken, null, CreateIdentifier(propertyName));
+
+        public static ParameterAssignmentSyntax CreateParameterAssignmentSyntax(string name, SyntaxBase value)
+            => new(
+                CreateIdentifierToken(LanguageConstants.ParameterKeyword),
+                CreateIdentifier(name),
+                AssignmentToken,
+                value);
     }
 }

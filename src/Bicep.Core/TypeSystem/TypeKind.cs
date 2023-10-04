@@ -63,7 +63,7 @@ namespace Bicep.Core.TypeSystem
         /// Module type
         /// </summary>
         Module,
-        
+
         /// <summary>
         /// Test type
         /// </summary>

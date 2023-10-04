@@ -59,12 +59,7 @@ namespace Bicep.Core.Registry.Oci
 
         public string FullyQualifiedReference => ArtifactId;
 
-        public static bool TryParse(
-            string? aliasName,
-            string rawValue,
-            RootConfiguration configuration,
-            [NotNullWhen(true)] out OciArtifactReference? artifactReference,
-            [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static ResultWithDiagnostic<OciArtifactReference> TryParse(string? aliasName, string rawValue, RootConfiguration configuration)
         {
             static string GetBadReference(string referenceValue) => $"{OciArtifactReferenceFacts.Scheme}:{referenceValue}";
 
@@ -72,10 +67,9 @@ namespace Bicep.Core.Registry.Oci
 
             if (aliasName is not null)
             {
-                if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName, out var alias, out failureBuilder))
+                if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var alias, out var failureBuilder))
                 {
-                    artifactReference = null;
-                    return false;
+                    return new(failureBuilder);
                 }
 
                 rawValue = $"{alias}/{rawValue}";
@@ -87,21 +81,17 @@ namespace Bicep.Core.Registry.Oci
                 artifactUri.Segments.Length <= 1 ||
                 !string.Equals(artifactUri.Segments[0], "/", StringComparison.Ordinal))
             {
-                failureBuilder = x => x.InvalidOciArtifactReference(aliasName, GetBadReference(rawValue));
-                artifactReference = null;
-                return false;
+                return new(x => x.InvalidOciArtifactReference(aliasName, GetBadReference(rawValue)));
             }
 
             string registry = artifactUri.Authority;
             if (registry.Length > OciArtifactReferenceFacts.MaxRegistryLength)
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceRegistryTooLong(
+                return new(x => x.InvalidOciArtifactReferenceRegistryTooLong(
                     aliasName,
                     GetBadReference(rawValue),
                     registry,
-                    OciArtifactReferenceFacts.MaxRegistryLength);
-                artifactReference = null;
-                return false;
+                    OciArtifactReferenceFacts.MaxRegistryLength));
             }
 
             // for "br://example.azurecr.io/foo/bar:v1", the segments are "/", "foo/", and "bar:v1"
@@ -115,9 +105,7 @@ namespace Bicep.Core.Registry.Oci
                 if (!OciArtifactReferenceFacts.IsOciNamespaceSegment(segmentWithoutTrailingSlash))
                 {
                     var invalidSegment = DecodeSegment(segmentWithoutTrailingSlash);
-                    failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), invalidSegment);
-                    artifactReference = null;
-                    return false;
+                    return new(x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), invalidSegment));
                 }
 
                 // even though chars that require URL-escaping are not part of the allowed regexes
@@ -143,9 +131,7 @@ namespace Bicep.Core.Registry.Oci
             var name = DecodeSegment(!delimiter.HasValue ? lastSegment : lastSegment[..indexOfLastSegmentDelimiter]);
             if (!OciArtifactReferenceFacts.IsOciNamespaceSegment(name))
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), name);
-                artifactReference = null;
-                return false;
+                return new(x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), name));
             }
 
             repoBuilder.Append(name);
@@ -153,29 +139,23 @@ namespace Bicep.Core.Registry.Oci
             string repository = repoBuilder.ToString();
             if (repository.Length > OciArtifactReferenceFacts.MaxRepositoryLength)
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceRepositoryTooLong(
+                return new(x => x.InvalidOciArtifactReferenceRepositoryTooLong(
                     aliasName,
                     GetBadReference(rawValue),
                     repository,
-                    OciArtifactReferenceFacts.MaxRepositoryLength);
-                artifactReference = null;
-                return false;
+                    OciArtifactReferenceFacts.MaxRepositoryLength));
             }
 
             // now we can complain about the missing tag or digest
             if (!delimiter.HasValue)
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue));
-                artifactReference = null;
-                return false;
+                return new(x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue)));
             }
 
             var tagOrDigest = DecodeSegment(lastSegment.Substring(indexOfLastSegmentDelimiter + 1));
             if (string.IsNullOrEmpty(tagOrDigest))
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue));
-                artifactReference = null;
-                return false;
+                return new(x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue)));
             }
 
             switch (delimiter.Value)
@@ -184,41 +164,31 @@ namespace Bicep.Core.Registry.Oci
                     var tag = tagOrDigest;
                     if (tag.Length > OciArtifactReferenceFacts.MaxTagLength)
                     {
-                        failureBuilder = x => x.InvalidOciArtifactReferenceTagTooLong(
+                        return new(x => x.InvalidOciArtifactReferenceTagTooLong(
                             aliasName,
                             GetBadReference(rawValue),
                             tag,
-                            OciArtifactReferenceFacts.MaxTagLength);
-                        artifactReference = null;
-                        return false;
+                            OciArtifactReferenceFacts.MaxTagLength));
                     }
 
                     if (!OciArtifactReferenceFacts.IsOciTag(tag))
                     {
-                        failureBuilder = x => x.InvalidOciArtifactReferenceInvalidTag(
+                        return new(x => x.InvalidOciArtifactReferenceInvalidTag(
                             aliasName,
                             GetBadReference(rawValue),
-                            tag);
-                        artifactReference = null;
-                        return false;
+                            tag));
                     }
 
-                    failureBuilder = null;
-                    artifactReference = new OciArtifactReference(registry, repository, tag: tag, digest: null);
-                    return true;
+                    return new(new OciArtifactReference(registry, repository, tag: tag, digest: null));
 
                 case '@':
                     var digest = tagOrDigest;
                     if (!OciArtifactReferenceFacts.IsOciDigest(digest))
                     {
-                        failureBuilder = x => x.InvalidOciArtifactReferenceInvalidDigest(aliasName, GetBadReference(rawValue), digest);
-                        artifactReference = null;
-                        return false;
+                        return new(x => x.InvalidOciArtifactReferenceInvalidDigest(aliasName, GetBadReference(rawValue), digest));
                     }
 
-                    failureBuilder = null;
-                    artifactReference = new OciArtifactReference(registry, repository, tag: null, digest: digest);
-                    return true;
+                    return new(new OciArtifactReference(registry, repository, tag: null, digest: digest));
 
                 default:
                     throw new NotImplementedException($"Unexpected last segment delimiter character '{delimiter.Value}'.");

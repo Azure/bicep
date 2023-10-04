@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Modules;
+using Bicep.Core.SourceCode;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -31,13 +33,7 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="aliasName">The alias name</param>
         /// <param name="reference">The unqualified artifact reference</param>
-        /// <param name="artifactReference">set to the parsed artifact reference if parsing succeeds</param>
-        /// <param name="failureBuilder">set to an error builder if parsing fails</param>
-        bool TryParseArtifactReference(
-            string? aliasName,
-            string reference,
-            [NotNullWhen(true)] out ArtifactReference? artifactReference,
-            [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string reference);
 
         /// <summary>
         /// Returns true if the specified artifact is already cached in the local cache.
@@ -49,10 +45,8 @@ namespace Bicep.Core.Registry
         /// Returns a URI to the entry point module.
         /// </summary>
         /// <param name="reference">The module reference</param>
-        /// <param name="localUri">set to the local entry module entry point URI if parsing succeeds</param>
-        /// <param name="failureBuilder">set to an error builder if parsing fails</param>
         /// <returns></returns>
-        bool TryGetLocalArtifactEntryPointUri(ArtifactReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
 
         /// <summary>
         /// Returns true if the specified module exists in the registry.
@@ -79,7 +73,8 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="moduleReference">The module reference</param>
         /// <param name="compiled">The compiled module</param>
-        Task PublishArtifact(ArtifactReference moduleReference, Stream compiled, string? documentationUri, string? description);
+        /// <param name="bicepSources">The source archive (binary stream of SourceArchive)</param>
+        Task PublishArtifact(ArtifactReference moduleReference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description);
 
         /// <summary>
         /// Returns documentationUri for the module.
@@ -92,5 +87,12 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="moduleReference">The module reference</param>
         Task<string?> TryGetDescription(ArtifactReference moduleReference);
+
+        /// <summary>
+        /// Returns the source code for the module, if available.
+        /// </summary>
+        /// <param name="moduleReference">The module reference</param>
+        /// <returns>A source archive</returns>
+        SourceArchive? TryGetSource(ArtifactReference moduleReference);
     }
 }

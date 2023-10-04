@@ -12,6 +12,8 @@ describe("msbuild", () => {
     expect(buildResult.stderr).toBe("");
     const templateRelativePath = "bin/Debug/net472/empty.json";
     example.expectTemplate(templateRelativePath);
+    const skippedFileRelativePath = "bin/Debug/net472/skip.json";
+    example.expectNoFile(skippedFileRelativePath);
 
     const cleanResult = example.clean();
     expect(cleanResult.stderr).toBe("");
@@ -25,5 +27,9 @@ describe("msbuild", () => {
     // both build and publish outputs should be present
     example.expectTemplate(templateRelativePath);
     example.expectTemplate("bin/Debug/net472/publish/empty.json");
+
+    // skipped file must not be present in either build or publish output directory
+    example.expectNoFile(skippedFileRelativePath);
+    example.expectNoFile("bin/Debug/net472/publish/skip.json");
   });
 });

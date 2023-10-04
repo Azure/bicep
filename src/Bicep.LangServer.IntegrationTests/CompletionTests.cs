@@ -29,6 +29,7 @@ using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
+using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +43,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
+using System.Collections.Immutable;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -2011,6 +2014,29 @@ output stringOutput |
         }
 
         [TestMethod]
+        public async Task TypePropertyDecoratorsShouldAlignWithPropertyType()
+        {
+            var fileWithCursors = """
+                type obj = {
+                  @|
+                  intProp: int
+                }
+                """;
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+
+            completions.Should().Contain(x => x.Label == "description");
+            completions.Should().Contain(x => x.Label == "metadata");
+            completions.Should().Contain(x => x.Label == "minValue");
+            completions.Should().Contain(x => x.Label == "maxValue");
+
+            completions.Should().NotContain(x => x.Label == "sealed");
+            completions.Should().NotContain(x => x.Label == "secure");
+            completions.Should().NotContain(x => x.Label == "discriminator");
+        }
+
+        [TestMethod]
         public async Task ModuleCompletionsShouldNotBeUrlEscaped()
         {
             var fileWithCursors = @"
@@ -3428,14 +3454,14 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             var expected = expectedInfo.Value.content;
             var expectedLocation = expectedInfo.Value.scope switch
             {
-                ExpectedCompletionsScope.DataSet => Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestCompletionsDirectory, GetFullSetName(setName)),
+                ExpectedCompletionsScope.DataSet => DataSet.GetBaselineUpdatePath(dataSet, Path.Combine(DataSet.TestCompletionsDirectory, GetFullSetName(setName))),
                 _ => GetGlobalCompletionSetPath(setName)
             };
 
             actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, expectedLocation, actualLocation, "because ");
         }
 
-        private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
+        private static string GetGlobalCompletionSetPath(string setName) => DataSet.GetBaselineUpdatePath(DataSet.TestCompletionsDirectory, GetFullSetName(setName));
 
         private static async Task<CompletionList> RunSingleCompletionScenarioTest(TestContext testContext, SharedLanguageHelperManager server, string text, int offset)
         {
@@ -3888,16 +3914,25 @@ var file = " + functionName + @"(templ|)
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'")]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/|")]
-        [DataRow("module test 'br/public:|'")]
-        [DataRow("module test 'br/public:|")]
-        public async Task ModuleRegistryReferenceCompletions_GetPathCompletions(string inputWithCursors)
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:|", BicepSourceFileKind.BicepFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/|", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br/public:|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br/public:|", BicepSourceFileKind.ParamsFile)]
+        public async Task ModuleRegistryReferenceCompletions_GetPathCompletions(string inputWithCursors, BicepSourceFileKind kind)
         {
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
 
-            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", text, testOutputPath);
+            var fileName = kind switch {
+                BicepSourceFileKind.BicepFile => "main.bicep",
+                BicepSourceFileKind.ParamsFile => "main.bicepparam",
+                _ => throw new InvalidOperationException(),
+            };
+            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, fileName, text, testOutputPath);
             var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
 
             FileHelper.SaveResultFile(TestContext, "groups.bicep", string.Empty, Path.Combine(testOutputPath, "br"));
@@ -3924,16 +3959,25 @@ var file = " + functionName + @"(templ|)
         }
 
         [DataTestMethod]
-        [DataRow("module test 'br/public:app/dapr-containerapp:|'")]
-        [DataRow("module test 'br/public:app/dapr-containerapp:|")]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'")]
-        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|")]
-        public async Task ModuleRegistryReferenceCompletions_GetVersionCompletions(string inputWithCursors)
+        [DataRow("module test 'br/public:app/dapr-containerapp:|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.BicepFile)]
+        [DataRow("module test 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.BicepFile)]
+        [DataRow("using 'br/public:app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br/public:app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|'", BicepSourceFileKind.ParamsFile)]
+        [DataRow("using 'br:mcr.microsoft.com/bicep/app/dapr-containerapp:|", BicepSourceFileKind.ParamsFile)]
+        public async Task ModuleRegistryReferenceCompletions_GetVersionCompletions(string inputWithCursors, BicepSourceFileKind kind)
         {
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
 
-            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", text, testOutputPath);
+            var fileName = kind switch {
+                BicepSourceFileKind.BicepFile => "main.bicep",
+                BicepSourceFileKind.ParamsFile => "main.bicepparam",
+                _ => throw new InvalidOperationException(),
+            };
+            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, fileName, text, testOutputPath);
             var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
 
             var settingsProvider = StrictMock.Of<ISettingsProvider>();
@@ -4124,6 +4168,105 @@ var arr6 = [
         }
 
         [TestMethod]
+        public async Task Compile_time_imports_do_not_offer_types_as_imported_symbol_list_item_completions_in_bicepparam_files()
+        {
+            var modContent = """
+              @export()
+              type foo = string
+
+              @export()
+              var bar = 'bar'
+              """;
+
+            var paramsContent = """
+              import {|} from 'mod.bicep'
+              """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(paramsContent, '|');
+            Uri mainUri = new("file:///params.bicepparam");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = modContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepParamFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestCompletion(cursors[0]);
+            completions.Should().NotContain(c => c.Label == "foo");
+            completions.Should().Contain(c => c.Label == "bar");
+        }
+
+        [TestMethod]
+        public async Task Imported_symbol_list_item_completions_quote_and_escape_names_when_name_is_not_a_valid_identifier()
+        {
+            var jsonModContent = $$"""
+              {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "metadata": {
+                  "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                    {
+                      "name": "foo.bar"
+                    },
+                    {
+                      "name": "'"
+                    }
+                  ]
+                },
+                "variables": {
+                  "foo.bar": "baz",
+                  "'": "apostrophe"
+                },
+                "resources": []
+              }
+              """;
+
+            var mainContent = "import {|} from 'mod.json'";
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.json")] = jsonModContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            HashSet<string> expectedContent = new()
+            {
+                "import {'foo.bar' as } from 'mod.json'",
+                @"import {'\'' as } from 'mod.json'",
+            };
+
+            foreach (var completion in await file.RequestCompletion(cursors[0]))
+            {
+                var start = PositionHelper.GetOffset(bicepFile.LineStarts, completion.TextEdit!.TextEdit!.Range.Start);
+                var end = PositionHelper.GetOffset(bicepFile.LineStarts, completion.TextEdit!.TextEdit!.Range.End);
+                var textToInsert = completion.TextEdit!.TextEdit!.NewText;
+                var updated = text[..start] + textToInsert + text[end..];
+                expectedContent.Remove(updated).Should().BeTrue();
+            }
+
+            expectedContent.Should().BeEmpty();
+        }
+
+        [TestMethod]
         public async Task Compile_time_imports_offer_imported_wildcard_property_completions()
         {
             var modContent = """
@@ -4179,6 +4322,67 @@ var arr6 = [
             completions.Should().Contain(c => c.Label == "buzz");
             completions.Should().NotContain(c => c.Label == "foo");
             completions.Should().NotContain(c => c.Label == "bar");
+        }
+
+        [TestMethod]
+        public async Task Imported_wildcard_property_completions_use_array_access_when_name_is_not_a_valid_identifier()
+        {
+            var jsonModContent = $$"""
+              {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "languageVersion": "2.0",
+                "definitions": {
+                  "foo.bar": {
+                    "type": "string",
+                    "metadata": {
+                      "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                    }
+                  },
+                  "'": {
+                    "type": "string",
+                    "metadata": {
+                      "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                    }
+                  },
+                  "fizz": {
+                    "type": "string",
+                    "metadata": {
+                      "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                    }
+                  }
+                },
+                "resources": {}
+              }
+              """;
+
+            var mainContent = """
+              import * as mod from 'mod.json'
+
+              type a = |
+              """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.json")] = jsonModContent,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestCompletion(cursors[0]);
+            completions.Should().Contain(c => c.Label == "mod['foo.bar']");
+            completions.Should().Contain(c => c.Label == @"mod['\'']");
+            completions.Should().Contain(c => c.Label == "mod.fizz");
         }
 
         [TestMethod]

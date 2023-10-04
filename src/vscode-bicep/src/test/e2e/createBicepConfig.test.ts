@@ -1,8 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import {} from "fs";
-import fse from "fs-extra";
+import fs from "fs";
 import path from "path";
 import { TextEditor, Uri, window } from "vscode";
 import { createUniqueTempFolder } from "../utils/createUniqueTempFolder";
@@ -104,20 +103,24 @@ describe("bicep.createConfigFile", (): void => {
       );
       */
     } finally {
-      fse.rmdirSync(tempFolder, {
-        recursive: true,
-        maxRetries: 5,
-        retryDelay: 1000,
-      });
+      try {
+        fs.rmSync(tempFolder, {
+          recursive: true,
+          maxRetries: 5,
+          retryDelay: 1000,
+        });
+      } catch {
+        // post-test cleanup is strictly best-effort only
+      }
     }
   });
 
   function fileExists(path: string): boolean {
-    return fse.existsSync(path);
+    return fs.existsSync(path);
   }
 
   function fileContains(path: string, pattern: RegExp | string): boolean {
-    const contents: string = fse.readFileSync(path).toString();
+    const contents: string = fs.readFileSync(path).toString();
     return !!contents.match(pattern);
   }
 });

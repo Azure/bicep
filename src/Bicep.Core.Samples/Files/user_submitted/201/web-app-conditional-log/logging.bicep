@@ -1,3 +1,4 @@
+@minLength(1)
 param appName string
 param location string = resourceGroup().location
 

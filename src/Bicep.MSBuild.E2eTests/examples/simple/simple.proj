@@ -16,5 +16,6 @@
 
   <ItemGroup>
     <Bicep Include="empty.bicep"/>
+    <Bicep Include="skip.bicep" NoBuild="true" />
   </ItemGroup>
 </Project>

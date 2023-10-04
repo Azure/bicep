@@ -37,16 +37,14 @@ namespace Bicep.Decompiler
 
         private INamingResolver nameResolver;
         private readonly Workspace workspace;
-        private readonly IFileResolver fileResolver;
         private readonly Uri bicepFileUri;
         private readonly JObject template;
         private readonly Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule;
         private readonly DecompileOptions options;
 
-        private TemplateConverter(Workspace workspace, IFileResolver fileResolver, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule, DecompileOptions options)
+        private TemplateConverter(Workspace workspace, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule, DecompileOptions options)
         {
             this.workspace = workspace;
-            this.fileResolver = fileResolver;
             this.bicepFileUri = bicepFileUri;
             this.template = template;
             this.nameResolver = new UniqueNamingResolver();
@@ -56,7 +54,6 @@ namespace Bicep.Decompiler
 
         public static (ProgramSyntax programSyntax, IReadOnlyDictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule) DecompileTemplate(
             Workspace workspace,
-            IFileResolver fileResolver,
             Uri bicepFileUri,
             string content,
             DecompileOptions options)
@@ -65,7 +62,6 @@ namespace Bicep.Decompiler
 
             var instance = new TemplateConverter(
                 workspace,
-                fileResolver,
                 bicepFileUri,
                 templateObject,
                 new(),
@@ -76,7 +72,6 @@ namespace Bicep.Decompiler
 
         public static SyntaxBase? DecompileJsonValue(
             Workspace workspace,
-            IFileResolver fileResolver,
             Uri bicepFileUri,
             string jsonInput,
             DecompileOptions options)
@@ -85,7 +80,6 @@ namespace Bicep.Decompiler
 
             var instance = new TemplateConverter(
                 workspace,
-                fileResolver,
                 bicepFileUri,
                 new JObject(),
                 new(),
@@ -977,26 +971,13 @@ namespace Bicep.Decompiler
                 return (createFakeModulePath(templateLink), null);
             }
 
-            var nestedUri = fileResolver.TryResolveFilePath(bicepFileUri, nestedRelativePath);
-            if (nestedUri is null || !fileResolver.TryRead(nestedUri, out _, out _))
+            if (!Uri.TryCreate(bicepFileUri, nestedRelativePath, out var nestedUri))
             {
                 // return the original expression so that the author can fix it up rather than failing
                 return (createFakeModulePath(templateLink), null);
             }
 
-            var existIdenticalUrisWithDifferentExtensions = jsonTemplateUrisByModule.Values.Any(uri =>
-                uri != nestedUri && PathHelper.RemoveExtension(uri) == PathHelper.RemoveExtension(nestedUri));
-
-            /*
-             * If there exist another nested template with the same path and filename but a different extension,
-             * append ".bicep" to path of the current nested template to avoid the generate bicep files overwrite each other.
-             * Otherwise, change the extenstion of the nested template to ".bicep".
-             */
-            var moduleFilePath = (existIdenticalUrisWithDifferentExtensions
-                ? nestedRelativePath + ".bicep"
-                : Path.ChangeExtension(nestedRelativePath, ".bicep")).Replace("\\", "/");
-
-            return (SyntaxFactory.CreateStringLiteral(moduleFilePath), nestedUri);
+            return (SyntaxFactory.CreateStringLiteral(nestedRelativePath), nestedUri);
         }
 
         /// <summary>
@@ -1362,14 +1343,18 @@ namespace Bicep.Decompiler
                 var nestedValue = ProcessCondition(resource, nestedBody);
 
                 var filePath = $"./nested_{identifier}.bicep";
-                var nestedModuleUri = fileResolver.TryResolveFilePath(bicepFileUri, filePath) ?? throw new ConversionFailedException($"Unable to module uri for {typeString} {nameString}", nestedTemplate);
+                if (!Uri.TryCreate(bicepFileUri, filePath, out var nestedModuleUri))
+                {
+                    throw new ConversionFailedException($"Failed to create module uri for {typeString} {nameString}", nestedTemplate);
+                }
+
                 if (workspace.TryGetSourceFile(nestedModuleUri, out _))
                 {
                     throw new ConversionFailedException($"Unable to generate duplicate module to path ${nestedModuleUri} for {typeString} {nameString}", nestedTemplate);
                 }
 
                 var nestedOptions = this.options with { AllowMissingParamsAndVars = this.options.AllowMissingParamsAndVarsInNestedTemplates };
-                var nestedConverter = new TemplateConverter(workspace, fileResolver, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule, nestedOptions);
+                var nestedConverter = new TemplateConverter(workspace, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule, nestedOptions);
                 var nestedBicepFile = SourceFileFactory.CreateBicepFile(nestedModuleUri, nestedConverter.Parse().ToText());
                 workspace.UpsertSourceFile(nestedBicepFile);
 

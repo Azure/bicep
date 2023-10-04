@@ -3,17 +3,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Json;
 using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
+using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry
@@ -43,30 +41,27 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities GetCapabilities(TemplateSpecModuleReference reference) => RegistryCapabilities.Default;
 
-        public override bool TryParseArtifactReference(string? aliasName, string reference, [NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string reference)
         {
-            if (TemplateSpecModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri, out var @ref, out failureBuilder))
+            if (!TemplateSpecModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
-                moduleReference = @ref;
-                return true;
+                return new(failureBuilder);
             }
 
-            moduleReference = null;
-            return false;
+            return new(@ref);
         }
 
         public override bool IsArtifactRestoreRequired(TemplateSpecModuleReference reference) =>
             !this.FileResolver.FileExists(this.GetModuleEntryPointUri(reference));
 
-        public override Task PublishArtifact(TemplateSpecModuleReference reference, Stream compiled, string? documentationUri, string? description) => throw new NotSupportedException("Template Spec modules cannot be published.");
+        public override Task PublishArtifact(TemplateSpecModuleReference reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
         public override Task<bool> CheckArtifactExists(TemplateSpecModuleReference reference) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
-        public override bool TryGetLocalArtifactEntryPointUri(TemplateSpecModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(TemplateSpecModuleReference reference)
         {
-            failureBuilder = null;
-            localUri = this.GetModuleEntryPointUri(reference);
-            return true;
+            var localUri = this.GetModuleEntryPointUri(reference);
+            return new(localUri);
         }
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<TemplateSpecModuleReference> references)
@@ -81,7 +76,7 @@ namespace Bicep.Core.Registry
                     var repository = this.repositoryFactory.CreateRepository(configuration, reference.SubscriptionId);
                     var templateSpecEntity = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
 
-                    await this.TryWriteArtifactContentAsync(reference, templateSpecEntity);
+                    await this.WriteArtifactContentToCacheAsync(reference, templateSpecEntity);
                 }
                 catch (ExternalArtifactException templateSpecException)
                 {
@@ -147,6 +142,11 @@ namespace Bicep.Core.Registry
             }
 
             return Task.FromResult<string?>(null);
+        }
+
+        public override SourceArchive? TryGetSource(TemplateSpecModuleReference reference)
+        {
+            return null;
         }
     }
 }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.SourceCode;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -16,14 +17,17 @@ namespace Bicep.Core.Registry
 
         ArtifactRestoreStatus GetArtifactRestoreStatus(ArtifactReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
 
-        bool TryGetLocalModuleEntryPointUri(ArtifactReference moduleReference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        ResultWithDiagnostic<Uri> TryGetLocalModuleEntryPointUri(ArtifactReference moduleReference);
 
         Task<bool> RestoreModules(IEnumerable<ArtifactReference> moduleReferences, bool forceModulesRestore = false);
 
         Task<bool> CheckModuleExists(ArtifactReference moduleReference);
 
-        Task PublishModule(ArtifactReference moduleReference, Stream compiled, string? documentationUri);
+        Task PublishModule(ArtifactReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri);
 
         void PruneRestoreStatuses();
+
+        // Retrieves the sources that have been restored along with the module into the cache (if available)
+        SourceArchive? TryGetModuleSources(ArtifactReference moduleReference);
     }
 }

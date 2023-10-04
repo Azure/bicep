@@ -41,7 +41,7 @@
     "detail": "stringParamA",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `string`  \nWrite-only property  \n"
+      "value": "Type: `null | string`  \nWrite-only property  \n"
     },
     "deprecated": false,
     "preselect": false,

@@ -1,5 +1,5 @@
 using './main.bicep'
-//@[06:20) [BCP258 (Error)] The following parameters are declared in the Bicep file but are missing an assignment in the params file: "myString", "myInt", "myBool", "password", "secretObject", "storageSku", "storageName", "someArray", "emptyMetadata", "description", "description2", "additionalMetadata", "someParameter", "stringLiteral", "decoratedString". (CodeDescription: none) |'./main.bicep'|
+//@[06:20) [BCP258 (Error)] The following parameters are declared in the Bicep file but are missing an assignment in the params file: "additionalMetadata", "decoratedString", "description", "description2", "emptyMetadata", "myBool", "myInt", "myString", "password", "secretObject", "someArray", "someParameter", "storageName", "storageSku", "stringLiteral". (CodeDescription: none) |'./main.bicep'|
 
 param para1 = 'value
 //@[00:20) [BCP259 (Error)] The parameter "para1" is assigned in the params file without being declared in the Bicep file. (CodeDescription: none) |param para1 = 'value|

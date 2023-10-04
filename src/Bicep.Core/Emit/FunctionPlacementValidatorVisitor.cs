@@ -88,7 +88,7 @@ namespace Bicep.Core.Emit
                     var (_, levelUpSymbol) = syntaxRecorder.Skip(1).SkipWhile(x => x.syntax is TernaryOperationSyntax).FirstOrDefault();
                     if (!(elementsRecorder.TryPeek(out var head) && head == VisitedElement.ModuleParams)
                         || levelUpSymbol is not PropertySymbol propertySymbol
-                        || !propertySymbol.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
+                        || !(TypeHelper.TryRemoveNullability(propertySymbol.Type) ?? propertySymbol.Type).ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).FunctionOnlyValidInModuleSecureParameterAssignment(functionSymbol.Name));
                     }

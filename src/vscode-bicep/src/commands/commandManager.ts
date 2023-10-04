@@ -11,7 +11,7 @@ import { Command } from "./types";
 export class CommandManager extends Disposable {
   private _packageJson: IPackageJson | undefined;
 
-  public constructor(private readonly _ctx: ExtensionContext) {
+  public constructor(private readonly extensionContext: ExtensionContext) {
     super();
   }
 
@@ -71,7 +71,7 @@ export class CommandManager extends Disposable {
   private validateCommand<T extends Command>(command: T): void {
     if (!this._packageJson) {
       this._packageJson = <IPackageJson>(
-        fse.readJsonSync(this._ctx.asAbsolutePath("package.json"))
+        fse.readJsonSync(this.extensionContext.asAbsolutePath("package.json"))
       );
     }
 

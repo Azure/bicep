@@ -1,5 +1,7 @@
 {
   // This is the base configuration which provides the defaults for all values (end users don't see this file).
+  // Intellisense for bicepconfig.json is controlled by src/vscode-bicep/schemas/bicepconfig.schema.json
+
   "cloud": {
     "currentProfile": "AzureCloud",
     "profiles": {

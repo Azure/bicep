@@ -1,10 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Semantics;
 
@@ -27,14 +32,20 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
 
     public NamespaceType? TryGetNamespaceType() => this.Type as NamespaceType;
 
-    public bool TryGetSemanticModel([NotNullWhen(true)] out ISemanticModel? semanticModel, [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
-        => SemanticModelHelper.TryGetSemanticModelForForeignTemplateReference(Context.Compilation.SourceFileGrouping,
+    public ISemanticModel? TryGetSemanticModel()
+        => SemanticModelHelper.TryGetModelForArtifactReference(Context.Compilation.SourceFileGrouping,
             EnclosingDeclaration,
-            b => b.CompileTimeImportDeclarationMustReferenceTemplate(),
-            Context.Compilation,
-            out semanticModel,
-            out failureDiagnostic);
+            Context.Compilation)
+            .TryUnwrap();
 
-    public bool TryGetModuleReference([NotNullWhen(true)] out ArtifactReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
-        => Context.Compilation.ModuleReferenceFactory.TryGetModuleReference(EnclosingDeclaration, Context.SourceFile.FileUri, out moduleReference, out failureBuilder);
+    public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference()
+        => Context.Compilation.ModuleReferenceFactory.TryGetModuleReference(EnclosingDeclaration, Context.SourceFile.FileUri);
+
+    public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
+    {
+        if (TryGetSemanticModel()?.Exports.Values.OfType<DuplicatedExportMetadata>() is {} duplicatedExports && duplicatedExports.Any())
+        {
+            yield return DiagnosticBuilder.ForPosition(DeclaringSyntax).ImportedModelContainsAmbiguousExports(duplicatedExports.Select(md => md.Name));
+        }
+    }
 }

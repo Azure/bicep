@@ -42,7 +42,6 @@ public static class ServiceCollectionExtensions
             .AddSingleton<BuildCommand>()
             .AddSingleton<TestCommand>()
             .AddSingleton<BuildParamsCommand>()
-            .AddSingleton<ValidateParamsCommand>()
             .AddSingleton<DecompileCommand>()
             .AddSingleton<DecompileParamsCommand>()
             .AddSingleton<FormatCommand>()

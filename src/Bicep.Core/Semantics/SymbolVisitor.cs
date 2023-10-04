@@ -60,7 +60,7 @@ namespace Bicep.Core.Semantics
         {
             VisitDescendants(symbol);
         }
-        
+
         public virtual void VisitOutputSymbol(OutputSymbol symbol)
         {
             VisitDescendants(symbol);
@@ -126,7 +126,7 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
-        public virtual void VisitImportedTypeSymbol(ImportedTypeSymbol symbol)
+        public virtual void VisitImportedSymbol(ImportedSymbol symbol)
         {
             VisitDescendants(symbol);
         }

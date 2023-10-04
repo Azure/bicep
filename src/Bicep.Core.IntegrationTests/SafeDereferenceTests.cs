@@ -24,7 +24,7 @@ public class SafeDereferenceTests
     {
         var result = CompilationHelper.Compile(@"
 resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' existing = {
-  name: 'sa'
+  name: 'storageacct'
 }
 
 output secret string = storageaccount.?listKeys().keys[0].value

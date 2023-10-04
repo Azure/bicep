@@ -154,7 +154,7 @@ namespace Bicep.LangServer.IntegrationTests
             static bool IsNonHoverable(SyntaxBase node) =>
                 !(node is PropertyAccessSyntax propertyAccessSyntax && propertyAccessSyntax.BaseExpression is ISymbolReference) &&
                 node is not ISymbolReference &&
-                node is not ITopLevelNamedDeclarationSyntax &&
+                node is not INamedDeclarationSyntax &&
                 node is not Token;
 
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
@@ -996,7 +996,7 @@ param foo|bar = true
             SharedLanguageHelperManager sharedLanguageHelperManager = new();
             sharedLanguageHelperManager.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
-                    TestContext, 
+                    TestContext,
                     services => services
                         .WithFeatureProviderFactory(featureProviderFactory)
                         .WithModuleDispatcher(moduleDispatcher)
@@ -1039,19 +1039,23 @@ param foo|bar = true
             var file = SourceFileFactory.CreateBicepFile(parentModuleUri, bicepFileContents);
             var moduleDeclarationSyntax = programSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
 
-            ArtifactReference? ociArtifactModuleReference = OciArtifactModuleReferenceHelper.GetModuleReferenceAndSaveManifestFile(
+            OciModuleRegistryHelper.SaveManifestFileToModuleRegistryCache(
                 TestContext,
                 registry,
                 repository,
                 manifestFileContents,
                 testOutputPath,
+                digest,
+                tag);
+            ArtifactReference? ociArtifactModuleReference = OciModuleRegistryHelper.CreateModuleReferenceMock(
+                registry,
+                repository,
                 parentModuleUri,
                 digest,
                 tag);
 
-            DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            moduleDispatcher.Setup(m => m.TryGetModuleReference(moduleDeclarationSyntax, parentModuleUri, out ociArtifactModuleReference, out failureBuilder)).Returns(true);
+            moduleDispatcher.Setup(m => m.TryGetModuleReference(moduleDeclarationSyntax, parentModuleUri)).Returns(ResultHelper.Create(ociArtifactModuleReference, null));
 
             return moduleDispatcher.Object;
         }
@@ -1093,6 +1097,10 @@ param foo|bar = true
                         tooltip.Should().Contain($"type {declaredType.Name}: {declaredType.Type}");
                         break;
 
+                    case ImportedSymbol imported when imported.Kind == SymbolKind.TypeAlias:
+                        tooltip.Should().Contain($"type {imported.Name}: {imported.Type}");
+                        break;
+
                     case AmbientTypeSymbol ambientType:
                         tooltip.Should().Contain($"type {ambientType.Name}: {ambientType.Type}");
                         break;
@@ -1100,6 +1108,10 @@ param foo|bar = true
                     case VariableSymbol variable:
                         // the hovers with errors don't appear in VS code and only occur in tests
                         tooltip.Should().ContainAny(new[] { $"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error" });
+                        break;
+
+                    case ImportedSymbol imported when imported.Kind == SymbolKind.Variable:
+                        tooltip.Should().Contain($"var {imported.Name}: {imported.Type}");
                         break;
 
                     case TestSymbol variable:

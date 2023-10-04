@@ -732,7 +732,7 @@ module secureModule1 'moduleb.bicep' = {
 //@[023:052) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-interpolation)) |'${kv.getSecret('mySecret')}'|
 //@[026:050) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
     secureObjectParam: kv.getSecret('mySecret')
-//@[023:047) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "object" but the provided value is of type "string". (CodeDescription: none) |kv.getSecret('mySecret')|
+//@[023:047) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "null | object" but the provided value is of type "string". (CodeDescription: none) |kv.getSecret('mySecret')|
     secureStringParam2: '${kv.getSecret('mySecret')}'
 //@[004:022) [BCP037 (Error)] The property "secureStringParam2" is not allowed on objects of type "params". No other properties are allowed. (CodeDescription: none) |secureStringParam2|
 //@[024:053) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-interpolation)) |'${kv.getSecret('mySecret')}'|

@@ -10,6 +10,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Bicep.LanguageServer.Telemetry;
@@ -222,11 +223,10 @@ namespace Bicep.LanguageServer.Handlers
                 // Decompile the full template
                 Debug.Assert(constructedJsonTemplate is not null);
                 Log(output, String.Format(LangServerResources.Decompile_DecompilationStartMsg, "clipboard text"));
-                var singleFileResolver = new SingleFileResolver(JsonDummyUri, constructedJsonTemplate);
 
-                var decompiler = new BicepDecompiler(this.bicepCompiler, singleFileResolver);
+                var decompiler = new BicepDecompiler(this.bicepCompiler);
                 var options = GetDecompileOptions(pasteType);
-                (_, filesToSave) = await decompiler.Decompile(JsonDummyUri, BicepDummyUri, options);
+                (_, filesToSave) = await decompiler.Decompile(BicepDummyUri, constructedJsonTemplate, options: options);
             }
             catch (Exception ex)
             {
@@ -295,10 +295,8 @@ namespace Bicep.LanguageServer.Handlers
 
         private ResultAndTelemetry? TryConvertFromJsonValue(StringBuilder output, string json, string decompileId, PasteContext pasteContext, bool queryCanPaste)
         {
-            var singleFileResolver = new SingleFileResolver(JsonDummyUri, json);
-
             // Is it valid JSON that we can convert into Bicep?
-            var decompiler = new BicepDecompiler(this.bicepCompiler, singleFileResolver);
+            var decompiler = new BicepDecompiler(this.bicepCompiler);
             var pasteType = PasteType_JsonValue;
             var options = GetDecompileOptions(pasteType);
             var bicep = decompiler.DecompileJsonValue(json, options);
@@ -498,89 +496,5 @@ namespace Bicep.LanguageServer.Handlers
 
         private static string? TryGetStringProperty(JObject obj, string name)
             => (TryGetProperty(obj, name)?.Value as JValue)?.Value as string;
-    }
-
-    /// <summary>
-    /// A simple IFileResolver implementation that provides just enough capability to provide content for a single file
-    /// </summary>
-    class SingleFileResolver : IFileResolver
-    {
-        public Uri Uri { get; }
-        public string contents { get; }
-
-        public SingleFileResolver(Uri uri, string contents)
-        {
-            this.Uri = uri;
-            this.contents = contents;
-        }
-
-        public bool DirExists(Uri fileUri)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool FileExists(Uri uri)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern = "")
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern = "")
-        {
-            throw new NotImplementedException();
-        }
-
-        public string GetRelativePath(string relativeTo, string path)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDisposable? TryAcquireFileLock(Uri fileUri)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
-        {
-            if (fileUri.Equals(this.Uri))
-            {
-                failureBuilder = null;
-                fileContents = this.contents;
-                return true;
-            }
-
-            failureBuilder = x => x.UnableToLoadNonFileUri(fileUri);
-            fileContents = null;
-            return false;
-        }
-
-        public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, Encoding fileEncoding, int maxCharacters, [NotNullWhen(true)] out Encoding? detectedEncoding)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TryReadAsBase64(Uri fileUri, [NotNullWhen(true)] out string? fileBase64, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, int maxCharacters = -1)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)
-        {
-            return new Uri(Path.Combine(parentFileUri.LocalPath, childFilePath), UriKind.Absolute);
-        }
-
-        public void Write(Uri fileUri, Stream contents)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

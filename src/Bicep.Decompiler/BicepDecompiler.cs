@@ -26,80 +26,40 @@ namespace Bicep.Decompiler;
 public class BicepDecompiler
 {
     private readonly BicepCompiler bicepCompiler;
-    private readonly IFileResolver fileResolver;
 
     public static string DecompilerDisclaimerMessage => DecompilerResources.DecompilerDisclaimerMessage;
 
-    public BicepDecompiler(BicepCompiler bicepCompiler, IFileResolver fileResolver)
+    public BicepDecompiler(BicepCompiler bicepCompiler)
     {
         this.bicepCompiler = bicepCompiler;
-        this.fileResolver = fileResolver;
     }
 
-    public async Task<DecompileResult> Decompile(Uri entryJsonUri, Uri entryBicepUri, DecompileOptions? options = null)
+    public async Task<DecompileResult> Decompile(Uri bicepUri, string jsonContent, DecompileOptions? options = null)
     {
         var workspace = new Workspace();
         var decompileQueue = new Queue<(Uri, Uri)>();
         options ??= new DecompileOptions();
 
-        decompileQueue.Enqueue((entryJsonUri, entryBicepUri));
+        var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, bicepUri, jsonContent, options);
+        var bicepFile = SourceFileFactory.CreateBicepFile(bicepUri, program.ToText());
+        workspace.UpsertSourceFile(bicepFile);
 
-        while (decompileQueue.Count > 0)
-        {
-            var (jsonUri, bicepUri) = decompileQueue.Dequeue();
-
-            if (PathHelper.HasBicepExtension(jsonUri))
-            {
-                throw new InvalidOperationException($"Cannot decompile the file with .bicep extension: {jsonUri}.");
-            }
-
-            if (workspace.TryGetSourceFile(bicepUri, out _))
-            {
-                continue;
-            }
-
-            if (!fileResolver.TryRead(jsonUri, out var jsonInput, out _))
-            {
-                throw new InvalidOperationException($"Failed to read {jsonUri}");
-            }
-
-            var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, bicepUri, jsonInput, options);
-            var bicepFile = SourceFileFactory.CreateBicepFile(bicepUri, program.ToText());
-            workspace.UpsertSourceFile(bicepFile);
-
-            foreach (var module in program.Children.OfType<ModuleDeclarationSyntax>())
-            {
-                if (!SyntaxHelper.TryGetForeignTemplatePath(module, out var moduleRelativePath, out _) ||
-                    !LocalModuleReference.Validate(moduleRelativePath, out _) ||
-                    !Uri.TryCreate(bicepUri, moduleRelativePath, out var moduleUri))
-                {
-                    // Do our best, but keep going if we fail to resolve a module file
-                    continue;
-                }
-
-                if (!workspace.TryGetSourceFile(moduleUri, out _) && jsonTemplateUrisByModule.TryGetValue(module, out var linkedTemplateUri))
-                {
-                    decompileQueue.Enqueue((linkedTemplateUri, moduleUri));
-                }
-            }
-        }
-
-        await RewriteSyntax(workspace, entryBicepUri, semanticModel => new ParentChildResourceNameRewriter(semanticModel));
-        await RewriteSyntax(workspace, entryBicepUri, semanticModel => new DependsOnRemovalRewriter(semanticModel));
-        await RewriteSyntax(workspace, entryBicepUri, semanticModel => new ForExpressionSimplifierRewriter(semanticModel));
+        await RewriteSyntax(workspace, bicepUri, semanticModel => new ParentChildResourceNameRewriter(semanticModel));
+        await RewriteSyntax(workspace, bicepUri, semanticModel => new DependsOnRemovalRewriter(semanticModel));
+        await RewriteSyntax(workspace, bicepUri, semanticModel => new ForExpressionSimplifierRewriter(semanticModel));
         for (var i = 0; i < 5; i++)
         {
             // This is a little weird. If there are casing issues nested inside casing issues (e.g. in an object), then the inner casing issue will have no type information
             // available, as the compilation will not have associated a type with it (since there was no match on the outer object). So we need to correct the outer issue first,
             // and then move to the inner one. We need to recompute the entire compilation to do this. It feels simpler to just do this in passes over the file, rather than on demand.
-            if (!await RewriteSyntax(workspace, entryBicepUri, semanticModel => new TypeCasingFixerRewriter(semanticModel)))
+            if (!await RewriteSyntax(workspace, bicepUri, semanticModel => new TypeCasingFixerRewriter(semanticModel)))
             {
                 break;
             }
         }
 
         return new DecompileResult(
-            entryBicepUri,
+            bicepUri,
             PrintFiles(workspace));
     }
 
@@ -111,7 +71,7 @@ public class BicepDecompiler
         var bicepUri = new Uri("file://jsonInput.json", UriKind.Absolute);
         try
         {
-            var syntax = TemplateConverter.DecompileJsonValue(workspace, fileResolver, bicepUri, jsonInput, options);
+            var syntax = TemplateConverter.DecompileJsonValue(workspace, bicepUri, jsonInput, options);
             return syntax is null ? null : PrintSyntax(syntax);
         }
         catch (Exception)

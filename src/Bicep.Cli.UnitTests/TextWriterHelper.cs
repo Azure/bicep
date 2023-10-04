@@ -21,7 +21,7 @@ namespace Bicep.Cli.UnitTests
             return buffer.ToString();
         }
 
-        public static async Task<(string output, string error, int result)> InvokeWriterAction(Func<TextWriter, TextWriter, Task<int>> action)
+        public static async Task<CliResult> InvokeWriterAction(Func<TextWriter, TextWriter, Task<int>> action)
         {
             var firstBuffer = new StringBuilder();
             using var firstWriter = new StringWriter(firstBuffer);
@@ -34,7 +34,7 @@ namespace Bicep.Cli.UnitTests
             await firstWriter.FlushAsync();
             await secondWriter.FlushAsync();
 
-            return (firstBuffer.ToString(), secondBuffer.ToString(), result);
+            return new(firstBuffer.ToString(), secondBuffer.ToString(), result);
         }
     }
 }

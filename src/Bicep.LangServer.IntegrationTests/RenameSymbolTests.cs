@@ -131,7 +131,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task RenamingNonSymbolsShouldProduceEmptyEdit(DataSet dataSet)
         {
             // local function
-            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is ITopLevelNamedDeclarationSyntax) && !(node is Token);
+            bool IsWrongNode(SyntaxBase node) => !(node is ISymbolReference) && !(node is INamedDeclarationSyntax) && !(node is Token);
 
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);

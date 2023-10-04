@@ -113,12 +113,16 @@ namespace Bicep.Core
         public const string TrueKeyword = "true";
         public const string FalseKeyword = "false";
         public const string NullKeyword = "null";
+        public const string VoidKeyword = "void";
 
         public const string ListFunctionPrefix = "list";
 
         public const string McrRepositoryPrefix = "bicep/";
+
+        // https://github.com/opencontainers/image-spec/blob/main/annotations.md
         public const string OciOpenContainerImageDocumentationAnnotation = "org.opencontainers.image.documentation";
         public const string OciOpenContainerImageDescriptionAnnotation = "org.opencontainers.image.description";
+        public const string OciOpenContainerImageCreatedAnnotation = "org.opencontainers.image.created";
 
         public static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
@@ -142,6 +146,7 @@ namespace Bicep.Core
         public const string MetadataResourceTypePropertyName = "resourceType";
         public const string MetadataExportedPropertyName = "__bicep_export!";
         public const string MetadataImportedFromPropertyName = "__bicep_imported_from!";
+        public const string TemplateMetadataExportedVariablesName = "__bicep_exported_variables!";
         public const string ImportMetadataSourceTemplatePropertyName = "sourceTemplate";
         public const string ImportMetadataOriginalIdentifierPropertyName = "originalIdentifier";
         public const string BatchSizePropertyName = "batchSize";
@@ -315,6 +320,4 @@ namespace Bicep.Core
             return new ModuleType(typeName, moduleScope, moduleBody);
         }
     }
-
-    
 }

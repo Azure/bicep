@@ -326,6 +326,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
 
 resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(regions)): {
   name: '${name}-${index}'
+//@[08:026) [BCP334 (Warning)] The provided value can have a length as small as 2 and may be too short to assign to a target with a configured minimum length of 5. (CodeDescription: none) |'${name}-${index}'|
   location: 'Global'
   properties: {
     backendPools: [
@@ -377,6 +378,7 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
 
 resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(accounts)): {
   name: '${name}-${index}'
+//@[08:026) [BCP334 (Warning)] The provided value can have a length as small as 2 and may be too short to assign to a target with a configured minimum length of 5. (CodeDescription: none) |'${name}-${index}'|
   location: 'Global'
   properties: {
     backendPools: [

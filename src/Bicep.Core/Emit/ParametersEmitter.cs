@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
 
+ // Emits bicepparams files
 public class ParametersEmitter
 {
     private readonly SemanticModel model;

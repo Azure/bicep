@@ -38,7 +38,10 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
         {
             this.expectedOutLines.Add(expectedOutLine + Environment.NewLine);
 
-            this.outMock.Setup(x => x.Write(It.IsAny<string>())).Callback<string>(actualOutLine => this.actualOutLines.Add(actualOutLine));
+            this.outMock.Setup(x => x.Write(It.IsAny<string>())).Callback<string>(actualOutLine =>
+            {
+                this.actualOutLines.Add(actualOutLine);
+            });
 
             return this;
         }
@@ -57,9 +60,9 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
 
         public MockConsole ExpectErrorLine(string expectedErrorLine)
         {
-            this.expectedErrorLines.Add(expectedErrorLine + Environment.NewLine);
+            this.expectedErrorLines.Add($"{expectedErrorLine.ReplaceLineEndings()}{Environment.NewLine}");
 
-            this.errorMock.Setup(x => x.Write(It.IsAny<string>())).Callback<string>(actualErrorLine => this.actualErrorLines.Add(actualErrorLine));
+            this.errorMock.Setup(x => x.Write(It.IsAny<string>())).Callback<string>(this.actualErrorLines.Add);
 
             return this;
         }
@@ -80,7 +83,7 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
             VerifyStringList(this.actualErrorLines, this.expectedErrorLines);
         }
 
-        private void VerifyStringList(List<string> a, List<string> b)
+        private static void VerifyStringList(List<string> a, List<string> b)
         {
             if (a.Count != b.Count)
             {

@@ -3,12 +3,11 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Workspaces;
 
 public interface ISourceFileLookup
 {
-    public DiagnosticBuilder.ErrorBuilderDelegate? TryGetErrorDiagnostic(IArtifactReferenceSyntax foreignTemplateReference);
-
-    public ISourceFile? TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference);
+    public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference);
 }

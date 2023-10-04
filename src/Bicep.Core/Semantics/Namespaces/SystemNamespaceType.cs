@@ -1173,17 +1173,18 @@ namespace Bicep.Core.Semantics.Namespaces
                 fileEncoding = LanguageConstants.SupportedEncodings[encodingType.RawStringValue];
             }
 
-            if (!fileResolver.TryRead(fileUri, out fileContent, out var fileReadFailureBuilder, fileEncoding, maxCharacters, out var detectedEncoding))
+            if (!fileResolver.TryRead(fileUri, fileEncoding, maxCharacters).IsSuccess(out var result, out var fileReadFailureBuilder))
             {
                 errorDiagnostic = fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument.syntax));
                 return false;
             }
 
-            if (encodingArgument is not null && !Equals(fileEncoding, detectedEncoding))
+            if (encodingArgument is not null && !Equals(fileEncoding, result.Encoding))
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(detectedEncoding.WebName));
+                diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(result.Encoding.WebName));
             }
 
+            fileContent = result.Contents;
             return true;
         }
 
@@ -1201,7 +1202,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 return new(ErrorType.Create(errorDiagnostic));
             }
-            if (!fileResolver.TryReadAsBase64(fileUri, out var fileContent, out var fileReadFailureBuilder, LanguageConstants.MaxLiteralCharacterLimit))
+            if (!fileResolver.TryReadAsBase64(fileUri, LanguageConstants.MaxLiteralCharacterLimit).IsSuccess(out var fileContent, out var fileReadFailureBuilder))
             {
                 return new(ErrorType.Create(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0]))));
             }
@@ -1358,7 +1359,7 @@ namespace Bicep.Core.Semantics.Namespaces
             BannedFunction.CreateForOperator("coalesce", "??")
         }.ToImmutableArray();
 
-        private static IEnumerable<Decorator> GetSystemDecorators(IFeatureProvider featureProvider)
+        private static IEnumerable<Decorator> GetSystemDecorators(IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
         {
             static SyntaxBase SingleArgumentSelector(DecoratorSyntax decoratorSyntax) => decoratorSyntax.Arguments.Single().Expression;
 
@@ -1439,24 +1440,46 @@ namespace Bicep.Core.Semantics.Namespaces
                 })
                 .Build();
 
-            yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
-                .WithDescription("Allows the type to be imported into other templates.")
-                .WithFlags(FunctionFlags.TypeDecorator)
-                .WithEvaluator(static (functionCall, decorated) => decorated switch
-                {
-                    DeclaredTypeExpression declaredType => declaredType with { Exported = functionCall },
-                    _ => decorated,
-                })
-                .WithValidator(static (decoratorName, decoratorSyntax, _, _, binder, _, diagnosticWriter) =>
-                {
-                    var decoratorTarget = binder.GetParent(decoratorSyntax);
-
-                    if (decoratorTarget is not ITopLevelNamedDeclarationSyntax)
+            if (featureProvider.CompileTimeImportsEnabled && sourceFileKind == BicepSourceFileKind.BicepFile)
+            {
+                yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
+                    .WithDescription("Allows a type or variable to be imported into other Bicep files.")
+                    .WithFlags(FunctionFlags.TypeOrVariableDecorator)
+                    .WithEvaluator(static (functionCall, decorated) => decorated switch
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ExportDecoratorMustTargetStatement());
-                    }
-                })
-                .Build();
+                        DeclaredTypeExpression declaredType => declaredType with { Exported = functionCall },
+                        DeclaredVariableExpression declaredVariable => declaredVariable with { Exported = functionCall },
+                        _ => decorated,
+                    })
+                    .WithValidator(static (decoratorName, decoratorSyntax, _, _, binder, _, diagnosticWriter) =>
+                    {
+                        var decoratorTarget = binder.GetParent(decoratorSyntax);
+
+                        if (decoratorTarget is not ITopLevelNamedDeclarationSyntax)
+                        {
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ExportDecoratorMustTargetStatement());
+                        }
+
+                        if (decoratorTarget is not null && binder.GetSymbolInfo(decoratorTarget) is DeclaredSymbol targetedDeclaration)
+                        {
+                            var nonExportableSymbolsInClosure = binder.GetReferencedSymbolClosureFor(targetedDeclaration)
+                                .Where(s => s is not VariableSymbol and
+                                    not TypeAliasSymbol and
+                                    not ImportedSymbol and
+                                    not WildcardImportSymbol and
+                                    not LocalVariableSymbol)
+                                .Select(s => s.Name)
+                                .Order()
+                                .ToImmutableArray();
+
+                            if (nonExportableSymbolsInClosure.Any())
+                            {
+                                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).ClosureContainsNonExportableSymbols(nonExportableSymbolsInClosure));
+                            }
+                        }
+                    })
+                    .Build();
+            }
 
             yield return new DecoratorBuilder(LanguageConstants.ParameterAllowedPropertyName)
                 .WithDescription("Defines the allowed values of the parameter.")
@@ -1653,6 +1676,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("value", LanguageConstants.String, "The discriminator property name.")
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithValidator(ValidateTypeDiscriminator)
+                .WithAttachableType(LanguageConstants.Object)
                 .Build();
         }
 
@@ -1699,8 +1723,8 @@ namespace Bicep.Core.Semantics.Namespaces
             _ => false,
         };
 
-        private static IEnumerable<TypeTypeProperty> GetSystemAmbientSymbols()
-            => LanguageConstants.DeclarationTypes.Select(t => new TypeTypeProperty(t.Key, new(t.Value)));
+        private static IEnumerable<TypeProperty> GetSystemAmbientSymbols()
+            => LanguageConstants.DeclarationTypes.Select(t => new TypeProperty(t.Key, new TypeType(t.Value)));
 
         public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
         {
@@ -1710,7 +1734,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 GetSystemAmbientSymbols(),
                 GetSystemOverloads(featureProvider, sourceFileKind),
                 BannedFunctions,
-                GetSystemDecorators(featureProvider),
+                GetSystemDecorators(featureProvider, sourceFileKind),
                 new EmptyResourceTypeProvider());
         }
     }

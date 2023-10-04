@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics.Namespaces;
@@ -16,6 +16,9 @@ namespace Bicep.Core.Semantics
     {
         private readonly BicepSourceFile bicepFile;
         private readonly ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
+        private readonly ConcurrentDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> symbolsDirectlyReferencedInDeclarations = new();
+        private readonly ConcurrentDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> referencedSymbolClosures = new();
+        private readonly Stack<DeclaredSymbol> closureCalculationStack = new();
 
         public Binder(INamespaceProvider namespaceProvider, IFeatureProvider features, BicepSourceFile sourceFile, ISymbolContext symbolContext)
         {
@@ -57,6 +60,32 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<DeclaredSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
             => this.cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle) ? cycle : null;
+
+        public ImmutableHashSet<DeclaredSymbol> GetSymbolsReferencedInDeclarationOf(DeclaredSymbol symbol)
+            => symbolsDirectlyReferencedInDeclarations.GetOrAdd(symbol,
+                s => SymbolicReferenceCollector.CollectSymbolsReferenced(this, s.DeclaringSyntax).Keys.ToImmutableHashSet());
+
+        public ImmutableHashSet<DeclaredSymbol> GetReferencedSymbolClosureFor(DeclaredSymbol symbol)
+            => referencedSymbolClosures.GetOrAdd(symbol, CalculateReferencedSymbolClosure);
+
+        private ImmutableHashSet<DeclaredSymbol> CalculateReferencedSymbolClosure(DeclaredSymbol symbol)
+        {
+            closureCalculationStack.Push(symbol);
+
+            var builder = ImmutableHashSet.CreateBuilder<DeclaredSymbol>();
+            foreach (var symbolReferencedInDeclaration in GetSymbolsReferencedInDeclarationOf(symbol))
+            {
+                builder.Add(symbolReferencedInDeclaration);
+                if (!closureCalculationStack.Contains(symbolReferencedInDeclaration))
+                {
+                    builder.UnionWith(GetReferencedSymbolClosureFor(symbolReferencedInDeclaration));
+                }
+            }
+
+            closureCalculationStack.Pop();
+
+            return builder.ToImmutable();
+        }
 
         private static NamespaceResolver GetNamespaceResolver(IFeatureProvider features, INamespaceProvider namespaceProvider, BicepSourceFile sourceFile, ResourceScope targetScope, ILanguageScope fileScope)
         {

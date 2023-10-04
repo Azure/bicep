@@ -73,6 +73,7 @@ resource vmPrefix_resource 'Microsoft.Compute/virtualMachines@2020-06-01' = [for
 
 resource namedcopy_blah_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [for i in range(0, storageCount): {
   name: toLower('${i}blah${uniqueString(resourceGroup().id)}')
+//@[08:62) [BCP335 (Warning)] The provided value can have a length as large as 36 and may be too long to assign to a target with a configured maximum length of 24. (CodeDescription: none) |toLower('${i}blah${uniqueString(resourceGroup().id)}')|
   location: resourceGroup().location
 //@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   sku: {
