@@ -628,12 +628,24 @@ public record FullyQualifiedAmbientTypeReferenceExpression(
 
 public record TypeAliasReferenceExpression(
     SyntaxBase? SourceSyntax,
-    string Name,
+    TypeAliasSymbol Symbol,
     TypeSymbol ExpressedType
 ) : TypeExpression(SourceSyntax, ExpressedType)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitTypeAliasReferenceExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Symbol.Name };
+}
+
+public record SynthesizedTypeAliasReferenceExpression(
+    SyntaxBase? SourceSyntax,
+    string Name,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitSynthesizedTypeAliasReferenceExpression(this);
 
     protected override object? GetDebugAttributes() => new { Name };
 }

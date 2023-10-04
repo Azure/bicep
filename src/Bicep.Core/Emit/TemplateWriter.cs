@@ -102,7 +102,12 @@ namespace Bicep.Core.Emit
         private (Template, JToken) GenerateTemplateWithoutHash(PositionTrackingJsonTextWriter jsonWriter)
         {
             var emitter = new ExpressionEmitter(jsonWriter, this.Context);
-            var program = (ProgramExpression)ExpressionBuilder.Convert(Context.SemanticModel.Root.Syntax);
+            var importReferenceRewriter = new ImportReferenceExpressionRewriter(
+                Context.SemanticModel.Root.ImportedSymbols.ToImmutableDictionary(i => i, i => i.Name),
+                ImportClosureInfo.WildcardPropertyReferenceToImportedSymbolName,
+                sourceSyntax: null);
+
+            var program = (ProgramExpression)importReferenceRewriter.ReplaceProgramExpression((ProgramExpression)ExpressionBuilder.Convert(Context.SemanticModel.Root.Syntax));
 
             var programTypes = program.Types.Concat(ImportClosureInfo.ImportedTypesInClosure);
             declaredTypesByName = programTypes.ToImmutableDictionary(t => t.Name);
@@ -340,11 +345,8 @@ namespace Bicep.Core.Emit
                     ambientTypeReference.SourceSyntax),
             FullyQualifiedAmbientTypeReferenceExpression fullyQualifiedAmbientTypeReference
                 => TypePropertiesForQualifiedReference(fullyQualifiedAmbientTypeReference),
-            TypeAliasReferenceExpression typeAliasReference => CreateRefSchemaNode(typeAliasReference.Name, typeAliasReference.SourceSyntax),
-            ImportedTypeReferenceExpression importedTypeReference => CreateRefSchemaNode(importedTypeReference.Symbol.Name, importedTypeReference.SourceSyntax),
-            WildcardImportTypePropertyReferenceExpression wildcardProperty => CreateRefSchemaNode(
-                ImportClosureInfo.WildcardPropertyReferenceToImportedSymbolName[new(wildcardProperty.ImportSymbol, wildcardProperty.PropertyName)],
-                wildcardProperty.SourceSyntax),
+            TypeAliasReferenceExpression typeAliasReference => CreateRefSchemaNode(typeAliasReference.Symbol.Name, typeAliasReference.SourceSyntax),
+            SynthesizedTypeAliasReferenceExpression typeAliasReference => CreateRefSchemaNode(typeAliasReference.Name, typeAliasReference.SourceSyntax),
 
             // literals
             StringLiteralTypeExpression @string => ExpressionFactory.CreateObject(
@@ -560,12 +562,19 @@ namespace Bicep.Core.Emit
             foreach (var memberExpression in discriminatedObjectTypeExpr.MemberExpressions)
             {
                 var resolvedMemberExpression = memberExpression;
-                TypeAliasReferenceExpression? typeAliasReferenceExpr = null;
+                TypeExpression? typeAliasReferenceExpr = null;
                 if (memberExpression is TypeAliasReferenceExpression memberTypeAliasExpr
-                    && declaredTypesByName.TryGetValue(memberTypeAliasExpr.Name, out var declaredTypeExpression))
+                    && declaredTypesByName.TryGetValue(memberTypeAliasExpr.Symbol.Name, out var declaredTypeExpression))
                 {
                     resolvedMemberExpression = declaredTypeExpression.Value;
                     typeAliasReferenceExpr = memberTypeAliasExpr;
+                }
+
+                if (memberExpression is SynthesizedTypeAliasReferenceExpression memberSynthesizedTypeAliasExpr
+                    && declaredTypesByName.TryGetValue(memberSynthesizedTypeAliasExpr.Name, out declaredTypeExpression))
+                {
+                    resolvedMemberExpression = declaredTypeExpression.Value;
+                    typeAliasReferenceExpr = memberSynthesizedTypeAliasExpr;
                 }
 
                 if (resolvedMemberExpression is ObjectTypeExpression objectUnionMemberExpr)

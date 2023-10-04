@@ -252,6 +252,10 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
+    public virtual void VisitSynthesizedTypeAliasReferenceExpression(SynthesizedTypeAliasReferenceExpression expression)
+    {
+    }
+
     public virtual void VisitStringLiteralTypeExpression(StringLiteralTypeExpression expression)
     {
     }

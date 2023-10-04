@@ -16,6 +16,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.CodeAction;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.Resources;
+using System.Text.RegularExpressions;
 
 #pragma warning disable CA1825 // Avoid zero-length array allocations
 
@@ -31,8 +32,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string ExpectedSubstringInReplacedBicep
         );
 
+        public static void VerifyAllTypesAndDatesAreFake(params string[] bicepStrings) {
+            foreach (var bicep in bicepStrings)
+            {
+                var bicep2 = new Regex("https://schema.management.azure.com/schemas/[-0-9]{10}/deploymentTemplate.json").Replace(bicep, " ");
+                bicep2.Should().NotMatchRegex("\\b20[0-9][0-9]\\b", "all dates and types in these tests should be fake");
+                bicep2.Should().NotMatchRegex("[Mm]icrosoft.[-a-zA-Z]+/[a-zA-z]+", "all dates and types in these tests should be fake");
+            }
+        }
+
         private static void CompileAndTestWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, int? maxAgeInDays = null)
         {
+            VerifyAllTypesAndDatesAreFake(bicep, string.Join(", ", resourceTypes), fakeToday, string.Join(", ", expectedMessagesForCode));
+
             AssertLinterRuleDiagnostics(UseRecentApiVersionRule.Code,
                 bicep,
                 expectedMessagesForCode,
@@ -47,6 +59,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private static void CompileAndTestFixWithFakeDateAndTypes(string bicep, ResourceScope scope, string[] resourceTypes, string fakeToday, DiagnosticAndFixes[] expectedDiagnostics, int? maxAgeInDays = null)
         {
+            VerifyAllTypesAndDatesAreFake(bicep);
+            VerifyAllTypesAndDatesAreFake(resourceTypes);
+            VerifyAllTypesAndDatesAreFake(fakeToday);
+
             AssertLinterRuleDiagnostics(
                 UseRecentApiVersionRule.Code,
                 bicep,
@@ -87,6 +103,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private static RootConfiguration CreateConfigurationWithFakeToday(RootConfiguration original, string today, int? maxAgeInDays = null)
         {
+            VerifyAllTypesAndDatesAreFake(today);
+
             return new RootConfiguration(
                 original.Cloud,
                 original.ModuleAliases,
@@ -118,6 +136,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             private static void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAgeInDays = UseRecentApiVersionRule.DefaultMaxAgeInDays)
             {
+                VerifyAllTypesAndDatesAreFake(fullyQualifiedResourceType, today);
+                VerifyAllTypesAndDatesAreFake(resourceTypes);
+                VerifyAllTypesAndDatesAreFake(expectedApiVersions);
+
                 var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, Enumerable.Empty<ResourceTypeReference>());
                 apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
                 var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, ApiVersionHelper.ParseDateFromApiVersion(today), maxAgeInDays, scope, fullyQualifiedResourceType);
@@ -919,6 +941,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 string[] previewVersions = previewVersionDates.Select(d => "Whoever.whatever/whichever@" + ApiVersionHelper.Format(d) + "-preview").ToArray();
                 var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, Enumerable.Empty<ResourceTypeReference>());
                 apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(gaVersions.Concat(previewVersions)));
+
                 var result = UseRecentApiVersionRule.AnalyzeApiVersion(
                     apiVersionProvider,
                     DateTime.Today,
@@ -1177,7 +1200,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             public void ArmTtk_ApiVersionIsNotAnExpression_Error()
             {
                 string bicep = @"
-                    resource publicIPAddress1 'fake.Network/publicIPAddresses@[concat(\'2020\', \'01-01\')]' = {
+                    resource publicIPAddress1 'fake.Network/publicIPAddresses@[concat(\'2420\', \'01-01\')]' = {
                       name: 'publicIPAddress1'
                       #disable-next-line no-loc-expr-outside-params
                       location: resourceGroup().location
@@ -1466,6 +1489,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 // https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/scope-extension-resources#apply-to-resource
                 /*
+                    ARM-TTK output:
                     [-] apiVersions Should Be Recent (15 ms)
                     Api versions must be the latest or under 2 years old (730 days) - API version 2020-04-01-preview of Microsoft.Authorization/roleAssignments is 830 days old Line: 40, Column: 8
                     Valid Api Versions:
@@ -1490,9 +1514,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         param builtInRoleType string
 
                         var role = {
-                          Owner: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
-                          Contributor: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
-                          Reader: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7'
+                          Owner: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
+                          Contributor: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+                          Reader: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7'
                         }
 
                         resource roleAssignSub 'fake.Authorization/roleAssignments@2420-04-01-preview' = {
@@ -1547,9 +1571,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         param builtInRoleType string
 
                         var role = {
-                          Owner: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
-                          Contributor: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
-                          Reader: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7'
+                          Owner: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
+                          Contributor: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+                          Reader: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7'
                         }
 
                         resource roleAssignSub 'fake.Authorization/roleAssignments@2420-08-01-preview' = {
@@ -1585,9 +1609,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         param builtInRoleType string
 
                         var role = {
-                          Owner: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
-                          Contributor: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
-                          Reader: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7'
+                          Owner: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
+                          Contributor: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+                          Reader: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7'
                         }
 
                         resource roleAssignSub 'fake.Authorization/roleAssignments@2417-10-01-preview' = {
@@ -1625,9 +1649,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         param location string = resourceGroup().location
 
                         var role = {
-                          Owner: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
-                          Contributor: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
-                          Reader: '/subscriptions/${subscription().subscriptionId}/providers/Microsoft.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7'
+                          Owner: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
+                          Contributor: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+                          Reader: '/subscriptions/${subscription().subscriptionId}/providers/Fake.Authorization/roleDefinitions/acdd72a7-3385-48ef-bd42-f606fba81ae7'
                         }
                         #disable-next-line no-loc-expr-outside-params
                         var uniqueStorageName = 'storage${uniqueString(resourceGroup().id)}'

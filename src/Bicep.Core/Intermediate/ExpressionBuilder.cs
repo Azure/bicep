@@ -242,7 +242,7 @@ public class ExpressionBuilder
             VariableAccessSyntax variableAccess => Context.SemanticModel.Binder.GetSymbolInfo(syntax) switch
             {
                 AmbientTypeSymbol ambientType => new AmbientTypeReferenceExpression(syntax, ambientType.Name, ambientType.Type),
-                TypeAliasSymbol typeAlias => new TypeAliasReferenceExpression(syntax, typeAlias.Name, typeAlias.Type),
+                TypeAliasSymbol typeAlias => new TypeAliasReferenceExpression(syntax, typeAlias, typeAlias.Type),
                 ImportedSymbol importedSymbol when importedSymbol.Kind == SymbolKind.TypeAlias => new ImportedTypeReferenceExpression(syntax, importedSymbol, importedSymbol.Type),
                 Symbol otherwise => throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression."),
                 _ => throw new ArgumentException($"Unable to locate symbol for name '{variableAccess.Name.IdentifierName}'.")
