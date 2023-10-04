@@ -20,7 +20,7 @@ namespace Bicep.Core.Registry.Oci
             this.manifestBits = manifestBits;
             this.Manifest = OciManifest.FromBinaryData(manifestBits) ?? throw new InvalidModuleException("Unable to deserialize OCI manifest");
             this.ManifestDigest = manifestDigest;
-            this.Layers = layers.ToImmutableList();
+            this.Layers = layers.ToImmutableArray();
         }
 
         private readonly BinaryData manifestBits;
