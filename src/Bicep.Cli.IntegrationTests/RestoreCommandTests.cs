@@ -247,7 +247,10 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         //
         // Invalid
         [DataRow(new string[] { }, "Expected at least one layer")]
-        [DataRow(new string[] { "unknown1", "unknown2" }, "Did not expect only layer media types unknown1, unknown2")]
+        [DataRow(
+            new string[] { "unknown1", "unknown2" },
+            "Expected to find a layer with media type application/vnd.ms.bicep.module.layer.v1+json, but found only layers of types unknown2, unknown1"
+        )]
         [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepModuleLayerV1Json },
             $"Did not expect to find multiple layer media types of application/vnd.ms.bicep.module.layer.v1\\+json, application/vnd.ms.bicep.module.layer.v1\\+json")]
         // TODO: doesn't work because provider error handling is still coupled with module error handling.
