@@ -4443,5 +4443,65 @@ var arr6 = [
               completions.Should().Contain(c => c.Label == "mod2.buzz");
             }
         }
+
+        [TestMethod]
+        public async Task Compile_time_imports_offer_imported_symbol_property_completions()
+        {
+            var modContent = """
+              @export()
+              var foo = {
+                bar: 'bar'
+                baz: 'baz'
+              }
+              """;
+
+            var mod2Content = """
+              @export()
+              var fizz = {
+                buzz: 'buzz'
+                pop: 'pop'
+              }
+              """;
+
+            var mainContent = """
+              import {foo} from 'mod.bicep'
+              import {fizz} from 'mod2.bicep'
+
+              output obj object = {
+                bar: foo.|
+                pop: fizz.|
+              }
+              """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = modContent,
+                [new Uri("file:///mod2.bicep")] = mod2Content,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestCompletion(cursors[0]);
+            completions.Should().Contain(c => c.Label == "bar");
+            completions.Should().Contain(c => c.Label == "baz");
+            completions.Should().NotContain(c => c.Label == "buzz");
+            completions.Should().NotContain(c => c.Label == "pop");
+
+            completions = await file.RequestCompletion(cursors[1]);
+            completions.Should().Contain(c => c.Label == "buzz");
+            completions.Should().Contain(c => c.Label == "pop");
+            completions.Should().NotContain(c => c.Label == "bar");
+            completions.Should().NotContain(c => c.Label == "baz");
+        }
     }
 }
