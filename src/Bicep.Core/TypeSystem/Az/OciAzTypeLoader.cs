@@ -53,7 +53,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         protected override Stream GetContentStreamAtPath(string path)
         {
-            if (this.typesCache.TryGetValue($"./{path}", out var bytes))
+            if (this.typesCache.TryGetValue($"{path}", out var bytes))
             {
                 return new MemoryStream(bytes);
             }
