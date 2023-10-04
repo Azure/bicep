@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
@@ -48,6 +49,9 @@ public static class ServiceBuilderExtensions
 
     public static ServiceBuilder WithWorkspaceFiles(this ServiceBuilder serviceBuilder, IReadOnlyDictionary<Uri, string> fileContentsByUri)
         => serviceBuilder.WithRegistration(x => x.WithWorkspaceFiles(fileContentsByUri));
+
+    public static ServiceBuilder WithEnvironmentVariables(this ServiceBuilder serviceBuilder, params (string key, string? value)[] variables)
+        => serviceBuilder.WithRegistration(x => x.WithEnvironmentVariables(variables));
 
     public static Compilation BuildCompilation(this ServiceBuilder services, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri)
     {

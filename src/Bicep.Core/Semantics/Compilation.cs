@@ -11,6 +11,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -21,9 +22,12 @@ namespace Bicep.Core.Semantics
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
         private readonly IConfigurationManager configurationManager;
         private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly IEnvironment environment;
         private readonly IBicepAnalyzer linterAnalyzer;
 
-        public Compilation(IFeatureProviderFactory featureProviderFactory,
+        public Compilation(
+            IFeatureProviderFactory featureProviderFactory,
+            IEnvironment environment,
             INamespaceProvider namespaceProvider,
             SourceFileGrouping sourceFileGrouping,
             IConfigurationManager configurationManager,
@@ -32,6 +36,7 @@ namespace Bicep.Core.Semantics
             ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
             this.featureProviderFactory = featureProviderFactory;
+            this.environment = environment;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
             this.configurationManager = configurationManager;
@@ -80,8 +85,10 @@ namespace Bicep.Core.Semantics
             this.GetSemanticModel(sourceFile) as T ??
             throw new ArgumentException($"Expected the semantic model type to be \"{typeof(T).Name}\".");
 
-        private SemanticModel CreateSemanticModel(BicepSourceFile bicepFile) => new SemanticModel(this,
+        private SemanticModel CreateSemanticModel(BicepSourceFile bicepFile) => new SemanticModel(
+            this,
             bicepFile,
+            environment,
             SourceFileGrouping.FileResolver,
             linterAnalyzer,
             configurationManager.GetConfiguration(bicepFile.FileUri),

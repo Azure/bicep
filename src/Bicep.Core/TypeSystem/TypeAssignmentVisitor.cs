@@ -17,6 +17,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
@@ -26,6 +27,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IFeatureProvider features;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
+        private readonly IEnvironment environment;
         private readonly IFileResolver fileResolver;
         private readonly IDiagnosticLookup parsingErrorLookup;
         private readonly ISourceFileLookup sourceFileLookup;
@@ -36,11 +38,12 @@ namespace Bicep.Core.TypeSystem
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
         private readonly ConcurrentDictionary<CompileTimeImportDeclarationSyntax, ImmutableDictionary<string, TypeProperty>?> importableTypesByCompileTimeImportDeclaration;
 
-        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, ISourceFileLookup sourceFileLookup, ISemanticModelLookup semanticModelLookup, Workspaces.BicepSourceFileKind fileKind)
+        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, ISourceFileLookup sourceFileLookup, ISemanticModelLookup semanticModelLookup, Workspaces.BicepSourceFileKind fileKind)
         {
             this.typeManager = typeManager;
             this.features = features;
             this.binder = binder;
+            this.environment = environment;
             this.fileResolver = fileResolver;
             this.parsingErrorLookup = parsingErrorLookup;
             this.sourceFileLookup = sourceFileLookup;
@@ -2046,7 +2049,7 @@ namespace Bicep.Core.TypeSystem
                 matchedFunctionOverloads.TryAdd(syntax, matchedOverload);
 
                 // return its type
-                var result = matchedOverload.ResultBuilder(binder, fileResolver, diagnosticWriter, syntax, argumentTypes);
+                var result = matchedOverload.ResultBuilder(binder, environment, fileResolver, diagnosticWriter, syntax, argumentTypes);
                 if (result.Value is not null)
                 {
                     matchedFunctionResultValues.TryAdd(syntax, result.Value);

@@ -11,6 +11,7 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +33,11 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static readonly MockRepository Repository = new(MockBehavior.Strict);
 
-        protected record InvocationSettings(FeatureProviderOverrides FeatureOverrides, IContainerRegistryClientFactory ClientFactory, ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory);
+        protected record InvocationSettings(
+            FeatureProviderOverrides FeatureOverrides,
+            IContainerRegistryClientFactory ClientFactory,
+            ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory,
+            IEnvironment? Environment = null);
 
         protected static Task<CliResult> Bicep(params string[] args) => Bicep(CreateDefaultSettings(), args);
 
@@ -47,6 +52,7 @@ namespace Bicep.Cli.IntegrationTests
                     => services
                         .WithEmptyAzResources()
                         .WithFeatureOverrides(settings.FeatureOverrides)
+                        .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
                         .AddSingleton(settings.ClientFactory)
                         .AddSingleton(settings.TemplateSpecRepositoryFactory))
                     .RunAsync(args));

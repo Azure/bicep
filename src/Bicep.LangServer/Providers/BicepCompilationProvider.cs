@@ -8,6 +8,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -22,6 +23,7 @@ namespace Bicep.LanguageServer.Providers
     {
         private readonly IConfigurationManager configurationManager;
         private readonly IBicepAnalyzer bicepAnalyzer;
+        private readonly IEnvironment environment;
         private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
@@ -29,12 +31,14 @@ namespace Bicep.LanguageServer.Providers
 
         public BicepCompilationProvider(
             IFeatureProviderFactory featureProviderFactory,
+            IEnvironment environment,
             INamespaceProvider namespaceProvider,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager,
             IBicepAnalyzer bicepAnalyzer)
         {
+            this.environment = environment;
             this.featureProviderFactory = featureProviderFactory;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
@@ -76,6 +80,7 @@ namespace Bicep.LanguageServer.Providers
         {
             var compilation = new Compilation(
                 featureProviderFactory,
+                environment,
                 namespaceProvider,
                 syntaxTreeGrouping,
                 configurationManager,

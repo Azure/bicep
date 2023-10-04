@@ -31,7 +31,12 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static ServiceBuilder Services => new ServiceBuilder();
+        private static ServiceBuilder Services => new ServiceBuilder()
+            .WithEnvironmentVariables(
+                ("stringEnvVariableName", "test"),
+                ("intEnvVariableName", "100"),
+                ("boolEnvironmentVariable", "true")
+            );
 
         // NOTE: Uses the linter analyzers specified in BicepTestConstants.BuiltInConfigurationWithProblematicAnalyzersDisabled
         //   Problematic ones that should be disabled in this and most other tests by default can be added to BicepTestConstants.AnalyzerRulesToDisableInTests
@@ -343,14 +348,6 @@ param storageAccount string = 'testStorageAccount'";
                 dataSet.Ir ?? "",
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainIr),
                 actualLocation: resultsFile);
-        }
-
-        [TestInitialize]
-        public void testInit()
-        {
-            System.Environment.SetEnvironmentVariable("stringEnvVariableName", "test");
-            System.Environment.SetEnvironmentVariable("intEnvVariableName", "100");
-            System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", "true");
         }
 
         private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program)

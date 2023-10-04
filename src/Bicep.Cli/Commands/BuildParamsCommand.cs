@@ -19,7 +19,9 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Rewriters;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
+using Microsoft.Diagnostics.Symbols;
 using Microsoft.Diagnostics.Tracing.Parsers.FrameworkEventSource;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -31,23 +33,23 @@ namespace Bicep.Cli.Commands
     public class BuildParamsCommand : ICommand
     {
         private readonly ILogger logger;
+        private readonly IEnvironment environment;
         private readonly IDiagnosticLogger diagnosticLogger;
-        private readonly IOContext io;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
         private readonly IFeatureProviderFactory featureProviderFactory;
 
         public BuildParamsCommand(
             ILogger logger,
+            IEnvironment environment,
             IDiagnosticLogger diagnosticLogger,
-            IOContext io,
             CompilationService compilationService,
             CompilationWriter writer,
             IFeatureProviderFactory featureProviderFactory)
         {
             this.logger = logger;
+            this.environment = environment;
             this.diagnosticLogger = diagnosticLogger;
-            this.io = io;
             this.compilationService = compilationService;
             this.writer = writer;
             this.featureProviderFactory = featureProviderFactory;
@@ -69,8 +71,9 @@ namespace Bicep.Cli.Commands
                 return 1;
             }
 
-            var paramsOverridesJson = Environment.GetEnvironmentVariable("BICEP_PARAMETERS_OVERRIDES")?? "";
+            var paramsOverridesJson = environment.GetVariable("BICEP_PARAMETERS_OVERRIDES")?? "";
 
+            var workspace = new Workspace();
             var parameters = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(
                 paramsOverridesJson,
                 new JsonSerializerSettings() {
@@ -106,12 +109,13 @@ namespace Bicep.Cli.Commands
 
                 fileContents = newProgramSyntax.ToTextPreserveFormatting();
                 sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
-                compilationService.Workspace.UpsertSourceFile(sourceFile);
+                workspace.UpsertSourceFile(sourceFile);
             }
 
             var paramsCompilation = await compilationService.CompileAsync(
                 paramsInputPath,
                 args.NoRestore,
+                workspace,
                 compilation =>
                 {
                     if (bicepFileArgPath is not null &&
