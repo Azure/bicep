@@ -1160,4 +1160,42 @@ public class CompileTimeImportTests
             ("BCP376", DiagnosticLevel.Error, "The \"foo\" symbol cannot be imported because imports of kind Type are not supported in files of kind ParamsFile."),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/12042
+    [TestMethod]
+    public void References_to_variable_properties_of_wildcard_imports_generate_references_to_synthesized_variables()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("vars.bicep", """
+                @export()
+                var obj = {
+                    'Key One': 'Val1'
+                    'Key Two': 'Val2'
+                }
+
+                @export()
+                var config = {
+                    a: {
+                        id: 'A'
+                        name: 'AaA'
+                    }
+                    b: {
+                        id: 'B'
+                        name: 'BbB'
+                    }
+                }
+
+                @export()
+                var string1 = 'Xyz'
+                """),
+            ("main.bicep", """
+                import * as vars from 'vars.bicep'
+                output outObj string = vars.obj['Key One']
+                output outConfig string = vars.config.b.id
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("outputs.outObj.value", "[variables('1.obj')['Key One']]");
+        result.Template.Should().HaveValueAtPath("outputs.outConfig.value", "[variables('1.config').b.id]");
+    }
 }

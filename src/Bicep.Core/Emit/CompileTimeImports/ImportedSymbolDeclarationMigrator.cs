@@ -10,24 +10,20 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
 
-internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
+internal class ImportedSymbolDeclarationMigrator : ImportReferenceExpressionRewriter
 {
     private readonly SemanticModel sourceModel;
     private readonly ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames;
-    private readonly ImmutableDictionary<ImportedSymbol, string> importedSymbolNames;
-    private readonly ImmutableDictionary<WildcardImportPropertyReference, string> wildcardImportPropertyNames;
     private readonly SyntaxBase? sourceSyntax;
 
     public ImportedSymbolDeclarationMigrator(SemanticModel sourceModel,
         ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames,
-        ImmutableDictionary<ImportedSymbol, string> importedTypeNames,
+        ImmutableDictionary<ImportedSymbol, string> importedSymbolNames,
         ImmutableDictionary<WildcardImportPropertyReference, string> wildcardImportPropertyNames,
-        SyntaxBase? sourceSyntax)
+        SyntaxBase sourceSyntax) : base(importedSymbolNames, wildcardImportPropertyNames, sourceSyntax)
     {
         this.sourceModel = sourceModel;
         this.declaredSymbolNames = declaredSymbolNames;
-        this.importedSymbolNames = importedTypeNames;
-        this.wildcardImportPropertyNames = wildcardImportPropertyNames;
         this.sourceSyntax = sourceSyntax;
     }
 
@@ -69,22 +65,10 @@ internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
             Exported: null);
 
     public override Expression ReplaceTypeAliasReferenceExpression(TypeAliasReferenceExpression expression)
-        => new TypeAliasReferenceExpression(sourceSyntax, declaredSymbolNames[LookupTypeAliasByName(expression.Name)], expression.ExpressedType);
+        => new SynthesizedTypeAliasReferenceExpression(sourceSyntax, declaredSymbolNames[expression.Symbol], expression.ExpressedType);
 
     public override Expression ReplaceVariableReferenceExpression(VariableReferenceExpression expression)
         => new SynthesizedVariableReferenceExpression(sourceSyntax, declaredSymbolNames[expression.Variable]);
-
-    public override Expression ReplaceImportedTypeReferenceExpression(ImportedTypeReferenceExpression expression)
-        => new TypeAliasReferenceExpression(sourceSyntax, importedSymbolNames[expression.Symbol], expression.ExpressedType);
-
-    public override Expression ReplaceWildcardImportPropertyReferenceExpression(WildcardImportTypePropertyReferenceExpression expression)
-        => new TypeAliasReferenceExpression(sourceSyntax, wildcardImportPropertyNames[new(expression.ImportSymbol, expression.PropertyName)], expression.ExpressedType);
-
-    public override Expression ReplaceImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression)
-        => new SynthesizedVariableReferenceExpression(sourceSyntax, importedSymbolNames[expression.Variable]);
-
-    public override Expression ReplaceWildcardImportVariablePropertyReferenceExpression(WildcardImportVariablePropertyReferenceExpression expression)
-        => new SynthesizedVariableReferenceExpression(sourceSyntax, wildcardImportPropertyNames[new(expression.ImportSymbol, expression.PropertyName)]);
 
     private TypeAliasSymbol LookupTypeAliasByName(string name) => sourceModel.Root.TypeDeclarations
         .Where(NameEquals<TypeAliasSymbol>(name))
