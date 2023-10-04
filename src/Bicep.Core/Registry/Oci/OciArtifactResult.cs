@@ -33,17 +33,9 @@ namespace Bicep.Core.Registry.Oci
 
         public IEnumerable<OciArtifactLayer> Layers { get; init; }
 
-        public BinaryData GetSingleLayerByMediaType(string mediaType)
+        public BinaryData? TryGetSingleLayerByMediaType(string mediaType)
         {
-            var filtered = Layers.Where(l => BicepMediaTypes.MediaTypeComparer.Equals(l.MediaType, mediaType));
-            if (filtered.Count() != 1)
-            {
-                throw new InvalidModuleException($"Expecting only a single layer with mediaType \"{mediaType}\", but found {filtered.Count()}");
-            }
-            else
-            {
-                return filtered.First().Data;
-            }
+            return Layers.FirstOrDefault(l => BicepMediaTypes.MediaTypeComparer.Equals(l.MediaType, mediaType))?.Data;
         }
     }
 

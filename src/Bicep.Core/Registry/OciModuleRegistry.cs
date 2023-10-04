@@ -381,7 +381,7 @@ namespace Bicep.Core.Registry
 
             // write source archive file
             // TODO: do we need to delete this file if there is no source layer?
-            if (this.features.PublishSourceEnabled && result.GetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
+            if (this.features.PublishSourceEnabled && result.TryGetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
             {
                 // TODO: Write all layers as separate binary files instead of separate files for source.tar.gz and provider files.
                 // We should do this rather than writing individual files we know about,
