@@ -93,6 +93,8 @@ public interface IExpressionVisitor
 
     void VisitTypeAliasReferenceExpression(TypeAliasReferenceExpression expression);
 
+    void VisitSynthesizedTypeAliasReferenceExpression(SynthesizedTypeAliasReferenceExpression expression);
+
     void VisitStringLiteralTypeExpression(StringLiteralTypeExpression expression);
 
     void VisitIntegerLiteralTypeExpression(IntegerLiteralTypeExpression expression);

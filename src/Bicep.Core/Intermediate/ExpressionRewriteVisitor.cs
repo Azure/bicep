@@ -365,6 +365,12 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return expression;
     }
 
+    void IExpressionVisitor.VisitSynthesizedTypeAliasReferenceExpression(SynthesizedTypeAliasReferenceExpression expression) => ReplaceCurrent(expression, ReplaceSynthesizedTypeAliasReferenceExpression);
+    public virtual Expression ReplaceSynthesizedTypeAliasReferenceExpression(SynthesizedTypeAliasReferenceExpression expression)
+    {
+        return expression;
+    }
+
     void IExpressionVisitor.VisitStringLiteralTypeExpression(StringLiteralTypeExpression expression) => ReplaceCurrent(expression, ReplaceStringLiteralTypeExpression);
     public virtual Expression ReplaceStringLiteralTypeExpression(StringLiteralTypeExpression expression)
     {
@@ -527,13 +533,14 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
             TryRewriteStrict(expression.Metadata, out var metadata) |
             TryRewriteStrict(expression.Providers, out var providers) |
             TryRewriteStrict(expression.Parameters, out var parameters) |
+            TryRewriteStrict(expression.Types, out var types) |
             TryRewriteStrict(expression.Variables, out var variables) |
             TryRewriteStrict(expression.Functions, out var functions) |
             TryRewriteStrict(expression.Resources, out var resources) |
             TryRewriteStrict(expression.Modules, out var modules) |
             TryRewriteStrict(expression.Outputs, out var outputs);
 
-        return hasChanges ? expression with { Metadata = metadata, Providers = providers, Parameters = parameters, Variables = variables, Functions = functions, Resources = resources, Modules = modules, Outputs = outputs } : expression;
+        return hasChanges ? expression with { Metadata = metadata, Providers = providers, Parameters = parameters, Types = types, Variables = variables, Functions = functions, Resources = resources, Modules = modules, Outputs = outputs } : expression;
     }
 
     protected virtual Expression Replace(Expression expression) => ReplaceInternal(expression);

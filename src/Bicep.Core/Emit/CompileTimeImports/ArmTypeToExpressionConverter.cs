@@ -143,7 +143,7 @@ internal class ArmTypeToExpressionConverter
 
         if (schemaNode.Ref?.Value is string @ref)
         {
-            return new TypeAliasReferenceExpression(sourceSyntax, typePointerToSymbolNameMapping[@ref], bicepType);
+            return new SynthesizedTypeAliasReferenceExpression(sourceSyntax, typePointerToSymbolNameMapping[@ref], bicepType);
         }
 
         return schemaNode.Type.Value switch

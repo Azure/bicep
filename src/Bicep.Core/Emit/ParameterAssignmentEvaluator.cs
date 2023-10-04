@@ -11,6 +11,7 @@ using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Expressions;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -43,7 +44,7 @@ namespace Bicep.Core.Emit
         private readonly ConcurrentDictionary<ParameterAssignmentSymbol, Result> Results = new();
         private readonly ConcurrentDictionary<VariableSymbol, Result> VarResults = new();
         private readonly ConcurrentDictionary<ImportedSymbol, Result> ImportResults = new();
-        private readonly ConcurrentDictionary<WildcardImportSymbol, Result> WildcardImportVariablesResults = new();
+        private readonly ConcurrentDictionary<WildcardImportPropertyReference, Result> WildcardImportVariablesResults = new();
         private readonly ConcurrentDictionary<SemanticModel, ParameterAssignmentEvaluator> BicepEvaluators = new();
         private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> ArmEvaluators = new();
         private readonly SemanticModel model;
@@ -51,6 +52,7 @@ namespace Bicep.Core.Emit
         private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
         private readonly ImmutableDictionary<string, ImportedSymbol> importsByName;
         private readonly ImmutableDictionary<string, WildcardImportSymbol> wildcardImportsByName;
+        private readonly ImportReferenceExpressionRewriter importReferenceExpressionRewriter;
 
         public ParameterAssignmentEvaluator(SemanticModel model)
         {
@@ -67,6 +69,13 @@ namespace Bicep.Core.Emit
             this.wildcardImportsByName = model.Root.WildcardImports
                 .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
                 .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
+            this.importReferenceExpressionRewriter = new(model.Root.ImportedSymbols.ToImmutableDictionary(s => s, s => s.Name),
+                model.Root.WildcardImports
+                    .SelectMany(w => w.TryGetSemanticModel() is ISemanticModel sourceModel
+                        ? sourceModel.Exports.Keys.Select(name => new WildcardImportPropertyReference(w, name))
+                        : Enumerable.Empty<WildcardImportPropertyReference>())
+                    .ToImmutableDictionary(w => w, w => $"{w.WildcardImport.Name}.{w.PropertyName}"),
+                sourceSyntax: null);
         }
 
         public Result EvaluateParameter(ParameterAssignmentSymbol parameter)
@@ -82,6 +91,8 @@ namespace Bicep.Core.Emit
                     {
                         return Result.For(keyVaultReferenceExpression);
                     }
+
+                    intermediate = importReferenceExpressionRewriter.ReplaceImportReferences(intermediate);
 
                     try
                     {
@@ -102,9 +113,10 @@ namespace Bicep.Core.Emit
                     {
                         var context = GetExpressionEvaluationContext();
                         var converter = new ExpressionConverter(new(model));
-                        var expression = converter.ConvertExpression(variable.DeclaringVariable.Value);
+                        var intermediate = converter.ConvertToIntermediateExpression(variable.DeclaringVariable.Value);
+                        intermediate = importReferenceExpressionRewriter.ReplaceImportReferences(intermediate);
 
-                        return Result.For(expression.EvaluateExpression(context));
+                        return Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
                     }
                     catch (Exception ex)
                     {
@@ -165,58 +177,67 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private Result EvaluateWildcardImportAsVariable(WildcardImportSymbol symbol) => WildcardImportVariablesResults.GetOrAdd(symbol, s => s.TryGetSemanticModel() switch
+        private Result EvaluateWildcardImportPropertyAsVariable(WildcardImportPropertyReference propertyReference) => WildcardImportVariablesResults.GetOrAdd(propertyReference, r => r.WildcardImport.TryGetSemanticModel() switch
         {
             SemanticModel bicepModel
-                => EvaluateWildcardImportAsVariable(bicepModel, s),
+                => EvaluateWildcardImportPropertyAsVariable(bicepModel, r),
             ArmTemplateSemanticModel armModel when armModel.SourceFile.Template is Template template
-                => EvaluateWildcardImportAsVariable(armModel, template, s),
+                => EvaluateWildcardImportPropertyAsVariable(armModel, template, r),
             TemplateSpecSemanticModel tsModel when tsModel.SourceFile.MainTemplateFile.Template is Template template
-                => EvaluateWildcardImportAsVariable(tsModel, template, s),
+                => EvaluateWildcardImportPropertyAsVariable(tsModel, template, r),
             ArmTemplateSemanticModel or TemplateSpecSemanticModel
-                => Result.For(DiagnosticBuilder.ForPosition(s.EnclosingDeclaration.FromClause).ReferencedArmTemplateHasErrors()),
+                => Result.For(DiagnosticBuilder.ForPosition(r.WildcardImport.EnclosingDeclaration.FromClause).ReferencedArmTemplateHasErrors()),
             _ => throw new UnreachableException(),
         });
 
-        private Result EvaluateWildcardImportAsVariable(SemanticModel importedFrom, WildcardImportSymbol symbol)
+        private Result EvaluateWildcardImportPropertyAsVariable(SemanticModel importedFrom, WildcardImportPropertyReference propertyReference)
         {
-            var evaluator = BicepEvaluators.GetOrAdd(importedFrom, m => new(m));
-            JObject target = new();
-
-            foreach (var variableDeclaration in importedFrom.Root.VariableDeclarations.Where(v => importedFrom.Exports.ContainsKey(v.Name)))
+            if (InvalidPropertyRefDiagnostic(importedFrom, propertyReference) is IDiagnostic diagnostic)
             {
-                var evaluated = evaluator.EvaluateVariable(variableDeclaration);
-                if (evaluated.Value is not null)
-                {
-                    target[variableDeclaration.Name] = evaluated.Value;
-                }
-                else
-                {
-                    return Result.For(DiagnosticBuilder.ForPosition(symbol.DeclaringSyntax).FailedToEvaluateVariable(variableDeclaration.Name, evaluated.Diagnostic!.Message));
-                }
+                return Result.For(diagnostic);
             }
 
-            return Result.For(target);
+            var variableDeclaration = importedFrom.Root.VariableDeclarations.Where(v => v.Name.Equals(propertyReference.PropertyName, StringComparison.OrdinalIgnoreCase)).Single();
+            var evaluated = BicepEvaluators.GetOrAdd(importedFrom, m => new(m)).EvaluateVariable(variableDeclaration);
+            if (evaluated.Value is not null)
+            {
+                return Result.For(evaluated.Value);
+            }
+
+            return Result.For(DiagnosticBuilder.ForPosition(propertyReference.WildcardImport.DeclaringSyntax).FailedToEvaluateVariable(variableDeclaration.Name, evaluated.Diagnostic!.Message));
         }
 
-        private Result EvaluateWildcardImportAsVariable(ISemanticModel model, Template importedFrom, WildcardImportSymbol symbol)
+        private Result EvaluateWildcardImportPropertyAsVariable(ISemanticModel model, Template importedFrom, WildcardImportPropertyReference propertyReference)
         {
-            var evaluator = ArmEvaluators.GetOrAdd(importedFrom, t => new(t));
-            JObject target = new();
-
-            foreach (var variableMetadata in model.Exports.Values.OfType<ExportedVariableMetadata>())
+            if (InvalidPropertyRefDiagnostic(model, propertyReference) is IDiagnostic diagnostic)
             {
-                try
-                {
-                    target[variableMetadata.Name] = evaluator.GetEvaluatedVariableValue(variableMetadata.Name);
-                }
-                catch (Exception e)
-                {
-                    return Result.For(DiagnosticBuilder.ForPosition(symbol.DeclaringSyntax).FailedToEvaluateVariable(variableMetadata.Name, e.Message));
-                }
+                return Result.For(diagnostic);
             }
 
-            return Result.For(target);
+            var evaluator = ArmEvaluators.GetOrAdd(importedFrom, t => new(t));
+            try
+            {
+                return Result.For(evaluator.GetEvaluatedVariableValue(propertyReference.PropertyName));
+            }
+            catch (Exception e)
+            {
+                return Result.For(DiagnosticBuilder.ForPosition(propertyReference.WildcardImport.DeclaringSyntax).FailedToEvaluateVariable(propertyReference.PropertyName, e.Message));
+            }
+        }
+
+        private static IDiagnostic? InvalidPropertyRefDiagnostic(ISemanticModel importedFrom, WildcardImportPropertyReference propertyReference)
+        {
+            if (!importedFrom.Exports.TryGetValue(propertyReference.PropertyName, out var exportMetadata))
+            {
+                return DiagnosticBuilder.ForPosition(propertyReference.WildcardImport.DeclaringSyntax).ImportedSymbolNotFound(propertyReference.PropertyName);
+            }
+
+            if (exportMetadata.Kind != ExportMetadataKind.Variable)
+            {
+                return DiagnosticBuilder.ForPosition(propertyReference.WildcardImport.DeclaringSyntax).TypeSymbolUsedAsValue($"{propertyReference.WildcardImport.Name}.{propertyReference.PropertyName}");
+            }
+
+            return null;
         }
 
         private ExpressionEvaluationContext GetExpressionEvaluationContext()
@@ -233,9 +254,9 @@ namespace Bicep.Core.Emit
                     return EvaluateImport(imported).Value ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
                 }
 
-                if (wildcardImportsByName.TryGetValue(name, out var wildcardImport))
+                if (name.IndexOf(".") is int separatorIndex && separatorIndex > -1 && wildcardImportsByName.TryGetValue(name[..separatorIndex], out var wildcardImport))
                 {
-                    return EvaluateWildcardImportAsVariable(wildcardImport).Value ?? throw new InvalidOperationException($"Imported namespace {name} is not valid");
+                    return EvaluateWildcardImportPropertyAsVariable(new(wildcardImport, name[(separatorIndex + 1)..])).Value  ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
                 }
 
                 throw new InvalidOperationException($"Variable {name} not found");
