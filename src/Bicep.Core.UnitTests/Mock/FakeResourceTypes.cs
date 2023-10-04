@@ -4595,8 +4595,8 @@ Fake.ServiceBus/namespaces@2417-04-01
 Fake.ServiceBus/namespaces@2418-01-01-preview
 Fake.ServiceBus/namespaces@2421-01-01-preview
 Fake.ServiceBus/namespaces@2421-06-01-preview
-Fake.ServiceBus/namespaces@2021-11-01
-Fake.ServiceBus/namespaces@2022-01-01-preview
+Fake.ServiceBus/namespaces@2321-11-01
+Fake.ServiceBus/namespaces@2322-01-01-preview
 Fake.ServiceBus/namespaces/AuthorizationRules@2415-08-01
 Fake.ServiceBus/namespaces/AuthorizationRules@2417-04-01
 Fake.ServiceBus/namespaces/AuthorizationRules@2418-01-01-preview
@@ -6184,6 +6184,7 @@ Fake.Authorization/policydefinitions@2419-09-01
 Fake.Authorization/policydefinitions@2420-03-01
 Fake.Authorization/policydefinitions@2420-09-01
 Fake.Authorization/policydefinitions@2421-06-01
+Fake.Authorization/policydefinitions@2423-04-01
 Fake.Authorization/policyassignments@2415-10-01-preview
 Fake.Authorization/policyassignments@2416-04-01
 Fake.Authorization/policyassignments@2416-12-01
