@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.Registry
 {
-    public sealed class OciModuleRegistry : ExternalArtifactRegistry<OciModuleReference, OciArtifactResult>
+    public sealed class OciArtifactRegistry : ExternalArtifactRegistry<OciModuleReference, OciArtifactResult>
     {
         private readonly AzureContainerRegistryManager client;
 
@@ -36,7 +36,7 @@ namespace Bicep.Core.Registry
 
         private const string NewerVersionMightBeRequired = "A newer version of Bicep might be required to reference this artifact.";
 
-        public OciModuleRegistry(
+        public OciArtifactRegistry(
             IFileResolver FileResolver,
             IContainerRegistryClientFactory clientFactory,
             IFeatureProvider features,

@@ -74,7 +74,7 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         // public a new (real) OciModuleRegistry instance with an empty on-disk cache that can push and pull modules
-        public static (OciModuleRegistry, MockRegistryBlobClient) CreateModuleRegistry(
+        public static (OciArtifactRegistry, MockRegistryBlobClient) CreateModuleRegistry(
             Uri parentModuleUri,
             IFeatureProvider featureProvider)
         {
@@ -86,7 +86,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns(blobClient);
 
-            var registry = new OciModuleRegistry(
+            var registry = new OciArtifactRegistry(
                 BicepTestConstants.FileResolver,
                 clientFactory.Object,
                 featureProvider,

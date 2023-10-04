@@ -18,12 +18,12 @@ namespace Bicep.Core.UnitTests.Assertions
 {
     public static class OciModuleRegistryExtensions
     {
-        public static OciModuleRegistryAssertions Should(this OciModuleRegistry ociModuleRegistry) => new(ociModuleRegistry);
+        public static OciModuleRegistryAssertions Should(this OciArtifactRegistry ociModuleRegistry) => new(ociModuleRegistry);
     }
 
-    public class OciModuleRegistryAssertions : ReferenceTypeAssertions<OciModuleRegistry, OciModuleRegistryAssertions>
+    public class OciModuleRegistryAssertions : ReferenceTypeAssertions<OciArtifactRegistry, OciModuleRegistryAssertions>
     {
-        public OciModuleRegistryAssertions(OciModuleRegistry ociModuleRegistry) : base(ociModuleRegistry)
+        public OciModuleRegistryAssertions(OciArtifactRegistry ociModuleRegistry) : base(ociModuleRegistry)
         {
         }
 
