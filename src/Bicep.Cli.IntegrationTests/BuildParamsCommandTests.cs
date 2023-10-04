@@ -106,7 +106,6 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        [DoNotParallelize]
         public async Task Build_params_with_correct_overrides_succeeds_with_values_overridden()
         {
             var bicepparamsPath = FileHelper.SaveResultFile(
@@ -175,7 +174,6 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        [DoNotParallelize]
         public async Task Build_params_with_overrides_with_mismatch_type_fails_with_error()
         {
             var bicepparamsPath = FileHelper.SaveResultFile(

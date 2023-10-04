@@ -43,7 +43,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
         .AddSingleton<IFileResolver, FileResolver>()
-        .AddSingleton<IEnvironment, Core.Utils.Environment>()
+        .AddSingleton<IEnvironment>(TestEnvironment.Create())
         .AddSingleton<IFileSystem, IOFileSystem>()
         .AddSingleton<IConfigurationManager, ConfigurationManager>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
