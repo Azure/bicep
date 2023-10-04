@@ -964,9 +964,11 @@ namespace Bicep.Core.TypeSystem
                     var variableType = this.typeManager.GetTypeInfo(variableSymbol.DeclaringVariable.Value);
                     return new DeclaredTypeAssignment(variableType, variableSymbol.DeclaringVariable);
 
-                case WildcardImportSymbol wildcardImportSymbol when IsCycleFree(wildcardImportSymbol):
-                    var wildcardImportType = this.typeManager.GetTypeInfo(wildcardImportSymbol.DeclaringSyntax);
-                    return new DeclaredTypeAssignment(wildcardImportType, declaringSyntax: null);
+                case ImportedSymbol importedSymbol when importedSymbol.Kind == SymbolKind.Variable:
+                    return new DeclaredTypeAssignment(importedSymbol.Type, declaringSyntax: null);
+
+                case WildcardImportSymbol wildcardImportSymbol:
+                    return new DeclaredTypeAssignment(wildcardImportSymbol.Type, declaringSyntax: null);
 
                 case DeclaredSymbol declaredSymbol when IsCycleFree(declaredSymbol):
                     // the syntax node is referencing a declared symbol
