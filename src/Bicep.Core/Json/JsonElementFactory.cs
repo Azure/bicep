@@ -26,7 +26,7 @@ namespace Bicep.Core.Json
         {
             using var document = JsonDocument.Parse(utf8Json, options ?? DefaultJsonDocumentOptions);
 
-            // JsonDocument is IDisposable, so we need to clone RootElement.
+            // JsonDocument is disposed when leaving scope, so we need to clone RootElement.
             // See: https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-migrate-from-newtonsoft-how-to?pivots=dotnet-5-0#jsondocument-is-idisposable.
             return document.RootElement.Clone();
         }
