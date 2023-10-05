@@ -243,7 +243,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewrite(expression.Value, out var value) |
-            TryRewrite(expression.Description, out var description);
+            TryRewriteDescription(expression, out var description);
 
         return hasChanges ? expression with { Value = value, Description = description } : expression;
     }
@@ -253,7 +253,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewrite(expression.Config, out var config) |
-            TryRewrite(expression.Description, out var description);
+            TryRewriteDescription(expression, out var description);
 
         return hasChanges ? expression with { Config = config, Description = description } : expression;
     }
@@ -264,14 +264,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         var hasChanges =
             TryRewrite(expression.DefaultValue, out var defaultValue) |
             TryRewriteStrict(expression.Type, out var type) |
-            TryRewrite(expression.Description, out var description) |
-            TryRewrite(expression.Metadata, out var metadata) |
-            TryRewrite(expression.Secure, out var secure) |
-            TryRewrite(expression.MinLength, out var minLength) |
-            TryRewrite(expression.MaxLength, out var maxLength) |
-            TryRewrite(expression.MinValue, out var minValue) |
-            TryRewrite(expression.MaxValue, out var maxValue) |
-            TryRewrite(expression.Sealed, out var @sealed) |
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed) |
             TryRewrite(expression.AllowedValues, out var allowedValues);
 
         return hasChanges
@@ -297,7 +290,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewrite(expression.Value, out var value) |
-            TryRewrite(expression.Description, out var description) |
+            TryRewriteDescription(expression, out var description) |
             TryRewrite(expression.Exported, out var exported);
 
         return hasChanges ? expression with { Value = value, Description = description, Exported = exported } : expression;
@@ -308,7 +301,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewrite(expression.Lambda, out var lambda) |
-            TryRewrite(expression.Description, out var description);
+            TryRewriteDescription(expression, out var description);
 
         return hasChanges ? expression with { Lambda = lambda, Description = description } : expression;
     }
@@ -328,14 +321,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         var hasChanges =
             TryRewrite(expression.Value, out var value) |
             TryRewriteStrict(expression.Type, out var type) |
-            TryRewrite(expression.Description, out var description) |
-            TryRewrite(expression.Metadata, out var metadata) |
-            TryRewrite(expression.Secure, out var secure) |
-            TryRewrite(expression.MinLength, out var minLength) |
-            TryRewrite(expression.MaxLength, out var maxLength) |
-            TryRewrite(expression.MinValue, out var minValue) |
-            TryRewrite(expression.MaxValue, out var maxValue) |
-            TryRewrite(expression.Sealed, out var @sealed);
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed);
 
         return hasChanges
             ? expression with
@@ -359,7 +345,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewrite(expression.Value, out var value) |
-            TryRewrite(expression.Description, out var description);
+            TryRewriteDescription(expression, out var description);
 
         return hasChanges ? expression with { Value = value, Description = description } : expression;
     }
@@ -370,7 +356,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         var hasChanges =
             TryRewrite(expression.Body, out var body) |
             TryRewriteStrict(expression.DependsOn, out var dependsOn) |
-            TryRewrite(expression.Description, out var description);
+            TryRewriteDescription(expression, out var description);
 
         return hasChanges ? expression with { Body = body, DependsOn = dependsOn, Description = description } : expression;
     }
@@ -382,7 +368,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
             TryRewrite(expression.Body, out var body) |
             TryRewrite(expression.Parameters, out var parameters) |
             TryRewriteStrict(expression.DependsOn, out var dependsOn) |
-            TryRewrite(expression.Description, out var description);
+            TryRewriteDescription(expression, out var description);
 
         return hasChanges ? expression with { Body = body, Parameters = parameters, DependsOn = dependsOn, Description = description } : expression;
     }
@@ -401,14 +387,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewriteStrict(expression.Value, out var value) |
-            TryRewrite(expression.Description, out var description) |
-            TryRewrite(expression.Metadata, out var metadata) |
-            TryRewrite(expression.Secure, out var secure) |
-            TryRewrite(expression.MinLength, out var minLength) |
-            TryRewrite(expression.MaxLength, out var maxLength) |
-            TryRewrite(expression.MinValue, out var minValue) |
-            TryRewrite(expression.MaxValue, out var maxValue) |
-            TryRewrite(expression.Sealed, out var @sealed) |
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed) |
             TryRewrite(expression.Exported, out var exported);
 
         return hasChanges
@@ -487,14 +466,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewriteStrict(expression.Value, out var value) |
-            TryRewrite(expression.Description, out var description) |
-            TryRewrite(expression.Metadata, out var metadata) |
-            TryRewrite(expression.Secure, out var secure) |
-            TryRewrite(expression.MinLength, out var minLength) |
-            TryRewrite(expression.MaxLength, out var maxLength) |
-            TryRewrite(expression.MinValue, out var minValue) |
-            TryRewrite(expression.MaxValue, out var maxValue) |
-            TryRewrite(expression.Sealed, out var @sealed);
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed);
 
         return hasChanges
             ? expression with
@@ -517,14 +489,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewriteStrict(expression.Value, out var value) |
-            TryRewrite(expression.Description, out var description) |
-            TryRewrite(expression.Metadata, out var metadata) |
-            TryRewrite(expression.Secure, out var secure) |
-            TryRewrite(expression.MinLength, out var minLength) |
-            TryRewrite(expression.MaxLength, out var maxLength) |
-            TryRewrite(expression.MinValue, out var minValue) |
-            TryRewrite(expression.MaxValue, out var maxValue) |
-            TryRewrite(expression.Sealed, out var @sealed);
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed);
 
         return hasChanges
             ? expression with
@@ -559,14 +524,7 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewriteStrict(expression.Value, out var value) |
-            TryRewrite(expression.Description, out var description) |
-            TryRewrite(expression.Metadata, out var metadata) |
-            TryRewrite(expression.Secure, out var secure) |
-            TryRewrite(expression.MinLength, out var minLength) |
-            TryRewrite(expression.MaxLength, out var maxLength) |
-            TryRewrite(expression.MinValue, out var minValue) |
-            TryRewrite(expression.MaxValue, out var maxValue) |
-            TryRewrite(expression.Sealed, out var @sealed);
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed);
 
         return hasChanges
             ? expression with
@@ -705,6 +663,27 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     }
 
     private Expression? current;
+
+    private bool TryRewriteDescription(DescribableExpression expression, out Expression? description)
+        => TryRewrite(expression.Description, out description);
+
+    private bool TryRewriteTypeDecorators(TypeDeclaringExpression expression,
+        out Expression? description,
+        out Expression? metadata,
+        out Expression? secure,
+        out Expression? minLength,
+        out Expression? maxLength,
+        out Expression? minValue,
+        out Expression? maxValue,
+        out Expression? @sealed) =>
+            TryRewriteDescription(expression, out description) |
+            TryRewrite(expression.Metadata, out metadata) |
+            TryRewrite(expression.Secure, out secure) |
+            TryRewrite(expression.MinLength, out minLength) |
+            TryRewrite(expression.MaxLength, out maxLength) |
+            TryRewrite(expression.MinValue, out minValue) |
+            TryRewrite(expression.MaxValue, out maxValue) |
+            TryRewrite(expression.Sealed, out @sealed);
 
     private bool TryRewriteStrict<TExpression>(TExpression? expression, [NotNullIfNotNull("expression")] out TExpression? newExpression)
         where TExpression : Expression
