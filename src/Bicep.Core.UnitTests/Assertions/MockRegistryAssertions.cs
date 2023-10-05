@@ -13,6 +13,8 @@ using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -64,13 +66,16 @@ namespace Bicep.Core.UnitTests.Assertions
 
                 var config = manifest.Config;
                 config.MediaType.Should().Be("application/vnd.ms.bicep.module.config.v1+json", "config media type should be correct");
-                config.Size.Should().Be(0, "config size should be empty");
 
                 this.Subject.Blobs.Should().ContainKey(config.Digest, "module config digest should exist");
                 if (this.Subject.Blobs.ContainsKey(config.Digest))
                 {
                     var configBytes = this.Subject.Blobs[config.Digest];
-                    configBytes.Bytes.Should().BeEmpty("module config blob should be empty");
+                    config.Size.Should().Be(configBytes.ToArray().Length, "Config size field should match config size");
+                    JsonDocument? configJson = null;
+                    var convertToJson = () => configJson = JsonDocument.Parse(configBytes.Text);
+                    convertToJson.Should().NotThrow("Config should be a valid JSON object");
+                    configJson!.RootElement.ValueKind.Should().Be(JsonValueKind.Object, "Config should be a JSON object");
                 }
 
                 manifest.Layers.Should().HaveCountLessThanOrEqualTo(2, "modules should have one or two layers");
