@@ -38,8 +38,5 @@ namespace Bicep.Core.Registry.Oci
             return Layers.FirstOrDefault(l => BicepMediaTypes.MediaTypeComparer.Equals(l.MediaType, mediaType))?.Data;
         }
 
-        public virtual bool IsValid() => true;
-
-        public string? GetBicepMediaType() => Manifest.ArtifactType;
     }
 }
