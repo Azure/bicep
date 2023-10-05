@@ -35,7 +35,7 @@ namespace Bicep.Core.Emit
                         syntax is UnionTypeSyntax ||
                         syntax is NullableTypeSyntax,
                     resultSelector: result => result,
-                    continuationFunction: (result, syntax) => !result) ;
+                    continuationFunction: (result, syntax) => !result);
         }
 
         /// <summary>

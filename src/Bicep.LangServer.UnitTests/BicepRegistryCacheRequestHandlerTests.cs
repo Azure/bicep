@@ -1,25 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
-using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Threading.Tasks;
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using System.Collections.Generic;
-using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
-using Bicep.Core.SourceCode;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {

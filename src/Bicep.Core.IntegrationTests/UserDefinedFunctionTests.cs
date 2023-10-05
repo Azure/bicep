@@ -43,7 +43,7 @@ func getBaz() string => 'baz'
 func testFunc(baz string) string => '${foo}-${bar}-${baz}-${getBaz()}'
 ");
 
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
             ("BCP057", DiagnosticLevel.Error, """The name "foo" does not exist in the current context."""),
             ("BCP057", DiagnosticLevel.Error, """The name "bar" does not exist in the current context."""),
             ("BCP057", DiagnosticLevel.Error, """The name "getBaz" does not exist in the current context."""),
@@ -74,7 +74,7 @@ func getAbc() string => 'abc'
 func getAbcDef() string => '${getAbc()}def'
 ");
 
-        result.Should().HaveDiagnostics(new [] {
+        result.Should().HaveDiagnostics(new[] {
             ("BCP057", DiagnosticLevel.Error, "The name \"getAbc\" does not exist in the current context."),
         });
     }
@@ -104,7 +104,7 @@ func getAOrB(aOrB bool) ('a' | 'b') => aOrB ? 'a' : 'b'
 func useRuntimeFunction() string => reference('foo').bar
 ");
 
-        result.Should().HaveDiagnostics(new [] {
+        result.Should().HaveDiagnostics(new[] {
             ("BCP341", DiagnosticLevel.Error, "This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment."),
         });
     }
@@ -118,7 +118,7 @@ func useRuntimeFunction() string => reference('foo').bar
 func useRuntimeFunction() string => 'test'
 ");
 
-        result.Should().HaveDiagnostics(new [] {
+        result.Should().HaveDiagnostics(new[] {
             ("BCP343", DiagnosticLevel.Error, "Using a func declaration statement requires enabling EXPERIMENTAL feature \"UserDefinedFunctions\"."),
         });
     }

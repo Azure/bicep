@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions.TestingHelpers;
+using System.Threading.Tasks;
 using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.IO.Abstractions.TestingHelpers;
-using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
 {

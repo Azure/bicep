@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.LangServer.IntegrationTests.Assertions
 {

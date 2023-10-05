@@ -182,9 +182,9 @@ namespace Bicep.Core.FileSystem
         public static Uri RemoveExtension(Uri uri) => ChangeExtension(uri, null);
 
         public static Uri ChangeToBicepExtension(Uri uri) => ChangeExtension(uri, BicepExtension);
-        
+
         public static Uri ChangeToBicepparamExtension(Uri uri) => ChangeExtension(uri, BicepParamsExtension);
-        
+
         public static bool HasBicepExtension(Uri uri) => HasExtension(uri, BicepExtension);
 
         public static bool HasBicepparamsExension(Uri uri) => HasExtension(uri, BicepParamsExtension);
@@ -215,7 +215,8 @@ namespace Bicep.Core.FileSystem
             }
 
             var relativePath = source.MakeRelativeUri(target).OriginalString;
-            if (!relativePath.StartsWith(".")) {
+            if (!relativePath.StartsWith("."))
+            {
                 // follow the convention of './main.bicep' rather than 'main.bicep'
                 relativePath = $"./{relativePath}";
             }

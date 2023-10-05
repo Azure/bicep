@@ -556,7 +556,7 @@ namespace Bicep.Core.Emit
                 // We may emit duplicate errors here - type checking will also execute some ARM functions and generate errors
                 // This is something we should improve before the first release.
                 var result = evaluator.EvaluateParameter(parameter);
-                if (result.Diagnostic is {})
+                if (result.Diagnostic is { })
                 {
                     diagnostics.Write(result.Diagnostic);
                 }
@@ -569,7 +569,7 @@ namespace Bicep.Core.Emit
             return generated.ToImmutableDictionary();
         }
 
-        private static IEnumerable<DeclaredSymbol> GetTopologicallySortedSymbols(ImmutableDictionary<DeclaredSymbol, ImmutableDictionary<DeclaredSymbol, ImmutableSortedSet<VariableAccessSyntax>>>  referencesInValues)
+        private static IEnumerable<DeclaredSymbol> GetTopologicallySortedSymbols(ImmutableDictionary<DeclaredSymbol, ImmutableDictionary<DeclaredSymbol, ImmutableSortedSet<VariableAccessSyntax>>> referencesInValues)
         {
             HashSet<DeclaredSymbol> processed = new();
             IEnumerable<DeclaredSymbol> YieldSymbolAndUnprocessedPredecessors(DeclaredSymbol n)

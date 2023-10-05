@@ -44,7 +44,7 @@ namespace Bicep.Cli.Commands
                 diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
                 var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
-                if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is {} warningMessage)
+                if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is { } warningMessage)
                 {
                     logger.LogWarning(warningMessage);
                 }

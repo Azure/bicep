@@ -25,17 +25,17 @@ public class DecoratorCodeFixProvider : ICodeFixProvider
 
     public IEnumerable<CodeFix> GetFixes(SemanticModel semanticModel, IReadOnlyList<SyntaxBase> matchingNodes)
     {
-        if (matchingNodes.OfType<DecorableSyntax>().FirstOrDefault() is not {} decorableSyntax || decorableSyntax.Decorators.Any(IsTargetDecorator))
+        if (matchingNodes.OfType<DecorableSyntax>().FirstOrDefault() is not { } decorableSyntax || decorableSyntax.Decorators.Any(IsTargetDecorator))
         {
             yield break;
         }
 
-        if(!decorator.Overload.Flags.HasFlag(GetRequiredFlags(decorableSyntax)))
+        if (!decorator.Overload.Flags.HasFlag(GetRequiredFlags(decorableSyntax)))
         {
             yield break;
         }
 
-        if (GetPotentialTargetType(semanticModel, decorableSyntax) is not {} targetType || !decorator.CanAttachTo(targetType))
+        if (GetPotentialTargetType(semanticModel, decorableSyntax) is not { } targetType || !decorator.CanAttachTo(targetType))
         {
             yield break;
         }
@@ -71,9 +71,9 @@ public class DecoratorCodeFixProvider : ICodeFixProvider
     private TypeSymbol? GetPotentialTargetType(SemanticModel model, DecorableSyntax potentialTarget) => potentialTarget switch
     {
         // The properties of explicitly declared object types will not be bound to a specific symbol, but the TypeManager will have cached the property's type
-        ObjectTypePropertySyntax objectTypeProperty when model.GetDeclaredType(objectTypeProperty) is {} typePropertyType => typePropertyType,
+        ObjectTypePropertySyntax objectTypeProperty when model.GetDeclaredType(objectTypeProperty) is { } typePropertyType => typePropertyType,
         // Type declaration statements have a type of Type<T>, but decorators evaluate T (e.g., string, not Type<string>) to determine whether they can attach to a given type declaration
-        TypeDeclarationSyntax typeDeclaration when model.GetDeclaredType(typeDeclaration) is {} declaredType => declaredType is TypeType typeType ? typeType.Unwrapped : declaredType,
+        TypeDeclarationSyntax typeDeclaration when model.GetDeclaredType(typeDeclaration) is { } declaredType => declaredType is TypeType typeType ? typeType.Unwrapped : declaredType,
         // All other statements should use their assigned type
         StatementSyntax declaration when model.GetSymbolInfo(declaration) is DeclaredSymbol symbol => symbol.Type,
         _ => null,

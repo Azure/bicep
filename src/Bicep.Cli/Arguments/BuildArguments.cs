@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Cli.Helpers;
-using Bicep.Core.FileSystem;
 using System;
 using System.IO;
+using Bicep.Cli.Helpers;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.Cli.Arguments
 {
@@ -107,7 +107,7 @@ namespace Bicep.Cli.Arguments
                 }
             }
 
-            if(DiagnosticsFormat is null)
+            if (DiagnosticsFormat is null)
             {
                 DiagnosticsFormat = Arguments.DiagnosticsFormat.Default;
             }

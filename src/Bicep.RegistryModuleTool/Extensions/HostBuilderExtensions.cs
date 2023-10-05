@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.RegistryModuleTool.Commands;
-using Microsoft.Extensions.Hosting;
 using System.CommandLine;
 using System.CommandLine.Hosting;
 using System.Linq;
 using System.Reflection;
+using Bicep.RegistryModuleTool.Commands;
+using Microsoft.Extensions.Hosting;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {

@@ -17,7 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
 {
     public sealed class FindPossibleSecretsVisitor : AstVisitor
     {
-        public record PossibleSecret(SyntaxBase Syntax, string FoundMessage) {}
+        public record PossibleSecret(SyntaxBase Syntax, string FoundMessage) { }
 
         private readonly SemanticModel semanticModel;
         private readonly List<PossibleSecret> possibleSecrets = new();

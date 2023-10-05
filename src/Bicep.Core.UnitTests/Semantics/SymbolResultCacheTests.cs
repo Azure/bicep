@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using Bicep.Core.Semantics;
 using FluentAssertions;
-using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Bicep.Core.UnitTests.Semantics
 {

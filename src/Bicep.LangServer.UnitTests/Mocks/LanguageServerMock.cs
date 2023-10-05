@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.UnitTests.Mock;
-using Bicep.LanguageServer.Providers;
-using Moq;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bicep.Core.UnitTests.Mock;
+using Bicep.LanguageServer.Providers;
+using Moq;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Bicep.LangServer.UnitTests.Mocks
 {

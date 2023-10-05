@@ -58,7 +58,7 @@ public static class OperationReturnTypeEvaluator
 
     public static TypeSymbol? TryFoldBinaryExpression(BinaryOperationSyntax expressionSyntax, TypeSymbol leftOperandType, TypeSymbol rightOperandType, IDiagnosticWriter diagnosticWriter)
     {
-        if (binaries.Where(e => e.IsMatch(expressionSyntax.Operator, leftOperandType, rightOperandType)).FirstOrDefault() is {} evaluator)
+        if (binaries.Where(e => e.IsMatch(expressionSyntax.Operator, leftOperandType, rightOperandType)).FirstOrDefault() is { } evaluator)
         {
             return evaluator.Evaluate(expressionSyntax, leftOperandType, rightOperandType, diagnosticWriter);
         }
@@ -258,7 +258,7 @@ public static class OperationReturnTypeEvaluator
             var transformedArgTypes = new TypeSymbol[2];
             for (int i = 0; i < 2; i++)
             {
-                transformedArgTypes[i] = ArmFunctionReturnTypeEvaluator.TryEvaluate("toLower", out var builderDelegates, new [] { i % 2 == 0 ? leftOperandType : rightOperandType }) ?? LanguageConstants.String;
+                transformedArgTypes[i] = ArmFunctionReturnTypeEvaluator.TryEvaluate("toLower", out var builderDelegates, new[] { i % 2 == 0 ? leftOperandType : rightOperandType }) ?? LanguageConstants.String;
                 diagnosticWriter.WriteMultiple(builderDelegates.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
             }
 

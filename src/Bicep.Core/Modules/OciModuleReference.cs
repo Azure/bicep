@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using System;
-using System.Diagnostics.CodeAnalysis;
 
 
 namespace Bicep.Core.Modules
@@ -39,7 +39,7 @@ namespace Bicep.Core.Modules
                 return new(failureBuilder);
             }
 
-            return new (new OciModuleReference(artifactReference, parentModuleUri));
+            return new(new OciModuleReference(artifactReference, parentModuleUri));
         }
     }
 }

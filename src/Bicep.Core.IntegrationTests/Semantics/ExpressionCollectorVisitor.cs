@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Intermediate;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using Bicep.Core.Intermediate;
 
 namespace Bicep.Core.IntegrationTests.Semantics;
 
@@ -16,7 +16,7 @@ public class ExpressionCollectorVisitor : ExpressionVisitor
         public IEnumerable<ExpressionCollectorVisitor.ExpressionItem> GetAncestors()
         {
             var data = this;
-            while (data.Parent is {} parent)
+            while (data.Parent is { } parent)
             {
                 yield return parent;
                 data = parent;
@@ -50,7 +50,8 @@ public class ExpressionCollectorVisitor : ExpressionVisitor
         foreach (var ancestor in item.GetAncestors().Reverse().Skip(1))
         {
             var isLast = (ancestor.Depth > 0 && ancestor == expressionByParent[ancestor.Parent].Last());
-            graphPrefix.Append(isLast switch {
+            graphPrefix.Append(isLast switch
+            {
                 true => "  ",
                 _ => "| ",
             });
@@ -59,7 +60,8 @@ public class ExpressionCollectorVisitor : ExpressionVisitor
         if (item.Depth > 0)
         {
             var isLast = item == expressionByParent[item.Parent].Last();
-            graphPrefix.Append(isLast switch {
+            graphPrefix.Append(isLast switch
+            {
                 true => "└─",
                 _ => "├─",
             });

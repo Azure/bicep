@@ -1,42 +1,42 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.UnitTests.Utils;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
-using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Newtonsoft.Json.Linq;
-using Bicep.LangServer.IntegrationTests.Helpers;
-using FluentAssertions;
+using Azure.Deployments.Core.Definitions.Identifiers;
+using Bicep.Core;
+using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
+using Bicep.Core.Text;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Moq;
-using Bicep.LanguageServer.Providers;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.Utils;
-using Bicep.Core.Text;
-using Azure.Deployments.Core.Definitions.Identifiers;
-using Bicep.Core.Configuration;
-using System.Threading;
-using System.Text.Json;
-using Bicep.Core.TypeSystem.Az;
-using Bicep.Core.TypeSystem;
-using Bicep.Core;
-using Bicep.Core.Extensions;
-using System.Linq;
-using System;
-using Bicep.LangServer.IntegrationTests.Assertions;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Bicep.Core.Navigation;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.LangServer.IntegrationTests.Assertions;
+using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Utils;
+using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Moq;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using System.Collections.Immutable;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -186,10 +186,10 @@ output myOutput string = 'myOutput'
 
             var telemetry = await listeners.Telemetry.WaitForAll();
             telemetry.Should().ContainEvent("InsertResource/success", new JObject
-                {
-                    ["resourceType"] = "My.Rp/myTypes",
-                    ["apiVersion"] = "2020-01-01",
-                });
+            {
+                ["resourceType"] = "My.Rp/myTypes",
+                ["apiVersion"] = "2020-01-01",
+            });
         }
 
         [TestMethod]
@@ -299,10 +299,10 @@ output myOutput string = 'myOutput'
 
             var telemetry = await listeners.Telemetry.WaitForAll();
             telemetry.Should().ContainEvent("InsertResource/success", new JObject
-                {
-                    ["resourceType"] = "Microsoft.Resources/resourceGroups",
-                    ["apiVersion"] = "2020-01-01",
-                });
+            {
+                ["resourceType"] = "Microsoft.Resources/resourceGroups",
+                ["apiVersion"] = "2020-01-01",
+            });
         }
 
         [TestMethod]
@@ -371,10 +371,10 @@ output myOutput string = 'myOutput'
 
             var telemetry = await listeners.Telemetry.WaitForAll();
             telemetry.Should().ContainEvent("InsertResource/success", new JObject
-                {
-                    ["resourceType"] = "My.Rp/myTypes/childType",
-                    ["apiVersion"] = "2020-01-01",
-                });
+            {
+                ["resourceType"] = "My.Rp/myTypes/childType",
+                ["apiVersion"] = "2020-01-01",
+            });
         }
 
         [TestMethod]
@@ -411,9 +411,9 @@ output myOutput string = 'myOutput'
 
             var telemetry = await listeners.Telemetry.WaitForAll();
             telemetry.Should().ContainEvent("InsertResource/failure", new JObject
-                {
-                    ["failureType"] = "ParseResourceIdFailed"
-                });
+            {
+                ["failureType"] = "ParseResourceIdFailed"
+            });
         }
 
         [TestMethod]
@@ -448,9 +448,9 @@ output myOutput string = 'myOutput'
 
             var telemetry = await listeners.Telemetry.WaitForAll();
             telemetry.Should().ContainEvent("InsertResource/failure", new JObject
-                {
-                    ["failureType"] = "MissingType(MadeUp.Rp/madeUpTypes)",
-                });
+            {
+                ["failureType"] = "MissingType(MadeUp.Rp/madeUpTypes)",
+            });
         }
 
         [TestMethod]
@@ -523,10 +523,10 @@ output myOutput string = 'myOutput'
 
             var telemetry = await listeners.Telemetry.WaitForAll();
             telemetry.Should().ContainEvent("InsertResource/success", new JObject
-                {
-                    ["resourceType"] = "My.Rp/myTypes",
-                    ["apiVersion"] = "2020-01-01",
-                });
+            {
+                ["resourceType"] = "My.Rp/myTypes",
+                ["apiVersion"] = "2020-01-01",
+            });
         }
 
         [TestMethod]
@@ -571,9 +571,9 @@ output myOutput string = 'myOutput'
 
             var telemetry = await listeners.Telemetry.WaitForAll();
             telemetry.Should().ContainEvent("InsertResource/failure", new JObject
-                {
-                    ["failureType"] = "FetchResourceFailure",
-                });
+            {
+                ["failureType"] = "FetchResourceFailure",
+            });
         }
     }
 }

@@ -40,11 +40,11 @@ public class ParametersJsonWriter
 
             var parameter = model.EmitLimitationInfo.ParameterAssignments[assignment];
 
-            if (parameter.KeyVaultReferenceExpression is {} keyVaultReference)
+            if (parameter.KeyVaultReferenceExpression is { } keyVaultReference)
             {
                 WriteKeyVaultReference(jsonWriter, keyVaultReference);
             }
-            else if (parameter.Value is {} value)
+            else if (parameter.Value is { } value)
             {
                 jsonWriter.WritePropertyName("value");
                 value.WriteTo(jsonWriter);

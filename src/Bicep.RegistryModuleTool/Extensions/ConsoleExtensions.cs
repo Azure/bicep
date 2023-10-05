@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Text;
-using Bicep.Core.Workspaces;
 using System;
 using System.CommandLine;
 using System.CommandLine.IO;
 using System.CommandLine.Rendering;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Text;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
@@ -44,7 +44,7 @@ namespace Bicep.RegistryModuleTool.Extensions
         private static void WriteMessage(this IConsole console, IStandardStreamWriter writer, ConsoleColor color, string messsage)
         {
             var terminal = console.GetTerminal(preferVirtualTerminal: false);
-            var originalForegroundColor = terminal?.ForegroundColor ??  Console.ForegroundColor;
+            var originalForegroundColor = terminal?.ForegroundColor ?? Console.ForegroundColor;
 
             if (terminal is not null)
             {

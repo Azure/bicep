@@ -1,6 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
@@ -9,13 +16,6 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -331,7 +331,7 @@ namespace Bicep.Cli.IntegrationTests
             actual.Should().NotEndWith(cr);
 
             // Should use CRLF lineEndings
-            actual.Should().Contain(cr+lf);
+            actual.Should().Contain(cr + lf);
 
             // Should use tabs for indentation
             string tab = ((char)9).ToString();

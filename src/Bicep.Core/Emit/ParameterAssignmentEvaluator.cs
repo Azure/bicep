@@ -81,7 +81,8 @@ namespace Bicep.Core.Emit
         public Result EvaluateParameter(ParameterAssignmentSymbol parameter)
             => Results.GetOrAdd(
                 parameter,
-                parameter => {
+                parameter =>
+                {
                     var context = GetExpressionEvaluationContext();
                     var converter = new ExpressionConverter(new(model));
 
@@ -108,7 +109,8 @@ namespace Bicep.Core.Emit
         private Result EvaluateVariable(VariableSymbol variable)
             => VarResults.GetOrAdd(
                 variable,
-                variable => {
+                variable =>
+                {
                     try
                     {
                         var context = GetExpressionEvaluationContext();
@@ -243,7 +245,8 @@ namespace Bicep.Core.Emit
         private ExpressionEvaluationContext GetExpressionEvaluationContext()
         {
             var helper = new TemplateExpressionEvaluationHelper();
-            helper.OnGetVariable = (name, _) => {
+            helper.OnGetVariable = (name, _) =>
+            {
                 if (variablesByName.TryGetValue(name, out var variable))
                 {
                     return EvaluateVariable(variable).Value ?? throw new InvalidOperationException($"Variable {name} has an invalid value");
@@ -256,12 +259,13 @@ namespace Bicep.Core.Emit
 
                 if (name.IndexOf(".") is int separatorIndex && separatorIndex > -1 && wildcardImportsByName.TryGetValue(name[..separatorIndex], out var wildcardImport))
                 {
-                    return EvaluateWildcardImportPropertyAsVariable(new(wildcardImport, name[(separatorIndex + 1)..])).Value  ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
+                    return EvaluateWildcardImportPropertyAsVariable(new(wildcardImport, name[(separatorIndex + 1)..])).Value ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
                 }
 
                 throw new InvalidOperationException($"Variable {name} not found");
             };
-            helper.OnGetParameter = (name, _) => {
+            helper.OnGetParameter = (name, _) =>
+            {
                 return EvaluateParameter(paramsByName[name]).Value ?? throw new InvalidOperationException($"Parameter {name} has an invalid value");
             };
 

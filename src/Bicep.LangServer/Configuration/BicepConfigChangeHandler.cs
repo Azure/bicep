@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Configuration
 
         public void HandleBicepConfigSaveEvent(DocumentUri documentUri)
         {
-            if (configurationManager.RefreshConfigCacheEntry(documentUri.ToUriEncoded()) is {} update)
+            if (configurationManager.RefreshConfigCacheEntry(documentUri.ToUriEncoded()) is { } update)
             {
                 TelemetryHelper.SendTelemetryOnBicepConfigChange(update.prevConfiguration, update.newConfiguration, linterRulesProvider, telemetryProvider);
             }

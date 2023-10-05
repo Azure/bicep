@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Syntax;
 using System.Collections.Generic;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
 {
