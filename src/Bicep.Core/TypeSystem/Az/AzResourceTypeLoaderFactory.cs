@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.IO;
-using Bicep.Core.Registry.Oci;
-using Newtonsoft.Json;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
+using Bicep.Core.Registry.Oci;
+using Newtonsoft.Json;
 
 namespace Bicep.Core.TypeSystem.Az
 {

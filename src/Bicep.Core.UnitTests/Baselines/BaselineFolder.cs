@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.UnitTests.Utils;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using FluentAssertions;
-using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Baselines
 {
@@ -68,7 +68,7 @@ namespace Bicep.Core.UnitTests.Baselines
 
         public BaselineFile GetFileOrEnsureCheckedIn(string relativePath)
         {
-            if (TryGetFile(relativePath) is {} baselineFile)
+            if (TryGetFile(relativePath) is { } baselineFile)
             {
                 return baselineFile;
             }

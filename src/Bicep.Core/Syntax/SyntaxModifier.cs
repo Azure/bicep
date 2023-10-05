@@ -14,7 +14,7 @@ public class SyntaxModifier
 {
     public static ObjectSyntax? TryUpdatePropertyValue(ObjectSyntax @object, string key, Func<SyntaxBase, SyntaxBase> updateFunc)
     {
-        if (@object.TryGetPropertyByName(key) is not {} property)
+        if (@object.TryGetPropertyByName(key) is not { } property)
         {
             return null;
         }
@@ -38,7 +38,8 @@ public class SyntaxModifier
         }
 
         var indent = @object.GetBodyIndentation();
-        SyntaxBase GetSeparator(Token? separatorToCopy) => separatorToCopy switch {
+        SyntaxBase GetSeparator(Token? separatorToCopy) => separatorToCopy switch
+        {
             Token { Type: TokenType.NewLine } => SyntaxFactory.CreateNewLineWithIndent(indent),
             Token { Type: TokenType.Comma } => SyntaxFactory.GetCommaToken(trailingTrivia: SyntaxFactory.SingleSpaceTrivia),
             // if we don't have a child then we're either at the start/end of a single-line object - default to comma
@@ -51,7 +52,7 @@ public class SyntaxModifier
         int spliceIndex;
         IEnumerable<SyntaxBase> childrenToAdd;
 
-        if (@object.Properties.Skip(newPropertyIndex).FirstOrDefault() is {} propertyToAddBefore)
+        if (@object.Properties.Skip(newPropertyIndex).FirstOrDefault() is { } propertyToAddBefore)
         {
             // we're inserting before an existing propert
             spliceIndex = @object.Children.IndexOf(propertyToAddBefore);

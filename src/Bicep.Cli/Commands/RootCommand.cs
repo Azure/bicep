@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Cli.Arguments;
-using Bicep.Core.Exceptions;
 using System;
 using System.IO;
 using System.IO.Compression;
+using Bicep.Cli.Arguments;
+using Bicep.Core.Exceptions;
 
 namespace Bicep.Cli.Commands
 {
@@ -32,13 +32,13 @@ namespace Bicep.Cli.Commands
                 return 0;
             }
 
-            if(args.PrintLicense)
+            if (args.PrintLicense)
             {
                 PrintLicense();
                 return 0;
             }
 
-            if(args.PrintThirdPartyNotices)
+            if (args.PrintThirdPartyNotices)
             {
                 PrintThirdPartyNotices();
                 return 0;
@@ -265,7 +265,7 @@ Usage:
 
             using var reader = new StreamReader(decompressor);
             string? line = null;
-            while((line = reader.ReadLine()) is not null)
+            while ((line = reader.ReadLine()) is not null)
             {
                 writer.WriteLine(line);
             }

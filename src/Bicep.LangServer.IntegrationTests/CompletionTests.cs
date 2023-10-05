@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -41,10 +42,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
-using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
-using System.Collections.Immutable;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -3927,7 +3927,8 @@ var file = " + functionName + @"(templ|)
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
 
-            var fileName = kind switch {
+            var fileName = kind switch
+            {
                 BicepSourceFileKind.BicepFile => "main.bicep",
                 BicepSourceFileKind.ParamsFile => "main.bicepparam",
                 _ => throw new InvalidOperationException(),
@@ -3972,7 +3973,8 @@ var file = " + functionName + @"(templ|)
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
 
-            var fileName = kind switch {
+            var fileName = kind switch
+            {
                 BicepSourceFileKind.BicepFile => "main.bicep",
                 BicepSourceFileKind.ParamsFile => "main.bicepparam",
                 _ => throw new InvalidOperationException(),
@@ -4436,11 +4438,11 @@ var arr6 = [
 
             foreach (var cursor in cursors)
             {
-              var completions = await file.RequestCompletion(cursor);
-              completions.Should().Contain(c => c.Label == "foo");
-              completions.Should().Contain(c => c.Label == "bar");
-              completions.Should().Contain(c => c.Label == "mod2.fizz");
-              completions.Should().Contain(c => c.Label == "mod2.buzz");
+                var completions = await file.RequestCompletion(cursor);
+                completions.Should().Contain(c => c.Label == "foo");
+                completions.Should().Contain(c => c.Label == "bar");
+                completions.Should().Contain(c => c.Label == "mod2.fizz");
+                completions.Should().Contain(c => c.Label == "mod2.buzz");
             }
         }
 

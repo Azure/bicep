@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.IO;
+using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
@@ -10,10 +14,6 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceCode;
-using System;
-using System.IO;
-using System.IO.Abstractions;
-using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
 {

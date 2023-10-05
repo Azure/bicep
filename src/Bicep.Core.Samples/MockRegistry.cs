@@ -61,9 +61,11 @@ public class MockRegistry
             var compilationResult = CompilationHelper.Compile(sourceFile.Contents);
             compilationResult.Template.Should().NotBeNull();
 
-            var templateSpec = new JObject {
+            var templateSpec = new JObject
+            {
                 ["id"] = "/subscriptions/<todo_fill_in>/resourceGroups/<todo_fill_in>/providers/Microsoft.Resources/templateSpecs/<todo_fill_in>/versions/<todo_fill_in>",
-                ["properties"] = new JObject {
+                ["properties"] = new JObject
+                {
                     ["mainTemplate"] = compilationResult.Template,
                 },
             };

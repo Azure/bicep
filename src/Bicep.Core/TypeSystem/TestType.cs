@@ -12,7 +12,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         public override TypeKind TypeKind => TypeKind.Test;
-        
+
         public override TypeSymbolValidationFlags ValidationFlags { get; } = TypeSymbolValidationFlags.PreventAssignment;
 
         public ITypeReference Body { get; }

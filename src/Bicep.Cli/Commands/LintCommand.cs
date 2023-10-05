@@ -37,26 +37,26 @@ public class LintCommand : ICommand
 
     public async Task<int> RunAsync(LintArguments args)
     {
-            var inputPath = PathHelper.ResolvePath(args.InputFile);
+        var inputPath = PathHelper.ResolvePath(args.InputFile);
 
-            if (IsBicepFile(inputPath))
+        if (IsBicepFile(inputPath))
+        {
+            diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
+            var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
+
+            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is { } warningMessage)
             {
-                diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
-                var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
-
-                if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is {} warningMessage)
-                {
-                    logger.LogWarning(warningMessage);
-                }
-
-                diagnosticLogger.FlushLog();
-
-                // return non-zero exit code on errors
-                return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+                logger.LogWarning(warningMessage);
             }
 
-            logger.LogError(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath);
-            return 1;
+            diagnosticLogger.FlushLog();
+
+            // return non-zero exit code on errors
+            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+        }
+
+        logger.LogError(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath);
+        return 1;
     }
 
     private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));

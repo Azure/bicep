@@ -3,24 +3,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.Formats.Tar;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Compression;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
+using System.Threading.Tasks;
+using Bicep.Core.Exceptions;
+using Bicep.Core.Navigation;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
-using System.Text.Json;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization.Metadata;
-using System.Text;
-using Bicep.Core.Navigation;
-using System.IO.Abstractions;
-using System.Linq;
-using System.Formats.Tar;
-using System.Threading.Tasks;
-using System.Collections.Immutable;
 using static Bicep.Core.SourceCode.SourceArchive;
-using System.Text.Json.Serialization;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.Exceptions;
 
 namespace Bicep.Core.SourceCode
 {

@@ -5,7 +5,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics;
 
-public interface IFunctionSymbol 
+public interface IFunctionSymbol
 {
     string Name { get; }
 

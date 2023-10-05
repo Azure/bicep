@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.VisualStudio.Threading;
 using System;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.Threading;
 
 namespace Bicep.LangServer.IntegrationTests.Helpers
 {
@@ -26,7 +26,7 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
 
         public async Task<MultiFileLanguageServerHelper> GetAsync()
         {
-            if(this.lazy is not null)
+            if (this.lazy is not null)
             {
                 return await this.lazy.GetValueAsync();
             }
@@ -36,7 +36,7 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
 
         public async ValueTask DisposeAsync()
         {
-            if(this.lazy is null)
+            if (this.lazy is null)
             {
                 return;
             }

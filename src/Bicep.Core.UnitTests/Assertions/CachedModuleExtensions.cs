@@ -1,6 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
@@ -8,12 +14,6 @@ using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -49,7 +49,8 @@ namespace Bicep.Core.UnitTests.Assertions
             return new(this);
         }
 
-        public AndConstraint<CachedModuleAssertions> NotHaveSource() {
+        public AndConstraint<CachedModuleAssertions> NotHaveSource()
+        {
             Subject.Should().HaveSource(false);
             return new(this);
         }

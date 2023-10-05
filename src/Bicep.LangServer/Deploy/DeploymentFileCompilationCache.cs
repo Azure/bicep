@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Deploy
 {
-    public class DeploymentFileCompilationCache: IDeploymentFileCompilationCache
+    public class DeploymentFileCompilationCache : IDeploymentFileCompilationCache
     {
         private readonly ConcurrentDictionary<DocumentUri, Compilation> compilationCache = new ConcurrentDictionary<DocumentUri, Compilation>();
 

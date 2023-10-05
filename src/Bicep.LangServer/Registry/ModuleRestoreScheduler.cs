@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Registry;
-using Bicep.Core.Workspaces;
-using Bicep.LanguageServer.CompilationManager;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.Registry;
+using Bicep.Core.Workspaces;
+using Bicep.LanguageServer.CompilationManager;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Registry
 {
