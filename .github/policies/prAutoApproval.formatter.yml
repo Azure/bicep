@@ -27,6 +27,7 @@ configuration:
             base: main
             title: "Reformat code"
             body: "Update code to match the house style 😎"
+            labels: 'code-formatting-automation'
         - closeIssue
     - description: Approve PRs submitted by microsoft-github-policy-service with the "code-formatting-automation" label
       triggerOnOwnActions: True
