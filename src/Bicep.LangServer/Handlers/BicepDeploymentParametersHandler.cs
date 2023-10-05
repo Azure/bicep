@@ -201,7 +201,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 return JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(parametersFileContents);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 throw new Exception(string.Format(LangServerResources.InvalidParameterFile, parametersFilePath, e.Message));
             }

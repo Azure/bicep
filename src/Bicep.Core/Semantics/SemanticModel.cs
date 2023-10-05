@@ -200,7 +200,7 @@ namespace Bicep.Core.Semantics
                 sb.Append($"Experimental features enabled: {string.Join(',', experimentalFeatures)}. ");
             }
 
-            if (configuration.ConfigurationPath is {} configPath)
+            if (configuration.ConfigurationPath is { } configPath)
             {
                 sb.Append($"Using bicepConfig from path {configPath}.");
             }
@@ -531,7 +531,7 @@ namespace Bicep.Core.Semantics
                     }
 
                     // consider a parameter to be absent if there was no assignment statement OR if the value `null` was assigned
-                    return TryGetParameterAssignment(parameterMetadata) is not {} assignment || assignment.Type is NullType;
+                    return TryGetParameterAssignment(parameterMetadata) is not { } assignment || assignment.Type is NullType;
                 })
                 .Select(kvp => kvp.Key)
                 .ToImmutableArray();

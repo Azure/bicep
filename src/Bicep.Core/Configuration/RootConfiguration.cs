@@ -34,7 +34,7 @@ namespace Bicep.Core.Configuration
             FormattingConfiguration formatting,
             string? configurationPath,
             IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
-            {
+        {
             this.Cloud = cloud;
             this.ModuleAliases = moduleAliases;
             this.Analyzers = analyzers;

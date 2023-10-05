@@ -5,18 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Bicep.Core.Analyzers.Linter.Rules;
+using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Json;
 using Bicep.Core.Parsing;
+using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.Core.CodeAction;
-using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.Resources;
-using System.Text.RegularExpressions;
 
 #pragma warning disable CA1825 // Avoid zero-length array allocations
 
@@ -32,7 +32,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string ExpectedSubstringInReplacedBicep
         );
 
-        public static void VerifyAllTypesAndDatesAreFake(params string[] bicepStrings) {
+        public static void VerifyAllTypesAndDatesAreFake(params string[] bicepStrings)
+        {
             foreach (var bicep in bicepStrings)
             {
                 var bicep2 = new Regex("https://schema.management.azure.com/schemas/[-0-9]{10}/deploymentTemplate.json").Replace(bicep, " ");

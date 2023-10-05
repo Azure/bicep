@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using System;
-using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions.Schema;
-using Azure.Deployments.Templates.Engines;
-using Azure.Deployments.Expression.Engines;
-using System.Linq;
-using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Core.ErrorResponses;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
-using System.Collections.Immutable;
+using Azure.Deployments.Expression.Engines;
+using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Templates.Engines;
 using Bicep.Core;
-using System.Text.RegularExpressions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.Services
 {
@@ -167,7 +167,7 @@ namespace Bicep.Cli.Services
             {
                 var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
                 var parameters = ParseParametersFile(parametersJToken);
-                
+
                 TemplateEngine.ValidateTemplate(template, "2020-10-01", deploymentScope);
                 TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(parameters), metadata, null, new InsensitiveDictionary<JToken>());
 
@@ -198,17 +198,17 @@ namespace Bicep.Cli.Services
 
             return parametersJToken.Cast<JProperty>().ToImmutableDictionary(x => x.Name, x => x.Value!);
         }
-        
+
         private static TemplateDeploymentScope GetDeploymentScope(string templateSchema)
         {
             var templateSchemaMatch = templateSchemaPattern().Match(templateSchema);
             var templateType = templateSchemaMatch.Groups["templateType"].Value.ToLowerInvariant();
 
-            return templateType switch 
+            return templateType switch
             {
                 "deployment" => TemplateDeploymentScope.ResourceGroup,
                 "subscriptiondeployment" => TemplateDeploymentScope.Subscription,
-                "managementgroupdeployment" =>TemplateDeploymentScope.ManagementGroup,
+                "managementgroupdeployment" => TemplateDeploymentScope.ManagementGroup,
                 "tenantdeployment" => TemplateDeploymentScope.Tenant,
                 _ => throw new InvalidOperationException($"Unrecognized schema: {templateSchema}"),
             };

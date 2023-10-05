@@ -1,13 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Decompiler;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Telemetry;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
-using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,6 +9,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Decompiler;
+using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Telemetry;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using Path = System.IO.Path;
 
 namespace Bicep.LanguageServer.Handlers

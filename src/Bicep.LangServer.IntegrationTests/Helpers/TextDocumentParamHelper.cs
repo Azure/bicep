@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.IO;
+using Bicep.Core;
+using Bicep.Core.FileSystem;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Bicep.Core;
-using System.IO;
-using Bicep.Core.FileSystem;
 
 namespace Bicep.LangServer.IntegrationTests.Helpers
 {
@@ -19,7 +19,7 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
                         PathHelper.HasBicepparamsExension(documentUri.ToUriEncoded()) ? LanguageConstants.ParamsLanguageId :
                         PathHelper.HasArmTemplateLikeExtension(documentUri.ToUriEncoded()) ? LanguageConstants.ArmTemplateLanguageId :
                         LanguageConstants.LanguageId,
-                    Version = version,  
+                    Version = version,
                     Uri = documentUri,
                     Text = text,
                 },

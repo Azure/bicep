@@ -156,13 +156,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow("${'location'}.asazure.windows.net/servers/${'aasServerName'}", false)]
         public void DisallowedHostsMatchingTest(string testString, bool isMatch)
         {
-            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, @$"output str string = '{testString}'", diags => 
+            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, @$"output str string = '{testString}'", diags =>
             {
                 if (isMatch)
                 {
                     diags.Should().HaveCount(1);
                     diags.Select(d => d.Code).Should().AllBe(NoHardcodedEnvironmentUrlsRule.Code);
-                } else
+                }
+                else
                 {
                     diags.Should().BeEmpty();
                 }
@@ -193,12 +194,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow("all the world is a stage, but subdomain1.1schema.management.azure.com should not be hardcoded", false)]
         public void ExcludedHostsMatchingTest(string testString, bool isMatch)
         {
-            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, @$"output str string = '{testString}'", diags => 
+            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, @$"output str string = '{testString}'", diags =>
             {
                 if (isMatch)
                 {
                     diags.Should().BeEmpty();
-                } else
+                }
+                else
                 {
                     diags.Should().HaveCount(1);
                     diags.Select(d => d.Code).Should().AllBe(NoHardcodedEnvironmentUrlsRule.Code);

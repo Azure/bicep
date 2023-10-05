@@ -50,7 +50,7 @@ internal class ArmVariableToExpressionConverter
             return ConvertToExpression(ExpressionsEngine.ParseLanguageExpressionsRecursive(singularDeclaration), singularDeclaration);
         }
 
-        if (evaluator.TryGetUnevaluatedCopyDeclaration(originalName) is not {} copyDeclaration)
+        if (evaluator.TryGetUnevaluatedCopyDeclaration(originalName) is not { } copyDeclaration)
         {
             throw new InvalidOperationException($"Variable {originalName} was not found in template.");
         }

@@ -137,7 +137,8 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             completions.Count().Should().Be(5);
 
-            foreach ( var c in completions) {
+            foreach (var c in completions)
+            {
                 c.Label.Should().MatchRegex("^(.*/)|(.*:)$");
                 c.Kind.Should().Be(CompletionItemKind.Reference);
                 c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);

@@ -29,7 +29,8 @@ public class TypedLambdaSyntax : ExpressionSyntax
     public SyntaxBase Body { get; }
 
     public IEnumerable<TypedLocalVariableSyntax> GetLocalVariables()
-        => VariableSection switch {
+        => VariableSection switch
+        {
             TypedVariableBlockSyntax vars => vars.Arguments,
             _ => Enumerable.Empty<TypedLocalVariableSyntax>(),
         };

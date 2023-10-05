@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
-using System;
 
 namespace Bicep.Core.Analyzers
 {

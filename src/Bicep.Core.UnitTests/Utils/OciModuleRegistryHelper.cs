@@ -2,23 +2,23 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry.Oci;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.Core.UnitTests.Mock;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
+using System.Threading.Tasks;
 using Bicep.Core.Configuration;
+using Bicep.Core.Features;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Memory;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using Bicep.Core.Features;
-using System.IO.Abstractions.TestingHelpers;
-using Microsoft.WindowsAzure.ResourceStack.Common.Memory;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Bicep.Core.UnitTests.Utils
 {

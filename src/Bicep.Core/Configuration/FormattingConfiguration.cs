@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Extensions;
-using Bicep.Core.Json;
-using Bicep.Core.PrettyPrintV2;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Bicep.Core.Extensions;
+using Bicep.Core.Json;
+using Bicep.Core.PrettyPrintV2;
 
 namespace Bicep.Core.Configuration
 {

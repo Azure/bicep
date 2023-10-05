@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions.TestingHelpers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
-using System.IO.Abstractions.TestingHelpers;
 
 namespace Bicep.RegistryModuleTool.TestFixtures.Assertions
 {

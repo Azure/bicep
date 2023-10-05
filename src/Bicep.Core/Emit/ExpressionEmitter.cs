@@ -223,7 +223,7 @@ namespace Bicep.Core.Emit
 
                 // construct the length ARM expression from the Bicep array expression
                 // type check has already ensured that the array expression is an array
-                this.EmitProperty("count", new FunctionCallExpression(forExpression.SourceSyntax, "length", new [] { forExpression }.ToImmutableArray()));
+                this.EmitProperty("count", new FunctionCallExpression(forExpression.SourceSyntax, "length", new[] { forExpression }.ToImmutableArray()));
 
                 if (batchSize.HasValue)
                 {
@@ -244,7 +244,8 @@ namespace Bicep.Core.Emit
                             this.EmitPropertyWithTransform("input", input, converted => ExpressionConverter.ToFunctionExpression(converted));
                         }
                     }
-                    else {
+                    else
+                    {
                         this.EmitPropertyWithTransform("input", input, expression =>
                         {
                             if (!CanEmitAsInputDirectly(input))
@@ -328,13 +329,13 @@ namespace Bicep.Core.Emit
         {
             switch (parameter)
             {
-                case ResourceFunctionCallExpression functionCall when 
+                case ResourceFunctionCallExpression functionCall when
                     LanguageConstants.IdentifierComparer.Equals(functionCall.Name, AzResourceTypeProvider.GetSecretFunctionName):
                     return ConvertModuleParameterGetSecret(functionCall);
                 case TernaryExpression ternary:
                     return new TernaryExpression(ternary.SourceSyntax, ternary.Condition, ConvertModuleParameter(ternary.True), ConvertModuleParameter(ternary.False));
                 default:
-                    return ExpressionFactory.CreateObject(new [] {
+                    return ExpressionFactory.CreateObject(new[] {
                         ExpressionFactory.CreateObjectProperty("value", parameter)
                     }, parameter.SourceSyntax);
             }
@@ -343,7 +344,7 @@ namespace Bicep.Core.Emit
         private static Expression ConvertModuleParameterGetSecret(ResourceFunctionCallExpression functionCall)
         {
             var properties = new List<ObjectPropertyExpression>();
-            properties.Add(ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new [] {
+            properties.Add(ExpressionFactory.CreateObjectProperty("keyVault", ExpressionFactory.CreateObject(new[] {
                 ExpressionFactory.CreateObjectProperty("id", new PropertyAccessExpression(functionCall.Resource.SourceSyntax, functionCall.Resource, "id", AccessExpressionFlags.None)),
             }, functionCall.SourceSyntax)));
             properties.Add(ExpressionFactory.CreateObjectProperty("secretName", functionCall.Parameters[0]));
@@ -352,7 +353,7 @@ namespace Bicep.Core.Emit
                 properties.Add(ExpressionFactory.CreateObjectProperty("secretVersion", functionCall.Parameters[1]));
             }
 
-            return ExpressionFactory.CreateObject(new [] {
+            return ExpressionFactory.CreateObject(new[] {
                 ExpressionFactory.CreateObjectProperty("reference", ExpressionFactory.CreateObject(properties))
             }, functionCall.SourceSyntax);
         }

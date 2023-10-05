@@ -48,7 +48,7 @@ namespace Bicep.Cli.Commands
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
 
-            if(!features.TestFrameworkEnabled)
+            if (!features.TestFrameworkEnabled)
             {
                 await errorWriter.WriteLineAsync("TestFrameWork not enabled");
 
@@ -65,7 +65,7 @@ namespace Bicep.Cli.Commands
                 diagnosticLogger.FlushLog();
 
                 // return non-zero exit code on errors
-                return testResults.Success? 0 : 1;
+                return testResults.Success ? 0 : 1;
             }
 
             await errorWriter.WriteLineAsync(string.Format(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath));
@@ -73,14 +73,15 @@ namespace Bicep.Cli.Commands
         }
 
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
-        private void LogResults(TestResults testResults){
-            foreach(var (testDeclaration, evaluation) in testResults.Results )
+        private void LogResults(TestResults testResults)
+        {
+            foreach (var (testDeclaration, evaluation) in testResults.Results)
             {
-                if(evaluation.Success)
+                if (evaluation.Success)
                 {
                     outputWriter.WriteLine($"{SuccessSymbol} Evaluation {testDeclaration.Name} Passed!");
                 }
-                else if(evaluation.Skip)
+                else if (evaluation.Skip)
                 {
                     errorWriter.WriteLine($"{SkippedSymbol} Evaluation {testDeclaration.Name} Skipped!");
                     errorWriter.WriteLine($"Reason: {evaluation.Error}");
@@ -88,7 +89,8 @@ namespace Bicep.Cli.Commands
                 else
                 {
                     errorWriter.WriteLine($"{FailureSymbol} Evaluation {testDeclaration.Name} Failed at {evaluation.FailedAssertions.Length} / {evaluation.AllAssertions.Length} assertions!");
-                    foreach(var (assertion, _) in evaluation.FailedAssertions){
+                    foreach (var (assertion, _) in evaluation.FailedAssertions)
+                    {
                         errorWriter.WriteLine($"\t{FailureSymbol} Assertion {assertion} failed!");
                     }
                 }
