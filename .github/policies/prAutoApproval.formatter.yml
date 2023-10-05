@@ -32,16 +32,20 @@ configuration:
       triggerOnOwnActions: True
       if:
       - payloadType: Pull_Request
-      - hasLabel:
-          label: 'code-formatting-automation'
-      - not:
-          hasLabel:
-            label: auto-merge
       - isActivitySender:
           user: microsoft-github-policy-service[bot]
+      - isAction: Opened
+      - titleContains:
+          pattern: "Reformat code"
+          isRegex: False
+      - bodyContains:
+          pattern: "Update code to match the house style 😎"
+          isRegex: False
       then:
       - approvePullRequest:
           comment: ':shipit:'
+      - addLabel:
+          label: 'code-formatting-automation'
       - addLabel:
           label: auto-merge
       - enableAutoMerge:
