@@ -382,25 +382,25 @@ type foo = {
             parsed.Should().BeOfType<ProgramSyntax>();
             (parsed as ProgramSyntax).Declarations.Should().HaveCount(1);
             (parsed as ProgramSyntax).Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>();
-            var declaration = (TypeDeclarationSyntax) (parsed as ProgramSyntax).Declarations.Single();
+            var declaration = (TypeDeclarationSyntax)(parsed as ProgramSyntax).Declarations.Single();
             declaration.Decorators.Should().HaveCount(2);
 
             declaration.Value.Should().BeOfType<ObjectTypeSyntax>();
-            var declaredObject = (ObjectTypeSyntax) declaration.Value;
+            var declaredObject = (ObjectTypeSyntax)declaration.Value;
             declaredObject.Properties.Should().HaveCount(3);
             declaredObject.Properties.First().Decorators.Should().HaveCount(2);
             declaredObject.Properties.First().Value.Should().BeOfType<VariableAccessSyntax>();
             declaredObject.Properties.Skip(1).First().Value.Should().BeOfType<ObjectTypeSyntax>();
 
-            var objectProp = (ObjectTypeSyntax) declaredObject.Properties.Skip(1).First().Value;
+            var objectProp = (ObjectTypeSyntax)declaredObject.Properties.Skip(1).First().Value;
             objectProp.Properties.Should().HaveCount(2);
             objectProp.Properties.Last().Value.Should().BeOfType<ArrayTypeSyntax>();
 
-            var arrayProp = (ArrayTypeSyntax) objectProp.Properties.Last().Value;
+            var arrayProp = (ArrayTypeSyntax)objectProp.Properties.Last().Value;
             arrayProp.Item.Value.Should().BeOfType<ArrayTypeSyntax>();
-            var intermediateArray = (ArrayTypeSyntax) arrayProp.Item.Value;
+            var intermediateArray = (ArrayTypeSyntax)arrayProp.Item.Value;
             intermediateArray.Item.Value.Should().BeOfType<ArrayTypeSyntax>();
-            var innerArray = (ArrayTypeSyntax) intermediateArray.Item.Value;
+            var innerArray = (ArrayTypeSyntax)intermediateArray.Item.Value;
             innerArray.Item.Value.Should().BeOfType<VariableAccessSyntax>();
         }
 
@@ -420,10 +420,10 @@ type aTuple = [
             var parsed = ParserHelper.Parse(typeDeclaration);
             parsed.Declarations.Should().HaveCount(1);
             parsed.Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>();
-            var declaration = (TypeDeclarationSyntax) parsed.Declarations.Single();
+            var declaration = (TypeDeclarationSyntax)parsed.Declarations.Single();
 
             declaration.Value.Should().BeOfType<TupleTypeSyntax>();
-            var declaredTuple = (TupleTypeSyntax) declaration.Value;
+            var declaredTuple = (TupleTypeSyntax)declaration.Value;
             declaredTuple.Items.Should().HaveCount(2);
             declaredTuple.Items.First().Decorators.Should().HaveCount(2);
             declaredTuple.Items.First().Value.Should().BeOfType<VariableAccessSyntax>();
@@ -443,7 +443,7 @@ type multilineUnion = 'a'
             var parsed = ParserHelper.Parse(typeDeclaration);
             parsed.Declarations.Should().HaveCount(1);
             parsed.Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>();
-            var declaration = (TypeDeclarationSyntax) parsed.Declarations.Single();
+            var declaration = (TypeDeclarationSyntax)parsed.Declarations.Single();
 
             declaration.Value.Should().BeOfType<UnionTypeSyntax>();
 

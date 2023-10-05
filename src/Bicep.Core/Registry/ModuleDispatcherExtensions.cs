@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Bicep.Core.Registry
 {

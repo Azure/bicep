@@ -29,9 +29,9 @@ internal class TemplateVariablesEvaluator
     private const string CopyItemValuePropertyName = "input";
     private const string CopyIndexFunctionName = "copyIndex";
 
-    private interface IEvaluationResult {}
-    private record EvaluatedValue(JToken Value) : IEvaluationResult {}
-    private record EvaluationException(Exception Exception) : IEvaluationResult {}
+    private interface IEvaluationResult { }
+    private record EvaluatedValue(JToken Value) : IEvaluationResult { }
+    private record EvaluationException(Exception Exception) : IEvaluationResult { }
 
     private readonly ConcurrentDictionary<string, IEvaluationResult> evaluatedVariables = new();
     private readonly Stack<string> variableEvaluationStack = new();

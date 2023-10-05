@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.FileSystem;
-using Bicep.Core.PrettyPrint.Options;
 using System;
 using System.IO;
+using Bicep.Core.FileSystem;
+using Bicep.Core.PrettyPrint.Options;
 
 namespace Bicep.Cli.Arguments
 {

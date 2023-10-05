@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
-using Bicep.Core.Json;
-using System.IO;
-using Bicep.Core.Extensions;
-using Bicep.Core.Syntax;
-using System.Linq;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Modules;
 using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using Bicep.Core.Extensions;
+using Bicep.Core.Json;
+using Bicep.Core.Modules;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
 {

@@ -6,7 +6,8 @@ using Azure.ResourceManager;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public interface IArmClientProvider {
+    public interface IArmClientProvider
+    {
         public ArmClient createArmClient(TokenCredential credential, string? defaultSubscriptionId, ArmClientOptions options);
     }
 }

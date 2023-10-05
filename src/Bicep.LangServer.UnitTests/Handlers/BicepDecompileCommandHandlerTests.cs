@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -14,11 +19,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -703,7 +703,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
 
-            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, overwrite: false), CancellationToken.None) ;
+            var saveResult = await saveHandler.Handle(new(result.decompileId, result.outputFiles, overwrite: false), CancellationToken.None);
             var output = result.output + saveResult.output;
 
             output.Should().NotMatchRegex("Overwriting");

@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.Schemas;
 using Json.Pointer;
 using Json.Schema;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
@@ -31,7 +31,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         public Task<IEnumerable<string>> ValidateAsync(VersionFile file)
         {
-            var errors =  this.Validate(file.Path, JsonSchemaManager.VersionFileSchema, file.RootElement);
+            var errors = this.Validate(file.Path, JsonSchemaManager.VersionFileSchema, file.RootElement);
 
             return Task.FromResult(errors);
         }

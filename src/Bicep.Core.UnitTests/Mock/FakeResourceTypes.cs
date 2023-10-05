@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using Bicep.Core.Resources;
 using System.Linq;
+using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Moq;
-using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.UnitTests.Mock
 {

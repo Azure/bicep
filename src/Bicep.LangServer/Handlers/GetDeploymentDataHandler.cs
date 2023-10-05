@@ -36,7 +36,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             await Task.Yield();
 
-            if (this.compilationManager.GetCompilation(request.TextDocument.Uri) is not {} context)
+            if (this.compilationManager.GetCompilation(request.TextDocument.Uri) is not { } context)
             {
                 return new(ErrorMessage: $"Bicep compilation failed. An unexpected error occurred.");
             }

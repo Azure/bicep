@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Exceptions;
-using Bicep.RegistryModuleTool.Extensions;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.CommandLine.Invocation;
@@ -12,6 +9,9 @@ using System.IO.Abstractions;
 using System.Linq;
 using System.Security;
 using System.Threading.Tasks;
+using Bicep.Core.Exceptions;
+using Bicep.RegistryModuleTool.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Bicep.RegistryModuleTool.Commands
 {

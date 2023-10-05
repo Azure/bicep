@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem.Az;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -22,7 +22,7 @@ namespace Bicep.Core.TypeSystem
 
         private readonly IDiagnosticWriter diagnosticWriter;
 
-        public NestedRuntimeMemberAccessValidator(SemanticModel semanticModel ,ResourceTypeResolver resourceTypeResolver, IDiagnosticWriter diagnosticWriter)
+        public NestedRuntimeMemberAccessValidator(SemanticModel semanticModel, ResourceTypeResolver resourceTypeResolver, IDiagnosticWriter diagnosticWriter)
         {
             this.semanticModel = semanticModel;
             this.resourceTypeResolver = resourceTypeResolver;

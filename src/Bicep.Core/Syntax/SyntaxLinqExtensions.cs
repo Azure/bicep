@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Syntax.Visitors;
 using System;
+using Bicep.Core.Syntax.Visitors;
 
 namespace Bicep.Core.Syntax
 {

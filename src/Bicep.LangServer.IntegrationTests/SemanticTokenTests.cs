@@ -1,28 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Bicep.Core.Samples;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using System.Linq;
-using FluentAssertions;
-using Bicep.Core.Text;
-using Bicep.Core.Parsing;
-using FluentAssertions.Execution;
-using Bicep.LangServer.IntegrationTests.Assertions;
-using Bicep.LanguageServer.Extensions;
-using Bicep.Core.Workspaces;
-using Bicep.LangServer.IntegrationTests.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.UnitTests.Utils;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading.Tasks;
+using Bicep.Core.Parsing;
+using Bicep.Core.Samples;
+using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
+using Bicep.LangServer.IntegrationTests.Assertions;
+using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.LanguageServer.Extensions;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LangServer.IntegrationTests
 {

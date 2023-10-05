@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Bicep.Core.SourceCode;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
-using System.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -36,7 +36,8 @@ namespace Bicep.Core.UnitTests.Assertions
 
             ourFiles.Count().Should().Be(theirFiles.Count());
 
-            for (int i = 0; i < ourFiles.Count(); ++i) {
+            for (int i = 0; i < ourFiles.Count(); ++i)
+            {
                 var ourFile = ourFiles[i];
                 var theirFile = theirFiles[i];
 

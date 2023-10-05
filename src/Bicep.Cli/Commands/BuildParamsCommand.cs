@@ -71,15 +71,16 @@ namespace Bicep.Cli.Commands
                 return 1;
             }
 
-            var paramsOverridesJson = environment.GetVariable("BICEP_PARAMETERS_OVERRIDES")?? "";
+            var paramsOverridesJson = environment.GetVariable("BICEP_PARAMETERS_OVERRIDES") ?? "";
 
             var workspace = new Workspace();
             var parameters = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(
                 paramsOverridesJson,
-                new JsonSerializerSettings() {
+                new JsonSerializerSettings()
+                {
                     DateParseHandling = DateParseHandling.None,
                 });
-        
+
             if (parameters is { })
             {
                 var fileContents = await File.ReadAllTextAsync(paramsInputPath);
@@ -92,7 +93,7 @@ namespace Bicep.Cli.Commands
                         return syntax;
                     }
 
-                    if(parameters.TryGetValue(paramSyntax.Name.IdentifierName, out var overrideValue))
+                    if (parameters.TryGetValue(paramSyntax.Name.IdentifierName, out var overrideValue))
                     {
                         var replacementValue = ConvertJsonToBicepSyntax(overrideValue);
 

@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.UnitTests.Baselines;
-using FluentAssertions;
-using FluentAssertions.Execution;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Bicep.Core.UnitTests.Baselines;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.Samples
 {
@@ -35,7 +35,8 @@ namespace Bicep.Core.Samples
             {
                 var data = GetAllExampleData();
 
-                data = Filter switch {
+                data = Filter switch
+                {
                     TestDataFilterType.ValidOnly => data.Where(x => x.IsValid),
                     TestDataFilterType.InvalidOnly => data.Where(x => !x.IsValid),
                     _ => data,

@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Generic;
+using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
+using FluentAssertions.Collections;
 using FluentAssertions.Primitives;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Bicep.Core.UnitTests.Assertions;
-using FluentAssertions.Collections;
-using System.Collections.Generic;
 
 namespace Bicep.LangServer.IntegrationTests.Assertions
 {

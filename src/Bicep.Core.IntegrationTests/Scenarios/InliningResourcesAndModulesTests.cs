@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests.Scenarios
@@ -518,7 +518,7 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
         [TestMethod]
         public void VariablesParameterResourceReference_ShouldBeInlined()
         {
-            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)), 
+            var result = CompilationHelper.Compile(Services.WithFeatureOverrides(new(ResourceTypedParamsAndOutputsEnabled: true)),
             ("main.bicep", @"
 param resourceParameter resource 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30'
 var clientId = resourceParameter.properties.clientId
@@ -526,14 +526,14 @@ var resourceId = resourceParameter.id
 output clientId string = clientId
 output resourceId string = resourceId
 "));
-            
+
             using (new AssertionScope())
             {
-                result.Template.Should().HaveValueAtPath("$.outputs.clientId", 
-                  new JObject {["value"] = "[reference(parameters('resourceParameter'), '2018-11-30').clientId]", ["type"] = "string"},
+                result.Template.Should().HaveValueAtPath("$.outputs.clientId",
+                  new JObject { ["value"] = "[reference(parameters('resourceParameter'), '2018-11-30').clientId]", ["type"] = "string" },
                    "Parameter should have been inlined");
-                result.Template.Should().HaveValueAtPath("$.outputs.resourceId", 
-                  new JObject {["value"] = "[variables('resourceId')]", ["type"] = "string"},
+                result.Template.Should().HaveValueAtPath("$.outputs.resourceId",
+                  new JObject { ["value"] = "[variables('resourceId')]", ["type"] = "string" },
                    "Top level properties should not be inlined");
             }
         }

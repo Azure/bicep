@@ -8,10 +8,10 @@ namespace Bicep.Core.TypeSystem
     public class TypedArrayType : ArrayType
     {
         public TypedArrayType(ITypeReference itemReference, TypeSymbolValidationFlags validationFlags, long? minLength = null, long? maxLength = null)
-            : base(FormatTypeName(itemReference), itemReference, validationFlags, minLength, maxLength) {}
+            : base(FormatTypeName(itemReference), itemReference, validationFlags, minLength, maxLength) { }
 
         public TypedArrayType(string name, ITypeReference itemReference, TypeSymbolValidationFlags validationFlags, long? minLength = null, long? maxLength = null)
-            : base(name, itemReference, validationFlags, minLength, maxLength) {}
+            : base(name, itemReference, validationFlags, minLength, maxLength) { }
 
         public override IEnumerable<Symbol> Descendants
         {

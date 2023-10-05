@@ -125,7 +125,7 @@ namespace Bicep.Core.Registry
                     }
                 }
              */
-             
+
             var manifest = new OciManifest(2, mediaType, artifactType, configDescriptor, layerDescriptors.ToImmutableArray(), annotations.Build());
 
             using var manifestStream = new MemoryStream();

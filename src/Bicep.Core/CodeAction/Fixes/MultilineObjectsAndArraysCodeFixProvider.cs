@@ -19,14 +19,16 @@ namespace Bicep.Core.CodeAction.Fixes
         private const int IndentSpaces = 2;
 
         private static ImmutableArray<SyntaxBase> GetChildren(SyntaxBase syntax)
-            => syntax switch {
+            => syntax switch
+            {
                 ObjectSyntax x => x.Children,
                 ArraySyntax x => x.Children,
                 _ => throw new NotImplementedException($"{nameof(syntax)} is unexpected type {syntax?.GetType()}"),
             };
 
         private static SyntaxBase ReplaceChildren(SyntaxBase syntax, IEnumerable<SyntaxBase> children)
-            => syntax switch {
+            => syntax switch
+            {
                 ObjectSyntax x => new ObjectSyntax(x.OpenBrace, children, x.CloseBrace),
                 ArraySyntax x => new ArraySyntax(x.OpenBracket, children, x.CloseBracket),
                 _ => throw new NotImplementedException($"{nameof(syntax)} is unexpected type {syntax?.GetType()}"),
@@ -48,8 +50,8 @@ namespace Bicep.Core.CodeAction.Fixes
                 // Array/object has some items on a single line. Let's offer to convert to a multi-line array/object
                 var updatedChildren = children
                     .Where(x => x is not Token { Type: TokenType.Comma } and not Token { Type: TokenType.NewLine })
-                    .SelectMany(x => new [] { SyntaxFactory.NewlineToken, x })
-                    .Concat(new [] { SyntaxFactory.NewlineToken });
+                    .SelectMany(x => new[] { SyntaxFactory.NewlineToken, x })
+                    .Concat(new[] { SyntaxFactory.NewlineToken });
 
                 var newItem = ReplaceChildren(objectOrArray, updatedChildren);
 
@@ -64,7 +66,7 @@ namespace Bicep.Core.CodeAction.Fixes
                 // Array/object has some items on multiple lines. Let's offer to convert to a single-line array/object
                 var updatedChildren = children
                     .Where(x => x is not Token { Type: TokenType.Comma } and not Token { Type: TokenType.NewLine })
-                    .SelectMany((x, i) => i == 0 ? new [] { x } : new[] { SyntaxFactory.CommaToken, x });
+                    .SelectMany((x, i) => i == 0 ? new[] { x } : new[] { SyntaxFactory.CommaToken, x });
 
                 var newItem = ReplaceChildren(objectOrArray, updatedChildren);
 

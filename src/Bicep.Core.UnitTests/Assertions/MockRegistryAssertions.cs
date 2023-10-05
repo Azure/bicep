@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Bicep.Core.Json;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Registry;
@@ -11,11 +16,6 @@ using FluentAssertions.Primitives;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace Bicep.Core.UnitTests.Assertions
 {

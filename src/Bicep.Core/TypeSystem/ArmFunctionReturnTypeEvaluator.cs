@@ -46,10 +46,12 @@ public static class ArmFunctionReturnTypeEvaluator
 
         if (EvaluateOperatorAsArmFunction(armFunctionName, out var result, out var builderFunc, args))
         {
-            if (TypeHelper.TryCreateTypeLiteral(result) is {} literalType) {
+            if (TypeHelper.TryCreateTypeLiteral(result) is { } literalType)
+            {
                 return literalType;
             }
-        } else
+        }
+        else
         {
             builderDelegates.Add(builderFunc);
         }
@@ -57,7 +59,8 @@ public static class ArmFunctionReturnTypeEvaluator
         return null;
     }
 
-    private static JToken? ToJToken(TypeSymbol typeSymbol) => typeSymbol switch {
+    private static JToken? ToJToken(TypeSymbol typeSymbol) => typeSymbol switch
+    {
         BooleanLiteralType booleanLiteral => booleanLiteral.Value,
         IntegerLiteralType integerLiteral => integerLiteral.Value,
         StringLiteralType stringLiteral => stringLiteral.RawStringValue,
@@ -116,7 +119,8 @@ public static class ArmFunctionReturnTypeEvaluator
         [NotNullWhen(false)] out DiagnosticBuilder.DiagnosticBuilderDelegate? builderFunc,
         params FunctionArgument[] arguments)
     {
-        try {
+        try
+        {
             result = ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, arguments, new());
             builderFunc = default;
             return true;

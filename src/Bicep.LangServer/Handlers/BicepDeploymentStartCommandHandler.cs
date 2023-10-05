@@ -92,7 +92,7 @@ namespace Bicep.LanguageServer.Handlers
             //starting with empty valid json (that can be parsed) for deployments with no parameters
             string parametersFileJson = "{}";
 
-            if(request.parametersFilePath is { })
+            if (request.parametersFilePath is { })
             {
                 if (PathHelper.HasBicepparamsExension(DocumentUri.FromFileSystemPath(request.parametersFilePath).ToUriEncoded()))
                 {
