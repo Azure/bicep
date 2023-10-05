@@ -538,9 +538,6 @@ export class DeployCommand implements Command {
     showErrorMessage: boolean,
   ): Promise<boolean> {
     if (path.endsWith(".bicepparam")) {
-      this.outputChannelManager.appendToOutputChannel(
-        `Bicep Parameter file used in deployment -> ${path}`,
-      );
       return true;
     }
 
@@ -575,9 +572,6 @@ export class DeployCommand implements Command {
       return false;
     }
 
-    this.outputChannelManager.appendToOutputChannel(
-      `JSON Parameter file used in deployment -> ${path}`,
-    );
     return true;
   }
 
