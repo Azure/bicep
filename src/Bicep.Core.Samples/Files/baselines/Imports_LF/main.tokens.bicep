@@ -1,13 +1,15 @@
-import {foo, fizz} from 'modules/mod.bicep'
+import {foo, fizz, pop} from 'modules/mod.bicep'
 //@[00:06) Identifier |import|
 //@[07:08) LeftBrace |{|
 //@[08:11) Identifier |foo|
 //@[11:12) Comma |,|
 //@[13:17) Identifier |fizz|
-//@[17:18) RightBrace |}|
-//@[19:23) Identifier |from|
-//@[24:43) StringComplete |'modules/mod.bicep'|
-//@[43:44) NewLine |\n|
+//@[17:18) Comma |,|
+//@[19:22) Identifier |pop|
+//@[22:23) RightBrace |}|
+//@[24:28) Identifier |from|
+//@[29:48) StringComplete |'modules/mod.bicep'|
+//@[48:49) NewLine |\n|
 import * as mod2 from 'modules/mod2.bicep'
 //@[00:06) Identifier |import|
 //@[07:08) Asterisk |*|
@@ -39,7 +41,15 @@ var aliasedFoo = foo
 //@[04:14) Identifier |aliasedFoo|
 //@[15:16) Assignment |=|
 //@[17:20) Identifier |foo|
-//@[20:22) NewLine |\n\n|
+//@[20:21) NewLine |\n|
+var aliasedBar = mod2.foo
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |aliasedBar|
+//@[15:16) Assignment |=|
+//@[17:21) Identifier |mod2|
+//@[21:22) Dot |.|
+//@[22:25) Identifier |foo|
+//@[25:27) NewLine |\n\n|
 
 type fizzes = fizz[]
 //@[00:04) Identifier |type|
@@ -48,6 +58,26 @@ type fizzes = fizz[]
 //@[14:18) Identifier |fizz|
 //@[18:19) LeftSquare |[|
 //@[19:20) RightSquare |]|
-//@[20:21) NewLine |\n|
+//@[20:22) NewLine |\n\n|
+
+param fizzParam mod2.fizz
+//@[00:05) Identifier |param|
+//@[06:15) Identifier |fizzParam|
+//@[16:20) Identifier |mod2|
+//@[20:21) Dot |.|
+//@[21:25) Identifier |fizz|
+//@[25:26) NewLine |\n|
+output magicWord pop = refersToCopyVariable[3].value
+//@[00:06) Identifier |output|
+//@[07:16) Identifier |magicWord|
+//@[17:20) Identifier |pop|
+//@[21:22) Assignment |=|
+//@[23:43) Identifier |refersToCopyVariable|
+//@[43:44) LeftSquare |[|
+//@[44:45) Integer |3|
+//@[45:46) RightSquare |]|
+//@[46:47) Dot |.|
+//@[47:52) Identifier |value|
+//@[52:53) NewLine |\n|
 
 //@[00:00) EndOfFile ||

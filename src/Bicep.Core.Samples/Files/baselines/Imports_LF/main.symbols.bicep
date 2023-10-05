@@ -1,6 +1,7 @@
-import {foo, fizz} from 'modules/mod.bicep'
+import {foo, fizz, pop} from 'modules/mod.bicep'
 //@[08:11) Variable foo. Type: 'quux'. Declaration start char: 8, length: 3
 //@[13:17) TypeAlias fizz. Type: Type<{ property: pop? }[]>. Declaration start char: 13, length: 4
+//@[19:22) TypeAlias pop. Type: Type<string>. Declaration start char: 19, length: 3
 import * as mod2 from 'modules/mod2.bicep'
 //@[12:16) ImportedNamespace mod2. Type: mod2. Declaration start char: 7, length: 9
 import {
@@ -12,7 +13,14 @@ import {
 
 var aliasedFoo = foo
 //@[04:14) Variable aliasedFoo. Type: 'quux'. Declaration start char: 0, length: 20
+var aliasedBar = mod2.foo
+//@[04:14) Variable aliasedBar. Type: 'bar'. Declaration start char: 0, length: 25
 
 type fizzes = fizz[]
 //@[05:11) TypeAlias fizzes. Type: Type<{ property: pop? }[][]>. Declaration start char: 0, length: 20
+
+param fizzParam mod2.fizz
+//@[06:15) Parameter fizzParam. Type: 'buzz'. Declaration start char: 0, length: 25
+output magicWord pop = refersToCopyVariable[3].value
+//@[07:16) Output magicWord. Type: string. Declaration start char: 0, length: 52
 

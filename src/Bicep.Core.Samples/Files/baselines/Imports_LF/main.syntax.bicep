@@ -1,8 +1,8 @@
-import {foo, fizz} from 'modules/mod.bicep'
-//@[00:247) ProgramSyntax
-//@[00:043) ├─CompileTimeImportDeclarationSyntax
+import {foo, fizz, pop} from 'modules/mod.bicep'
+//@[00:358) ProgramSyntax
+//@[00:048) ├─CompileTimeImportDeclarationSyntax
 //@[00:006) | ├─Token(Identifier) |import|
-//@[07:018) | ├─ImportedSymbolsListSyntax
+//@[07:023) | ├─ImportedSymbolsListSyntax
 //@[07:008) | | ├─Token(LeftBrace) |{|
 //@[08:011) | | ├─ImportedSymbolsListItemSyntax
 //@[08:011) | | | └─IdentifierSyntax
@@ -11,12 +11,16 @@ import {foo, fizz} from 'modules/mod.bicep'
 //@[13:017) | | ├─ImportedSymbolsListItemSyntax
 //@[13:017) | | | └─IdentifierSyntax
 //@[13:017) | | |   └─Token(Identifier) |fizz|
-//@[17:018) | | └─Token(RightBrace) |}|
-//@[19:043) | └─CompileTimeImportFromClauseSyntax
-//@[19:023) |   ├─Token(Identifier) |from|
-//@[24:043) |   └─StringSyntax
-//@[24:043) |     └─Token(StringComplete) |'modules/mod.bicep'|
-//@[43:044) ├─Token(NewLine) |\n|
+//@[17:018) | | ├─Token(Comma) |,|
+//@[19:022) | | ├─ImportedSymbolsListItemSyntax
+//@[19:022) | | | └─IdentifierSyntax
+//@[19:022) | | |   └─Token(Identifier) |pop|
+//@[22:023) | | └─Token(RightBrace) |}|
+//@[24:048) | └─CompileTimeImportFromClauseSyntax
+//@[24:028) |   ├─Token(Identifier) |from|
+//@[29:048) |   └─StringSyntax
+//@[29:048) |     └─Token(StringComplete) |'modules/mod.bicep'|
+//@[48:049) ├─Token(NewLine) |\n|
 import * as mod2 from 'modules/mod2.bicep'
 //@[00:042) ├─CompileTimeImportDeclarationSyntax
 //@[00:006) | ├─Token(Identifier) |import|
@@ -68,7 +72,21 @@ var aliasedFoo = foo
 //@[17:020) | └─VariableAccessSyntax
 //@[17:020) |   └─IdentifierSyntax
 //@[17:020) |     └─Token(Identifier) |foo|
-//@[20:022) ├─Token(NewLine) |\n\n|
+//@[20:021) ├─Token(NewLine) |\n|
+var aliasedBar = mod2.foo
+//@[00:025) ├─VariableDeclarationSyntax
+//@[00:003) | ├─Token(Identifier) |var|
+//@[04:014) | ├─IdentifierSyntax
+//@[04:014) | | └─Token(Identifier) |aliasedBar|
+//@[15:016) | ├─Token(Assignment) |=|
+//@[17:025) | └─PropertyAccessSyntax
+//@[17:021) |   ├─VariableAccessSyntax
+//@[17:021) |   | └─IdentifierSyntax
+//@[17:021) |   |   └─Token(Identifier) |mod2|
+//@[21:022) |   ├─Token(Dot) |.|
+//@[22:025) |   └─IdentifierSyntax
+//@[22:025) |     └─Token(Identifier) |foo|
+//@[25:027) ├─Token(NewLine) |\n\n|
 
 type fizzes = fizz[]
 //@[00:020) ├─TypeDeclarationSyntax
@@ -83,6 +101,42 @@ type fizzes = fizz[]
 //@[14:018) |   |     └─Token(Identifier) |fizz|
 //@[18:019) |   ├─Token(LeftSquare) |[|
 //@[19:020) |   └─Token(RightSquare) |]|
-//@[20:021) ├─Token(NewLine) |\n|
+//@[20:022) ├─Token(NewLine) |\n\n|
+
+param fizzParam mod2.fizz
+//@[00:025) ├─ParameterDeclarationSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:015) | ├─IdentifierSyntax
+//@[06:015) | | └─Token(Identifier) |fizzParam|
+//@[16:025) | └─PropertyAccessSyntax
+//@[16:020) |   ├─VariableAccessSyntax
+//@[16:020) |   | └─IdentifierSyntax
+//@[16:020) |   |   └─Token(Identifier) |mod2|
+//@[20:021) |   ├─Token(Dot) |.|
+//@[21:025) |   └─IdentifierSyntax
+//@[21:025) |     └─Token(Identifier) |fizz|
+//@[25:026) ├─Token(NewLine) |\n|
+output magicWord pop = refersToCopyVariable[3].value
+//@[00:052) ├─OutputDeclarationSyntax
+//@[00:006) | ├─Token(Identifier) |output|
+//@[07:016) | ├─IdentifierSyntax
+//@[07:016) | | └─Token(Identifier) |magicWord|
+//@[17:020) | ├─VariableAccessSyntax
+//@[17:020) | | └─IdentifierSyntax
+//@[17:020) | |   └─Token(Identifier) |pop|
+//@[21:022) | ├─Token(Assignment) |=|
+//@[23:052) | └─PropertyAccessSyntax
+//@[23:046) |   ├─ArrayAccessSyntax
+//@[23:043) |   | ├─VariableAccessSyntax
+//@[23:043) |   | | └─IdentifierSyntax
+//@[23:043) |   | |   └─Token(Identifier) |refersToCopyVariable|
+//@[43:044) |   | ├─Token(LeftSquare) |[|
+//@[44:045) |   | ├─IntegerLiteralSyntax
+//@[44:045) |   | | └─Token(Integer) |3|
+//@[45:046) |   | └─Token(RightSquare) |]|
+//@[46:047) |   ├─Token(Dot) |.|
+//@[47:052) |   └─IdentifierSyntax
+//@[47:052) |     └─Token(Identifier) |value|
+//@[52:053) ├─Token(NewLine) |\n|
 
 //@[00:000) └─Token(EndOfFile) ||
