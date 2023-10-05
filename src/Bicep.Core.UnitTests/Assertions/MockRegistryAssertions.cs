@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Json;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
@@ -72,10 +73,10 @@ namespace Bicep.Core.UnitTests.Assertions
                 {
                     var configBytes = this.Subject.Blobs[config.Digest];
                     config.Size.Should().Be(configBytes.ToArray().Length, "Config size field should match config size");
-                    JsonDocument? configJson = null;
-                    var convertToJson = () => configJson = JsonDocument.Parse(configBytes.Text);
+                    JsonElement? configJson = null;
+                    var convertToJson = () => configJson = JsonElementFactory.CreateElement(configBytes.Text);
                     convertToJson.Should().NotThrow("Config should be a valid JSON object");
-                    configJson!.RootElement.ValueKind.Should().Be(JsonValueKind.Object, "Config should be a JSON object");
+                    configJson!.Value.ValueKind.Should().Be(JsonValueKind.Object, "Config should be a JSON object");
                 }
 
                 manifest.Layers.Should().HaveCountLessThanOrEqualTo(2, "modules should have one or two layers");
