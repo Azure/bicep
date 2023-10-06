@@ -200,12 +200,6 @@ type discriminatorInlineAdditionalPropsBadType3 = {
   *: string
 }
 
-type discriminatorInlineAdditionalPropsCycle1 = {
-  type: 'b'
-  @discriminator('type')
-  *: typeA | discriminatorInlineAdditionalPropsCycle1
-}
-
 @discriminator('type')
 type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | { type: 'A', value: int }
 

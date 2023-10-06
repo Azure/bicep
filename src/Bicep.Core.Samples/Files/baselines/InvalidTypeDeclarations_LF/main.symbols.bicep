@@ -263,13 +263,6 @@ type discriminatorInlineAdditionalPropsBadType3 = {
   *: string
 }
 
-type discriminatorInlineAdditionalPropsCycle1 = {
-//@[5:45) TypeAlias discriminatorInlineAdditionalPropsCycle1. Type: error. Declaration start char: 0, length: 142
-  type: 'b'
-  @discriminator('type')
-  *: typeA | discriminatorInlineAdditionalPropsCycle1
-}
-
 @discriminator('type')
 type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | { type: 'A', value: int }
 //@[5:49) TypeAlias discriminatedUnionDuplicateMemberInsensitive. Type: error. Declaration start char: 0, length: 131

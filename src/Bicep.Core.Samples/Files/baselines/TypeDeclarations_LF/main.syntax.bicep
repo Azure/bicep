@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4814) ProgramSyntax
+//@[000:4954) ProgramSyntax
 //@[000:0299) ├─TypeDeclarationSyntax
 //@[000:0028) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
@@ -1847,6 +1847,54 @@ type discriminatedUnionMemberOptionalCycle1 = {
 //@[055:0056) |   |   | └─Token(RightParen) |)|
 //@[056:0057) |   |   └─Token(Question) |?|
 //@[057:0058) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+type discriminatedUnionMemberOptionalCycle2 = {
+//@[000:0138) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0043) | ├─IdentifierSyntax
+//@[005:0043) | | └─Token(Identifier) |discriminatedUnionMemberOptionalCycle2|
+//@[044:0045) | ├─Token(Assignment) |=|
+//@[046:0138) | └─ObjectTypeSyntax
+//@[046:0047) |   ├─Token(LeftBrace) |{|
+//@[047:0048) |   ├─Token(NewLine) |\n|
+  type: 'b'
+//@[002:0011) |   ├─ObjectTypePropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |type|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0011) |   | └─StringSyntax
+//@[008:0011) |   |   └─Token(StringComplete) |'b'|
+//@[011:0012) |   ├─Token(NewLine) |\n|
+  @discriminator('type')
+//@[002:0076) |   ├─ObjectTypeAdditionalPropertiesSyntax
+//@[002:0024) |   | ├─DecoratorSyntax
+//@[002:0003) |   | | ├─Token(At) |@|
+//@[003:0024) |   | | └─FunctionCallSyntax
+//@[003:0016) |   | |   ├─IdentifierSyntax
+//@[003:0016) |   | |   | └─Token(Identifier) |discriminator|
+//@[016:0017) |   | |   ├─Token(LeftParen) |(|
+//@[017:0023) |   | |   ├─FunctionArgumentSyntax
+//@[017:0023) |   | |   | └─StringSyntax
+//@[017:0023) |   | |   |   └─Token(StringComplete) |'type'|
+//@[023:0024) |   | |   └─Token(RightParen) |)|
+//@[024:0025) |   | ├─Token(NewLine) |\n|
+  *: typeA | discriminatedUnionMemberOptionalCycle1
+//@[002:0003) |   | ├─Token(Asterisk) |*|
+//@[003:0004) |   | ├─Token(Colon) |:|
+//@[005:0051) |   | └─UnionTypeSyntax
+//@[005:0010) |   |   ├─UnionTypeMemberSyntax
+//@[005:0010) |   |   | └─VariableAccessSyntax
+//@[005:0010) |   |   |   └─IdentifierSyntax
+//@[005:0010) |   |   |     └─Token(Identifier) |typeA|
+//@[011:0012) |   |   ├─Token(Pipe) |||
+//@[013:0051) |   |   └─UnionTypeMemberSyntax
+//@[013:0051) |   |     └─VariableAccessSyntax
+//@[013:0051) |   |       └─IdentifierSyntax
+//@[013:0051) |   |         └─Token(Identifier) |discriminatedUnionMemberOptionalCycle1|
+//@[051:0052) |   ├─Token(NewLine) |\n|
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|

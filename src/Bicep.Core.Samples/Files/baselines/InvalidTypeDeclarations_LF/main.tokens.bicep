@@ -943,35 +943,6 @@ type discriminatorInlineAdditionalPropsBadType3 = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
-type discriminatorInlineAdditionalPropsCycle1 = {
-//@[000:004) Identifier |type|
-//@[005:045) Identifier |discriminatorInlineAdditionalPropsCycle1|
-//@[046:047) Assignment |=|
-//@[048:049) LeftBrace |{|
-//@[049:050) NewLine |\n|
-  type: 'b'
-//@[002:006) Identifier |type|
-//@[006:007) Colon |:|
-//@[008:011) StringComplete |'b'|
-//@[011:012) NewLine |\n|
-  @discriminator('type')
-//@[002:003) At |@|
-//@[003:016) Identifier |discriminator|
-//@[016:017) LeftParen |(|
-//@[017:023) StringComplete |'type'|
-//@[023:024) RightParen |)|
-//@[024:025) NewLine |\n|
-  *: typeA | discriminatorInlineAdditionalPropsCycle1
-//@[002:003) Asterisk |*|
-//@[003:004) Colon |:|
-//@[005:010) Identifier |typeA|
-//@[011:012) Pipe |||
-//@[013:053) Identifier |discriminatorInlineAdditionalPropsCycle1|
-//@[053:054) NewLine |\n|
-}
-//@[000:001) RightBrace |}|
-//@[001:003) NewLine |\n\n|
-
 @discriminator('type')
 //@[000:001) At |@|
 //@[001:014) Identifier |discriminator|
