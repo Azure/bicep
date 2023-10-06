@@ -153,5 +153,5 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
 
         // One scenario not tested here is when we have an external module and another file than the module lock is locked, which prevent the directory delete. We don't have a test for the message
-     }
+    }
 }

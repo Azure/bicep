@@ -120,9 +120,11 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     public virtual Expression ReplaceLambdaExpression(LambdaExpression expression)
     {
         var hasChanges =
-            TryRewrite(expression.Body, out var body);
+            TryRewriteCollectionOfNullablesStrict(expression.ParameterTypes, out var parameterTypes) |
+            TryRewrite(expression.Body, out var body) |
+            TryRewriteStrict(expression.OutputType, out var outputType);
 
-        return hasChanges ? expression with { Body = body } : expression;
+        return hasChanges ? expression with { Body = body, ParameterTypes = parameterTypes, OutputType = outputType } : expression;
     }
 
     void IExpressionVisitor.VisitLambdaVariableReferenceExpression(LambdaVariableReferenceExpression expression) => ReplaceCurrent(expression, ReplaceLambdaVariableReferenceExpression);
@@ -240,45 +242,68 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     public virtual Expression ReplaceDeclaredMetadataExpression(DeclaredMetadataExpression expression)
     {
         var hasChanges =
-            TryRewrite(expression.Value, out var value);
+            TryRewrite(expression.Value, out var value) |
+            TryRewriteDescription(expression, out var description);
 
-        return hasChanges ? expression with { Value = value } : expression;
+        return hasChanges ? expression with { Value = value, Description = description } : expression;
     }
 
     void IExpressionVisitor.VisitDeclaredProviderExpression(DeclaredProviderExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredProviderExpression);
     public virtual Expression ReplaceDeclaredProviderExpression(DeclaredProviderExpression expression)
     {
         var hasChanges =
-            TryRewrite(expression.Config, out var config);
+            TryRewrite(expression.Config, out var config) |
+            TryRewriteDescription(expression, out var description);
 
-        return hasChanges ? expression with { Config = config } : expression;
+        return hasChanges ? expression with { Config = config, Description = description } : expression;
     }
 
     void IExpressionVisitor.VisitDeclaredParameterExpression(DeclaredParameterExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredParameterExpression);
     public virtual Expression ReplaceDeclaredParameterExpression(DeclaredParameterExpression expression)
     {
         var hasChanges =
-            TryRewrite(expression.DefaultValue, out var defaultValue);
+            TryRewrite(expression.DefaultValue, out var defaultValue) |
+            TryRewriteStrict(expression.Type, out var type) |
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed) |
+            TryRewrite(expression.AllowedValues, out var allowedValues);
 
-        return hasChanges ? expression with { DefaultValue = defaultValue } : expression;
+        return hasChanges
+            ? expression with
+            {
+                DefaultValue = defaultValue,
+                Type = type,
+                Description = description,
+                Metadata = metadata,
+                Secure = secure,
+                MinLength = minLength,
+                MaxLength = maxLength,
+                MinValue = minValue,
+                MaxValue = maxValue,
+                Sealed = @sealed,
+                AllowedValues = allowedValues,
+            }
+            : expression;
     }
 
     void IExpressionVisitor.VisitDeclaredVariableExpression(DeclaredVariableExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredVariableExpression);
     public virtual Expression ReplaceDeclaredVariableExpression(DeclaredVariableExpression expression)
     {
         var hasChanges =
-            TryRewrite(expression.Value, out var value);
+            TryRewrite(expression.Value, out var value) |
+            TryRewriteDescription(expression, out var description) |
+            TryRewrite(expression.Exported, out var exported);
 
-        return hasChanges ? expression with { Value = value } : expression;
+        return hasChanges ? expression with { Value = value, Description = description, Exported = exported } : expression;
     }
 
     void IExpressionVisitor.VisitDeclaredFunctionExpression(DeclaredFunctionExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredFunctionExpression);
     public virtual Expression ReplaceDeclaredFunctionExpression(DeclaredFunctionExpression expression)
     {
         var hasChanges =
-            TryRewrite(expression.Lambda, out var lambda);
+            TryRewrite(expression.Lambda, out var lambda) |
+            TryRewriteDescription(expression, out var description);
 
-        return hasChanges ? expression with { Lambda = lambda } : expression;
+        return hasChanges ? expression with { Lambda = lambda, Description = description } : expression;
     }
 
     void IExpressionVisitor.VisitUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression) => ReplaceCurrent(expression, ReplaceUserDefinedFunctionCallExpression);
@@ -294,18 +319,35 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     public virtual Expression ReplaceDeclaredOutputExpression(DeclaredOutputExpression expression)
     {
         var hasChanges =
-            TryRewrite(expression.Value, out var value);
+            TryRewrite(expression.Value, out var value) |
+            TryRewriteStrict(expression.Type, out var type) |
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed);
 
-        return hasChanges ? expression with { Value = value } : expression;
+        return hasChanges
+            ? expression with
+            {
+                Value = value,
+                Type = type,
+                Description = description,
+                Metadata = metadata,
+                Secure = secure,
+                MinLength = minLength,
+                MaxLength = maxLength,
+                MinValue = minValue,
+                MaxValue = maxValue,
+                Sealed = @sealed,
+            }
+            : expression;
     }
 
     void IExpressionVisitor.VisitDeclaredAssertExpression(DeclaredAssertExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredAssertExpression);
     public virtual Expression ReplaceDeclaredAssertExpression(DeclaredAssertExpression expression)
     {
         var hasChanges =
-            TryRewrite(expression.Value, out var value);
+            TryRewrite(expression.Value, out var value) |
+            TryRewriteDescription(expression, out var description);
 
-        return hasChanges ? expression with { Value = value } : expression;
+        return hasChanges ? expression with { Value = value, Description = description } : expression;
     }
 
     void IExpressionVisitor.VisitDeclaredResourceExpression(DeclaredResourceExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredResourceExpression);
@@ -313,9 +355,10 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewrite(expression.Body, out var body) |
-            TryRewriteStrict(expression.DependsOn, out var dependsOn);
+            TryRewriteStrict(expression.DependsOn, out var dependsOn) |
+            TryRewriteDescription(expression, out var description);
 
-        return hasChanges ? expression with { Body = body, DependsOn = dependsOn } : expression;
+        return hasChanges ? expression with { Body = body, DependsOn = dependsOn, Description = description } : expression;
     }
 
     void IExpressionVisitor.VisitDeclaredModuleExpression(DeclaredModuleExpression expression) => ReplaceCurrent(expression, ReplaceDeclaredModuleExpression);
@@ -324,9 +367,10 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         var hasChanges =
             TryRewrite(expression.Body, out var body) |
             TryRewrite(expression.Parameters, out var parameters) |
-            TryRewriteStrict(expression.DependsOn, out var dependsOn);
+            TryRewriteStrict(expression.DependsOn, out var dependsOn) |
+            TryRewriteDescription(expression, out var description);
 
-        return hasChanges ? expression with { Body = body, Parameters = parameters, DependsOn = dependsOn } : expression;
+        return hasChanges ? expression with { Body = body, Parameters = parameters, DependsOn = dependsOn, Description = description } : expression;
     }
 
     void IExpressionVisitor.VisitResourceDependencyExpression(ResourceDependencyExpression expression) => ReplaceCurrent(expression, ReplaceResourceDependencyExpression);
@@ -342,9 +386,25 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     public virtual Expression ReplaceDeclaredTypeExpression(DeclaredTypeExpression expression)
     {
         var hasChanges =
-            TryRewriteStrict(expression.Value, out var value);
+            TryRewriteStrict(expression.Value, out var value) |
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed) |
+            TryRewrite(expression.Exported, out var exported);
 
-        return hasChanges ? expression with { Value = value } : expression;
+        return hasChanges
+            ? expression with
+            {
+                Value = value,
+                Description = description,
+                Metadata = metadata,
+                Secure = secure,
+                MinLength = minLength,
+                MaxLength = maxLength,
+                MinValue = minValue,
+                MaxValue = maxValue,
+                Sealed = @sealed,
+                Exported = exported,
+            }
+            : expression;
     }
 
     void IExpressionVisitor.VisitAmbientTypeReferenceExpression(AmbientTypeReferenceExpression expression) => ReplaceCurrent(expression, ReplaceAmbientTypeReferenceExpression);
@@ -405,18 +465,46 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     public virtual Expression ReplaceObjectTypePropertyExpression(ObjectTypePropertyExpression expression)
     {
         var hasChanges =
-            TryRewriteStrict(expression.Value, out var value);
+            TryRewriteStrict(expression.Value, out var value) |
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed);
 
-        return hasChanges ? expression with { Value = value } : expression;
+        return hasChanges
+            ? expression with
+            {
+                Value = value,
+                Description = description,
+                Metadata = metadata,
+                Secure = secure,
+                MinLength = minLength,
+                MaxLength = maxLength,
+                MinValue = minValue,
+                MaxValue = maxValue,
+                Sealed = @sealed,
+            }
+            : expression;
     }
 
     void IExpressionVisitor.VisitObjectTypeAdditionalPropertiesExpression(ObjectTypeAdditionalPropertiesExpression expression) => ReplaceCurrent(expression, ReplaceObjectTypeAdditionalPropertiesExpression);
     public virtual Expression ReplaceObjectTypeAdditionalPropertiesExpression(ObjectTypeAdditionalPropertiesExpression expression)
     {
         var hasChanges =
-            TryRewriteStrict(expression.Value, out var value);
+            TryRewriteStrict(expression.Value, out var value) |
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed);
 
-        return hasChanges ? expression with { Value = value } : expression;
+        return hasChanges
+            ? expression with
+            {
+                Value = value,
+                Description = description,
+                Metadata = metadata,
+                Secure = secure,
+                MinLength = minLength,
+                MaxLength = maxLength,
+                MinValue = minValue,
+                MaxValue = maxValue,
+                Sealed = @sealed,
+            }
+            : expression;
     }
 
     void IExpressionVisitor.VisitObjectTypeExpression(ObjectTypeExpression expression) => ReplaceCurrent(expression, ReplaceObjectTypeExpression);
@@ -435,9 +523,23 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     public virtual Expression ReplaceTupleTypeItemExpression(TupleTypeItemExpression expression)
     {
         var hasChanges =
-            TryRewriteStrict(expression.Value, out var value);
+            TryRewriteStrict(expression.Value, out var value) |
+            TryRewriteTypeDecorators(expression, out var description, out var metadata, out var secure, out var minLength, out var maxLength, out var minValue, out var maxValue, out var @sealed);
 
-        return hasChanges ? expression with { Value = value } : expression;
+        return hasChanges
+            ? expression with
+            {
+                Value = value,
+                Description = description,
+                Metadata = metadata,
+                Secure = secure,
+                MinLength = minLength,
+                MaxLength = maxLength,
+                MinValue = minValue,
+                MaxValue = maxValue,
+                Sealed = @sealed,
+            }
+            : expression;
     }
 
     void IExpressionVisitor.VisitTupleTypeExpression(TupleTypeExpression expression) => ReplaceCurrent(expression, ReplaceTupleTypeExpression);
@@ -562,6 +664,27 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
 
     private Expression? current;
 
+    private bool TryRewriteDescription(DescribableExpression expression, out Expression? description)
+        => TryRewrite(expression.Description, out description);
+
+    private bool TryRewriteTypeDecorators(TypeDeclaringExpression expression,
+        out Expression? description,
+        out Expression? metadata,
+        out Expression? secure,
+        out Expression? minLength,
+        out Expression? maxLength,
+        out Expression? minValue,
+        out Expression? maxValue,
+        out Expression? @sealed) =>
+            TryRewriteDescription(expression, out description) |
+            TryRewrite(expression.Metadata, out metadata) |
+            TryRewrite(expression.Secure, out secure) |
+            TryRewrite(expression.MinLength, out minLength) |
+            TryRewrite(expression.MaxLength, out maxLength) |
+            TryRewrite(expression.MinValue, out minValue) |
+            TryRewrite(expression.MaxValue, out maxValue) |
+            TryRewrite(expression.Sealed, out @sealed);
+
     private bool TryRewriteStrict<TExpression>(TExpression? expression, [NotNullIfNotNull("expression")] out TExpression? newExpression)
         where TExpression : Expression
     {
@@ -590,19 +713,38 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         where TExpression : Expression
     {
         var hasChanges = false;
-        var newExpressionList = new List<TExpression>();
+        var newExpressionList = ImmutableArray.CreateBuilder<TExpression>(expressions.Length);
         foreach (var expression in expressions)
         {
             hasChanges |= TryRewriteStrict(expression, out var newExpression);
             newExpressionList.Add(newExpression);
         }
 
-        newExpressions = hasChanges ? newExpressionList.ToImmutableArray() : expressions;
+        newExpressions = hasChanges ? newExpressionList.ToImmutable() : expressions;
         return hasChanges;
     }
 
     private bool TryRewrite(ImmutableArray<Expression> expressions, out ImmutableArray<Expression> newExpressions)
         => TryRewriteStrict(expressions, out newExpressions);
+
+    private bool TryRewriteCollectionOfNullablesStrict<TExpression>(ImmutableArray<TExpression?> expressions, out ImmutableArray<TExpression?> newExpressions)
+        where TExpression : Expression
+    {
+        var hasChanges = false;
+        var newExpressionList = ImmutableArray.CreateBuilder<TExpression?>(expressions.Length);
+        foreach (var expression in expressions)
+        {
+            var modified = expression;
+            if (expression is not null)
+            {
+                hasChanges |= TryRewriteStrict(expression, out modified);
+            }
+            newExpressionList.Add(modified);
+        }
+
+        newExpressions = hasChanges ? newExpressionList.ToImmutable() : expressions;
+        return hasChanges;
+    }
 
     private void ReplaceCurrent<TExpression>(TExpression expression, Func<TExpression, Expression> replaceFunc)
         where TExpression : Expression

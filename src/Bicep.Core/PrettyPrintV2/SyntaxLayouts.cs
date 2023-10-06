@@ -1,13 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
-using Bicep.Core.Parsing;
-using Bicep.Core.PrettyPrintV2.Documents;
-using Bicep.Core.Syntax;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -18,7 +11,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrintV2.Documents;
+using Bicep.Core.Syntax;
+using Microsoft.Extensions.Primitives;
 using static Bicep.Core.PrettyPrintV2.Documents.DocumentOperators;
 
 namespace Bicep.Core.PrettyPrintV2
@@ -187,7 +186,8 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Newlines,
                 syntax.Value);
 
-        private IEnumerable<Document> LayoutTestDeclarationSyntax(TestDeclarationSyntax syntax){
+        private IEnumerable<Document> LayoutTestDeclarationSyntax(TestDeclarationSyntax syntax)
+        {
             return this.LayoutLeadingNodes(syntax.LeadingNodes)
                 .Concat(this.Spread(
                     syntax.Keyword,

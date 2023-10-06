@@ -1,6 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using Bicep.Core.Json;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
@@ -10,9 +16,6 @@ using FluentAssertions.Primitives;
 using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -64,13 +67,16 @@ namespace Bicep.Core.UnitTests.Assertions
 
                 var config = manifest.Config;
                 config.MediaType.Should().Be("application/vnd.ms.bicep.module.config.v1+json", "config media type should be correct");
-                config.Size.Should().Be(0, "config size should be empty");
 
                 this.Subject.Blobs.Should().ContainKey(config.Digest, "module config digest should exist");
                 if (this.Subject.Blobs.ContainsKey(config.Digest))
                 {
                     var configBytes = this.Subject.Blobs[config.Digest];
-                    configBytes.Bytes.Should().BeEmpty("module config blob should be empty");
+                    config.Size.Should().Be(configBytes.ToArray().Length, "Config size field should match config size");
+                    JsonElement? configJson = null;
+                    var convertToJson = () => configJson = JsonElementFactory.CreateElement(configBytes.Text);
+                    convertToJson.Should().NotThrow("Config should be a valid JSON object");
+                    configJson!.Value.ValueKind.Should().Be(JsonValueKind.Object, "Config should be a JSON object");
                 }
 
                 manifest.Layers.Should().HaveCountLessThanOrEqualTo(2, "modules should have one or two layers");

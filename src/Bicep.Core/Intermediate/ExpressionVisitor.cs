@@ -192,6 +192,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public virtual void VisitDeclaredOutputExpression(DeclaredOutputExpression expression)
     {
+        VisitTypeDeclaringExpression(expression);
         Visit(expression.Type);
         Visit(expression.Value);
     }

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Immutable;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using System;
-using System.Collections.Immutable;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry

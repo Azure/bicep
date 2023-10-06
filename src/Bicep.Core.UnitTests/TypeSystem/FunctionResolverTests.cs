@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
             mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
 
-            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, argumentTypes.ToImmutableArray()).Type.Should().Be(expectedReturnType);
+            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, BicepTestConstants.EmptyEnvironment, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, argumentTypes.ToImmutableArray()).Type.Should().Be(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -55,7 +55,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
             mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
 
-            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
+            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, BicepTestConstants.EmptyEnvironment, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]
@@ -639,6 +639,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             return matches.Single().ResultBuilder(
                 Repository.Create<IBinder>().Object,
+                BicepTestConstants.EmptyEnvironment,
                 Repository.Create<IFileResolver>().Object,
                 Repository.Create<IDiagnosticWriter>().Object,
                 SyntaxFactory.CreateFunctionCall(functionName, arguments),

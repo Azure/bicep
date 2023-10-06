@@ -8,7 +8,7 @@ namespace Bicep.Core.TypeSystem
     public class ArrayType : TypeSymbol
     {
         internal ArrayType(TypeSymbolValidationFlags validationFlags = default, long? minLength = null, long? maxLength = null)
-            : this(LanguageConstants.ArrayType, LanguageConstants.Any, validationFlags, minLength, maxLength) {}
+            : this(LanguageConstants.ArrayType, LanguageConstants.Any, validationFlags, minLength, maxLength) { }
 
         protected ArrayType(string name, ITypeReference item, TypeSymbolValidationFlags validationFlags, long? minLength = null, long? maxLength = null)
             : base(name)

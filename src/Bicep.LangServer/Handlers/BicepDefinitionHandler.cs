@@ -80,7 +80,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 // Used for the declaration ONLY of a wildcard import. Other syntax that resolves to a wildcard import will be handled by HandleDeclaredDefinitionLocation
                 { Origin: WildcardImportSyntax, Symbol: WildcardImportSymbol wildcardImport }
-                    => HandleWildcardImportDeclaration(context, request, result,  wildcardImport),
+                    => HandleWildcardImportDeclaration(context, request, result, wildcardImport),
 
                 { Symbol: ImportedSymbol imported } => HandleImportedSymbolLocation(request, result, context, imported),
 
@@ -198,7 +198,8 @@ namespace Bicep.LanguageServer.Handlers
 
             var sourceFilePath = sourceFile.FileUri.AbsolutePath;
 
-            if (moduleDispatcher.TryGetModuleSources(moduleReference) is SourceArchive sourceArchive) {
+            if (moduleDispatcher.TryGetModuleSources(moduleReference) is SourceArchive sourceArchive)
+            {
                 // We have Bicep source code available.
                 // Replace the local cached JSON name (always main.json) with the actual source entrypoint filename (e.g.
                 //   myentrypoint.bicep) so clients know to request the bicep instead of json, and so they know to use the
@@ -313,7 +314,7 @@ namespace Bicep.LanguageServer.Handlers
                 if (propertyAccesses.Count == 1 && ancestorSymbol is WildcardImportSymbol wildcardImport)
                 {
                     if (wildcardImport.TryGetSemanticModel() is SemanticModel importedTargetBicepModel &&
-                        importedTargetBicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, propertyAccesses.Single().IdentifierName)).FirstOrDefault() is {} originalDeclaration)
+                        importedTargetBicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, propertyAccesses.Single().IdentifierName)).FirstOrDefault() is { } originalDeclaration)
                     {
                         var range = PositionHelper.GetNameRange(importedTargetBicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);
 
@@ -331,7 +332,7 @@ namespace Bicep.LanguageServer.Handlers
 
                     return GetArmSourceTemplateInfo(context, wildcardImport.EnclosingDeclaration) switch
                     {
-                        (Template template, Uri localFileUri) when template.Definitions?.TryGetValue(propertyAccesses.Single().IdentifierName, out var definition) == true && ToRange(definition) is {} range
+                        (Template template, Uri localFileUri) when template.Definitions?.TryGetValue(propertyAccesses.Single().IdentifierName, out var definition) == true && ToRange(definition) is { } range
                             => new(new LocationOrLocationLink(new LocationLink
                             {
                                 OriginSelectionRange = result.Origin.ToRange(context.LineStarts),
@@ -402,7 +403,7 @@ namespace Bicep.LanguageServer.Handlers
             var originSelectionRange = result.Origin.ToRange(context.LineStarts);
 
             if (imported.TryGetSemanticModel() is SemanticModel bicepModel &&
-                bicepModel.Root.Declarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is {} originalDeclaration)
+                bicepModel.Root.Declarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is { } originalDeclaration)
             {
                 // entire span of the declaredSymbol
                 var targetRange = PositionHelper.GetNameRange(bicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);

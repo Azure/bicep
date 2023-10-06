@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -41,10 +42,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
-using CompilationHelper = Bicep.Core.UnitTests.Utils.CompilationHelper;
-using System.Collections.Immutable;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -3927,7 +3927,8 @@ var file = " + functionName + @"(templ|)
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
 
-            var fileName = kind switch {
+            var fileName = kind switch
+            {
                 BicepSourceFileKind.BicepFile => "main.bicep",
                 BicepSourceFileKind.ParamsFile => "main.bicepparam",
                 _ => throw new InvalidOperationException(),
@@ -3972,7 +3973,8 @@ var file = " + functionName + @"(templ|)
             var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursors, '|');
 
-            var fileName = kind switch {
+            var fileName = kind switch
+            {
                 BicepSourceFileKind.BicepFile => "main.bicep",
                 BicepSourceFileKind.ParamsFile => "main.bicepparam",
                 _ => throw new InvalidOperationException(),
@@ -4436,12 +4438,72 @@ var arr6 = [
 
             foreach (var cursor in cursors)
             {
-              var completions = await file.RequestCompletion(cursor);
-              completions.Should().Contain(c => c.Label == "foo");
-              completions.Should().Contain(c => c.Label == "bar");
-              completions.Should().Contain(c => c.Label == "mod2.fizz");
-              completions.Should().Contain(c => c.Label == "mod2.buzz");
+                var completions = await file.RequestCompletion(cursor);
+                completions.Should().Contain(c => c.Label == "foo");
+                completions.Should().Contain(c => c.Label == "bar");
+                completions.Should().Contain(c => c.Label == "mod2.fizz");
+                completions.Should().Contain(c => c.Label == "mod2.buzz");
             }
+        }
+
+        [TestMethod]
+        public async Task Compile_time_imports_offer_imported_symbol_property_completions()
+        {
+            var modContent = """
+              @export()
+              var foo = {
+                bar: 'bar'
+                baz: 'baz'
+              }
+              """;
+
+            var mod2Content = """
+              @export()
+              var fizz = {
+                buzz: 'buzz'
+                pop: 'pop'
+              }
+              """;
+
+            var mainContent = """
+              import {foo} from 'mod.bicep'
+              import {fizz} from 'mod2.bicep'
+
+              output obj object = {
+                bar: foo.|
+                pop: fizz.|
+              }
+              """;
+
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
+            Uri mainUri = new Uri("file:///main.bicep");
+            var files = new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = modContent,
+                [new Uri("file:///mod2.bicep")] = mod2Content,
+                [mainUri] = text
+            };
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
+            using var helper = await LanguageServerHelper.StartServerWithText(
+                this.TestContext,
+                files,
+                bicepFile.FileUri,
+                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+
+            var file = new FileRequestHelper(helper.Client, bicepFile);
+
+            var completions = await file.RequestCompletion(cursors[0]);
+            completions.Should().Contain(c => c.Label == "bar");
+            completions.Should().Contain(c => c.Label == "baz");
+            completions.Should().NotContain(c => c.Label == "buzz");
+            completions.Should().NotContain(c => c.Label == "pop");
+
+            completions = await file.RequestCompletion(cursors[1]);
+            completions.Should().Contain(c => c.Label == "buzz");
+            completions.Should().Contain(c => c.Label == "pop");
+            completions.Should().NotContain(c => c.Label == "bar");
+            completions.Should().NotContain(c => c.Label == "baz");
         }
     }
 }

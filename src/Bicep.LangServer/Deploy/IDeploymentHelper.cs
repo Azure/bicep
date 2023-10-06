@@ -27,17 +27,17 @@ namespace Bicep.LanguageServer.Deploy
         /// <param name="deploymentOperationsCache">deployment operations cache that needs to be updated</param>
         /// <returns><see cref="BicepDeploymentStartResponse"/></returns>
         Task<BicepDeploymentStartResponse> StartDeploymentAsync(
-            IDeploymentCollectionProvider deploymentCollectionProvider, 
-            ArmClient armClient, 
-            string documentPath, 
-            string template, 
-            string id, 
-            string scope, 
-            string location, 
-            string deploymentId, 
-            string portalUrl, 
-            string deploymentName, 
-            JsonElement parametersFileContents, 
+            IDeploymentCollectionProvider deploymentCollectionProvider,
+            ArmClient armClient,
+            string documentPath,
+            string template,
+            string id,
+            string scope,
+            string location,
+            string deploymentId,
+            string portalUrl,
+            string deploymentName,
+            JsonElement parametersFileContents,
             IDeploymentOperationsCache deploymentOperationsCache);
     }
 }

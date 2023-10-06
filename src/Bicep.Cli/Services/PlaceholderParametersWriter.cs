@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.IO;
 using Bicep.Core.Emit;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Semantics;
 using Newtonsoft.Json;
-using System;
-using System.IO;
 
 namespace Bicep.Cli.Services
 {

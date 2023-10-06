@@ -26,21 +26,26 @@ configuration:
             head: chores/format/main
             base: main
             title: "Reformat code"
-            body: "Resolves #${number}"
+            body: "Update code to match the house style 😎"
+        - closeIssue
     - description: Approve PRs submitted by microsoft-github-policy-service with the "code-formatting-automation" label
+      triggerOnOwnActions: True
       if:
       - payloadType: Pull_Request
-      - hasLabel:
-          label: 'code-formatting-automation'
-      - not:
-          hasLabel:
-            label: auto-merge
       - isActivitySender:
           user: microsoft-github-policy-service[bot]
-          issueAuthor: False
+      - isAction: Opened
+      - titleContains:
+          pattern: "Reformat code"
+          isRegex: False
+      - bodyContains:
+          pattern: "Update code to match the house style 😎"
+          isRegex: False
       then:
       - approvePullRequest:
           comment: ':shipit:'
+      - addLabel:
+          label: 'code-formatting-automation'
       - addLabel:
           label: auto-merge
       - enableAutoMerge:

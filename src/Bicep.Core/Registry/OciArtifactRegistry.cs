@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
@@ -293,9 +294,9 @@ namespace Bicep.Core.Registry
 
         public override async Task PublishArtifact(OciModuleReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description)
         {
-            // Write out an empty config for now
-            // NOTE: Bicep v0.20 and earlier will throw if it finds a non-empty config
-            var config = new StreamDescriptor(Stream.Null, BicepModuleMediaTypes.BicepModuleConfigV1);
+            // This needs to be valid JSON, otherwise there may be compatibility issues.
+            // NOTE: Bicep v0.20 and earlier will throw on this, so it's a breaking change.
+            var config = new StreamDescriptor(new MemoryStream(Encoding.UTF8.GetBytes("{}")), BicepModuleMediaTypes.BicepModuleConfigV1);
 
             List<StreamDescriptor> layers = new List<StreamDescriptor>();
             layers.Add(new StreamDescriptor(compiledArmTemplate, BicepModuleMediaTypes.BicepModuleLayerV1Json));

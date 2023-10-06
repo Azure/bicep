@@ -1,15 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Diagnostics;
 using System.IO.Pipes;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime;
 using System.Threading;
 using System.Threading.Tasks;
-using CommandLine;
 using Bicep.Core.Utils;
-using System.Net;
-using System.Diagnostics;
+using CommandLine;
 
 namespace Bicep.LanguageServer
 {
@@ -37,12 +37,13 @@ namespace Bicep.LanguageServer
                 ProfileOptimization.SetProfileRoot(profilePath);
                 ProfileOptimization.StartProfile("bicepserver.profile");
 
-                var parser = new Parser(settings => {
+                var parser = new Parser(settings =>
+                {
                     settings.IgnoreUnknownArguments = true;
                 });
 
                 await parser.ParseArguments<CommandLineOptions>(args)
-                    .WithNotParsed((x) => Environment.Exit(1))
+                    .WithNotParsed((x) => System.Environment.Exit(1))
                     .WithParsedAsync(async options => await RunServer(options, cancellationToken));
             });
 

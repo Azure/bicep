@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6589342864324340997"
+      "templateHash": "17634149553669977724"
     }
   },
   "definitions": {
@@ -20,19 +20,10 @@
       "type": "object",
       "properties": {
         "property": {
-          "$ref": "#/definitions/1.pop",
+          "$ref": "#/definitions/pop",
           "nullable": true
         }
       },
-      "metadata": {
-        "__bicep_imported_from!": {
-          "sourceTemplate": "modules/mod.bicep"
-        }
-      }
-    },
-    "1.pop": {
-      "type": "string",
-      "minLength": 3,
       "metadata": {
         "__bicep_imported_from!": {
           "sourceTemplate": "modules/mod.bicep"
@@ -60,6 +51,20 @@
           "sourceTemplate": "modules/mod.bicep"
         }
       }
+    },
+    "pop": {
+      "type": "string",
+      "minLength": 3,
+      "metadata": {
+        "__bicep_imported_from!": {
+          "sourceTemplate": "modules/mod.bicep"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "fizzParam": {
+      "$ref": "#/definitions/3.fizz"
     }
   },
   "variables": {
@@ -74,6 +79,7 @@
       }
     ],
     "aliasedFoo": "[variables('foo')]",
+    "aliasedBar": "[variables('3.foo')]",
     "1.bar": "[variables('1.baz')]",
     "1.baz": "quux",
     "2.copyVariableCount": 10,
@@ -86,5 +92,11 @@
     "refersToCopyVariable": "[variables('2.copyVariable')]",
     "withInvalidIdentifier": "value"
   },
-  "resources": {}
+  "resources": {},
+  "outputs": {
+    "magicWord": {
+      "$ref": "#/definitions/pop",
+      "value": "[variables('refersToCopyVariable')[3].value]"
+    }
+  }
 }

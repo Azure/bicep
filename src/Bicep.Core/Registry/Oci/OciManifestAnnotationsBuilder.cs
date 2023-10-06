@@ -21,7 +21,8 @@ namespace Bicep.Core.Registry.Oci
             return annotations.ToImmutableDictionary();
         }
 
-        public OciManifestAnnotationsBuilder WithDescription(string? description) {
+        public OciManifestAnnotationsBuilder WithDescription(string? description)
+        {
             if (!string.IsNullOrWhiteSpace(description))
             {
                 annotations[LanguageConstants.OciOpenContainerImageDescriptionAnnotation] = description;

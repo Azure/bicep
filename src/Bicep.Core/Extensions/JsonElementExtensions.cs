@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Json;
-using Json.Patch;
-using Json.Path;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
@@ -13,6 +10,9 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Bicep.Core.Json;
+using Json.Patch;
+using Json.Path;
 
 namespace Bicep.Core.Extensions
 {
@@ -91,7 +91,7 @@ namespace Bicep.Core.Extensions
             return patched;
         }
 
-        public static string ToIndentedString(this JsonElement element) 
+        public static string ToIndentedString(this JsonElement element)
         {
             var bufferWriter = new ArrayBufferWriter<byte>();
             using var writer = new Utf8JsonWriter(bufferWriter, new JsonWriterOptions { Indented = true });

@@ -511,6 +511,7 @@ module moduleB './moduleB.bicep' = {
             var fileResolver = new InMemoryFileResolver(fileDict);
             var compilationProvider = new BicepCompilationProvider(
                 BicepTestConstants.FeatureProviderFactory,
+                BicepTestConstants.EmptyEnvironment,
                 TestTypeHelper.CreateEmptyProvider(),
                 fileResolver,
                 new ModuleDispatcher(

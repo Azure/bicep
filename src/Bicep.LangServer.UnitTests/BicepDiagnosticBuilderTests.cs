@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using Bicep.Core;
 using Bicep.Core.Analyzers;
 using Bicep.Core.Diagnostics;
@@ -8,9 +11,6 @@ using Bicep.Core.Parsing;
 using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace Bicep.LangServer.UnitTests
 {

@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Extensions;
-using Bicep.Core.Resources;
+using System.Linq;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
+using Bicep.Core.Extensions;
+using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -44,7 +44,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         public bool HasType(ResourceTypeReference reference)
             => availableTypes.ContainsKey(reference);
-        
+
         public ResourceTypeComponents LoadType(ResourceTypeReference reference)
         {
             var typeLocation = availableTypes[reference];

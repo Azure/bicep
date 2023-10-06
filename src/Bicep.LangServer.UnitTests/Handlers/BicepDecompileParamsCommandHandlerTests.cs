@@ -68,7 +68,7 @@ param foo = 'bar'";
             var result = await decompileParamsCommandHandler.Handle(
                 requestParams,
                 CancellationToken.None);
-            
+
             result.decompiledBicepparamFile.Should().NotBeNull();
             result.errorMessage.Should().BeNull();
             result.decompiledBicepparamFile?.contents.Should().Be(expectedOutput);
@@ -97,7 +97,7 @@ param foo = 'bar'";
             var result = await decompileParamsCommandHandler.Handle(
                 requestParams,
                 CancellationToken.None);
-            
+
             result.decompiledBicepparamFile.Should().BeNull();
             result.errorMessage.Should().Be(expectedErrorMsg);
         }

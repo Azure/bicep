@@ -9,7 +9,7 @@ namespace Bicep.Core.Registry.Oci
 {
     public interface IOciArtifactReference
     {
-       
+
         /// <summary>
         /// Gets the registry URI.
         /// </summary>

@@ -109,13 +109,14 @@ var adsf = [
     {
         var rewritten = RewriteProgram(
             fileWithCursor,
-            (program, nodes, parsingErrorLookup) => {
+            (program, nodes, parsingErrorLookup) =>
+            {
                 var array = GetLastNode<ArraySyntax>(nodes);
                 var item = GetLastNode<ArrayItemSyntax>(nodes);
 
                 return CallbackRewriter.Rewrite(
                     program,
-                    node => node == array && SyntaxModifier.TryRemoveItem(array, item, parsingErrorLookup) is {} newArray ? newArray : node);
+                    node => node == array && SyntaxModifier.TryRemoveItem(array, item, parsingErrorLookup) is { } newArray ? newArray : node);
             });
 
         rewritten.Should().BeEquivalentToIgnoringNewlines(expected);
@@ -191,13 +192,14 @@ var adsf = {
     {
         var rewritten = RewriteProgram(
             fileWithCursor,
-            (program, nodes, parsingErrorLookup) => {
+            (program, nodes, parsingErrorLookup) =>
+            {
                 var @object = GetLastNode<ObjectSyntax>(nodes);
                 var property = GetLastNode<ObjectPropertySyntax>(nodes);
 
                 return CallbackRewriter.Rewrite(
                     program,
-                    node => node == @object && SyntaxModifier.TryRemoveProperty(@object, property, parsingErrorLookup) is {} newObject ? newObject : node);
+                    node => node == @object && SyntaxModifier.TryRemoveProperty(@object, property, parsingErrorLookup) is { } newObject ? newObject : node);
             });
 
         rewritten.Should().BeEquivalentToIgnoringNewlines(expected);
@@ -261,7 +263,8 @@ var adsf = {
 
         var rewritten = RewriteProgram(
             fileWithCursor,
-            (program, nodes, parsingErrorLookup) => {
+            (program, nodes, parsingErrorLookup) =>
+            {
                 var @object = GetLastNode<ObjectSyntax>(nodes);
                 var prevProperty = GetLastNode<ObjectPropertySyntax>(nodes);
                 var prevIndex = @object.Properties.IndexOf(x => x == prevProperty);
@@ -269,8 +272,8 @@ var adsf = {
                 return CallbackRewriter.Rewrite(
                     program,
                     node => (node == @object &&
-                      SyntaxModifier.TryAddProperty(@object, startProp, parsingErrorLookup, prevIndex) is {} newObject &&
-                      SyntaxModifier.TryAddProperty(newObject, endProp, parsingErrorLookup, prevIndex + 2) is {} newObject2)
+                      SyntaxModifier.TryAddProperty(@object, startProp, parsingErrorLookup, prevIndex) is { } newObject &&
+                      SyntaxModifier.TryAddProperty(newObject, endProp, parsingErrorLookup, prevIndex + 2) is { } newObject2)
                       ? newObject2 : node);
             });
 

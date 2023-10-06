@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using FluentAssertions;
-using Moq;
 using System.CommandLine;
 using System.CommandLine.IO;
+using FluentAssertions;
+using Moq;
 
 namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
 {

@@ -40,8 +40,8 @@ namespace Bicep.Core.Visitors
 
         private void GenerateVariableFromFunctionCall(FunctionCallSyntaxBase syntax)
         {
-            if (semanticModel.TypeManager.GetMatchedFunctionOverload(syntax) is not {} functionOverload ||
-                semanticModel.TypeManager.GetMatchedFunctionResultValue(syntax) is not {} functionResult)
+            if (semanticModel.TypeManager.GetMatchedFunctionOverload(syntax) is not { } functionOverload ||
+                semanticModel.TypeManager.GetMatchedFunctionResultValue(syntax) is not { } functionResult)
             {
                 return;
             }

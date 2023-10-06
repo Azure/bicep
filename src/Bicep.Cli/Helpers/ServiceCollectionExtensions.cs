@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
 using Bicep.Cli.Commands;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
@@ -12,9 +13,9 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
-using System.IO.Abstractions;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Cli.Helpers;
@@ -61,6 +62,7 @@ public static class ServiceCollectionExtensions
         .AddSingleton<IArtifactRegistryProvider, DefaultArtifactRegistryProvider>()
         .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
         .AddSingleton<IFileResolver, FileResolver>()
+        .AddSingleton<IEnvironment, Environment>()
         .AddSingleton<IFileSystem, IOFileSystem>()
         .AddSingleton<IConfigurationManager, ConfigurationManager>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()

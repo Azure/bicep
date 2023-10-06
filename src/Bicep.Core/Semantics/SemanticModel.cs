@@ -21,6 +21,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -44,7 +45,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(Compilation compilation, BicepSourceFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer, RootConfiguration configuration, IFeatureProvider features)
+        public SemanticModel(Compilation compilation, BicepSourceFile sourceFile, IEnvironment environment, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer, RootConfiguration configuration, IFeatureProvider features)
         {
             TraceBuildOperation(sourceFile, configuration);
 
@@ -52,6 +53,7 @@ namespace Bicep.Core.Semantics
             this.SourceFile = sourceFile;
             this.Configuration = configuration;
             this.Features = features;
+            this.Environment = environment;
             this.FileResolver = fileResolver;
 
             // create this in locked mode by default
@@ -61,7 +63,7 @@ namespace Bicep.Core.Semantics
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, this.SymbolContext);
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
-            this.TypeManager = new TypeManager(features, Binder, fileResolver, this.ParsingErrorLookup, Compilation.SourceFileGrouping, Compilation, this.SourceFile.FileKind);
+            this.TypeManager = new TypeManager(features, Binder, environment, fileResolver, this.ParsingErrorLookup, Compilation.SourceFileGrouping, Compilation, this.SourceFile.FileKind);
 
             // name binding is done
             // allow type queries now
@@ -198,7 +200,7 @@ namespace Bicep.Core.Semantics
                 sb.Append($"Experimental features enabled: {string.Join(',', experimentalFeatures)}. ");
             }
 
-            if (configuration.ConfigurationPath is {} configPath)
+            if (configuration.ConfigurationPath is { } configPath)
             {
                 sb.Append($"Using bicepConfig from path {configPath}.");
             }
@@ -211,6 +213,7 @@ namespace Bicep.Core.Semantics
         }
 
         public BicepSourceFile SourceFile { get; }
+        public IEnvironment Environment { get; }
 
         public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
 
@@ -528,7 +531,7 @@ namespace Bicep.Core.Semantics
                     }
 
                     // consider a parameter to be absent if there was no assignment statement OR if the value `null` was assigned
-                    return TryGetParameterAssignment(parameterMetadata) is not {} assignment || assignment.Type is NullType;
+                    return TryGetParameterAssignment(parameterMetadata) is not { } assignment || assignment.Type is NullType;
                 })
                 .Select(kvp => kvp.Key)
                 .ToImmutableArray();

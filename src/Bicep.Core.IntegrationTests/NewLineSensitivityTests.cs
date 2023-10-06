@@ -148,7 +148,8 @@ var foo = {foo: 'bar'}
 ");
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.variables['foo']", new JObject {
+            result.Template.Should().HaveValueAtPath("$.variables['foo']", new JObject
+            {
                 ["foo"] = "bar"
             });
 
@@ -159,7 +160,8 @@ var foo = {foo: 'bar'
 ");
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.variables['foo']", new JObject {
+            result.Template.Should().HaveValueAtPath("$.variables['foo']", new JObject
+            {
                 ["foo"] = "bar"
             });
 
@@ -170,7 +172,8 @@ var foo = {
 ");
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.variables['foo']", new JObject {
+            result.Template.Should().HaveValueAtPath("$.variables['foo']", new JObject
+            {
                 ["foo"] = "bar"
             });
         }
@@ -285,7 +288,8 @@ output test1 object = {
 ");
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.outputs['test1'].value", new JObject {
+            result.Template.Should().HaveValueAtPath("$.outputs['test1'].value", new JObject
+            {
                 ["abc"] = "foo",
                 ["def"] = "bar"
             });
@@ -306,7 +310,8 @@ output test1 object = {
 ");
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.outputs['test1'].value", new JObject {
+            result.Template.Should().HaveValueAtPath("$.outputs['test1'].value", new JObject
+            {
                 ["abc"] = "foo",
                 ["def"] = "bar"
             });
@@ -321,7 +326,8 @@ output test1 object = { abc: 'foo'
 ");
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.outputs['test1'].value", new JObject {
+            result.Template.Should().HaveValueAtPath("$.outputs['test1'].value", new JObject
+            {
                 ["abc"] = "foo",
                 ["def"] = "bar"
             });

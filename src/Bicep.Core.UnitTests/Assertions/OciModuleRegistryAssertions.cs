@@ -1,6 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
@@ -8,11 +13,6 @@ using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -42,7 +42,8 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public static void ShouldOnlyHaveValidModules(string cacheRootDirectory)
         {
-            foreach (var module in CachedModules.GetCachedRegistryModules(cacheRootDirectory)) {
+            foreach (var module in CachedModules.GetCachedRegistryModules(cacheRootDirectory))
+            {
                 module.Should().BeValid();
             }
         }
@@ -51,7 +52,8 @@ namespace Bicep.Core.UnitTests.Assertions
         {
             var modules = CachedModules.GetCachedRegistryModules(cacheRootDirectory);
             modules.Should().HaveCountGreaterThan(0);
-            if (withSources .HasValue) {
+            if (withSources.HasValue)
+            {
                 modules.Should().AllSatisfy(m => m.HasSourceLayer.Should().Be(withSources.Value));
             }
         }

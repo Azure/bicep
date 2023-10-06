@@ -13,4 +13,5 @@ type buzz = {
 }
 
 @minLength(3)
+@export()
 type pop = string

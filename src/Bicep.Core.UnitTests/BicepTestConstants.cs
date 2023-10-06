@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using Azure.Core.Pipeline;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
@@ -15,6 +17,8 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
 using Moq;
@@ -69,6 +73,8 @@ namespace Bicep.Core.UnitTests
 
         // By default turns off only problematic analyzers
         public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer();
+
+        public static IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
 

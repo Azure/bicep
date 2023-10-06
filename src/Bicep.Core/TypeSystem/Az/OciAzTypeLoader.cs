@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.IO;
-using Azure.Bicep.Types;
-using System.Formats.Tar;
-using System.IO.Compression;
 using System;
 using System.Collections.Immutable;
+using System.Formats.Tar;
+using System.IO;
+using System.IO.Compression;
+using Azure.Bicep.Types;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -53,7 +53,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         protected override Stream GetContentStreamAtPath(string path)
         {
-            if (this.typesCache.TryGetValue($"./{path}", out var bytes))
+            if (this.typesCache.TryGetValue($"{path}", out var bytes))
             {
                 return new MemoryStream(bytes);
             }

@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.CommandLine;
+using System.IO.Abstractions;
+using System.Threading.Tasks;
 using Bicep.RegistryModuleTool.Commands;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.TestFixtures.Extensions;
@@ -9,9 +12,6 @@ using Bicep.RegistryModuleTool.TestFixtures.Mocks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.CommandLine;
-using System.IO.Abstractions;
-using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
 {

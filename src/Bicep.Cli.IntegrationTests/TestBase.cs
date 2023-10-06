@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Features;
@@ -11,13 +14,11 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -32,7 +33,11 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static readonly MockRepository Repository = new(MockBehavior.Strict);
 
-        protected record InvocationSettings(FeatureProviderOverrides FeatureOverrides, IContainerRegistryClientFactory ClientFactory, ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory);
+        protected record InvocationSettings(
+            FeatureProviderOverrides FeatureOverrides,
+            IContainerRegistryClientFactory ClientFactory,
+            ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory,
+            IEnvironment? Environment = null);
 
         protected static Task<CliResult> Bicep(params string[] args) => Bicep(CreateDefaultSettings(), args);
 
@@ -47,6 +52,7 @@ namespace Bicep.Cli.IntegrationTests
                     => services
                         .WithEmptyAzResources()
                         .WithFeatureOverrides(settings.FeatureOverrides)
+                        .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
                         .AddSingleton(settings.ClientFactory)
                         .AddSingleton(settings.TemplateSpecRepositoryFactory))
                     .RunAsync(args));
@@ -86,7 +92,7 @@ namespace Bicep.Cli.IntegrationTests
             var semanticModel = compilation.GetEntrypointSemanticModel();
 
             var output = new List<string>();
-            foreach(var diagnostic in semanticModel.GetAllDiagnostics())
+            foreach (var diagnostic in semanticModel.GetAllDiagnostics())
             {
                 var (line, character) = TextCoordinateConverter.GetPosition(semanticModel.SourceFile.LineStarts, diagnostic.Span.Position);
                 var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";

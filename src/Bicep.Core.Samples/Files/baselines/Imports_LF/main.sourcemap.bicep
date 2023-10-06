@@ -1,20 +1,12 @@
-import {foo, fizz} from 'modules/mod.bicep'
+import {foo, fizz, pop} from 'modules/mod.bicep'
 //@    "1.buzz": {
 //@      "type": "object",
 //@      "properties": {
 //@        "property": {
-//@          "$ref": "#/definitions/1.pop",
+//@          "$ref": "#/definitions/pop",
 //@          "nullable": true
 //@        }
 //@      },
-//@      "metadata": {
-//@        "__bicep_imported_from!": {
-//@          "sourceTemplate": "modules/mod.bicep"
-//@        }
-//@      }
-//@    },
-//@    "1.pop": {
-//@      "type": "string",
 //@      "metadata": {
 //@        "__bicep_imported_from!": {
 //@          "sourceTemplate": "modules/mod.bicep"
@@ -26,6 +18,14 @@ import {foo, fizz} from 'modules/mod.bicep'
 //@      "items": {
 //@        "$ref": "#/definitions/1.buzz"
 //@      },
+//@      "metadata": {
+//@        "__bicep_imported_from!": {
+//@          "sourceTemplate": "modules/mod.bicep"
+//@        }
+//@      }
+//@    },
+//@    "pop": {
+//@      "type": "string",
 //@      "metadata": {
 //@        "__bicep_imported_from!": {
 //@          "sourceTemplate": "modules/mod.bicep"
@@ -71,6 +71,8 @@ import {
 
 var aliasedFoo = foo
 //@    "aliasedFoo": "[variables('foo')]",
+var aliasedBar = mod2.foo
+//@    "aliasedBar": "[variables('3.foo')]",
 
 type fizzes = fizz[]
 //@    "fizzes": {
@@ -79,4 +81,14 @@ type fizzes = fizz[]
 //@        "$ref": "#/definitions/fizz"
 //@      }
 //@    },
+
+param fizzParam mod2.fizz
+//@    "fizzParam": {
+//@      "$ref": "#/definitions/3.fizz"
+//@    }
+output magicWord pop = refersToCopyVariable[3].value
+//@    "magicWord": {
+//@      "$ref": "#/definitions/pop",
+//@      "value": "[variables('refersToCopyVariable')[3].value]"
+//@    }
 

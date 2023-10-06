@@ -15,6 +15,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -22,7 +23,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Bicep.Core.UnitTests.Baselines;
 
 
 namespace Bicep.Core.IntegrationTests.Emit
@@ -30,7 +30,13 @@ namespace Bicep.Core.IntegrationTests.Emit
     [TestClass]
     public class TemplateEmitterTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+        private static ServiceBuilder Services => new ServiceBuilder()
+            .WithEmptyAzResources()
+            .WithEnvironmentVariables(
+                ("stringEnvVariableName", "test"),
+                ("intEnvVariableName", "100"),
+                ("boolEnvironmentVariable", "true")
+            );
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -287,14 +293,6 @@ this
 
             // second write should succeed if stringWriter wasn't closed
             emitter.Emit(stringWriter);
-        }
-
-        [TestInitialize]
-        public void testInit()
-        {
-            System.Environment.SetEnvironmentVariable("stringEnvVariableName", "test");
-            System.Environment.SetEnvironmentVariable("intEnvVariableName", "100");
-            System.Environment.SetEnvironmentVariable("boolEnvironmentVariable", "true");
         }
 
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, FeatureProviderOverrides features, string filePath)
