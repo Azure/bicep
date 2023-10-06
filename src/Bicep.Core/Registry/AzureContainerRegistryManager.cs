@@ -162,7 +162,7 @@ namespace Bicep.Core.Registry
             {
                 // manifest does not exist
                 Trace.WriteLine($"Manifest for module {artifactReference.FullyQualifiedReference} could not be found in the registry.");
-                throw new OciArtifactRegistryException("The artifact does not exist in the registry.", exception);
+                throw new OciModuleRegistryException("The artifact does not exist in the registry.", exception);
             }
             Debug.Assert(manifestResponse.Value.Manifest.ToArray().Length > 0);
 
@@ -180,8 +180,9 @@ namespace Bicep.Core.Registry
 
             return deserializedManifest.ArtifactType switch
             {
-                BicepModuleMediaTypes.BicepModuleArtifactType => new OciModuleArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
-                _ => throw new InvalidOperationException($"The artifact type \"{deserializedManifest.ArtifactType}\" is not supported.")
+                BicepModuleMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
+                BicepMediaTypes.BicepProviderArtifactType => new OciProviderArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
+                _ => throw new InvalidArtifactException($"artifacts of type: \'{deserializedManifest.ArtifactType}\' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}")
             };
         }
 
@@ -194,7 +195,7 @@ namespace Bicep.Core.Registry
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
-                throw new InvalidModuleException($"Module manifest refers to a non-existent blob with digest \"{layer.Digest}\".", exception);
+                throw new InvalidArtifactException($"Module manifest refers to a non-existent blob with digest \"{layer.Digest}\".", exception);
             }
 
             ValidateBlobResponse(blobResult, layer);
@@ -208,7 +209,7 @@ namespace Bicep.Core.Registry
 
             if (descriptor.Size != stream.Length)
             {
-                throw new InvalidModuleException($"Expected blob size of {descriptor.Size} bytes but received {stream.Length} bytes from the registry.");
+                throw new InvalidArtifactException($"Expected blob size of {descriptor.Size} bytes but received {stream.Length} bytes from the registry.");
             }
 
             stream.Position = 0;
@@ -217,7 +218,7 @@ namespace Bicep.Core.Registry
 
             if (!string.Equals(descriptor.Digest, digestFromContents, StringComparison.Ordinal))
             {
-                throw new InvalidModuleException($"There is a mismatch in the layer digests. Received content digest = {digestFromContents}, Requested digest = {descriptor.Digest}");
+                throw new InvalidArtifactException($"There is a mismatch in the layer digests. Received content digest = {digestFromContents}, Requested digest = {descriptor.Digest}");
             }
         }
 
@@ -230,7 +231,7 @@ namespace Bicep.Core.Registry
 
             if (!string.Equals(digestFromRegistry, digestFromContent, DigestComparison))
             {
-                throw new OciArtifactRegistryException($"There is a mismatch in the manifest digests. Received content digest = {digestFromContent}, Digest in registry response = {digestFromRegistry}");
+                throw new OciModuleRegistryException($"There is a mismatch in the manifest digests. Received content digest = {digestFromContent}, Digest in registry response = {digestFromRegistry}");
             }
         }
     }

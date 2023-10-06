@@ -178,7 +178,7 @@ namespace Bicep.Cli.IntegrationTests
         // Expecting errors
         [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.unexpected", null,
             // expected error:
-            "Error BCP192: Unable to restore.*Unknown ArtifactType: 'application/vnd.ms.bicep.module.unexpected'.*newer version of Bicep might be required")]
+            "Error BCP192: Unable to restore.* artifacts of type: 'application/vnd.ms.bicep.module.unexpected'.*newer version of Bicep might be required to reference this artifact.")]
         public async Task Restore_Artifacts_BackwardsAndForwardsCompatibility(string? mediaType, string? artifactType, string? configContents, string? expectedErrorRegex = null)
         {
             var registry = "example.com";
@@ -246,10 +246,10 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         // [DataRow(new string[] { "unknown", BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip }, null)]
         //
         // Invalid
-        [DataRow(new string[] { }, "Expected at least one layer")]
+        [DataRow(new string[] { }, ".*Expected to find a layer with media type application/vnd.ms.bicep.module.layer.v1\\+json.*")]
         [DataRow(
-            new string[] { "unknown1", "unknown2" },
-            "Expected to find a layer with media type application/vnd.ms.bicep.module.layer.v1+json, but found only layers of types unknown2, unknown1"
+            new string[] { "unknown2", "unknown1" },
+            ".*Expected to find a layer with media type application/vnd.ms.bicep.module.layer.v1\\+json, but found only layers of types unknown2, unknown1"
         )]
         [DataRow(new string[] { BicepModuleMediaTypes.BicepModuleLayerV1Json, BicepModuleMediaTypes.BicepModuleLayerV1Json },
             $"Did not expect to find multiple layer media types of application/vnd.ms.bicep.module.layer.v1\\+json, application/vnd.ms.bicep.module.layer.v1\\+json")]

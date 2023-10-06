@@ -94,10 +94,10 @@ namespace Bicep.Core.Registry
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Metadata));
         }
 
-        private InvalidModuleException GetUnknownArtifactException(string gotArtifactMediaType)
+        private InvalidArtifactException GetUnknownArtifactException(string gotArtifactMediaType)
                 => new(
                     $"Unknown ArtifactType: '{gotArtifactMediaType}'. Supported OCI artifactType fields are: (1) '{BicepModuleMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType}' for resource type providers. {NewerVersionMightBeRequired}",
-                    InvalidModuleExceptionKind.WrongArtifactType);
+                    InvalidArtifactExceptionKind.WrongArtifactType);
 
         public override async Task<bool> CheckArtifactExists(OciModuleReference reference)
         {
@@ -118,9 +118,9 @@ namespace Bicep.Core.Registry
                 // Found no module at all
                 return false;
             }
-            catch (InvalidModuleException exception) when (
-                exception.Kind == InvalidModuleExceptionKind.WrongArtifactType ||
-                exception.Kind == InvalidModuleExceptionKind.WrongModuleLayerMediaType)
+            catch (InvalidArtifactException exception) when (
+                exception.Kind == InvalidArtifactExceptionKind.WrongArtifactType ||
+                exception.Kind == InvalidArtifactExceptionKind.WrongModuleLayerMediaType)
             {
                 throw new ExternalArtifactException("An artifact with the tag already exists in the registry, but the artifact is not a Bicep file or module!", exception);
             }
@@ -138,10 +138,6 @@ namespace Bicep.Core.Registry
 
         private OciArtifactLayer GetMainLayer(OciArtifactResult result)
         {
-            if (result.Layers.Count() == 0)
-            {
-                throw new InvalidModuleException("Expected at least one layer in the OCI artifact.");
-            }
 
             var expectedMediaType = result.Manifest.ArtifactType switch
             {
@@ -155,11 +151,11 @@ namespace Bicep.Core.Registry
             var mainLayers = result.Layers.Where(l => l.MediaType.Equals(expectedMediaType, MediaTypeComparison)).ToArray();
             if (mainLayers.Count() == 0)
             {
-                throw new InvalidModuleException($"Expected to find a layer with media type {expectedMediaType}, but found only layers of types {string.Join(", ", result.Layers.Select(l => l.MediaType).ToArray())}", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+                throw new InvalidArtifactException($"Expected to find a layer with media type {expectedMediaType}, but found only layers of types {string.Join(", ", result.Layers.Select(l => l.MediaType).ToArray())}", InvalidArtifactExceptionKind.WrongModuleLayerMediaType);
             }
             else if (mainLayers.Count() > 1)
             {
-                throw new InvalidModuleException($"Did not expect to find multiple layer media types of {string.Join(", ", mainLayers.Select(l => l.MediaType).ToArray())}", InvalidModuleExceptionKind.WrongModuleLayerMediaType);
+                throw new InvalidArtifactException($"Did not expect to find multiple layer media types of {string.Join(", ", mainLayers.Select(l => l.MediaType).ToArray())}", InvalidArtifactExceptionKind.WrongModuleLayerMediaType);
             }
 
             return mainLayers.Single();
@@ -182,7 +178,7 @@ namespace Bicep.Core.Registry
 
             if (configMediaType is not null && !configMediaType.Equals(expectedMediaType, MediaTypeComparison))
             {
-                throw new InvalidModuleException($"Did not expect config media type \"{configMediaType}\". {NewerVersionMightBeRequired}");
+                throw new InvalidArtifactException($"Did not expect config media type \"{configMediaType}\". {NewerVersionMightBeRequired}");
             }
             // Verify nothing wrong with the layers we've been given
             _ = GetMainLayer(artifactResult);
@@ -342,11 +338,10 @@ namespace Bicep.Core.Registry
         protected override void WriteArtifactContentToCache(OciModuleReference reference, OciArtifactResult result)
         {
             /*
-             * this should be kept in sync with the IsModuleRestoreRequired() implementation
-             * but beware that it's currently possible older versions of Bicep and newer versions of Bicep
-             * may be sharing this cache on the same machine.
-             */
-
+                * this should be kept in sync with the IsModuleRestoreRequired() implementation
+                * but beware that it's currently possible older versions of Bicep and newer versions of Bicep
+                * may be sharing this cache on the same machine.
+                */
 
             // write manifest
             // it's important to write the original stream here rather than serialize the manifest object
@@ -356,21 +351,39 @@ namespace Bicep.Core.Registry
             this.FileResolver.Write(manifestFileUri, manifestStream);
 
             // write data file
-            var mainLayer = GetMainLayer(result);
+            var mainLayer = result.GetMainLayer();
 
             // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
             // but this may change in the future if we chose to publish providers in multiple layers.
             // TODO: IsArtifactRestoreRequired assumes there must be a ModuleMain file, which isn't true for provider artifacts
-            //   That can be solved by only writing layer data files only (see code under features.PublishSourceEnabled)
+            // NOTE(stephenWeatherford): That can be solved by only writing layer data files only (see code under features.PublishSourceEnabled)
             //   and not main.json directly (https://github.com/Azure/bicep/issues/11900)
-            var moduleFileType = mainLayer.MediaType switch
+            var moduleFileType = result switch
             {
-                BicepModuleMediaTypes.BicepModuleLayerV1Json => ModuleFileType.ModuleMain,
-                BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip => ModuleFileType.Provider,
-                _ => throw new ArgumentException($"Unexpected layer mediaType \"{mainLayer.MediaType}\". This should have been caught in the {nameof(ValidateArtifact)} method.")
+                OciModuleArtifactResult => ModuleFileType.ModuleMain,
+                OciProviderArtifactResult => ModuleFileType.Provider,
+                _ => throw new ArgumentException($"Unexpected artifact type \"{result.GetType().Name}\". This should have been caught in the {nameof(ValidateArtifact)} method.")
             };
             using var dataStream = mainLayer.Data.ToStream();
             this.FileResolver.Write(this.GetModuleFileUri(reference, moduleFileType), dataStream);
+
+            if (result is OciModuleArtifactResult moduleArtifact)
+            {
+                // write source archive file
+                // TODO: do we need to delete this file if there is no source layer?
+                if (this.features.PublishSourceEnabled && result.TryGetSingleLayerByMediaType(BicepModuleMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
+                {
+                    // TODO: Write all layers as separate binary files instead of separate files for source.tar.gz and provider files.
+                    // We should do this rather than writing individual files we know about,
+                    //   (e.g. "source.tar.gz") because this way we can restore all layers even if we don't know what they're for.
+                    //   If an optional layer is added, we don't need to version the cache because all versions have the same complete
+                    //   info on disk and can handle the layer data as they want to.
+                    // The manifest can be used to determine what's in each layer file.
+                    //  (https://github.com/Azure/bicep/issues/11900)
+                    this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Source), sourceData.ToStream());
+                }
+
+            }
 
             // write metadata
             var metadata = new ModuleMetadata(result.ManifestDigest);
@@ -378,20 +391,6 @@ namespace Bicep.Core.Registry
             OciSerialization.Serialize(metadataStream, metadata);
             metadataStream.Position = 0;
             this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Metadata), metadataStream);
-
-            // write source archive file
-            // TODO: do we need to delete this file if there is no source layer?
-            if (this.features.PublishSourceEnabled && result.TryGetSingleLayerByMediaType(BicepModuleMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
-            {
-                // TODO: Write all layers as separate binary files instead of separate files for source.tar.gz and provider files.
-                // We should do this rather than writing individual files we know about,
-                //   (e.g. "source.tar.gz") because this way we can restore all layers even if we don't know what they're for.
-                //   If an optional layer is added, we don't need to version the cache because all versions have the same complete
-                //   info on disk and can handle the layer data as they want to.
-                // The manifest can be used to determine what's in each layer file.
-                //  (https://github.com/Azure/bicep/issues/11900)
-                this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Source), sourceData.ToStream());
-            }
         }
 
         protected override string GetArtifactDirectoryPath(OciModuleReference reference)

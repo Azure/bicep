@@ -15,17 +15,38 @@ namespace Bicep.Core.Modules
 {
     public class OciModuleArtifactResult : OciArtifactResult
     {
-
-        public OciModuleArtifactResult(BinaryData manifestBits, string manifestDigest, IEnumerable<OciArtifactLayer> layers) : base(manifestBits, manifestDigest, layers)
+        private readonly OciArtifactLayer mainLayer;
+        public const string NewerVersionMightBeRequired = "A newer version of Bicep might be required to reference this artifact.";
+        public OciModuleArtifactResult(BinaryData manifestBits, string manifestDigest, IEnumerable<OciArtifactLayer> layers) :
+            base(manifestBits, manifestDigest, layers)
         {
-            // Must have a single layer with mediaType "application/vnd.ms.bicep.module.layer.v1+json"
-            var expectedMediaType = BicepModuleMediaTypes.BicepModuleLayerV1Json;
-            // Ignore layers we don't recognize for now.
-            var mediaTypeCount = layers.Count(l => BicepMediaTypes.MediaTypeComparer.Equals(l.MediaType, expectedMediaType));
-            if (mediaTypeCount != 1)
+            var manifest = this.Manifest;
+            if (manifest.ArtifactType is not null && !manifest.ArtifactType.Equals(BicepModuleMediaTypes.BicepModuleArtifactType, MediaTypeComparison))
             {
-                throw new InvalidModuleException($"Expected a single layer with mediaType \"{expectedMediaType}\", but found {mediaTypeCount}");
+                throw new InvalidArtifactException(
+                   $"Expected OCI manifest artifactType value of '{BicepModuleMediaTypes.BicepModuleArtifactType}' but found '{manifest.ArtifactType}'. {NewerVersionMightBeRequired}",
+                   InvalidArtifactExceptionKind.WrongArtifactType);
             }
+            if (manifest.Config.MediaType is not null && !manifest.Config.MediaType.Equals(BicepModuleMediaTypes.BicepModuleConfigV1, MediaTypeComparison))
+            {
+                throw new InvalidArtifactException($"Did not expect config media type \"{manifest.Config.MediaType}\". {NewerVersionMightBeRequired}");
+            }
+
+            // Ignore layers we don't recognize for now.
+            var expectedLayerMediaType = BicepModuleMediaTypes.BicepModuleLayerV1Json;
+            var mainLayers = this.Layers.Where(l => l.MediaType.Equals(expectedLayerMediaType, MediaTypeComparison)).ToArray();
+            if (mainLayers.Length == 0)
+            {
+                var gotMediaTypes = string.Join(", ", manifest.Layers.Select(l => l.MediaType).Order().ToArray());
+                throw new InvalidArtifactException($"Expected to find a layer with media type {expectedLayerMediaType}, but found only layers of types {string.Join(", ", manifest.Layers.Select(l => l.MediaType).ToArray())}", InvalidArtifactExceptionKind.WrongModuleLayerMediaType);
+            }
+            else if (mainLayers.Length > 1)
+            {
+                throw new InvalidArtifactException($"Did not expect to find multiple layer media types of {string.Join(", ", mainLayers.Select(l => l.MediaType).ToArray())}", InvalidArtifactExceptionKind.WrongModuleLayerMediaType);
+            }
+            this.mainLayer = mainLayers.Single();
         }
+
+        public override OciArtifactLayer GetMainLayer() => this.mainLayer;
     }
 }
