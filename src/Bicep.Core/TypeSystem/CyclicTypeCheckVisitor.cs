@@ -76,6 +76,10 @@ public sealed class CyclicTypeCheckVisitor : AstVisitor
     public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
         => VisitContainedTypeSyntax(syntax, base.VisitObjectTypePropertySyntax);
 
+    // An additional properties type notation always permits zero or more additional properties of the specified type, so
+    // recursion is permitted here even if the specified type is non-nullable.
+    public override void VisitObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax) {}
+
     public override void VisitTupleTypeSyntax(TupleTypeSyntax syntax)
         => WithEnteredTypeContainerState(() => base.VisitTupleTypeSyntax(syntax), enteredTypeContainer: true);
 

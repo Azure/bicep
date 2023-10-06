@@ -158,6 +158,9 @@ namespace Bicep.Core.TypeSystem
         public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
             => WithSelfReferencePermitted(() => base.VisitObjectTypePropertySyntax(syntax), selfReferencePermitted: true);
 
+        public override void VisitObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax)
+            => WithSelfReferencePermitted(() => base.VisitObjectTypeAdditionalPropertiesSyntax(syntax), selfReferencePermitted: true);
+
         public override void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax)
             => WithSelfReferencePermitted(() => base.VisitTupleTypeItemSyntax(syntax), selfReferencePermitted: true);
 

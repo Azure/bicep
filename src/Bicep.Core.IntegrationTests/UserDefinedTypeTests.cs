@@ -801,6 +801,21 @@ param myParam string
         result.Should().NotHaveAnyDiagnostics();
     }
 
+    [TestMethod]
+    public void Self_reference_permitted_in_object_type_additional_properties()
+    {
+        var result = CompilationHelper.Compile("""
+            type anObject = {
+                id: int
+                flag: bool
+                someData: string
+                *: anObject
+            }
+            """);
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
+
     // https://github.com/azure/bicep/issues/12070
     [TestMethod]
     public void Self_property_deref_does_not_blow_the_stack()
