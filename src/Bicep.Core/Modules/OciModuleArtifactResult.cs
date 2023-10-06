@@ -34,17 +34,14 @@ namespace Bicep.Core.Modules
 
             // Ignore layers we don't recognize for now.
             var expectedLayerMediaType = BicepModuleMediaTypes.BicepModuleLayerV1Json;
-            var mainLayers = this.Layers.Where(l => l.MediaType.Equals(expectedLayerMediaType, MediaTypeComparison)).ToArray();
-            if (mainLayers.Length == 0)
+            var mainLayers = this.Layers.Where(l => l.MediaType.Equals(expectedLayerMediaType, MediaTypeComparison));
+
+            this.mainLayer = mainLayers.Count() switch
             {
-                var gotMediaTypes = string.Join(", ", manifest.Layers.Select(l => l.MediaType).Order().ToArray());
-                throw new InvalidArtifactException($"Expected to find a layer with media type {expectedLayerMediaType}, but found only layers of types {string.Join(", ", manifest.Layers.Select(l => l.MediaType).ToArray())}", InvalidArtifactExceptionKind.WrongModuleLayerMediaType);
-            }
-            else if (mainLayers.Length > 1)
-            {
-                throw new InvalidArtifactException($"Did not expect to find multiple layer media types of {string.Join(", ", mainLayers.Select(l => l.MediaType).ToArray())}", InvalidArtifactExceptionKind.WrongModuleLayerMediaType);
-            }
-            this.mainLayer = mainLayers.Single();
+                0 => throw new InvalidArtifactException($"Expected to find a layer with media type {expectedLayerMediaType}, but found none.", InvalidArtifactExceptionKind.WrongModuleLayerMediaType),
+                1 => mainLayers.Single(),
+                _ => throw new InvalidArtifactException($"Did not expect to find multiple layer media types of {string.Join(", ", mainLayers.Select(l => l.MediaType).Order().Distinct().ToArray())}", InvalidArtifactExceptionKind.WrongModuleLayerMediaType)
+            };
         }
 
         public override OciArtifactLayer GetMainLayer() => this.mainLayer;
