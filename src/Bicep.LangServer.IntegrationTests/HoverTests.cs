@@ -1160,6 +1160,10 @@ param foo|bar = true
                         tooltip.Should().Contain($"{@namespace.Name} namespace");
                         break;
 
+                    case WildcardImportSymbol wildcardImport:
+                        tooltip.Should().Contain($"{wildcardImport.Name} namespace");
+                        break;
+
                     default:
                         throw new AssertFailedException($"Unexpected symbol type '{symbol.GetType().Name}'");
                 }

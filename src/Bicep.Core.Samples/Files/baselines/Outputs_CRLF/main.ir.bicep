@@ -2,12 +2,14 @@
 //@[00:1589) ProgramExpression
 @sys.description('string output description')
 //@[00:0076) ├─DeclaredOutputExpression { Name = myStr }
+//@[17:0044) | ├─StringLiteralExpression { Value = string output description }
 output myStr string = 'hello'
 //@[13:0019) | ├─AmbientTypeReferenceExpression { Name = string }
 //@[22:0029) | └─StringLiteralExpression { Value = hello }
 
 @sys.description('int output description')
 //@[00:0064) ├─DeclaredOutputExpression { Name = myInt }
+//@[17:0041) | ├─StringLiteralExpression { Value = int output description }
 output myInt int = 7
 //@[13:0016) | ├─AmbientTypeReferenceExpression { Name = int }
 //@[19:0020) | └─IntegerLiteralExpression { Value = 7 }
@@ -24,6 +26,7 @@ output myOtherInt int = 20 / 13 + 80 % -4
 
 @sys.description('bool output description')
 //@[00:0072) ├─DeclaredOutputExpression { Name = myBool }
+//@[17:0042) | ├─StringLiteralExpression { Value = bool output description }
 output myBool bool = !false
 //@[14:0018) | ├─AmbientTypeReferenceExpression { Name = bool }
 //@[21:0027) | └─UnaryExpression { Operator = Not }
@@ -35,6 +38,7 @@ output myOtherBool bool = true
 
 @sys.description('object array description')
 //@[00:0075) ├─DeclaredOutputExpression { Name = suchEmpty }
+//@[17:0043) | ├─StringLiteralExpression { Value = object array description }
 output suchEmpty array = [
 //@[17:0022) | ├─AmbientTypeReferenceExpression { Name = array }
 //@[25:0029) | └─ArrayExpression
@@ -48,6 +52,7 @@ output suchEmpty2 object = {
 
 @sys.description('object output description')
 //@[00:0225) ├─DeclaredOutputExpression { Name = obj }
+//@[17:0044) | ├─StringLiteralExpression { Value = object output description }
 output obj object = {
 //@[11:0017) | ├─AmbientTypeReferenceExpression { Name = object }
 //@[20:0178) | └─ObjectExpression

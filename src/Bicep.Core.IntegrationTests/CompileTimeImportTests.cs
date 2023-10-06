@@ -1198,4 +1198,32 @@ public class CompileTimeImportTests
         result.Template.Should().HaveValueAtPath("outputs.outObj.value", "[variables('1.obj')['Key One']]");
         result.Template.Should().HaveValueAtPath("outputs.outConfig.value", "[variables('1.config').b.id]");
     }
+
+    // https://github.com/Azure/bicep/issues/12052
+    [TestMethod]
+    public void Test_Issue12052()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {Foo} from 'types.bicep'
+
+                param foo Foo[] = [
+                    {
+                        bar: true
+                    }
+                    {
+                        bar: false
+                    }
+                ]
+                """),
+            ("types.bicep", """
+                @export()
+                type Foo = {
+                    bar: bool
+                }
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("parameters.foo.items.$ref", "#/definitions/Foo");
+    }
 }
