@@ -800,4 +800,38 @@ param myParam string
 
         result.Should().NotHaveAnyDiagnostics();
     }
+
+    // https://github.com/azure/bicep/issues/12070
+    [TestMethod]
+    public void Self_property_deref_does_not_blow_the_stack()
+    {
+        var result = CompilationHelper.Compile("""
+            type anObject = {
+                property: anObject.property
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
+        });
+    }
+
+    // https://github.com/azure/bicep/issues/12070
+    [TestMethod]
+    public void Self_array_access_does_not_blow_the_stack()
+    {
+        var result = CompilationHelper.Compile("""
+            type anObject = {
+                property: anObject['property']
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+            ("BCP289", DiagnosticLevel.Error, "The type definition is not valid."),
+        });
+    }
 }

@@ -16,6 +16,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
         private readonly Dictionary<DeclaredSymbol, IList<SyntaxBase>> declarationAccessDict = new();
         private readonly Stack<DeclaredSymbol> currentDeclarations = new();
+        private bool selfReferencePermitted = false;
 
         public static ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> FindCycles(ProgramSyntax programSyntax, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
@@ -120,7 +121,10 @@ namespace Bicep.Core.TypeSystem
                 return;
             }
 
-            declarationAccessDict[currentDeclaration].Add(syntax);
+            if (!selfReferencePermitted)
+            {
+                declarationAccessDict[currentDeclaration].Add(syntax);
+            }
             base.VisitVariableAccessSyntax(syntax);
         }
 
@@ -149,18 +153,26 @@ namespace Bicep.Core.TypeSystem
         }
 
         public override void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax)
-        {
-            // recursive types are permitted. pass
-        }
+            => WithSelfReferencePermitted(() => base.VisitArrayTypeMemberSyntax(syntax), selfReferencePermitted: true);
 
         public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
-        {
-            // recursive types are permitted. pass
-        }
+            => WithSelfReferencePermitted(() => base.VisitObjectTypePropertySyntax(syntax), selfReferencePermitted: true);
 
         public override void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax)
+            => WithSelfReferencePermitted(() => base.VisitTupleTypeItemSyntax(syntax), selfReferencePermitted: true);
+
+        public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
+            => WithSelfReferencePermitted(() => base.VisitArrayAccessSyntax(syntax), selfReferencePermitted: false);
+
+        public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
+            => WithSelfReferencePermitted(() => base.VisitPropertyAccessSyntax(syntax), selfReferencePermitted: false);
+
+        private void WithSelfReferencePermitted(Action action, bool selfReferencePermitted)
         {
-            // recursive types are permitted. pass
+            var previousSelfReferencePermissionState = this.selfReferencePermitted;
+            this.selfReferencePermitted = selfReferencePermitted;
+            action();
+            this.selfReferencePermitted = previousSelfReferencePermissionState;
         }
 
         public override void VisitImportedSymbolsListItemSyntax(ImportedSymbolsListItemSyntax syntax)
