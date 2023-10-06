@@ -12,7 +12,7 @@ namespace Bicep.Core.Registry
         WrongModuleLayerMediaType
     }
 
-    public class InvalidModuleException : OciModuleRegistryException
+    public class InvalidModuleException : OciArtifactRegistryException
     {
 
         public InvalidModuleExceptionKind Kind { get; }

@@ -21,10 +21,10 @@ namespace Bicep.Core.Modules
             // Must have a single layer with mediaType "application/vnd.ms.bicep.module.layer.v1+json"
             var expectedMediaType = BicepModuleMediaTypes.BicepModuleLayerV1Json;
             // Ignore layers we don't recognize for now.
-            var bicepModuleLayerV1JsonCount = layers.Count(l => BicepMediaTypes.MediaTypeComparer.Equals(l.MediaType, expectedMediaType));
-            if (bicepModuleLayerV1JsonCount != 1)
+            var mediaTypeCount = layers.Count(l => BicepMediaTypes.MediaTypeComparer.Equals(l.MediaType, expectedMediaType));
+            if (mediaTypeCount != 1)
             {
-                throw new InvalidModuleException($"Expected a single layer with mediaType \"{expectedMediaType}\", but found {filtered.Count()}");
+                throw new InvalidModuleException($"Expected a single layer with mediaType \"{expectedMediaType}\", but found {mediaTypeCount}");
             }
         }
     }

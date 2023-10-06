@@ -6,6 +6,7 @@ using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Json;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.Modules;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
@@ -54,7 +55,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         public IDictionary<string, OciManifest> ModuleManifestObjects =>
             ManifestObjects
-            .Where(kvp => kvp.Value.ArtifactType == BicepMediaTypes.BicepModuleArtifactType)
+            .Where(kvp => kvp.Value.ArtifactType == BicepModuleMediaTypes.BicepModuleArtifactType)
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
         public override async Task<Response<DownloadRegistryBlobResult>> DownloadBlobContentAsync(string digest, CancellationToken cancellationToken = default)

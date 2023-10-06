@@ -5,13 +5,13 @@ using System;
 
 namespace Bicep.Core.Registry
 {
-    public class OciModuleRegistryException : ExternalArtifactException
+    public class OciArtifactRegistryException : ExternalArtifactException
     {
-        public OciModuleRegistryException(string message) : base(message)
+        public OciArtifactRegistryException(string message) : base(message)
         {
         }
 
-        public OciModuleRegistryException(string message, Exception innerException) : base(message, innerException)
+        public OciArtifactRegistryException(string message, Exception innerException) : base(message, innerException)
         {
         }
     }

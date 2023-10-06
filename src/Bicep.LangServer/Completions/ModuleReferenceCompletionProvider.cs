@@ -165,7 +165,7 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// True if is an OCI module reference (i.e., it starts with br: or br/)
         /// </summary>
-        private bool IsOciModuleRegistryReference(string replacementText)
+        private bool IsOciArtifactRegistryReference(string replacementText)
         {
             if (replacementText.StartsWith("'br/") || replacementText.StartsWith("'br:"))
             {
@@ -183,7 +183,7 @@ namespace Bicep.LanguageServer.Completions
         // etc
         private async Task<IEnumerable<CompletionItem>> GetMCRModuleRegistryVersionCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
-            if (!IsOciModuleRegistryReference(replacementText))
+            if (!IsOciArtifactRegistryReference(replacementText))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -295,7 +295,7 @@ namespace Bicep.LanguageServer.Completions
         // Handles remote (OCI) path completions, e.g. br: and br/
         private async Task<IEnumerable<CompletionItem>> GetOciModulePathCompletions(BicepCompletionContext context, string replacementText, Uri sourceFileUri)
         {
-            if (!IsOciModuleRegistryReference(replacementText))
+            if (!IsOciArtifactRegistryReference(replacementText))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -540,7 +540,7 @@ namespace Bicep.LanguageServer.Completions
         {
             var completions = new List<CompletionItem>();
 
-            if (!IsOciModuleRegistryReference(replacementText))
+            if (!IsOciArtifactRegistryReference(replacementText))
             {
                 return completions;
             }

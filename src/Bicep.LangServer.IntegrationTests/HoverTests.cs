@@ -1039,7 +1039,7 @@ param foo|bar = true
             var file = SourceFileFactory.CreateBicepFile(parentModuleUri, bicepFileContents);
             var moduleDeclarationSyntax = programSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
 
-            OciModuleRegistryHelper.SaveManifestFileToModuleRegistryCache(
+            OciArtifactRegistryHelper.SaveManifestFileToModuleRegistryCache(
                 TestContext,
                 registry,
                 repository,
@@ -1047,7 +1047,7 @@ param foo|bar = true
                 testOutputPath,
                 digest,
                 tag);
-            ArtifactReference? ociArtifactModuleReference = OciModuleRegistryHelper.CreateModuleReferenceMock(
+            ArtifactReference? ociArtifactModuleReference = OciArtifactRegistryHelper.CreateModuleReferenceMock(
                 registry,
                 repository,
                 parentModuleUri,

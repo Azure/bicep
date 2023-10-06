@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
@@ -161,7 +162,7 @@ namespace Bicep.Core.Registry
             {
                 // manifest does not exist
                 Trace.WriteLine($"Manifest for module {artifactReference.FullyQualifiedReference} could not be found in the registry.");
-                throw new OciModuleRegistryException("The artifact does not exist in the registry.", exception);
+                throw new OciArtifactRegistryException("The artifact does not exist in the registry.", exception);
             }
             Debug.Assert(manifestResponse.Value.Manifest.ToArray().Length > 0);
 
@@ -175,8 +176,13 @@ namespace Bicep.Core.Registry
             var deserializedManifest = OciManifest.FromBinaryData(manifestResponse.Value.Manifest) ?? throw new InvalidOperationException("the manifest is not a valid OCI manifest");
             var layerTasks = deserializedManifest.Layers.AsParallel().WithDegreeOfParallelism(5)
                 .Select(async layer => new OciArtifactLayer(layer.Digest, layer.MediaType, await PullLayerAsync(client, layer)));
+            var layers = await Task.WhenAll(layerTasks);
 
-            return new(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, await Task.WhenAll(layerTasks));
+            return deserializedManifest.ArtifactType switch
+            {
+                BicepModuleMediaTypes.BicepModuleArtifactType => new OciModuleArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
+                _ => throw new InvalidOperationException($"The artifact type \"{deserializedManifest.ArtifactType}\" is not supported.")
+            };
         }
 
         private static async Task<BinaryData> PullLayerAsync(ContainerRegistryContentClient client, OciDescriptor layer, CancellationToken cancellationToken = default)
@@ -224,7 +230,7 @@ namespace Bicep.Core.Registry
 
             if (!string.Equals(digestFromRegistry, digestFromContent, DigestComparison))
             {
-                throw new OciModuleRegistryException($"There is a mismatch in the manifest digests. Received content digest = {digestFromContent}, Digest in registry response = {digestFromRegistry}");
+                throw new OciArtifactRegistryException($"There is a mismatch in the manifest digests. Received content digest = {digestFromContent}, Digest in registry response = {digestFromRegistry}");
             }
         }
     }

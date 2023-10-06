@@ -96,7 +96,7 @@ namespace Bicep.Core.Registry
 
         private InvalidModuleException GetUnknownArtifactException(string gotArtifactMediaType)
                 => new(
-                    $"Unknown ArtifactType: '{gotArtifactMediaType}'. Supported OCI artifactType fields are: (1) '{BicepMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType}' for resource type providers. {NewerVersionMightBeRequired}",
+                    $"Unknown ArtifactType: '{gotArtifactMediaType}'. Supported OCI artifactType fields are: (1) '{BicepModuleMediaTypes.BicepModuleArtifactType}' for modules, or (2) '{BicepMediaTypes.BicepProviderArtifactType}' for resource type providers. {NewerVersionMightBeRequired}",
                     InvalidModuleExceptionKind.WrongArtifactType);
 
         public override async Task<bool> CheckArtifactExists(OciModuleReference reference)
@@ -146,7 +146,7 @@ namespace Bicep.Core.Registry
             var expectedMediaType = result.Manifest.ArtifactType switch
             {
                 // (Bicep v0.20.0 and lower use null for this field, so assume valid in that case)
-                null or BicepMediaTypes.BicepModuleArtifactType => BicepMediaTypes.BicepModuleLayerV1Json,
+                null or BicepModuleMediaTypes.BicepModuleArtifactType => BicepModuleMediaTypes.BicepModuleLayerV1Json,
                 BicepMediaTypes.BicepProviderArtifactType => BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip,
                 _ => throw GetUnknownArtifactException(result.Manifest.ArtifactType)
             };
@@ -171,7 +171,7 @@ namespace Bicep.Core.Registry
             var expectedMediaType = artifactResult.Manifest.ArtifactType switch
             {
                 // (Bicep v0.20.0 and lower use null for this field, so assume valid in that case)
-                null or BicepMediaTypes.BicepModuleArtifactType => BicepMediaTypes.BicepModuleConfigV1,
+                null or BicepModuleMediaTypes.BicepModuleArtifactType => BicepModuleMediaTypes.BicepModuleConfigV1,
                 BicepMediaTypes.BicepProviderArtifactType => BicepMediaTypes.BicepProviderConfigV1,
                 _ => throw GetUnknownArtifactException(artifactResult.Manifest.ArtifactType)
             };
@@ -299,13 +299,13 @@ namespace Bicep.Core.Registry
         {
             // Write out an empty config for now
             // NOTE: Bicep v0.20 and earlier will throw if it finds a non-empty config
-            var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
+            var config = new StreamDescriptor(Stream.Null, BicepModuleMediaTypes.BicepModuleConfigV1);
 
             List<StreamDescriptor> layers = new List<StreamDescriptor>();
-            layers.Add(new StreamDescriptor(compiledArmTemplate, BicepMediaTypes.BicepModuleLayerV1Json));
+            layers.Add(new StreamDescriptor(compiledArmTemplate, BicepModuleMediaTypes.BicepModuleLayerV1Json));
             if (bicepSources is { } && features.PublishSourceEnabled)
             {
-                layers.Add(new StreamDescriptor(bicepSources, BicepMediaTypes.BicepSourceV1Layer));
+                layers.Add(new StreamDescriptor(bicepSources, BicepModuleMediaTypes.BicepSourceV1Layer));
             }
 
             var annotations = new OciManifestAnnotationsBuilder()
@@ -319,7 +319,7 @@ namespace Bicep.Core.Registry
                     moduleReference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
-                    BicepMediaTypes.BicepModuleArtifactType,
+                    BicepModuleMediaTypes.BicepModuleArtifactType,
                     config,
                     layers,
                     annotations);
@@ -365,7 +365,7 @@ namespace Bicep.Core.Registry
             //   and not main.json directly (https://github.com/Azure/bicep/issues/11900)
             var moduleFileType = mainLayer.MediaType switch
             {
-                BicepMediaTypes.BicepModuleLayerV1Json => ModuleFileType.ModuleMain,
+                BicepModuleMediaTypes.BicepModuleLayerV1Json => ModuleFileType.ModuleMain,
                 BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip => ModuleFileType.Provider,
                 _ => throw new ArgumentException($"Unexpected layer mediaType \"{mainLayer.MediaType}\". This should have been caught in the {nameof(ValidateArtifact)} method.")
             };
@@ -381,7 +381,7 @@ namespace Bicep.Core.Registry
 
             // write source archive file
             // TODO: do we need to delete this file if there is no source layer?
-            if (this.features.PublishSourceEnabled && result.TryGetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
+            if (this.features.PublishSourceEnabled && result.TryGetSingleLayerByMediaType(BicepModuleMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
             {
                 // TODO: Write all layers as separate binary files instead of separate files for source.tar.gz and provider files.
                 // We should do this rather than writing individual files we know about,
