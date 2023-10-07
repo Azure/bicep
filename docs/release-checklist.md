@@ -4,6 +4,9 @@
     1. Run the [Update Types](https://github.com/Azure/bicep-types-az/actions/workflows/update-types.yml) GitHub Action to generate the latest type definitions.
         1. Wait ~3hrs for it to complete. Ensure it runs successfully and that it generates + merges a PR (example [here](https://github.com/Azure/bicep-types-az/pull/1299)).
     1. Run the Official Build for BicepMirror-Types-Az(see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror-Types-Az) for instructions).
+        Note: There are several (non-blocking) known issues:
+          - https://msazure.visualstudio.com/One/_workitems/edit/25142078
+          - https://github.com/Azure/bicep/issues/11155
     1. Publish Bicep.Types.Az NuGet packages to nuget.org. Follow the latter half of the readme [here](https://dev.azure.com/msazure/One/_git/BicepMirror-Types-Az) and the below steps.
         1. Find your build [here](https://dev.azure.com/msazure/One/_build?definitionId=179851&_a=summary) and wait for it to finish successfully. Then click on it and for the `drop_build_main`, download the artifacts.
         1. Follow instructions to download the nuget.exe from [here](https://learn.microsoft.com/en-us/nuget/install-nuget-client-tools)
@@ -35,7 +38,7 @@
     1. Download the appropriate Bicep executable for your platform (e.g. `bicep-linux-x64`). Verify you can invoke it with e.g. `bicep-linux-x64 --version`, and that it prints the expected output.
 1. Publish the release on GitHub.
 1. Upload copyleft dependency source to 3rd party disclosure site. See [instructions](https://msazure.visualstudio.com/One/_wiki/wikis/Azure%20Deployments%20Team%20Wiki/369910/Bicep-release-step-Upload-copyleft-source-to-3rd-party-disclosure-site).
-1. Upload vscode-bicep.VSIX to the VS marketplace [here](https://marketplace.visualstudio.com/manage).
+1. Upload vscode-bicep.VSIX to the VS marketplace [here](https://marketplace.visualstudio.com/manage). You may need access permissions, request help in the team channel.
     1. Click on the ... for Bicep, then Update, then upload the .vsix file. The site will verify it then the version number should be updated to the right one. 
 1. Upload vs-bicep.VSIX to VS marketplace
     1. Click on the ... for Bicep for Visual Studio, then Edit. Once on the new page, upload the new vs-bicep.VSIX file at the top. This should update the Version number automatically for you. Verify that it does then scroll to the bottom and hit Save and Upload.
