@@ -22,7 +22,7 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 namespace Bicep.Core.UnitTests.Registry
 {
     [TestClass]
-    public class OciModuleRegistryTests
+    public class OciArtifactRegistryTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -44,14 +44,14 @@ namespace Bicep.Core.UnitTests.Registry
         [DataTestMethod]
         public void GetDocumentationUri_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
         {
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.TryGetDocumentationUri(OciModuleReference);
+            var result = OciArtifactRegistry.TryGetDocumentationUri(OciModuleReference);
 
             result.Should().BeNull();
         }
@@ -59,14 +59,14 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public void GetDocumentationUri_WithNonExistentManifestFile_ShouldReturnNull()
         {
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 null,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 digest: "sha:12345");
 
-            var result = ociModuleRegistry.TryGetDocumentationUri(OciModuleReference);
+            var result = OciArtifactRegistry.TryGetDocumentationUri(OciModuleReference);
 
             result.Should().BeNull();
         }
@@ -92,14 +92,14 @@ namespace Bicep.Core.UnitTests.Registry
      }
    ]
  }";
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.TryGetDocumentationUri(OciModuleReference);
+            var result = OciArtifactRegistry.TryGetDocumentationUri(OciModuleReference);
 
             result.Should().BeNull();
         }
@@ -130,14 +130,14 @@ namespace Bicep.Core.UnitTests.Registry
      ""org.opencontainers.image.documentation"": """ + documentationUri + @"""
    }
  }";
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.TryGetDocumentationUri(OciModuleReference);
+            var result = OciArtifactRegistry.TryGetDocumentationUri(OciModuleReference);
 
             result.Should().BeNull();
         }
@@ -165,17 +165,17 @@ namespace Bicep.Core.UnitTests.Registry
    ""annotations"": {
    }
  }";
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var documentation = ociModuleRegistry.TryGetDocumentationUri(OciModuleReference);
+            var documentation = OciArtifactRegistry.TryGetDocumentationUri(OciModuleReference);
             documentation.Should().BeNull();
 
-            var description = await ociModuleRegistry.TryGetDescription(OciModuleReference);
+            var description = await OciArtifactRegistry.TryGetDescription(OciModuleReference);
             description.Should().BeNull();
         }
 
@@ -204,17 +204,17 @@ namespace Bicep.Core.UnitTests.Registry
       ""org.opencontainers.image.notdescription"": """ + "description" + @"""
    }
  }";
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var documentation = ociModuleRegistry.TryGetDocumentationUri(OciModuleReference);
+            var documentation = OciArtifactRegistry.TryGetDocumentationUri(OciModuleReference);
             documentation.Should().BeNull();
 
-            var description = await ociModuleRegistry.TryGetDescription(OciModuleReference);
+            var description = await OciArtifactRegistry.TryGetDescription(OciModuleReference);
             description.Should().BeNull();
         }
 
@@ -243,14 +243,14 @@ namespace Bicep.Core.UnitTests.Registry
      ""org.opencontainers.image.documentation"": """ + documentationUri + @"""
    }
  }";
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.TryGetDocumentationUri(OciModuleReference);
+            var result = OciArtifactRegistry.TryGetDocumentationUri(OciModuleReference);
 
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(documentationUri);
@@ -289,14 +289,14 @@ namespace Bicep.Core.UnitTests.Registry
      ]
    }
  }";
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 bicepFileContents,
                 manifestFileContents,
                 "mcr.microsoft.com",
                 "bicep/app/dapr-containerapps-environment/bicep/core",
                 tag: "1.0.1");
 
-            var result = ociModuleRegistry.TryGetDocumentationUri(OciModuleReference);
+            var result = OciArtifactRegistry.TryGetDocumentationUri(OciModuleReference);
 
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo("https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/bicep/core/1.0.1/modules/app/dapr-containerapps-environment/bicep/core/README.md");
@@ -312,14 +312,14 @@ namespace Bicep.Core.UnitTests.Registry
         [DataTestMethod]
         public void GetDescription_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
         {
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = ociModuleRegistry.TryGetDocumentationUri(OciModuleReference);
+            var result = OciArtifactRegistry.TryGetDocumentationUri(OciModuleReference);
 
             result.Should().BeNull();
         }
@@ -327,14 +327,14 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public async Task GetDescription_WithNonExistentManifestFile_ShouldReturnNull()
         {
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 null,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 digest: "sha:12345");
 
-            var result = await ociModuleRegistry.TryGetDescription(OciModuleReference);
+            var result = await OciArtifactRegistry.TryGetDescription(OciModuleReference);
 
             result.Should().BeNull();
         }
@@ -360,14 +360,14 @@ namespace Bicep.Core.UnitTests.Registry
      }
    ]
  }";
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await ociModuleRegistry.TryGetDescription(OciModuleReference);
+            var result = await OciArtifactRegistry.TryGetDescription(OciModuleReference);
 
             result.Should().BeNull();
         }
@@ -395,14 +395,14 @@ namespace Bicep.Core.UnitTests.Registry
      }
    ]
  }";
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await ociModuleRegistry.TryGetDescription(OciModuleReference);
+            var result = await OciArtifactRegistry.TryGetDescription(OciModuleReference);
 
             result.Should().BeNull();
         }
@@ -432,14 +432,14 @@ namespace Bicep.Core.UnitTests.Registry
      ""org.opencontainers.image.description"": """ + description + @"""
    }
  }";
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await ociModuleRegistry.TryGetDescription(OciModuleReference);
+            var result = await OciArtifactRegistry.TryGetDescription(OciModuleReference);
 
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(description);
@@ -471,14 +471,14 @@ namespace Bicep.Core.UnitTests.Registry
      ""org.opencontainers.image.description"": """ + description + @"""
    }
  }";
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await ociModuleRegistry.TryGetDescription(OciModuleReference);
+            var result = await OciArtifactRegistry.TryGetDescription(OciModuleReference);
 
             result.Should().BeNull();
         }
@@ -510,19 +510,19 @@ namespace Bicep.Core.UnitTests.Registry
      ""org.opencontainers.image.description"": """ + description + @"""
    }
  }";
-            (OciModuleRegistry ociModuleRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciModuleReference OciModuleReference) = CreateModuleRegistryWithCachedModuleReference(
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var actualDocumentationUri = ociModuleRegistry.TryGetDocumentationUri(OciModuleReference);
+            var actualDocumentationUri = OciArtifactRegistry.TryGetDocumentationUri(OciModuleReference);
 
             actualDocumentationUri.Should().NotBeNull();
             actualDocumentationUri.Should().BeEquivalentTo(documentationUri);
 
-            var actualDescription = await ociModuleRegistry.TryGetDescription(OciModuleReference);
+            var actualDescription = await OciArtifactRegistry.TryGetDescription(OciModuleReference);
 
             actualDescription.Should().NotBeNull();
             actualDescription.Should().BeEquivalentTo(description.Replace("\\", "")); // unencode json
@@ -694,7 +694,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         #region Helpers
 
-        private async Task RestoreModule(OciModuleRegistry ociRegistry, OciModuleReference moduleReference)
+        private async Task RestoreModule(OciArtifactRegistry ociRegistry, OciModuleReference moduleReference)
         {
             var (_, failureBuilder) = (await ociRegistry.RestoreArtifacts(new[] { moduleReference })).SingleOrDefault();
             if (failureBuilder is { })
@@ -714,16 +714,16 @@ namespace Bicep.Core.UnitTests.Registry
             return moduleReference!;
         }
 
-        // Creates a new (real) OciModuleRegistry instance with an empty on-disk cache that can push and pull modules
-        private (OciModuleRegistry, MockRegistryBlobClient) CreateModuleRegistry(
+        // Creates a new (real) OciArtifactRegistry instance with an empty on-disk cache that can push and pull modules
+        private (OciArtifactRegistry, MockRegistryBlobClient) CreateModuleRegistry(
             Uri parentModuleUri,
             string cacheRootDirectory,
             bool publishSourceEnabled)
         {
-            return OciModuleRegistryHelper.CreateModuleRegistry(parentModuleUri, GetFeatures(cacheRootDirectory, publishSourceEnabled));
+            return OciArtifactRegistryHelper.CreateModuleRegistry(parentModuleUri, GetFeatures(cacheRootDirectory, publishSourceEnabled));
         }
 
-        private (OciModuleRegistry, MockRegistryBlobClient, Uri parentModuleUri) CreateModuleRegistryAndBicepFile(
+        private (OciArtifactRegistry, MockRegistryBlobClient, Uri parentModuleUri) CreateModuleRegistryAndBicepFile(
             string? parentBicepFileContents, // The bicep file which references a module
             bool publishSourceFeatureEnabled
         )
@@ -735,10 +735,10 @@ namespace Bicep.Core.UnitTests.Registry
             return (registry, blobClient, parentModuleUri);
         }
 
-        // Creates a new (real) OciModuleRegistry and sets it up so that it has an on-disk cached module
+        // Creates a new (real) OciArtifactRegistry and sets it up so that it has an on-disk cached module
         //   reference as if it had been restored from the registry. This can be used to test scenarios
         //   where a module has already been restored.
-        private (OciModuleRegistry, OciModuleReference) CreateModuleRegistryWithCachedModuleReference(
+        private (OciArtifactRegistry, OciModuleReference) CreateModuleRegistryWithCachedModuleReference(
             string parentBicepFileContents, // The bicep file which references the module
             string? manifestFileContents,
             string registry,
@@ -746,9 +746,9 @@ namespace Bicep.Core.UnitTests.Registry
             string? digest = null,
             string? tag = null)
         {
-            var (ociModuleRegistry, _, parentModuleUri) = CreateModuleRegistryAndBicepFile(parentBicepFileContents, true);
+            var (OciArtifactRegistry, _, parentModuleUri) = CreateModuleRegistryAndBicepFile(parentBicepFileContents, true);
 
-            OciModuleReference? ociModuleReference = OciModuleRegistryHelper.CreateModuleReferenceMock(
+            OciModuleReference? ociModuleReference = OciArtifactRegistryHelper.CreateModuleReferenceMock(
                 registry,
                 repository,
                 parentModuleUri,
@@ -757,7 +757,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             if (manifestFileContents is string)
             {
-                OciModuleRegistryHelper.SaveManifestFileToModuleRegistryCache(
+                OciArtifactRegistryHelper.SaveManifestFileToModuleRegistryCache(
                     TestContext,
                     registry,
                     repository,
@@ -767,7 +767,7 @@ namespace Bicep.Core.UnitTests.Registry
                     tag);
             }
 
-            return (ociModuleRegistry, ociModuleReference);
+            return (OciArtifactRegistry, ociModuleReference);
         }
 
         private IFeatureProvider GetFeatures(string cacheRootDirectory, bool publishSourceEnabled)

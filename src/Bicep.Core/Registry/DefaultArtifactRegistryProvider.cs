@@ -39,7 +39,7 @@ namespace Bicep.Core.Registry
             // Using IServiceProvider instead of constructor injection due to a dependency cycle
             var compiler = this.serviceProvider.GetService<BicepCompiler>();
             builder.Add(new LocalModuleRegistry(this.fileResolver, templateUri, compiler));
-            builder.Add(new OciModuleRegistry(this.fileResolver, this.clientFactory, features, configuration, templateUri));
+            builder.Add(new OciArtifactRegistry(this.fileResolver, this.clientFactory, features, configuration, templateUri));
             builder.Add(new TemplateSpecModuleRegistry(this.fileResolver, this.templateSpecRepositoryFactory, features, configuration, templateUri));
 
             return builder.ToImmutableArray();

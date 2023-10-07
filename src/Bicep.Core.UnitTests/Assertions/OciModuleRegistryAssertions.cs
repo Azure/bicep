@@ -16,25 +16,25 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public static class OciModuleRegistryExtensions
+    public static class OciArtifactRegistryExtensions
     {
-        public static OciModuleRegistryAssertions Should(this OciModuleRegistry ociModuleRegistry) => new(ociModuleRegistry);
+        public static OciArtifactRegistryAssertions Should(this OciArtifactRegistry OciArtifactRegistry) => new(OciArtifactRegistry);
     }
 
-    public class OciModuleRegistryAssertions : ReferenceTypeAssertions<OciModuleRegistry, OciModuleRegistryAssertions>
+    public class OciArtifactRegistryAssertions : ReferenceTypeAssertions<OciArtifactRegistry, OciArtifactRegistryAssertions>
     {
-        public OciModuleRegistryAssertions(OciModuleRegistry ociModuleRegistry) : base(ociModuleRegistry)
+        public OciArtifactRegistryAssertions(OciArtifactRegistry OciArtifactRegistry) : base(OciArtifactRegistry)
         {
         }
 
-        protected override string Identifier => "OciModuleRegistry";
+        protected override string Identifier => "OciArtifactRegistry";
 
-        public AndConstraint<OciModuleRegistryAssertions> HaveValidCachedModulesWithSources()
+        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModulesWithSources()
             => HaveValidCachedModules(withSources: true);
-        public AndConstraint<OciModuleRegistryAssertions> HaveValidCachedModulesWithoutSources()
+        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModulesWithoutSources()
             => HaveValidCachedModules(withSources: false);
 
-        public AndConstraint<OciModuleRegistryAssertions> HaveValidCachedModules(bool? withSources = null)
+        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModules(bool? withSources = null)
         {
             ShouldHaveValidCachedModules(Subject.CacheRootDirectory, withSources);
             return new(this);

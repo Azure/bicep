@@ -222,7 +222,7 @@ namespace Bicep.LanguageServer.Providers
         private string? GetDocumentationUri(ModuleMetadata moduleMetadata, string? version = null)
         {
             version ??= moduleMetadata.tags.OrderDescending().FirstOrDefault();
-            return version is null ? null : OciModuleRegistry.GetPublicBicepModuleDocumentationUri(moduleMetadata.moduleName, version);
+            return version is null ? null : OciArtifactRegistry.GetPublicBicepModuleDocumentationUri(moduleMetadata.moduleName, version);
         }
 
         public TimeSpan GetExponentialDelay(TimeSpan initialDelay, int consecutiveFailures, TimeSpan maxDelay)

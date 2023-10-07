@@ -173,13 +173,16 @@ namespace Bicep.Core.Registry
             ValidateManifestResponse(manifestResponse);
 
             var deserializedManifest = OciManifest.FromBinaryData(manifestResponse.Value.Manifest) ?? throw new InvalidOperationException("the manifest is not a valid OCI manifest");
-            var layers = new List<(string MediaType, BinaryData Data)>();
-            foreach (var layer in deserializedManifest.Layers)
-            {
-                layers.Add((layer.MediaType, await PullLayerAsync(client, layer)));
-            }
+            var layerTasks = deserializedManifest.Layers.AsParallel().WithDegreeOfParallelism(5)
+                .Select(async layer => new OciArtifactLayer(layer.Digest, layer.MediaType, await PullLayerAsync(client, layer)));
+            var layers = await Task.WhenAll(layerTasks);
 
-            return new(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers.ToImmutableArray());
+            return deserializedManifest.ArtifactType switch
+            {
+                BicepModuleMediaTypes.BicepModuleArtifactType or null => new OciModuleArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
+                BicepMediaTypes.BicepProviderArtifactType => new OciProviderArtifactResult(manifestResponse.Value.Manifest, manifestResponse.Value.Digest, layers),
+                _ => throw new InvalidArtifactException($"artifacts of type: \'{deserializedManifest.ArtifactType}\' are not supported by this Bicep version. {OciModuleArtifactResult.NewerVersionMightBeRequired}")
+            };
         }
 
         private static async Task<BinaryData> PullLayerAsync(ContainerRegistryContentClient client, OciDescriptor layer, CancellationToken cancellationToken = default)
@@ -191,7 +194,7 @@ namespace Bicep.Core.Registry
             }
             catch (RequestFailedException exception) when (exception.Status == 404)
             {
-                throw new InvalidModuleException($"Module manifest refers to a non-existent blob with digest \"{layer.Digest}\".", exception);
+                throw new InvalidArtifactException($"Module manifest refers to a non-existent blob with digest \"{layer.Digest}\".", exception);
             }
 
             ValidateBlobResponse(blobResult, layer);
@@ -205,7 +208,7 @@ namespace Bicep.Core.Registry
 
             if (descriptor.Size != stream.Length)
             {
-                throw new InvalidModuleException($"Expected blob size of {descriptor.Size} bytes but received {stream.Length} bytes from the registry.");
+                throw new InvalidArtifactException($"Expected blob size of {descriptor.Size} bytes but received {stream.Length} bytes from the registry.");
             }
 
             stream.Position = 0;
@@ -214,7 +217,7 @@ namespace Bicep.Core.Registry
 
             if (!string.Equals(descriptor.Digest, digestFromContents, StringComparison.Ordinal))
             {
-                throw new InvalidModuleException($"There is a mismatch in the layer digests. Received content digest = {digestFromContents}, Requested digest = {descriptor.Digest}");
+                throw new InvalidArtifactException($"There is a mismatch in the layer digests. Received content digest = {digestFromContents}, Requested digest = {descriptor.Digest}");
             }
         }
 

@@ -12,14 +12,18 @@ using Azure.Containers.ContainerRegistry;
 
 namespace Bicep.Core.Registry.Oci
 {
-    public class OciArtifactResult
+    public record OciArtifactLayer(string Digest, string MediaType, BinaryData Data);
+    public abstract class OciArtifactResult
     {
-        public OciArtifactResult(BinaryData manifestBits, string manifestDigest, ImmutableArray<(string MediaType, BinaryData Data)> layers)
+        // media types are case-insensitive (they are lowercase by convention only)
+        public static readonly StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
+
+        public OciArtifactResult(BinaryData manifestBits, string manifestDigest, IEnumerable<OciArtifactLayer> layers)
         {
             this.manifestBits = manifestBits;
-            this.Manifest = OciManifest.FromBinaryData(manifestBits) ?? throw new InvalidModuleException("Unable to deserialize OCI manifest");
+            this.Manifest = OciManifest.FromBinaryData(manifestBits) ?? throw new InvalidArtifactException("Unable to deserialize OCI manifest");
             this.ManifestDigest = manifestDigest;
-            this.Layers = layers;
+            this.Layers = layers.ToImmutableArray();
         }
 
         private readonly BinaryData manifestBits;
@@ -30,19 +34,14 @@ namespace Bicep.Core.Registry.Oci
 
         public string ManifestDigest { get; init; }
 
-        public IEnumerable<(string MediaType, BinaryData Data)> Layers { get; init; }
+        public IEnumerable<OciArtifactLayer> Layers { get; init; }
 
-        public BinaryData GetSingleLayerByMediaType(string mediaType)
+        public BinaryData? TryGetSingleLayerByMediaType(string mediaType)
         {
-            var filtered = Layers.Where(l => BicepMediaTypes.MediaTypeComparer.Equals(l.MediaType, mediaType));
-            if (filtered.Count() > 1)
-            {
-                throw new InvalidModuleException($"Expecting only a single layer with mediaType \"{mediaType}\", but found {filtered.Count()}");
-            }
-            else
-            {
-                return filtered.FirstOrDefault().Data;
-            }
+            return Layers.FirstOrDefault(l => BicepMediaTypes.MediaTypeComparer.Equals(l.MediaType, mediaType))?.Data;
         }
+
+        public abstract OciArtifactLayer GetMainLayer();
+
     }
 }

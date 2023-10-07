@@ -22,7 +22,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.Core.UnitTests.Utils
 {
-    public static class OciModuleRegistryHelper
+    public static class OciArtifactRegistryHelper
     {
         public static OciModuleReference CreateModuleReferenceMock(
             string registry,
@@ -73,8 +73,8 @@ namespace Bicep.Core.UnitTests.Utils
             }
         }
 
-        // public a new (real) OciModuleRegistry instance with an empty on-disk cache that can push and pull modules
-        public static (OciModuleRegistry, MockRegistryBlobClient) CreateModuleRegistry(
+        // public a new (real) OciArtifactRegistry instance with an empty on-disk cache that can push and pull modules
+        public static (OciArtifactRegistry, MockRegistryBlobClient) CreateModuleRegistry(
             Uri parentModuleUri,
             IFeatureProvider featureProvider)
         {
@@ -86,7 +86,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns(blobClient);
 
-            var registry = new OciModuleRegistry(
+            var registry = new OciArtifactRegistry(
                 BicepTestConstants.FileResolver,
                 clientFactory.Object,
                 featureProvider,
@@ -122,7 +122,7 @@ namespace Bicep.Core.UnitTests.Utils
                 artifactReference: moduleReference,
                 mediaType: mediaType,
                 artifactType: artifactType,
-                config: new StreamDescriptor(new TextByteArray(configContents ?? string.Empty).ToStream(), BicepMediaTypes.BicepModuleConfigV1),
+                config: new StreamDescriptor(new TextByteArray(configContents ?? string.Empty).ToStream(), BicepModuleMediaTypes.BicepModuleConfigV1),
                 layers: (layers.Select(layer => new StreamDescriptor(TextByteArray.TextToStream(layer.contents), layer.mediaType))),
                 new OciManifestAnnotationsBuilder()
             );

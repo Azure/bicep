@@ -626,7 +626,7 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            if (IsOciModuleRegistryReference(context))
+            if (IsOciArtifactRegistryReference(context))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -737,7 +737,7 @@ namespace Bicep.LanguageServer.Completions
             bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
         }
 
-        private bool IsOciModuleRegistryReference(BicepCompletionContext context)
+        private bool IsOciArtifactRegistryReference(BicepCompletionContext context)
         {
             return context.ReplacementTarget is Token token &&
                 token.Text is string text &&

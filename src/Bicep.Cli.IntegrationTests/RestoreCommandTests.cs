@@ -178,7 +178,7 @@ namespace Bicep.Cli.IntegrationTests
         // Expecting errors
         [DataRow("application/vnd.oci.image.manifest.v1+json", "application/vnd.ms.bicep.module.unexpected", null,
             // expected error:
-            "Error BCP192: Unable to restore.*but found 'application/vnd.ms.bicep.module.unexpected'.*newer version of Bicep might be required")]
+            "Error BCP192: Unable to restore.* artifacts of type: 'application/vnd.ms.bicep.module.unexpected'.*newer version of Bicep might be required to reference this artifact.")]
         public async Task Restore_Artifacts_BackwardsAndForwardsCompatibility(string? mediaType, string? artifactType, string? configContents, string? expectedErrorRegex = null)
         {
             var registry = "example.com";
@@ -187,7 +187,7 @@ namespace Bicep.Cli.IntegrationTests
             var dataSet = DataSets.Empty;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
 
-            var (client, clientFactory) = await OciModuleRegistryHelper.PublishArtifactLayersToMockClient(
+            var (client, clientFactory) = await OciArtifactRegistryHelper.PublishArtifactLayersToMockClient(
                 tempDirectory,
                 registry,
                 registryUri,
@@ -195,7 +195,7 @@ namespace Bicep.Cli.IntegrationTests
                 mediaType,
                 artifactType,
                 configContents,
-                new (string, string)[] { (BicepMediaTypes.BicepModuleLayerV1Json, "data") });
+                new (string, string)[] { (BicepModuleMediaTypes.BicepModuleLayerV1Json, "data") });
 
             client.Blobs.Should().HaveCount(2);
             client.Manifests.Should().HaveCount(1);
@@ -233,26 +233,33 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         }
 
         [DataTestMethod]
-        // Valid
-        [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json }, null)]
-        // TODO: doesn't work because provider doesn't write out main.json file:
-        //[DataRow(new string[] { BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip }, null)]
-        [DataRow(new string[] { "unknown1", "unknown2", BicepMediaTypes.BicepModuleLayerV1Json }, null)]
-        [DataRow(new string[] { "unknown1", BicepMediaTypes.BicepModuleLayerV1Json, "unknown2" }, null)]
-        [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json, "unknown1", "unknown2" }, null)]
-        [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json, "unknown1", "unknown1", "unknown2", "unknown2" }, null)]
-        // TODO: doesn't work because provider doesn't write out main.json file:
-        // [DataRow(new string[] { "unknown", BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip }, null)]
-        //
-        // Invalid
-        [DataRow(new string[] { }, "Expected at least one layer")]
-        [DataRow(new string[] { "unknown1", "unknown2" }, "Did not expect only layer media types unknown1, unknown2")]
-        [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepModuleLayerV1Json },
-            $"Did not expect to find multiple layer media types of application/vnd.ms.bicep.module.layer.v1\\+json, application/vnd.ms.bicep.module.layer.v1\\+json")]
-        [DataRow(new string[] { BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip },
-            $"Did not expect to find multiple layer media types of application/vnd.ms.bicep.provider.layer.v1.tar\\+gzip, application/vnd.ms.bicep.provider.layer.v1.tar\\+gzip")]
-        [DataRow(new string[] { BicepMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip },
-            $"Did not expect to find multiple layer media types of application/vnd.ms.bicep.module.layer.v1\\+json, application/vnd.ms.bicep.provider.layer.v1.tar\\+gzip")]
+        // *** Valid Cases ***
+        [DataRow(new string[] { BicepModuleMediaTypes.BicepModuleLayerV1Json }, null)]
+        [DataRow(new string[] { "unknown1", "unknown2", BicepModuleMediaTypes.BicepModuleLayerV1Json }, null)]
+        [DataRow(new string[] { "unknown1", BicepModuleMediaTypes.BicepModuleLayerV1Json, "unknown2" }, null)]
+        [DataRow(new string[] { BicepModuleMediaTypes.BicepModuleLayerV1Json, "unknown1", "unknown2" }, null)]
+        [DataRow(new string[] { BicepModuleMediaTypes.BicepModuleLayerV1Json, "unknown1", "unknown1", "unknown2", "unknown2" }, null)]
+        [DataRow(new string[] { BicepModuleMediaTypes.BicepModuleLayerV1Json, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip }, null)]
+        // *** Negative Cases ***
+        [DataRow(
+            new string[] { BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip },
+            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+        [DataRow(
+            new string[] { },
+            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+        [DataRow(
+            new string[] { "unknown", BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip },
+            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+        [DataRow(
+            new string[] { "unknown2", "unknown1" },
+            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
+        [DataRow(
+            new string[] { BicepModuleMediaTypes.BicepModuleLayerV1Json, BicepModuleMediaTypes.BicepModuleLayerV1Json },
+            $".*Did not expect to find multiple layer media types of application\\/vnd.ms.bicep.module.layer.v1\\+json")]
+        // TODO: doesn't work because provider error handling is still coupled with module error handling.
+        [DataRow(
+            new string[] { BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip },
+            ".*Expected to find a layer with media type application\\/vnd.ms.bicep.module.layer.v1\\+json, but found none.*")]
         public async Task Restore_Artifacts_LayerMediaTypes(string[] layerMediaTypes, string expectedErrorRegex)
         {
             var registry = "example.com";
@@ -261,7 +268,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var dataSet = DataSets.Empty;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
 
-            var (client, clientFactory) = await OciModuleRegistryHelper.PublishArtifactLayersToMockClient(
+            var (client, clientFactory) = await OciArtifactRegistryHelper.PublishArtifactLayersToMockClient(
                 tempDirectory,
                 registry,
                 registryUri,
