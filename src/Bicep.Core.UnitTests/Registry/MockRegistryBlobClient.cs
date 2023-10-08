@@ -1,16 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure;
-using Azure.Containers.ContainerRegistry;
-using Bicep.Core.Json;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.Modules;
-using Bicep.Core.UnitTests.Utils;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Moq;
-using SharpYaml.Tokens;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -22,6 +12,16 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure;
+using Azure.Containers.ContainerRegistry;
+using Bicep.Core.Json;
+using Bicep.Core.Modules;
+using Bicep.Core.Registry.Oci;
+using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Utils;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Moq;
+using SharpYaml.Tokens;
 using static Bicep.Core.Emit.ParameterAssignmentEvaluator;
 
 namespace Bicep.Core.UnitTests.Registry
