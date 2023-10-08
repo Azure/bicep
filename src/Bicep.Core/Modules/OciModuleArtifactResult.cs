@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 
 
 namespace Bicep.Core.Modules
