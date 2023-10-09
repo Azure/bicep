@@ -194,6 +194,12 @@ type discriminatedUnionMemberOptionalCycle1 = {
   prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
 }
 
+type discriminatedUnionMemberOptionalCycle2 = {
+  type: 'b'
+  @discriminator('type')
+  *: typeA | discriminatedUnionMemberOptionalCycle1
+}
+
 type discriminatedUnionTuple1 = [
   discriminatedUnion1
   string

@@ -238,6 +238,13 @@ type discriminatedUnionMemberOptionalCycle1 = {
   prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
 }
 
+type discriminatedUnionMemberOptionalCycle2 = {
+//@[5:43) TypeAlias discriminatedUnionMemberOptionalCycle2. Type: Type<{ type: 'b', *: typeA | discriminatedUnionMemberOptionalCycle1 }>. Declaration start char: 0, length: 138
+  type: 'b'
+  @discriminator('type')
+  *: typeA | discriminatedUnionMemberOptionalCycle1
+}
+
 type discriminatedUnionTuple1 = [
 //@[5:29) TypeAlias discriminatedUnionTuple1. Type: Type<[discriminatedUnion1, string]>. Declaration start char: 0, length: 66
   discriminatedUnion1

@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10222832372327950937"
+      "templateHash": "10900403552106448310"
     }
   },
   "definitions": {
@@ -757,6 +757,31 @@
             }
           },
           "nullable": true
+        }
+      }
+    },
+    "discriminatedUnionMemberOptionalCycle2": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "allowedValues": [
+            "b"
+          ]
+        }
+      },
+      "additionalProperties": {
+        "type": "object",
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "a": {
+              "$ref": "#/definitions/typeA"
+            },
+            "b": {
+              "$ref": "#/definitions/discriminatedUnionMemberOptionalCycle1"
+            }
+          }
         }
       }
     },

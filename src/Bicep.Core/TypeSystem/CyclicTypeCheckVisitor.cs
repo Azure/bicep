@@ -63,28 +63,25 @@ public sealed class CyclicTypeCheckVisitor : AstVisitor
     }
 
     public override void VisitArrayTypeSyntax(ArrayTypeSyntax syntax)
-    {
-        enteredTypeContainer = true;
-        base.VisitArrayTypeSyntax(syntax);
-    }
+        => WithEnteredTypeContainerState(() => base.VisitArrayTypeSyntax(syntax), enteredTypeContainer: true);
 
     public override void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax)
-        => VisitContainedTypeSyntax(syntax, base.VisitArrayTypeMemberSyntax);
+    {
+        VisitContainedTypeSyntax(syntax, base.VisitArrayTypeMemberSyntax);
+    }
 
     public override void VisitObjectTypeSyntax(ObjectTypeSyntax syntax)
-    {
-        enteredTypeContainer = true;
-        base.VisitObjectTypeSyntax(syntax);
-    }
+        => WithEnteredTypeContainerState(() => base.VisitObjectTypeSyntax(syntax), enteredTypeContainer: true);
 
     public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
         => VisitContainedTypeSyntax(syntax, base.VisitObjectTypePropertySyntax);
 
+    // An additional properties type notation always permits zero or more additional properties of the specified type, so
+    // recursion is permitted here even if the specified type is non-nullable.
+    public override void VisitObjectTypeAdditionalPropertiesSyntax(ObjectTypeAdditionalPropertiesSyntax syntax) {}
+
     public override void VisitTupleTypeSyntax(TupleTypeSyntax syntax)
-    {
-        enteredTypeContainer = true;
-        base.VisitTupleTypeSyntax(syntax);
-    }
+        => WithEnteredTypeContainerState(() => base.VisitTupleTypeSyntax(syntax), enteredTypeContainer: true);
 
     public override void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax)
         => VisitContainedTypeSyntax(syntax, base.VisitTupleTypeItemSyntax);
@@ -101,6 +98,14 @@ public sealed class CyclicTypeCheckVisitor : AstVisitor
 
     public override void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax)
         => VisitContainedTypeSyntax(syntax, base.VisitUnionTypeMemberSyntax);
+
+    private void WithEnteredTypeContainerState(Action action, bool enteredTypeContainer)
+    {
+        var previousEnteredTypeContainerState = this.enteredTypeContainer;
+        this.enteredTypeContainer = enteredTypeContainer;
+        action();
+        this.enteredTypeContainer = previousEnteredTypeContainerState;
+    }
 
     private void VisitContainedTypeSyntax<TSyntax>(TSyntax syntax, Action<TSyntax> visitBaseFunc) where TSyntax : SyntaxBase
     {
