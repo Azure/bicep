@@ -16,7 +16,7 @@
   "devDependencies": {
     "@types/node": "^20.8.0",
     "@types/pako": "^2.0.1",
-    "@types/react": "^18.2.21",
+    "@types/react": "^18.2.25",
     "@types/react-dom": "^18.2.7",
     "@types/webpack": "^5.28.2",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
