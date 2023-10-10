@@ -2,12 +2,23 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.ConsoleExperiment;
 using Spectre.Console;
 
 public static class Example
 {
+    public static string Truncate(this string value, int maxLength, string truncationSuffix = "...")
+    {
+        if (value.Length > maxLength && maxLength > 3)
+        {
+            int middle = maxLength / 2;
+            var trunc_str = value.Substring(0, middle) + "..." + value.Substring(value.Length - middle + 1);
+            return trunc_str;
+        }
+        return value;
+    }
     public static async Task Main(string[] args)
     {
         //create dummy deployment info
@@ -42,74 +53,27 @@ public static class Example
         var d12 = new Deployments("vmName2", "Microsoft.Compute/virtualMachines", "Creating");
 
         //group in a list
-        var deploymentList = new List<Deployments>() { d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12 };
+        var deploymentList = new List<Deployments>() { d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12 }; //original
+        var truncatedList = new List<Deployments>() { d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12 }; //modified
 
-        //create grid
-        var grid = new Grid();
-        // Add columns 
-        grid.AddColumn();
-        grid.AddColumn();
-        grid.AddColumn();
-
-        // Add header row 
-        grid.AddRow(new string[] { "Name", "Resource type", "Status" });
+        var w = Console.WindowWidth;
+        //string builder
+        for (int i = 0; i < deploymentList.Count; i++)
+        {
+            truncatedList[i].Name = Truncate(truncatedList[i].Name, w / 3);
+        }
 
         //group by resource type
-        var resourceGroups = deploymentList.GroupBy(d => d.ResourceType);
-
-
-        //await AnsiConsole.Live(grid)
-        //    .AutoClear(false)   // Do not remove when done
-        //    .Overflow(VerticalOverflow.Ellipsis) // Show ellipsis when overflowing
-        //    .Cropping(VerticalOverflowCropping.Top) // Crop overflow at top
-        //    .StartAsync(async ctx =>
-        //    {
-        //        foreach (var group in resourceGroups)
-        //        {
-        //            foreach (var item in group)
-        //            {
-        //                grid.AddRow(item.Name, item.ResourceType, item.Status);
-        //                ctx.Refresh();
-        //                await Task.Delay(250);
-        //            }
-        //            grid.AddEmptyRow();
-        //            ctx.Refresh();
-        //            await Task.Delay(500);
-        //        }
-
-        //        //rerender if any changes
-        //        while (true)
-        //        {
-        //            //refresh entire grid
-        //            grid = new Grid();
-        //            grid.AddColumn();
-        //            grid.AddColumn();
-        //            grid.AddColumn();
-
-        //            grid.AddRow(new string[] { "Name", "Resource type", "Status" });
-
-        //            //change some values
-        //            d1.Status = "Created";
-        //            d4.Status = "Created";
-
-        //            foreach (var group in resourceGroups)
-        //            {
-        //                foreach (var item in group)
-        //                {
-        //                    grid.AddRow(item.Name, item.ResourceType, item.Status);
-        //                }
-        //                grid.AddEmptyRow();
-        //            }
-        //            ctx.UpdateTarget(grid);
-        //            await Task.Delay(1000);
-        //        }
-        //    });
+        var resourceGroups = truncatedList.GroupBy(d => d.ResourceType);
 
         var table = new Table().LeftAligned();
-        table.Border = TableBorder.SimpleHeavy;
+        table.Border = TableBorder.Simple;
+        table.Collapse();
+        table.Width(w);
         table.AddColumn("Name").LeftAligned();
-        table.AddColumn("Resource Type").LeftAligned();
+        table.AddColumn("Resource Type");// column=>column.Width(60).Alignment(Justify.Right));
         table.AddColumn("Status").LeftAligned();
+        //table.Columns
         await AnsiConsole.Live(table)
         .StartAsync(async ctx =>
         {
@@ -117,25 +81,42 @@ public static class Example
             {
                 foreach (var item in group)
                 {
-                    table.AddRow(item.Name, item.ResourceType, item.Status).LeftAligned();
+                    if (item.Status.Equals("Creating"))
+                    {
+                        table.AddRow($"[yellow]{item.Name}[/]", item.ResourceType, $"[blue]{item.Status}[/]").LeftAligned();
+                    }
+                    else
+                    {
+                        table.AddRow($"[yellow]{item.Name}[/]", item.ResourceType, $"[green]{item.Status}[/]").LeftAligned();
+                    }
                     ctx.Refresh();
-                    await Task.Delay(250);
+                    await Task.Delay(500);
                 }
-                grid.AddEmptyRow().LeftAligned(); //not visually working for table in terminal
-                ctx.Refresh();
-                await Task.Delay(500);
             }
             while (true)
             {
-                //try to change some value to update live
-                //d1.Status = "Created";
-                //d4.Status = "Created";
-                //table.Rows.Update(1,2, table);
-                table.UpdateCell(1, 2, "Created");
-                table.UpdateCell(4, 2, "Created");
+                //var w = Console.WindowWidth;
+                //table.Width(w);
+                //var h = Console.WindowHeight;
+                //var dw = new StringBuilder("Console width value found. W = ").Append(w);
+                //var dh = new StringBuilder("Console height value found. H = ").Append(h);
+                //AnsiConsole.WriteLine(dw.ToString());
+                //AnsiConsole.WriteLine(dh.ToString());
+                table.UpdateCell(0, 2, "[green]Created[/]");
+                table.UpdateCell(5, 2, "[green]Created[/]");
+                await Task.Delay(2000);
                 ctx.Refresh();
-                //ctx.UpdateTarget(table);
-                await Task.Delay(1000);
+                table.UpdateCell(2, 2, "[green]Created[/]");
+                table.UpdateCell(3, 2, "[green]Created[/]");
+                await Task.Delay(2000);
+                ctx.Refresh();
+                table.UpdateCell(7, 2, "[green]Created[/]");
+                table.UpdateCell(10, 2, "[green]Created[/]");
+                await Task.Delay(2000);
+                ctx.Refresh();
+                table.UpdateCell(11, 2, "[green]Created[/]");
+                await Task.Delay(2000);
+                ctx.Refresh();
             }
 
         });
