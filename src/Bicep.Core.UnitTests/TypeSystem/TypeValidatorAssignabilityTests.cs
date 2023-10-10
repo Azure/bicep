@@ -227,7 +227,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             var binderMock = StrictMock.Of<IBinder>();
             binderMock.Setup(t => t.GetSymbolInfo(expression))
-                .Returns<Symbol?>(null);
+                .Returns<SyntaxBase>(x => null);
 
             var parsingErrorLookupMock = StrictMock.Of<IDiagnosticLookup>();
             parsingErrorLookupMock.Setup(x => x.Contains(expression)).Returns(false);
@@ -954,7 +954,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             binderMock
                 .Setup(x => x.GetSymbolInfo(It.IsAny<SyntaxBase>()))
-                .Returns<Symbol?>(null);
+                .Returns<SyntaxBase>(x => null);
 
             parsingErrorLookup ??= EmptyDiagnosticLookup.Instance;
 
