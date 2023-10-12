@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4814) ProgramExpression
+//@[000:4954) ProgramExpression
 //@[000:0299) ├─DeclaredTypeExpression { Name = foo }
 //@[013:0027) | ├─StringLiteralExpression { Value = The foo type }
 @sealed()
@@ -555,6 +555,20 @@ type discriminatedUnionMemberOptionalCycle1 = {
 //@[009:0055) |       └─DiscriminatedObjectTypeExpression { Name = { type: 'a', value: string } | { type: 'b', prop: (typeA | discriminatedUnionMemberOptionalCycle1)? } }
 //@[009:0014) |         ├─TypeAliasReferenceExpression { Name = typeA }
 //@[017:0055) |         └─TypeAliasReferenceExpression { Name = discriminatedUnionMemberOptionalCycle1 }
+}
+
+type discriminatedUnionMemberOptionalCycle2 = {
+//@[000:0138) ├─DeclaredTypeExpression { Name = discriminatedUnionMemberOptionalCycle2 }
+//@[046:0138) | └─ObjectTypeExpression { Name = { type: 'b', *: typeA | discriminatedUnionMemberOptionalCycle1 } }
+  type: 'b'
+//@[002:0011) |   ├─ObjectTypePropertyExpression
+//@[008:0011) |   | └─StringLiteralTypeExpression { Name = 'b' }
+  @discriminator('type')
+//@[002:0076) |   └─ObjectTypeAdditionalPropertiesExpression
+  *: typeA | discriminatedUnionMemberOptionalCycle1
+//@[005:0051) |     └─DiscriminatedObjectTypeExpression { Name = { type: 'a', value: string } | { type: 'b', prop: (typeA | discriminatedUnionMemberOptionalCycle1)? } }
+//@[005:0010) |       ├─TypeAliasReferenceExpression { Name = typeA }
+//@[013:0051) |       └─TypeAliasReferenceExpression { Name = discriminatedUnionMemberOptionalCycle1 }
 }
 
 type discriminatedUnionTuple1 = [

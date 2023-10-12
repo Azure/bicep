@@ -273,14 +273,6 @@ type discriminatorInlineAdditionalPropsBadType3 = {
   *: string
 }
 
-type discriminatorInlineAdditionalPropsCycle1 = {
-//@[05:045) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorInlineAdditionalPropsCycle1|
-  type: 'b'
-  @discriminator('type')
-  *: typeA | discriminatorInlineAdditionalPropsCycle1
-//@[13:053) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (CodeDescription: none) |discriminatorInlineAdditionalPropsCycle1|
-}
-
 @discriminator('type')
 type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | { type: 'A', value: int }
 //@[83:108) [BCP365 (Error)] The value "'A'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'A', value: int }|

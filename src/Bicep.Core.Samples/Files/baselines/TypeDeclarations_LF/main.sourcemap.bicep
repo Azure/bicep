@@ -1012,6 +1012,37 @@ type discriminatedUnionMemberOptionalCycle1 = {
 //@        }
 }
 
+type discriminatedUnionMemberOptionalCycle2 = {
+//@    "discriminatedUnionMemberOptionalCycle2": {
+//@      "type": "object",
+//@      "properties": {
+//@      },
+//@    },
+  type: 'b'
+//@        "type": {
+//@          "type": "string",
+//@          "allowedValues": [
+//@            "b"
+//@          ]
+//@        }
+  @discriminator('type')
+  *: typeA | discriminatedUnionMemberOptionalCycle1
+//@      "additionalProperties": {
+//@        "type": "object",
+//@        "discriminator": {
+//@          "propertyName": "type",
+//@          "mapping": {
+//@            "a": {
+//@              "$ref": "#/definitions/typeA"
+//@            },
+//@            "b": {
+//@              "$ref": "#/definitions/discriminatedUnionMemberOptionalCycle1"
+//@            }
+//@          }
+//@        }
+//@      }
+}
+
 type discriminatedUnionTuple1 = [
 //@    "discriminatedUnionTuple1": {
 //@      "type": "array",

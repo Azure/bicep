@@ -1,5 +1,5 @@
 type 44
-//@[000:4686) ProgramSyntax
+//@[000:4542) ProgramSyntax
 //@[000:0007) ├─TypeDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |type|
 //@[005:0007) | ├─IdentifierSyntax
@@ -1600,54 +1600,6 @@ type discriminatorInlineAdditionalPropsBadType3 = {
 //@[005:0011) |   |   └─IdentifierSyntax
 //@[005:0011) |   |     └─Token(Identifier) |string|
 //@[011:0012) |   ├─Token(NewLine) |\n|
-}
-//@[000:0001) |   └─Token(RightBrace) |}|
-//@[001:0003) ├─Token(NewLine) |\n\n|
-
-type discriminatorInlineAdditionalPropsCycle1 = {
-//@[000:0142) ├─TypeDeclarationSyntax
-//@[000:0004) | ├─Token(Identifier) |type|
-//@[005:0045) | ├─IdentifierSyntax
-//@[005:0045) | | └─Token(Identifier) |discriminatorInlineAdditionalPropsCycle1|
-//@[046:0047) | ├─Token(Assignment) |=|
-//@[048:0142) | └─ObjectTypeSyntax
-//@[048:0049) |   ├─Token(LeftBrace) |{|
-//@[049:0050) |   ├─Token(NewLine) |\n|
-  type: 'b'
-//@[002:0011) |   ├─ObjectTypePropertySyntax
-//@[002:0006) |   | ├─IdentifierSyntax
-//@[002:0006) |   | | └─Token(Identifier) |type|
-//@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0011) |   | └─StringSyntax
-//@[008:0011) |   |   └─Token(StringComplete) |'b'|
-//@[011:0012) |   ├─Token(NewLine) |\n|
-  @discriminator('type')
-//@[002:0078) |   ├─ObjectTypeAdditionalPropertiesSyntax
-//@[002:0024) |   | ├─DecoratorSyntax
-//@[002:0003) |   | | ├─Token(At) |@|
-//@[003:0024) |   | | └─FunctionCallSyntax
-//@[003:0016) |   | |   ├─IdentifierSyntax
-//@[003:0016) |   | |   | └─Token(Identifier) |discriminator|
-//@[016:0017) |   | |   ├─Token(LeftParen) |(|
-//@[017:0023) |   | |   ├─FunctionArgumentSyntax
-//@[017:0023) |   | |   | └─StringSyntax
-//@[017:0023) |   | |   |   └─Token(StringComplete) |'type'|
-//@[023:0024) |   | |   └─Token(RightParen) |)|
-//@[024:0025) |   | ├─Token(NewLine) |\n|
-  *: typeA | discriminatorInlineAdditionalPropsCycle1
-//@[002:0003) |   | ├─Token(Asterisk) |*|
-//@[003:0004) |   | ├─Token(Colon) |:|
-//@[005:0053) |   | └─UnionTypeSyntax
-//@[005:0010) |   |   ├─UnionTypeMemberSyntax
-//@[005:0010) |   |   | └─VariableAccessSyntax
-//@[005:0010) |   |   |   └─IdentifierSyntax
-//@[005:0010) |   |   |     └─Token(Identifier) |typeA|
-//@[011:0012) |   |   ├─Token(Pipe) |||
-//@[013:0053) |   |   └─UnionTypeMemberSyntax
-//@[013:0053) |   |     └─VariableAccessSyntax
-//@[013:0053) |   |       └─IdentifierSyntax
-//@[013:0053) |   |         └─Token(Identifier) |discriminatorInlineAdditionalPropsCycle1|
-//@[053:0054) |   ├─Token(NewLine) |\n|
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|

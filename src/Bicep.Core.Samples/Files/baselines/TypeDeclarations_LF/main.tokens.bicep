@@ -1084,6 +1084,35 @@ type discriminatedUnionMemberOptionalCycle1 = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
+type discriminatedUnionMemberOptionalCycle2 = {
+//@[000:004) Identifier |type|
+//@[005:043) Identifier |discriminatedUnionMemberOptionalCycle2|
+//@[044:045) Assignment |=|
+//@[046:047) LeftBrace |{|
+//@[047:048) NewLine |\n|
+  type: 'b'
+//@[002:006) Identifier |type|
+//@[006:007) Colon |:|
+//@[008:011) StringComplete |'b'|
+//@[011:012) NewLine |\n|
+  @discriminator('type')
+//@[002:003) At |@|
+//@[003:016) Identifier |discriminator|
+//@[016:017) LeftParen |(|
+//@[017:023) StringComplete |'type'|
+//@[023:024) RightParen |)|
+//@[024:025) NewLine |\n|
+  *: typeA | discriminatedUnionMemberOptionalCycle1
+//@[002:003) Asterisk |*|
+//@[003:004) Colon |:|
+//@[005:010) Identifier |typeA|
+//@[011:012) Pipe |||
+//@[013:051) Identifier |discriminatedUnionMemberOptionalCycle1|
+//@[051:052) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
 type discriminatedUnionTuple1 = [
 //@[000:004) Identifier |type|
 //@[005:029) Identifier |discriminatedUnionTuple1|
