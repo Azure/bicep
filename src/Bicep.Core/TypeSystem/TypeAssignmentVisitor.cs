@@ -1171,7 +1171,7 @@ namespace Bicep.Core.TypeSystem
 
                         // we've not been able to find a declared object type for the containing object, or it doesn't contain a property matching this one.
                         // best we can do is to simply generate a property for the assigned type.
-                        return new TypeProperty(group.Key, resolvedType);
+                        return new TypeProperty(group.Key, resolvedType, TypePropertyFlags.Required);
                     });
 
                 var additionalProperties = syntax.Properties

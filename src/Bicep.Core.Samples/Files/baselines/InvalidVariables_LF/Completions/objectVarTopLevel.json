@@ -2,7 +2,7 @@
   {
     "label": "fifth",
     "kind": "property",
-    "detail": "fifth",
+    "detail": "fifth (Required)",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `[object, object]`  \n"
@@ -23,7 +23,7 @@
   {
     "label": "first",
     "kind": "property",
-    "detail": "first",
+    "detail": "first (Required)",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `true`  \n"
@@ -44,7 +44,7 @@
   {
     "label": "fourth",
     "kind": "property",
-    "detail": "fourth",
+    "detail": "fourth (Required)",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `'test'`  \n"
@@ -65,7 +65,7 @@
   {
     "label": "second",
     "kind": "property",
-    "detail": "second",
+    "detail": "second (Required)",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `false`  \n"
@@ -86,7 +86,7 @@
   {
     "label": "sixth",
     "kind": "property",
-    "detail": "sixth",
+    "detail": "sixth (Required)",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `[object]`  \n"
@@ -107,7 +107,7 @@
   {
     "label": "third",
     "kind": "property",
-    "detail": "third",
+    "detail": "third (Required)",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `42`  \n"
