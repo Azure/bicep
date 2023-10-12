@@ -183,15 +183,14 @@ type discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG
 
 @discriminator('type')
 type discriminatorDuplicatedMember1 = typeA | typeA
-//@[46:051) [BCP365 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
 
 @discriminator('type')
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }
 //@[46:075) [BCP365 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |{ type: 'a', config: object }|
 
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorOnlyOneNonNullMember1 = typeA | null
+//@[50:054) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (CodeDescription: none) |null|
 
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
@@ -201,23 +200,23 @@ type discriminatorOnlyOneNonNullMember2 = (typeA)?
 type discriminatorMemberHasAdditionalProperties = typeA | typeE
 
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorSelfCycle1 = typeA | discriminatorSelfCycle1
 //@[05:028) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorSelfCycle1|
+//@[39:062) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (CodeDescription: none) |discriminatorSelfCycle1|
 
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorSelfCycle2 = (typeA | discriminatorSelfCycle2)?
 //@[05:028) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorSelfCycle2|
+//@[40:063) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (CodeDescription: none) |discriminatorSelfCycle2|
 
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB
 //@[05:032) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorTopLevelCycleA" -> "discriminatorTopLevelCycleB"). (CodeDescription: none) |discriminatorTopLevelCycleA|
+//@[43:070) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (CodeDescription: none) |discriminatorTopLevelCycleB|
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 type discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA
 //@[05:032) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("discriminatorTopLevelCycleB" -> "discriminatorTopLevelCycleA"). (CodeDescription: none) |discriminatorTopLevelCycleB|
+//@[43:070) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (CodeDescription: none) |discriminatorTopLevelCycleA|
 
 @discriminator('type')
 type discriminatorInnerSelfCycle1 = typeA | {
@@ -265,7 +264,6 @@ type discriminatorInlineAdditionalPropsBadType1 = {
 type discriminatorInlineAdditionalPropsBadType2 = {
   @discriminator('type')
   *: typeA | typeA
-//@[13:018) [BCP365 (Error)] The value "'a'" for discriminator property "type" is duplicated across multiple union member types. The value must be unique across all union member types. (CodeDescription: none) |typeA|
 }
 
 type discriminatorInlineAdditionalPropsBadType3 = {
@@ -279,8 +277,8 @@ type discriminatorInlineAdditionalPropsCycle1 = {
 //@[05:045) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |discriminatorInlineAdditionalPropsCycle1|
   type: 'b'
   @discriminator('type')
-//@[02:024) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
   *: typeA | discriminatorInlineAdditionalPropsCycle1
+//@[13:053) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (CodeDescription: none) |discriminatorInlineAdditionalPropsCycle1|
 }
 
 @discriminator('type')
@@ -298,9 +296,10 @@ param discriminatorParamBadType1 typeA
 //@[06:032) [no-unused-params (Warning)] Parameter "discriminatorParamBadType1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |discriminatorParamBadType1|
 
 @discriminator('type')
-//@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 param discriminatorParamBadType2 'a' | 'b'
 //@[06:032) [no-unused-params (Warning)] Parameter "discriminatorParamBadType2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |discriminatorParamBadType2|
+//@[33:036) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (CodeDescription: none) |'a'|
+//@[39:042) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'object' type. (CodeDescription: none) |'b'|
 
 @discriminator('type')
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
