@@ -54,12 +54,12 @@ public static class Example
 
         //group in a list
         var deploymentList = new List<Deployments>() { d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12 }; //original
-        var truncatedList = new List<Deployments>() { d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12 }; //modified
-
         var w = Console.WindowWidth;
-        //string builder
-        for (int i = 0; i < deploymentList.Count; i++)
+        //fill up to 800
+        var truncatedList = new List<Deployments>(); //modified
+        for (int i = 0; i < 800; i++)
         {
+            truncatedList.Add(deploymentList[i % 12]);
             truncatedList[i].Name = Truncate(truncatedList[i].Name, w / 3);
         }
 
@@ -75,6 +75,8 @@ public static class Example
         table.AddColumn("Status").LeftAligned();
         //table.Columns
         await AnsiConsole.Live(table)
+        //.Overflow(VerticalOverflow.Ellipsis)
+        //.Cropping(VerticalOverflowCropping.)
         .StartAsync(async ctx =>
         {
             foreach (var group in resourceGroups)
@@ -90,35 +92,90 @@ public static class Example
                         table.AddRow($"[yellow]{item.Name}[/]", item.ResourceType, $"[green]{item.Status}[/]").LeftAligned();
                     }
                     ctx.Refresh();
-                    await Task.Delay(500);
+                    await Task.Delay(50);
                 }
-            }
-            while (true)
-            {
-                //var w = Console.WindowWidth;
-                //table.Width(w);
-                //var h = Console.WindowHeight;
-                //var dw = new StringBuilder("Console width value found. W = ").Append(w);
-                //var dh = new StringBuilder("Console height value found. H = ").Append(h);
-                //AnsiConsole.WriteLine(dw.ToString());
-                //AnsiConsole.WriteLine(dh.ToString());
+            } 
                 table.UpdateCell(0, 2, "[green]Created[/]");
+                d1.Status = "Created";
                 table.UpdateCell(5, 2, "[green]Created[/]");
+                d6.Status = "Created";
                 await Task.Delay(2000);
                 ctx.Refresh();
                 table.UpdateCell(2, 2, "[green]Created[/]");
+                d3.Status = "Created";
                 table.UpdateCell(3, 2, "[green]Created[/]");
+                d4.Status = "Created";
                 await Task.Delay(2000);
                 ctx.Refresh();
                 table.UpdateCell(7, 2, "[green]Created[/]");
+                d8.Status = "Created";
                 table.UpdateCell(10, 2, "[green]Created[/]");
+                d11.Status = "Created";
                 await Task.Delay(2000);
                 ctx.Refresh();
                 table.UpdateCell(11, 2, "[green]Created[/]");
+                d12.Status = "Created";
                 await Task.Delay(2000);
                 ctx.Refresh();
-            }
-
         });
+
+        while (true)
+        {
+            //w = Console.WindowWidth;
+            if (w != Console.WindowWidth)
+            {
+                w = Console.WindowWidth;
+                AnsiConsole.Write("Deploment name: ");
+                AnsiConsole.Write(new Text(deploymentObj.Name, new Style(Color.Blue)));
+                AnsiConsole.WriteLine();
+                AnsiConsole.Write("Resource group: ");
+                AnsiConsole.Write(new Text(deploymentObj.ResourceGroup, new Style(Color.Blue)));
+                AnsiConsole.WriteLine();
+                AnsiConsole.Write("Portal Link: ");
+                AnsiConsole.Write(new Text(deploymentObj.PortalLink, new Style(Color.Blue)));
+                AnsiConsole.WriteLine();
+                AnsiConsole.Write("Correlation ID: ");
+                AnsiConsole.Write(new Text(deploymentObj.CorrelationID, new Style(Color.Blue)));
+                AnsiConsole.WriteLine("\n");
+
+                for (int i = 0; i < 800; i++)
+                {
+                    //truncatedList.Add(deploymentList[i % 12]);
+                    truncatedList[i].Name = Truncate(deploymentList[i % 12].Name, w / 3);
+                }
+
+                //group by resource type
+                resourceGroups = truncatedList.GroupBy(d => d.ResourceType);
+
+                table = new Table().LeftAligned();
+                table.Border = TableBorder.Simple;
+                table.Collapse();
+                table.Width(w);
+                table.AddColumn("Name").LeftAligned();
+                table.AddColumn("Resource Type");// column=>column.Width(60).Alignment(Justify.Right));
+                table.AddColumn("Status").LeftAligned();
+                //table.Columns
+                await AnsiConsole.Live(table)
+                .StartAsync(async ctx =>
+                {
+                    foreach (var group in resourceGroups)
+                    {
+                        foreach (var item in group)
+                        {
+                            if (item.Status.Equals("Creating"))
+                            {
+                                table.AddRow($"[yellow]{item.Name}[/]", item.ResourceType, $"[blue]{item.Status}[/]").LeftAligned();
+                            }
+                            else
+                            {
+                                table.AddRow($"[yellow]{item.Name}[/]", item.ResourceType, $"[green]{item.Status}[/]").LeftAligned();
+                            }
+                        }
+                    }
+                    ctx.Refresh();
+                    await Task.Delay(50);
+                });
+            }
+        }
     }
 }
