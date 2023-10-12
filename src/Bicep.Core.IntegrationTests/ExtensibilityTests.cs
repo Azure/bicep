@@ -624,7 +624,7 @@ Hello from Bicep!"));
         public void Az_namespace_can_be_used_without_configuration()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'az@1.0.0'
+import 'br/public:az@1.0.0'
 ");
 
             result.Should().GenerateATemplate();
@@ -635,7 +635,7 @@ import 'az@1.0.0'
         public void Az_namespace_errors_with_configuration()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'az@1.0.0' with {}
+import 'br/public:az@1.0.0' with {}
 ");
 
             result.Should().NotGenerateATemplate();

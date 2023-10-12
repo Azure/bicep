@@ -96,12 +96,7 @@ namespace Bicep.Core.Registry
                 return new(failureBuilder);
             }
 
-            var artifactType = artifactDeclaration switch
-            {
-                ModuleDeclarationSyntax => ArtifactType.Module,
-                ProviderDeclarationSyntax => ArtifactType.Provider,
-                _ => throw new InvalidOperationException($"Unexpected artifactDeclaration artifactType '{artifactDeclaration.GetType().Name}'."),
-            };
+            var artifactType = (artifactDeclaration is ProviderDeclarationSyntax) ? ArtifactType.Provider : ArtifactType.Module;
 
             return this.TryGetArtifactReference(artifactReferenceString, artifactType, parentModuleUri);
         }

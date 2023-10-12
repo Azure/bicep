@@ -54,7 +54,7 @@ namespace Bicep.Core.IntegrationTests
         public void Imports_are_disabled_unless_feature_is_enabled()
         {
             var result = CompilationHelper.Compile(@"
-import 'az@1.0.0'
+import 'br/public:az@1.0.0'
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using import statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
@@ -74,7 +74,7 @@ import
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'az@1.0.0' blahblah
+import 'br/public:az@1.0.0' blahblah
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
@@ -108,7 +108,7 @@ import 'kubernetes@1.0.0' with {
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'az@1.0.0' as
+import 'br/public:az@1.0.0' as
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected an import alias name at this location."),
@@ -130,7 +130,7 @@ import 'madeUpNamespace@1.0.0'
         public void Import_configuration_is_blocked_by_default()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'az@1.0.0' with {
+import 'br/public:az@1.0.0' with {
   foo: 'bar'
 }
 ");
@@ -143,7 +143,7 @@ import 'az@1.0.0' with {
         public void Using_import_statements_frees_up_the_namespace_symbol()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'az@1.0.0' as newAz
+import 'br/public:az@1.0.0' as newAz
 
 var az = 'Fake AZ!'
 var myRg = newAz.resourceGroup()
@@ -159,7 +159,7 @@ output rgLocation string = myRg.location
         public void You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'az@1.0.0' as sys
+import 'br/public:az@1.0.0' as sys
 import 'sys@1.0.0' as az
 
 var myRg = sys.resourceGroup()
@@ -176,7 +176,7 @@ output rgLocation string = myRg.location
         public void Overwriting_single_built_in_namespace_with_import_is_prohibited()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'az@1.0.0' as sys
+import 'br/public:az@1.0.0' as sys
 
 var myRg = sys.resourceGroup()
 
@@ -190,8 +190,8 @@ output rgLocation string = myRg.location
         public void Singleton_imports_cannot_be_used_multiple_times()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'az@1.0.0' as az1
-import 'az@1.0.0' as az2
+import 'br/public:az@1.0.0' as az1
+import 'br/public:az@1.0.0' as az2
 
 import 'sys@1.0.0' as sys1
 import 'sys@1.0.0' as sys2
@@ -209,7 +209,7 @@ import 'sys@1.0.0' as sys2
         public void Import_names_must_not_conflict_with_other_symbols()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'az@1.0.0'
+import 'br/public:az@1.0.0'
 import 'kubernetes@1.0.0' with {
   kubeConfig: ''
   namespace: ''
