@@ -278,11 +278,11 @@ import 'az@2.0.0'
             using (new AssertionScope())
             {
                 publishResult.Should().Be(0);
-                publishOutput.Should().BeEmpty();
+                publishOutput.Should().Be("NOTE: Experimental feature publishSource is enabled, but --with-source must also be specified to publish a module with source.\n");
                 publishError.Should().BeEmpty();
             }
 
-            client.Blobs.Should().HaveCount(3); // manifest config, main.json, sources
+            client.Blobs.Should().HaveCount(2);
             client.Manifests.Should().HaveCount(1);
             client.ManifestTags.Should().HaveCount(1);
 

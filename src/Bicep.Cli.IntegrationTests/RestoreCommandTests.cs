@@ -338,11 +338,11 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 param p1 string
 output o1 string = p1");
 
-            var (publishOutput, publishError, exitCode) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1");
+            var (publishOutput, publishError, exitCode) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1", publishSource ? "--with-source" : null);
             using (new AssertionScope())
             {
                 exitCode.Should().Be(0);
-                publishOutput.Should().BeEmpty();
+                publishOutput.Should().Be(publishSource ? "WARNING: The following experimental Bicep features have been enabled: publishSource. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.\n" : "");
                 publishError.Should().BeEmpty();
             }
 
@@ -388,11 +388,11 @@ param p1 string
 param p2 string
 output o1 string = '${p1}${p2}'");
 
-            (publishOutput, publishError, exitCode) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1", "--force");
+            (publishOutput, publishError, exitCode) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1", "--force", publishSource ? "--with-source" : null);
             using (new AssertionScope())
             {
                 exitCode.Should().Be(0);
-                publishOutput.Should().BeEmpty();
+                publishOutput.Should().Be(publishSource ? "WARNING: The following experimental Bicep features have been enabled: publishSource. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.\n" : "");
                 publishError.Should().BeEmpty();
             }
 
@@ -436,7 +436,7 @@ output o1 string = '${p1}${p2}'");
         [DataTestMethod]
         [DataRow(false)]
         [DataRow(true)]
-        public async Task Restore_ByDigest_ShouldSucceed(bool publishSource) // TODO: test publishSource
+        public async Task Restore_ByDigest_ShouldSucceed(bool publishSource)
         {
             var registry = "example.com";
             var registryUri = new Uri("https://" + registry);
@@ -457,11 +457,11 @@ output o1 string = '${p1}${p2}'");
             var publishedBicepFilePath = Path.Combine(tempDirectory, "published.bicep");
             File.WriteAllText(publishedBicepFilePath, string.Empty);
 
-            var (publishOutput, publishError, publishResult) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1");
+            var (publishOutput, publishError, publishResult) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1", publishSource ? "--with-source" : null);
             using (new AssertionScope())
             {
                 publishResult.Should().Be(0);
-                publishOutput.Should().BeEmpty();
+                publishOutput.Should().Be(publishSource ? "WARNING: The following experimental Bicep features have been enabled: publishSource. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.\n" : "");
                 publishError.Should().BeEmpty();
             }
 

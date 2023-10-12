@@ -572,7 +572,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataTestMethod]
         [DataRow(false)]
         [DataRow(true)]
-        public async Task PublishModuleWithSources_ShouldHaveSource(bool publishSource)
+        public async Task PublishModuleWithSource_ShouldHaveSource(bool publishSource)
         {
             string registry = "myregistry.azurecr.io";
             string repository = "bicep/myrepo";
@@ -608,7 +608,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataRow(jsonContentsV1, "sources", jsonContentsV2, "sources")]
         // Sources changed, but compiled template did not
         [DataRow(jsonContentsV1, "sources v1", jsonContentsV1, "sources v2")]
-        public async Task PublishArtifactWithSources_AtMultipleVersions_ShouldHaveRespectivelyPublishedSource(string jsonContentsV1, string? sourceContentsV1, string jsonContentsV2, string? sourceContentsV2)
+        public async Task PublishArtifactWithSource_AtMultipleVersions_ShouldHaveRespectivelyPublishedSource(string jsonContentsV1, string? sourceContentsV1, string jsonContentsV2, string? sourceContentsV2)
         {
             string registry = "myregistry.azurecr.io";
             string repository = "bicep/myrepo";
@@ -651,7 +651,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataTestMethod]
         [DataRow(false)]
         [DataRow(true)]
-        public async Task RestoreModuleWithSources_ShouldRestoreSourceToDisk(bool publishSource)
+        public async Task RestoreModuleWithSource_ShouldRestoreSourceToDisk(bool publishSource)
         {
             string registry = "myregistry.azurecr.io";
             string repository = "bicep/myrepo";
@@ -676,7 +676,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             await RestoreModule(ociRegistry, moduleReference);
 
-            ociRegistry.Should().HaveValidCachedModules(withSources: publishSource);
+            ociRegistry.Should().HaveValidCachedModules(withSource: publishSource);
             var actualSource = ociRegistry.TryGetSource(moduleReference);
 
             if (sourceStream is { })
