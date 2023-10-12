@@ -29,7 +29,7 @@ namespace Bicep.Core.Registry
 
         public abstract ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(T reference);
 
-        public abstract ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string artifactType, string reference, Uri parentModuleUri);
+        public abstract ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, ArtifactType artifactType, string reference);
 
         public abstract string? TryGetDocumentationUri(T reference);
 

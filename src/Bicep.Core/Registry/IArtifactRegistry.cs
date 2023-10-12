@@ -12,6 +12,11 @@ using Bicep.Core.SourceCode;
 
 namespace Bicep.Core.Registry
 {
+    public enum ArtifactType
+    {
+        Module,
+        Provider,
+    }
     /// <summary>
     /// An implementation of a Bicep artifact registry.
     /// </summary>
@@ -34,8 +39,7 @@ namespace Bicep.Core.Registry
         /// <param name="aliasName">The alias name</param>
         /// <param name="reference">The unqualified artifact reference</param>
         /// <param name="artifactType">The artifact type. Either "module" or "provider"</param>
-        /// <param name="parentModuleUri">The URI of the parent module</param>
-        ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string artifactType, string reference, Uri parentModuleUri);
+        ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, ArtifactType artifactType, string reference);
 
         /// <summary>
         /// Returns true if the specified artifact is already cached in the local cache.

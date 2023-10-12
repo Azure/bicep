@@ -991,7 +991,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP162",
                 "Expected a loop item variable identifier or \"(\" at this location.");
 
-            public ErrorDiagnostic ScopeUnsupportedOnChildResource(string parentIdentifier) => new(
+            public ErrorDiagnostic ScopeUnsupportedOnChildResource() => new(
                 TextSpan,
                 "BCP164",
                 $"A child resource's scope is computed based on the scope of its ancestor resource. This means that using the \"{LanguageConstants.ResourceScopePropertyName}\" property on a child resource is unsupported.");
@@ -1761,7 +1761,7 @@ namespace Bicep.Core.Diagnostics
                 var message = new StringBuilder("The provided index value of \"").Append(indexSought).Append("\" is not valid for type \"").Append(typeName).Append("\".");
                 if (tupleLength > 0)
                 {
-                    message.Append(" Indexes for this type must be between 0 and ").Append(tupleLength - 1).Append(".");
+                    message.Append(" Indexes for this type must be between 0 and ").Append(tupleLength - 1).Append('.');
                 }
 
                 return new(TextSpan, "BCP311", message.ToString());

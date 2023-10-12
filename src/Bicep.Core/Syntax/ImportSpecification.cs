@@ -138,9 +138,6 @@ namespace Bicep.Core.Syntax
                 LanguageConstants.ErrorName,
                 false,
                 stringSyntax.Span);
-
-
         }
-
     }
 }

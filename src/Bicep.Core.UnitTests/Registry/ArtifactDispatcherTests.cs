@@ -89,20 +89,20 @@ namespace Bicep.Core.UnitTests.Registry
 
             var validRefUri = RandomFileUri();
             ArtifactReference? validRef = new MockModuleReference("validRef", validRefUri);
-            mock.Setup(m => m.TryParseArtifactReference(null, "module", "validRef", validRefUri)).Returns(ResultHelper.Create(validRef, @null));
+            mock.Setup(m => m.TryParseArtifactReference(null, ArtifactType.Module, "validRef")).Returns(ResultHelper.Create(validRef, @null));
 
             var validRefUri2 = RandomFileUri();
             ArtifactReference? validRef2 = new MockModuleReference("validRef2", validRefUri2);
-            mock.Setup(m => m.TryParseArtifactReference(null, "module", "validRef2", validRefUri2)).Returns(ResultHelper.Create(validRef2, @null));
+            mock.Setup(m => m.TryParseArtifactReference(null, ArtifactType.Module, "validRef2")).Returns(ResultHelper.Create(validRef2, @null));
 
             var validRefUri3 = RandomFileUri();
             ArtifactReference? validRef3 = new MockModuleReference("validRef3", validRefUri3);
-            mock.Setup(m => m.TryParseArtifactReference(null, "module", "validRef3", validRefUri3)).Returns(ResultHelper.Create(validRef3, @null));
+            mock.Setup(m => m.TryParseArtifactReference(null, ArtifactType.Module, "validRef3")).Returns(ResultHelper.Create(validRef3, @null));
 
             var badRefUri = RandomFileUri();
             ArtifactReference? nullRef = null;
             ErrorBuilderDelegate? badRefError = x => new ErrorDiagnostic(x.TextSpan, "BCPMock", "Bad ref error");
-            mock.Setup(m => m.TryParseArtifactReference(null, "module", "badRef", badRefUri)).Returns(ResultHelper.Create(nullRef, badRefError));
+            mock.Setup(m => m.TryParseArtifactReference(null, ArtifactType.Module, "badRef")).Returns(ResultHelper.Create(nullRef, badRefError));
 
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef)).Returns(true);
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef2)).Returns(false);

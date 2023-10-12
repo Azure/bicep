@@ -60,12 +60,12 @@ namespace Bicep.Core.Registry
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
         }
 
-        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string artifactType, string reference, Uri parentModuleUri)
+        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, ArtifactType artifactType, string reference)
         {
             var type = artifactType switch
             {
-                "module" => OciArtifactReferenceType.Module,
-                "provider" => OciArtifactReferenceType.Provider,
+                ArtifactType.Module => OciArtifactReferenceType.Module,
+                ArtifactType.Provider => OciArtifactReferenceType.Provider,
                 _ => throw new ArgumentException($"Unexpected artifact type \"{artifactType}\"."),
             };
             if (!OciArtifactReference.TryParse(type, aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))

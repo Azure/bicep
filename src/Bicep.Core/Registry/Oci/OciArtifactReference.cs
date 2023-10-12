@@ -38,7 +38,6 @@ namespace Bicep.Core.Registry.Oci
             this.Type = type;
         }
 
-
         /// <summary>
         /// Gets the registry URI.
         /// </summary>

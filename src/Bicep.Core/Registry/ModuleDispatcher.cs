@@ -41,7 +41,11 @@ namespace Bicep.Core.Registry
         public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
             => Registries(parentModuleUri).Keys.OrderBy(s => s).ToImmutableArray();
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(string reference, string artifactType, Uri parentModuleUri)
+        public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference(string reference, Uri parentModuleUri)
+            => TryGetArtifactReference(reference, ArtifactType.Module, parentModuleUri);
+
+
+        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(string reference, ArtifactType artifactType, Uri parentModuleUri)
         {
             var registries = Registries(parentModuleUri);
             var parts = reference.Split(':', 2, StringSplitOptions.None);
@@ -51,7 +55,7 @@ namespace Bicep.Core.Registry
                     // local path reference
                     if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
                     {
-                        return localRegistry.TryParseArtifactReference(null, "module", parts[0], parentModuleUri);
+                        return localRegistry.TryParseArtifactReference(null, artifactType, parts[0]);
                     }
 
                     return new(x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes(parentModuleUri)));
@@ -73,7 +77,7 @@ namespace Bicep.Core.Registry
                         // the scheme is recognized
                         var rawValue = parts[1];
 
-                        return registry.TryParseArtifactReference(aliasName, artifactType, rawValue, parentModuleUri);
+                        return registry.TryParseArtifactReference(aliasName, artifactType, rawValue);
                     }
 
                     // unknown scheme
@@ -94,8 +98,8 @@ namespace Bicep.Core.Registry
 
             var artifactType = artifactDeclaration switch
             {
-                ModuleDeclarationSyntax => "module",
-                ProviderDeclarationSyntax => "provider",
+                ModuleDeclarationSyntax => ArtifactType.Module,
+                ProviderDeclarationSyntax => ArtifactType.Provider,
                 _ => throw new InvalidOperationException($"Unexpected artifactDeclaration artifactType '{artifactDeclaration.GetType().Name}'."),
             };
 

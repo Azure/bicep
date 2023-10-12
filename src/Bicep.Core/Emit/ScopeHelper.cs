@@ -418,7 +418,7 @@ namespace Bicep.Core.Emit
                     if (resource.TryGetScopeSyntax() is { } scopeSyntax)
                     {
                         // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
-                        diagnosticWriter.Write(scopeSyntax, x => x.ScopeUnsupportedOnChildResource(ancestors.Last().Resource.Symbol.Name));
+                        diagnosticWriter.Write(scopeSyntax, x => x.ScopeUnsupportedOnChildResource());
                         // TODO: format the ancestor name using the resource accessor (::) for nested resources
                         scopeInfo[resource] = defaultScopeData;
                         continue;
