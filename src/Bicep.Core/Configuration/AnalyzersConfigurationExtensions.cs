@@ -26,6 +26,7 @@ namespace Bicep.Core.Configuration
             return new RootConfiguration(
                 analyzersConfiguration.Cloud,
                 analyzersConfiguration.ModuleAliases,
+                analyzersConfiguration.ProviderAliases,
                 analyzersConfiguration.Analyzers.WithAllAnalyzersDisabled(),
                 analyzersConfiguration.CacheRootDirectory,
                 analyzersConfiguration.ExperimentalFeaturesEnabled,
@@ -39,6 +40,7 @@ namespace Bicep.Core.Configuration
             return new RootConfiguration(
                 analyzersConfiguration.Cloud,
                 analyzersConfiguration.ModuleAliases,
+                analyzersConfiguration.ProviderAliases,
                 analyzersConfiguration.Analyzers.WithAnalyzersDisabled(analyzerCodesToDisable),
                 analyzersConfiguration.CacheRootDirectory,
                 analyzersConfiguration.ExperimentalFeaturesEnabled,

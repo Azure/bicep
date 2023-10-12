@@ -13,6 +13,7 @@ using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
 
 namespace Bicep.Cli.Commands
@@ -98,7 +99,7 @@ namespace Bicep.Cli.Commands
 
         private ArtifactReference ValidateReference(string targetModuleReference, Uri targetModuleUri)
         {
-            if (!this.moduleDispatcher.TryGetModuleReference(targetModuleReference, targetModuleUri).IsSuccess(out var moduleReference, out var failureBuilder))
+            if (!this.moduleDispatcher.TryGetArtifactReference(targetModuleReference, "module", targetModuleUri).IsSuccess(out var moduleReference, out var failureBuilder))
             {
                 // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;

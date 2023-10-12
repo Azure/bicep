@@ -137,6 +137,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages, config => new(
                 config.Cloud,
                 config.ModuleAliases,
+                config.ProviderAliases,
                 config.Analyzers,
                 config.CacheRootDirectory,
                 config.ExperimentalFeaturesEnabled with { UserDefinedTypes = true },
@@ -228,6 +229,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages, config => new(
                 config.Cloud,
                 config.ModuleAliases,
+                config.ProviderAliases,
                 config.Analyzers,
                 config.CacheRootDirectory,
                 config.ExperimentalFeaturesEnabled with { UserDefinedTypes = true },
@@ -279,6 +281,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages, config => new(
                 config.Cloud,
                 config.ModuleAliases,
+                config.ProviderAliases,
                 config.Analyzers,
                 config.CacheRootDirectory,
                 config.ExperimentalFeaturesEnabled with { UserDefinedTypes = true },

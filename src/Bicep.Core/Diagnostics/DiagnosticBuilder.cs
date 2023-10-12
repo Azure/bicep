@@ -2088,6 +2088,21 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP376",
                 $"The \"{name}\" symbol cannot be imported because imports of kind {exportMetadataKind} are not supported in files of kind {sourceFileKind}.");
+
+            public ErrorDiagnostic InvalidProviderAliasName(string aliasName) => new(
+                TextSpan,
+                "BCP377",
+                $"The provider alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
+
+            public ErrorDiagnostic InvalidOciArtifactProviderAliasRegistryNullOrUndefined(string aliasName, string? configurationPath) => new(
+                TextSpan,
+                "BCP378",
+                $"The OCI artifact provider alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configurationPath)} is invalid. The \"registry\" property cannot be null or undefined.");
+
+            public ErrorDiagnostic OciArtifactProviderAliasNameDoesNotExistInConfiguration(string aliasName, string? configurationPath) => new(
+                TextSpan,
+                "BCP379",
+                $"The OCI artifact provider alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -115,7 +115,7 @@ namespace Bicep.LanguageServer.Handlers
                  && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile)
-                 && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
+                 && this.moduleDispatcher.TryGetArtifactReference(moduleDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
                 {
                     return HandleModuleReference(context, stringToken, sourceFile, moduleReference);
                 }
@@ -128,7 +128,7 @@ namespace Bicep.LanguageServer.Handlers
                  && matchingNodes[^4] is CompileTimeImportDeclarationSyntax importDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(importDeclarationSyntax).IsSuccess(out var sourceFile)
-                 && this.moduleDispatcher.TryGetModuleReference(importDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
+                 && this.moduleDispatcher.TryGetArtifactReference(importDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
                 {
                     // goto beginning of the module file.
                     return GetFileDefinitionLocation(

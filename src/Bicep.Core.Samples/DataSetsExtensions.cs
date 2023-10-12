@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
@@ -72,7 +73,7 @@ namespace Bicep.Core.Samples
             {
                 var target = publishInfo.Metadata.Target;
 
-                if (!dispatcher.TryGetModuleReference(target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not OciModuleReference targetReference)
+                if (!dispatcher.TryGetArtifactReference(target, "module", RandomFileUri()).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
@@ -148,7 +149,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, templateSpecInfo) in templateSpecs)
             {
-                if (!dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
+                if (!dispatcher.TryGetArtifactReference(templateSpecInfo.Metadata.Target, "module", RandomFileUri()).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
@@ -190,7 +191,7 @@ namespace Bicep.Core.Samples
                 .AddSingleton(featureProviderFactory)
                 ).Construct<IModuleDispatcher>();
 
-            var targetReference = dispatcher.TryGetModuleReference(target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
+            var targetReference = dispatcher.TryGetArtifactReference(target, "TODO", RandomFileUri()).IsSuccess(out var @ref) ? @ref
                 : throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
 
             var result = CompilationHelper.Compile(moduleSource);

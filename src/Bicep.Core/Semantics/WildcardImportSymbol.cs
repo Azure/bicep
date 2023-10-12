@@ -39,7 +39,7 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
             .TryUnwrap();
 
     public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference()
-        => Context.Compilation.ModuleReferenceFactory.TryGetModuleReference(EnclosingDeclaration, Context.SourceFile.FileUri);
+        => Context.Compilation.ModuleReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 
     public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
     {

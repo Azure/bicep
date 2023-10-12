@@ -41,7 +41,7 @@ namespace Bicep.Core.Registry
         public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
             => Registries(parentModuleUri).Keys.OrderBy(s => s).ToImmutableArray();
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference(string reference, Uri parentModuleUri)
+        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(string reference, string artifactType, Uri parentModuleUri)
         {
             var registries = Registries(parentModuleUri);
             var parts = reference.Split(':', 2, StringSplitOptions.None);
@@ -51,7 +51,7 @@ namespace Bicep.Core.Registry
                     // local path reference
                     if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
                     {
-                        return localRegistry.TryParseArtifactReference(null, parts[0]);
+                        return localRegistry.TryParseArtifactReference(null, "module", parts[0], parentModuleUri);
                     }
 
                     return new(x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes(parentModuleUri)));
@@ -73,7 +73,7 @@ namespace Bicep.Core.Registry
                         // the scheme is recognized
                         var rawValue = parts[1];
 
-                        return registry.TryParseArtifactReference(aliasName, rawValue);
+                        return registry.TryParseArtifactReference(aliasName, artifactType, rawValue, parentModuleUri);
                     }
 
                     // unknown scheme
@@ -85,14 +85,21 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference(IArtifactReferenceSyntax moduleDeclaration, Uri parentModuleUri)
+        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactDeclaration, Uri parentModuleUri)
         {
-            if (!SyntaxHelper.TryGetForeignTemplatePath(moduleDeclaration).IsSuccess(out var moduleReferenceString, out var failureBuilder))
+            if (!SyntaxHelper.TryGetForeignTemplatePath(artifactDeclaration).IsSuccess(out var artifactReferenceString, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
 
-            return this.TryGetModuleReference(moduleReferenceString, parentModuleUri);
+            var artifactType = artifactDeclaration switch
+            {
+                ModuleDeclarationSyntax => "module",
+                ProviderDeclarationSyntax => "provider",
+                _ => throw new InvalidOperationException($"Unexpected artifactDeclaration artifactType '{artifactDeclaration.GetType().Name}'."),
+            };
+
+            return this.TryGetArtifactReference(artifactReferenceString, artifactType, parentModuleUri);
         }
 
         public RegistryCapabilities GetRegistryCapabilities(ArtifactReference artifactReference)
@@ -126,17 +133,17 @@ namespace Bicep.Core.Registry
             return ArtifactRestoreStatus.Succeeded;
         }
 
-        public ResultWithDiagnostic<Uri> TryGetLocalModuleEntryPointUri(ArtifactReference moduleReference)
+        public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference artifactReference)
         {
-            var configuration = configurationManager.GetConfiguration(moduleReference.ParentModuleUri);
-            // has restore already failed for this module?
-            if (this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
+            var configuration = configurationManager.GetConfiguration(artifactReference.ParentModuleUri);
+            // has restore already failed for this artifact?
+            if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
             {
                 return new(restoreFailureBuilder);
             }
 
-            var registry = this.GetRegistry(moduleReference);
-            return registry.TryGetLocalArtifactEntryPointUri(moduleReference);
+            var registry = this.GetRegistry(artifactReference);
+            return registry.TryGetLocalArtifactEntryPointUri(artifactReference);
         }
 
         public async Task<bool> RestoreModules(IEnumerable<ArtifactReference> moduleReferences, bool forceModulesRestore = false)
@@ -213,7 +220,7 @@ namespace Bicep.Core.Registry
         }
 
         private IArtifactRegistry GetRegistry(ArtifactReference moduleReference) =>
-            Registries(moduleReference.ParentModuleUri).TryGetValue(moduleReference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected moduleDeclaration reference scheme '{moduleReference.Scheme}'.");
+            Registries(moduleReference.ParentModuleUri).TryGetValue(moduleReference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected artifactDeclaration reference scheme '{moduleReference.Scheme}'.");
 
         public SourceArchive? TryGetModuleSources(ArtifactReference moduleReference)
         {

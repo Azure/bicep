@@ -11,13 +11,13 @@ using Bicep.Core.SourceCode;
 
 namespace Bicep.Core.Registry
 {
-    public interface IModuleDispatcher : IModuleReferenceFactory
+    public interface IModuleDispatcher : IArtifactReferenceFactory
     {
         RegistryCapabilities GetRegistryCapabilities(ArtifactReference moduleReference);
 
         ArtifactRestoreStatus GetArtifactRestoreStatus(ArtifactReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
 
-        ResultWithDiagnostic<Uri> TryGetLocalModuleEntryPointUri(ArtifactReference moduleReference);
+        ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference moduleReference);
 
         Task<bool> RestoreModules(IEnumerable<ArtifactReference> moduleReferences, bool forceModulesRestore = false);
 

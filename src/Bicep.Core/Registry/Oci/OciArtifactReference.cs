@@ -12,10 +12,16 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Registry.Oci
 {
-
-    public class OciArtifactReference : IOciArtifactReference
+    public enum OciArtifactReferenceType
     {
-        private OciArtifactReference(string registry, string repository, string? tag, string? digest)
+        Module,
+        Provider,
+    }
+
+    public class OciArtifactReference : ArtifactReference, IOciArtifactReference
+    {
+        public OciArtifactReference(string registry, string repository, string? tag, string? digest, OciArtifactReferenceType type, Uri parentModuleUri) :
+            base(OciArtifactReferenceFacts.Scheme, parentModuleUri)
         {
             switch (tag, digest)
             {
@@ -29,7 +35,10 @@ namespace Bicep.Core.Registry.Oci
             this.Repository = repository;
             this.Tag = tag;
             this.Digest = digest;
+            this.Type = type;
         }
+
+
         /// <summary>
         /// Gets the registry URI.
         /// </summary>
@@ -57,9 +66,19 @@ namespace Bicep.Core.Registry.Oci
             ? $"{this.Registry}/{this.Repository}:{this.Tag}"
             : $"{this.Registry}/{this.Repository}@{this.Digest}";
 
-        public string FullyQualifiedReference => ArtifactId;
+        /// <summary>
+        /// Gets the type of artifact reference. Either module or provider.
+        /// </summary>
+        public OciArtifactReferenceType Type { get; }
 
-        public static ResultWithDiagnostic<OciArtifactReference> TryParse(string? aliasName, string rawValue, RootConfiguration configuration)
+        public override string UnqualifiedReference => ArtifactId;
+
+        public override bool IsExternal => true;
+
+        public static ResultWithDiagnostic<OciArtifactReference> TryParseModule(string? aliasName, string rawValue, RootConfiguration configuration, Uri parentModuleUri)
+            => TryParse(OciArtifactReferenceType.Module, aliasName, rawValue, configuration, parentModuleUri);
+
+        public static ResultWithDiagnostic<OciArtifactReference> TryParse(OciArtifactReferenceType type, string? aliasName, string rawValue, RootConfiguration configuration, Uri parentModuleUri)
         {
             static string GetBadReference(string referenceValue) => $"{OciArtifactReferenceFacts.Scheme}:{referenceValue}";
 
@@ -67,12 +86,23 @@ namespace Bicep.Core.Registry.Oci
 
             if (aliasName is not null)
             {
-                if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var alias, out var failureBuilder))
+                switch (type)
                 {
-                    return new(failureBuilder);
+                    case OciArtifactReferenceType.Module:
+                        if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var moduleAlias, out var moduleFailureBuilder))
+                        {
+                            return new(moduleFailureBuilder);
+                        }
+                        rawValue = $"{moduleAlias}/{rawValue}";
+                        break;
+                    case OciArtifactReferenceType.Provider:
+                        if (!configuration.ProviderAliases.TryGetOciArtifactProviderAlias(aliasName).IsSuccess(out var providerAlias, out var providerFailureBuilder))
+                        {
+                            return new(providerFailureBuilder);
+                        }
+                        rawValue = $"{providerAlias}/{rawValue}";
+                        break;
                 }
-
-                rawValue = $"{alias}/{rawValue}";
             }
 
             // the set of valid OCI artifact refs is a subset of the set of valid URIs if you remove the scheme portion from each URI
@@ -179,7 +209,7 @@ namespace Bicep.Core.Registry.Oci
                             tag));
                     }
 
-                    return new(new OciArtifactReference(registry, repository, tag: tag, digest: null));
+                    return new(new OciArtifactReference(registry, repository, tag, digest: null, type, parentModuleUri));
 
                 case '@':
                     var digest = tagOrDigest;
@@ -188,7 +218,7 @@ namespace Bicep.Core.Registry.Oci
                         return new(x => x.InvalidOciArtifactReferenceInvalidDigest(aliasName, GetBadReference(rawValue), digest));
                     }
 
-                    return new(new OciArtifactReference(registry, repository, tag: null, digest: digest));
+                    return new(new OciArtifactReference(registry, repository, tag: null, digest, type, parentModuleUri));
 
                 default:
                     throw new NotImplementedException($"Unexpected last segment delimiter character '{delimiter.Value}'.");

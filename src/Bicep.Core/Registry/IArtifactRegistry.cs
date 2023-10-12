@@ -33,7 +33,9 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="aliasName">The alias name</param>
         /// <param name="reference">The unqualified artifact reference</param>
-        ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string reference);
+        /// <param name="artifactType">The artifact type. Either "module" or "provider"</param>
+        /// <param name="parentModuleUri">The URI of the parent module</param>
+        ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string artifactType, string reference, Uri parentModuleUri);
 
         /// <summary>
         /// Returns true if the specified artifact is already cached in the local cache.

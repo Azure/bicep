@@ -17,6 +17,8 @@ namespace Bicep.Core.Configuration
 
         private const string ModuleAliasesKey = "moduleAliases";
 
+        private const string ProviderAliasesKey = "providerAliases";
+
         private const string AnalyzersKey = "analyzers";
 
         private const string CacheRootDirectoryKey = "cacheRootDirectory";
@@ -28,6 +30,7 @@ namespace Bicep.Core.Configuration
         public RootConfiguration(
             CloudConfiguration cloud,
             ModuleAliasesConfiguration moduleAliases,
+            ProviderAliasesConfiguration providerAliases,
             AnalyzersConfiguration analyzers,
             string? cacheRootDirectory,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
@@ -37,6 +40,7 @@ namespace Bicep.Core.Configuration
         {
             this.Cloud = cloud;
             this.ModuleAliases = moduleAliases;
+            this.ProviderAliases = providerAliases;
             this.Analyzers = analyzers;
             this.CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
             this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
@@ -49,17 +53,20 @@ namespace Bicep.Core.Configuration
         {
             var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey), configurationPath);
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configurationPath);
+            var providerAliases = ProviderAliasesConfiguration.Bind(element.GetProperty(ProviderAliasesKey), configurationPath);
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
             var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
             var formatting = FormattingConfiguration.Bind(element.GetProperty(FormattingKey));
 
-            return new(cloud, moduleAliases, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configurationPath, diagnosticBuilders);
+            return new(cloud, moduleAliases, providerAliases, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configurationPath, diagnosticBuilders);
         }
 
         public CloudConfiguration Cloud { get; }
 
         public ModuleAliasesConfiguration ModuleAliases { get; }
+
+        public ProviderAliasesConfiguration ProviderAliases { get; }
 
         public AnalyzersConfiguration Analyzers { get; }
 
@@ -87,6 +94,9 @@ namespace Bicep.Core.Configuration
 
                 writer.WritePropertyName(ModuleAliasesKey);
                 this.ModuleAliases.WriteTo(writer);
+
+                writer.WritePropertyName(ProviderAliasesKey);
+                this.ProviderAliases.WriteTo(writer);
 
                 writer.WritePropertyName(AnalyzersKey);
                 this.Analyzers.WriteTo(writer);

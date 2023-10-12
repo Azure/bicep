@@ -32,7 +32,7 @@ namespace Bicep.Core.Semantics
             SourceFileGrouping sourceFileGrouping,
             IConfigurationManager configurationManager,
             IBicepAnalyzer linterAnalyzer,
-            IModuleReferenceFactory moduleReferenceFactory,
+            IArtifactReferenceFactory moduleReferenceFactory,
             ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
             this.featureProviderFactory = featureProviderFactory;
@@ -61,7 +61,7 @@ namespace Bicep.Core.Semantics
 
         public INamespaceProvider NamespaceProvider { get; }
 
-        public IModuleReferenceFactory ModuleReferenceFactory { get; }
+        public IArtifactReferenceFactory ModuleReferenceFactory { get; }
 
         public SemanticModel GetEntrypointSemanticModel()
             // entry point semantic models are guaranteed to cast successfully

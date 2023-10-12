@@ -31,7 +31,7 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities GetCapabilities(LocalModuleReference reference) => RegistryCapabilities.Default;
 
-        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? alias, string reference)
+        public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? alias, string artifactType, string reference, Uri parentModuleUri)
         {
             if (!LocalModuleReference.TryParse(reference, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {

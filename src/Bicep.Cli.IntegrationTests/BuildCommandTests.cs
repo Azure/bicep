@@ -103,13 +103,18 @@ namespace Bicep.Cli.IntegrationTests
                 actualLocation: compiledFilePath);
         }
 
-        [TestMethod]
-        public async Task Provider_Artifacts_Restore_From_Registry_ShouldSucceed()
+        [DataTestMethod]
+        [DataRow("br:mcr.microsoft.com/bicep/providers/az", true)]
+        [DataRow("br/public:az", true)]
+        //[DataRow("br/contoso:az", true)]
+        // Negative
+        //[DataRow("az", false)]
+        public async Task Build_Valid_SingleFile_WithProviderDeclarationStatement(string providerDeclarationSyntax, bool shouldSucceed)
         {
             // SETUP
             // 1. create a mock registry client
             var registryUri = new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}");
-            var repository = $"bicep/providers/az";
+            var repository = "bicep/providers/az";
             var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients(false, (registryUri, repository));
             var myClient = blobClients[(registryUri, repository)];
 
@@ -142,8 +147,8 @@ namespace Bicep.Cli.IntegrationTests
             await myClient.UploadBlobAsync(new MemoryStream());
 
             // 3. create a main.bicep and save it to a output directory
-            var bicepFile = """
-import 'az@2.0.0'
+            var bicepFile = $"""
+import '{providerDeclarationSyntax}@2.0.0'
 """;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -161,7 +166,7 @@ import 'az@2.0.0'
             // 6. assert 'bicep build' completed successfully
             using (new AssertionScope())
             {
-                result.Should().Be(0);
+                result.Should().Be(shouldSucceed ? 0 : 1);
                 output.Should().BeEmpty();
                 AssertNoErrors(error);
             }
