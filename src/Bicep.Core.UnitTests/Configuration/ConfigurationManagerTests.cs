@@ -64,6 +64,14 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                   },
+                  "providerAliases": {
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "providerPath": "bicep/providers"
+                      }
+                    }
+                  },
                   "analyzers": {
                     "core": {
                       "verbose": false,
@@ -168,6 +176,14 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                   },
+                  "providerAliases": {
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "providerPath": "bicep/providers"
+                      }
+                    }
+                  },
                   "analyzers": {},
                   "experimentalFeaturesEnabled": {
                     "symbolicNameCodegen": false,
@@ -231,6 +247,14 @@ namespace Bicep.Core.UnitTests.Configuration
                       "public": {
                         "registry": "mcr.microsoft.com",
                         "modulePath": "bicep"
+                      }
+                    }
+                  },
+                  "providerAliases": {
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "providerPath": "bicep/providers"
                       }
                     }
                   },
@@ -483,6 +507,14 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                   },
+                  "providerAliases": {
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "providerPath": "bicep/providers"
+                      }
+                    }
+                  },
                   "analyzers": {
                     "core": {
                       "enabled": false,
@@ -570,6 +602,14 @@ namespace Bicep.Core.UnitTests.Configuration
                       "public": {
                         "registry": "mcr.microsoft.com",
                         "modulePath": "bicep"
+                      }
+                    }
+                  },
+                  "providerAliases": {
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "providerPath": "bicep/providers"
                       }
                     }
                   },

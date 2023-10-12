@@ -34,12 +34,14 @@ namespace Bicep.Core.Syntax
         private static readonly Regex SpecificationWithoutAliasPattern = new(
             @$"^(?<scheme>{SchemePattern}):(?<address>[a-zA-Z][\w\.-]+(:\d+)?(\/[a-zA-Z0-9]*)+)?@(?<version>{SemanticVersionPattern})$",
             RegexOptions.ECMAScript | RegexOptions.Compiled);
+        private static readonly Regex BareSpecification = new(
+            @$"^(?<name>{NamePattern})@(?<version>{SemanticVersionPattern})$");
 
 
         private ImportSpecification(string scheme, string unqualifiedAddress, string registryAlias, string name, string version, bool isValid, TextSpan span)
         {
-            Scheme = scheme
-; UnqualifiedAddress = unqualifiedAddress;
+            Scheme = scheme;
+            UnqualifiedAddress = unqualifiedAddress;
             RegistryAlias = registryAlias;
             Name = name;
             Version = version;
@@ -97,6 +99,25 @@ namespace Bicep.Core.Syntax
 
         private static ImportSpecification CreateFromStringSyntax(StringSyntax stringSyntax, string value)
         {
+            var matchBareSpecification = BareSpecification.Match(value);
+            if (matchBareSpecification.Success)
+            {
+                var name = matchBareSpecification.Groups["name"].Value;
+                var version = matchBareSpecification.Groups["version"].Value;
+                if (name == "az")
+                {
+                    return new(
+                        LanguageConstants.ErrorName,
+                        LanguageConstants.ErrorName,
+                        LanguageConstants.ErrorName,
+                        LanguageConstants.ErrorName,
+                        LanguageConstants.ErrorName,
+                        false,
+                        stringSyntax.Span);
+                }
+                var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
+                return new(string.Empty, string.Empty, string.Empty, name, version, true, span);
+            }
             var matchSpecificationWithAlias = SpecificationWithAliasPattern.Match(value);
             if (matchSpecificationWithAlias.Success)
             {
@@ -127,7 +148,7 @@ namespace Bicep.Core.Syntax
 
                 var name = address.Split('/')[^1].Split(':')[0];
 
-                return new(scheme, address, LanguageConstants.ErrorName, name, version, true, span);
+                return new(scheme, address, string.Empty, name, version, true, span);
             }
 
             return new(
