@@ -38,5 +38,17 @@ namespace Bicep.Core.Registry.Oci
             }
             return this;
         }
+
+        public OciManifestAnnotationsBuilder WithCreatedTime(DateTime dateTime)
+        {
+            annotations[LanguageConstants.OciOpenContainerImageCreatedAnnotation] = dateTime.ToRfc3339Format();
+            return this;
+        }
+
+        public OciManifestAnnotationsBuilder WithTitle(string title)
+        {
+            annotations[LanguageConstants.OciOpenContainerImageTitleAnnotation] = title;
+            return this;
+        }
     }
 }
