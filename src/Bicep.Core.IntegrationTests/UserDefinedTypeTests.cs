@@ -849,4 +849,17 @@ param myParam string
             ("BCP289", DiagnosticLevel.Error, "The type definition is not valid."),
         });
     }
+
+    [TestMethod]
+    [Timeout(5_000)]
+    public void Parsing_incomplete_tuple_type_expressions_halts()
+    {
+        var result = CompilationHelper.Compile("""
+            type myType = {
+                name: [string
+            }
+            """);
+
+        result.Template.Should().BeNull();
+    }
 }

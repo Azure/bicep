@@ -1421,8 +1421,11 @@ namespace Bicep.Core.Parsing
             return new TupleTypeSyntax(openBracket, itemsOrTokens, closeBracket);
         }
 
-        private SyntaxBase TupleMemberType() => new TupleTypeItemSyntax(DecorableSyntaxLeadingNodes().ToImmutableArray(),
-            WithRecovery(() => TypeExpression(), RecoveryFlags.None, TokenType.NewLine, TokenType.RightBrace));
+        private SyntaxBase TupleMemberType() => WithRecovery(
+            () => new TupleTypeItemSyntax(DecorableSyntaxLeadingNodes().ToImmutableArray(), TypeExpression()),
+            RecoveryFlags.None,
+            TokenType.NewLine,
+            TokenType.RightSquare);
 
         protected IEnumerable<SyntaxBase> DecorableSyntaxLeadingNodes()
         {
