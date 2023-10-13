@@ -282,9 +282,10 @@ namespace Bicep.Cli.IntegrationTests
             output3.Should().BeEmpty();
             AssertNoErrors(error3);
 
-            // we should still only have 1 module
+            // we should still only have 1 reachable module. (The old module will still exist because it has a timestamp and therefore a
+            // different digest, but is not in the tags list. It could still be reached via digest until cleaned up.)
             expectedCompiledStream.Position = 0;
-            testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
+            testClient.Should().OnlyHaveReachableModule("v1", expectedCompiledStream);
 
             // There are no Bicep sources, it's only an ARM template being published, so even if published with sources, there should be no sources
             testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);
