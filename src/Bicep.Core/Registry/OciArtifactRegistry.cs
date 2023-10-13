@@ -62,13 +62,7 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, ArtifactType artifactType, string reference)
         {
-            var type = artifactType switch
-            {
-                ArtifactType.Module => OciArtifactReferenceType.Module,
-                ArtifactType.Provider => OciArtifactReferenceType.Provider,
-                _ => throw new ArgumentException($"Unexpected artifact type \"{artifactType}\"."),
-            };
-            if (!OciArtifactReference.TryParse(type, aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
+            if (!OciArtifactReference.TryParse(artifactType, aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
             }

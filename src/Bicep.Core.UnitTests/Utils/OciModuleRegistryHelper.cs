@@ -25,12 +25,12 @@ namespace Bicep.Core.UnitTests.Utils
     public static class OciArtifactRegistryHelper
     {
         public static OciArtifactReference CreateModuleReferenceMock(string registry, string repository, Uri parentModuleUri, string? digest, string? tag)
-            => new(registry, repository, tag, digest, OciArtifactReferenceType.Module, parentModuleUri);
+            => new(registry, repository, tag, digest, ArtifactType.Module, parentModuleUri);
 
 
         public static OciArtifactReference CreateModuleReference(string registry, string repository, string? tag, string? digest)
         {
-            OciArtifactReference.TryParse(OciArtifactReferenceType.Module, null, $"{registry}/{repository}:{tag}", BicepTestConstants.BuiltInConfiguration, new Uri("file:///main.bicep")).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(ArtifactType.Module, null, $"{registry}/{repository}:{tag}", BicepTestConstants.BuiltInConfiguration, new Uri("file:///main.bicep")).IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 
