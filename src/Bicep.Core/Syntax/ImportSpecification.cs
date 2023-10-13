@@ -82,7 +82,7 @@ namespace Bicep.Core.Syntax
         private static ImportSpecification CreateFromStringSyntax(StringSyntax stringSyntax, string value)
         {
             var matchBareSpecification = BareSpecification.Match(value);
-            if (matchBareSpecification.Success)
+            if (!matchBareSpecification.Success)
             {
                 return new(
                  LanguageConstants.ErrorName,
