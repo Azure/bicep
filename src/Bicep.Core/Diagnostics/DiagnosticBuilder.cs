@@ -12,6 +12,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -2103,6 +2104,13 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP379",
                 $"The OCI artifact provider alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}.");
+
+            public ErrorDiagnostic UnsupportedArtifactType(string registryName, ArtifactType artifactType) => new(
+                TextSpan,
+                "BCP380",
+                $"The registry: \"{registryName}\" doesn't support artifacts of type \"{artifactType}\"."
+            );
+            
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

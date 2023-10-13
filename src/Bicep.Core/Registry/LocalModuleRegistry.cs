@@ -33,6 +33,10 @@ namespace Bicep.Core.Registry
 
         public override ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? alias, ArtifactType artifactType, string reference)
         {
+            if (artifactType != ArtifactType.Module)
+            {
+                return new(x => x.UnsupportedArtifactType(typeof(LocalModuleRegistry).Name, artifactType));
+            }
             if (!LocalModuleReference.TryParse(reference, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {
                 return new(failureBuilder);
