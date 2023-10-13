@@ -16,7 +16,7 @@ configuration:
       - isIssue
       - isOpen
       - hasLabel:
-          label: awaiting response
+          label: 'Needs: Author Feedback'
       - hasLabel:
           label: 'Status: No Recent Activity'
       - noActivitySince:
@@ -31,7 +31,7 @@ configuration:
       - isIssue
       - isOpen
       - hasLabel:
-          label: awaiting response
+          label: 'Needs: Author Feedback'
       - noActivitySince:
           days: 7
       - isNotLabeledWith:
@@ -58,13 +58,13 @@ configuration:
       - isActivitySender:
           issueAuthor: True
       - hasLabel:
-          label: awaiting response
+          label: 'Needs: Author Feedback'
       - isOpen
       then:
       - addLabel:
           label: 'Needs: Attention :wave:'
       - removeLabel:
-          label: awaiting response
+          label: 'Needs: Author Feedback'
     - description: "[Closed Issues] Remove 'Status: No Recent Activity' label from issues and add Needs: Triage"
       if:
       - payloadType: Issues
