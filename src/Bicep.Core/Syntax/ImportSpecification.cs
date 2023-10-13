@@ -70,11 +70,11 @@ namespace Bicep.Core.Syntax
             };
         }
 
-        public StringSyntax ToPath()
+        public SyntaxBase ToPath()
         {
             if (!this.IsValid)
             {
-                throw new InvalidOperationException("Cannot convert invalid import specification to path.");
+                return new SkippedTriviaSyntax(this.Span, Enumerable.Empty<SyntaxBase>());
             }
             return SyntaxFactory.CreateStringLiteral(this.UnqualifiedAddress);
         }

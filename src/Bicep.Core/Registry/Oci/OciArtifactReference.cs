@@ -12,15 +12,9 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Registry.Oci
 {
-    public enum OciArtifactReferenceType
-    {
-        Module,
-        Provider,
-    }
-
     public class OciArtifactReference : ArtifactReference, IOciArtifactReference
     {
-        public OciArtifactReference(string registry, string repository, string? tag, string? digest, OciArtifactReferenceType type, Uri parentModuleUri) :
+        public OciArtifactReference(string registry, string repository, string? tag, string? digest, ArtifactType type, Uri parentModuleUri) :
             base(OciArtifactReferenceFacts.Scheme, parentModuleUri)
         {
             switch (tag, digest)
@@ -68,16 +62,16 @@ namespace Bicep.Core.Registry.Oci
         /// <summary>
         /// Gets the type of artifact reference. Either module or provider.
         /// </summary>
-        public OciArtifactReferenceType Type { get; }
+        public ArtifactType Type { get; }
 
         public override string UnqualifiedReference => ArtifactId;
 
         public override bool IsExternal => true;
 
         public static ResultWithDiagnostic<OciArtifactReference> TryParseModule(string? aliasName, string rawValue, RootConfiguration configuration, Uri parentModuleUri)
-            => TryParse(OciArtifactReferenceType.Module, aliasName, rawValue, configuration, parentModuleUri);
+            => TryParse(ArtifactType.Module, aliasName, rawValue, configuration, parentModuleUri);
 
-        public static ResultWithDiagnostic<OciArtifactReference> TryParse(OciArtifactReferenceType type, string? aliasName, string rawValue, RootConfiguration configuration, Uri parentModuleUri)
+        public static ResultWithDiagnostic<OciArtifactReference> TryParse(ArtifactType type, string? aliasName, string rawValue, RootConfiguration configuration, Uri parentModuleUri)
         {
             static string GetBadReference(string referenceValue) => $"{OciArtifactReferenceFacts.Scheme}:{referenceValue}";
 
@@ -87,14 +81,14 @@ namespace Bicep.Core.Registry.Oci
             {
                 switch (type)
                 {
-                    case OciArtifactReferenceType.Module:
+                    case ArtifactType.Module:
                         if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName).IsSuccess(out var moduleAlias, out var moduleFailureBuilder))
                         {
                             return new(moduleFailureBuilder);
                         }
                         rawValue = $"{moduleAlias}/{rawValue}";
                         break;
-                    case OciArtifactReferenceType.Provider:
+                    case ArtifactType.Provider:
                         if (!configuration.ProviderAliases.TryGetOciArtifactProviderAlias(aliasName).IsSuccess(out var providerAlias, out var providerFailureBuilder))
                         {
                             return new(providerFailureBuilder);
