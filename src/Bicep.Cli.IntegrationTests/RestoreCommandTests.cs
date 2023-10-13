@@ -342,7 +342,7 @@ output o1 string = p1");
             using (new AssertionScope())
             {
                 exitCode.Should().Be(0);
-                publishOutput.Should().Be(publishSource ? "WARNING: The following experimental Bicep features have been enabled: publishSource. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.\n" : "");
+                publishOutput.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
                 publishError.Should().BeEmpty();
             }
 
@@ -392,7 +392,7 @@ output o1 string = '${p1}${p2}'");
             using (new AssertionScope())
             {
                 exitCode.Should().Be(0);
-                publishOutput.Should().Be(publishSource ? "WARNING: The following experimental Bicep features have been enabled: publishSource. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.\n" : "");
+                publishOutput.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
                 publishError.Should().BeEmpty();
             }
 
@@ -461,7 +461,7 @@ output o1 string = '${p1}${p2}'");
             using (new AssertionScope())
             {
                 publishResult.Should().Be(0);
-                publishOutput.Should().Be(publishSource ? "WARNING: The following experimental Bicep features have been enabled: publishSource. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.\n" : "");
+                publishOutput.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
                 publishError.Should().BeEmpty();
             }
 

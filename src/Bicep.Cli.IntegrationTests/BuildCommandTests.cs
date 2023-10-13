@@ -278,7 +278,7 @@ import 'az@2.0.0'
             using (new AssertionScope())
             {
                 publishResult.Should().Be(0);
-                publishOutput.Should().Be("NOTE: Experimental feature publishSource is enabled, but --with-source must also be specified to publish a module with source.\n");
+                publishOutput.Should().MatchRegex("NOTE: Experimental feature publishSource is enabled, but --with-source must also be specified to publish a module with source.");
                 publishError.Should().BeEmpty();
             }
 

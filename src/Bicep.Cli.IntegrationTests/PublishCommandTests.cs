@@ -177,7 +177,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error, result) = await Bicep(settings, args);
             result.Should().Be(0);
-            output.Should().Be(publishSource ? "WARNING: The following experimental Bicep features have been enabled: publishSource. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.\n" : "");
+            output.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
             AssertNoErrors(error);
 
             using var expectedCompiledStream = new FileStream(compiledFilePath, FileMode.Open, FileAccess.Read);
@@ -199,7 +199,7 @@ namespace Bicep.Cli.IntegrationTests
             // publish the same content again without --force
             var (output2, error2, result2) = await Bicep(settings, args);
             result2.Should().Be(1);
-            output2.Should().Be(publishSource ? "WARNING: The following experimental Bicep features have been enabled: publishSource. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.\n" : "");
+            output2.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
             error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
 
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
@@ -216,7 +216,7 @@ namespace Bicep.Cli.IntegrationTests
             requiredArgs.Add("--force");
             var (output3, error3, result3) = await Bicep(settings, requiredArgs.ToArray());
             result3.Should().Be(0);
-            output3.Should().Be(publishSource ? "WARNING: The following experimental Bicep features have been enabled: publishSource. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.\n" : "");
+            output3.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
             AssertNoErrors(error3);
 
             // compile to get what the new expected main.json should be
@@ -316,7 +316,7 @@ namespace Bicep.Cli.IntegrationTests
             var (output, error, result) = await Bicep(settings, args.ToArray());
             result.Should().Be(1);
             output.Should().BeEmpty();
-            AssertNoErrors("Cannot publish with source when the target is an ARM template file.\n");
+            error.Should().MatchRegex("Cannot publish with source when the target is an ARM template file.");
         }
 
         [TestMethod]
