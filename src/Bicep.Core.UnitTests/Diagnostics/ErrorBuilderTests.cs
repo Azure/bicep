@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -190,6 +191,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
             if (parameter.ParameterType == typeof(BicepSourceFileKind))
             {
                 return BicepSourceFileKind.BicepFile;
+            }
+
+            if (parameter.ParameterType == typeof(ArtifactType))
+            {
+                return ArtifactType.Module;
             }
 
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");
