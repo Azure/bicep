@@ -10,6 +10,7 @@ import {
   createPickParamsFileMessage,
   createPublishTelemetryMessage,
   createReadyMessage,
+  createRunDeploymentMessage,
   createSaveStateMessage,
 } from "../../../messages";
 import { parseParametersJson, parseTemplateJson } from "../utils";
@@ -22,10 +23,15 @@ import {
 } from "../../../models";
 import { AccessToken } from "@azure/identity";
 import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
+import { Deployment, DeploymentExtended } from "@azure/arm-resources";
 
 // TODO see if there's a way to use react hooks instead of this hackery
 let accessTokenResolver: {
   resolve: (accessToken: AccessToken) => void;
+  reject: (error: UntypedError) => void;
+};
+let runDeploymentResolver: {
+  resolve: (deployment: DeploymentExtended) => void;
   reject: (error: UntypedError) => void;
 };
 
@@ -109,6 +115,16 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
         savePersistedState({ ...persistedState, scope: message.scope });
         return;
       }
+      case "RUN_DEPLOYMENT_RESULT": {
+        if (message.result) {
+          runDeploymentResolver.resolve(message.result);
+        } else {
+          runDeploymentResolver.reject(
+            message.error ?? "Failed to run deployment",
+          );
+        }
+        return;
+      }
     }
   };
 
@@ -154,6 +170,15 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     return promise;
   }
 
+  function startDeployment(deployment: Deployment, scope: DeploymentScope) {
+    const promise = new Promise<DeploymentExtended>(
+      (resolve, reject) => (runDeploymentResolver = { resolve, reject }),
+    );
+
+    vscode.postMessage(createRunDeploymentMessage(deployment, scope));
+    return promise;
+  }
+
   return {
     pickParamsFile,
     paramsMetadata,
@@ -163,5 +188,6 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     pickScope,
     scope,
     publishTelemetry,
+    startDeployment,
   };
 }

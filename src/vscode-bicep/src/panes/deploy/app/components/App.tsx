@@ -22,7 +22,8 @@ export const App: FC = () => {
     acquireAccessToken: messages.acquireAccessToken,
     templateMetadata: messages.templateMetadata,
     parametersMetadata: messages.paramsMetadata,
-    setErrorMessage
+    setErrorMessage,
+    startDeployment: messages.startDeployment,
   });
 
   function setParamValue(key: string, data: ParamData) {

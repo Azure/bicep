@@ -8,6 +8,7 @@ import {
   UntypedError,
 } from "./models";
 import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
+import { Deployment, DeploymentExtended } from "@azure/arm-resources";
 
 interface SimpleMessage<T> {
   kind: T;
@@ -174,12 +175,45 @@ export function createPublishTelemetryMessage(
   });
 }
 
+export type RunDeploymentMessage = MessageWithPayload<
+  "RUN_DEPLOYMENT",
+  {
+    scope: DeploymentScope;
+    deployment: Deployment;
+  }
+>;
+export function createRunDeploymentMessage(
+  deployment: Deployment,
+  scope: DeploymentScope,
+): RunDeploymentMessage {
+  return createMessageWithPayload("RUN_DEPLOYMENT", {
+    deployment,
+    scope,
+  });
+}
+
+export type RunDeploymentResultMessage = MessageWithPayload<
+  "RUN_DEPLOYMENT_RESULT",
+  {
+    result?: DeploymentExtended;
+    error?: UntypedError;
+  }
+>;
+export function createRunDeploymentResultMessage(
+  result: DeploymentExtended,
+): RunDeploymentResultMessage {
+  return createMessageWithPayload("RUN_DEPLOYMENT_RESULT", {
+    result,
+  });
+}
+
 export type VscodeMessage =
   | DeploymentDataMessage
   | GetStateResultMessage
   | PickParamsFileResultMessage
   | GetAccessTokenResultMessage
-  | GetDeploymentScopeResultMessage;
+  | GetDeploymentScopeResultMessage
+  | RunDeploymentResultMessage;
 
 export type ViewMessage =
   | ReadyMessage
@@ -188,7 +222,8 @@ export type ViewMessage =
   | PickParamsFileMessage
   | GetAccessTokenMessage
   | GetDeploymentScopeMessage
-  | PublishTelemetryMessage;
+  | PublishTelemetryMessage
+  | RunDeploymentMessage;
 
 function createSimpleMessage<T>(kind: T): SimpleMessage<T> {
   return { kind };

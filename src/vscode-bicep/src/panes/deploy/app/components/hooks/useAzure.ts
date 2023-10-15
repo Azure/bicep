@@ -1,21 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { useState } from "react";
-import { RestError } from "@azure/core-rest-pipeline";
 import {
   DeployResult,
   DeploymentScope,
   ParamData,
   ParametersMetadata,
   TemplateMetadata,
-  UntypedError,
 } from "../../../models";
-import { AccessToken, TokenCredential } from "@azure/identity";
+import { AccessToken } from "@azure/identity";
 import {
-  CloudError,
   Deployment,
+  DeploymentExtended,
   DeploymentOperation,
-  ResourceManagementClient,
   WhatIfChange,
 } from "@azure/arm-resources";
 
@@ -25,6 +22,7 @@ export interface UseAzureProps {
   parametersMetadata: ParametersMetadata;
   acquireAccessToken: () => Promise<AccessToken>;
   setErrorMessage: (message?: string) => void;
+  startDeployment: (deployment: Deployment, scope: DeploymentScope) => Promise<DeploymentExtended>;
 }
 
 export function useAzure(props: UseAzureProps) {
@@ -32,169 +30,57 @@ export function useAzure(props: UseAzureProps) {
     scope,
     templateMetadata,
     parametersMetadata,
-    acquireAccessToken,
     setErrorMessage,
+    startDeployment,
   } = props;
-  const deploymentName = "bicep-deploy";
   const [operations, setOperations] = useState<DeploymentOperation[]>();
   const [whatIfChanges, setWhatIfChanges] = useState<WhatIfChange[]>();
   const [outputs, setOutputs] = useState<Record<string, unknown>>();
   const [result, setResult] = useState<DeployResult>();
   const [running, setRunning] = useState(false);
 
-  function getArmClient(scope: DeploymentScope, accessToken: AccessToken) {
-    const tokenProvider: TokenCredential = {
-      getToken: async () => accessToken,
-    };
-
-    const authenticatedSubscriptionId =
-      scope.scopeType === "managementGroup" || scope.scopeType === "tenant"
-        ? scope.associatedSubscriptionId
-        : scope.subscriptionId;
-
-    return new ResourceManagementClient(
-      tokenProvider,
-      authenticatedSubscriptionId,
-      {
-        userAgentOptions: {
-          userAgentPrefix: "bicepdeploypane",
-        },
-      },
-    );
-  }
-
-  async function doDeploymentOperation(
-    scope: DeploymentScope,
-    operation: (
-      armClient: ResourceManagementClient,
-      deployment: Deployment,
-    ) => Promise<void>,
-  ) {
-    if (!templateMetadata) {
-      return;
-    }
-
-    try {
-      setErrorMessage(undefined);
-      clearState();
-      setRunning(true);
-
-      const deployment = getDeploymentProperties(
-        scope,
-        templateMetadata,
-        parametersMetadata.parameters,
-      );
-      const accessToken = await acquireAccessToken();
-      const armClient = getArmClient(scope, accessToken);
-      await operation(armClient, deployment);
-    } catch (error) {
-      setErrorMessage(`Azure operation failed: ${error}`);
-    } finally {
-      setRunning(false);
-    }
-  }
-
   async function deploy() {
     if (!scope) {
       return;
     }
 
-    await doDeploymentOperation(scope, async (client, deployment) => {
-      const updateOperations = async () => {
-        const operations = [];
-        const result = client.deploymentOperations.listAtScope(
-          getScopeId(scope),
-          deploymentName,
-        );
-        for await (const page of result.byPage()) {
-          operations.push(...page);
-        }
-        setOperations(operations);
-      };
+    if (!templateMetadata) {
+      return;
+    }
 
-      let poller;
-      try {
-        poller = await client.deployments.beginCreateOrUpdateAtScope(
-          getScopeId(scope),
-          deploymentName,
-          deployment,
-        );
+    setErrorMessage(undefined);
+    clearState();
+    setRunning(true);
 
-        while (!poller.isDone()) {
-          await updateOperations();
-          await new Promise((f) => setTimeout(f, 5000));
-          await poller.poll();
-        }
-      } catch (e) {
-        setResult({
-          success: false,
-          error: parseError(e),
-        });
-        return;
-      } finally {
-        await updateOperations();
-      }
+    const deployment = getDeploymentProperties(
+      scope,
+      templateMetadata,
+      parametersMetadata.parameters,
+    );
 
-      const finalResult = poller.getResult();
-      setOutputs(finalResult?.properties?.outputs);
+    try {
+      const result = await startDeployment(deployment, scope);
       setResult({
-        success: true,
+        success: result.properties?.provisioningState === 'Succeeded',
+        error: result.properties?.error,
       });
-    });
+      setOutputs(result.properties?.outputs);
+    } catch (e) {
+      setResult({
+        success: false,
+        error: { message: `${e}` },
+      });
+    } finally {
+      setRunning(false);
+    }
   }
 
   async function validate() {
-    if (!scope) {
-      return;
-    }
-
-    await doDeploymentOperation(scope, async (client, deployment) => {
-      try {
-        const response = await client.deployments.beginValidateAtScopeAndWait(
-          getScopeId(scope),
-          deploymentName,
-          deployment,
-        );
-
-        setResult({
-          success: !response.error,
-          error: response.error,
-        });
-      } catch (e) {
-        setResult({
-          success: false,
-          error: parseError(e),
-        });
-      }
-    });
+    throw `Validate is not supported`;
   }
 
   async function whatIf() {
-    if (!scope) {
-      return;
-    }
-
-    await doDeploymentOperation(scope, async (client, deployment) => {
-      try {
-        const response = await beginWhatIfAndWait(
-          client,
-          scope,
-          deploymentName,
-          deployment,
-        );
-
-        setResult({
-          success: !response.error,
-          error: response.error,
-        });
-        setWhatIfChanges(response.changes);
-      } catch (e) {
-        setResult({
-          success: false,
-          error: parseError(e),
-        });
-      }
-    });
+    throw `What-If is not supported`;
   }
 
   function clearState() {
@@ -213,16 +99,6 @@ export function useAzure(props: UseAzureProps) {
     deploy,
     validate,
     whatIf,
-  };
-}
-
-function parseError(error: UntypedError) {
-  if (error instanceof RestError) {
-    return (error.details as CloudError).error;
-  }
-
-  return {
-    message: `${error}`,
   };
 }
 
@@ -250,49 +126,4 @@ function getDeploymentProperties(
       template: metadata.template,
     },
   };
-}
-
-function getScopeId(scope: DeploymentScope) {
-  switch (scope.scopeType) {
-    case "resourceGroup":
-      return `/subscriptions/${scope.subscriptionId}/resourceGroups/${scope.resourceGroup}`;
-    case "subscription":
-      return `/subscriptions/${scope.subscriptionId}`;
-    case "managementGroup":
-      return `/providers/Microsoft.Management/managementGroups/${scope.managementGroup}`;
-    case "tenant":
-      return `/`;
-  }
-}
-
-async function beginWhatIfAndWait(
-  client: ResourceManagementClient,
-  scope: DeploymentScope,
-  deploymentName: string,
-  deployment: Deployment,
-) {
-  switch (scope.scopeType) {
-    case "resourceGroup":
-      return await client.deployments.beginWhatIfAndWait(
-        scope.resourceGroup,
-        deploymentName,
-        deployment,
-      );
-    case "subscription":
-      return await client.deployments.beginWhatIfAtSubscriptionScopeAndWait(
-        deploymentName,
-        { ...deployment, location: scope.location },
-      );
-    case "managementGroup":
-      return await client.deployments.beginWhatIfAtManagementGroupScopeAndWait(
-        scope.managementGroup,
-        deploymentName,
-        { ...deployment, location: scope.location },
-      );
-    case "tenant":
-      return await client.deployments.beginWhatIfAtTenantScopeAndWait(
-        deploymentName,
-        { ...deployment, location: scope.location },
-      );
-  }
 }

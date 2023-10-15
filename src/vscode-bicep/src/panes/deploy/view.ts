@@ -3,6 +3,7 @@
 import vscode, { ExtensionContext } from "vscode";
 import fse from "fs-extra";
 import path from "path";
+import os from "os";
 import crypto from "crypto";
 import { LanguageClient } from "vscode-languageclient/node";
 import {
@@ -11,6 +12,7 @@ import {
   createGetDeploymentScopeResultMessage,
   createGetStateResultMessage,
   createPickParamsFileResultMessage,
+  createRunDeploymentResultMessage,
   ViewMessage,
 } from "./messages";
 import { getDeploymentDataRequestType } from "../../language";
@@ -24,6 +26,9 @@ import {
 } from "@microsoft/vscode-azext-utils";
 import { GlobalStateKeys } from "../../globalState";
 import { DeployPaneState } from "./models";
+import { rm, writeFile } from "fs/promises";
+import { spawnSync } from "child_process";
+import { DeploymentExtended } from "@azure/arm-resources";
 
 export class DeployPaneView extends Disposable {
   public static viewType = "bicep.deployPane";
@@ -418,6 +423,38 @@ export class DeployPaneView extends Disposable {
           },
         );
         return;
+      }
+      case "RUN_DEPLOYMENT": {
+        const { deployment, scope } = message;
+        if (scope.scopeType !== 'resourceGroup') {
+          throw 'TODO fix this';
+        }
+
+        const proc = '/Users/ant/Code/AzureUX-Deployments/Out/Debug-x64/LocalMode.Cli/net7/publish/Azure.Deployments.LocalMode.Cli';
+        
+        const tempFile = path.join(os.tmpdir(), 'main.json');
+        await writeFile(tempFile, JSON.stringify(deployment.properties.template));
+        const result = spawnSync(proc, [
+          'deploy',
+          '--tenant-id',
+          scope.tenantId,
+          '--subscription-id',
+          scope.subscriptionId,
+          '--resource-group',
+          scope.resourceGroup,
+          '--template-file',
+          tempFile
+        ], { encoding: 'utf-8' });
+        await rm(tempFile);
+
+        if (result.error) {
+          throw result.error;
+        }
+
+        const deploymentResult: DeploymentExtended = JSON.parse(result.stdout);
+        await this.webviewPanel.webview.postMessage(
+          createRunDeploymentResultMessage(deploymentResult),
+        );
       }
     }
   }
