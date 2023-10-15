@@ -822,7 +822,7 @@
     "vscode-languageclient": "^8.1.0",
     "vscode-nls": "^5.2.0",
     "winston": "^3.10.0",
-    "winston-transport": "^4.5.0"
+    "winston-transport": "^4.6.0"
   },
   "extensionDependencies": [
     "ms-dotnettools.vscode-dotnet-runtime"
