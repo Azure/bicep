@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:600) ProgramExpression
+//@[000:734) ProgramExpression
 //@[000:141) ├─DeclaredFunctionExpression { Name = buildUrl }
 //@[013:141) | └─LambdaExpression
 //@[020:024) |   ├─AmbientTypeReferenceExpression { Name = bool }
@@ -36,15 +36,15 @@ func sayHello(name string) string => 'Hi ${name}!'
 //@[027:033) |   └─AmbientTypeReferenceExpression { Name = string }
 
 output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
-//@[000:069) └─DeclaredOutputExpression { Name = hellos }
-//@[014:019)   ├─AmbientTypeReferenceExpression { Name = array }
-//@[022:069)   └─FunctionCallExpression { Name = map }
-//@[026:044)     ├─ArrayExpression
-//@[027:033)     | ├─StringLiteralExpression { Value = Evie }
-//@[035:043)     | └─StringLiteralExpression { Value = Casper }
-//@[046:068)     └─LambdaExpression
-//@[054:068)       └─UserDefinedFunctionCallExpression { Name = sayHello }
-//@[063:067)         └─LambdaVariableReferenceExpression { Variable = name }
+//@[000:069) ├─DeclaredOutputExpression { Name = hellos }
+//@[014:019) | ├─AmbientTypeReferenceExpression { Name = array }
+//@[022:069) | └─FunctionCallExpression { Name = map }
+//@[026:044) |   ├─ArrayExpression
+//@[027:033) |   | ├─StringLiteralExpression { Value = Evie }
+//@[035:043) |   | └─StringLiteralExpression { Value = Casper }
+//@[046:068) |   └─LambdaExpression
+//@[054:068) |     └─UserDefinedFunctionCallExpression { Name = sayHello }
+//@[063:067) |       └─LambdaVariableReferenceExpression { Variable = name }
 
 func objReturnType(name string) object => {
 //@[000:068) ├─DeclaredFunctionExpression { Name = objReturnType }
@@ -95,4 +95,26 @@ func typedArg(input string[]) positiveInt => length(input)
 //@[045:058) |   ├─FunctionCallExpression { Name = length }
 //@[052:057) |   | └─LambdaVariableReferenceExpression { Variable = input }
 //@[030:041) |   └─TypeAliasReferenceExpression { Name = positiveInt }
+
+func barTest() array => ['abc', 'def']
+//@[000:038) ├─DeclaredFunctionExpression { Name = barTest }
+//@[012:038) | └─LambdaExpression
+//@[024:038) |   ├─ArrayExpression
+//@[025:030) |   | ├─StringLiteralExpression { Value = abc }
+//@[032:037) |   | └─StringLiteralExpression { Value = def }
+//@[015:020) |   └─AmbientTypeReferenceExpression { Name = array }
+func fooTest() array => map(barTest(), a => 'Hello ${a}!')
+//@[000:058) ├─DeclaredFunctionExpression { Name = fooTest }
+//@[012:058) | └─LambdaExpression
+//@[024:058) |   ├─FunctionCallExpression { Name = map }
+//@[028:037) |   | ├─UserDefinedFunctionCallExpression { Name = barTest }
+//@[039:057) |   | └─LambdaExpression
+//@[044:057) |   |   └─InterpolatedStringExpression
+//@[053:054) |   |     └─LambdaVariableReferenceExpression { Variable = a }
+//@[015:020) |   └─AmbientTypeReferenceExpression { Name = array }
+
+output fooValue array = fooTest()
+//@[000:033) └─DeclaredOutputExpression { Name = fooValue }
+//@[016:021)   ├─AmbientTypeReferenceExpression { Name = array }
+//@[024:033)   └─UserDefinedFunctionCallExpression { Name = fooTest }
 

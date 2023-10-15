@@ -1,5 +1,5 @@
 func useRuntimeFunction() string => reference('foo').bar
-//@[000:1050) ProgramSyntax
+//@[000:1173) ProgramSyntax
 //@[000:0056) ├─FunctionDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |func|
 //@[005:0023) | ├─IdentifierSyntax
@@ -473,6 +473,65 @@ func invalidOutput() validStringLiteralUnion => 'foo'
 //@[045:0047) |   ├─Token(Arrow) |=>|
 //@[048:0053) |   └─StringSyntax
 //@[048:0053) |     └─Token(StringComplete) |'foo'|
-//@[053:0054) ├─Token(NewLine) |\n|
+//@[053:0055) ├─Token(NewLine) |\n\n|
+
+func recursive() string => recursive()
+//@[000:0038) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0014) | ├─IdentifierSyntax
+//@[005:0014) | | └─Token(Identifier) |recursive|
+//@[014:0038) | └─TypedLambdaSyntax
+//@[014:0016) |   ├─TypedVariableBlockSyntax
+//@[014:0015) |   | ├─Token(LeftParen) |(|
+//@[015:0016) |   | └─Token(RightParen) |)|
+//@[017:0023) |   ├─VariableAccessSyntax
+//@[017:0023) |   | └─IdentifierSyntax
+//@[017:0023) |   |   └─Token(Identifier) |string|
+//@[024:0026) |   ├─Token(Arrow) |=>|
+//@[027:0038) |   └─FunctionCallSyntax
+//@[027:0036) |     ├─IdentifierSyntax
+//@[027:0036) |     | └─Token(Identifier) |recursive|
+//@[036:0037) |     ├─Token(LeftParen) |(|
+//@[037:0038) |     └─Token(RightParen) |)|
+//@[038:0040) ├─Token(NewLine) |\n\n|
+
+func recursiveA() string => recursiveB()
+//@[000:0040) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0015) | ├─IdentifierSyntax
+//@[005:0015) | | └─Token(Identifier) |recursiveA|
+//@[015:0040) | └─TypedLambdaSyntax
+//@[015:0017) |   ├─TypedVariableBlockSyntax
+//@[015:0016) |   | ├─Token(LeftParen) |(|
+//@[016:0017) |   | └─Token(RightParen) |)|
+//@[018:0024) |   ├─VariableAccessSyntax
+//@[018:0024) |   | └─IdentifierSyntax
+//@[018:0024) |   |   └─Token(Identifier) |string|
+//@[025:0027) |   ├─Token(Arrow) |=>|
+//@[028:0040) |   └─FunctionCallSyntax
+//@[028:0038) |     ├─IdentifierSyntax
+//@[028:0038) |     | └─Token(Identifier) |recursiveB|
+//@[038:0039) |     ├─Token(LeftParen) |(|
+//@[039:0040) |     └─Token(RightParen) |)|
+//@[040:0041) ├─Token(NewLine) |\n|
+func recursiveB() string => recursiveA()
+//@[000:0040) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0015) | ├─IdentifierSyntax
+//@[005:0015) | | └─Token(Identifier) |recursiveB|
+//@[015:0040) | └─TypedLambdaSyntax
+//@[015:0017) |   ├─TypedVariableBlockSyntax
+//@[015:0016) |   | ├─Token(LeftParen) |(|
+//@[016:0017) |   | └─Token(RightParen) |)|
+//@[018:0024) |   ├─VariableAccessSyntax
+//@[018:0024) |   | └─IdentifierSyntax
+//@[018:0024) |   |   └─Token(Identifier) |string|
+//@[025:0027) |   ├─Token(Arrow) |=>|
+//@[028:0040) |   └─FunctionCallSyntax
+//@[028:0038) |     ├─IdentifierSyntax
+//@[028:0038) |     | └─Token(Identifier) |recursiveA|
+//@[038:0039) |     ├─Token(LeftParen) |(|
+//@[039:0040) |     └─Token(RightParen) |)|
+//@[040:0041) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

@@ -44,7 +44,7 @@ output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
 //@    "hellos": {
 //@      "type": "array",
 //@      "value": "[map(createArray('Evie', 'Casper'), lambda('name', __bicep.sayHello(lambdaVariables('name'))))]"
-//@    }
+//@    },
 
 func objReturnType(name string) object => {
 //@        "objReturnType": {
@@ -124,5 +124,31 @@ func typedArg(input string[]) positiveInt => length(input)
 //@            "$ref": "#/definitions/positiveInt",
 //@            "value": "[length(parameters('input'))]"
 //@          }
+//@        },
+
+func barTest() array => ['abc', 'def']
+//@        "barTest": {
+//@          "parameters": [],
+//@          "output": {
+//@            "type": "array",
+//@            "value": [
+//@              "abc",
+//@              "def"
+//@            ]
+//@          }
+//@        },
+func fooTest() array => map(barTest(), a => 'Hello ${a}!')
+//@        "fooTest": {
+//@          "parameters": [],
+//@          "output": {
+//@            "type": "array",
+//@            "value": "[map(__bicep.barTest(), lambda('a', format('Hello {0}!', lambdaVariables('a'))))]"
+//@          }
 //@        }
+
+output fooValue array = fooTest()
+//@    "fooValue": {
+//@      "type": "array",
+//@      "value": "[__bicep.fooTest()]"
+//@    }
 

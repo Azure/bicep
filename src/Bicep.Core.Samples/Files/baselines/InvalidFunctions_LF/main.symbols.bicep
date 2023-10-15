@@ -67,3 +67,11 @@ func invalidArgs(a validStringLiteralUnion, b string) string => a
 func invalidOutput() validStringLiteralUnion => 'foo'
 //@[05:18) Function invalidOutput. Type: () => 'foo'. Declaration start char: 0, length: 53
 
+func recursive() string => recursive()
+//@[05:14) Function recursive. Type: () => string. Declaration start char: 0, length: 38
+
+func recursiveA() string => recursiveB()
+//@[05:15) Function recursiveA. Type: () => string. Declaration start char: 0, length: 40
+func recursiveB() string => recursiveA()
+//@[05:15) Function recursiveB. Type: () => string. Declaration start char: 0, length: 40
+

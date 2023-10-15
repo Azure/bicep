@@ -1066,18 +1066,26 @@ namespace Bicep.LanguageServer.Completions
             {
                 // add namespaces first
                 AddSymbolCompletions(completions, nsTypeDict.Keys);
+                Func<DeclaredSymbol, bool> symbolFilter = _ => true;
 
                 // add accessible symbols from innermost scope and then move to outer scopes
                 // reverse loop iteration
                 foreach (var scope in context.ActiveScopes.Reverse())
                 {
                     // add referencable declarations with valid identifiers at current scope
-                    AddSymbolCompletions(completions, scope.Declarations.Where(decl => decl.NameSource.IsValid && decl.CanBeReferenced()));
+                    AddSymbolCompletions(completions, scope.Declarations
+                        .Where(symbolFilter)
+                        .Where(decl => decl.NameSource.IsValid && decl.CanBeReferenced()));
 
                     if (scope.ScopeResolution == ScopeResolution.GlobalsOnly)
                     {
                         // don't inherit outer scope variables
                         break;
+                    }
+
+                    if (scope.ScopeResolution == ScopeResolution.InheritFunctionsOnly)
+                    {
+                        symbolFilter = symbol => symbol is DeclaredFunctionSymbol;
                     }
                 }
             }

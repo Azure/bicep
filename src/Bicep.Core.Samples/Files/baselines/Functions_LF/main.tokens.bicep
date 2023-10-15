@@ -176,6 +176,50 @@ func typedArg(input string[]) positiveInt => length(input)
 //@[051:052) LeftParen |(|
 //@[052:057) Identifier |input|
 //@[057:058) RightParen |)|
-//@[058:059) NewLine |\n|
+//@[058:060) NewLine |\n\n|
+
+func barTest() array => ['abc', 'def']
+//@[000:004) Identifier |func|
+//@[005:012) Identifier |barTest|
+//@[012:013) LeftParen |(|
+//@[013:014) RightParen |)|
+//@[015:020) Identifier |array|
+//@[021:023) Arrow |=>|
+//@[024:025) LeftSquare |[|
+//@[025:030) StringComplete |'abc'|
+//@[030:031) Comma |,|
+//@[032:037) StringComplete |'def'|
+//@[037:038) RightSquare |]|
+//@[038:039) NewLine |\n|
+func fooTest() array => map(barTest(), a => 'Hello ${a}!')
+//@[000:004) Identifier |func|
+//@[005:012) Identifier |fooTest|
+//@[012:013) LeftParen |(|
+//@[013:014) RightParen |)|
+//@[015:020) Identifier |array|
+//@[021:023) Arrow |=>|
+//@[024:027) Identifier |map|
+//@[027:028) LeftParen |(|
+//@[028:035) Identifier |barTest|
+//@[035:036) LeftParen |(|
+//@[036:037) RightParen |)|
+//@[037:038) Comma |,|
+//@[039:040) Identifier |a|
+//@[041:043) Arrow |=>|
+//@[044:053) StringLeftPiece |'Hello ${|
+//@[053:054) Identifier |a|
+//@[054:057) StringRightPiece |}!'|
+//@[057:058) RightParen |)|
+//@[058:060) NewLine |\n\n|
+
+output fooValue array = fooTest()
+//@[000:006) Identifier |output|
+//@[007:015) Identifier |fooValue|
+//@[016:021) Identifier |array|
+//@[022:023) Assignment |=|
+//@[024:031) Identifier |fooTest|
+//@[031:032) LeftParen |(|
+//@[032:033) RightParen |)|
+//@[033:034) NewLine |\n|
 
 //@[000:000) EndOfFile ||

@@ -253,6 +253,41 @@ func invalidOutput() validStringLiteralUnion => 'foo'
 //@[021:044) Identifier |validStringLiteralUnion|
 //@[045:047) Arrow |=>|
 //@[048:053) StringComplete |'foo'|
-//@[053:054) NewLine |\n|
+//@[053:055) NewLine |\n\n|
+
+func recursive() string => recursive()
+//@[000:004) Identifier |func|
+//@[005:014) Identifier |recursive|
+//@[014:015) LeftParen |(|
+//@[015:016) RightParen |)|
+//@[017:023) Identifier |string|
+//@[024:026) Arrow |=>|
+//@[027:036) Identifier |recursive|
+//@[036:037) LeftParen |(|
+//@[037:038) RightParen |)|
+//@[038:040) NewLine |\n\n|
+
+func recursiveA() string => recursiveB()
+//@[000:004) Identifier |func|
+//@[005:015) Identifier |recursiveA|
+//@[015:016) LeftParen |(|
+//@[016:017) RightParen |)|
+//@[018:024) Identifier |string|
+//@[025:027) Arrow |=>|
+//@[028:038) Identifier |recursiveB|
+//@[038:039) LeftParen |(|
+//@[039:040) RightParen |)|
+//@[040:041) NewLine |\n|
+func recursiveB() string => recursiveA()
+//@[000:004) Identifier |func|
+//@[005:015) Identifier |recursiveB|
+//@[015:016) LeftParen |(|
+//@[016:017) RightParen |)|
+//@[018:024) Identifier |string|
+//@[025:027) Arrow |=>|
+//@[028:038) Identifier |recursiveA|
+//@[038:039) LeftParen |(|
+//@[039:040) RightParen |)|
+//@[040:041) NewLine |\n|
 
 //@[000:000) EndOfFile ||

@@ -19,3 +19,8 @@ func asdf(name string) array => ['asdf', name]
 type positiveInt = int
 
 func typedArg(input string[]) positiveInt => length(input)
+
+func barTest() array => ['abc', 'def']
+func fooTest() array => map(barTest(), a => 'Hello ${a}!')
+
+output fooValue array = fooTest()

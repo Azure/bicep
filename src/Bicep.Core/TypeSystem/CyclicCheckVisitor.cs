@@ -84,6 +84,9 @@ namespace Bicep.Core.TypeSystem
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
             => VisitDeclaration(syntax, base.VisitParameterAssignmentSyntax);
 
+        public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
+            => VisitDeclaration(syntax, base.VisitFunctionDeclarationSyntax);
+
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             // Push this resource onto the stack and process its body (including children).

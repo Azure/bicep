@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -355,6 +356,24 @@ resource stg2 'Microsoft.Storage/storageAccounts@2021-09-01' = {
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"nonDtcArr\" -> \"stg\"). Properties of stg which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+            });
+        }
+
+        [TestMethod]
+        public void Function_recursion_is_blocked()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides with { UserDefinedFunctionsEnabled = true });
+            var result = CompilationHelper.Compile(services, @"
+func recursive() string => recursive()
+
+func recursiveA() string => recursiveB()
+func recursiveB() string => recursiveA()
+");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"recursiveB\" -> \"recursiveA\")."),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"recursiveA\" -> \"recursiveB\")."),
             });
         }
     }

@@ -33,3 +33,8 @@ name string) string => 'Hi ${name}!'
 type validStringLiteralUnion = 'foo' | 'bar' | 'baz'
 func invalidArgs(a validStringLiteralUnion, b string) string => a
 func invalidOutput() validStringLiteralUnion => 'foo'
+
+func recursive() string => recursive()
+
+func recursiveA() string => recursiveB()
+func recursiveB() string => recursiveA()

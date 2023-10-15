@@ -6,9 +6,14 @@ namespace Bicep.Core.Semantics;
 public enum ScopeResolution
 {
     /// <summary>
-    ///   Inherit scoped symbols from the parent scope.
+    ///   Inherit all scoped symbols from the parent scope.
     /// </summary>
-    InheritParent,
+    InheritAll,
+
+    /// <summary>
+    ///   Inherit only function symbols from the parent scope.
+    /// </summary>
+    InheritFunctionsOnly,
 
     /// <summary>
     ///   Only symbols that have not been declared by a parent (or above) scope.
