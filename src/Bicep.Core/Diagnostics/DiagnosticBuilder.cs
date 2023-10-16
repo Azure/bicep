@@ -2105,10 +2105,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP379",
                 $"The OCI artifact provider alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}.");
 
-            public ErrorDiagnostic UnsupportedArtifactType(string registryName, ArtifactType artifactType) => new(
+            public ErrorDiagnostic UnsupportedArtifactType(ArtifactType artifactType) => new(
                 TextSpan,
                 "BCP380",
-                $"The registry: \"{registryName}\" doesn't support artifacts of type \"{artifactType}\"."
+                $"Artifacts of type: \"{artifactType}\" are not supported."
             );
             
         }

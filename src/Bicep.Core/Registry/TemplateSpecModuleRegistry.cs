@@ -45,7 +45,7 @@ namespace Bicep.Core.Registry
         {
             if (artifactType != ArtifactType.Module)
             {
-                return new(x => x.UnsupportedArtifactType(typeof(TemplateSpecModuleRegistry).Name, artifactType));
+                return new(x => x.UnsupportedArtifactType(artifactType));
             }
             if (!TemplateSpecModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri).IsSuccess(out var @ref, out var failureBuilder))
             {

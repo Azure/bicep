@@ -95,6 +95,8 @@ namespace Bicep.Core.Registry.Oci
                         }
                         rawValue = $"{providerAlias}/{rawValue}";
                         break;
+                    default:
+                        return new(x => x.UnsupportedArtifactType(type)); 
                 }
             }
 
