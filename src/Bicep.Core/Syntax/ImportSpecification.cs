@@ -81,8 +81,8 @@ namespace Bicep.Core.Syntax
 
         private static ImportSpecification CreateFromStringSyntax(StringSyntax stringSyntax, string value)
         {
-            var matchBareSpecification = BareSpecification.Match(value);
-            if (!matchBareSpecification.Success)
+            var match = BareSpecification.Match(value);
+            if (!match.Success)
             {
                 return new(
                  LanguageConstants.ErrorName,
@@ -92,8 +92,8 @@ namespace Bicep.Core.Syntax
                  stringSyntax.Span);
             }
 
-            var name = matchBareSpecification.Groups["name"].Value;
-            var version = matchBareSpecification.Groups["version"].Value;
+            var name = match.Groups["name"].Value;
+            var version = match.Groups["version"].Value;
             var parts = value.Split('@');
             var artifactAddress = parts[0];
             
