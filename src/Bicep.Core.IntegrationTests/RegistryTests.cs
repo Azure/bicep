@@ -334,7 +334,7 @@ namespace Bicep.Core.IntegrationTests
             // let's try to restore a module while holding a lock
             using (@lock)
             {
-                (await dispatcher.RestoreModules(moduleReferences, forceModulesRestore: true)).Should().BeTrue();
+                (await dispatcher.RestoreModules(moduleReferences, forceRestore: true)).Should().BeTrue();
             }
 
             // REF: FileLockTests.cs/FileLockShouldNotThrowIfLockFileIsDeleted()
@@ -402,7 +402,7 @@ namespace Bicep.Core.IntegrationTests
             var moduleDirectory = Path.GetDirectoryName(moduleFilePath)!;
             Directory.CreateDirectory(moduleDirectory);
 
-            (await dispatcher.RestoreModules(moduleReferences, forceModulesRestore: true)).Should().BeTrue();
+            (await dispatcher.RestoreModules(moduleReferences, forceRestore: true)).Should().BeTrue();
 
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences)

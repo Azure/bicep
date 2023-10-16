@@ -173,19 +173,19 @@ namespace Bicep.LanguageServer.Handlers
             return new();
         }
 
-        private LocationOrLocationLinks HandleModuleReference(CompilationContext context, StringSyntax stringToken, ISourceFile sourceFile, ArtifactReference moduleReference)
+        private LocationOrLocationLinks HandleModuleReference(CompilationContext context, StringSyntax stringToken, ISourceFile sourceFile, ArtifactReference reference)
         {
             // Return the correct link format so our language client can display the sources
             return GetFileDefinitionLocation(
-                GetModuleSourceLinkUri(sourceFile, moduleReference),
+                GetModuleSourceLinkUri(sourceFile, reference),
                 stringToken,
                 context,
                 new() { Start = new(0, 0), End = new(0, 0) });
         }
 
-        private Uri GetModuleSourceLinkUri(ISourceFile sourceFile, ArtifactReference moduleReference)
+        private Uri GetModuleSourceLinkUri(ISourceFile sourceFile, ArtifactReference reference)
         {
-            if (!this.CanClientAcceptRegistryContent() || !moduleReference.IsExternal)
+            if (!this.CanClientAcceptRegistryContent() || !reference.IsExternal)
             {
                 // the client doesn't support the bicep-cache scheme or we're dealing with a local module
                 // just use the file URI
@@ -198,7 +198,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var sourceFilePath = sourceFile.FileUri.AbsolutePath;
 
-            if (moduleDispatcher.TryGetModuleSources(moduleReference) is SourceArchive sourceArchive)
+            if (moduleDispatcher.TryGetModuleSources(reference) is SourceArchive sourceArchive)
             {
                 // We have Bicep source code available.
                 // Replace the local cached JSON name (always main.json) with the actual source entrypoint filename (e.g.
@@ -212,7 +212,7 @@ namespace Bicep.LanguageServer.Handlers
 
             // The file path and fully qualified reference may contain special characters (like :) that need to be url-encoded.
             sourceFilePath = WebUtility.UrlEncode(sourceFilePath);
-            var fullyQualifiedReference = WebUtility.UrlEncode(moduleReference.FullyQualifiedReference);
+            var fullyQualifiedReference = WebUtility.UrlEncode(reference.FullyQualifiedReference);
 
             // Encode the source file path as a path and the fully qualified reference as a fragment.
             // VsCode will pass it to our language client, which will respond by requesting the source to display via

@@ -234,7 +234,7 @@ namespace Bicep.Core.Registry
             return await base.InvalidateArtifactsCacheInternal(references);
         }
 
-        public override async Task PublishArtifact(OciArtifactReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description)
+        public override async Task PublishArtifact(OciArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description)
         {
             // This needs to be valid JSON, otherwise there may be compatibility issues.
             // NOTE: Bicep v0.20 and earlier will throw on this, so it's a breaking change.
@@ -255,7 +255,7 @@ namespace Bicep.Core.Registry
             {
                 await this.client.PushArtifactAsync(
                     configuration,
-                    moduleReference,
+                    reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
                     BicepModuleMediaTypes.BicepModuleArtifactType,
