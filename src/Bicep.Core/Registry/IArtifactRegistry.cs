@@ -12,11 +12,6 @@ using Bicep.Core.SourceCode;
 
 namespace Bicep.Core.Registry
 {
-    public enum ArtifactType
-    {
-        Module,
-        Provider,
-    }
     /// <summary>
     /// An implementation of a Bicep artifact registry.
     /// </summary>
