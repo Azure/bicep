@@ -27,7 +27,7 @@ namespace Bicep.Core.Workspaces
         private readonly Dictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri;
         private readonly ConcurrentDictionary<ISourceFile, Dictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> uriResultByArtifactReference;
 
-        private readonly bool forceArtifactRestore;
+        private readonly bool forceRestore;
 
         private SourceFileGroupingBuilder(
             IFileResolver fileResolver,
@@ -40,7 +40,7 @@ namespace Bicep.Core.Workspaces
             this.workspace = workspace;
             this.uriResultByArtifactReference = new();
             this.fileResultByUri = new();
-            this.forceArtifactRestore = forceModulesRestore;
+            this.forceRestore = forceModulesRestore;
         }
 
         private SourceFileGroupingBuilder(
@@ -48,14 +48,14 @@ namespace Bicep.Core.Workspaces
             IModuleDispatcher moduleDispatcher,
             IReadOnlyWorkspace workspace,
             SourceFileGrouping current,
-            bool forceforceModulesRestore = false)
+            bool forceArtifactRestore = false)
         {
             this.fileResolver = fileResolver;
             this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
             this.uriResultByArtifactReference = new(current.UriResultByArtifactReference.Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToDictionary(p => p.Key, p => p.Value))));
             this.fileResultByUri = current.FileResultByUri.Where(x => x.Value.TryUnwrap() is not null).ToDictionary(x => x.Key, x => x.Value);
-            this.forceArtifactRestore = forceforceModulesRestore;
+            this.forceRestore = forceArtifactRestore;
         }
 
         public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, IFeatureProviderFactory featuresFactory, bool forceModulesRestore = false)
@@ -181,9 +181,9 @@ namespace Bicep.Core.Workspaces
             }
         }
 
-        private (ArtifactReference? reference, Result<Uri, UriResolutionError> result) GetArtifactRestoreResult(Uri parentFileUri, IArtifactReferenceSyntax foreignTemplateReference)
+        private (ArtifactReference? reference, Result<Uri, UriResolutionError> result) GetArtifactRestoreResult(Uri parentFileUri, IArtifactReferenceSyntax referenceSyntax)
         {
-            if (!dispatcher.TryGetArtifactReference(foreignTemplateReference, parentFileUri).IsSuccess(out var artifactReference, out var referenceResolutionError))
+            if (!dispatcher.TryGetArtifactReference(referenceSyntax, parentFileUri).IsSuccess(out var artifactReference, out var referenceResolutionError))
             {
                 // module reference is not valid
                 return (null, new(new UriResolutionError(referenceResolutionError, false)));
@@ -194,7 +194,7 @@ namespace Bicep.Core.Workspaces
                 return (artifactReference, new(new UriResolutionError(moduleGetPathFailureBuilder, false)));
             }
 
-            if (forceArtifactRestore)
+            if (forceRestore)
             {
                 //override the status to force restore
                 return (artifactReference, new(new UriResolutionError(x => x.ModuleRequiresRestore(artifactReference.FullyQualifiedReference), true)));

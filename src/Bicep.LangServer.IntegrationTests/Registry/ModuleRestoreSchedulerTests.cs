@@ -206,15 +206,15 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? _, ArtifactType artifactType, string reference)
             {
-                return new(new MockModuleRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
+                return new(new MockArtifactRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
             }
 
             public SourceArchive? TryGetSource(ArtifactReference artifactReference) => null;
         }
 
-        private class MockModuleRef : ArtifactReference
+        private class MockArtifactRef : ArtifactReference
         {
-            public MockModuleRef(string value, Uri parentModuleUri)
+            public MockArtifactRef(string value, Uri parentModuleUri)
                 : base("mock", parentModuleUri)
             {
                 this.Value = value;

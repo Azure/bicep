@@ -46,8 +46,8 @@ public class ImportedSymbol : DeclaredSymbol
 
     public string? TryGetDescription() => TryGetExportMetadata()?.Description;
 
-    public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference()
-        => Context.Compilation.ModuleReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
+    public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference()
+        => Context.Compilation.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 
     public override void Accept(SymbolVisitor visitor)
     {

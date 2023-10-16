@@ -226,7 +226,7 @@ namespace Bicep.LanguageServer.Handlers
         private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, DefinitionParams request, SymbolResolutionResult result, WildcardImportSymbol wildcardImport)
         {
             if (context.Compilation.SourceFileGrouping.TryGetSourceFile(wildcardImport.EnclosingDeclaration).IsSuccess(out var sourceFile) &&
-                wildcardImport.TryGetModuleReference().IsSuccess(out var moduleReference))
+                wildcardImport.TryGetArtifactReference().IsSuccess(out var moduleReference))
             {
                 return GetFileDefinitionLocation(
                     GetModuleSourceLinkUri(sourceFile, moduleReference),

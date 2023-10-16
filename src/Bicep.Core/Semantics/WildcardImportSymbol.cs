@@ -38,8 +38,8 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
             Context.Compilation)
             .TryUnwrap();
 
-    public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference()
-        => Context.Compilation.ModuleReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
+    public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference()
+        => Context.Compilation.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 
     public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
     {
