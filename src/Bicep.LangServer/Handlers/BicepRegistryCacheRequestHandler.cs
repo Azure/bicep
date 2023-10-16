@@ -48,7 +48,7 @@ namespace Bicep.LanguageServer.Handlers
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
 
-            if (!moduleDispatcher.TryGetArtifactReference(request.Target, ArtifactType.Module, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
+            if (!moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, request.Target, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
             {
                 throw new InvalidOperationException(
                     $"The client specified an invalid module reference '{request.Target}'.");

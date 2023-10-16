@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.Utils
     public static class OciArtifactRegistryHelper
     {
         public static OciArtifactReference CreateModuleReferenceMock(string registry, string repository, Uri parentModuleUri, string? digest, string? tag)
-            => new(registry, repository, tag, digest, ArtifactType.Module, parentModuleUri);
+            => new(ArtifactType.Module, registry, repository, tag, digest, parentModuleUri);
 
 
         public static OciArtifactReference CreateModuleReference(string registry, string repository, string? tag, string? digest)

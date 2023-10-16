@@ -14,7 +14,7 @@ namespace Bicep.Core.Registry.Oci
 {
     public class OciArtifactReference : ArtifactReference, IOciArtifactReference
     {
-        public OciArtifactReference(string registry, string repository, string? tag, string? digest, ArtifactType type, Uri parentModuleUri) :
+        public OciArtifactReference(ArtifactType type, string registry, string repository, string? tag, string? digest, Uri parentModuleUri) :
             base(OciArtifactReferenceFacts.Scheme, parentModuleUri)
         {
             switch (tag, digest)
@@ -204,7 +204,7 @@ namespace Bicep.Core.Registry.Oci
                             tag));
                     }
 
-                    return new(new OciArtifactReference(registry, repository, tag, digest: null, type, parentModuleUri));
+                    return new(new OciArtifactReference(type, registry, repository, tag, digest: null, parentModuleUri: parentModuleUri));
 
                 case '@':
                     var digest = tagOrDigest;
@@ -213,7 +213,7 @@ namespace Bicep.Core.Registry.Oci
                         return new(x => x.InvalidOciArtifactReferenceInvalidDigest(aliasName, GetBadReference(rawValue), digest));
                     }
 
-                    return new(new OciArtifactReference(registry, repository, tag: null, digest, type, parentModuleUri));
+                    return new(new OciArtifactReference(type, registry, repository, tag: null, digest: digest, parentModuleUri: parentModuleUri));
 
                 default:
                     throw new NotImplementedException($"Unexpected last segment delimiter character '{delimiter.Value}'.");

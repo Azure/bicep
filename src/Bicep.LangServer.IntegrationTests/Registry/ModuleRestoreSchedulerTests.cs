@@ -204,7 +204,7 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public Task<string?> TryGetDescription(ArtifactReference reference) => Task.FromResult<string?>(null);
 
-            public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? _, ArtifactType artifactType, string reference)
+            public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? _, string reference)
             {
                 return new(new MockArtifactRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
             }

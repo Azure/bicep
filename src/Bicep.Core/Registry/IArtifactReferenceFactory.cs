@@ -13,9 +13,7 @@ public interface IArtifactReferenceFactory
 {
     ImmutableArray<string> AvailableSchemes(Uri parentModuleUri);
 
-    ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(string reference, ArtifactType artifactType, Uri parentModuleUri);
-
-    ResultWithDiagnostic<ArtifactReference> TryGetModuleReference(string reference, Uri parentModuleUri);
+    ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri);
 
     ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactDeclaration, Uri parentModuleUri);
 }
