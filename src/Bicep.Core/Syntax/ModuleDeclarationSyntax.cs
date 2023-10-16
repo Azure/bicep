@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 
 namespace Bicep.Core.Syntax
 {
@@ -71,5 +72,7 @@ namespace Bicep.Core.Syntax
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid module body is not available on this module due to errors. Use {nameof(TryGetBody)}() instead.");
 
         public bool HasCondition() => this.Value is IfConditionSyntax or ForSyntax { Body: IfConditionSyntax };
+
+        public ArtifactType GetArtifactType() => ArtifactType.Module;
     }
 }

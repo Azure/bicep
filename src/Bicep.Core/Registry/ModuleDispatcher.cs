@@ -96,9 +96,7 @@ namespace Bicep.Core.Registry
                 return new(failureBuilder);
             }
 
-            var artifactType = (artifactDeclaration is ProviderDeclarationSyntax) ? ArtifactType.Provider : ArtifactType.Module;
-
-            return this.TryGetArtifactReference(artifactReferenceString, artifactType, parentModuleUri);
+            return this.TryGetArtifactReference(artifactReferenceString, artifactDeclaration.GetArtifactType(), parentModuleUri);
         }
 
         public RegistryCapabilities GetRegistryCapabilities(ArtifactReference artifactReference)

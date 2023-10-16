@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Navigation;
@@ -13,4 +14,6 @@ public interface IArtifactReferenceSyntax
     SyntaxBase SourceSyntax { get; }
 
     SyntaxBase? Path { get; }
+
+    ArtifactType GetArtifactType();
 }

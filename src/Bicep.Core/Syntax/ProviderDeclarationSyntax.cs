@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 
 namespace Bicep.Core.Syntax
@@ -47,6 +48,8 @@ namespace Bicep.Core.Syntax
         SyntaxBase IArtifactReferenceSyntax.SourceSyntax => Path;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderDeclarationSyntax(this);
+
+        public ArtifactType GetArtifactType() => ArtifactType.Provider;
 
         public SyntaxBase Path => this.Specification.ToPath(); 
     }
