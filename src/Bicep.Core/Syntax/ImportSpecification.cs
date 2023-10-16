@@ -24,20 +24,19 @@ namespace Bicep.Core.Syntax
         // language=regex
         private const string SemanticVersionPattern = @"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?";
 
-        private static readonly Regex BareSpecification = new(
-            @$"(?<name>{NamePattern})@(?<version>{SemanticVersionPattern})$");
+        private static readonly Regex BareSpecification = new(@$"(?<name>{NamePattern})@(?<version>{SemanticVersionPattern})$");
 
 
-        private ImportSpecification(string unqualifiedAddress, string name, string version, bool isValid, TextSpan span)
+        private ImportSpecification(string unexpandedPath, string name, string version, bool isValid, TextSpan span)
         {
-            UnqualifiedAddress = unqualifiedAddress;
+            UnexpandedPath = unexpandedPath;
             Name = name;
             Version = version;
             IsValid = isValid;
             Span = span;
         }
 
-        private string UnqualifiedAddress { get; }
+        private string UnexpandedPath { get; }
 
         public string Name { get; }
 
@@ -76,7 +75,7 @@ namespace Bicep.Core.Syntax
             {
                 return new SkippedTriviaSyntax(this.Span, Enumerable.Empty<SyntaxBase>());
             }
-            return SyntaxFactory.CreateStringLiteral(this.UnqualifiedAddress);
+            return SyntaxFactory.CreateStringLiteral(this.UnexpandedPath);
         }
 
         private static ImportSpecification CreateFromStringSyntax(StringSyntax stringSyntax, string value)
@@ -95,11 +94,11 @@ namespace Bicep.Core.Syntax
             var name = match.Groups["name"].Value;
             var version = match.Groups["version"].Value;
             var parts = value.Split('@');
-            var artifactAddress = parts[0];
-            
-            var span = new TextSpan(stringSyntax.Span.Position + 1, artifactAddress.Length);
+            var unexpandedRepositoryAddress = parts[0];
 
-            return new(string.Join(':', parts), name, version, artifactAddress != "az", span);
+            var span = new TextSpan(stringSyntax.Span.Position + 1, unexpandedRepositoryAddress.Length);
+            var unexpandedArtifactAddress = value.Replace('@', ':'); // we use the same format as module references so we can reuse module dispatcher logic.
+            return new(unexpandedArtifactAddress, name, version, unexpandedRepositoryAddress != "az", span);
         }
     }
 }
