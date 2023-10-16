@@ -40,7 +40,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             const string ModuleRefStr = "hello";
 
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
-            dispatcher.Setup(m => m.TryGetArtifactReference(ModuleRefStr, ArtifactType.Module, It.IsAny<Uri>())).Returns(ResultHelper.Create(null as ArtifactReference, x => x.ModuleRestoreFailed("blah")));
+            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(null as ArtifactReference, x => x.ModuleRestoreFailed("blah")));
 
             var resolver = StrictMock.Of<IFileResolver>();
 
@@ -65,7 +65,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             localRef.Should().NotBeNull();
 
             ArtifactReference? outRef = localRef;
-            dispatcher.Setup(m => m.TryGetArtifactReference(ModuleRefStr, ArtifactType.Module, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, failureBuilder));
+            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, failureBuilder));
 
             var resolver = StrictMock.Of<IFileResolver>();
 
@@ -95,7 +95,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
-            dispatcher.Setup(m => m.TryGetArtifactReference(ModuleRefStr, ArtifactType.Module, parentModuleUri)).Returns(ResultHelper.Create(outRef, failureBuilder));
+            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, parentModuleUri)).Returns(ResultHelper.Create(outRef, failureBuilder));
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out failureBuilder)).Returns(ArtifactRestoreStatus.Unknown);
 
             var resolver = StrictMock.Of<IFileResolver>();
@@ -125,7 +125,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
-            dispatcher.Setup(m => m.TryGetArtifactReference(ModuleRefStr, ArtifactType.Module, parentModuleUri)).Returns(ResultHelper.Create(outRef, failureBuilder));
+            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, parentModuleUri)).Returns(ResultHelper.Create(outRef, failureBuilder));
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out failureBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(null as Uri, x => x.ModuleRestoreFailed("blah")));
 
@@ -160,7 +160,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
-            dispatcher.Setup(m => m.TryGetArtifactReference(ModuleRefStr, ArtifactType.Module, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, null));
+            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, null));
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(fileUri, null));
 
@@ -200,7 +200,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
-            dispatcher.Setup(m => m.TryGetArtifactReference(ModuleRefStr, ArtifactType.Module, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, null));
+            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, null));
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(fileUri, null));
 
@@ -239,7 +239,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
-            dispatcher.Setup(m => m.TryGetArtifactReference(ModuleRefStr, ArtifactType.Module, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, null));
+            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, null));
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(fileUri, null));
 

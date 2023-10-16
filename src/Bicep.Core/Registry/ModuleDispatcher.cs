@@ -42,10 +42,10 @@ namespace Bicep.Core.Registry
             => Registries(parentModuleUri).Keys.OrderBy(s => s).ToImmutableArray();
 
         public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference(string reference, Uri parentModuleUri)
-            => TryGetArtifactReference(reference, ArtifactType.Module, parentModuleUri);
+            => TryGetArtifactReference(ArtifactType.Module, reference, parentModuleUri);
 
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(string reference, ArtifactType artifactType, Uri parentModuleUri)
+        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri)
         {
             var registries = Registries(parentModuleUri);
             var parts = reference.Split(':', 2, StringSplitOptions.None);
@@ -55,7 +55,7 @@ namespace Bicep.Core.Registry
                     // local path reference
                     if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
                     {
-                        return localRegistry.TryParseArtifactReference(null, artifactType, parts[0]);
+                        return localRegistry.TryParseArtifactReference(artifactType, null, parts[0]);
                     }
 
                     return new(x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes(parentModuleUri)));
@@ -77,7 +77,7 @@ namespace Bicep.Core.Registry
                         // the scheme is recognized
                         var rawValue = parts[1];
 
-                        return registry.TryParseArtifactReference(aliasName, artifactType, rawValue);
+                        return registry.TryParseArtifactReference(artifactType, aliasName, rawValue);
                     }
 
                     // unknown scheme
@@ -96,7 +96,7 @@ namespace Bicep.Core.Registry
                 return new(failureBuilder);
             }
 
-            return this.TryGetArtifactReference(artifactReferenceString, artifactDeclaration.GetArtifactType(), parentModuleUri);
+            return this.TryGetArtifactReference(artifactDeclaration.GetArtifactType(), artifactReferenceString, parentModuleUri);
         }
 
         public RegistryCapabilities GetRegistryCapabilities(ArtifactReference artifactReference)
