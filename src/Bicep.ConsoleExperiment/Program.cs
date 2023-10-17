@@ -57,7 +57,7 @@ public static class Example
         var w = Console.WindowWidth;
         //fill up to 800
         var truncatedList = new List<Deployments>(); //modified
-        for (int i = 0; i < 800; i++)
+        for (int i = 0; i < 40; i++)
         {
             truncatedList.Add(deploymentList[i % 12]);
             truncatedList[i].Name = Truncate(truncatedList[i].Name, w / 3);
@@ -73,10 +73,7 @@ public static class Example
         table.AddColumn("Name").LeftAligned();
         table.AddColumn("Resource Type");// column=>column.Width(60).Alignment(Justify.Right));
         table.AddColumn("Status").LeftAligned();
-        //table.Columns
         await AnsiConsole.Live(table)
-        //.Overflow(VerticalOverflow.Ellipsis)
-        //.Cropping(VerticalOverflowCropping.)
         .StartAsync(async ctx =>
         {
             foreach (var group in resourceGroups)
@@ -94,34 +91,37 @@ public static class Example
                     ctx.Refresh();
                     await Task.Delay(50);
                 }
-            } 
-                table.UpdateCell(0, 2, "[green]Created[/]");
-                d1.Status = "Created";
-                table.UpdateCell(5, 2, "[green]Created[/]");
-                d6.Status = "Created";
-                await Task.Delay(2000);
-                ctx.Refresh();
-                table.UpdateCell(2, 2, "[green]Created[/]");
-                d3.Status = "Created";
-                table.UpdateCell(3, 2, "[green]Created[/]");
-                d4.Status = "Created";
-                await Task.Delay(2000);
-                ctx.Refresh();
-                table.UpdateCell(7, 2, "[green]Created[/]");
-                d8.Status = "Created";
-                table.UpdateCell(10, 2, "[green]Created[/]");
-                d11.Status = "Created";
-                await Task.Delay(2000);
-                ctx.Refresh();
-                table.UpdateCell(11, 2, "[green]Created[/]");
-                d12.Status = "Created";
-                await Task.Delay(2000);
-                ctx.Refresh();
+            }
+            //update all statuses to created
+            var count = 0;
+            foreach (var group in resourceGroups)
+            {
+                foreach (var item in group)
+                {
+                    count++;
+                    if (item.Status.Equals("Creating"))
+                    {
+                        table.UpdateCell(count - 1, 2, "[green]Created[/]");
+                        await Task.Delay(500);
+                        ctx.Refresh();
+                    }
+                }
+            }
+            
         });
 
+        //All deployments should be set to created at this point
+        //modify deployment list to reflect changes
+
+        for (int i = 0; i < deploymentList.Count; i++)
+        {
+            deploymentList[i].Status = "Created";
+        }
+        
+        //Loop to adjust for change in terminal size width
         while (true)
         {
-            //w = Console.WindowWidth;
+            w = Console.WindowWidth;
             if (w != Console.WindowWidth)
             {
                 w = Console.WindowWidth;
@@ -138,9 +138,8 @@ public static class Example
                 AnsiConsole.Write(new Text(deploymentObj.CorrelationID, new Style(Color.Blue)));
                 AnsiConsole.WriteLine("\n");
 
-                for (int i = 0; i < 800; i++)
+                for (int i = 0; i < 40; i++)
                 {
-                    //truncatedList.Add(deploymentList[i % 12]);
                     truncatedList[i].Name = Truncate(deploymentList[i % 12].Name, w / 3);
                 }
 
