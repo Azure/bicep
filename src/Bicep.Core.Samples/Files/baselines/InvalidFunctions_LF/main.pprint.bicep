@@ -1,8 +1,5 @@
 func useRuntimeFunction() string => reference('foo').bar
 
-func constFunc() string => 'A'
-func funcWithOtherFuncRef() string => constFunc()
-
 func missingArgType(input) string => input
 
 func missingOutputType(input string) => input

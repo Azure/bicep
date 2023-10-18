@@ -1,11 +1,6 @@
 func useRuntimeFunction() string => reference('foo').bar
 //@[05:23) Function useRuntimeFunction. Type: () => any. Declaration start char: 0, length: 56
 
-func constFunc() string => 'A'
-//@[05:14) Function constFunc. Type: () => 'A'. Declaration start char: 0, length: 30
-func funcWithOtherFuncRef() string => constFunc()
-//@[05:25) Function funcWithOtherFuncRef. Type: () => string. Declaration start char: 0, length: 49
-
 func missingArgType(input) string => input
 //@[20:25) Local input. Type: any. Declaration start char: 20, length: 5
 //@[05:19) Function missingArgType. Type: any => any. Declaration start char: 0, length: 42

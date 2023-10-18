@@ -1,9 +1,6 @@
 func useRuntimeFunction() string => reference('foo').bar
 //@[36:52) [BCP341 (Error)] This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment. (CodeDescription: none) |reference('foo')|
 
-func constFunc() string => 'A'
-func funcWithOtherFuncRef() string => constFunc()
-
 func missingArgType(input) string => input
 //@[25:26) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |)|
 

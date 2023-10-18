@@ -1,5 +1,5 @@
 func useRuntimeFunction() string => reference('foo').bar
-//@[000:1173) ProgramSyntax
+//@[000:1091) ProgramSyntax
 //@[000:0056) ├─FunctionDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |func|
 //@[005:0023) | ├─IdentifierSyntax
@@ -25,42 +25,6 @@ func useRuntimeFunction() string => reference('foo').bar
 //@[053:0056) |     └─IdentifierSyntax
 //@[053:0056) |       └─Token(Identifier) |bar|
 //@[056:0058) ├─Token(NewLine) |\n\n|
-
-func constFunc() string => 'A'
-//@[000:0030) ├─FunctionDeclarationSyntax
-//@[000:0004) | ├─Token(Identifier) |func|
-//@[005:0014) | ├─IdentifierSyntax
-//@[005:0014) | | └─Token(Identifier) |constFunc|
-//@[014:0030) | └─TypedLambdaSyntax
-//@[014:0016) |   ├─TypedVariableBlockSyntax
-//@[014:0015) |   | ├─Token(LeftParen) |(|
-//@[015:0016) |   | └─Token(RightParen) |)|
-//@[017:0023) |   ├─VariableAccessSyntax
-//@[017:0023) |   | └─IdentifierSyntax
-//@[017:0023) |   |   └─Token(Identifier) |string|
-//@[024:0026) |   ├─Token(Arrow) |=>|
-//@[027:0030) |   └─StringSyntax
-//@[027:0030) |     └─Token(StringComplete) |'A'|
-//@[030:0031) ├─Token(NewLine) |\n|
-func funcWithOtherFuncRef() string => constFunc()
-//@[000:0049) ├─FunctionDeclarationSyntax
-//@[000:0004) | ├─Token(Identifier) |func|
-//@[005:0025) | ├─IdentifierSyntax
-//@[005:0025) | | └─Token(Identifier) |funcWithOtherFuncRef|
-//@[025:0049) | └─TypedLambdaSyntax
-//@[025:0027) |   ├─TypedVariableBlockSyntax
-//@[025:0026) |   | ├─Token(LeftParen) |(|
-//@[026:0027) |   | └─Token(RightParen) |)|
-//@[028:0034) |   ├─VariableAccessSyntax
-//@[028:0034) |   | └─IdentifierSyntax
-//@[028:0034) |   |   └─Token(Identifier) |string|
-//@[035:0037) |   ├─Token(Arrow) |=>|
-//@[038:0049) |   └─FunctionCallSyntax
-//@[038:0047) |     ├─IdentifierSyntax
-//@[038:0047) |     | └─Token(Identifier) |constFunc|
-//@[047:0048) |     ├─Token(LeftParen) |(|
-//@[048:0049) |     └─Token(RightParen) |)|
-//@[049:0051) ├─Token(NewLine) |\n\n|
 
 func missingArgType(input) string => input
 //@[000:0042) ├─FunctionDeclarationSyntax
