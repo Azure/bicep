@@ -1,10 +1,6 @@
 func useRuntimeFunction() string => reference('foo').bar
 //@[36:52) [BCP341 (Error)] This expression is being used inside a function declaration, which requires a value that can be calculated at the start of the deployment. (CodeDescription: none) |reference('foo')|
 
-func constFunc() string => 'A'
-func funcWithOtherFuncRef() string => constFunc()
-//@[38:47) [BCP057 (Error)] The name "constFunc" does not exist in the current context. (CodeDescription: none) |constFunc|
-
 func missingArgType(input) string => input
 //@[25:26) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |)|
 
@@ -59,4 +55,12 @@ func sayHelloBadNewlines(
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 func invalidArgs(a validStringLiteralUnion, b string) string => a
 func invalidOutput() validStringLiteralUnion => 'foo'
+
+func recursive() string => recursive()
+//@[27:38) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. (CodeDescription: none) |recursive()|
+
+func recursiveA() string => recursiveB()
+//@[28:40) [BCP080 (Error)] The expression is involved in a cycle ("recursiveB" -> "recursiveA"). (CodeDescription: none) |recursiveB()|
+func recursiveB() string => recursiveA()
+//@[28:40) [BCP080 (Error)] The expression is involved in a cycle ("recursiveA" -> "recursiveB"). (CodeDescription: none) |recursiveA()|
 

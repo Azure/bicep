@@ -2565,6 +2565,29 @@ func foo(innerVar string) string => '${innerVar|}'
         }
 
         [TestMethod]
+        public async Task Func_definition_lambda_completions_can_suggest_other_funcs()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+var outerVar = 'asdf'
+func bar() string = 'asdf'
+
+func foo(innerVar string) string => '${|}'
+""");
+
+            var file = await new ServerRequestHelper(TestContext, ServerWithUDFsEnabled).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(x => x.Label == "bar");
+            var updatedFile = file.ApplyCompletion(completions, "bar");
+            updatedFile.Should().HaveSourceText("""
+var outerVar = 'asdf'
+func bar() string = 'asdf'
+
+func foo(innerVar string) string => '${bar()|}'
+""");
+        }
+
+        [TestMethod]
         public async Task Func_keyword_completion_is_not_offered_if_experimental_feature_not_enabeld()
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"

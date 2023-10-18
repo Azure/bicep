@@ -46,7 +46,6 @@ func testFunc(baz string) string => '${foo}-${bar}-${baz}-${getBaz()}'
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
             ("BCP057", DiagnosticLevel.Error, """The name "foo" does not exist in the current context."""),
             ("BCP057", DiagnosticLevel.Error, """The name "bar" does not exist in the current context."""),
-            ("BCP057", DiagnosticLevel.Error, """The name "getBaz" does not exist in the current context."""),
         });
     }
 
@@ -64,19 +63,6 @@ output outputFoo string = returnFoo()
         var evaluated = TemplateEvaluator.Evaluate(result.Template);
 
         evaluated.Should().HaveValueAtPath("$.outputs['outputFoo'].value", "foo");
-    }
-
-    [TestMethod]
-    public void User_defined_functions_cannot_reference_each_other()
-    {
-        var result = CompilationHelper.Compile(Services, @"
-func getAbc() string => 'abc'
-func getAbcDef() string => '${getAbc()}def'
-");
-
-        result.Should().HaveDiagnostics(new[] {
-            ("BCP057", DiagnosticLevel.Error, "The name \"getAbc\" does not exist in the current context."),
-        });
     }
 
     [TestMethod]

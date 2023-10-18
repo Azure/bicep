@@ -1,8 +1,5 @@
 func useRuntimeFunction() string => reference('foo').bar
 
-func constFunc() string => 'A'
-func funcWithOtherFuncRef() string => constFunc()
-
 func missingArgType(input) string => input
 
 func missingOutputType(input string) => input
@@ -33,3 +30,8 @@ func sayHelloBadNewlines(
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 func invalidArgs(a validStringLiteralUnion, b string) string => a
 func invalidOutput() validStringLiteralUnion => 'foo'
+
+func recursive() string => recursive()
+
+func recursiveA() string => recursiveB()
+func recursiveB() string => recursiveA()
