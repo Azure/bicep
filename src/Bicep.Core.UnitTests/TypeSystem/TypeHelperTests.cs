@@ -129,4 +129,188 @@ public class TypeHelperTests
                 new TupleType(ImmutableArray.Create<ITypeReference>(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.String), default)),
         };
     }
+
+    [TestMethod]
+    public void Tagged_union_formed_from_object_collapse_where_possible()
+    {
+        var prospectiveTaggedUnionMembers = new ObjectType[]
+        {
+            new("{type: 'a', foo: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
+                    new("foo", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                null),
+            new("{type: 'b', bar: int}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
+                    new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
+                },
+                null),
+        };
+
+        var collapsed = TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers);
+
+        collapsed.Should().BeOfType<DiscriminatedObjectType>();
+        collapsed.As<DiscriminatedObjectType>().DiscriminatorKey.Should().Be("type");
+        collapsed.As<DiscriminatedObjectType>().UnionMembersByKey["'a'"].Should().Be(prospectiveTaggedUnionMembers[0]);
+        collapsed.As<DiscriminatedObjectType>().UnionMembersByKey["'b'"].Should().Be(prospectiveTaggedUnionMembers[1]);
+    }
+
+    [TestMethod]
+    public void Tagged_union_should_not_be_formed_when_discriminator_is_not_required_on_all_members()
+    {
+        var prospectiveTaggedUnionMembers = new ObjectType[]
+        {
+            new("{type: 'a', foo: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
+                    new("foo", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                null),
+            new("{type: 'b', bar: int}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("b"), default),
+                    new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
+                },
+                null),
+        };
+
+        TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers).Should().BeNull();
+    }
+
+    [TestMethod]
+    public void Tagged_union_should_not_be_formed_when_multiple_members_use_same_discriminator()
+    {
+        var prospectiveTaggedUnionMembers = new ObjectType[]
+        {
+            new("{type: 'a', foo: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
+                    new("foo", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                null),
+            new("{type: 'b', bar: int}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("b"), default),
+                    new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
+                },
+                null),
+            new("{type: 'a', baz: int}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("a"), default),
+                    new("baz", LanguageConstants.Int, TypePropertyFlags.Required),
+                },
+                null),
+        };
+
+        TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers).Should().BeNull();
+    }
+
+    [TestMethod]
+    public void Tagged_union_formation_should_prefer_discriminator_named_type_when_multiple_candidates_exist()
+    {
+        var prospectiveTaggedUnionMembers = new ObjectType[]
+        {
+            new("{type: 'a', foo: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
+                    new("fizz", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
+                    new("foo", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                null),
+            new("{type: 'b', bar: int}",
+                default,
+                new TypeProperty[]
+                {
+                    new("type", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
+                    new("fizz", TypeFactory.CreateStringLiteralType("pop"), TypePropertyFlags.Required),
+                    new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
+                },
+                null),
+        };
+
+        var collapsed = TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers);
+
+        collapsed.Should().BeOfType<DiscriminatedObjectType>();
+        collapsed.As<DiscriminatedObjectType>().DiscriminatorKey.Should().Be("type");
+    }
+
+    [TestMethod]
+    public void Tagged_union_formation_should_prefer_discriminator_named_kind_when_multiple_candidates_exist()
+    {
+        var prospectiveTaggedUnionMembers = new ObjectType[]
+        {
+            new("{type: 'a', foo: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("kind", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
+                    new("fizz", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
+                    new("foo", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                null),
+            new("{type: 'b', bar: int}",
+                default,
+                new TypeProperty[]
+                {
+                    new("kind", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
+                    new("fizz", TypeFactory.CreateStringLiteralType("pop"), TypePropertyFlags.Required),
+                    new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
+                },
+                null),
+        };
+
+        var collapsed = TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers);
+
+        collapsed.Should().BeOfType<DiscriminatedObjectType>();
+        collapsed.As<DiscriminatedObjectType>().DiscriminatorKey.Should().Be("kind");
+    }
+
+    [TestMethod]
+    public void Tagged_union_formation_should_prefer_alpha_sorted_discriminator_when_multiple_candidates_exist_but_not_kind_or_type()
+    {
+        var prospectiveTaggedUnionMembers = new ObjectType[]
+        {
+            new("{type: 'a', foo: string}",
+                default,
+                new TypeProperty[]
+                {
+                    new("variety", TypeFactory.CreateStringLiteralType("a"), TypePropertyFlags.Required),
+                    new("fizz", TypeFactory.CreateStringLiteralType("buzz"), TypePropertyFlags.Required),
+                    new("foo", LanguageConstants.String, TypePropertyFlags.Required),
+                },
+                null),
+            new("{type: 'b', bar: int}",
+                default,
+                new TypeProperty[]
+                {
+                    new("variety", TypeFactory.CreateStringLiteralType("b"), TypePropertyFlags.Required),
+                    new("fizz", TypeFactory.CreateStringLiteralType("pop"), TypePropertyFlags.Required),
+                    new("bar", LanguageConstants.Int, TypePropertyFlags.Required),
+                },
+                null),
+        };
+
+        var collapsed = TypeHelper.TryCollapseTypes(prospectiveTaggedUnionMembers);
+
+        collapsed.Should().BeOfType<DiscriminatedObjectType>();
+        collapsed.As<DiscriminatedObjectType>().DiscriminatorKey.Should().Be("fizz");
+    }
 }

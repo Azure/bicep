@@ -184,7 +184,7 @@ type discriminatorPropertyNotRequiredStringLiteral2 = typeA | typeG
 
 @discriminator('type')
 type discriminatorDuplicatedMember1 = typeA | typeA
-//@[5:35) TypeAlias discriminatorDuplicatedMember1. Type: error. Declaration start char: 0, length: 74
+//@[5:35) TypeAlias discriminatorDuplicatedMember1. Type: Type<{ type: 'a', value: string }>. Declaration start char: 0, length: 74
 
 @discriminator('type')
 type discriminatorDuplicatedMember2 = typeA | { type: 'a', config: object }

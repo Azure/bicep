@@ -399,7 +399,7 @@ type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
 @discriminator('type')
 //@[000:0066) ├─DeclaredTypeExpression { Name = discriminatedUnion5 }
 type discriminatedUnion5 = (typeA | typeB)?
-//@[027:0043) | └─NullableTypeExpression { Name = null | { type: 'a', value: string } | { type: 'b', value: int } }
+//@[027:0043) | └─NullableTypeExpression { Name = null | ({ type: 'a', value: string } | { type: 'b', value: int }) }
 //@[028:0041) |   └─DiscriminatedObjectTypeExpression { Name = { type: 'a', value: string } | { type: 'b', value: int } }
 //@[028:0033) |     ├─TypeAliasReferenceExpression { Name = typeA }
 //@[036:0041) |     └─TypeAliasReferenceExpression { Name = typeB }
@@ -475,7 +475,7 @@ type inlineDiscriminatedUnion4 = {
   @discriminator('type')
 //@[002:0049) |   └─ObjectTypePropertyExpression
   prop: (typeA | typeC)?
-//@[008:0024) |     └─NullableTypeExpression { Name = null | { type: 'a', value: string } | { type: 'c', value: bool, value2: string } }
+//@[008:0024) |     └─NullableTypeExpression { Name = null | ({ type: 'a', value: string } | { type: 'c', value: bool, value2: string }) }
 //@[009:0022) |       └─DiscriminatedObjectTypeExpression { Name = { type: 'a', value: string } | { type: 'c', value: bool, value2: string } }
 //@[009:0014) |         ├─TypeAliasReferenceExpression { Name = typeA }
 //@[017:0022) |         └─TypeAliasReferenceExpression { Name = typeC }
@@ -509,7 +509,7 @@ type discriminatedUnionInlineAdditionalProps2 = {
   @discriminator('type')
 //@[002:0046) |   └─ObjectTypeAdditionalPropertiesExpression
   *: (typeA | typeB)?
-//@[005:0021) |     └─NullableTypeExpression { Name = null | { type: 'a', value: string } | { type: 'b', value: int } }
+//@[005:0021) |     └─NullableTypeExpression { Name = null | ({ type: 'a', value: string } | { type: 'b', value: int }) }
 //@[006:0019) |       └─DiscriminatedObjectTypeExpression { Name = { type: 'a', value: string } | { type: 'b', value: int } }
 //@[006:0011) |         ├─TypeAliasReferenceExpression { Name = typeA }
 //@[014:0019) |         └─TypeAliasReferenceExpression { Name = typeB }
@@ -551,7 +551,7 @@ type discriminatedUnionMemberOptionalCycle1 = {
   @discriminator('type')
 //@[002:0082) |   └─ObjectTypePropertyExpression
   prop: (typeA | discriminatedUnionMemberOptionalCycle1)?
-//@[008:0057) |     └─NullableTypeExpression { Name = null | { type: 'a', value: string } | { type: 'b', prop: (typeA | discriminatedUnionMemberOptionalCycle1)? } }
+//@[008:0057) |     └─NullableTypeExpression { Name = null | ({ type: 'a', value: string } | { type: 'b', prop: (typeA | discriminatedUnionMemberOptionalCycle1)? }) }
 //@[009:0055) |       └─DiscriminatedObjectTypeExpression { Name = { type: 'a', value: string } | { type: 'b', prop: (typeA | discriminatedUnionMemberOptionalCycle1)? } }
 //@[009:0014) |         ├─TypeAliasReferenceExpression { Name = typeA }
 //@[017:0055) |         └─TypeAliasReferenceExpression { Name = discriminatedUnionMemberOptionalCycle1 }
@@ -632,7 +632,7 @@ param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
 @discriminator('type')
 //@[000:0076) ├─DeclaredParameterExpression { Name = paramInlineDiscriminatedUnion3 }
 param paramInlineDiscriminatedUnion3 (typeA | typeB)?
-//@[037:0053) | └─NullableTypeExpression { Name = null | { type: 'a', value: string } | { type: 'b', value: int } }
+//@[037:0053) | └─NullableTypeExpression { Name = null | ({ type: 'a', value: string } | { type: 'b', value: int }) }
 //@[038:0051) |   └─DiscriminatedObjectTypeExpression { Name = { type: 'a', value: string } | { type: 'b', value: int } }
 //@[038:0043) |     ├─TypeAliasReferenceExpression { Name = typeA }
 //@[046:0051) |     └─TypeAliasReferenceExpression { Name = typeB }
@@ -704,7 +704,7 @@ output outputInlineDiscriminatedUnion2 typeA | typeB | ({ type: 'c', value: int 
 @discriminator('type')
 //@[000:0085) └─DeclaredOutputExpression { Name = outputInlineDiscriminatedUnion3 }
 output outputInlineDiscriminatedUnion3 (typeA | typeB)? = null
-//@[039:0055)   ├─NullableTypeExpression { Name = null | { type: 'a', value: string } | { type: 'b', value: int } }
+//@[039:0055)   ├─NullableTypeExpression { Name = null | ({ type: 'a', value: string } | { type: 'b', value: int }) }
 //@[040:0053)   | └─DiscriminatedObjectTypeExpression { Name = { type: 'a', value: string } | { type: 'b', value: int } }
 //@[040:0045)   |   ├─TypeAliasReferenceExpression { Name = typeA }
 //@[048:0053)   |   └─TypeAliasReferenceExpression { Name = typeB }

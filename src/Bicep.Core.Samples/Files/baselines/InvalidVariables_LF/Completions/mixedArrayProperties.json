@@ -2,7 +2,7 @@
   {
     "label": "one",
     "kind": "property",
-    "detail": "one",
+    "detail": "one (Required)",
     "documentation": {
       "kind": "markdown",
       "value": "Type: `true`  \n"

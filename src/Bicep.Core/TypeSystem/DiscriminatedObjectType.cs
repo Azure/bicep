@@ -50,6 +50,8 @@ namespace Bicep.Core.TypeSystem
 
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
 
+        public override string FormatNameForCompoundTypes() => Name.IndexOf(' ') > -1 ? WrapTypeName() : Name;
+
         public ImmutableDictionary<string, ObjectType> UnionMembersByKey { get; }
 
         public override TypeSymbolValidationFlags ValidationFlags { get; }
