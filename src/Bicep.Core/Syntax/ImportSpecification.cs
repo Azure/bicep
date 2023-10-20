@@ -48,25 +48,17 @@ namespace Bicep.Core.Syntax
 
         public static ImportSpecification From(SyntaxBase specificationSyntax)
         {
-            return specificationSyntax switch
+            if (specificationSyntax is StringSyntax stringSyntax && stringSyntax.TryGetLiteralValue() is { } value)
             {
-                StringSyntax stringSyntax when stringSyntax.TryGetLiteralValue() is { } value
-                    => CreateFromStringSyntax(stringSyntax, value),
-                SkippedTriviaSyntax trivia
-                    => new ImportSpecification(
-                        trivia.TriviaName,
-                        trivia.TriviaName,
-                        trivia.TriviaName,
-                        false,
-                        trivia.Span),
-                _
-                    => new ImportSpecification(
-                        LanguageConstants.ErrorName,
-                        LanguageConstants.ErrorName,
-                        LanguageConstants.ErrorName,
-                        false,
-                        specificationSyntax.Span)
-            };
+                return CreateFromStringSyntax(stringSyntax, value);
+            }
+
+            return new ImportSpecification(
+                LanguageConstants.ErrorName,
+                LanguageConstants.ErrorName,
+                LanguageConstants.ErrorName,
+                false,
+                specificationSyntax.Span);
         }
 
         public SyntaxBase ToPath()
