@@ -1,6 +1,5 @@
 {
     "experimentalFeaturesEnabled": {
-        "extensibility": true,
-        "dynamicTypeLoading": true
+        "extensibility": true
     }
 }
