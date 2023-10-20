@@ -234,5 +234,33 @@ param inputb string
                 success.Should().BeFalse();
             }
         }
+
+        [TestMethod]
+        public void BatchDecoratorOnNestedChildResource_CanBeUsed()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+var dbs = [
+    'db1'
+    'db2'
+    'db3'
+]
+resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
+  name: 'sql-server-name'
+  location: 'polandcentral'
+
+  @batchSize(1)
+  resource sqlDatabase 'databases' = [for db in dbs: {
+    name: db
+    location: 'polandcentral'
+  }]
+}");
+            using (new AssertionScope())
+            {
+                diagnostics.ExcludingLinterDiagnostics().Should().BeEmpty();
+                template.Should().NotBeNull()
+                    .And.HaveValueAtPath("$.resources[0].copy.mode", "serial")
+                    .And.HaveValueAtPath("$.resources[0].copy.batchSize", 1);
+            }
+        }
     }
 }

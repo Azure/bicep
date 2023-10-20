@@ -202,7 +202,7 @@ namespace Bicep.Core.Parsing
 
         public abstract ProgramSyntax Program();
 
-        protected abstract SyntaxBase Declaration();
+        protected abstract SyntaxBase Declaration(params string[] allowedIdentifiers);
 
         private SyntaxBase Array()
         {
@@ -1019,15 +1019,18 @@ namespace Bicep.Core.Parsing
                 // Nested resource declarations may be allowed - but we need lookahead to avoid
                 // treating 'resource' as a reserved property name.
                 if (HasExpressionFlag(expressionFlags, ExpressionFlags.AllowResourceDeclarations) &&
-                    CheckKeyword(LanguageConstants.ResourceKeyword) &&
-
-                    // You are here: |resource <name> ...
+                    (Check(TokenType.At)
+                    // You are here: |@batchSize(1)
+                    //                resource <name> ...
                     //
-                    // If we see a non-identifier then it's not a resource declaration,
-                    // fall back to the property parser.
-                    Check(this.reader.PeekAhead(), TokenType.Identifier))
+                    // If we see a decorator declaration then we need to expect a declaration that follows it
+                    || (CheckKeyword(LanguageConstants.ResourceKeyword) &&
+                     // You are here: |resource <name> ...
+                     //
+                     // If we see an identifier then it's a resource declaration. Otherwise, fall back to the property parser.
+                     Check(this.reader.PeekAhead(), TokenType.Identifier))))
                 {
-                    return this.Declaration();
+                    return this.Declaration(LanguageConstants.ResourceKeyword);
                 }
 
                 var key = this.WithRecovery(

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
@@ -44,7 +45,7 @@ namespace Bicep.Core.Parsing
             return programSyntax;
         }
 
-        protected override SyntaxBase Declaration() =>
+        protected override SyntaxBase Declaration(params string[] allowedIdentifiers) =>
             this.WithRecovery(
                 () =>
                 {
@@ -56,10 +57,18 @@ namespace Bicep.Core.Parsing
                     {
                         TokenType.Identifier => current.Text switch
                         {
-                            LanguageConstants.UsingKeyword => this.UsingDeclaration(),
-                            LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
-                            LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
-                            LanguageConstants.ImportKeyword => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
+                            LanguageConstants.UsingKeyword
+                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.UsingKeyword)
+                                => this.UsingDeclaration(),
+                            LanguageConstants.ParameterKeyword
+                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.ParameterKeyword)
+                                => this.ParameterAssignment(),
+                            LanguageConstants.VariableKeyword
+                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.VariableKeyword)
+                                => this.VariableDeclaration(leadingNodes),
+                            LanguageConstants.ImportKeyword
+                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.ImportKeyword)
+                                => this.CompileTimeImportDeclaration(ExpectKeyword(LanguageConstants.ImportKeyword), leadingNodes),
                             _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
