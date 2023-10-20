@@ -38,6 +38,8 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool DynamicTypeLoadingEnabled => overrides.DynamicTypeLoading ?? features.DynamicTypeLoadingEnabled;
 
+     public bool ThirdPartyTypesEnabled => overrides.ThirdPartyTypes ?? features.ThirdPartyTypesEnabled;
+
     public bool CompileTimeImportsEnabled => overrides.CompileTimeImportsEnabled ?? features.CompileTimeImportsEnabled;
 
     public bool MicrosoftGraphPreviewEnabled => overrides.MicrosoftGraphPreviewEnabled ?? features.MicrosoftGraphPreviewEnabled;

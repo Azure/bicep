@@ -46,6 +46,8 @@ namespace Bicep.Core.Features
 
         public bool DynamicTypeLoadingEnabled => configuration.ExperimentalFeaturesEnabled.DynamicTypeLoading;
 
+        public bool ThirdPartyTypesEnabled => configuration.ExperimentalFeaturesEnabled.ThirdPartyTypes;
+
         public bool PublishSourceEnabled => configuration.ExperimentalFeaturesEnabled.PublishSource;
 
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
