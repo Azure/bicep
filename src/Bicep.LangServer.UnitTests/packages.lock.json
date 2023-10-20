@@ -88,6 +88,12 @@
           "OmniSharp.Extensions.LanguageServer.Shared": "0.19.7"
         }
       },
+      "RichardSzalay.MockHttp": {
+        "type": "Direct",
+        "requested": "[7.0.0, )",
+        "resolved": "7.0.0",
+        "contentHash": "QwnauYiaywp65QKFnP+wvgiQ2D8Pv888qB2dyfd7MSVDF06sIvxqASenk+RxsWybyyt+Hu1Y251wQxpHTv3UYg=="
+      },
       "System.Linq.Async": {
         "type": "Direct",
         "requested": "[6.0.1, )",
@@ -410,6 +416,17 @@
         "type": "Transitive",
         "resolved": "7.0.0",
         "contentHash": "2jONjKHiF+E92ynz2ZFcr9OvxIw+rTGMPEH+UZGeHTEComVav93jQUWGkso8yWwVBcEJGcNcZAaqY01FFJcj7w=="
+      },
+      "Microsoft.Extensions.Http": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "9Pq9f/CvOSz0t9yQa6g1uWpxa2sm13daLFm8EZwy9MaQUjKXWdNUXQwIxwhmba5N83UIqURiPHSNqGK1vfWF2w==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "7.0.0",
+          "Microsoft.Extensions.Logging": "7.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "7.0.0",
+          "Microsoft.Extensions.Options": "7.0.0"
+        }
       },
       "Microsoft.Extensions.Logging": {
         "type": "Transitive",
@@ -2123,6 +2140,7 @@
           "Azure.Bicep.Decompiler": "[1.0.0, )",
           "Azure.ResourceManager.ResourceGraph": "[1.0.1, )",
           "CommandLineParser": "[2.9.1, )",
+          "Microsoft.Extensions.Http": "[7.0.0, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.7, )",
           "SharpYaml": "[2.1.0, )"
         }

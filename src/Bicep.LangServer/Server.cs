@@ -3,6 +3,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Features;
@@ -127,8 +129,14 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IArmClientProvider, ArmClientProvider>()
                 .AddSingleton<IDeploymentHelper, DeploymentHelper>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
-                .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
-                .AddSingleton<IPublicRegistryModuleMetadataProvider>(sp => new PublicRegistryModuleMetadataProvider(initializeCacheInBackground: true));
+                .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>();
+
+            services
+                .AddHttpClient<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
+                .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                });
         }
 
         public void Dispose()
