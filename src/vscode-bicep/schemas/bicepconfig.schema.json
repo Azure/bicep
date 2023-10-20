@@ -653,6 +653,9 @@
         "dynamicTypeLoading": {
           "type": "boolean"
         },
+        "thirdPartyTypes": {
+          "type": "boolean"
+        },
         "compileTimeImports": {
           "type": "boolean"
         },
