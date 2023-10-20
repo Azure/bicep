@@ -202,7 +202,7 @@ namespace Bicep.Core.Parsing
 
         public abstract ProgramSyntax Program();
 
-        protected abstract SyntaxBase Declaration(params string[] allowedIdentifiers);
+        protected abstract SyntaxBase Declaration(params string[] expectedKeywords);
 
         private SyntaxBase Array()
         {
@@ -210,7 +210,7 @@ namespace Bicep.Core.Parsing
 
             var itemsOrTokens = HandleArrayOrObjectElements(
                 closingTokenType: TokenType.RightSquare,
-                parseChildElement: () => ArrayItem());
+                parseChildElement: ArrayItem);
 
             var closeBracket = Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
@@ -369,10 +369,7 @@ namespace Bicep.Core.Parsing
 
         private SyntaxBase FunctionArgument(ExpressionFlags expressionFlags)
         {
-            var expression = this.WithRecovery<SyntaxBase>(() =>
-            {
-                return this.Expression(expressionFlags);
-            }, RecoveryFlags.None, TokenType.NewLine, TokenType.Comma, TokenType.RightParen);
+            var expression = this.WithRecovery<SyntaxBase>(() => Expression(expressionFlags), RecoveryFlags.None, TokenType.NewLine, TokenType.Comma, TokenType.RightParen);
 
             // always return a function argument syntax, even if we have skipped trivia
             // this simplifies calculations done to show argument completions and signature help

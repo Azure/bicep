@@ -1,5 +1,7 @@
 
-//@[000:12777) ProgramExpression
+//@[000:13172) ProgramExpression
+//@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
+//@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -1331,3 +1333,34 @@ output p4_res1childid string = p4_child1.id
 //@[031:00043)   └─PropertyAccessExpression { PropertyName = id }
 //@[031:00040)     └─ResourceReferenceExpression
 
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+var dbs = ['db1', 'db2','db3']
+//@[000:00030) ├─DeclaredVariableExpression { Name = dbs }
+//@[010:00030) | └─ArrayExpression
+//@[011:00016) |   ├─StringLiteralExpression { Value = db1 }
+//@[018:00023) |   ├─StringLiteralExpression { Value = db2 }
+//@[024:00029) |   └─StringLiteralExpression { Value = db3 }
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00275) ├─DeclaredResourceExpression
+//@[056:00275) | └─ObjectExpression
+  name: 'sql-server-name'
+  location: 'polandcentral'
+//@[002:00027) |   └─ObjectPropertyExpression
+//@[002:00010) |     ├─StringLiteralExpression { Value = location }
+//@[012:00027) |     └─StringLiteralExpression { Value = polandcentral }
+
+  @batchSize(1)
+//@[002:00155) ├─DeclaredResourceExpression
+  @description('Sql Databases')
+//@[015:00030) | ├─StringLiteralExpression { Value = Sql Databases }
+  resource sqlDatabase 'databases' = [for db in dbs: {
+//@[037:00105) | ├─ForLoopExpression
+//@[048:00051) | | ├─VariableReferenceExpression { Variable = dbs }
+//@[053:00104) | | └─ObjectExpression
+    name: db
+    location: 'polandcentral'
+//@[004:00029) | |   └─ObjectPropertyExpression
+//@[004:00012) | |     ├─StringLiteralExpression { Value = location }
+//@[014:00029) | |     └─StringLiteralExpression { Value = polandcentral }
+  }]
+}

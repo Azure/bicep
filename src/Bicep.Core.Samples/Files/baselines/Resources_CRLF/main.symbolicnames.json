@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8982011885688931227"
+      "templateHash": "6773147739389718990"
     }
   },
   "parameters": {
@@ -53,9 +53,32 @@
       }
     ],
     "canHaveDuplicatesAcrossScopes": "hello",
-    "duplicatesEverywhere": "hello"
+    "duplicatesEverywhere": "hello",
+    "dbs": [
+      "db1",
+      "db2",
+      "db3"
+    ]
   },
   "resources": {
+    "sqlServer::sqlDatabase": {
+      "copy": {
+        "name": "sqlDatabase",
+        "count": "[length(variables('dbs'))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2021-11-01",
+      "name": "[format('{0}/{1}', 'sql-server-name', variables('dbs')[copyIndex()])]",
+      "location": "polandcentral",
+      "dependsOn": [
+        "sqlServer"
+      ],
+      "metadata": {
+        "description": "Sql Databases"
+      }
+    },
     "basicStorage": {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
@@ -638,6 +661,12 @@
       "dependsOn": [
         "p4_res1"
       ]
+    },
+    "sqlServer": {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-11-01",
+      "name": "sql-server-name",
+      "location": "polandcentral"
     }
   },
   "outputs": {

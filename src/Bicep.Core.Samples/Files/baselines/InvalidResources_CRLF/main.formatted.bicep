@@ -1580,3 +1580,11 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
     name: $account
   }
 }
+
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sql-server-name'
+  location: 'polandcentral'
+
+  @
+ }

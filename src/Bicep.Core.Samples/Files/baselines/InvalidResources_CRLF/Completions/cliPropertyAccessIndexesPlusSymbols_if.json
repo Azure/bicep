@@ -5805,6 +5805,23 @@
     }
   },
   {
+    "label": "sqlServer",
+    "kind": "interface",
+    "detail": "sqlServer",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sqlServer",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sqlServer"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "startedTypingTypeWithQuotes",
     "kind": "interface",
     "detail": "startedTypingTypeWithQuotes",

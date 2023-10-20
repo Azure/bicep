@@ -511,3 +511,19 @@ output p4_res1childprop string = p4_child1.properties.someProp
 output p4_res1childname string = p4_child1.name
 output p4_res1childtype string = p4_child1.type
 output p4_res1childid string = p4_child1.id
+
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+var dbs = ['db1', 'db2', 'db3']
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sql-server-name'
+  location: 'polandcentral'
+
+  @batchSize(1)
+  @description('Sql Databases')
+  resource sqlDatabase 'databases' = [
+    for db in dbs: {
+      name: db
+      location: 'polandcentral'
+    }
+  ]
+}

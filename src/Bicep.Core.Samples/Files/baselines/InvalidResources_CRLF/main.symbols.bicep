@@ -2041,3 +2041,11 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
   }
 }
 
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+//@[009:018) Resource sqlServer. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 123
+  name: 'sql-server-name'
+  location: 'polandcentral'
+
+  @
+}

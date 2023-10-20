@@ -2310,3 +2310,12 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
   }
 }
 
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sql-server-name'
+  location: 'polandcentral'
+//@[012:027) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
+
+  @
+//@[003:003) [BCP123 (Error)] Expected a namespace or decorator name at this location. (CodeDescription: none) ||
+}

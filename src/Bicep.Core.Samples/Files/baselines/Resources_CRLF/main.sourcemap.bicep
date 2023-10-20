@@ -798,7 +798,7 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 
 // duplicate in global and multiple loop scopes are allowed (inner hides the outer)
 var duplicatesEverywhere = 'hello'
-//@    "duplicatesEverywhere": "hello"
+//@    "duplicatesEverywhere": "hello",
 resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
 //@    {
 //@      "copy": {
@@ -1081,7 +1081,7 @@ resource p3_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 //@      "type": "Microsoft.Rp1/resource1/child1",
 //@      "apiVersion": "2020-06-01",
 //@      "name": "[format('{0}/{1}', 'res1', 'child1')]"
-//@    }
+//@    },
   parent: p3_res1
   name: 'child1'
 }
@@ -1139,3 +1139,45 @@ output p4_res1childid string = p4_child1.id
 //@      "value": "[tenantResourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]"
 //@    }
 
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+var dbs = ['db1', 'db2','db3']
+//@    "dbs": [
+//@      "db1",
+//@      "db2",
+//@      "db3"
+//@    ]
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+//@    {
+//@      "type": "Microsoft.Sql/servers",
+//@      "apiVersion": "2021-11-01",
+//@      "name": "sql-server-name",
+//@    }
+  name: 'sql-server-name'
+  location: 'polandcentral'
+//@      "location": "polandcentral"
+
+  @batchSize(1)
+  @description('Sql Databases')
+//@        "description": "Sql Databases"
+  resource sqlDatabase 'databases' = [for db in dbs: {
+//@    {
+//@      "copy": {
+//@        "name": "sqlDatabase",
+//@        "count": "[length(variables('dbs'))]",
+//@        "mode": "serial",
+//@        "batchSize": 1
+//@      },
+//@      "type": "Microsoft.Sql/servers/databases",
+//@      "apiVersion": "2021-11-01",
+//@      "name": "[format('{0}/{1}', 'sql-server-name', variables('dbs')[copyIndex()])]",
+//@      "dependsOn": [
+//@        "[resourceId('Microsoft.Sql/servers', 'sql-server-name')]"
+//@      ],
+//@      "metadata": {
+//@      }
+//@    },
+    name: db
+    location: 'polandcentral'
+//@      "location": "polandcentral",
+  }]
+}

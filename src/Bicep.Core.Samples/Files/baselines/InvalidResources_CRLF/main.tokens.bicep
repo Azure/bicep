@@ -7805,6 +7805,31 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
 //@[003:005) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:003) NewLine |\r\n|
+//@[001:005) NewLine |\r\n\r\n|
 
-//@[000:000) EndOfFile ||
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+//@[084:086) NewLine |\r\n|
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Identifier |resource|
+//@[009:018) Identifier |sqlServer|
+//@[019:053) StringComplete |'Microsoft.Sql/servers@2021-11-01'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:059) NewLine |\r\n|
+  name: 'sql-server-name'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:025) StringComplete |'sql-server-name'|
+//@[025:027) NewLine |\r\n|
+  location: 'polandcentral'
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:027) StringComplete |'polandcentral'|
+//@[027:031) NewLine |\r\n\r\n|
+
+  @
+//@[002:003) At |@|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:001) EndOfFile ||

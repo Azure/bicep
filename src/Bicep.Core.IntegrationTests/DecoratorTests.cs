@@ -235,6 +235,9 @@ param inputb string
             }
         }
 
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/10970
+        /// </summary>
         [TestMethod]
         public void BatchDecoratorOnNestedChildResource_CanBeUsed()
         {
@@ -249,6 +252,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
   location: 'polandcentral'
 
   @batchSize(1)
+  @description('Sql Databases')
   resource sqlDatabase 'databases' = [for db in dbs: {
     name: db
     location: 'polandcentral'
@@ -260,6 +264,8 @@ resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
                 template.Should().NotBeNull()
                     .And.HaveValueAtPath("$.resources[0].copy.mode", "serial")
                     .And.HaveValueAtPath("$.resources[0].copy.batchSize", 1);
+                template.Should().NotBeNull()
+                    .And.HaveValueAtPath("$.resources[0].metadata.description", "Sql Databases");
             }
         }
     }

@@ -47,7 +47,7 @@ namespace Bicep.Core.Parsing
             return programSyntax;
         }
 
-        protected override SyntaxBase Declaration(params string[] allowedIdentifiers) =>
+        protected override SyntaxBase Declaration(params string[] expectedKeywords) =>
             this.WithRecovery(
                 () =>
                 {
@@ -57,44 +57,20 @@ namespace Bicep.Core.Parsing
 
                     return current.Type switch
                     {
-                        TokenType.Identifier => current.Text switch
+                        TokenType.Identifier => ValidateKeyword(current.Text) switch
                         {
-                            LanguageConstants.TargetScopeKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.TargetScopeKeyword)
-                                => this.TargetScope(leadingNodes),
-                            LanguageConstants.MetadataKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.MetadataKeyword)
-                                => this.MetadataDeclaration(leadingNodes),
-                            LanguageConstants.TypeKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.TypeKeyword)
-                                => this.TypeDeclaration(leadingNodes),
-                            LanguageConstants.ParameterKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.ParameterKeyword)
-                                => this.ParameterDeclaration(leadingNodes),
-                            LanguageConstants.VariableKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.VariableKeyword)
-                                => this.VariableDeclaration(leadingNodes),
-                            LanguageConstants.FunctionKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.FunctionKeyword)
-                                => this.FunctionDeclaration(leadingNodes),
-                            LanguageConstants.ResourceKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.ResourceKeyword)
-                                => this.ResourceDeclaration(leadingNodes),
-                            LanguageConstants.OutputKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.OutputKeyword)
-                                => this.OutputDeclaration(leadingNodes),
-                            LanguageConstants.ModuleKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.ModuleKeyword)
-                                => this.ModuleDeclaration(leadingNodes),
-                            LanguageConstants.TestKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.TestKeyword)
-                                => this.TestDeclaration(leadingNodes),
-                            LanguageConstants.ImportKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.ImportKeyword)
-                                => this.ImportDeclaration(leadingNodes),
-                            LanguageConstants.AssertKeyword
-                                when allowedIdentifiers.Length == 0 || allowedIdentifiers.Contains(LanguageConstants.AssertKeyword)
-                                => this.AssertDeclaration(leadingNodes),
+                            LanguageConstants.TargetScopeKeyword => this.TargetScope(leadingNodes),
+                            LanguageConstants.MetadataKeyword => this.MetadataDeclaration(leadingNodes),
+                            LanguageConstants.TypeKeyword => this.TypeDeclaration(leadingNodes),
+                            LanguageConstants.ParameterKeyword => this.ParameterDeclaration(leadingNodes),
+                            LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
+                            LanguageConstants.FunctionKeyword => this.FunctionDeclaration(leadingNodes),
+                            LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
+                            LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
+                            LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
+                            LanguageConstants.TestKeyword => this.TestDeclaration(leadingNodes),
+                            LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
+                            LanguageConstants.AssertKeyword => this.AssertDeclaration(leadingNodes),
                             _ => leadingNodes.Length > 0
                                 ? new MissingDeclarationSyntax(leadingNodes)
                                 : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
@@ -105,6 +81,9 @@ namespace Bicep.Core.Parsing
                             ? new MissingDeclarationSyntax(leadingNodes)
                             : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                     };
+
+                    string? ValidateKeyword(string keyword) =>
+                        expectedKeywords.Length == 0 || expectedKeywords.Contains(keyword) ? keyword : null;
                 },
                 RecoveryFlags.None,
                 TokenType.NewLine);

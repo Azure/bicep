@@ -1,5 +1,5 @@
 
-//@[000:12777) ProgramSyntax
+//@[000:13172) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 @sys.description('this is basicStorage')
 //@[000:00225) ├─ResourceDeclarationSyntax
@@ -3896,6 +3896,126 @@ output p4_res1childid string = p4_child1.id
 //@[040:00041) |   ├─Token(Dot) |.|
 //@[041:00043) |   └─IdentifierSyntax
 //@[041:00043) |     └─Token(Identifier) |id|
-//@[043:00045) ├─Token(NewLine) |\r\n|
+//@[043:00047) ├─Token(NewLine) |\r\n\r\n|
 
-//@[000:00000) └─Token(EndOfFile) ||
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+//@[084:00086) ├─Token(NewLine) |\r\n|
+var dbs = ['db1', 'db2','db3']
+//@[000:00030) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00007) | ├─IdentifierSyntax
+//@[004:00007) | | └─Token(Identifier) |dbs|
+//@[008:00009) | ├─Token(Assignment) |=|
+//@[010:00030) | └─ArraySyntax
+//@[010:00011) |   ├─Token(LeftSquare) |[|
+//@[011:00016) |   ├─ArrayItemSyntax
+//@[011:00016) |   | └─StringSyntax
+//@[011:00016) |   |   └─Token(StringComplete) |'db1'|
+//@[016:00017) |   ├─Token(Comma) |,|
+//@[018:00023) |   ├─ArrayItemSyntax
+//@[018:00023) |   | └─StringSyntax
+//@[018:00023) |   |   └─Token(StringComplete) |'db2'|
+//@[023:00024) |   ├─Token(Comma) |,|
+//@[024:00029) |   ├─ArrayItemSyntax
+//@[024:00029) |   | └─StringSyntax
+//@[024:00029) |   |   └─Token(StringComplete) |'db3'|
+//@[029:00030) |   └─Token(RightSquare) |]|
+//@[030:00032) ├─Token(NewLine) |\r\n|
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00275) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00018) | ├─IdentifierSyntax
+//@[009:00018) | | └─Token(Identifier) |sqlServer|
+//@[019:00053) | ├─StringSyntax
+//@[019:00053) | | └─Token(StringComplete) |'Microsoft.Sql/servers@2021-11-01'|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00275) | └─ObjectSyntax
+//@[056:00057) |   ├─Token(LeftBrace) |{|
+//@[057:00059) |   ├─Token(NewLine) |\r\n|
+  name: 'sql-server-name'
+//@[002:00025) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00025) |   | └─StringSyntax
+//@[008:00025) |   |   └─Token(StringComplete) |'sql-server-name'|
+//@[025:00027) |   ├─Token(NewLine) |\r\n|
+  location: 'polandcentral'
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00027) |   | └─StringSyntax
+//@[012:00027) |   |   └─Token(StringComplete) |'polandcentral'|
+//@[027:00031) |   ├─Token(NewLine) |\r\n\r\n|
+
+  @batchSize(1)
+//@[002:00155) |   ├─ResourceDeclarationSyntax
+//@[002:00015) |   | ├─DecoratorSyntax
+//@[002:00003) |   | | ├─Token(At) |@|
+//@[003:00015) |   | | └─FunctionCallSyntax
+//@[003:00012) |   | |   ├─IdentifierSyntax
+//@[003:00012) |   | |   | └─Token(Identifier) |batchSize|
+//@[012:00013) |   | |   ├─Token(LeftParen) |(|
+//@[013:00014) |   | |   ├─FunctionArgumentSyntax
+//@[013:00014) |   | |   | └─IntegerLiteralSyntax
+//@[013:00014) |   | |   |   └─Token(Integer) |1|
+//@[014:00015) |   | |   └─Token(RightParen) |)|
+//@[015:00017) |   | ├─Token(NewLine) |\r\n|
+  @description('Sql Databases')
+//@[002:00031) |   | ├─DecoratorSyntax
+//@[002:00003) |   | | ├─Token(At) |@|
+//@[003:00031) |   | | └─FunctionCallSyntax
+//@[003:00014) |   | |   ├─IdentifierSyntax
+//@[003:00014) |   | |   | └─Token(Identifier) |description|
+//@[014:00015) |   | |   ├─Token(LeftParen) |(|
+//@[015:00030) |   | |   ├─FunctionArgumentSyntax
+//@[015:00030) |   | |   | └─StringSyntax
+//@[015:00030) |   | |   |   └─Token(StringComplete) |'Sql Databases'|
+//@[030:00031) |   | |   └─Token(RightParen) |)|
+//@[031:00033) |   | ├─Token(NewLine) |\r\n|
+  resource sqlDatabase 'databases' = [for db in dbs: {
+//@[002:00010) |   | ├─Token(Identifier) |resource|
+//@[011:00022) |   | ├─IdentifierSyntax
+//@[011:00022) |   | | └─Token(Identifier) |sqlDatabase|
+//@[023:00034) |   | ├─StringSyntax
+//@[023:00034) |   | | └─Token(StringComplete) |'databases'|
+//@[035:00036) |   | ├─Token(Assignment) |=|
+//@[037:00105) |   | └─ForSyntax
+//@[037:00038) |   |   ├─Token(LeftSquare) |[|
+//@[038:00041) |   |   ├─Token(Identifier) |for|
+//@[042:00044) |   |   ├─LocalVariableSyntax
+//@[042:00044) |   |   | └─IdentifierSyntax
+//@[042:00044) |   |   |   └─Token(Identifier) |db|
+//@[045:00047) |   |   ├─Token(Identifier) |in|
+//@[048:00051) |   |   ├─VariableAccessSyntax
+//@[048:00051) |   |   | └─IdentifierSyntax
+//@[048:00051) |   |   |   └─Token(Identifier) |dbs|
+//@[051:00052) |   |   ├─Token(Colon) |:|
+//@[053:00104) |   |   ├─ObjectSyntax
+//@[053:00054) |   |   | ├─Token(LeftBrace) |{|
+//@[054:00056) |   |   | ├─Token(NewLine) |\r\n|
+    name: db
+//@[004:00012) |   |   | ├─ObjectPropertySyntax
+//@[004:00008) |   |   | | ├─IdentifierSyntax
+//@[004:00008) |   |   | | | └─Token(Identifier) |name|
+//@[008:00009) |   |   | | ├─Token(Colon) |:|
+//@[010:00012) |   |   | | └─VariableAccessSyntax
+//@[010:00012) |   |   | |   └─IdentifierSyntax
+//@[010:00012) |   |   | |     └─Token(Identifier) |db|
+//@[012:00014) |   |   | ├─Token(NewLine) |\r\n|
+    location: 'polandcentral'
+//@[004:00029) |   |   | ├─ObjectPropertySyntax
+//@[004:00012) |   |   | | ├─IdentifierSyntax
+//@[004:00012) |   |   | | | └─Token(Identifier) |location|
+//@[012:00013) |   |   | | ├─Token(Colon) |:|
+//@[014:00029) |   |   | | └─StringSyntax
+//@[014:00029) |   |   | |   └─Token(StringComplete) |'polandcentral'|
+//@[029:00031) |   |   | ├─Token(NewLine) |\r\n|
+  }]
+//@[002:00003) |   |   | └─Token(RightBrace) |}|
+//@[003:00004) |   |   └─Token(RightSquare) |]|
+//@[004:00006) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00001) └─Token(EndOfFile) ||

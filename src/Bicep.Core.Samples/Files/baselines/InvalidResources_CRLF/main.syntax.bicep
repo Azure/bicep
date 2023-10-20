@@ -1,5 +1,5 @@
 
-//@[000:51742) ProgramSyntax
+//@[000:51953) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 // wrong declaration
 //@[020:00022) ├─Token(NewLine) |\r\n|
@@ -12104,6 +12104,44 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
 //@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
-//@[001:00003) ├─Token(NewLine) |\r\n|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
-//@[000:00000) └─Token(EndOfFile) ||
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+//@[084:00086) ├─Token(NewLine) |\r\n|
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00123) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00018) | ├─IdentifierSyntax
+//@[009:00018) | | └─Token(Identifier) |sqlServer|
+//@[019:00053) | ├─StringSyntax
+//@[019:00053) | | └─Token(StringComplete) |'Microsoft.Sql/servers@2021-11-01'|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00123) | └─ObjectSyntax
+//@[056:00057) |   ├─Token(LeftBrace) |{|
+//@[057:00059) |   ├─Token(NewLine) |\r\n|
+  name: 'sql-server-name'
+//@[002:00025) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00025) |   | └─StringSyntax
+//@[008:00025) |   |   └─Token(StringComplete) |'sql-server-name'|
+//@[025:00027) |   ├─Token(NewLine) |\r\n|
+  location: 'polandcentral'
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00027) |   | └─StringSyntax
+//@[012:00027) |   |   └─Token(StringComplete) |'polandcentral'|
+//@[027:00031) |   ├─Token(NewLine) |\r\n\r\n|
+
+  @
+//@[002:00005) |   ├─MissingDeclarationSyntax
+//@[002:00003) |   | ├─DecoratorSyntax
+//@[002:00003) |   | | ├─Token(At) |@|
+//@[003:00003) |   | | └─SkippedTriviaSyntax
+//@[003:00005) |   | └─Token(NewLine) |\r\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00001) └─Token(EndOfFile) ||
