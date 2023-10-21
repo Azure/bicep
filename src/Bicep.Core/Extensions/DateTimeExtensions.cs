@@ -8,7 +8,6 @@ public static class DateTimeExtensions
 {
     public static string ToRfc3339Format(this DateTime date)
     {
-        XmlConvert.ToString(date, XmlDateTimeSerializationMode.Utc);
         return date.ToUniversalTime().ToString("o");
     }
 }
