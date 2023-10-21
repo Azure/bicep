@@ -140,7 +140,7 @@ namespace Bicep.Core.Registry
         {
             var ociAnnotations = TryGetOciAnnotations(ociArtifactModuleReference);
             if (ociAnnotations is null ||
-                !ociAnnotations.TryGetValue(LanguageConstants.OciOpenContainerImageDocumentationAnnotation, out string? documentationUri)
+                !ociAnnotations.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDocumentationAnnotation, out string? documentationUri)
                 || string.IsNullOrWhiteSpace(documentationUri))
             {
                 // Automatically generate a help URI for public MCR modules
