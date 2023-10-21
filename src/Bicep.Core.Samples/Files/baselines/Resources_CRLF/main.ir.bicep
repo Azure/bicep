@@ -1,5 +1,7 @@
 
-//@[000:13172) ProgramExpression
+//@[000:13313) ProgramExpression
+//@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
+//@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -1341,8 +1343,8 @@ var dbs = ['db1', 'db2','db3']
 //@[018:00023) |   ├─StringLiteralExpression { Value = db2 }
 //@[024:00029) |   └─StringLiteralExpression { Value = db3 }
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-//@[000:00275) ├─DeclaredResourceExpression
-//@[056:00275) | └─ObjectExpression
+//@[000:00416) ├─DeclaredResourceExpression
+//@[056:00416) | └─ObjectExpression
   name: 'sql-server-name'
   location: 'polandcentral'
 //@[002:00027) |   └─ObjectPropertyExpression
@@ -1350,17 +1352,29 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[012:00027) |     └─StringLiteralExpression { Value = polandcentral }
 
   @batchSize(1)
-//@[002:00155) ├─DeclaredResourceExpression
+//@[002:00156) ├─DeclaredResourceExpression
   @description('Sql Databases')
 //@[015:00030) | ├─StringLiteralExpression { Value = Sql Databases }
-  resource sqlDatabase 'databases' = [for db in dbs: {
-//@[037:00105) | ├─ForLoopExpression
-//@[048:00051) | | ├─VariableReferenceExpression { Variable = dbs }
-//@[053:00104) | | └─ObjectExpression
+  resource sqlDatabases 'databases' = [for db in dbs: {
+//@[038:00106) | ├─ForLoopExpression
+//@[049:00052) | | ├─VariableReferenceExpression { Variable = dbs }
+//@[054:00105) | | └─ObjectExpression
     name: db
     location: 'polandcentral'
 //@[004:00029) | |   └─ObjectPropertyExpression
 //@[004:00012) | |     ├─StringLiteralExpression { Value = location }
 //@[014:00029) | |     └─StringLiteralExpression { Value = polandcentral }
   }]
+
+  @description('Primary Sql Database')
+//@[002:00136) ├─DeclaredResourceExpression
+//@[015:00037) | ├─StringLiteralExpression { Value = Primary Sql Database }
+  resource primaryDb 'databases' = {
+//@[035:00096) | ├─ObjectExpression
+    name: 'primary-db'
+    location: 'polandcentral'
+//@[004:00029) | | └─ObjectPropertyExpression
+//@[004:00012) | |   ├─StringLiteralExpression { Value = location }
+//@[014:00029) | |   └─StringLiteralExpression { Value = polandcentral }
+  }
 }

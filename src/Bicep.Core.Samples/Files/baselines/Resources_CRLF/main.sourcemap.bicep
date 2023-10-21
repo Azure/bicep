@@ -1159,10 +1159,10 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   @batchSize(1)
   @description('Sql Databases')
 //@        "description": "Sql Databases"
-  resource sqlDatabase 'databases' = [for db in dbs: {
+  resource sqlDatabases 'databases' = [for db in dbs: {
 //@    {
 //@      "copy": {
-//@        "name": "sqlDatabase",
+//@        "name": "sqlDatabases",
 //@        "count": "[length(variables('dbs'))]",
 //@        "mode": "serial",
 //@        "batchSize": 1
@@ -1180,4 +1180,22 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
     location: 'polandcentral'
 //@      "location": "polandcentral",
   }]
+
+  @description('Primary Sql Database')
+//@        "description": "Primary Sql Database"
+  resource primaryDb 'databases' = {
+//@    {
+//@      "type": "Microsoft.Sql/servers/databases",
+//@      "apiVersion": "2021-11-01",
+//@      "name": "[format('{0}/{1}', 'sql-server-name', 'primary-db')]",
+//@      "dependsOn": [
+//@        "[resourceId('Microsoft.Sql/servers', 'sql-server-name')]"
+//@      ],
+//@      "metadata": {
+//@      }
+//@    },
+    name: 'primary-db'
+    location: 'polandcentral'
+//@      "location": "polandcentral",
+  }
 }

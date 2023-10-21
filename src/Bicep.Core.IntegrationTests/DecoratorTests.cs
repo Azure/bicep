@@ -239,7 +239,7 @@ param inputb string
         /// https://github.com/Azure/bicep/issues/10970
         /// </summary>
         [TestMethod]
-        public void BatchDecoratorOnNestedChildResource_CanBeUsed()
+        public void DecoratorsOnNestedChildResource_CanBeUsed()
         {
             var (template, diagnostics, _) = CompilationHelper.Compile(@"
 var dbs = [
@@ -247,7 +247,7 @@ var dbs = [
     'db2'
     'db3'
 ]
-resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sql-server-name'
   location: 'polandcentral'
 
@@ -257,6 +257,12 @@ resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
     name: db
     location: 'polandcentral'
   }]
+
+  @description('Primary Sql Database')
+  resource primaryDb 'databases' = {
+    name: 'primary'
+    location: 'polandcentral'
+  }
 }");
             using (new AssertionScope())
             {
@@ -266,6 +272,71 @@ resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
                     .And.HaveValueAtPath("$.resources[0].copy.batchSize", 1);
                 template.Should().NotBeNull()
                     .And.HaveValueAtPath("$.resources[0].metadata.description", "Sql Databases");
+                template.Should().NotBeNull()
+                    .And.HaveValueAtPath("$.resources[1].metadata.description", "Primary Sql Database");
+            }
+        }
+
+        [TestMethod]
+        public void DecoratorDescriptionInResourceBody_ShouldPromptForDeclaration()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sql-server-name'
+  location: 'polandcentral'
+
+  @description('Primary Sql Database')
+}
+");
+            using (new AssertionScope())
+            {
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+                {
+                    ("BCP132", DiagnosticLevel.Error, "Expected a declaration after the decorator."),
+                });
+                template.Should().BeNull();
+            }
+        }
+
+        [TestMethod]
+        public void DecoratorBatchSizeInResourceBody_ShouldPromptForResourceDeclaration()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sql-server-name'
+  location: 'polandcentral'
+
+  @batchSize(1)
+}
+");
+            using (new AssertionScope())
+            {
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+                {
+                    ("BCP153", DiagnosticLevel.Error, "Expected a resource or module declaration after the decorator."),
+                });
+                template.Should().BeNull();
+            }
+        }
+
+        [TestMethod]
+        public void UnfinishedDecoratorInResourceBody_ShouldPromptForNamespaceOrDecoratorName()
+        {
+            var (template, diagnostics, _) = CompilationHelper.Compile(@"
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sql-server-name'
+  location: 'polandcentral'
+
+  @
+}
+");
+            using (new AssertionScope())
+            {
+                diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+                {
+                    ("BCP123", DiagnosticLevel.Error, "Expected a namespace or decorator name at this location."),
+                });
+                template.Should().BeNull();
             }
         }
     }

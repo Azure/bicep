@@ -541,9 +541,16 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 
   @batchSize(1)
   @description('Sql Databases')
-  resource sqlDatabase 'databases' = [for db in dbs: {
+  resource sqlDatabases 'databases' = [for db in dbs: {
     name: db
     location: 'polandcentral'
 //@[14:29) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
   }]
+
+  @description('Primary Sql Database')
+  resource primaryDb 'databases' = {
+    name: 'primary-db'
+    location: 'polandcentral'
+//@[14:29) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
+  }
 }

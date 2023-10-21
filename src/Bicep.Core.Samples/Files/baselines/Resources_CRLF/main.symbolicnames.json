@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6773147739389718990"
+      "templateHash": "5796807527518784233"
     }
   },
   "parameters": {
@@ -61,9 +61,9 @@
     ]
   },
   "resources": {
-    "sqlServer::sqlDatabase": {
+    "sqlServer::sqlDatabases": {
       "copy": {
-        "name": "sqlDatabase",
+        "name": "sqlDatabases",
         "count": "[length(variables('dbs'))]",
         "mode": "serial",
         "batchSize": 1
@@ -77,6 +77,18 @@
       ],
       "metadata": {
         "description": "Sql Databases"
+      }
+    },
+    "sqlServer::primaryDb": {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2021-11-01",
+      "name": "[format('{0}/{1}', 'sql-server-name', 'primary-db')]",
+      "location": "polandcentral",
+      "dependsOn": [
+        "sqlServer"
+      ],
+      "metadata": {
+        "description": "Primary Sql Database"
       }
     },
     "basicStorage": {

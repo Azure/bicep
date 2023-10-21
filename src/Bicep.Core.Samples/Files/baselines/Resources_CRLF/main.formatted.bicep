@@ -495,8 +495,14 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 
   @batchSize(1)
   @description('Sql Databases')
-  resource sqlDatabase 'databases' = [for db in dbs: {
+  resource sqlDatabases 'databases' = [for db in dbs: {
     name: db
     location: 'polandcentral'
   }]
+
+  @description('Primary Sql Database')
+  resource primaryDb 'databases' = {
+    name: 'primary-db'
+    location: 'polandcentral'
+  }
 }

@@ -2042,10 +2042,51 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
 }
 
 // parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
-resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-//@[009:018) Resource sqlServer. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 123
-  name: 'sql-server-name'
+resource sqlServer1 'Microsoft.Sql/servers@2021-11-01' = {
+//@[009:019) Resource sqlServer1. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 119
+  name: 'sqlServer1'
   location: 'polandcentral'
 
   @
+}
+resource sqlServer2 'Microsoft.Sql/servers@2021-11-01' = {
+//@[009:019) Resource sqlServer2. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 231
+  name: 'sqlServer2'
+  location: 'polandcentral'
+
+  @description('var')
+  var test = 'x'
+
+  @description('module')
+  module x 'module.bicep' = {
+    name: 'x'
+  }
+}
+resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
+//@[009:019) Resource sqlServer3. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 159
+  name: 'sqlServer3'
+  location: 'polandcentral'
+
+  @description('mising resource keyword')
+
+}
+resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {
+//@[009:019) Resource sqlServer4. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 133
+  name: 'sqlServer4'
+  location: 'polandcentral'
+
+  @batchSize(1)
+
+}
+resource sqlServer5 'Microsoft.Sql/servers@2021-11-01' = {
+//@[009:019) Resource sqlServer5. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 223
+  name: 'sqlServer5'
+  location: 'polandcentral'
+
+  @batchSize(1)
+  resource sqlDatabase 'databases' = {
+//@[011:022) Resource sqlDatabase. Type: Microsoft.Sql/servers/databases@2021-11-01. Declaration start char: 2, length: 105
+    name: 'db'
+    location: 'polandcentral'
+  }
 }

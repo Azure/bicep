@@ -2311,11 +2311,66 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
 }
 
 // parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
-resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-  name: 'sql-server-name'
+resource sqlServer1 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sqlServer1'
   location: 'polandcentral'
 //@[012:027) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
 
   @
 //@[003:003) [BCP123 (Error)] Expected a namespace or decorator name at this location. (CodeDescription: none) ||
+}
+resource sqlServer2 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sqlServer2'
+//@[002:006) [BCP025 (Error)] The property "name" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |name|
+  location: 'polandcentral'
+//@[012:027) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
+
+  @description('var')
+//@[002:021) [BCP132 (Error)] Expected a declaration after the decorator. (CodeDescription: none) |@description('var')|
+  var test = 'x'
+//@[002:002) [BCP236 (Error)] Expected a new line or comma character at this location. (CodeDescription: none) ||
+//@[006:010) [BCP018 (Error)] Expected the ":" character at this location. (CodeDescription: none) |test|
+//@[016:016) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+
+  @description('module')
+//@[002:024) [BCP132 (Error)] Expected a declaration after the decorator. (CodeDescription: none) |@description('module')|
+  module x 'module.bicep' = {
+//@[002:002) [BCP236 (Error)] Expected a new line or comma character at this location. (CodeDescription: none) ||
+//@[009:010) [BCP018 (Error)] Expected the ":" character at this location. (CodeDescription: none) |x|
+//@[029:029) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+    name: 'x'
+//@[004:008) [BCP025 (Error)] The property "name" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |name|
+  }
+}
+//@[000:001) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |}|
+resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sqlServer3'
+  location: 'polandcentral'
+//@[012:027) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
+
+  @description('mising resource keyword')
+//@[002:041) [BCP132 (Error)] Expected a declaration after the decorator. (CodeDescription: none) |@description('mising resource keyword')|
+
+}
+resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sqlServer4'
+  location: 'polandcentral'
+//@[012:027) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
+
+  @batchSize(1)
+//@[002:015) [BCP153 (Error)] Expected a resource or module declaration after the decorator. (CodeDescription: none) |@batchSize(1)|
+
+}
+resource sqlServer5 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sqlServer5'
+  location: 'polandcentral'
+//@[012:027) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
+
+  @batchSize(1)
+//@[002:015) [BCP155 (Error)] The decorator "batchSize" can only be attached to resource or module collections. (CodeDescription: none) |@batchSize(1)|
+  resource sqlDatabase 'databases' = {
+    name: 'db'
+    location: 'polandcentral'
+//@[014:029) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
+  }
 }

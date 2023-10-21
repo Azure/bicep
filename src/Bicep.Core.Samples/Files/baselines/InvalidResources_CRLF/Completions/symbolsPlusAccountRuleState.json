@@ -5577,17 +5577,85 @@
     }
   },
   {
-    "label": "sqlServer",
+    "label": "sqlServer1",
     "kind": "interface",
-    "detail": "sqlServer",
+    "detail": "sqlServer1",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_sqlServer",
+    "sortText": "2_sqlServer1",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "sqlServer"
+      "newText": "sqlServer1"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "sqlServer2",
+    "kind": "interface",
+    "detail": "sqlServer2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sqlServer2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sqlServer2"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "sqlServer3",
+    "kind": "interface",
+    "detail": "sqlServer3",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sqlServer3",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sqlServer3"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "sqlServer4",
+    "kind": "interface",
+    "detail": "sqlServer4",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sqlServer4",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sqlServer4"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "sqlServer5",
+    "kind": "interface",
+    "detail": "sqlServer5",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_sqlServer5",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sqlServer5"
     },
     "commitCharacters": [
       ":"

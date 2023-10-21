@@ -7809,18 +7809,18 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
 
 // parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
 //@[084:086) NewLine |\r\n|
-resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+resource sqlServer1 'Microsoft.Sql/servers@2021-11-01' = {
 //@[000:008) Identifier |resource|
-//@[009:018) Identifier |sqlServer|
-//@[019:053) StringComplete |'Microsoft.Sql/servers@2021-11-01'|
-//@[054:055) Assignment |=|
-//@[056:057) LeftBrace |{|
-//@[057:059) NewLine |\r\n|
-  name: 'sql-server-name'
+//@[009:019) Identifier |sqlServer1|
+//@[020:054) StringComplete |'Microsoft.Sql/servers@2021-11-01'|
+//@[055:056) Assignment |=|
+//@[057:058) LeftBrace |{|
+//@[058:060) NewLine |\r\n|
+  name: 'sqlServer1'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:025) StringComplete |'sql-server-name'|
-//@[025:027) NewLine |\r\n|
+//@[008:020) StringComplete |'sqlServer1'|
+//@[020:022) NewLine |\r\n|
   location: 'polandcentral'
 //@[002:010) Identifier |location|
 //@[010:011) Colon |:|
@@ -7829,6 +7829,169 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 
   @
 //@[002:003) At |@|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
+resource sqlServer2 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Identifier |resource|
+//@[009:019) Identifier |sqlServer2|
+//@[020:054) StringComplete |'Microsoft.Sql/servers@2021-11-01'|
+//@[055:056) Assignment |=|
+//@[057:058) LeftBrace |{|
+//@[058:060) NewLine |\r\n|
+  name: 'sqlServer2'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) StringComplete |'sqlServer2'|
+//@[020:022) NewLine |\r\n|
+  location: 'polandcentral'
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:027) StringComplete |'polandcentral'|
+//@[027:031) NewLine |\r\n\r\n|
+
+  @description('var')
+//@[002:003) At |@|
+//@[003:014) Identifier |description|
+//@[014:015) LeftParen |(|
+//@[015:020) StringComplete |'var'|
+//@[020:021) RightParen |)|
+//@[021:023) NewLine |\r\n|
+  var test = 'x'
+//@[002:005) Identifier |var|
+//@[006:010) Identifier |test|
+//@[011:012) Assignment |=|
+//@[013:016) StringComplete |'x'|
+//@[016:020) NewLine |\r\n\r\n|
+
+  @description('module')
+//@[002:003) At |@|
+//@[003:014) Identifier |description|
+//@[014:015) LeftParen |(|
+//@[015:023) StringComplete |'module'|
+//@[023:024) RightParen |)|
+//@[024:026) NewLine |\r\n|
+  module x 'module.bicep' = {
+//@[002:008) Identifier |module|
+//@[009:010) Identifier |x|
+//@[011:025) StringComplete |'module.bicep'|
+//@[026:027) Assignment |=|
+//@[028:029) LeftBrace |{|
+//@[029:031) NewLine |\r\n|
+    name: 'x'
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:013) StringComplete |'x'|
+//@[013:015) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
+resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Identifier |resource|
+//@[009:019) Identifier |sqlServer3|
+//@[020:054) StringComplete |'Microsoft.Sql/servers@2021-11-01'|
+//@[055:056) Assignment |=|
+//@[057:058) LeftBrace |{|
+//@[058:060) NewLine |\r\n|
+  name: 'sqlServer3'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) StringComplete |'sqlServer3'|
+//@[020:022) NewLine |\r\n|
+  location: 'polandcentral'
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:027) StringComplete |'polandcentral'|
+//@[027:031) NewLine |\r\n\r\n|
+
+  @description('mising resource keyword')
+//@[002:003) At |@|
+//@[003:014) Identifier |description|
+//@[014:015) LeftParen |(|
+//@[015:040) StringComplete |'mising resource keyword'|
+//@[040:041) RightParen |)|
+//@[041:045) NewLine |\r\n\r\n|
+
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
+resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Identifier |resource|
+//@[009:019) Identifier |sqlServer4|
+//@[020:054) StringComplete |'Microsoft.Sql/servers@2021-11-01'|
+//@[055:056) Assignment |=|
+//@[057:058) LeftBrace |{|
+//@[058:060) NewLine |\r\n|
+  name: 'sqlServer4'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) StringComplete |'sqlServer4'|
+//@[020:022) NewLine |\r\n|
+  location: 'polandcentral'
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:027) StringComplete |'polandcentral'|
+//@[027:031) NewLine |\r\n\r\n|
+
+  @batchSize(1)
+//@[002:003) At |@|
+//@[003:012) Identifier |batchSize|
+//@[012:013) LeftParen |(|
+//@[013:014) Integer |1|
+//@[014:015) RightParen |)|
+//@[015:019) NewLine |\r\n\r\n|
+
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
+resource sqlServer5 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Identifier |resource|
+//@[009:019) Identifier |sqlServer5|
+//@[020:054) StringComplete |'Microsoft.Sql/servers@2021-11-01'|
+//@[055:056) Assignment |=|
+//@[057:058) LeftBrace |{|
+//@[058:060) NewLine |\r\n|
+  name: 'sqlServer5'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) StringComplete |'sqlServer5'|
+//@[020:022) NewLine |\r\n|
+  location: 'polandcentral'
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:027) StringComplete |'polandcentral'|
+//@[027:031) NewLine |\r\n\r\n|
+
+  @batchSize(1)
+//@[002:003) At |@|
+//@[003:012) Identifier |batchSize|
+//@[012:013) LeftParen |(|
+//@[013:014) Integer |1|
+//@[014:015) RightParen |)|
+//@[015:017) NewLine |\r\n|
+  resource sqlDatabase 'databases' = {
+//@[002:010) Identifier |resource|
+//@[011:022) Identifier |sqlDatabase|
+//@[023:034) StringComplete |'databases'|
+//@[035:036) Assignment |=|
+//@[037:038) LeftBrace |{|
+//@[038:040) NewLine |\r\n|
+    name: 'db'
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:014) StringComplete |'db'|
+//@[014:016) NewLine |\r\n|
+    location: 'polandcentral'
+//@[004:012) Identifier |location|
+//@[012:013) Colon |:|
+//@[014:029) StringComplete |'polandcentral'|
+//@[029:031) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
 //@[003:005) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|

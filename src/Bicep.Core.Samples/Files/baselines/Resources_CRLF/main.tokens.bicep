@@ -2514,19 +2514,19 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[015:030) StringComplete |'Sql Databases'|
 //@[030:031) RightParen |)|
 //@[031:033) NewLine |\r\n|
-  resource sqlDatabase 'databases' = [for db in dbs: {
+  resource sqlDatabases 'databases' = [for db in dbs: {
 //@[002:010) Identifier |resource|
-//@[011:022) Identifier |sqlDatabase|
-//@[023:034) StringComplete |'databases'|
-//@[035:036) Assignment |=|
-//@[037:038) LeftSquare |[|
-//@[038:041) Identifier |for|
-//@[042:044) Identifier |db|
-//@[045:047) Identifier |in|
-//@[048:051) Identifier |dbs|
-//@[051:052) Colon |:|
-//@[053:054) LeftBrace |{|
-//@[054:056) NewLine |\r\n|
+//@[011:023) Identifier |sqlDatabases|
+//@[024:035) StringComplete |'databases'|
+//@[036:037) Assignment |=|
+//@[038:039) LeftSquare |[|
+//@[039:042) Identifier |for|
+//@[043:045) Identifier |db|
+//@[046:048) Identifier |in|
+//@[049:052) Identifier |dbs|
+//@[052:053) Colon |:|
+//@[054:055) LeftBrace |{|
+//@[055:057) NewLine |\r\n|
     name: db
 //@[004:008) Identifier |name|
 //@[008:009) Colon |:|
@@ -2540,7 +2540,35 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   }]
 //@[002:003) RightBrace |}|
 //@[003:004) RightSquare |]|
-//@[004:006) NewLine |\r\n|
+//@[004:008) NewLine |\r\n\r\n|
+
+  @description('Primary Sql Database')
+//@[002:003) At |@|
+//@[003:014) Identifier |description|
+//@[014:015) LeftParen |(|
+//@[015:037) StringComplete |'Primary Sql Database'|
+//@[037:038) RightParen |)|
+//@[038:040) NewLine |\r\n|
+  resource primaryDb 'databases' = {
+//@[002:010) Identifier |resource|
+//@[011:020) Identifier |primaryDb|
+//@[021:032) StringComplete |'databases'|
+//@[033:034) Assignment |=|
+//@[035:036) LeftBrace |{|
+//@[036:038) NewLine |\r\n|
+    name: 'primary-db'
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:022) StringComplete |'primary-db'|
+//@[022:024) NewLine |\r\n|
+    location: 'polandcentral'
+//@[004:012) Identifier |location|
+//@[012:013) Colon |:|
+//@[014:029) StringComplete |'polandcentral'|
+//@[029:031) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:001) EndOfFile ||

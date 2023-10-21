@@ -1,5 +1,5 @@
 
-//@[000:13172) ProgramSyntax
+//@[000:13313) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 @sys.description('this is basicStorage')
 //@[000:00225) ├─ResourceDeclarationSyntax
@@ -3922,14 +3922,14 @@ var dbs = ['db1', 'db2','db3']
 //@[029:00030) |   └─Token(RightSquare) |]|
 //@[030:00032) ├─Token(NewLine) |\r\n|
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
-//@[000:00275) ├─ResourceDeclarationSyntax
+//@[000:00416) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00018) | ├─IdentifierSyntax
 //@[009:00018) | | └─Token(Identifier) |sqlServer|
 //@[019:00053) | ├─StringSyntax
 //@[019:00053) | | └─Token(StringComplete) |'Microsoft.Sql/servers@2021-11-01'|
 //@[054:00055) | ├─Token(Assignment) |=|
-//@[056:00275) | └─ObjectSyntax
+//@[056:00416) | └─ObjectSyntax
 //@[056:00057) |   ├─Token(LeftBrace) |{|
 //@[057:00059) |   ├─Token(NewLine) |\r\n|
   name: 'sql-server-name'
@@ -3950,7 +3950,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[027:00031) |   ├─Token(NewLine) |\r\n\r\n|
 
   @batchSize(1)
-//@[002:00155) |   ├─ResourceDeclarationSyntax
+//@[002:00156) |   ├─ResourceDeclarationSyntax
 //@[002:00015) |   | ├─DecoratorSyntax
 //@[002:00003) |   | | ├─Token(At) |@|
 //@[003:00015) |   | | └─FunctionCallSyntax
@@ -3974,27 +3974,27 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[015:00030) |   | |   |   └─Token(StringComplete) |'Sql Databases'|
 //@[030:00031) |   | |   └─Token(RightParen) |)|
 //@[031:00033) |   | ├─Token(NewLine) |\r\n|
-  resource sqlDatabase 'databases' = [for db in dbs: {
+  resource sqlDatabases 'databases' = [for db in dbs: {
 //@[002:00010) |   | ├─Token(Identifier) |resource|
-//@[011:00022) |   | ├─IdentifierSyntax
-//@[011:00022) |   | | └─Token(Identifier) |sqlDatabase|
-//@[023:00034) |   | ├─StringSyntax
-//@[023:00034) |   | | └─Token(StringComplete) |'databases'|
-//@[035:00036) |   | ├─Token(Assignment) |=|
-//@[037:00105) |   | └─ForSyntax
-//@[037:00038) |   |   ├─Token(LeftSquare) |[|
-//@[038:00041) |   |   ├─Token(Identifier) |for|
-//@[042:00044) |   |   ├─LocalVariableSyntax
-//@[042:00044) |   |   | └─IdentifierSyntax
-//@[042:00044) |   |   |   └─Token(Identifier) |db|
-//@[045:00047) |   |   ├─Token(Identifier) |in|
-//@[048:00051) |   |   ├─VariableAccessSyntax
-//@[048:00051) |   |   | └─IdentifierSyntax
-//@[048:00051) |   |   |   └─Token(Identifier) |dbs|
-//@[051:00052) |   |   ├─Token(Colon) |:|
-//@[053:00104) |   |   ├─ObjectSyntax
-//@[053:00054) |   |   | ├─Token(LeftBrace) |{|
-//@[054:00056) |   |   | ├─Token(NewLine) |\r\n|
+//@[011:00023) |   | ├─IdentifierSyntax
+//@[011:00023) |   | | └─Token(Identifier) |sqlDatabases|
+//@[024:00035) |   | ├─StringSyntax
+//@[024:00035) |   | | └─Token(StringComplete) |'databases'|
+//@[036:00037) |   | ├─Token(Assignment) |=|
+//@[038:00106) |   | └─ForSyntax
+//@[038:00039) |   |   ├─Token(LeftSquare) |[|
+//@[039:00042) |   |   ├─Token(Identifier) |for|
+//@[043:00045) |   |   ├─LocalVariableSyntax
+//@[043:00045) |   |   | └─IdentifierSyntax
+//@[043:00045) |   |   |   └─Token(Identifier) |db|
+//@[046:00048) |   |   ├─Token(Identifier) |in|
+//@[049:00052) |   |   ├─VariableAccessSyntax
+//@[049:00052) |   |   | └─IdentifierSyntax
+//@[049:00052) |   |   |   └─Token(Identifier) |dbs|
+//@[052:00053) |   |   ├─Token(Colon) |:|
+//@[054:00105) |   |   ├─ObjectSyntax
+//@[054:00055) |   |   | ├─Token(LeftBrace) |{|
+//@[055:00057) |   |   | ├─Token(NewLine) |\r\n|
     name: db
 //@[004:00012) |   |   | ├─ObjectPropertySyntax
 //@[004:00008) |   |   | | ├─IdentifierSyntax
@@ -4015,7 +4015,50 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   }]
 //@[002:00003) |   |   | └─Token(RightBrace) |}|
 //@[003:00004) |   |   └─Token(RightSquare) |]|
-//@[004:00006) |   ├─Token(NewLine) |\r\n|
+//@[004:00008) |   ├─Token(NewLine) |\r\n\r\n|
+
+  @description('Primary Sql Database')
+//@[002:00136) |   ├─ResourceDeclarationSyntax
+//@[002:00038) |   | ├─DecoratorSyntax
+//@[002:00003) |   | | ├─Token(At) |@|
+//@[003:00038) |   | | └─FunctionCallSyntax
+//@[003:00014) |   | |   ├─IdentifierSyntax
+//@[003:00014) |   | |   | └─Token(Identifier) |description|
+//@[014:00015) |   | |   ├─Token(LeftParen) |(|
+//@[015:00037) |   | |   ├─FunctionArgumentSyntax
+//@[015:00037) |   | |   | └─StringSyntax
+//@[015:00037) |   | |   |   └─Token(StringComplete) |'Primary Sql Database'|
+//@[037:00038) |   | |   └─Token(RightParen) |)|
+//@[038:00040) |   | ├─Token(NewLine) |\r\n|
+  resource primaryDb 'databases' = {
+//@[002:00010) |   | ├─Token(Identifier) |resource|
+//@[011:00020) |   | ├─IdentifierSyntax
+//@[011:00020) |   | | └─Token(Identifier) |primaryDb|
+//@[021:00032) |   | ├─StringSyntax
+//@[021:00032) |   | | └─Token(StringComplete) |'databases'|
+//@[033:00034) |   | ├─Token(Assignment) |=|
+//@[035:00096) |   | └─ObjectSyntax
+//@[035:00036) |   |   ├─Token(LeftBrace) |{|
+//@[036:00038) |   |   ├─Token(NewLine) |\r\n|
+    name: 'primary-db'
+//@[004:00022) |   |   ├─ObjectPropertySyntax
+//@[004:00008) |   |   | ├─IdentifierSyntax
+//@[004:00008) |   |   | | └─Token(Identifier) |name|
+//@[008:00009) |   |   | ├─Token(Colon) |:|
+//@[010:00022) |   |   | └─StringSyntax
+//@[010:00022) |   |   |   └─Token(StringComplete) |'primary-db'|
+//@[022:00024) |   |   ├─Token(NewLine) |\r\n|
+    location: 'polandcentral'
+//@[004:00029) |   |   ├─ObjectPropertySyntax
+//@[004:00012) |   |   | ├─IdentifierSyntax
+//@[004:00012) |   |   | | └─Token(Identifier) |location|
+//@[012:00013) |   |   | ├─Token(Colon) |:|
+//@[014:00029) |   |   | └─StringSyntax
+//@[014:00029) |   |   |   └─Token(StringComplete) |'polandcentral'|
+//@[029:00031) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00001) └─Token(EndOfFile) ||
