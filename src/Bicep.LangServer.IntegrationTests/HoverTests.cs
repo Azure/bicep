@@ -1097,8 +1097,8 @@ param foo|bar = true
                         tooltip.Should().Contain($"type {declaredType.Name}: {declaredType.Type}");
                         break;
 
-                    case ImportedSymbol imported when imported.Kind == SymbolKind.TypeAlias:
-                        tooltip.Should().Contain($"type {imported.Name}: {imported.Type}");
+                    case ImportedTypeSymbol importedType:
+                        tooltip.Should().Contain($"type {importedType.Name}: {importedType.Type}");
                         break;
 
                     case AmbientTypeSymbol ambientType:
@@ -1110,8 +1110,8 @@ param foo|bar = true
                         tooltip.Should().ContainAny(new[] { $"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error" });
                         break;
 
-                    case ImportedSymbol imported when imported.Kind == SymbolKind.Variable:
-                        tooltip.Should().Contain($"var {imported.Name}: {imported.Type}");
+                    case ImportedVariableSymbol importedVariable:
+                        tooltip.Should().Contain($"var {importedVariable.Name}: {importedVariable.Type}");
                         break;
 
                     case TestSymbol variable:
@@ -1146,6 +1146,10 @@ param foo|bar = true
 
                     case DeclaredFunctionSymbol declaredFunction:
                         tooltip.Should().Contain($"function {declaredFunction.Name}(");
+                        break;
+
+                    case ImportedFunctionSymbol importedFunction:
+                        tooltip.Should().Contain($"function {importedFunction.Name}(");
                         break;
 
                     case LocalVariableSymbol local:

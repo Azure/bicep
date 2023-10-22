@@ -14,6 +14,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
@@ -32,13 +33,11 @@ namespace Bicep.Core.TypeSystem
         private readonly IDiagnosticLookup parsingErrorLookup;
         private readonly ISourceFileLookup sourceFileLookup;
         private readonly ISemanticModelLookup semanticModelLookup;
-        private readonly BicepSourceFileKind fileKind;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
-        private readonly ConcurrentDictionary<CompileTimeImportDeclarationSyntax, ImmutableDictionary<string, TypeProperty>?> importableTypesByCompileTimeImportDeclaration;
 
-        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, ISourceFileLookup sourceFileLookup, ISemanticModelLookup semanticModelLookup, Workspaces.BicepSourceFileKind fileKind)
+        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, ISourceFileLookup sourceFileLookup, ISemanticModelLookup semanticModelLookup)
         {
             this.typeManager = typeManager;
             this.features = features;
@@ -48,11 +47,9 @@ namespace Bicep.Core.TypeSystem
             this.parsingErrorLookup = parsingErrorLookup;
             this.sourceFileLookup = sourceFileLookup;
             this.semanticModelLookup = semanticModelLookup;
-            this.fileKind = fileKind;
             assignedTypes = new();
             matchedFunctionOverloads = new();
             matchedFunctionResultValues = new();
-            importableTypesByCompileTimeImportDeclaration = new();
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -945,43 +942,10 @@ namespace Bicep.Core.TypeSystem
         public override void VisitCompileTimeImportDeclarationSyntax(CompileTimeImportDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                if (!features.CompileTimeImportsEnabled)
-                {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax).CompileTimeImportsNotSupported());
-                    return ErrorType.Empty();
-                }
-
                 base.VisitCompileTimeImportDeclarationSyntax(syntax);
 
                 return GetTypeInfo(syntax.ImportExpression);
             });
-
-        private ImmutableDictionary<string, TypeProperty>? GetImportablePropertiesForDeclaration(CompileTimeImportDeclarationSyntax syntax, IDiagnosticWriter diagnostics)
-        {
-            if (!SemanticModelHelper.TryGetModelForArtifactReference(sourceFileLookup,
-                    syntax,
-                    semanticModelLookup)
-                .IsSuccess(
-                    out var semanticModel,
-                    out var failureDiagnostic))
-            {
-                diagnostics.Write(failureDiagnostic);
-                return null;
-            }
-
-            if (semanticModel.HasErrors())
-            {
-                diagnostics.Write(semanticModel is ArmTemplateSemanticModel
-                    ? DiagnosticBuilder.ForPosition(syntax.FromClause).ReferencedArmTemplateHasErrors()
-                    : DiagnosticBuilder.ForPosition(syntax.FromClause).ReferencedModuleHasErrors());
-            }
-
-            return semanticModel.Exports.Select(kvp => new TypeProperty(kvp.Key,
-                kvp.Value.TypeReference.Type,
-                TypePropertyFlags.ReadOnly | TypePropertyFlags.Required,
-                kvp.Value.Description))
-                .ToImmutableDictionary(tp => tp.Name);
-        }
 
         public override void VisitWildcardImportSyntax(WildcardImportSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
@@ -989,9 +953,23 @@ namespace Bicep.Core.TypeSystem
                 base.VisitWildcardImportSyntax(syntax);
 
                 if (binder.GetParent(syntax) is not CompileTimeImportDeclarationSyntax importDeclarationSyntax ||
-                    importableTypesByCompileTimeImportDeclaration.GetOrAdd(importDeclarationSyntax, d => GetImportablePropertiesForDeclaration(d, diagnostics)) is not { } importableTypes)
+                    !SemanticModelHelper.TryGetModelForArtifactReference(sourceFileLookup, importDeclarationSyntax, semanticModelLookup).IsSuccess(out var importedModel))
                 {
                     return ErrorType.Empty();
+                }
+
+                List<TypeProperty> nsProperties = new();
+                List<FunctionOverload> nsFunctions = new();
+                foreach (var export in importedModel.Exports.Values)
+                {
+                    if (export is ExportedFunctionMetadata exportedFunction)
+                    {
+                        nsFunctions.Add(exportedFunction.Overload);
+                    }
+                    else
+                    {
+                        nsProperties.Add(new(export.Name, export.TypeReference, TypePropertyFlags.ReadOnly | TypePropertyFlags.Required, export.Description));
+                    }
                 }
 
                 return new NamespaceType(syntax.Name.IdentifierName,
@@ -1000,8 +978,8 @@ namespace Bicep.Core.TypeSystem
                         ConfigurationType: null,
                         ArmTemplateProviderName: syntax.Name.IdentifierName,
                         ArmTemplateProviderVersion: "1.0.0"),
-                    importableTypes.Values,
-                    ImmutableArray<FunctionOverload>.Empty,
+                    nsProperties,
+                    nsFunctions,
                     ImmutableArray<BannedFunction>.Empty,
                     ImmutableArray<Decorator>.Empty,
                     new EmptyResourceTypeProvider());
@@ -1024,30 +1002,14 @@ namespace Bicep.Core.TypeSystem
 
                 if (binder.GetParent(syntax) is not { } parentSyntax ||
                     binder.GetParent(parentSyntax) is not CompileTimeImportDeclarationSyntax importDeclarationSyntax ||
-                    importableTypesByCompileTimeImportDeclaration.GetOrAdd(importDeclarationSyntax, d => GetImportablePropertiesForDeclaration(d, diagnostics)) is not { } importableTypes)
+                    !SemanticModelHelper.TryGetModelForArtifactReference(sourceFileLookup, importDeclarationSyntax, semanticModelLookup).IsSuccess(out var importedModel) ||
+                    syntax.TryGetOriginalSymbolNameText() is not string importTarget ||
+                    importedModel.Exports.TryGetValue(importTarget) is not { } exported)
                 {
                     return ErrorType.Empty();
                 }
 
-                string? importTarget = syntax.OriginalSymbolName switch
-                {
-                    IdentifierSyntax identifier => identifier.IdentifierName,
-                    StringSyntax @string when @string.TryGetLiteralValue() is string literalValue => literalValue,
-                    _ => null,
-                };
-
-                if (importTarget is null)
-                {
-                    // in this case, we are already reporting a parse error of some kind
-                    return ErrorType.Empty();
-                }
-
-                if (importableTypes.TryGetValue(importTarget) is not { } exportedType)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.OriginalSymbolName).ImportedSymbolNotFound(importTarget));
-                }
-
-                return exportedType.TypeReference;
+                return exported.TypeReference;
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
@@ -1663,6 +1625,9 @@ namespace Bicep.Core.TypeSystem
                     case DeclaredFunctionSymbol declaredFunction:
                         return GetFunctionSymbolType(declaredFunction, syntax, errors, diagnostics);
 
+                    case ImportedFunctionSymbol importedFunction:
+                        return GetFunctionSymbolType(importedFunction, syntax, errors, diagnostics);
+
                     case Symbol symbolInfo when binder.NamespaceResolver.GetKnownFunctions(symbolInfo.Name).FirstOrDefault() is { } knownFunction:
                         // A function exists, but it's being shadowed by another symbol in the file
                         return ErrorType.Create(
@@ -1900,6 +1865,11 @@ namespace Bicep.Core.TypeSystem
                         // variable bind failure - pass the error along
                         return errorSymbol.ToErrorType();
 
+                    case TypeAliasSymbol:
+                    case AmbientTypeSymbol:
+                    case ImportedTypeSymbol:
+                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).TypeSymbolUsedAsValue(syntax.Name.IdentifierName));
+
                     case ResourceSymbol resource:
                         // resource bodies can participate in cycles
                         // need to explicitly force a type check on the body
@@ -1923,7 +1893,7 @@ namespace Bicep.Core.TypeSystem
                     case LocalVariableSymbol local:
                         return new DeferredTypeReference(() => VisitDeclaredSymbol(syntax, local));
 
-                    case ImportedSymbol imported when imported.Kind != SymbolKind.TypeAlias:
+                    case ImportedSymbol imported:
                         return imported.Type;
 
                     case ProviderNamespaceSymbol provider:
@@ -1934,11 +1904,6 @@ namespace Bicep.Core.TypeSystem
 
                     case WildcardImportSymbol wildcardImport:
                         return wildcardImport.Type;
-
-                    case TypeAliasSymbol:
-                    case AmbientTypeSymbol:
-                    case ImportedSymbol:
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).TypeSymbolUsedAsValue(syntax.Name.IdentifierName));
 
                     default:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAVariableOrParameter(syntax.Name.IdentifierName));

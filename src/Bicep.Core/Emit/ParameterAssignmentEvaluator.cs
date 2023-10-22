@@ -43,14 +43,14 @@ namespace Bicep.Core.Emit
 
         private readonly ConcurrentDictionary<ParameterAssignmentSymbol, Result> Results = new();
         private readonly ConcurrentDictionary<VariableSymbol, Result> VarResults = new();
-        private readonly ConcurrentDictionary<ImportedSymbol, Result> ImportResults = new();
+        private readonly ConcurrentDictionary<ImportedVariableSymbol, Result> ImportResults = new();
         private readonly ConcurrentDictionary<WildcardImportPropertyReference, Result> WildcardImportVariablesResults = new();
         private readonly ConcurrentDictionary<SemanticModel, ParameterAssignmentEvaluator> BicepEvaluators = new();
         private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> ArmEvaluators = new();
         private readonly SemanticModel model;
         private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
         private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
-        private readonly ImmutableDictionary<string, ImportedSymbol> importsByName;
+        private readonly ImmutableDictionary<string, ImportedVariableSymbol> importsByName;
         private readonly ImmutableDictionary<string, WildcardImportSymbol> wildcardImportsByName;
         private readonly ImportReferenceExpressionRewriter importReferenceExpressionRewriter;
 
@@ -63,7 +63,7 @@ namespace Bicep.Core.Emit
             this.variablesByName = model.Root.VariableDeclarations
                 .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
                 .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
-            this.importsByName = model.Root.ImportedSymbols
+            this.importsByName = model.Root.ImportedVariables
                 .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
                 .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
             this.wildcardImportsByName = model.Root.WildcardImports
@@ -71,9 +71,7 @@ namespace Bicep.Core.Emit
                 .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
             this.importReferenceExpressionRewriter = new(model.Root.ImportedSymbols.ToImmutableDictionary(s => s, s => s.Name),
                 model.Root.WildcardImports
-                    .SelectMany(w => w.TryGetSemanticModel() is ISemanticModel sourceModel
-                        ? sourceModel.Exports.Keys.Select(name => new WildcardImportPropertyReference(w, name))
-                        : Enumerable.Empty<WildcardImportPropertyReference>())
+                    .SelectMany(w => w.SourceModel.Exports.Keys.Select(name => new WildcardImportPropertyReference(w, name)))
                     .ToImmutableDictionary(w => w, w => $"{w.WildcardImport.Name}.{w.PropertyName}"),
                 sourceSyntax: null);
         }
@@ -127,11 +125,11 @@ namespace Bicep.Core.Emit
                     }
                 });
 
-        private Result EvaluateImport(ImportedSymbol import) => ImportResults.GetOrAdd(import, import =>
+        private Result EvaluateImport(ImportedVariableSymbol import) => ImportResults.GetOrAdd(import, import =>
         {
             if (import.Kind == SymbolKind.Variable)
             {
-                return import.TryGetSemanticModel() switch
+                return import.TryGetSourceModel() switch
                 {
                     SemanticModel bicepModel
                         => EvaluateImportedVariable(bicepModel, import),
@@ -179,7 +177,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private Result EvaluateWildcardImportPropertyAsVariable(WildcardImportPropertyReference propertyReference) => WildcardImportVariablesResults.GetOrAdd(propertyReference, r => r.WildcardImport.TryGetSemanticModel() switch
+        private Result EvaluateWildcardImportPropertyAsVariable(WildcardImportPropertyReference propertyReference) => WildcardImportVariablesResults.GetOrAdd(propertyReference, r => r.WildcardImport.SourceModel switch
         {
             SemanticModel bicepModel
                 => EvaluateWildcardImportPropertyAsVariable(bicepModel, r),

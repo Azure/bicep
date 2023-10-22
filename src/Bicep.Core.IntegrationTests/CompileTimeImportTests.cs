@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -16,6 +17,9 @@ public class CompileTimeImportTests
 {
     private ServiceBuilder ServicesWithCompileTimeTypeImports => new ServiceBuilder()
         .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true));
+
+    private ServiceBuilder ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions => new ServiceBuilder()
+        .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedFunctionsEnabled: true));
 
     [NotNull]
     public TestContext? TestContext { get; set; }
@@ -199,6 +203,49 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
+    public void Imported_function_symbols_should_have_declarations_injected_into_compiled_template()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+            ("main.bicep", """
+                import {greet} from 'mod.bicep'
+                """),
+            ("mod.bicep", """
+                @export()
+                @description('Say hi to someone')
+                func greet(name string) string => 'Hi, ${name}!'
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("functions", JToken.Parse($$"""
+            [
+                {
+                    "namespace": "{{EmitConstants.UserDefinedFunctionsNamespace}}",
+                    "members": {
+                        "greet": {
+                            "parameters": [
+                                {
+                                    "type": "string",
+                                    "name": "name"
+                                }
+                            ],
+                            "output": {
+                                "type": "string",
+                                "value": "[format('Hi, {0}!', parameters('name'))]"
+                            },
+                            "metadata": {
+                                "{{LanguageConstants.MetadataDescriptionPropertyName}}": "Say hi to someone",
+                                "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                                    "sourceTemplate": "mod.bicep"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+            """));
+    }
+
+    [TestMethod]
     public void Type_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
@@ -234,7 +281,7 @@ public class CompileTimeImportTests
                 "foo": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/1.bar"
+                        "$ref": "#/definitions/_1.bar"
                     },
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
@@ -242,7 +289,7 @@ public class CompileTimeImportTests
                         }
                     }
                 },
-                "1.bar": {
+                "_1.bar": {
                     "type": "string",
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
@@ -287,9 +334,9 @@ public class CompileTimeImportTests
         result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
             {
                 "foo": {
-                    "property": "[variables('1.bar')]"
+                    "property": "[variables('_1.bar')]"
                 },
-                "1.bar": "barValue"
+                "_1.bar": "barValue"
             }
             """));
     }
@@ -356,7 +403,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Symbols_imported_via_wildcard_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
             ("main.bicep", """
                 import * as foo from 'mod.bicep'
                 """),
@@ -366,12 +413,15 @@ public class CompileTimeImportTests
 
                 @export()
                 var squares = map(range(0, 100), x => x * x)
+
+                @export()
+                func greet(name string) string => 'Hi, ${name}!'
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
             {
-                "1.foo": {
+                "_1.foo": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -387,8 +437,35 @@ public class CompileTimeImportTests
 
         result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
             {
-                "1.squares": "[map(range(0, 100), lambda('x', mul(lambdaVariables('x'), lambdaVariables('x'))))]"
+                "_1.squares": "[map(range(0, 100), lambda('x', mul(lambdaVariables('x'), lambdaVariables('x'))))]"
             }
+            """));
+
+        result.Template.Should().HaveValueAtPath("functions", JToken.Parse($$"""
+            [
+                {
+                    "namespace": "_1",
+                    "members": {
+                        "greet": {
+                            "parameters": [
+                                {
+                                    "type": "string",
+                                    "name": "name"
+                                }
+                            ],
+                            "output": {
+                                "type": "string",
+                                "value": "[format('Hi, {0}!', parameters('name'))]"
+                            },
+                            "metadata": {
+                                "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                                    "sourceTemplate": "mod.bicep"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
             """));
     }
 
@@ -426,7 +503,7 @@ public class CompileTimeImportTests
                         }
                     }
                 },
-                "1.fizz": {
+                "_1.fizz": {
                     "type": "int",
                     "minValue": 1,
                     "maxValue": 10,
@@ -491,10 +568,10 @@ public class CompileTimeImportTests
                     "type": "object",
                     "properties": {
                         "bar": {
-                            "$ref": "#/definitions/2.bar"
+                            "$ref": "#/definitions/_2.bar"
                         },
                         "anotherProperty": {
-                            "$ref": "#/definitions/1.unexported"
+                            "$ref": "#/definitions/_1.unexported"
                         }
                     },
                     "metadata": {
@@ -503,7 +580,7 @@ public class CompileTimeImportTests
                         }
                     }
                 },
-                "1.unexported": {
+                "_1.unexported": {
                     "type": "string",
                     "allowedValues": [
                         "buzz",
@@ -516,14 +593,14 @@ public class CompileTimeImportTests
                         }
                     }
                 },
-                "2.bar": {
+                "_2.bar": {
                     "type": "object",
                     "properties": {
                         "foo": {
-                            "$ref": "#/definitions/3.bar"
+                            "$ref": "#/definitions/_3.bar"
                         },
                         "prop": {
-                            "$ref": "#/definitions/2.unexported"
+                            "$ref": "#/definitions/_2.unexported"
                         }
                     },
                     "metadata": {
@@ -532,11 +609,11 @@ public class CompileTimeImportTests
                         }
                     }
                 },
-                "2.unexported": {
+                "_2.unexported": {
                     "type": "object",
                     "properties": {
                         "nested": {
-                            "$ref": "#/definitions/2.alsoNotExported"
+                            "$ref": "#/definitions/_2.alsoNotExported"
                         }
                     },
                     "metadata": {
@@ -545,7 +622,7 @@ public class CompileTimeImportTests
                         }
                     }
                 },
-                "2.alsoNotExported": {
+                "_2.alsoNotExported": {
                     "type": "int",
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
@@ -553,15 +630,15 @@ public class CompileTimeImportTests
                         }
                     }
                 },
-                "3.bar": {
-                    "$ref": "#/definitions/4.foo",
+                "_3.bar": {
+                    "$ref": "#/definitions/_4.foo",
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
                             "sourceTemplate": "mod3.bicep"
                         }
                     }
                 },
-                "4.foo": {
+                "_4.foo": {
                     "type": "array",
                     "items": {
                         "type": "string"
@@ -624,24 +701,243 @@ public class CompileTimeImportTests
         result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
             {
                 "foo": {
-                    "bar": "[variables('2.bar')]",
-                    "anotherProperty": "[variables('1.unexported')]"
+                    "bar": "[variables('_2.bar')]",
+                    "anotherProperty": "[variables('_1.unexported')]"
                 },
-                "1.unexported": "unexported",
-                "2.bar": {
-                    "foo": "[variables('3.bar')]",
-                    "prop": "[variables('2.unexported')]"
+                "_1.unexported": "unexported",
+                "_2.bar": {
+                    "foo": "[variables('_3.bar')]",
+                    "prop": "[variables('_2.unexported')]"
                 },
-                "2.unexported": {
-                    "nested": "[variables('2.alsoNotExported')]"
+                "_2.unexported": {
+                    "nested": "[variables('_2.alsoNotExported')]"
                 },
-                "2.alsoNotExported": 45,
-                "3.bar": "[variables('4.foo')]",
-                "4.foo": [
+                "_2.alsoNotExported": 45,
+                "_3.bar": "[variables('_4.foo')]",
+                "_4.foo": [
                     "snap",
                     "crackle",
                     "pop"
                 ]
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Imported_function_symbols_with_a_lengthy_reference_chain_should_have_declarations_injected_into_compiled_template()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+            ("main.bicep", """
+                import {foo} from 'mod.bicep'
+
+                var greeting = foo('friend')
+                """),
+            ("mod.bicep", """
+                import {bar} from 'mod2.bicep'
+
+                @export()
+                func foo(name nonEmptyString) nonEmptyString => bar(name)
+
+                @minLength(1)
+                type nonEmptyString = string
+                """),
+            ("mod2.bicep", """
+                import * as baz from 'mod3.bicep'
+
+                @export()
+                func bar(name nonEmptyString) nonEmptyString => baz.quux(name)
+
+                @minLength(1)
+                type nonEmptyString = string
+                """),
+            ("mod3.bicep", """
+                import {greet} from 'mod4.bicep'
+
+                @export()
+                func quux(name nonEmptyString) nonEmptyString => indirection(name)
+
+                func indirection(name nonEmptyString) nonEmptyString => greet(name)
+
+                @minLength(1)
+                type nonEmptyString = string
+                """),
+            ("mod4.bicep", """
+                import {nonEmptyString} from 'mod5.bicep'
+
+                @export()
+                func greet(name indirection) indirection => 'Hi, ${name}!'
+
+                type indirection = nonEmptyString
+                """),
+            ("mod5.bicep", """
+                @export()
+                @minLength(1)
+                type nonEmptyString = string
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
+            {
+                "_1.nonEmptyString": {
+                    "type": "string",
+                    "minLength": 1,
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod.bicep"
+                        }
+                    }
+                },
+                "_2.nonEmptyString": {
+                    "type": "string",
+                    "minLength": 1,
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod2.bicep"
+                        }
+                    }
+                },
+                "_3.nonEmptyString": {
+                    "type": "string",
+                    "minLength": 1,
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod3.bicep"
+                        }
+                    }
+                },
+                "_4.indirection": {
+                    "$ref": "#/definitions/_5.nonEmptyString",
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod4.bicep"
+                        }
+                    }
+                },
+                "_5.nonEmptyString": {
+                    "type": "string",
+                    "minLength": 1,
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "sourceTemplate": "mod5.bicep"
+                        }
+                    }
+                },
+            }
+            """));
+
+        result.Template.Should().HaveValueAtPath("functions", JToken.Parse($$"""
+            [
+                {
+                    "namespace": "_2",
+                    "members": {
+                        "bar": {
+                            "parameters": [
+                                {
+                                    "$ref": "#/definitions/_2.nonEmptyString",
+                                    "name": "name"
+                                }
+                            ],
+                            "output": {
+                                "$ref": "#/definitions/_2.nonEmptyString",
+                                "value": "[_3.quux(parameters('name'))]"
+                            },
+                            "metadata": {
+                                "__bicep_imported_from!": {
+                                    "sourceTemplate": "mod2.bicep"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "namespace": "__bicep",
+                    "members": {
+                        "foo": {
+                            "parameters": [
+                                {
+                                    "$ref": "#/definitions/_1.nonEmptyString",
+                                    "name": "name"
+                                }
+                            ],
+                            "output": {
+                                "$ref": "#/definitions/_1.nonEmptyString",
+                                "value": "[_2.bar(parameters('name'))]"
+                            },
+                            "metadata": {
+                                "__bicep_imported_from!": {
+                                    "sourceTemplate": "mod.bicep"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "namespace": "_4",
+                    "members": {
+                        "greet": {
+                            "parameters": [
+                                {
+                                    "$ref": "#/definitions/_4.indirection",
+                                    "name": "name"
+                                }
+                            ],
+                            "output": {
+                                "$ref": "#/definitions/_4.indirection",
+                                "value": "[format('Hi, {0}!', parameters('name'))]"
+                            },
+                            "metadata": {
+                                "__bicep_imported_from!": {
+                                    "sourceTemplate": "mod4.bicep"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "namespace": "_3",
+                    "members": {
+                        "indirection": {
+                            "parameters": [
+                                {
+                                    "$ref": "#/definitions/_3.nonEmptyString",
+                                    "name": "name"
+                                }
+                            ],
+                            "output": {
+                                "$ref": "#/definitions/_3.nonEmptyString",
+                                "value": "[_4.greet(parameters('name'))]"
+                            },
+                            "metadata": {
+                                "__bicep_imported_from!": {
+                                    "sourceTemplate": "mod3.bicep"
+                                }
+                            }
+                        },
+                        "quux": {
+                            "parameters": [
+                                {
+                                    "$ref": "#/definitions/_3.nonEmptyString",
+                                    "name": "name"
+                                }
+                            ],
+                            "output": {
+                                "$ref": "#/definitions/_3.nonEmptyString",
+                                "value": "[_3.indirection(parameters('name'))]"
+                            },
+                            "metadata": {
+                                "__bicep_imported_from!": {
+                                    "sourceTemplate": "mod3.bicep"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+            """));
+
+        result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
+            {
+                "greeting": "[__bicep.foo('friend')]"
             }
             """));
     }
@@ -875,11 +1171,11 @@ public class CompileTimeImportTests
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
             {
-                "1.fooCount": "[add(2, 3)]",
+                "_1.fooCount": "[add(2, 3)]",
                 "copy": [
                     {
                         "name": "foo",
-                        "count": "[length(range(0, variables('1.fooCount')))]",
+                        "count": "[length(range(0, variables('_1.fooCount')))]",
                         "input": "[add(copyIndex('foo'), 1)]"
                     }
                 ]
@@ -923,13 +1219,13 @@ public class CompileTimeImportTests
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
             {
-                "bar": "[variables('1.foo')[3]]",
-                "1.fooCount": "[add(2, 3)]",
+                "bar": "[variables('_1.foo')[3]]",
+                "_1.fooCount": "[add(2, 3)]",
                 "copy": [
                     {
-                        "name": "1.foo",
-                        "count": "[length(range(0, variables('1.fooCount')))]",
-                        "input": "[add(copyIndex('1.foo'), 1)]"
+                        "name": "_1.foo",
+                        "count": "[length(range(0, variables('_1.fooCount')))]",
+                        "input": "[add(copyIndex('_1.foo'), 1)]"
                     }
                 ]
             }
@@ -1195,8 +1491,8 @@ public class CompileTimeImportTests
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().HaveValueAtPath("outputs.outObj.value", "[variables('1.obj')['Key One']]");
-        result.Template.Should().HaveValueAtPath("outputs.outConfig.value", "[variables('1.config').b.id]");
+        result.Template.Should().HaveValueAtPath("outputs.outObj.value", "[variables('_1.obj')['Key One']]");
+        result.Template.Should().HaveValueAtPath("outputs.outConfig.value", "[variables('_1.config').b.id]");
     }
 
     // https://github.com/Azure/bicep/issues/12052

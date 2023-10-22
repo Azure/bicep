@@ -126,7 +126,22 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
-        public virtual void VisitImportedSymbol(ImportedSymbol symbol)
+        public virtual void VisitImportedTypeSymbol(ImportedTypeSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
+        public virtual void VisitImportedVariableSymbol(ImportedVariableSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
+        public virtual void VisitImportedFunctionSymbol(ImportedFunctionSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
+        public virtual void VisitErroredImportSymbol(ErroredImportSymbol symbol)
         {
             VisitDescendants(symbol);
         }

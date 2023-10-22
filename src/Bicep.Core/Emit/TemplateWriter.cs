@@ -131,7 +131,7 @@ namespace Bicep.Core.Emit
 
             this.EmitTypeDefinitionsIfPresent(emitter, programTypes);
 
-            this.EmitUserDefinedFunctions(emitter, program.Functions);
+            this.EmitUserDefinedFunctions(emitter, program.Functions.Concat(ImportClosureInfo.ImportedFunctionsInClosure));
 
             this.EmitParametersIfPresent(emitter, program.Parameters);
 
@@ -167,7 +167,7 @@ namespace Bicep.Core.Emit
             });
         }
 
-        private void EmitUserDefinedFunctions(ExpressionEmitter emitter, ImmutableArray<DeclaredFunctionExpression> functions)
+        private void EmitUserDefinedFunctions(ExpressionEmitter emitter, IEnumerable<DeclaredFunctionExpression> functions)
         {
             if (!functions.Any())
             {
@@ -176,18 +176,21 @@ namespace Bicep.Core.Emit
 
             emitter.EmitArrayProperty("functions", () =>
             {
-                emitter.EmitObject(() =>
+                foreach (var ns in functions.GroupBy(f => f.Namespace))
                 {
-                    emitter.EmitProperty("namespace", EmitConstants.UserDefinedFunctionsNamespace);
-
-                    emitter.EmitObjectProperty("members", () =>
+                    emitter.EmitObject(() =>
                     {
-                        foreach (var function in functions)
+                        emitter.EmitProperty("namespace", ns.Key);
+
+                        emitter.EmitObjectProperty("members", () =>
                         {
-                            EmitUserDefinedFunction(emitter, function);
-                        }
+                            foreach (var function in ns)
+                            {
+                                EmitUserDefinedFunction(emitter, function);
+                            }
+                        });
                     });
-                });
+                }
             });
         }
 
@@ -310,6 +313,39 @@ namespace Bicep.Core.Emit
 
                     EmitProperties(emitter, outputObject);
                 });
+
+                var originMetadataLookupKey = function.Namespace == EmitConstants.UserDefinedFunctionsNamespace
+                    ? function.Name
+                    : $"{function.Namespace}.{function.Name}";
+
+                if (function.Description is not null || function.Exported is not null || ImportClosureInfo.ImportedSymbolOriginMetadata.ContainsKey(originMetadataLookupKey))
+                {
+                    emitter.EmitObjectProperty(LanguageConstants.ParameterMetadataPropertyName, () =>
+                    {
+                        if (function.Description is not null)
+                        {
+                            emitter.EmitProperty(LanguageConstants.MetadataDescriptionPropertyName, function.Description);
+                        }
+
+                        if (function.Exported is not null)
+                        {
+                            emitter.EmitProperty(LanguageConstants.MetadataExportedPropertyName, ExpressionFactory.CreateBooleanLiteral(true, function.Exported.SourceSyntax));
+                        }
+
+                        if (ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(originMetadataLookupKey, out var originMetadata))
+                        {
+                            emitter.EmitObjectProperty(LanguageConstants.MetadataImportedFromPropertyName, () =>
+                            {
+                                emitter.EmitProperty(LanguageConstants.ImportMetadataSourceTemplatePropertyName, originMetadata.SourceTemplateIdentifier);
+
+                                if (!function.Name.Equals(originMetadata.OriginalName))
+                                {
+                                    emitter.EmitProperty(LanguageConstants.ImportMetadataOriginalIdentifierPropertyName, originMetadata.OriginalName);
+                                }
+                            });
+                        }
+                    });
+                }
             }, function.SourceSyntax);
         }
 

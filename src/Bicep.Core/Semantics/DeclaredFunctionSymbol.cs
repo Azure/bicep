@@ -11,15 +11,12 @@ namespace Bicep.Core.Semantics;
 
 public class DeclaredFunctionSymbol : DeclaredSymbol, IFunctionSymbol
 {
+    private readonly Lazy<FunctionOverload> overloadLazy;
     public DeclaredFunctionSymbol(ISymbolContext context, string name, FunctionDeclarationSyntax declaringSyntax)
         : base(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        this.overloadsLazy = new(() => GetFunctionOverload() is { } overload ?
-            ImmutableArray.Create(overload) :
-            ImmutableArray<FunctionOverload>.Empty);
+        this.overloadLazy = new(GetFunctionOverload);
     }
-
-    private readonly Lazy<ImmutableArray<FunctionOverload>> overloadsLazy;
 
     public FunctionDeclarationSyntax DeclaringFunction => (FunctionDeclarationSyntax)this.DeclaringSyntax;
 
@@ -29,7 +26,10 @@ public class DeclaredFunctionSymbol : DeclaredSymbol, IFunctionSymbol
 
     public override IEnumerable<Symbol> Descendants => Type.AsEnumerable();
 
-    public ImmutableArray<FunctionOverload> Overloads => overloadsLazy.Value;
+    // Unlike functions defined in the ARM engine, user-defined functions do not support multiple dispatch and will always have exactly one overload.
+    public FunctionOverload Overload => overloadLazy.Value;
+
+    public ImmutableArray<FunctionOverload> Overloads => ImmutableArray.Create(Overload);
 
     public FunctionFlags FunctionFlags => FunctionFlags.Default;
 

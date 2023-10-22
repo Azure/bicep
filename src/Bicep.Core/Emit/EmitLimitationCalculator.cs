@@ -523,13 +523,13 @@ namespace Bicep.Core.Emit
                     {
                         if (generated[parameterAssignment].KeyVaultReferenceExpression is not null)
                         {
-                            diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesKeyVaultSuppliedParameter(syntax.Name.IdentifierName)));
+                            diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesKeyVaultSuppliedParameter(parameterAssignment.Name)));
                             referencedValueHasError = true;
                         }
 
                         if (generated[parameterAssignment].Value is JToken evaluated && evaluated.Type == JTokenType.Null)
                         {
-                            diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesDefaultedParameter(syntax.Name.IdentifierName)));
+                            diagnostics.WriteMultiple(referenced.Value.Select(syntax => DiagnosticBuilder.ForPosition(syntax).ParameterReferencesDefaultedParameter(parameterAssignment.Name)));
                             referencedValueHasError = true;
                         }
                     }
@@ -569,7 +569,7 @@ namespace Bicep.Core.Emit
             return generated.ToImmutableDictionary();
         }
 
-        private static IEnumerable<DeclaredSymbol> GetTopologicallySortedSymbols(ImmutableDictionary<DeclaredSymbol, ImmutableDictionary<DeclaredSymbol, ImmutableSortedSet<VariableAccessSyntax>>> referencesInValues)
+        private static IEnumerable<DeclaredSymbol> GetTopologicallySortedSymbols(ImmutableDictionary<DeclaredSymbol, ImmutableDictionary<DeclaredSymbol, ImmutableSortedSet<SyntaxBase>>> referencesInValues)
         {
             HashSet<DeclaredSymbol> processed = new();
             IEnumerable<DeclaredSymbol> YieldSymbolAndUnprocessedPredecessors(DeclaredSymbol n)

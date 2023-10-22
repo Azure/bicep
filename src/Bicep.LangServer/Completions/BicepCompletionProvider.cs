@@ -359,13 +359,11 @@ namespace Bicep.LanguageServer.Completions
         }
 
         private static IEnumerable<CompletionItem> GetImportedTypeCompletions(SemanticModel model, BicepCompletionContext context)
-            => model.Root.ImportedSymbols
-                .Where(imported => imported.Kind == SymbolKind.TypeAlias)
+            => model.Root.ImportedTypes
                 .Select(importedType => CreateImportedCompletion(importedType, context.ReplacementRange, CompletionPriority.High))
                 .Concat(model.Root.WildcardImports
-                    .SelectMany(wildcardImport => wildcardImport.TryGetSemanticModel() is ISemanticModel importedModel
-                        ? importedModel.Exports.Values.OfType<ExportedTypeMetadata>().Select(exportMetadata => (wildcardImport, exportMetadata))
-                        : Enumerable.Empty<(WildcardImportSymbol, ExportedTypeMetadata)>())
+                    .SelectMany(wildcardImport => wildcardImport.SourceModel.Exports.Values.OfType<ExportedTypeMetadata>()
+                        .Select(exportMetadata => (wildcardImport, exportMetadata)))
                     .Select(t => CreateWildcardPropertyCompletion(t.Item1, t.Item2, context.ReplacementRange, CompletionPriority.High)));
 
         private static bool IsTypeLiteralSyntax(SyntaxBase syntax) => syntax is BooleanLiteralSyntax

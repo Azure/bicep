@@ -139,7 +139,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is BuiltInNamespaceSymbol ||
                         s is LocalVariableSymbol ||
                         s is TestSymbol ||
-                        s is ImportedSymbol ||
+                        s is ImportedTypeSymbol ||
+                        s is ImportedVariableSymbol ||
+                        s is ImportedFunctionSymbol ||
                         s is WildcardImportSymbol);
                 }
                 else
@@ -161,7 +163,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is BuiltInNamespaceSymbol ||
                         s is LocalVariableSymbol ||
                         s is TestSymbol ||
-                        s is ImportedSymbol ||
+                        s is ImportedTypeSymbol ||
+                        s is ImportedVariableSymbol ||
+                        s is ImportedFunctionSymbol ||
                         s is WildcardImportSymbol);
                 }
 

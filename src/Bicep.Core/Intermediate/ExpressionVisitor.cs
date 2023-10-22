@@ -226,10 +226,26 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     public virtual void VisitDeclaredFunctionExpression(DeclaredFunctionExpression expression)
     {
         VisitDescribableExpression(expression);
+        Visit(expression.Exported);
         Visit(expression.Lambda);
     }
 
     public virtual void VisitUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
+    {
+        Visit(expression.Parameters);
+    }
+
+    public virtual void VisitSynthesizedUserDefinedFunctionCallExpression(SynthesizedUserDefinedFunctionCallExpression expression)
+    {
+        Visit(expression.Parameters);
+    }
+
+    public virtual void VisitImportedUserDefinedFunctionCallExpression(ImportedUserDefinedFunctionCallExpression expression)
+    {
+        Visit(expression.Parameters);
+    }
+
+    public virtual void VisitWildcardImportInstanceFunctionCallExpression(WildcardImportInstanceFunctionCallExpression expression)
     {
         Visit(expression.Parameters);
     }

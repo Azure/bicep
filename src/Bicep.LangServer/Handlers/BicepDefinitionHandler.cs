@@ -313,7 +313,7 @@ namespace Bicep.LanguageServer.Handlers
                 // The user should be redirected to the import target file if the symbol is a wildcard import
                 if (propertyAccesses.Count == 1 && ancestorSymbol is WildcardImportSymbol wildcardImport)
                 {
-                    if (wildcardImport.TryGetSemanticModel() is SemanticModel importedTargetBicepModel &&
+                    if (wildcardImport.SourceModel is SemanticModel importedTargetBicepModel &&
                         importedTargetBicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, propertyAccesses.Single().IdentifierName)).FirstOrDefault() is { } originalDeclaration)
                     {
                         var range = PositionHelper.GetNameRange(importedTargetBicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);
@@ -402,7 +402,7 @@ namespace Bicep.LanguageServer.Handlers
             // source of the link. Underline only the symbolic name
             var originSelectionRange = result.Origin.ToRange(context.LineStarts);
 
-            if (imported.TryGetSemanticModel() is SemanticModel bicepModel &&
+            if (imported.TryGetSourceModel() is SemanticModel bicepModel &&
                 bicepModel.Root.Declarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is { } originalDeclaration)
             {
                 // entire span of the declaredSymbol

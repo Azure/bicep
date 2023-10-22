@@ -1,11 +1,39 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Immutable;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics;
 
 public interface ISemanticModelLookup
 {
-    public ISemanticModel GetSemanticModel(ISourceFile sourceFile);
+    ISemanticModel GetSemanticModel(ISourceFile sourceFile);
+
+    static ISemanticModelLookup Excluding(ISemanticModelLookup inner, params ISourceFile[] toExcludeFromLookup) => toExcludeFromLookup.Length > 0
+        ? new ExcludingSemanticModelLookupDecorator(inner, toExcludeFromLookup.ToImmutableHashSet())
+        : inner;
+
+    private class ExcludingSemanticModelLookupDecorator : ISemanticModelLookup
+    {
+        private readonly ISemanticModelLookup decorated;
+        private readonly ImmutableHashSet<ISourceFile> excludedSources;
+
+        internal ExcludingSemanticModelLookupDecorator(ISemanticModelLookup decorated, ImmutableHashSet<ISourceFile> excludedSources)
+        {
+            this.decorated = decorated;
+            this.excludedSources = excludedSources;
+        }
+
+        public ISemanticModel GetSemanticModel(ISourceFile sourceFile)
+        {
+            if (excludedSources.Contains(sourceFile))
+            {
+                throw new InvalidOperationException(nameof(sourceFile));
+            }
+
+            return decorated.GetSemanticModel(sourceFile);
+        }
+    }
 }

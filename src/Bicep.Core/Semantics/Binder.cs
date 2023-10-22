@@ -20,12 +20,12 @@ namespace Bicep.Core.Semantics
         private readonly ConcurrentDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> referencedSymbolClosures = new();
         private readonly Stack<DeclaredSymbol> closureCalculationStack = new();
 
-        public Binder(INamespaceProvider namespaceProvider, IFeatureProvider features, BicepSourceFile sourceFile, ISymbolContext symbolContext)
+        public Binder(INamespaceProvider namespaceProvider, IFeatureProvider features, ISourceFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, BicepSourceFile sourceFile, ISymbolContext symbolContext)
         {
             // TODO use lazy or some other pattern for init
             this.bicepFile = sourceFile;
             this.TargetScope = SyntaxHelper.GetTargetScope(sourceFile);
-            var fileScope = DeclarationVisitor.GetDeclarations(namespaceProvider, features, TargetScope, sourceFile, symbolContext);
+            var fileScope = DeclarationVisitor.GetDeclarations(namespaceProvider, features, sourceFileLookup, modelLookup, TargetScope, sourceFile, symbolContext);
             this.NamespaceResolver = GetNamespaceResolver(features, namespaceProvider, sourceFile, this.TargetScope, fileScope);
             this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope);
             this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);

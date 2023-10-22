@@ -60,10 +60,14 @@ namespace Bicep.Core.Semantics
             // this blocks accidental type or binding queries until binding is done
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
             var symbolContext = new SymbolContext(compilation, this);
+            // Because import cycles would have been detected and blocked earlier in the compilation, it's fine to allow
+            // access to *other* models in the compilation while the symbol context is locked.
+            // This allows the binder to create the right kind of symbol for compile-time imports.
+            var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(compilation, sourceFile);
             this.SymbolContext = symbolContext;
-            this.Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, this.SymbolContext);
+            this.Binder = new Binder(compilation.NamespaceProvider, features, compilation.SourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext);
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
-            this.TypeManager = new TypeManager(features, Binder, environment, fileResolver, this.ParsingErrorLookup, Compilation.SourceFileGrouping, Compilation, this.SourceFile.FileKind);
+            this.TypeManager = new TypeManager(features, Binder, environment, fileResolver, this.ParsingErrorLookup, Compilation.SourceFileGrouping, Compilation);
 
             // name binding is done
             // allow type queries now
@@ -116,7 +120,7 @@ namespace Bicep.Core.Semantics
                 return parameters.ToImmutable();
             });
 
-            this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables())
+            this.exportsLazy = new(() => FindExportedTypes().Concat(FindExportedVariables()).Concat(FindExportedFunctions())
                 .DistinctBy(export => export.Name, LanguageConstants.IdentifierComparer)
                 .ToImmutableSortedDictionary(export => export.Name, export => export, LanguageConstants.IdentifierComparer));
 
@@ -151,6 +155,13 @@ namespace Bicep.Core.Semantics
         private IEnumerable<ExportMetadata> FindExportedVariables() => Root.VariableDeclarations
             .Where(v => IsExported(v.DeclaringVariable))
             .Select(v => new ExportedVariableMetadata(v.Name, v.Type, DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable)));
+
+        private IEnumerable<ExportMetadata> FindExportedFunctions() => Root.FunctionDeclarations
+            .Where(f => IsExported(f.DeclaringFunction))
+            .Select(f => new ExportedFunctionMetadata(f.Name,
+                f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description)).ToImmutableArray(),
+                new(f.Overload.TypeSignatureSymbol, null),
+                DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
 
         private bool IsExported(DecorableSyntax syntax)
             => SemanticModelHelper.TryGetDecoratorInNamespace(this, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is not null;

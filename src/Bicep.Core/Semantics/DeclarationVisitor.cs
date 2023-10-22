@@ -7,9 +7,11 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -18,6 +20,8 @@ namespace Bicep.Core.Semantics
     {
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFeatureProvider features;
+        private readonly ISourceFileLookup sourceFileLookup;
+        private readonly ISemanticModelLookup modelLookup;
         private readonly ResourceScope targetScope;
         private readonly ISymbolContext context;
         private readonly BicepSourceFileKind sourceFileKind;
@@ -25,10 +29,12 @@ namespace Bicep.Core.Semantics
 
         private readonly Stack<ScopeInfo> activeScopes = new();
 
-        private DeclarationVisitor(INamespaceProvider namespaceProvider, IFeatureProvider features, ResourceScope targetScope, ISymbolContext context, IList<ScopeInfo> localScopes, BicepSourceFileKind sourceFileKind)
+        private DeclarationVisitor(INamespaceProvider namespaceProvider, IFeatureProvider features, ISourceFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, ISymbolContext context, IList<ScopeInfo> localScopes, BicepSourceFileKind sourceFileKind)
         {
             this.namespaceProvider = namespaceProvider;
             this.features = features;
+            this.sourceFileLookup = sourceFileLookup;
+            this.modelLookup = modelLookup;
             this.targetScope = targetScope;
             this.context = context;
             this.localScopes = localScopes;
@@ -36,11 +42,11 @@ namespace Bicep.Core.Semantics
         }
 
         // Returns the list of top level declarations as well as top level scopes.
-        public static LocalScope GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, ResourceScope targetScope, BicepSourceFile sourceFile, ISymbolContext symbolContext)
+        public static LocalScope GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, ISourceFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, BicepSourceFile sourceFile, ISymbolContext symbolContext)
         {
             // collect declarations
             var localScopes = new List<ScopeInfo>();
-            var declarationVisitor = new DeclarationVisitor(namespaceProvider, features, targetScope, symbolContext, localScopes, sourceFile.FileKind);
+            var declarationVisitor = new DeclarationVisitor(namespaceProvider, features, sourceFileLookup, modelLookup, targetScope, symbolContext, localScopes, sourceFile.FileKind);
             declarationVisitor.Visit(sourceFile.ProgramSyntax);
 
             return MakeImmutable(localScopes.Single());
@@ -270,18 +276,96 @@ namespace Bicep.Core.Semantics
         {
             base.VisitCompileTimeImportDeclarationSyntax(syntax);
 
-            switch (syntax.ImportExpression)
+            if (GetImportSourceModel(syntax).IsSuccess(out var model, out var modelLoadError))
             {
-                case WildcardImportSyntax wildcardImport:
-                    DeclareSymbol(new WildcardImportSymbol(context, wildcardImport, syntax));
-                    break;
-                case ImportedSymbolsListSyntax importedSymbolsList:
-                    foreach (var item in importedSymbolsList.ImportedSymbols)
-                    {
-                        DeclareSymbol(new ImportedSymbol(context, item, syntax));
-                    }
-                    break;
+                switch (syntax.ImportExpression)
+                {
+                    case WildcardImportSyntax wildcardImport:
+                        DeclareSymbol(new WildcardImportSymbol(context, model, wildcardImport, syntax));
+                        break;
+                    case ImportedSymbolsListSyntax importedSymbolsList:
+                        foreach (var item in importedSymbolsList.ImportedSymbols)
+                        {
+                            if (item.TryGetOriginalSymbolNameText() is not string importedOriginalName)
+                            {
+                                // If the imported symbol's name cannot be determined, an error will be surfaced by the parser
+                                continue;
+                            }
+
+                            DeclareSymbol(model.Exports.TryGetValue(importedOriginalName, out var exportMetadata) switch
+                            {
+                                true => exportMetadata switch
+                                {
+                                    ExportedTypeMetadata exportedType => new ImportedTypeSymbol(context, item, syntax, model, exportedType),
+                                    ExportedVariableMetadata exportedVariable => new ImportedVariableSymbol(context, item, syntax, model, exportedVariable),
+                                    ExportedFunctionMetadata exportedFunction => new ImportedFunctionSymbol(context, item, syntax, model, exportedFunction),
+                                    _ when exportMetadata.Kind == ExportMetadataKind.Error  => new ErroredImportSymbol(context,
+                                        importedOriginalName,
+                                        item,
+                                        item.Name,
+                                        ImmutableArray.Create(DiagnosticBuilder.ForPosition(item.OriginalSymbolName).ImportedSymbolHasErrors(importedOriginalName, exportMetadata.Description ?? "unknown error"))),
+                                    _ => new ErroredImportSymbol(context,
+                                        importedOriginalName,
+                                        item,
+                                        item.Name,
+                                        ImmutableArray.Create(DiagnosticBuilder.ForPosition(item.OriginalSymbolName).ImportedSymbolHasErrors(importedOriginalName, $"Unsupported export kind: {exportMetadata.Kind}"))),
+                                },
+                                false => new ErroredImportSymbol(context,
+                                    importedOriginalName,
+                                    item,
+                                    item.Name,
+                                    ImmutableArray.Create(DiagnosticBuilder.ForPosition(item.OriginalSymbolName).ImportedSymbolNotFound(importedOriginalName))),
+                            });
+                        }
+                        break;
+                }
             }
+            else
+            {
+                switch (syntax.ImportExpression)
+                {
+                    case WildcardImportSyntax wildcardImport:
+                        DeclareSymbol(new ErroredImportSymbol(context, wildcardImport.Name.IdentifierName, wildcardImport, wildcardImport.Name, ImmutableArray.Create(modelLoadError)));
+                        break;
+                    case ImportedSymbolsListSyntax importedSymbolsList:
+                        var loadErrorRecorded = false;
+                        foreach (var item in importedSymbolsList.ImportedSymbols)
+                        {
+                            if (item.TryGetOriginalSymbolNameText() is not string importedOriginalName)
+                            {
+                                // If the imported symbol's name cannot be determined, an error will be surfaced by the parser
+                                continue;
+                            }
+
+                            // only include the load error once per import statement
+                            var errors = loadErrorRecorded ? ImmutableArray<ErrorDiagnostic>.Empty : ImmutableArray.Create(modelLoadError);
+                            DeclareSymbol(new ErroredImportSymbol(context, importedOriginalName, item, item.Name, errors));
+                        }
+                        break;
+                }
+            }
+        }
+
+        private Result<ISemanticModel, ErrorDiagnostic> GetImportSourceModel(CompileTimeImportDeclarationSyntax syntax)
+        {
+            if (!features.CompileTimeImportsEnabled)
+            {
+                return new(DiagnosticBuilder.ForPosition(syntax).CompileTimeImportsNotSupported());
+            }
+
+            if (!SemanticModelHelper.TryGetModelForArtifactReference(sourceFileLookup, syntax, modelLookup).IsSuccess(out var model, out var modelLoadError))
+            {
+                return new(modelLoadError);
+            }
+
+            if (model.HasErrors())
+            {
+                return new(model is ArmTemplateSemanticModel
+                    ? DiagnosticBuilder.ForPosition(syntax.FromClause).ReferencedArmTemplateHasErrors()
+                    : DiagnosticBuilder.ForPosition(syntax.FromClause).ReferencedModuleHasErrors());
+            }
+
+            return new(model);
         }
 
         private void DeclareSymbol(DeclaredSymbol symbol)
