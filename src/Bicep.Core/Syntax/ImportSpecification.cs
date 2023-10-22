@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.Syntax
 {
@@ -20,12 +21,23 @@ namespace Bicep.Core.Syntax
         // language=regex
         private const string NamePattern = "[a-zA-Z][a-zA-Z0-9]+";
 
+        private const string FromRegistryPattern = @"br[:\/]\S+";
+
         // Regex copied from https://semver.org/.
         // language=regex
         private const string SemanticVersionPattern = @"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?";
 
-        private static readonly Regex BareSpecification = new(@$"(?<name>{NamePattern})@(?<version>{SemanticVersionPattern})$");
+        private static readonly Regex BuiltInSpecificationPattern = new(
+            @$"^(?<name>{NamePattern})@(?<version>{SemanticVersionPattern})$",
+            RegexOptions.ECMAScript | RegexOptions.Compiled);
 
+        private static readonly Regex FromRegistrySpecificationPattern = new(
+            @$"^(?<address>{FromRegistryPattern})@(?<version>{SemanticVersionPattern})$",
+            RegexOptions.ECMAScript | RegexOptions.Compiled);
+
+        private static readonly Regex RepositoryNamePattern = new(
+            @"^\S*[:\/](?<name>az)$",
+            RegexOptions.ECMAScript | RegexOptions.Compiled);
 
         private ImportSpecification(string unexpandedPath, string name, string version, bool isValid, TextSpan span)
         {
@@ -72,25 +84,34 @@ namespace Bicep.Core.Syntax
 
         private static ImportSpecification CreateFromStringSyntax(StringSyntax stringSyntax, string value)
         {
-            var match = BareSpecification.Match(value);
-            if (!match.Success)
+            if (BuiltInSpecificationPattern.Match(value) is { } builtInMatch && builtInMatch.Success)
             {
-                return new(
+                var name = builtInMatch.Groups["name"].Value;
+                var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
+                var version = builtInMatch.Groups["version"].Value;
+                // built-in providers (e.g. kubernetes@1.0.0 or sys@1.0.0) are allowed as long as the name is not 'az'
+                return new(name, name, version, name != AzNamespaceType.BuiltInName, span);
+            }
+
+            if (FromRegistrySpecificationPattern.Match(value) is { } registryMatch && registryMatch.Success)
+            {
+                // NOTE(asilverman): The regex for the registry pattern is intentionally loose since it will be validated by the module resolver.
+                var address = registryMatch.Groups["address"].Value;
+                var version = registryMatch.Groups["version"].Value;
+
+                var span = new TextSpan(stringSyntax.Span.Position + 1, address.Length);
+                // NOTE(asilverman): I normalize the artifact address to the way we represent module addresses, see https://github.com/Azure/bicep/issues/12202
+                var unexpandedArtifactAddress = $"{address}:{version}";
+                var name = RepositoryNamePattern.Match(address).Groups["name"].Value;
+                // NOTE(asilverman): Only a repo name of az is allowed for now. This shall be relaxed once we generalize dynamic type loading for other provider packages.
+                return new(unexpandedArtifactAddress, name, version, name == AzNamespaceType.BuiltInName, span);
+            }
+            return new(
                  LanguageConstants.ErrorName,
                  LanguageConstants.ErrorName,
                  LanguageConstants.ErrorName,
                  false,
                  stringSyntax.Span);
-            }
-
-            var name = match.Groups["name"].Value;
-            var version = match.Groups["version"].Value;
-            var parts = value.Split('@');
-            var unexpandedRepositoryAddress = parts[0];
-
-            var span = new TextSpan(stringSyntax.Span.Position + 1, unexpandedRepositoryAddress.Length);
-            var unexpandedArtifactAddress = value.Replace('@', ':'); // we use the same format as module references so we can reuse module dispatcher logic.
-            return new(unexpandedArtifactAddress, name, version, unexpandedRepositoryAddress != "az", span);
         }
     }
 }
