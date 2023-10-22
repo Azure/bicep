@@ -1,7 +1,7 @@
 import {foo, fizz, pop} from 'modules/mod.bicep'
-//@[08:11) Variable foo. Type: 'quux'. Declaration start char: 8, length: 3
 //@[13:17) TypeAlias fizz. Type: Type<{ property: pop? }[]>. Declaration start char: 13, length: 4
 //@[19:22) TypeAlias pop. Type: Type<string>. Declaration start char: 19, length: 3
+//@[08:11) Variable foo. Type: 'quux'. Declaration start char: 8, length: 3
 import * as mod2 from 'modules/mod2.bicep'
 //@[12:16) ImportedNamespace mod2. Type: mod2. Declaration start char: 7, length: 9
 import {
