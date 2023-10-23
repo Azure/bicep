@@ -653,7 +653,7 @@
         "dynamicTypeLoading": {
           "type": "boolean"
         },
-        "ProviderRegistry": {
+        "providerRegistry": {
           "type": "boolean"
         },
         "compileTimeImports": {
