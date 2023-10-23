@@ -69,7 +69,7 @@ namespace Bicep.LanguageServer.Handlers
             IndentKindOption indentKindOption = request.Options.InsertSpaces ? IndentKindOption.Space : IndentKindOption.Tab;
 
             ProgramSyntax programSyntax = context.ProgramSyntax;
-            PrettyPrintOptions options = new PrettyPrintOptions(NewlineOption.Auto, indentKindOption, indentSize, request.Options.InsertFinalNewline);
+            PrettyPrintOptions options = new(NewlineOption.Auto, indentKindOption, indentSize, request.Options.InsertFinalNewline);
             string? output = PrettyPrinter.PrintProgram(context.ProgramSyntax, options, lexingErrorLookup, parsingErrorLookup);
 
             if (output == null)

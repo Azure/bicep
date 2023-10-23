@@ -19,18 +19,18 @@ namespace Bicep.LangServer.IntegrationTests.Completions
     // Insert snippet here
     public static class SnippetCompletionTestHelper
     {
-        private static readonly Regex PlaceholderCommentPattern = new Regex(@"\/\/\s*\$(?<index>\d+)\s*=\s*(?<text>.*)", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex PlaceholderCommentPattern = new(@"\/\/\s*\$(?<index>\d+)\s*=\s*(?<text>.*)", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         public static string GetSnippetTextAfterPlaceholderReplacements(string snippetText, string placeholderText)
         {
-            Snippet snippet = new Snippet(snippetText);
+            Snippet snippet = new(snippetText);
 
             // If we don't have placeholders, why is it a snippet?
             snippet.Placeholders.Should().NotBeEmpty();
 
             MatchCollection allMatches = PlaceholderCommentPattern.Matches(placeholderText);
 
-            Dictionary<int, string> replacementsMap = new Dictionary<int, string>();
+            Dictionary<int, string> replacementsMap = new();
 
             foreach (Match match in allMatches)
             {

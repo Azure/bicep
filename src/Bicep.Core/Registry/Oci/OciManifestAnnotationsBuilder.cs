@@ -14,7 +14,7 @@ namespace Bicep.Core.Registry.Oci
 {
     public class OciManifestAnnotationsBuilder
     {
-        private Dictionary<string, string> annotations = new Dictionary<string, string>();
+        private Dictionary<string, string> annotations = new();
 
         public ImmutableDictionary<string, string> Build()
         {

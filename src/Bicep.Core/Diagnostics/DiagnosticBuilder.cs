@@ -2110,7 +2110,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP380",
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
-            
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

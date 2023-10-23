@@ -14,7 +14,7 @@ namespace Bicep.LanguageServer.Utils
     {
         public static string GetDiagnosticsMessage(KeyValuePair<BicepSourceFile, ImmutableArray<IDiagnostic>> diagnosticsByFile)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             IReadOnlyList<int> lineStarts = diagnosticsByFile.Key.LineStarts;
 
             foreach (IDiagnostic diagnostic in diagnosticsByFile.Value)

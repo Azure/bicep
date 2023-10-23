@@ -162,7 +162,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
 
-            List<string> requiredArgs = new List<string> { "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1" };
+            List<string> requiredArgs = new() { "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1" };
 
             if (!string.IsNullOrWhiteSpace(documentationUri))
             {
@@ -220,7 +220,7 @@ namespace Bicep.Cli.IntegrationTests
             AssertNoErrors(error3);
 
             // compile to get what the new expected main.json should be
-            List<string> buildArgs = new List<string> { "build", bicepFilePath, "--outfile", $"{compiledFilePath}.modified" };
+            List<string> buildArgs = new() { "build", bicepFilePath, "--outfile", $"{compiledFilePath}.modified" };
             var (output4, error4, result4) = await Bicep(settings, buildArgs.ToArray());
             result4.Should().Be(0);
             output4.Should().BeEmpty();

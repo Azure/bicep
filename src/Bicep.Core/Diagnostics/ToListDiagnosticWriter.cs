@@ -15,7 +15,7 @@ namespace Bicep.Core.Diagnostics
         }
 
         public static ToListDiagnosticWriter Create()
-            => new ToListDiagnosticWriter(new List<IDiagnostic>());
+            => new(new List<IDiagnostic>());
 
         public void Write(IDiagnostic diagnostic)
             => diagnostics.Add(diagnostic);

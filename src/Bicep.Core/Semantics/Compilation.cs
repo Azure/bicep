@@ -85,7 +85,7 @@ namespace Bicep.Core.Semantics
             this.GetSemanticModel(sourceFile) as T ??
             throw new ArgumentException($"Expected the semantic model type to be \"{typeof(T).Name}\".");
 
-        private SemanticModel CreateSemanticModel(BicepSourceFile bicepFile) => new SemanticModel(
+        private SemanticModel CreateSemanticModel(BicepSourceFile bicepFile) => new(
             this,
             bicepFile,
             environment,

@@ -617,7 +617,7 @@ public class ExpressionBuilder
     }
 
     private ObjectExpression ConvertObject(ObjectSyntax @object)
-        => new ObjectExpression(
+        => new(
             @object,
             @object.Properties.Select(ConvertObjectProperty).ToImmutableArray());
 

@@ -35,7 +35,7 @@ namespace Bicep.Core.Parsing
 
         // the rules for parsing are slightly different if we are inside an interpolated string (for example, a new line should result in a lex error).
         // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
-        private readonly Stack<TokenType> templateStack = new Stack<TokenType>();
+        private readonly Stack<TokenType> templateStack = new();
         private readonly IList<Token> tokens = new List<Token>();
         private readonly IDiagnosticWriter diagnosticWriter;
         private readonly SlidingTextWindow textWindow;

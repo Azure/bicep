@@ -29,6 +29,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Should().Be("('test' | (tenant | managementGroup))[]");
         }
 
-        private static TypedArrayType Create(TypeSymbol itemType) => new TypedArrayType(itemType, TypeSymbolValidationFlags.Default);
+        private static TypedArrayType Create(TypeSymbol itemType) => new(itemType, TypeSymbolValidationFlags.Default);
     }
 }

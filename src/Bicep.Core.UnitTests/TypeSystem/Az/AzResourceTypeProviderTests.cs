@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     [TestClass]
     public class AzResourceTypeProviderTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder();
+        private static ServiceBuilder Services => new();
 
         private static readonly ImmutableHashSet<string> ExpectedLoopVariantProperties = new[]
         {

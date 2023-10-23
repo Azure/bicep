@@ -32,6 +32,6 @@ namespace Bicep.Core.TypeSystem
         /// be null if there is not enough information in the declaration body.</remarks>
         public SyntaxBase? DeclaringSyntax { get; }
 
-        public DeclaredTypeAssignment ReplaceDeclaringSyntax(SyntaxBase? newSyntax) => new DeclaredTypeAssignment(this.Reference, newSyntax, this.Flags);
+        public DeclaredTypeAssignment ReplaceDeclaringSyntax(SyntaxBase? newSyntax) => new(this.Reference, newSyntax, this.Flags);
     }
 }

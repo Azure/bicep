@@ -39,7 +39,7 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class CodeActionTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder();
+        private static ServiceBuilder Services => new();
 
         private const string SecureTitle = "Add @secure";
         private const string DescriptionTitle = "Add @description";

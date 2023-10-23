@@ -348,14 +348,14 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static MarkedStringsOrMarkupContent AsMarkdown(string markdown) => new MarkedStringsOrMarkupContent(new MarkupContent
+        private static MarkedStringsOrMarkupContent AsMarkdown(string markdown) => new(new MarkupContent
         {
             Kind = MarkupKind.Markdown,
             Value = markdown,
         });
 
         private static MarkedStringsOrMarkupContent AsMarkdown(IEnumerable<string> markdown)
-            => new MarkedStringsOrMarkupContent(markdown.Select(md => new MarkedString(md)));
+            => new(markdown.Select(md => new MarkedString(md)));
 
         protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()
         {

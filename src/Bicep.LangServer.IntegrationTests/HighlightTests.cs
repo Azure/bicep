@@ -135,7 +135,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         private static DocumentHighlight CreateExpectedHighlight(ImmutableArray<int> lineStarts, SyntaxBase syntax) =>
-            new DocumentHighlight
+            new()
             {
                 Range = PositionHelper.GetNameRange(lineStarts, syntax),
                 Kind = GetExpectedHighlightKind(syntax)

@@ -1070,10 +1070,10 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         private static LambdaType OneParamLambda(TypeSymbol paramType, TypeSymbol returnType)
-            => new LambdaType(ImmutableArray.Create<ITypeReference>(paramType), returnType);
+            => new(ImmutableArray.Create<ITypeReference>(paramType), returnType);
 
         private static LambdaType TwoParamLambda(TypeSymbol param1Type, TypeSymbol param2Type, TypeSymbol returnType)
-            => new LambdaType(ImmutableArray.Create<ITypeReference>(param1Type, param2Type), returnType);
+            => new(ImmutableArray.Create<ITypeReference>(param1Type, param2Type), returnType);
 
         private static FunctionResult LoadTextContentResultBuilder(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {

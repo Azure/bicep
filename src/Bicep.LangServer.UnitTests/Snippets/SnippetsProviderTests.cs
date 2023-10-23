@@ -54,7 +54,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithStaticTemplateAndNoResourceDependencies_ShouldReturnSnippets()
         {
-            ResourceType resourceType = new ResourceType(
+            ResourceType resourceType = new(
                 azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.DataLakeStore/accounts@2016-11-01"),
                 ResourceScope.ResourceGroup,
@@ -106,7 +106,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithStaticTemplateAndResourceDependencies_ShouldReturnSnippets()
         {
-            ResourceType resourceType = new ResourceType(
+            ResourceType resourceType = new(
                 azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2019-06-01"),
                 ResourceScope.ResourceGroup,
@@ -162,7 +162,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithNestedResource_ShouldReturnSnippets()
         {
-            ResourceType resourceType = new ResourceType(
+            ResourceType resourceType = new(
                 azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/certificates@2019-06-01"),
                 ResourceScope.ResourceGroup,
@@ -214,7 +214,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithNoStaticTemplate_ShouldReturnSnippets()
         {
-            ResourceType resourceType = new ResourceType(
+            ResourceType resourceType = new(
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
@@ -270,7 +270,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public void GetResourceBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
         {
-            ResourceType resourceType = new ResourceType(
+            ResourceType resourceType = new(
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
@@ -372,7 +372,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
 
             var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
 
-            ResourceType resourceType = new ResourceType(
+            ResourceType resourceType = new(
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
@@ -414,7 +414,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
 
             var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
 
-            ResourceType resourceType = new ResourceType(
+            ResourceType resourceType = new(
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,

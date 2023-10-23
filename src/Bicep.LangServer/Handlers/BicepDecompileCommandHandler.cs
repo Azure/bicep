@@ -106,10 +106,10 @@ namespace Bicep.LanguageServer.Handlers
 
         private async Task<(BicepDecompileCommandResult result, BicepTelemetryEvent? successTelemetry)> Decompile(string jsonPath)
         {
-            StringBuilder output = new StringBuilder();
+            StringBuilder output = new();
             string decompileId = Guid.NewGuid().ToString();
 
-            Uri jsonUri = new Uri(jsonPath, UriKind.Absolute);
+            Uri jsonUri = new(jsonPath, UriKind.Absolute);
 
             Uri? bicepUri;
             ImmutableDictionary<Uri, string>? filesToSave;
