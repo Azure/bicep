@@ -53,7 +53,7 @@ namespace Bicep.Cli.IntegrationTests
                         .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
                         .AddSingleton(settings.ClientFactory)
                         .AddSingleton(settings.TemplateSpecRepositoryFactory))
-                    .RunAsync(args.ToArrayExclusingNull()));
+                    .RunAsync(args.ToArrayExcludingNull()));
 
         protected static void AssertNoErrors(string error)
         {

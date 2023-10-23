@@ -70,7 +70,7 @@ namespace Bicep.Core.Extensions
             }
         }
 
-        public static T[] ToArrayExclusingNull<T>(this IEnumerable<T?> source)
+        public static T[] ToArrayExcludingNull<T>(this IEnumerable<T?> source)
             where T : class
             => source.WhereNotNull().ToArray();
 
