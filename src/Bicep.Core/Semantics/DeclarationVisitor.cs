@@ -106,7 +106,7 @@ namespace Bicep.Core.Semantics
             // and the actual object body (for-loop). That's OK, in that case, this scope will
             // be empty and we'll use the `for` scope for lookups.
             var bindingSyntax = syntax.Value is IfConditionSyntax ifConditionSyntax ? ifConditionSyntax.Body : syntax.Value;
-            var scope = new LocalScope(string.Empty, syntax, bindingSyntax, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritParent);
+            var scope = new LocalScope(string.Empty, syntax, bindingSyntax, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritAll);
             this.PushScope(scope);
 
             base.VisitResourceDeclarationSyntax(syntax);
@@ -203,7 +203,7 @@ namespace Bicep.Core.Semantics
         public override void VisitLambdaSyntax(LambdaSyntax syntax)
         {
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritParent);
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritAll);
             this.PushScope(scope);
 
             /*
@@ -225,7 +225,7 @@ namespace Bicep.Core.Semantics
         public override void VisitTypedLambdaSyntax(TypedLambdaSyntax syntax)
         {
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.GlobalsOnly);
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritFunctionsOnly);
             this.PushScope(scope);
 
             /*
@@ -247,7 +247,7 @@ namespace Bicep.Core.Semantics
         public override void VisitForSyntax(ForSyntax syntax)
         {
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritParent);
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.InheritAll);
             this.PushScope(scope);
 
             /*

@@ -62,9 +62,9 @@ namespace Bicep.Core.TypeSystem
 
         public static bool IsLiteralType(TypeSymbol type) => type switch
         {
-            StringLiteralType => true,
-            IntegerLiteralType => true,
-            BooleanLiteralType => true,
+            StringLiteralType or
+            IntegerLiteralType or
+            BooleanLiteralType or
             NullType => true,
 
             // A tuple can be a literal only if each item contained therein is also a literal
@@ -167,7 +167,7 @@ namespace Bicep.Core.TypeSystem
 
                     if (writeOnlyDiagnostic.Level == DiagnosticLevel.Error)
                     {
-                        return ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>());
+                        return ErrorType.Empty();
                     }
                 }
 
@@ -215,7 +215,7 @@ namespace Bicep.Core.TypeSystem
 
             diagnostics.Write(unknownPropertyDiagnostic);
 
-            return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>()) : LanguageConstants.Any;
+            return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? ErrorType.Empty() : LanguageConstants.Any;
         }
 
         public static TypeSymbol FlattenType(TypeSymbol typeToFlatten, IPositionable argumentPosition)

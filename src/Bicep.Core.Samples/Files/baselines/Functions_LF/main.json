@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15606847128001230479"
+      "templateHash": "10244606579588812152"
     }
   },
   "definitions": {
@@ -108,6 +108,23 @@
             "$ref": "#/definitions/positiveInt",
             "value": "[length(parameters('input'))]"
           }
+        },
+        "barTest": {
+          "parameters": [],
+          "output": {
+            "type": "array",
+            "value": [
+              "abc",
+              "def"
+            ]
+          }
+        },
+        "fooTest": {
+          "parameters": [],
+          "output": {
+            "type": "array",
+            "value": "[map(__bicep.barTest(), lambda('a', format('Hello {0}!', lambdaVariables('a'))))]"
+          }
         }
       }
     }
@@ -121,6 +138,10 @@
     "hellos": {
       "type": "array",
       "value": "[map(createArray('Evie', 'Casper'), lambda('name', __bicep.sayHello(lambdaVariables('name'))))]"
+    },
+    "fooValue": {
+      "type": "array",
+      "value": "[__bicep.fooTest()]"
     }
   }
 }

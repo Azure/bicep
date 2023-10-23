@@ -42,3 +42,12 @@ func typedArg(input string[]) positiveInt => length(input)
 //@[14:19) Local input. Type: string[]. Declaration start char: 14, length: 14
 //@[05:13) Function typedArg. Type: string[] => int. Declaration start char: 0, length: 58
 
+func barTest() array => ['abc', 'def']
+//@[05:12) Function barTest. Type: () => ['abc', 'def']. Declaration start char: 0, length: 38
+func fooTest() array => map(barTest(), a => 'Hello ${a}!')
+//@[39:40) Local a. Type: any. Declaration start char: 39, length: 1
+//@[05:12) Function fooTest. Type: () => string[]. Declaration start char: 0, length: 58
+
+output fooValue array = fooTest()
+//@[07:15) Output fooValue. Type: array. Declaration start char: 0, length: 33
+

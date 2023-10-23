@@ -63,6 +63,8 @@ internal static class TypeCollapser
                 BooleanType @bool => new BoolCollapse(@bool, nullable),
                 TupleType tuple => new ArrayCollapse(tuple, nullable),
                 ArrayType array => new ArrayCollapse(array, nullable),
+                ObjectType @object => new ObjectCollapse(nullable).Push(@object),
+                DiscriminatedObjectType discriminatedObjectType => new ObjectCollapse(nullable).Push(discriminatedObjectType),
                 AnyType => CollapsesToAny.Instance,
                 _ => Uncollapsable.Instance,
             };
@@ -327,6 +329,61 @@ internal static class TypeCollapser
 
             private void PushArraySpan(ArrayType array)
                 => spanCollapsersByItemType.GetOrAdd(array.Item.Type, _ => new RefinementSpanCollapser()).PushSpan(RefinementSpan.For(array));
+        }
+
+        private class ObjectCollapse : UnionCollapseState
+        {
+            private readonly DiscriminatedObjectTypeBuilder discriminatedObjectTypeBuilder = new();
+            private TypeSymbolValidationFlags flags = TypeSymbolValidationFlags.Default;
+            private bool nullable;
+
+            internal ObjectCollapse(bool nullable)
+            {
+                this.nullable = nullable;
+            }
+
+            public TypeSymbol? Collapse()
+            {
+                var (members, viableDiscriminators) = discriminatedObjectTypeBuilder.Build();
+
+                var discriminator = viableDiscriminators
+                    .OrderBy(possibleDiscriminator =>
+                    {
+                        var index = LanguageConstants.DiscriminatorPreferenceOrder.IndexOf(possibleDiscriminator);
+
+                        return index > -1 ? index : LanguageConstants.DiscriminatorPreferenceOrder.Length;
+                    })
+                    .ThenBy(d => d)
+                    .FirstOrDefault();
+
+                if (discriminator is not null)
+                {
+                    var baseType = new DiscriminatedObjectType(string.Join(" | ", TypeHelper.GetOrderedTypeNames(members)), flags, discriminator, members);
+                    return nullable ? TypeHelper.CreateTypeUnion(baseType, LanguageConstants.Null) : baseType;
+                }
+
+                return null;
+            }
+
+            public UnionCollapseState Push(ITypeReference memberType)
+            {
+                switch (memberType.Type)
+                {
+                    case ObjectType @object when discriminatedObjectTypeBuilder.TryInclude(@object):
+                        flags |= @object.ValidationFlags;
+                        return this;
+                    case DiscriminatedObjectType @union when @union.UnionMembersByKey.Values.All(discriminatedObjectTypeBuilder.TryInclude):
+                        flags |= @union.ValidationFlags;
+                        return this;
+                    case NullType:
+                        nullable = true;
+                        return this;
+                    case AnyType:
+                        return CollapsesToAny.Instance;
+                    default:
+                        return Uncollapsable.Instance;
+                }
+            }
         }
 
         private class CollapsesToAny : UnionCollapseState

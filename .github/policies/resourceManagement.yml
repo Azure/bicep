@@ -7,7 +7,9 @@ disabled: false
 where: 
 configuration:
   resourceManagementConfiguration:
+
     scheduledSearches:
+
     - description: "Close issues with 'Status: No Recent Activity'"
       frequencies:
       - hourly:
@@ -16,13 +18,14 @@ configuration:
       - isIssue
       - isOpen
       - hasLabel:
-          label: awaiting response
+          label: 'Needs: Author Feedback'
       - hasLabel:
           label: 'Status: No Recent Activity'
       - noActivitySince:
           days: 3
       actions:
       - closeIssue
+
     - description: "Add 'Status: No Recent Activity' label to issues"
       frequencies:
       - hourly:
@@ -31,7 +34,7 @@ configuration:
       - isIssue
       - isOpen
       - hasLabel:
-          label: awaiting response
+          label: 'Needs: Author Feedback'
       - noActivitySince:
           days: 7
       - isNotLabeledWith:
@@ -41,7 +44,9 @@ configuration:
           label: 'Status: No Recent Activity'
       - addReply:
           reply: 'Hi @${issueAuthor}, this issue has been marked as stale because it was labeled as requiring author feedback but has not had any activity for **7 days**. It will be closed if no further activity occurs **within 3 days of this comment**. Thanks for contributing to bicep! :smile: :mechanical_arm:'
+
     eventResponderTasks:
+
     - description: "Adds 'Needs: Triage' label for new issues"
       if:
       - payloadType: Issues
@@ -50,6 +55,7 @@ configuration:
       then:
       - addLabel:
           label: 'Needs: Triage :mag:'
+
     - description: "Replace 'Needs: Author Feedback' with 'Needs: Attention' label when author comments"
       if:
       - payloadType: Issue_Comment
@@ -58,13 +64,14 @@ configuration:
       - isActivitySender:
           issueAuthor: True
       - hasLabel:
-          label: awaiting response
+          label: 'Needs: Author Feedback'
       - isOpen
       then:
       - addLabel:
           label: 'Needs: Attention :wave:'
       - removeLabel:
-          label: awaiting response
+          label: 'Needs: Author Feedback'
+
     - description: "[Closed Issues] Remove 'Status: No Recent Activity' label from issues and add Needs: Triage"
       if:
       - payloadType: Issues
@@ -78,6 +85,7 @@ configuration:
           label: 'Status: No Recent Activity'
       - addLabel:
           label: 'Needs: Triage :mag:'
+
     - description: "Remove 'Status: No Recent Activity' label when an issue is commented on"
       if:
       - payloadType: Issue_Comment
@@ -86,6 +94,7 @@ configuration:
       then:
       - removeLabel:
           label: 'Status: No Recent Activity'
+          
     - description: "Adds a link to a pull request body that allows Microsoft reviewers to open the pull request in CodeFlow"
       if:
       - payloadType: Pull_Request

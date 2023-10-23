@@ -166,7 +166,7 @@ type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
 
 @discriminator('type')
 type discriminatedUnion5 = (typeA | typeB)?
-//@[5:24) TypeAlias discriminatedUnion5. Type: Type<null | { type: 'a', value: string } | { type: 'b', value: int }>. Declaration start char: 0, length: 66
+//@[5:24) TypeAlias discriminatedUnion5. Type: Type<null | ({ type: 'a', value: string } | { type: 'b', value: int })>. Declaration start char: 0, length: 66
 
 @discriminator('type')
 type discriminatedUnion6 = (typeA | typeB)!
@@ -261,7 +261,7 @@ type discriminatedUnionInlineTuple1 = [
 param paramDiscriminatedUnionTypeAlias1 discriminatedUnion1
 //@[6:39) Parameter paramDiscriminatedUnionTypeAlias1. Type: { type: 'a', value: string } | { type: 'b', value: int }. Declaration start char: 0, length: 59
 param paramDiscriminatedUnionTypeAlias2 discriminatedUnion5
-//@[6:39) Parameter paramDiscriminatedUnionTypeAlias2. Type: null | { type: 'a', value: string } | { type: 'b', value: int }. Declaration start char: 0, length: 59
+//@[6:39) Parameter paramDiscriminatedUnionTypeAlias2. Type: null | ({ type: 'a', value: string } | { type: 'b', value: int }). Declaration start char: 0, length: 59
 
 @discriminator('type')
 param paramInlineDiscriminatedUnion1 typeA | typeB
@@ -273,7 +273,7 @@ param paramInlineDiscriminatedUnion2 (typeA | typeB) = { type: 'b', value: 0 }
 
 @discriminator('type')
 param paramInlineDiscriminatedUnion3 (typeA | typeB)?
-//@[6:36) Parameter paramInlineDiscriminatedUnion3. Type: null | { type: 'a', value: string } | { type: 'b', value: int }. Declaration start char: 0, length: 76
+//@[6:36) Parameter paramInlineDiscriminatedUnion3. Type: null | ({ type: 'a', value: string } | { type: 'b', value: int }). Declaration start char: 0, length: 76
 
 output outputDiscriminatedUnionTypeAlias1 discriminatedUnion1 = { type: 'a', value: 'str' }
 //@[7:41) Output outputDiscriminatedUnionTypeAlias1. Type: { type: 'a', value: string } | { type: 'b', value: int }. Declaration start char: 0, length: 91
@@ -281,7 +281,7 @@ output outputDiscriminatedUnionTypeAlias1 discriminatedUnion1 = { type: 'a', val
 output outputDiscriminatedUnionTypeAlias2 discriminatedUnion1 = { type: 'a', value: 'str' }
 //@[7:41) Output outputDiscriminatedUnionTypeAlias2. Type: { type: 'a', value: string } | { type: 'b', value: int }. Declaration start char: 0, length: 114
 output outputDiscriminatedUnionTypeAlias3 discriminatedUnion5 = null
-//@[7:41) Output outputDiscriminatedUnionTypeAlias3. Type: null | { type: 'a', value: string } | { type: 'b', value: int }. Declaration start char: 0, length: 68
+//@[7:41) Output outputDiscriminatedUnionTypeAlias3. Type: null | ({ type: 'a', value: string } | { type: 'b', value: int }). Declaration start char: 0, length: 68
 
 @discriminator('type')
 output outputInlineDiscriminatedUnion1 typeA | typeB | { type: 'c', value: int } = { type: 'a', value: 'a' }
@@ -293,5 +293,5 @@ output outputInlineDiscriminatedUnion2 typeA | typeB | ({ type: 'c', value: int 
 
 @discriminator('type')
 output outputInlineDiscriminatedUnion3 (typeA | typeB)? = null
-//@[7:38) Output outputInlineDiscriminatedUnion3. Type: null | { type: 'a', value: string } | { type: 'b', value: int }. Declaration start char: 0, length: 85
+//@[7:38) Output outputInlineDiscriminatedUnion3. Type: null | ({ type: 'a', value: string } | { type: 'b', value: int }). Declaration start char: 0, length: 85
 

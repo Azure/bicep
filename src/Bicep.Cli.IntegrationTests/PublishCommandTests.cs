@@ -168,12 +168,16 @@ namespace Bicep.Cli.IntegrationTests
             {
                 requiredArgs.AddRange(new List<string> { "--documentationUri", documentationUri });
             }
+            if (publishSource)
+            {
+                requiredArgs.Add("--with-source");
+            }
 
             string[] args = requiredArgs.ToArray();
 
             var (output, error, result) = await Bicep(settings, args);
             result.Should().Be(0);
-            output.Should().BeEmpty();
+            output.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
             AssertNoErrors(error);
 
             using var expectedCompiledStream = new FileStream(compiledFilePath, FileMode.Open, FileAccess.Read);
@@ -195,7 +199,7 @@ namespace Bicep.Cli.IntegrationTests
             // publish the same content again without --force
             var (output2, error2, result2) = await Bicep(settings, args);
             result2.Should().Be(1);
-            output2.Should().BeEmpty();
+            output2.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
             error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
 
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
@@ -212,7 +216,7 @@ namespace Bicep.Cli.IntegrationTests
             requiredArgs.Add("--force");
             var (output3, error3, result3) = await Bicep(settings, requiredArgs.ToArray());
             result3.Should().Be(0);
-            output3.Should().BeEmpty();
+            output3.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
             AssertNoErrors(error3);
 
             // compile to get what the new expected main.json should be
@@ -236,18 +240,16 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithPublishSources), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
-        public async Task Publish_ValidArmTemplateFile_AllValidDataSets_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
+        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Publish_ValidArmTemplateFile_AllValidDataSets_ShouldSucceed(DataSet dataSet)
         {
-            TestContext.WriteLine(testName);
-
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 
             var registryStr = "example.com";
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource, (registryUri, repository)).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: false, (registryUri, repository)).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -255,7 +257,7 @@ namespace Bicep.Cli.IntegrationTests
             // mock client factory caches the clients
             var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
             result.Should().Be(0);
@@ -288,6 +290,33 @@ namespace Bicep.Cli.IntegrationTests
 
             // There are no Bicep sources, it's only an ARM template being published, so even if published with sources, there should be no sources
             testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);
+        }
+
+        [TestMethod]
+        public async Task Publish_ValidArmTemplateFile_WithSource_ShouldFail()
+        {
+            var dataSet = DataSets.AllDataSets.Where(ds => ds.IsValid).First();
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+
+            var registryStr = "example.com";
+            var registryUri = new Uri($"https://{registryStr}");
+            var repository = $"test/{dataSet.Name}".ToLowerInvariant();
+
+            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: true, (registryUri, repository)).Object;
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
+
+            // mock client factory caches the clients
+            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
+
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
+
+            var args = new List<string> { "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1", "--with-source" };
+            var (output, error, result) = await Bicep(settings, args.ToArray());
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().MatchRegex("Cannot publish with source when the target is an ARM template file.");
         }
 
         [TestMethod]
@@ -440,6 +469,11 @@ namespace Bicep.Cli.IntegrationTests
                 manifest.Should().MatchRegex($@"""org.opencontainers.image.documentation"": ""{documentationUri}""");
             }
         }
+
+        private static IEnumerable<object[]> GetValidDataSets() => DataSets
+            .AllDataSets
+            .Where(ds => ds.IsValid == true)
+            .ToDynamicTestData();
 
         private static IEnumerable<object[]> GetValidDataSetsWithPublishSources()
         {

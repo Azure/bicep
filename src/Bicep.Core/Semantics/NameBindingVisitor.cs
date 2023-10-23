@@ -319,10 +319,12 @@ namespace Bicep.Core.Semantics
         }
 
         private Symbol LookupSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall) =>
-            this.LookupLocalSymbolByName(identifierSyntax, isFunctionCall) ?? LookupGlobalSymbolByName(identifierSyntax, isFunctionCall);
+            this.LookupLocalSymbolByName(identifierSyntax) ?? LookupGlobalSymbolByName(identifierSyntax, isFunctionCall);
 
-        private Symbol? LookupLocalSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
+        private Symbol? LookupLocalSymbolByName(IdentifierSyntax identifierSyntax)
         {
+            Func<Symbol, bool> symbolFilter = _ => true;
+
             // iterating over a stack gives you the items in the same
             // order as if you popped each one but without modifying the stack
             foreach (var scope in activeScopes)
@@ -333,13 +335,18 @@ namespace Bicep.Core.Semantics
                 if (symbol != null)
                 {
                     // found a symbol - return it
-                    return symbol;
+                    return symbolFilter(symbol) ? symbol : null;
                 }
 
                 if (scope.ScopeResolution == ScopeResolution.GlobalsOnly)
                 {
                     // don't inherit outer scope variables
                     break;
+                }
+
+                if (scope.ScopeResolution == ScopeResolution.InheritFunctionsOnly)
+                {
+                    symbolFilter = symbol => symbol is DeclaredFunctionSymbol;
                 }
             }
 

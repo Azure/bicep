@@ -30,13 +30,13 @@ namespace Bicep.Core.UnitTests.Assertions
         protected override string Identifier => "OciArtifactRegistry";
 
         public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModulesWithSources()
-            => HaveValidCachedModules(withSources: true);
+            => HaveValidCachedModules(withSource: true);
         public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModulesWithoutSources()
-            => HaveValidCachedModules(withSources: false);
+            => HaveValidCachedModules(withSource: false);
 
-        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModules(bool? withSources = null)
+        public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModules(bool? withSource = null)
         {
-            ShouldHaveValidCachedModules(Subject.CacheRootDirectory, withSources);
+            ShouldHaveValidCachedModules(Subject.CacheRootDirectory, withSource);
             return new(this);
         }
 
@@ -48,13 +48,13 @@ namespace Bicep.Core.UnitTests.Assertions
             }
         }
 
-        private static void ShouldHaveValidCachedModules(string cacheRootDirectory, bool? withSources = null)
+        private static void ShouldHaveValidCachedModules(string cacheRootDirectory, bool? withSource = null)
         {
             var modules = CachedModules.GetCachedRegistryModules(cacheRootDirectory);
             modules.Should().HaveCountGreaterThan(0);
-            if (withSources.HasValue)
+            if (withSource.HasValue)
             {
-                modules.Should().AllSatisfy(m => m.HasSourceLayer.Should().Be(withSources.Value));
+                modules.Should().AllSatisfy(m => m.HasSourceLayer.Should().Be(withSource.Value));
             }
         }
     }
