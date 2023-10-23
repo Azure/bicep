@@ -3,21 +3,38 @@
 
 using System.Collections.Generic;
 using Bicep.Core.Features;
+using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces;
 
+public record TypesProviderDescriptor
+{
+    public TypesProviderDescriptor(string name, string? alias = null, SyntaxBase? path = null, string? version = null)
+    {
+        Name = name;
+        Alias = alias ?? name;
+        Path = path;
+        Version = version;
+    }
+
+    public string Name { get; }
+
+    public string Alias { get; }
+
+    public SyntaxBase? Path { get; }
+
+    public string? Version { get; }
+}
+
 public interface INamespaceProvider
 {
     NamespaceType? TryGetNamespace(
-        string providerName,
-        string aliasName,
+        TypesProviderDescriptor typesProviderDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
-        BicepSourceFileKind sourceFileKind,
-        string? providerVersion = null
-    );
+        BicepSourceFileKind sourceFileKind);
 
     IEnumerable<string> AvailableNamespaces { get; }
 }

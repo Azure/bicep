@@ -39,12 +39,17 @@ namespace Bicep.Core.IntegrationTests
 
             public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new[] { SystemNamespaceType.BuiltInName });
 
-            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind, string? providerVersion = null) => providerName switch
-            {
-                SystemNamespaceType.BuiltInName => SystemNamespaceType.Create(aliasName, features, sourceFileKind),
-                { } _ when builderDict.TryGetValue(providerName) is { } builderFunc => builderFunc(aliasName),
-                _ => null,
-            };
+            public NamespaceType? TryGetNamespace(
+                TypesProviderDescriptor typesProviderDescriptor,
+                ResourceScope resourceScope,
+                IFeatureProvider features,
+                BicepSourceFileKind sourceFileKind)
+                    => typesProviderDescriptor.Name switch
+                    {
+                        SystemNamespaceType.BuiltInName => SystemNamespaceType.Create(typesProviderDescriptor.Alias, features, sourceFileKind),
+                        { } _ when builderDict.TryGetValue(typesProviderDescriptor.Name) is { } builderFunc => builderFunc(typesProviderDescriptor.Alias),
+                        _ => default,
+                    };
         }
 
         [NotNull]

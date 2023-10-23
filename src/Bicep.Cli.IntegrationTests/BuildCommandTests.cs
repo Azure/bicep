@@ -104,48 +104,62 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DataRow("br:mcr.microsoft.com/bicep/providers/az", true)]
-        [DataRow("br/public:az", true)]
-        [DataRow("br/contoso:az", true)]
+        [DataRow("br:mcr.microsoft.com/bicep/providers/az", true, LanguageConstants.BicepPublicMcrRegistry)]
+        [DataRow("br/public:az", true, LanguageConstants.BicepPublicMcrRegistry)]
+        [DataRow("br/contoso:az", true, "contoso.azurecr.io")]
+        [DataRow("br/mcr:az", true, LanguageConstants.BicepPublicMcrRegistry)]
+        [DataRow("br:contoso.azurecr.io/bicep/providers/az", true, "contoso.azurecr.io")]
         // Negative
         [DataRow("az", false)]
-        public async Task Build_Valid_SingleFile_WithProviderDeclarationStatement(string providerDeclarationSyntax, bool shouldSucceed)
+        [DataRow("br:invalid.azureacr.io/bicep/providers/az", false)]
+        [DataRow("br/unknown:az", false)]
+        public async Task Build_Valid_SingleFile_WithProviderDeclarationStatement(string providerDeclarationSyntax, bool shouldSucceed, string containingFolder = "")
         {
             // SETUP
             // 1. create a mock registry client
-            var mcrUri = new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}");
-            var registyUris = new[] { mcrUri };
+            var registyUris = new[] {
+                new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}"),
+                new Uri($"https://contoso.azurecr.io"),
+                new Uri($"https://invalid.azureacr.io"),
+            };
             var repository = "bicep/providers/az";
-            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients(false, (mcrUri, repository));
-            var myClient = blobClients[(mcrUri, repository)];
-
+            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients(
+                false,
+                registyUris.Select(uri => (uri, repository)).ToArray()
+            );
             // 2. upload a manifest and its blob layer
             var manifestStr = $$"""
+{
+    "schemaVersion": 2,
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
+    "config": {
+    "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
+    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "size": 2
+    },
+    "layers": [
+    {
+        "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
+        "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0
+    }
+    ],
+    "annotations": {
+    "bicep.serialization.format": "v1",
+    "org.opencontainers.image.created": "2023-05-04T16:40:05Z"
+    }
+}
+""";
+            foreach (var ((uri, _), client) in blobClients)
+            {
+                if (uri.Host.Contains("invalid"))
                 {
-                  "schemaVersion": 2,
-                  "mediaType": "application/vnd.oci.image.manifest.v1+json",
-                  "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
-                  "config": {
-                    "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
-                    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-                    "size": 2
-                  },
-                  "layers": [
-                    {
-                      "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
-                      "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                      "size": 0
-                    }
-                  ],
-                  "annotations": {
-                    "bicep.serialization.format": "v1",
-                    "org.opencontainers.image.created": "2023-05-04T16:40:05Z"
-                  }
+                    continue;
                 }
-                """;
-
-            await myClient.SetManifestAsync(BinaryData.FromString(manifestStr), "2.0.0");
-            await myClient.UploadBlobAsync(new MemoryStream());
+                await client.SetManifestAsync(BinaryData.FromString(manifestStr), "2.0.0");
+                await client.UploadBlobAsync(new MemoryStream());
+            }
 
             // 3. create a main.bicep and save it to a output directory
             var bicepFile = $"""
@@ -162,6 +176,10 @@ import '{providerDeclarationSyntax}@2.0.0'
     "providerAliases" : {
         "br": {
             "contoso": {
+                "registry": "contoso.azurecr.io",
+                "providerPath": "bicep/providers"
+            },
+            "mcr": {
                 "registry": "mcr.microsoft.com",
                 "providerPath": "bicep/providers"
             }
@@ -194,7 +212,7 @@ import '{providerDeclarationSyntax}@2.0.0'
             {
                 // 7. assert the provider files were restored to the cache directory
                 Directory.Exists(settings.FeatureOverrides.CacheRootDirectory).Should().BeTrue();
-                var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ModuleReferenceSchemes.Oci, LanguageConstants.BicepPublicMcrRegistry, "bicep$providers$az", "2.0.0$");
+                var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ModuleReferenceSchemes.Oci, containingFolder, "bicep$providers$az", "2.0.0$");
                 Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });
             }
         }

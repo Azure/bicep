@@ -26,7 +26,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.MicrosoftGraph
 
         private static NamespaceType GetMicrosoftGraphNamespaceType()
         {
-            return BicepTestConstants.NamespaceProvider.TryGetNamespace(MicrosoftGraphBuildInName, MicrosoftGraphBuildInName, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile, null)!;
+            return BicepTestConstants.NamespaceProvider.TryGetNamespace(new(MicrosoftGraphBuildInName), ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
         }
 
         [TestMethod]

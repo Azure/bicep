@@ -25,26 +25,28 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
     });
 
     public NamespaceType? TryGetNamespace(
-        string providerName,
-        string aliasName,
+        TypesProviderDescriptor typesProviderDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider featureProvider,
-        BicepSourceFileKind sourceFileKind,
-        string? version = null)
+        BicepSourceFileKind sourceFileKind)
     {
-        if (defaultNamespaceProvider.TryGetNamespace(providerName, aliasName, resourceScope, featureProvider, sourceFileKind) is { } namespaceType)
+        if (defaultNamespaceProvider.TryGetNamespace(
+            typesProviderDescriptor,
+            resourceScope,
+            featureProvider,
+            sourceFileKind) is { } namespaceType)
         {
             return namespaceType;
         }
 
-        switch (providerName)
+        return typesProviderDescriptor.Name switch
         {
-            case FooNamespaceType.BuiltInName:
-                return FooNamespaceType.Create(aliasName);
-            case BarNamespaceType.BuiltInName:
-                return BarNamespaceType.Create(aliasName);
-        }
-
-        return default;
+            FooNamespaceType.BuiltInName
+                => FooNamespaceType.Create(typesProviderDescriptor.Alias),
+            BarNamespaceType.BuiltInName
+                => BarNamespaceType.Create(typesProviderDescriptor.Alias),
+            _
+                => default,
+        };
     }
 }

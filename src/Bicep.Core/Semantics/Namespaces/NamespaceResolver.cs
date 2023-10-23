@@ -38,7 +38,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             void TryAddBuiltInNamespace(string @namespace)
             {
-                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope, features, sourceFile.FileKind) is not { } namespaceType)
+                if (namespaceProvider.TryGetNamespace(new(@namespace), targetScope, features, sourceFile.FileKind) is not { } namespaceType)
                 {
                     // this namespace doesn't match a known built-in namespace
                     return;
