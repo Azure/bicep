@@ -18,7 +18,7 @@ public record ExperimentalFeaturesEnabled(
     bool TestFramework,
     bool Assertions,
     bool DynamicTypeLoading,
-    bool ThirdPartyTypes,
+    bool ProviderRegistry,
     bool MicrosoftGraphPreview,
     bool CompileTimeImports,
     bool PublishSource)

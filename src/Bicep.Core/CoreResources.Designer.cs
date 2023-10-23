@@ -198,9 +198,9 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to Third party types.
         /// </summary>
-        internal static string ExperimentalFeatureNames_ThirdPartyTypes {
+        internal static string ExperimentalFeatureNames_ProviderRegistry {
             get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_ThirdPartyTypes", resourceCulture);
+                return ResourceManager.GetString("ExperimentalFeatureNames_ProviderRegistry", resourceCulture);
             }
         }
 
