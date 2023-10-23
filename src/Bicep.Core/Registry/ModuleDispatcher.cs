@@ -42,6 +42,10 @@ namespace Bicep.Core.Registry
             => Registries(parentModuleUri).Keys.OrderBy(s => s).ToImmutableArray();
 
         public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference(string reference, Uri parentModuleUri)
+            => TryGetArtifactReference(ArtifactType.Module, reference, parentModuleUri);
+
+
+        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri)
         {
             var registries = Registries(parentModuleUri);
             var parts = reference.Split(':', 2, StringSplitOptions.None);
@@ -51,7 +55,7 @@ namespace Bicep.Core.Registry
                     // local path reference
                     if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
                     {
-                        return localRegistry.TryParseArtifactReference(null, parts[0]);
+                        return localRegistry.TryParseArtifactReference(artifactType, null, parts[0]);
                     }
 
                     return new(x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes(parentModuleUri)));
@@ -73,7 +77,7 @@ namespace Bicep.Core.Registry
                         // the scheme is recognized
                         var rawValue = parts[1];
 
-                        return registry.TryParseArtifactReference(aliasName, rawValue);
+                        return registry.TryParseArtifactReference(artifactType, aliasName, rawValue);
                     }
 
                     // unknown scheme
@@ -85,14 +89,14 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference(IArtifactReferenceSyntax moduleDeclaration, Uri parentModuleUri)
+        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactDeclaration, Uri parentModuleUri)
         {
-            if (!SyntaxHelper.TryGetForeignTemplatePath(moduleDeclaration).IsSuccess(out var moduleReferenceString, out var failureBuilder))
+            if (!SyntaxHelper.TryGetForeignTemplatePath(artifactDeclaration).IsSuccess(out var artifactReferenceString, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
 
-            return this.TryGetModuleReference(moduleReferenceString, parentModuleUri);
+            return this.TryGetArtifactReference(artifactDeclaration.GetArtifactType(), artifactReferenceString, parentModuleUri);
         }
 
         public RegistryCapabilities GetRegistryCapabilities(ArtifactReference artifactReference)
@@ -126,32 +130,32 @@ namespace Bicep.Core.Registry
             return ArtifactRestoreStatus.Succeeded;
         }
 
-        public ResultWithDiagnostic<Uri> TryGetLocalModuleEntryPointUri(ArtifactReference moduleReference)
+        public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference artifactReference)
         {
-            var configuration = configurationManager.GetConfiguration(moduleReference.ParentModuleUri);
-            // has restore already failed for this module?
-            if (this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
+            var configuration = configurationManager.GetConfiguration(artifactReference.ParentModuleUri);
+            // has restore already failed for this artifact?
+            if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
             {
                 return new(restoreFailureBuilder);
             }
 
-            var registry = this.GetRegistry(moduleReference);
-            return registry.TryGetLocalArtifactEntryPointUri(moduleReference);
+            var registry = this.GetRegistry(artifactReference);
+            return registry.TryGetLocalArtifactEntryPointUri(artifactReference);
         }
 
-        public async Task<bool> RestoreModules(IEnumerable<ArtifactReference> moduleReferences, bool forceModulesRestore = false)
+        public async Task<bool> RestoreModules(IEnumerable<ArtifactReference> references, bool forceRestore = false)
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
-            if (!forceModulesRestore &&
-                moduleReferences.All(module => this.GetArtifactRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
+            if (!forceRestore &&
+                references.All(module => this.GetArtifactRestoreStatus(module, out _) == ArtifactRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything
                 return false;
             }
 
             // many module declarations can point to the same module
-            var uniqueReferences = moduleReferences.Distinct();
+            var uniqueReferences = references.Distinct();
 
             // split modules refs by registry
             var referencesByRegistry = uniqueReferences.ToLookup(@ref => Registries(@ref.ParentModuleUri)[@ref.Scheme]);
@@ -160,7 +164,7 @@ namespace Bicep.Core.Registry
             foreach (var registry in referencesByRegistry.Select(byRegistry => byRegistry.Key))
             {
                 // if we're asked to purge modules cache
-                if (forceModulesRestore)
+                if (forceRestore)
                 {
                     var forceModulesRestoreStatuses = await registry.InvalidateArtifactsCache(referencesByRegistry[registry]);
 
@@ -183,18 +187,18 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public async Task PublishModule(ArtifactReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri)
+        public async Task PublishModule(ArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri)
         {
-            var registry = this.GetRegistry(moduleReference);
+            var registry = this.GetRegistry(reference);
 
             var description = DescriptionHelper.TryGetFromArmTemplate(compiledArmTemplate);
-            await registry.PublishArtifact(moduleReference, compiledArmTemplate, bicepSources, documentationUri, description);
+            await registry.PublishArtifact(reference, compiledArmTemplate, bicepSources, documentationUri, description);
         }
 
-        public async Task<bool> CheckModuleExists(ArtifactReference moduleReference)
+        public async Task<bool> CheckModuleExists(ArtifactReference reference)
         {
-            var registry = this.GetRegistry(moduleReference);
-            return await registry.CheckArtifactExists(moduleReference);
+            var registry = this.GetRegistry(reference);
+            return await registry.CheckArtifactExists(reference);
         }
 
         public void PruneRestoreStatuses()
@@ -212,18 +216,18 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private IArtifactRegistry GetRegistry(ArtifactReference moduleReference) =>
-            Registries(moduleReference.ParentModuleUri).TryGetValue(moduleReference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected moduleDeclaration reference scheme '{moduleReference.Scheme}'.");
+        private IArtifactRegistry GetRegistry(ArtifactReference reference) =>
+            Registries(reference.ParentModuleUri).TryGetValue(reference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected artifactDeclaration reference scheme '{reference.Scheme}'.");
 
-        public SourceArchive? TryGetModuleSources(ArtifactReference moduleReference)
+        public SourceArchive? TryGetModuleSources(ArtifactReference reference)
         {
-            var registry = this.GetRegistry(moduleReference);
-            return registry.TryGetSource(moduleReference);
+            var registry = this.GetRegistry(reference);
+            return registry.TryGetSource(reference);
         }
 
-        private bool HasRestoreFailed(ArtifactReference moduleReference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private bool HasRestoreFailed(ArtifactReference reference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            if (this.restoreFailures.TryGetValue(new(configuration.Cloud, moduleReference), out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))
+            if (this.restoreFailures.TryGetValue(new(configuration.Cloud, reference), out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))
             {
                 // the restore operation failed on the module previously
                 // and the record of the failure has not yet expired
@@ -237,7 +241,7 @@ namespace Bicep.Core.Registry
 
         private static bool IsFailureInfoExpired(RestoreFailureInfo failureInfo, DateTime dateTime) => dateTime >= failureInfo.Expiration;
 
-        private void SetRestoreFailure(ArtifactReference moduleReference, RootConfiguration configuration, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder)
+        private void SetRestoreFailure(ArtifactReference reference, RootConfiguration configuration, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder)
         {
             // as the user is typing, the modules will keep getting recompiled
             // we can't keep retrying syntactically correct references to non-existent modules on every key press
@@ -245,39 +249,39 @@ namespace Bicep.Core.Registry
             // we're not not doing sliding expiration because we want a retry to happen eventually
             // (we may consider adding an ability to immediately retry to the UX in the future as well)
             var expiration = DateTime.UtcNow.Add(FailureExpirationInterval);
-            this.restoreFailures.TryAdd(new(configuration.Cloud, moduleReference), new RestoreFailureInfo(moduleReference, failureBuilder, expiration));
+            this.restoreFailures.TryAdd(new(configuration.Cloud, reference), new RestoreFailureInfo(reference, failureBuilder, expiration));
         }
 
         private class RestoreFailureKey
         {
             private readonly CloudConfiguration configuration;
 
-            private readonly ArtifactReference moduleReference;
+            private readonly ArtifactReference reference;
 
-            public RestoreFailureKey(CloudConfiguration configuration, ArtifactReference moduleReference)
+            public RestoreFailureKey(CloudConfiguration configuration, ArtifactReference reference)
             {
                 this.configuration = configuration;
-                this.moduleReference = moduleReference;
+                this.reference = reference;
             }
 
             public override bool Equals(object? obj) =>
                 obj is RestoreFailureKey other &&
                 this.configuration.Equals(other.configuration) &&
-                this.moduleReference.Equals(other.moduleReference);
+                this.reference.Equals(other.reference);
 
-            public override int GetHashCode() => HashCode.Combine(this.configuration, this.moduleReference);
+            public override int GetHashCode() => HashCode.Combine(this.configuration, this.reference);
         }
 
         private class RestoreFailureInfo
         {
-            public RestoreFailureInfo(ArtifactReference moduleReference, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder, DateTime expiration)
+            public RestoreFailureInfo(ArtifactReference reference, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder, DateTime expiration)
             {
-                this.ModuleReference = moduleReference;
+                this.Reference = reference;
                 this.FailureBuilder = failureBuilder;
                 this.Expiration = expiration;
             }
 
-            public ArtifactReference ModuleReference { get; }
+            public ArtifactReference Reference { get; }
 
             public DiagnosticBuilder.ErrorBuilderDelegate FailureBuilder { get; }
 

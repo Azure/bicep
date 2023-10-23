@@ -12,6 +12,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -991,7 +992,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP162",
                 "Expected a loop item variable identifier or \"(\" at this location.");
 
-            public ErrorDiagnostic ScopeUnsupportedOnChildResource(string parentIdentifier) => new(
+            public ErrorDiagnostic ScopeUnsupportedOnChildResource() => new(
                 TextSpan,
                 "BCP164",
                 $"A child resource's scope is computed based on the scope of its ancestor resource. This means that using the \"{LanguageConstants.ResourceScopePropertyName}\" property on a child resource is unsupported.");
@@ -1761,7 +1762,7 @@ namespace Bicep.Core.Diagnostics
                 var message = new StringBuilder("The provided index value of \"").Append(indexSought).Append("\" is not valid for type \"").Append(typeName).Append("\".");
                 if (tupleLength > 0)
                 {
-                    message.Append(" Indexes for this type must be between 0 and ").Append(tupleLength - 1).Append(".");
+                    message.Append(" Indexes for this type must be between 0 and ").Append(tupleLength - 1).Append('.');
                 }
 
                 return new(TextSpan, "BCP311", message.ToString());
@@ -2088,6 +2089,28 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP376",
                 $"The \"{name}\" symbol cannot be imported because imports of kind {exportMetadataKind} are not supported in files of kind {sourceFileKind}.");
+
+            public ErrorDiagnostic InvalidProviderAliasName(string aliasName) => new(
+                TextSpan,
+                "BCP377",
+                $"The provider alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
+
+            public ErrorDiagnostic InvalidOciArtifactProviderAliasRegistryNullOrUndefined(string aliasName, string? configurationPath) => new(
+                TextSpan,
+                "BCP378",
+                $"The OCI artifact provider alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configurationPath)} is invalid. The \"registry\" property cannot be null or undefined.");
+
+            public ErrorDiagnostic OciArtifactProviderAliasNameDoesNotExistInConfiguration(string aliasName, string? configurationPath) => new(
+                TextSpan,
+                "BCP379",
+                $"The OCI artifact provider alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}.");
+
+            public ErrorDiagnostic UnsupportedArtifactType(ArtifactType artifactType) => new(
+                TextSpan,
+                "BCP380",
+                $"Artifacts of type: \"{artifactType}\" are not supported."
+            );
+            
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

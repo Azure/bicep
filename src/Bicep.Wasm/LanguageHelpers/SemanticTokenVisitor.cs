@@ -366,5 +366,19 @@ namespace Bicep.Wasm.LanguageHelpers
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitAssertDeclarationSyntax(syntax);
         }
+
+        public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
+        {
+            if (syntax.Key is StringSyntax @string)
+            {
+                Visit(@string);
+            }
+            else
+            {
+                AddTokenType(syntax.Key, SemanticTokenType.TypeParameter);
+            }
+            Visit(syntax.Colon);
+            Visit(syntax.Value);
+        }
     }
 }

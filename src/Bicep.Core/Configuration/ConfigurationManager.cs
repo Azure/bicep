@@ -99,6 +99,7 @@ namespace Bicep.Core.Configuration
                 return new(
                     configuration.Cloud,
                     configuration.ModuleAliases,
+                    configuration.ProviderAliases,
                     configuration.Analyzers,
                     configuration.CacheRootDirectory,
                     configuration.ExperimentalFeaturesEnabled,

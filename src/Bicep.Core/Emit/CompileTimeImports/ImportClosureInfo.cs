@@ -230,7 +230,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
     private static ArtifactReference GetImportReference(ImportedSymbol symbol)
     {
-        if (symbol.TryGetModuleReference().IsSuccess(out var moduleReference))
+        if (symbol.TryGetArtifactReference().IsSuccess(out var moduleReference))
         {
             return moduleReference;
         }
@@ -240,7 +240,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
     private static ArtifactReference GetImportReference(WildcardImportSymbol symbol)
     {
-        if (symbol.TryGetModuleReference().IsSuccess(out var moduleReference))
+        if (symbol.TryGetArtifactReference().IsSuccess(out var moduleReference))
         {
             return moduleReference;
         }

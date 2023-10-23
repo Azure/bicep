@@ -11,23 +11,23 @@ using Bicep.Core.SourceCode;
 
 namespace Bicep.Core.Registry
 {
-    public interface IModuleDispatcher : IModuleReferenceFactory
+    public interface IModuleDispatcher : IArtifactReferenceFactory
     {
-        RegistryCapabilities GetRegistryCapabilities(ArtifactReference moduleReference);
+        RegistryCapabilities GetRegistryCapabilities(ArtifactReference reference);
 
-        ArtifactRestoreStatus GetArtifactRestoreStatus(ArtifactReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
+        ArtifactRestoreStatus GetArtifactRestoreStatus(ArtifactReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
 
-        ResultWithDiagnostic<Uri> TryGetLocalModuleEntryPointUri(ArtifactReference moduleReference);
+        ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
 
-        Task<bool> RestoreModules(IEnumerable<ArtifactReference> moduleReferences, bool forceModulesRestore = false);
+        Task<bool> RestoreModules(IEnumerable<ArtifactReference> references, bool forceRestore = false);
 
-        Task<bool> CheckModuleExists(ArtifactReference moduleReference);
+        Task<bool> CheckModuleExists(ArtifactReference reference);
 
-        Task PublishModule(ArtifactReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri);
+        Task PublishModule(ArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri);
 
         void PruneRestoreStatuses();
 
         // Retrieves the sources that have been restored along with the module into the cache (if available)
-        SourceArchive? TryGetModuleSources(ArtifactReference moduleReference);
+        SourceArchive? TryGetModuleSources(ArtifactReference reference);
     }
 }

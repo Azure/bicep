@@ -1055,7 +1055,7 @@ param foo|bar = true
                 tag);
 
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            moduleDispatcher.Setup(m => m.TryGetModuleReference(moduleDeclarationSyntax, parentModuleUri)).Returns(ResultHelper.Create(ociArtifactModuleReference, null));
+            moduleDispatcher.Setup(m => m.TryGetArtifactReference(moduleDeclarationSyntax, parentModuleUri)).Returns(ResultHelper.Create(ociArtifactModuleReference, null));
 
             return moduleDispatcher.Object;
         }

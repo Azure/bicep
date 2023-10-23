@@ -24,26 +24,13 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class OciArtifactRegistryHelper
     {
-        public static OciModuleReference CreateModuleReferenceMock(
-            string registry,
-            string repository,
-            Uri parentModuleUri,
-            string? digest,
-            string? tag)
-        {
-            var artifactReferenceMock = StrictMock.Of<IOciArtifactReference>();
-            artifactReferenceMock.SetupGet(m => m.Registry).Returns(registry);
-            artifactReferenceMock.SetupGet(m => m.Repository).Returns(repository);
-            artifactReferenceMock.SetupGet(m => m.Digest).Returns(digest);
-            artifactReferenceMock.SetupGet(m => m.Tag).Returns(tag);
-            artifactReferenceMock.SetupGet(m => m.ArtifactId).Returns($"{registry}/{repository}:{tag ?? digest}");
+        public static OciArtifactReference CreateModuleReferenceMock(string registry, string repository, Uri parentModuleUri, string? digest, string? tag)
+            => new(ArtifactType.Module, registry, repository, tag, digest, parentModuleUri);
 
-            return new OciModuleReference(artifactReferenceMock.Object, parentModuleUri);
-        }
 
-        public static OciModuleReference CreateModuleReference(string registry, string repository, string? tag, string? digest)
+        public static OciArtifactReference CreateModuleReference(string registry, string repository, string? tag, string? digest)
         {
-            OciModuleReference.TryParse(null, $"{registry}/{repository}:{tag}", BicepTestConstants.BuiltInConfiguration, new Uri("file:///main.bicep")).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParse(ArtifactType.Module, null, $"{registry}/{repository}:{tag}", BicepTestConstants.BuiltInConfiguration, new Uri("file:///main.bicep")).IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 

@@ -21,13 +21,13 @@ namespace Bicep.Core.Workspaces
     public class SourceFileGroupingBuilder
     {
         private readonly IFileResolver fileResolver;
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IModuleDispatcher dispatcher;
         private readonly IReadOnlyWorkspace workspace;
 
         private readonly Dictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri;
         private readonly ConcurrentDictionary<ISourceFile, Dictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> uriResultByArtifactReference;
 
-        private readonly bool forceModulesRestore;
+        private readonly bool forceRestore;
 
         private SourceFileGroupingBuilder(
             IFileResolver fileResolver,
@@ -36,11 +36,11 @@ namespace Bicep.Core.Workspaces
             bool forceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
+            this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
             this.uriResultByArtifactReference = new();
             this.fileResultByUri = new();
-            this.forceModulesRestore = forceModulesRestore;
+            this.forceRestore = forceModulesRestore;
         }
 
         private SourceFileGroupingBuilder(
@@ -48,14 +48,14 @@ namespace Bicep.Core.Workspaces
             IModuleDispatcher moduleDispatcher,
             IReadOnlyWorkspace workspace,
             SourceFileGrouping current,
-            bool forceforceModulesRestore = false)
+            bool forceArtifactRestore = false)
         {
             this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
+            this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
             this.uriResultByArtifactReference = new(current.UriResultByArtifactReference.Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToDictionary(p => p.Key, p => p.Value))));
             this.fileResultByUri = current.FileResultByUri.Where(x => x.Value.TryUnwrap() is not null).ToDictionary(x => x.Key, x => x.Value);
-            this.forceModulesRestore = forceforceModulesRestore;
+            this.forceRestore = forceArtifactRestore;
         }
 
         public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, IFeatureProviderFactory featuresFactory, bool forceModulesRestore = false)
@@ -161,7 +161,7 @@ namespace Bicep.Core.Workspaces
                 {
                     continue;
                 }
-                var (childModuleReference, uriResult) = GetModuleRestoreResult(file.FileUri, restorable);
+                var (childModuleReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
 
                 uriResultByArtifactReference.GetOrAdd(file, f => new())[restorable] = uriResult;
 
@@ -181,40 +181,40 @@ namespace Bicep.Core.Workspaces
             }
         }
 
-        private (ArtifactReference? reference, Result<Uri, UriResolutionError> result) GetModuleRestoreResult(Uri parentFileUri, IArtifactReferenceSyntax foreignTemplateReference)
+        private (ArtifactReference? reference, Result<Uri, UriResolutionError> result) GetArtifactRestoreResult(Uri parentFileUri, IArtifactReferenceSyntax referenceSyntax)
         {
-            if (!moduleDispatcher.TryGetModuleReference(foreignTemplateReference, parentFileUri).IsSuccess(out var moduleReference, out var referenceResolutionError))
+            if (!dispatcher.TryGetArtifactReference(referenceSyntax, parentFileUri).IsSuccess(out var artifactReference, out var referenceResolutionError))
             {
                 // module reference is not valid
                 return (null, new(new UriResolutionError(referenceResolutionError, false)));
             }
 
-            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference).IsSuccess(out var moduleFileUri, out var moduleGetPathFailureBuilder))
+            if (!dispatcher.TryGetLocalArtifactEntryPointUri(artifactReference).IsSuccess(out var moduleFileUri, out var moduleGetPathFailureBuilder))
             {
-                return (moduleReference, new(new UriResolutionError(moduleGetPathFailureBuilder, false)));
+                return (artifactReference, new(new UriResolutionError(moduleGetPathFailureBuilder, false)));
             }
 
-            if (forceModulesRestore)
+            if (forceRestore)
             {
                 //override the status to force restore
-                return (moduleReference, new(new UriResolutionError(x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference), true)));
+                return (artifactReference, new(new UriResolutionError(x => x.ModuleRequiresRestore(artifactReference.FullyQualifiedReference), true)));
             }
 
-            var restoreStatus = moduleDispatcher.GetArtifactRestoreStatus(moduleReference, out var restoreErrorBuilder);
+            var restoreStatus = dispatcher.GetArtifactRestoreStatus(artifactReference, out var restoreErrorBuilder);
             switch (restoreStatus)
             {
                 case ArtifactRestoreStatus.Unknown:
                     // we have not yet attempted to restore the module, so let's do it
-                    return (moduleReference, new(new UriResolutionError(x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference), true)));
+                    return (artifactReference, new(new UriResolutionError(x => x.ModuleRequiresRestore(artifactReference.FullyQualifiedReference), true)));
                 case ArtifactRestoreStatus.Failed:
                     // the module has not yet been restored or restore failed
                     // in either case, set the error
-                    return (moduleReference, new(new UriResolutionError(restoreErrorBuilder ?? (x => x.ModuleRestoreFailed(moduleReference.FullyQualifiedReference)), false)));
+                    return (artifactReference, new(new UriResolutionError(restoreErrorBuilder ?? (x => x.ModuleRestoreFailed(artifactReference.FullyQualifiedReference)), false)));
                 default:
                     break;
             }
 
-            return (moduleReference, new(moduleFileUri));
+            return (artifactReference, new(moduleFileUri));
         }
 
         private ILookup<ISourceFile, ISourceFile> ReportFailuresForCycles()

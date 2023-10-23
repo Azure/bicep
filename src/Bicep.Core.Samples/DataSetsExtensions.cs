@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
@@ -72,12 +73,12 @@ namespace Bicep.Core.Samples
             {
                 var target = publishInfo.Metadata.Target;
 
-                if (!dispatcher.TryGetModuleReference(target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not OciModuleReference targetReference)
+                if (!dispatcher.TryGetArtifactReference(ArtifactType.Module, target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
 
-                Uri registryUri = new Uri($"https://{targetReference.Registry}");
+                Uri registryUri = new($"https://{targetReference.Registry}");
                 clients.Add((registryUri, targetReference.Repository));
             }
 
@@ -94,9 +95,9 @@ namespace Bicep.Core.Samples
                 .AddSingleton(featureProviderFactory)
                 ).Construct<IModuleDispatcher>();
 
-            foreach (var client in clients)
+            foreach (var (registryUri, repository) in clients)
             {
-                clientsBuilder.TryAdd((client.registryUri, client.repository), new MockRegistryBlobClient());
+                clientsBuilder.TryAdd((registryUri, repository), new MockRegistryBlobClient());
             }
 
             var repoToClient = clientsBuilder.ToImmutable();
@@ -133,7 +134,7 @@ namespace Bicep.Core.Samples
         public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory(bool enablePublishSource = false)
             => CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo>.Empty, enablePublishSource);
 
-        public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext testContext, bool enablePublishSource = false)
+        public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext _, bool enablePublishSource = false)
             => CreateMockTemplateSpecRepositoryFactory(dataSet.TemplateSpecs, enablePublishSource);
 
         public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo> templateSpecs, bool enablePublishSource = false)
@@ -148,7 +149,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, templateSpecInfo) in templateSpecs)
             {
-                if (!dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
+                if (!dispatcher.TryGetArtifactReference(ArtifactType.Module, templateSpecInfo.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
@@ -190,7 +191,7 @@ namespace Bicep.Core.Samples
                 .AddSingleton(featureProviderFactory)
                 ).Construct<IModuleDispatcher>();
 
-            var targetReference = dispatcher.TryGetModuleReference(target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
+            var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Module, target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
                 : throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
 
             var result = CompilationHelper.Compile(moduleSource);

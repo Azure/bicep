@@ -64,6 +64,14 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                   },
+                  "providerAliases": {
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "providerPath": "bicep/providers"
+                      }
+                    }
+                  },
                   "analyzers": {
                     "core": {
                       "verbose": false,
@@ -106,6 +114,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "testFramework": false,
                     "assertions": false,
                     "dynamicTypeLoading": false,
+                    "providerRegistry": false,
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false
@@ -168,6 +177,14 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                   },
+                  "providerAliases": {
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "providerPath": "bicep/providers"
+                      }
+                    }
+                  },
                   "analyzers": {},
                   "experimentalFeaturesEnabled": {
                     "symbolicNameCodegen": false,
@@ -180,6 +197,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "testFramework": false,
                     "assertions": false,
                     "dynamicTypeLoading": false,
+                    "providerRegistry": false,
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false
@@ -234,6 +252,14 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                   },
+                  "providerAliases": {
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "providerPath": "bicep/providers"
+                      }
+                    }
+                  },
                   "analyzers": {
                     "core": {
                       "verbose": false,
@@ -279,6 +305,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "testFramework": false,
                     "assertions": false,
                     "dynamicTypeLoading": false,
+                    "providerRegistry": false,
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false
@@ -483,6 +510,14 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                   },
+                  "providerAliases": {
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "providerPath": "bicep/providers"
+                      }
+                    }
+                  },
                   "analyzers": {
                     "core": {
                       "enabled": false,
@@ -573,6 +608,14 @@ namespace Bicep.Core.UnitTests.Configuration
                       }
                     }
                   },
+                  "providerAliases": {
+                    "br": {
+                      "public": {
+                        "registry": "mcr.microsoft.com",
+                        "providerPath": "bicep/providers"
+                      }
+                    }
+                  },
                   "analyzers": {
                     "core": {
                       "verbose": false,
@@ -609,6 +652,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "testFramework": false,
                     "assertions": false,
                     "dynamicTypeLoading": false,
+                    "providerRegistry": false,
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false
