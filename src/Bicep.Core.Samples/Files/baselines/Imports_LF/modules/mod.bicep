@@ -15,3 +15,9 @@ type buzz = {
 @minLength(3)
 @export()
 type pop = string
+
+func echo(input string) string => input
+
+@export()
+@description('Say hi to someone!')
+func greet(name string) string => 'Hi, ${name}!'

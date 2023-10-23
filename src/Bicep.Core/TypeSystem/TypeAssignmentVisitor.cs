@@ -1739,6 +1739,11 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name).ObjectRequiredForMethodAccess(baseType));
                 }
 
+                if (binder.GetSymbolInfo(syntax.BaseExpression) is WildcardImportSymbol && !features.UserDefinedFunctionsEnabled)
+                {
+                    errors.Add(DiagnosticBuilder.ForPosition(syntax).FuncDeclarationStatementsUnsupported());
+                }
+
                 foreach (TypeSymbol argumentType in this.GetArgumentTypes(syntax.Arguments).ToArray())
                 {
                     CollectErrors(errors, argumentType);

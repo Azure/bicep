@@ -1,13 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Features;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests;
@@ -173,7 +178,7 @@ public class CompileTimeImportTests
                     },
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.bicep"
                         }
                     }
                 }
@@ -235,7 +240,7 @@ public class CompileTimeImportTests
                             "metadata": {
                                 "{{LanguageConstants.MetadataDescriptionPropertyName}}": "Say hi to someone",
                                 "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                                    "sourceTemplate": "mod.bicep"
+                                    "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.bicep"
                                 }
                             }
                         }
@@ -243,6 +248,64 @@ public class CompileTimeImportTests
                 }
             ]
             """));
+    }
+
+    [TestMethod]
+    public void Importing_functions_should_be_blocked_if_user_defined_functions_feature_not_enabled()
+    {
+        var featureProviderFactory = StrictMock.Of<IFeatureProviderFactory>();
+        var defaultFeatures = new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration());
+        featureProviderFactory
+            .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("main.bicep"))))
+            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(CompileTimeImportsEnabled: true)));
+        featureProviderFactory
+            .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("mod.bicep"))))
+            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(CompileTimeImportsEnabled: true, UserDefinedFunctionsEnabled: true)));
+
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureProviderFactory(featureProviderFactory.Object),
+            ("main.bicep", """
+                import {greet} from 'mod.bicep'
+                """),
+            ("mod.bicep", """
+                @export()
+                @description('Say hi to someone')
+                func greet(name string) string => 'Hi, ${name}!'
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP343", DiagnosticLevel.Error, $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".")
+        });
+    }
+
+    [TestMethod]
+    public void Calling_methods_on_wildcard_imports_should_be_blocked_if_user_defined_functions_feature_not_enabled()
+    {
+        var featureProviderFactory = StrictMock.Of<IFeatureProviderFactory>();
+        var defaultFeatures = new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration());
+        featureProviderFactory
+            .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("main.bicep"))))
+            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(CompileTimeImportsEnabled: true)));
+        featureProviderFactory
+            .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("mod.bicep"))))
+            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(CompileTimeImportsEnabled: true, UserDefinedFunctionsEnabled: true)));
+
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureProviderFactory(featureProviderFactory.Object),
+            ("main.bicep", """
+                import * as mod from 'mod.bicep'
+
+                output greeting string = mod.greet('friend')
+                """),
+            ("mod.bicep", """
+                @export()
+                @description('Say hi to someone')
+                func greet(name string) string => 'Hi, ${name}!'
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP343", DiagnosticLevel.Error, $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".")
+        });
     }
 
     [TestMethod]
@@ -285,7 +348,7 @@ public class CompileTimeImportTests
                     },
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod.json"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.json"
                         }
                     }
                 },
@@ -293,7 +356,7 @@ public class CompileTimeImportTests
                     "type": "string",
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod.json"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.json"
                         }
                     }
                 }
@@ -342,6 +405,166 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
+    public void Function_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+            ("main.bicep", """
+                import {greet, 'ns.cow_say' as cowSay} from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "2.0",
+                    "definitions": {
+                        "nonEmptyString": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    "functions": [
+                        {
+                            "namespace": "{{EmitConstants.UserDefinedFunctionsNamespace}}",
+                            "members": {
+                                "greet": {
+                                    "parameters": [
+                                        {
+                                            "type": "string",
+                                            "name": "name"
+                                        }
+                                    ],
+                                    "output": {
+                                        "type": "string",
+                                        "value": "[format('Hi, {0}!', ns.echo(parameters('name')))]"
+                                    },
+                                    "metadata": {
+                                        "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "namespace": "ns",
+                            "members": {
+                                "cow_say": {
+                                    "parameters": [
+                                        {
+                                            "type": "string",
+                                            "name": "instead_of_a_moo"
+                                        }
+                                    ],
+                                    "output": {
+                                        "type": "string",
+                                        "value": "[format('The cow says: {0}', parameters('instead_of_a_moo'))]"
+                                    },
+                                    "metadata": {
+                                        "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                                    }
+                                },
+                                "echo": {
+                                    "parameters": [
+                                        {
+                                            "$ref": "#/definitions/nonEmptyString",
+                                            "name": "in"
+                                        }
+                                    ],
+                                    "output": {
+                                        "$ref": "#/definitions/nonEmptyString",
+                                        "value": "[parameters('in')]"
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "resources": []
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("functions", JToken.Parse($$"""
+            [
+                {
+                    "namespace": "_1",
+                    "members": {
+                        "_2": {
+                            "parameters": [
+                                {
+                                    "$ref": "#/definitions/_1.nonEmptyString",
+                                    "name": "in"
+                                }
+                            ],
+                            "output": {
+                                "$ref": "#/definitions/_1.nonEmptyString",
+                                "value": "[parameters('in')]"
+                            },
+                            "metadata": {
+                                "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                                    "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.json",
+                                    "{{LanguageConstants.ImportMetadataOriginalIdentifierPropertyName}}": "ns.echo"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "namespace": "{{EmitConstants.UserDefinedFunctionsNamespace}}",
+                    "members": {
+                        "cowSay": {
+                            "parameters": [
+                                {
+                                    "type": "string",
+                                    "name": "instead_of_a_moo"
+                                }
+                            ],
+                            "output": {
+                                "type": "string",
+                                "value": "[format('The cow says: {0}', parameters('instead_of_a_moo'))]"
+                            },
+                            "metadata": {
+                                "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                                    "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.json",
+                                    "{{LanguageConstants.ImportMetadataOriginalIdentifierPropertyName}}": "ns.cow_say"
+                                }
+                            }
+                        },
+                        "greet": {
+                            "parameters": [
+                                {
+                                    "type": "string",
+                                    "name": "name"
+                                }
+                            ],
+                            "output": {
+                                "type": "string",
+                                "value": "[format('Hi, {0}!', _1._2(parameters('name')))]"
+                            },
+                            "metadata": {
+                                "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                                    "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.json"
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+            """));
+
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
+            {
+                "_1.nonEmptyString": {
+                    "type": "string",
+                    "minLength": 1,
+                    "metadata": {
+                        "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.json"
+                        }
+                    }
+                }
+            }
+            """));
+    }
+
+    [TestMethod]
     public void Funky_ARM_allowedValues_survive_symbol_import_and_injection()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
@@ -381,8 +604,8 @@ public class CompileTimeImportTests
                     "allowedValues": ["bar", "foo"],
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod.json",
-                            "originalIdentifier": "foo"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.json",
+                            "{{LanguageConstants.ImportMetadataOriginalIdentifierPropertyName}}": "foo"
                         }
                     }
                 },
@@ -391,8 +614,8 @@ public class CompileTimeImportTests
                     "allowedValues": ["bar", "foo"],
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod.json",
-                            "originalIdentifier": "bar"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.json",
+                            "{{LanguageConstants.ImportMetadataOriginalIdentifierPropertyName}}": "bar"
                         }
                     }
                 }
@@ -428,7 +651,7 @@ public class CompileTimeImportTests
                     },
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.bicep"
                         }
                     }
                 }
@@ -459,7 +682,7 @@ public class CompileTimeImportTests
                             },
                             "metadata": {
                                 "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                                    "sourceTemplate": "mod.bicep"
+                                    "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.bicep"
                                 }
                             }
                         }
@@ -499,7 +722,7 @@ public class CompileTimeImportTests
                     },
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.bicep"
                         }
                     }
                 },
@@ -509,7 +732,7 @@ public class CompileTimeImportTests
                     "maxValue": 10,
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.bicep"
                         }
                     }
                 }
@@ -576,7 +799,7 @@ public class CompileTimeImportTests
                     },
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.bicep"
                         }
                     }
                 },
@@ -589,7 +812,7 @@ public class CompileTimeImportTests
                     ],
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.bicep"
                         }
                     }
                 },
@@ -605,7 +828,7 @@ public class CompileTimeImportTests
                     },
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod2.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod2.bicep"
                         }
                     }
                 },
@@ -618,7 +841,7 @@ public class CompileTimeImportTests
                     },
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod2.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod2.bicep"
                         }
                     }
                 },
@@ -626,7 +849,7 @@ public class CompileTimeImportTests
                     "type": "int",
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod2.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod2.bicep"
                         }
                     }
                 },
@@ -634,7 +857,7 @@ public class CompileTimeImportTests
                     "$ref": "#/definitions/_4.foo",
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod3.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod3.bicep"
                         }
                     }
                 },
@@ -645,7 +868,7 @@ public class CompileTimeImportTests
                     },
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod4.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod4.bicep"
                         }
                     }
                 }
@@ -783,7 +1006,7 @@ public class CompileTimeImportTests
                     "minLength": 1,
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.bicep"
                         }
                     }
                 },
@@ -792,7 +1015,7 @@ public class CompileTimeImportTests
                     "minLength": 1,
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod2.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod2.bicep"
                         }
                     }
                 },
@@ -801,7 +1024,7 @@ public class CompileTimeImportTests
                     "minLength": 1,
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod3.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod3.bicep"
                         }
                     }
                 },
@@ -809,7 +1032,7 @@ public class CompileTimeImportTests
                     "$ref": "#/definitions/_5.nonEmptyString",
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod4.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod4.bicep"
                         }
                     }
                 },
@@ -818,7 +1041,7 @@ public class CompileTimeImportTests
                     "minLength": 1,
                     "metadata": {
                         "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
-                            "sourceTemplate": "mod5.bicep"
+                            "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod5.bicep"
                         }
                     }
                 },
@@ -842,8 +1065,8 @@ public class CompileTimeImportTests
                                 "value": "[_3.quux(parameters('name'))]"
                             },
                             "metadata": {
-                                "__bicep_imported_from!": {
-                                    "sourceTemplate": "mod2.bicep"
+                                "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                                    "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod2.bicep"
                                 }
                             }
                         }
@@ -864,8 +1087,8 @@ public class CompileTimeImportTests
                                 "value": "[_2.bar(parameters('name'))]"
                             },
                             "metadata": {
-                                "__bicep_imported_from!": {
-                                    "sourceTemplate": "mod.bicep"
+                                "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                                    "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod.bicep"
                                 }
                             }
                         }
@@ -886,8 +1109,8 @@ public class CompileTimeImportTests
                                 "value": "[format('Hi, {0}!', parameters('name'))]"
                             },
                             "metadata": {
-                                "__bicep_imported_from!": {
-                                    "sourceTemplate": "mod4.bicep"
+                                "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                                    "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod4.bicep"
                                 }
                             }
                         }
@@ -908,8 +1131,8 @@ public class CompileTimeImportTests
                                 "value": "[_4.greet(parameters('name'))]"
                             },
                             "metadata": {
-                                "__bicep_imported_from!": {
-                                    "sourceTemplate": "mod3.bicep"
+                                "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                                    "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod3.bicep"
                                 }
                             }
                         },
@@ -925,8 +1148,8 @@ public class CompileTimeImportTests
                                 "value": "[_3.indirection(parameters('name'))]"
                             },
                             "metadata": {
-                                "__bicep_imported_from!": {
-                                    "sourceTemplate": "mod3.bicep"
+                                "{{LanguageConstants.MetadataImportedFromPropertyName}}": {
+                                    "{{LanguageConstants.ImportMetadataSourceTemplatePropertyName}}": "mod3.bicep"
                                 }
                             }
                         }
