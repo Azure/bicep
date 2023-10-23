@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -10,6 +11,8 @@ namespace Bicep.Core.Semantics
         ITypeManager TypeManager { get; }
 
         Compilation Compilation { get; }
+
+        RootConfiguration Configuration { get; }
 
         IBinder Binder { get; }
 

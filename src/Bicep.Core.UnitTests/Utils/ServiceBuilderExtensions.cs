@@ -9,7 +9,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.Workspaces;
 
@@ -41,7 +40,7 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithAzResources(this ServiceBuilder serviceBuilder, IEnumerable<ResourceTypeComponents> resourceTypes)
         => serviceBuilder.WithRegistration(x => x.WithAzResources(resourceTypes));
 
-    public static ServiceBuilder WithAzResourceTypeLoader(this ServiceBuilder serviceBuilder, IAzResourceTypeLoader azResourceTypeLoader)
+    public static ServiceBuilder WithAzResourceTypeLoader(this ServiceBuilder serviceBuilder, IResourceTypeLoader azResourceTypeLoader)
         => serviceBuilder.WithRegistration(x => x.WithAzResourceTypeLoaderFactory(azResourceTypeLoader));
 
     public static ServiceBuilder WithEmptyAzResources(this ServiceBuilder serviceBuilder)

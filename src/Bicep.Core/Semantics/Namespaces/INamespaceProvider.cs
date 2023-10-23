@@ -11,7 +11,7 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public record TypesProviderDescriptor
 {
-    public TypesProviderDescriptor(string name, string? alias = null, SyntaxBase? path = null, string? version = null)
+    public TypesProviderDescriptor(string name, string? alias = null, string? path = null, string? version = null)
     {
         Name = name;
         Alias = alias ?? name;
@@ -23,7 +23,7 @@ public record TypesProviderDescriptor
 
     public string Alias { get; }
 
-    public SyntaxBase? Path { get; }
+    public string? Path { get; }
 
     public string? Version { get; }
 }

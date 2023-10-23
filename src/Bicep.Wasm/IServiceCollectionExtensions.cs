@@ -12,6 +12,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
@@ -22,8 +23,8 @@ namespace Bicep.Wasm;
 public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
-        .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
-        .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
+        .AddSingleton<IResourceTypeLoader, AzResourceTypeLoader>()
+        .AddSingleton<IResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
         .AddSingleton<IArtifactRegistryProvider, EmptyModuleRegistryProvider>()

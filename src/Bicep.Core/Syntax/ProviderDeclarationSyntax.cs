@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Semantics;
 
 namespace Bicep.Core.Syntax
 {
@@ -51,6 +53,20 @@ namespace Bicep.Core.Syntax
 
         public ArtifactType GetArtifactType() => ArtifactType.Provider;
 
-        public SyntaxBase Path => this.Specification.ToPath(); 
+        public SyntaxBase Path => this.Specification.ToPath();
+
+        public ResultWithDiagnostic<string> TryGetManifestPath(ISymbolContext context)
+        {
+            if (!context.Compilation.ArtifactReferenceFactory.TryGetArtifactReference(
+                ArtifactType.Provider,
+                this.Path.ToTextPreserveFormatting(),
+                context.SourceFile.FileUri).IsSuccess(out var reference, out var errorbuilder))
+            {
+                return new(errorbuilder);
+            }
+
+            var features = new FeatureProvider(context.Configuration);
+            return new(ImportSpecification.GetArtifactDirectoryPath(reference, features.CacheRootDirectory));
+        }
     }
 }

@@ -30,7 +30,14 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static OciArtifactReference CreateModuleReference(string registry, string repository, string? tag, string? digest)
         {
-            OciArtifactReference.TryParse(ArtifactType.Module, null, $"{registry}/{repository}:{tag}", BicepTestConstants.BuiltInConfiguration, new Uri("file:///main.bicep")).IsSuccess(out var moduleReference).Should().BeTrue();
+            var rawValue = $"{registry}/{repository}" + tag is not null ? $":{tag}" : $"@{digest}";
+            OciArtifactReference.TryParse(
+                ArtifactType.Module,
+                null,
+                rawValue,
+                BicepTestConstants.BuiltInConfiguration,
+                new Uri("file:///main.bicep"))
+                    .IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
         }
 

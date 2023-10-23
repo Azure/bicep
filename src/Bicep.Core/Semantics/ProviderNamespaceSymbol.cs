@@ -10,13 +10,14 @@ namespace Bicep.Core.Semantics
 {
     public class ProviderNamespaceSymbol : DeclaredSymbol, INamespaceSymbol
     {
-        public ProviderNamespaceSymbol(ISymbolContext context, ProviderDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
+        private readonly ITypeReference declaredType;
+        public ProviderNamespaceSymbol(ISymbolContext context, ProviderDeclarationSyntax declaringSyntax, ITypeReference declaredType)
             : base(context, declaringSyntax.Alias?.IdentifierName ?? declaringSyntax.Specification.Name, declaringSyntax, declaringSyntax.Alias as ISymbolNameSource ?? declaringSyntax.Specification)
         {
-            this.DeclaredType = declaredType;
+            this.declaredType = declaredType;
         }
 
-        public TypeSymbol DeclaredType { get; }
+        public TypeSymbol DeclaredType => declaredType.Type;
 
         public ProviderDeclarationSyntax DeclaringImport => (ProviderDeclarationSyntax)this.DeclaringSyntax;
 

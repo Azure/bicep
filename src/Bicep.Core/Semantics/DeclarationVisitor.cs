@@ -155,38 +155,53 @@ namespace Bicep.Core.Semantics
         {
             base.VisitProviderDeclarationSyntax(syntax);
 
-            TypeSymbol declaredType;
-            if (!features.ExtensibilityEnabled)
+            var declaredType = new DeferredTypeReference(() =>
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
-            }
-            else if (syntax.SpecificationString is StringSyntax specificationString && specificationString.IsInterpolated())
-            {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.SpecificationString).ProviderSpecificationInterpolationUnsupported());
-            }
-            else if (!syntax.Specification.IsValid)
-            {
-                declaredType = syntax.SpecificationString is StringSyntax
-                    ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification())
-                    : ErrorType.Empty();
-            }
-            else if (namespaceProvider.TryGetNamespace(
-                new TypesProviderDescriptor(
-                    syntax.Specification.Name,
-                    syntax.Alias?.IdentifierName,
-                    syntax.Specification.ToPath(),
-                    syntax.Specification?.Version),
-                targetScope,
-                features,
-                sourceFileKind) is not { } namespaceType
-                || (syntax.Specification?.Name == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled))
-            {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification!.Name));
-            }
-            else
-            {
-                declaredType = namespaceType;
-            }
+                if (!features.ExtensibilityEnabled)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
+                }
+
+                // Check for interpolated specification strings
+                if (syntax.SpecificationString is StringSyntax specificationString && specificationString.IsInterpolated())
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.SpecificationString).ProviderSpecificationInterpolationUnsupported());
+                }
+
+                if (!syntax.Specification.IsValid)
+                {
+                    return (syntax.SpecificationString is StringSyntax)
+                        ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification())
+                        : ErrorType.Empty();
+                }
+
+                // Check if the MSGraph provider is recognized and enabled
+                if (syntax.Specification.Name == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification!.Name));
+                }
+
+                // Try to resolve the provider folder in the local cache from the specification (only works for az provider)
+                if (!syntax.TryGetManifestPath(context).IsSuccess(out var providerPathInLocalCache, out var errorBuilder))
+                {
+                    return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
+                }
+
+                if (namespaceProvider.TryGetNamespace(
+                        new(
+                            syntax.Specification.Name,
+                            syntax.Alias?.IdentifierName,
+                            providerPathInLocalCache,
+                            syntax.Specification?.Version),
+                        targetScope,
+                        features,
+                        sourceFileKind) is not { } namespaceType)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification!.Name));
+                }
+
+                return namespaceType;
+            });
 
             var symbol = new ProviderNamespaceSymbol(this.context, syntax, declaredType);
             DeclareSymbol(symbol);

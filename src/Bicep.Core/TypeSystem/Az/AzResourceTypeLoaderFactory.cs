@@ -6,46 +6,38 @@ using System.IO;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Semantics.Namespaces;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class AzResourceTypeLoaderFactory : IAzResourceTypeLoaderFactory
+    public class AzResourceTypeLoaderFactory : IResourceTypeLoaderFactory
     {
         private const string typesArtifactFilename = "types.tgz";
         private const string BuiltInLoaderKey = "builtin";
+        private Dictionary<string, IResourceTypeLoader> resourceTypeLoaders;
 
-        private readonly IFeatureProviderFactory featureProviderFactory;
-
-        private Dictionary<string, IAzResourceTypeLoader> resourceTypeLoaders;
-
-        public AzResourceTypeLoaderFactory(IFeatureProviderFactory featureProviderFactory, IAzResourceTypeLoader defaultAzResourceTypeLoader)
+        public AzResourceTypeLoaderFactory(IResourceTypeLoader defaultAzResourceTypeLoader)
         {
-            this.featureProviderFactory = featureProviderFactory;
             this.resourceTypeLoaders = new() {
                 {BuiltInLoaderKey, defaultAzResourceTypeLoader},
             };
         }
 
-        public IAzResourceTypeLoader GetBuiltInTypeLoader()
+        public IResourceTypeLoader GetBuiltInTypeLoader()
         {
             return resourceTypeLoaders[BuiltInLoaderKey];
         }
 
-        public IAzResourceTypeLoader? GetResourceTypeLoader(string? providerVersion, IFeatureProvider features)
+        public IResourceTypeLoader? GetResourceTypeLoader(TypesProviderDescriptor providerDescriptor, IFeatureProvider features)
         {
-            if (!features.DynamicTypeLoadingEnabled || providerVersion is null)
+            if (!features.DynamicTypeLoadingEnabled || providerDescriptor.Version is null)
             {
                 return resourceTypeLoaders[BuiltInLoaderKey];
             }
 
             // compose the path to the OCI manifest based on the cache root directory and provider version
-            var azProviderDir = Path.Combine(
-                features.CacheRootDirectory,
-                ModuleReferenceSchemes.Oci,
-                FeatureProvider.ReadEnvVar("__EXPERIMENTAL_BICEP_REGISTRY_FQDN", LanguageConstants.BicepPublicMcrRegistry),
-                "bicep$providers$az",
-                $"{providerVersion}$");
+            var azProviderDir = providerDescriptor.Path!;
             var ociManifestPath = Path.Combine(azProviderDir, "manifest");
             if (!File.Exists(ociManifestPath))
             {
