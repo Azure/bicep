@@ -1,4 +1,4 @@
-import {foo, fizz, pop} from 'modules/mod.bicep'
+import {foo, fizz, pop, greet} from 'modules/mod.bicep'
 //@    "_1.buzz": {
 //@      "type": "object",
 //@      "properties": {
@@ -32,6 +32,23 @@ import {foo, fizz, pop} from 'modules/mod.bicep'
 //@        }
 //@      }
 //@    }
+//@        "greet": {
+//@          "parameters": [
+//@            {
+//@              "type": "string",
+//@              "name": "name"
+//@            }
+//@          ],
+//@          "output": {
+//@            "type": "string",
+//@            "value": "[format('Hi, {0}!', parameters('name'))]"
+//@          },
+//@          "metadata": {
+//@            "__bicep_imported_from!": {
+//@              "sourceTemplate": "modules/mod.bicep"
+//@            }
+//@          }
+//@        }
 //@    "_1.bar": "[variables('_1.baz')]",
 //@    "_1.baz": "quux",
 //@    "foo": "[variables('_1.bar')]",
@@ -70,6 +87,7 @@ import {
 } from 'modules/mod.json'
 
 var aliasedFoo = foo
+//@            "description": "Say hi to someone!",
 //@    "aliasedFoo": "[variables('foo')]",
 var aliasedBar = mod2.foo
 //@    "aliasedBar": "[variables('_3.foo')]",
@@ -90,5 +108,11 @@ output magicWord pop = refersToCopyVariable[3].value
 //@    "magicWord": {
 //@      "$ref": "#/definitions/pop",
 //@      "value": "[variables('refersToCopyVariable')[3].value]"
+//@    },
+
+output greeting string = greet('friend')
+//@    "greeting": {
+//@      "type": "string",
+//@      "value": "[__bicep.greet('friend')]"
 //@    }
 

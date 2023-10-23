@@ -1,8 +1,8 @@
-import {foo, fizz, pop} from 'modules/mod.bicep'
-//@[00:358) ProgramSyntax
-//@[00:048) ├─CompileTimeImportDeclarationSyntax
+import {foo, fizz, pop, greet} from 'modules/mod.bicep'
+//@[00:407) ProgramSyntax
+//@[00:055) ├─CompileTimeImportDeclarationSyntax
 //@[00:006) | ├─Token(Identifier) |import|
-//@[07:023) | ├─ImportedSymbolsListSyntax
+//@[07:030) | ├─ImportedSymbolsListSyntax
 //@[07:008) | | ├─Token(LeftBrace) |{|
 //@[08:011) | | ├─ImportedSymbolsListItemSyntax
 //@[08:011) | | | └─IdentifierSyntax
@@ -15,12 +15,16 @@ import {foo, fizz, pop} from 'modules/mod.bicep'
 //@[19:022) | | ├─ImportedSymbolsListItemSyntax
 //@[19:022) | | | └─IdentifierSyntax
 //@[19:022) | | |   └─Token(Identifier) |pop|
-//@[22:023) | | └─Token(RightBrace) |}|
-//@[24:048) | └─CompileTimeImportFromClauseSyntax
-//@[24:028) |   ├─Token(Identifier) |from|
-//@[29:048) |   └─StringSyntax
-//@[29:048) |     └─Token(StringComplete) |'modules/mod.bicep'|
-//@[48:049) ├─Token(NewLine) |\n|
+//@[22:023) | | ├─Token(Comma) |,|
+//@[24:029) | | ├─ImportedSymbolsListItemSyntax
+//@[24:029) | | | └─IdentifierSyntax
+//@[24:029) | | |   └─Token(Identifier) |greet|
+//@[29:030) | | └─Token(RightBrace) |}|
+//@[31:055) | └─CompileTimeImportFromClauseSyntax
+//@[31:035) |   ├─Token(Identifier) |from|
+//@[36:055) |   └─StringSyntax
+//@[36:055) |     └─Token(StringComplete) |'modules/mod.bicep'|
+//@[55:056) ├─Token(NewLine) |\n|
 import * as mod2 from 'modules/mod2.bicep'
 //@[00:042) ├─CompileTimeImportDeclarationSyntax
 //@[00:006) | ├─Token(Identifier) |import|
@@ -137,6 +141,25 @@ output magicWord pop = refersToCopyVariable[3].value
 //@[46:047) |   ├─Token(Dot) |.|
 //@[47:052) |   └─IdentifierSyntax
 //@[47:052) |     └─Token(Identifier) |value|
-//@[52:053) ├─Token(NewLine) |\n|
+//@[52:054) ├─Token(NewLine) |\n\n|
+
+output greeting string = greet('friend')
+//@[00:040) ├─OutputDeclarationSyntax
+//@[00:006) | ├─Token(Identifier) |output|
+//@[07:015) | ├─IdentifierSyntax
+//@[07:015) | | └─Token(Identifier) |greeting|
+//@[16:022) | ├─VariableAccessSyntax
+//@[16:022) | | └─IdentifierSyntax
+//@[16:022) | |   └─Token(Identifier) |string|
+//@[23:024) | ├─Token(Assignment) |=|
+//@[25:040) | └─FunctionCallSyntax
+//@[25:030) |   ├─IdentifierSyntax
+//@[25:030) |   | └─Token(Identifier) |greet|
+//@[30:031) |   ├─Token(LeftParen) |(|
+//@[31:039) |   ├─FunctionArgumentSyntax
+//@[31:039) |   | └─StringSyntax
+//@[31:039) |   |   └─Token(StringComplete) |'friend'|
+//@[39:040) |   └─Token(RightParen) |)|
+//@[40:041) ├─Token(NewLine) |\n|
 
 //@[00:000) └─Token(EndOfFile) ||

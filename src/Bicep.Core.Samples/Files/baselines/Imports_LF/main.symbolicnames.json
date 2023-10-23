@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4340142351276736529"
+      "templateHash": "18183633158511667674"
     }
   },
   "definitions": {
@@ -62,6 +62,31 @@
       }
     }
   },
+  "functions": [
+    {
+      "namespace": "__bicep",
+      "members": {
+        "greet": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('Hi, {0}!', parameters('name'))]"
+          },
+          "metadata": {
+            "description": "Say hi to someone!",
+            "__bicep_imported_from!": {
+              "sourceTemplate": "modules/mod.bicep"
+            }
+          }
+        }
+      }
+    }
+  ],
   "parameters": {
     "fizzParam": {
       "$ref": "#/definitions/_3.fizz"
@@ -97,6 +122,10 @@
     "magicWord": {
       "$ref": "#/definitions/pop",
       "value": "[variables('refersToCopyVariable')[3].value]"
+    },
+    "greeting": {
+      "type": "string",
+      "value": "[__bicep.greet('friend')]"
     }
   }
 }
