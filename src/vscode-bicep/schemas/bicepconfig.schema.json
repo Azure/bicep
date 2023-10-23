@@ -702,6 +702,9 @@
         "dynamicTypeLoading": {
           "type": "boolean"
         },
+        "providerRegistry": {
+          "type": "boolean"
+        },
         "compileTimeImports": {
           "type": "boolean"
         },

@@ -23,6 +23,8 @@ public interface IFeatureProvider
 
     bool DynamicTypeLoadingEnabled { get; }
 
+    bool ProviderRegistryEnabled { get; }
+
     bool PrettyPrintingEnabled { get; }
 
     bool TestFrameworkEnabled { get; }
@@ -49,6 +51,7 @@ public interface IFeatureProvider
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),
                 (UserDefinedFunctionsEnabled, CoreResources.ExperimentalFeatureNames_UserDefinedFunctions, true, false),
                 (DynamicTypeLoadingEnabled, CoreResources.ExperimentalFeatureNames_DynamicTypeLoading, true, false),
+                (ProviderRegistryEnabled, CoreResources.ExperimentalFeatureNames_ProviderRegistry, true, false),
                 (PrettyPrintingEnabled, CoreResources.ExperimentalFeatureNames_PrettyPrinting, false, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),
                 (AssertsEnabled, CoreResources.ExperimentalFeatureNames_Asserts, true, true),
