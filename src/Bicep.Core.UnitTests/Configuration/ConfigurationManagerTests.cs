@@ -106,6 +106,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "testFramework": false,
                     "assertions": false,
                     "dynamicTypeLoading": false,
+                    "thirdPartyTypes": false,
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false
@@ -180,6 +181,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "testFramework": false,
                     "assertions": false,
                     "dynamicTypeLoading": false,
+                    "thirdPartyTypes": false,
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false
@@ -279,6 +281,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "testFramework": false,
                     "assertions": false,
                     "dynamicTypeLoading": false,
+                    "thirdPartyTypes": false,
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false
@@ -609,6 +612,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "testFramework": false,
                     "assertions": false,
                     "dynamicTypeLoading": false,
+                    "thirdPartyTypes": false,
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false
