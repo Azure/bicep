@@ -249,7 +249,7 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
-            dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri).Should().BeTrue();
+            dispatcher.TryGetLocalArtifactEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri).Should().BeTrue();
             moduleFileUri.Should().NotBeNull();
 
             var moduleFilePath = moduleFileUri!.LocalPath;
@@ -318,7 +318,7 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
-            dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri).Should().BeTrue();
+            dispatcher.TryGetLocalArtifactEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri).Should().BeTrue();
             moduleFileUri.Should().NotBeNull();
 
             var moduleFilePath = moduleFileUri!.LocalPath;
@@ -334,7 +334,7 @@ namespace Bicep.Core.IntegrationTests
             // let's try to restore a module while holding a lock
             using (@lock)
             {
-                (await dispatcher.RestoreModules(moduleReferences, forceModulesRestore: true)).Should().BeTrue();
+                (await dispatcher.RestoreModules(moduleReferences, forceRestore: true)).Should().BeTrue();
             }
 
             // REF: FileLockTests.cs/FileLockShouldNotThrowIfLockFileIsDeleted()
@@ -395,14 +395,14 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
-            dispatcher.TryGetLocalModuleEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri).Should().BeTrue();
+            dispatcher.TryGetLocalArtifactEntryPointUri(moduleReferences[0]).IsSuccess(out var moduleFileUri).Should().BeTrue();
             moduleFileUri.Should().NotBeNull();
 
             var moduleFilePath = moduleFileUri!.LocalPath;
             var moduleDirectory = Path.GetDirectoryName(moduleFilePath)!;
             Directory.CreateDirectory(moduleDirectory);
 
-            (await dispatcher.RestoreModules(moduleReferences, forceModulesRestore: true)).Should().BeTrue();
+            (await dispatcher.RestoreModules(moduleReferences, forceRestore: true)).Should().BeTrue();
 
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences)

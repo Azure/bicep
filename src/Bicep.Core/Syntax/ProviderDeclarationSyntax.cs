@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 
 namespace Bicep.Core.Syntax
@@ -48,6 +49,8 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderDeclarationSyntax(this);
 
-        public SyntaxBase Path => SyntaxFactory.CreateStringLiteral($@"{OciArtifactReferenceFacts.Scheme}:{FeatureProvider.ReadEnvVar("__EXPERIMENTAL_BICEP_REGISTRY_FQDN", LanguageConstants.BicepPublicMcrRegistry)}/bicep/providers/{this.Specification.Name}:{this.Specification.Version}");
+        public ArtifactType GetArtifactType() => ArtifactType.Provider;
+
+        public SyntaxBase Path => this.Specification.ToPath(); 
     }
 }

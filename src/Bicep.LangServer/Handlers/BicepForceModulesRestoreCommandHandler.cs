@@ -79,7 +79,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await this.moduleDispatcher.RestoreModules(modulesToRestoreReferences, forceModulesRestore: true);
+            await this.moduleDispatcher.RestoreModules(modulesToRestoreReferences, forceRestore: true);
 
             // if all are marked as success
             var sbRestoreSummary = new StringBuilder();

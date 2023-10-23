@@ -3,6 +3,7 @@
 using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 
 namespace Bicep.Core.Syntax
 {
@@ -24,6 +25,8 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Path { get; }
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitUsingDeclarationSyntax(this);
+
+        public ArtifactType GetArtifactType() => ArtifactType.Module;
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, this.Path);
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 
 namespace Bicep.Core.Syntax;
 
@@ -36,4 +37,6 @@ public class CompileTimeImportDeclarationSyntax : StatementSyntax, ITopLevelDecl
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitCompileTimeImportDeclarationSyntax(this);
 
     public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, this.FromClause);
+
+    public ArtifactType GetArtifactType() => ArtifactType.Module;
 }

@@ -33,7 +33,8 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="aliasName">The alias name</param>
         /// <param name="reference">The unqualified artifact reference</param>
-        ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(string? aliasName, string reference);
+        /// <param name="artifactType">The artifact type. Either "module" or "provider"</param>
+        ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? aliasName, string reference);
 
         /// <summary>
         /// Returns true if the specified artifact is already cached in the local cache.
@@ -71,28 +72,28 @@ namespace Bicep.Core.Registry
         /// <summary>
         /// Publishes the module at the specified path to the registry.
         /// </summary>
-        /// <param name="moduleReference">The module reference</param>
+        /// <param name="reference">The module reference</param>
         /// <param name="compiled">The compiled module</param>
         /// <param name="bicepSources">The source archive (binary stream of SourceArchive)</param>
-        Task PublishArtifact(ArtifactReference moduleReference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description);
+        Task PublishArtifact(ArtifactReference reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description);
 
         /// <summary>
         /// Returns documentationUri for the module.
         /// </summary>
-        /// <param name="moduleReference">The module reference</param>
-        string? GetDocumentationUri(ArtifactReference moduleReference);
+        /// <param name="reference">The module reference</param>
+        string? GetDocumentationUri(ArtifactReference reference);
 
         /// <summary>
         /// Returns description for the module.
         /// </summary>
-        /// <param name="moduleReference">The module reference</param>
-        Task<string?> TryGetDescription(ArtifactReference moduleReference);
+        /// <param name="reference">The module reference</param>
+        Task<string?> TryGetDescription(ArtifactReference reference);
 
         /// <summary>
         /// Returns the source code for the module, if available.
         /// </summary>
-        /// <param name="moduleReference">The module reference</param>
+        /// <param name="reference">The module reference</param>
         /// <returns>A source archive</returns>
-        SourceArchive? TryGetSource(ArtifactReference moduleReference);
+        SourceArchive? TryGetSource(ArtifactReference reference);
     }
 }

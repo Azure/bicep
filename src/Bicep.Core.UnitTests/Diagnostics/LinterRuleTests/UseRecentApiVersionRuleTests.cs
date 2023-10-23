@@ -109,6 +109,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             return new RootConfiguration(
                 original.Cloud,
                 original.ModuleAliases,
+                original.ProviderAliases,
                 new AnalyzersConfiguration(
                     JsonElementFactory.CreateElement(@"
                     {

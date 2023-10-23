@@ -103,15 +103,21 @@ namespace Bicep.Cli.IntegrationTests
                 actualLocation: compiledFilePath);
         }
 
-        [TestMethod]
-        public async Task Provider_Artifacts_Restore_From_Registry_ShouldSucceed()
+        [DataTestMethod]
+        [DataRow("br:mcr.microsoft.com/bicep/providers/az", true)]
+        [DataRow("br/public:az", true)]
+        [DataRow("br/contoso:az", true)]
+        // Negative
+        [DataRow("az", false)]
+        public async Task Build_Valid_SingleFile_WithProviderDeclarationStatement(string providerDeclarationSyntax, bool shouldSucceed)
         {
             // SETUP
             // 1. create a mock registry client
-            var registryUri = new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}");
-            var repository = $"bicep/providers/az";
-            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients(false, (registryUri, repository));
-            var myClient = blobClients[(registryUri, repository)];
+            var mcrUri = new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}");
+            var registyUris = new[] { mcrUri };
+            var repository = "bicep/providers/az";
+            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients(false, (mcrUri, repository));
+            var myClient = blobClients[(mcrUri, repository)];
 
             // 2. upload a manifest and its blob layer
             var manifestStr = $$"""
@@ -142,13 +148,29 @@ namespace Bicep.Cli.IntegrationTests
             await myClient.UploadBlobAsync(new MemoryStream());
 
             // 3. create a main.bicep and save it to a output directory
-            var bicepFile = """
-import 'az@2.0.0'
+            var bicepFile = $"""
+import '{providerDeclarationSyntax}@2.0.0'
 """;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
             var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
             File.WriteAllText(bicepFilePath, bicepFile);
+
+
+            var bicepConfigFile = $$"""
+{
+    "providerAliases" : {
+        "br": {
+            "contoso": {
+                "registry": "mcr.microsoft.com",
+                "providerPath": "bicep/providers"
+            }
+        }
+    }
+}
+""";
+            var bicepConfigPath = Path.Combine(tempDirectory, "bicepconfig.json");
+            File.WriteAllText(bicepConfigPath, bicepConfigFile);
 
             // 4. create a settings object with the mock registry client and relevant features enabled
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, ExtensibilityEnabled: true, DynamicTypeLoading: true), clientFactory.Object, Repository.Create<ITemplateSpecRepositoryFactory>().Object);
@@ -161,14 +183,20 @@ import 'az@2.0.0'
             // 6. assert 'bicep build' completed successfully
             using (new AssertionScope())
             {
-                result.Should().Be(0);
+                result.Should().Be(shouldSucceed ? 0 : 1);
                 output.Should().BeEmpty();
-                AssertNoErrors(error);
+                if (shouldSucceed)
+                {
+                    AssertNoErrors(error);
+                }
             }
-            // 7. assert the provider files were restored to the cache directory
-            Directory.Exists(settings.FeatureOverrides.CacheRootDirectory).Should().BeTrue();
-            var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ModuleReferenceSchemes.Oci, LanguageConstants.BicepPublicMcrRegistry, "bicep$providers$az", "2.0.0$");
-            Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });
+            if (shouldSucceed)
+            {
+                // 7. assert the provider files were restored to the cache directory
+                Directory.Exists(settings.FeatureOverrides.CacheRootDirectory).Should().BeTrue();
+                var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ModuleReferenceSchemes.Oci, LanguageConstants.BicepPublicMcrRegistry, "bicep$providers$az", "2.0.0$");
+                Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });
+            }
         }
 
         [DataTestMethod]

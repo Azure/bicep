@@ -32,6 +32,14 @@
       }
     }
   },
+  "providerAliases": {
+    "br": {
+      "public": {
+        "registry": "mcr.microsoft.com",
+        "providerPath": "bicep/providers"
+      }
+    }
+  },
   "analyzers": {
     "core": {
       "verbose": false,
