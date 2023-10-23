@@ -53,6 +53,10 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
+                    case "--with-source":
+                        WithSource = true;
+                        break;
+
                     case "--force":
                         Force = true;
                         break;
@@ -93,5 +97,7 @@ namespace Bicep.Cli.Arguments
         public bool NoRestore { get; }
 
         public bool Force { get; }
+
+        public bool WithSource { get; }
     }
 }

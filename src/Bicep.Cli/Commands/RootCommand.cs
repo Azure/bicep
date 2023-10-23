@@ -77,7 +77,7 @@ Usage:
       bicep build file.bicep --no-restore
       bicep build file.bicep --diagnostics-format sarif
 
-    {exeName} format [options] <file>
+  {exeName} format [options] <file>
     Formats a .bicep file.
 
     Arguments:
@@ -185,12 +185,13 @@ Usage:
 
     Options:
       --documentationUri  Module documentation uri
+      --with-source       [Experimental] Publish source code with the module
       --force             Overwrite existing published module or file
 
     Examples:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --force
-      bicep publish file.json --target br:example.azurecr.io/hello/world:v1
+      bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --documentationUri https://github.com/hello-world/README.md --with-source
       bicep publish file.json --target br:example.azurecr.io/hello/world:v1 --documentationUri https://github.com/hello-world/README.md
 
   {exeName} restore <file>
@@ -214,9 +215,9 @@ Usage:
 
     Options:
       --bicep-file <file> Verifies if the specified bicep file path matches the one provided in the params file using declaration
-      --outfile <file>  Saves the param output json as the specified file path.
-      --stdout          Prints the param and bicep json output to stdout.
-      --no-restore      Builds the bicep file (referenced in using declaration) without restoring external modules.
+      --outfile <file>    Saves the param output json as the specified file path.
+      --stdout            Prints the param and bicep json output to stdout.
+      --no-restore        Builds the bicep file (referenced in using declaration) without restoring external modules.
 
     Examples:
       bicep build-params params.bicepparam

@@ -6,16 +6,14 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
-using Bicep.Core.Features;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -46,7 +44,7 @@ namespace Bicep.Cli.IntegrationTests
             ClientFactory: Repository.Create<IContainerRegistryClientFactory>().Object,
             TemplateSpecRepositoryFactory: Repository.Create<ITemplateSpecRepositoryFactory>().Object);
 
-        protected static Task<CliResult> Bicep(InvocationSettings settings, params string[] args)
+        protected static Task<CliResult> Bicep(InvocationSettings settings, params string?[] args /*null args are ignored*/)
             => TextWriterHelper.InvokeWriterAction((@out, err)
                 => new Program(new(Output: @out, Error: err), services
                     => services
@@ -55,7 +53,7 @@ namespace Bicep.Cli.IntegrationTests
                         .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
                         .AddSingleton(settings.ClientFactory)
                         .AddSingleton(settings.TemplateSpecRepositoryFactory))
-                    .RunAsync(args));
+                    .RunAsync(args.ToArrayExcludingNull()));
 
         protected static void AssertNoErrors(string error)
         {
