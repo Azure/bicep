@@ -1729,7 +1729,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(imported.Type.Name)
                 .WithSortText(GetSortText(imported.Name, priority));
 
-            if (imported.TryGetDescription() is string documentation)
+            if (imported.Description is string documentation)
             {
                 builder = builder.WithDocumentation(documentation);
             }

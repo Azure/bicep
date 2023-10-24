@@ -108,10 +108,10 @@ namespace Bicep.LanguageServer.Handlers
                 case ImportedTypeSymbol importedType:
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"type {importedType.Name}: {importedType.Type}", importedType.Type),
-                        importedType.TryGetDescription()));
+                        importedType.Description));
 
                 case ImportedVariableSymbol importedVariable:
-                    return AsMarkdown(CodeBlockWithDescription($"var {importedVariable.Name}: {importedVariable.Type}", importedVariable.TryGetDescription()));
+                    return AsMarkdown(CodeBlockWithDescription($"var {importedVariable.Name}: {importedVariable.Type}", importedVariable.Description));
 
                 case AmbientTypeSymbol ambientType:
                     return AsMarkdown(CodeBlock(WithTypeModifiers($"type {ambientType.Name}: {ambientType.Type}", ambientType.Type)));

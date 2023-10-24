@@ -139,11 +139,6 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         Dictionary<IntraTemplateSymbolicReference, SyntaxBase> symbolsInImportClosure = new();
         Dictionary<ImportedSymbol, IntraTemplateSymbolicReference> importedSymbolsToIntraTemplateSymbols = new();
         Dictionary<WildcardImportPropertyReference, IntraTemplateSymbolicReference> wildcardImportPropertiesToIntraTemplateSymbols = new();
-        ConcurrentDictionary<ArmTemplateFile, Template> armTemplatesByFile = new();
-        ConcurrentDictionary<ArmTemplateFile, SchemaValidationContext> armSchemaContextsByFile = new();
-        ConcurrentDictionary<Template, SchemaValidationContext> armSchemaContextsByTemplate = new();
-        ConcurrentDictionary<ArmTemplateFile, TemplateVariablesEvaluator> armVariablesEvaluatorsByFile = new();
-        ConcurrentDictionary<Template, TemplateVariablesEvaluator> armVariablesEvaluatorsByTemplate = new();
         ConcurrentDictionary<ArmTemplateFile, ArmReferenceCollector> armReferenceCollectors = new();
 
         Queue<SearchQueueItem> searchQueue = new(model.Root.ImportedSymbols
@@ -189,7 +184,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
             }
             else if (item.SymbolicReference is BicepImportedSymbolReference importedSymbolReference)
             {
-                var targetModel = GetImportedModel(importedSymbolReference.Symbol);
+                var targetModel = importedSymbolReference.Symbol.SourceModel;
                 importedModuleReferences[targetModel] = importedSymbolReference.ImportTarget;
 
                 var name = importedSymbolReference.Symbol.OriginalSymbolName
@@ -223,9 +218,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         return new(importedModuleReferences,
             symbolsInImportClosure,
             importedSymbolsToIntraTemplateSymbols,
-            wildcardImportPropertiesToIntraTemplateSymbols,
-            armSchemaContextsByFile,
-            armVariablesEvaluatorsByFile);
+            wildcardImportPropertiesToIntraTemplateSymbols);
     }
 
     private static ArtifactReference GetImportReference(ImportedSymbol symbol)
@@ -262,16 +255,6 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
                 _ => throw new InvalidOperationException($"Invalid symbol {symbol.Name} of type {symbol.GetType().Name} encountered within a export expression"),
             })
             .WhereNotNull();
-
-    private static ISemanticModel GetImportedModel(ImportedSymbol symbol)
-    {
-        if (symbol.TryGetSourceModel() is ISemanticModel model)
-        {
-            return model;
-        }
-
-        throw new InvalidOperationException("Unable to load model for import statement");
-    }
 
     private static IEnumerable<(string symbolName, IntraTemplateSymbolicReference reference)> EnumerateExportedSymbolsAsIntraTemplateSymbols(ISemanticModel model) => model switch
     {
@@ -399,9 +382,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         IReadOnlyDictionary<ISemanticModel, ArtifactReference> ImportedModuleReferences,
         IReadOnlyDictionary<IntraTemplateSymbolicReference, SyntaxBase> SymbolsInImportClosure,
         IReadOnlyDictionary<ImportedSymbol, IntraTemplateSymbolicReference> ImportedSymbolsToIntraTemplateSymbols,
-        IReadOnlyDictionary<WildcardImportPropertyReference, IntraTemplateSymbolicReference> WildcardImportPropertiesToIntraTemplateSymbols,
-        IReadOnlyDictionary<ArmTemplateFile, SchemaValidationContext> ArmSchemaContexts,
-        IReadOnlyDictionary<ArmTemplateFile, TemplateVariablesEvaluator> ArmVariablesEvaluators);
+        IReadOnlyDictionary<WildcardImportPropertyReference, IntraTemplateSymbolicReference> WildcardImportPropertiesToIntraTemplateSymbols);
 
     private record SearchQueueItem(SyntaxBase InitiallyDeclaringSyntax, SymbolicReference SymbolicReference);
 

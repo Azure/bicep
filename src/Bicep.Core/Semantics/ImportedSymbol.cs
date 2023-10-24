@@ -11,10 +11,11 @@ namespace Bicep.Core.Semantics;
 
 public abstract class ImportedSymbol : DeclaredSymbol
 {
-    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion)
+    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel)
         : base(context, declaringSyntax.Name.IdentifierName, declaringSyntax, declaringSyntax.Name)
     {
         EnclosingDeclaration = enclosingDeclartion;
+        SourceModel = sourceModel;
     }
 
     public CompileTimeImportDeclarationSyntax EnclosingDeclaration { get; }
@@ -23,34 +24,45 @@ public abstract class ImportedSymbol : DeclaredSymbol
 
     public string? OriginalSymbolName => DeclaringImportedSymbolsListItem.TryGetOriginalSymbolNameText();
 
-    public abstract ISemanticModel? TryGetSourceModel();
+    public ISemanticModel SourceModel { get; }
 
-    public string? TryGetDescription() => TryGetExportMetadata()?.Description;
+    public abstract string? Description { get; }
 
     public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference()
         => Context.Compilation.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
+}
+
+public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadata
+{
+    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, T exportMetadata)
+        : base(context, declaringSyntax, enclosingDeclartion, sourceModel)
+    {
+        ExportMetadata = exportMetadata;
+    }
+
+    public T ExportMetadata { get; }
+
+    public override string? Description => ExportMetadata.Description;
 
     public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
     {
-        if (TryGetExportMetadata() is ExportMetadata exportMetadata && !IsSupportedImportKind(exportMetadata.Kind))
+        if (!IsSupportedImportKind())
         {
             yield return DiagnosticBuilder.ForPosition(DeclaringImportedSymbolsListItem.OriginalSymbolName)
-                .ImportedSymbolKindNotSupportedInSourceFileKind(exportMetadata.Name, exportMetadata.Kind, Context.SourceFile.FileKind);
+                .ImportedSymbolKindNotSupportedInSourceFileKind(ExportMetadata.Name, ExportMetadata.Kind, Context.SourceFile.FileKind);
         }
     }
 
-    protected abstract ExportMetadata? TryGetExportMetadata();
-
-    private bool IsSupportedImportKind(ExportMetadataKind exportKind) => Context.SourceFile switch
+    private bool IsSupportedImportKind() => Context.SourceFile switch
     {
-        BicepFile => exportKind switch
+        BicepFile => ExportMetadata.Kind switch
         {
             ExportMetadataKind.Type or
-            ExportMetadataKind.Variable => true,
+            ExportMetadataKind.Variable or
             ExportMetadataKind.Function => true,
             _ => false,
         },
-        BicepParamFile => exportKind switch
+        BicepParamFile => ExportMetadata.Kind switch
         {
             ExportMetadataKind.Variable => true,
             _ => false,

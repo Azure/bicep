@@ -59,7 +59,6 @@ internal class ImportedSymbolDeclarationMigrator : ImportReferenceExpressionRewr
         Exported = null,
     };
 
-
     public override Expression ReplaceDeclaredFunctionExpression(DeclaredFunctionExpression expression)
     {
         var (namespaceName, name) = GetFunctionName(declaredSymbolNames[LookupDeclaredFunctionByName(expression.Name)]);

@@ -60,7 +60,7 @@ internal class ArmDeclarationToExpressionConverter
         sourceSyntax);
 
     internal DeclaredTypeExpression CreateDeclaredTypeExpressionFor(string typePointer)
-        => CreateDeclaredTypeExpressionFor(armIdentifierToSymbolNameMapping[new(ArmSymbolType.Type, typePointer)], ArmReferenceCollector.DereferenceArmType(schemaContext, typePointer));
+        => CreateDeclaredTypeExpressionFor(armIdentifierToSymbolNameMapping[new(ArmSymbolType.Type, typePointer)], ArmTemplateHelpers.DereferenceArmType(schemaContext, typePointer));
 
     internal DeclaredVariableExpression CreateDeclaredVariableExpressionFor(string originalName)
         => new(sourceSyntax,

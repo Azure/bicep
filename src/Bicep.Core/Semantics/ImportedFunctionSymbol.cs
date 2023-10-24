@@ -7,18 +7,10 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics;
 
-public class ImportedFunctionSymbol : ImportedSymbol, IFunctionSymbol
+public class ImportedFunctionSymbol : ImportedSymbol<ExportedFunctionMetadata>, IFunctionSymbol
 {
     public ImportedFunctionSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, ExportedFunctionMetadata exportedFunctionMetadata)
-        : base(context, declaringSyntax, enclosingDeclartion)
-    {
-        SourceModel = sourceModel;
-        ExportMetadata = exportedFunctionMetadata;
-    }
-
-    public ISemanticModel SourceModel { get; }
-
-    public ExportedFunctionMetadata ExportMetadata { get; }
+        : base(context, declaringSyntax, enclosingDeclartion, sourceModel, exportedFunctionMetadata) { }
 
     public override SymbolKind Kind => SymbolKind.Function;
 
@@ -29,8 +21,4 @@ public class ImportedFunctionSymbol : ImportedSymbol, IFunctionSymbol
     public FunctionFlags FunctionFlags => FunctionFlags.Default;
 
     public override void Accept(SymbolVisitor visitor) => visitor.VisitImportedFunctionSymbol(this);
-
-    public override ISemanticModel? TryGetSourceModel() => SourceModel;
-
-    protected override ExportMetadata? TryGetExportMetadata() => ExportMetadata;
 }

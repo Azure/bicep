@@ -402,7 +402,7 @@ namespace Bicep.LanguageServer.Handlers
             // source of the link. Underline only the symbolic name
             var originSelectionRange = result.Origin.ToRange(context.LineStarts);
 
-            if (imported.TryGetSourceModel() is SemanticModel bicepModel &&
+            if (imported.SourceModel is SemanticModel bicepModel &&
                 bicepModel.Root.Declarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is { } originalDeclaration)
             {
                 // entire span of the declaredSymbol

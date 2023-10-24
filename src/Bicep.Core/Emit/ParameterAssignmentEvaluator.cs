@@ -129,7 +129,7 @@ namespace Bicep.Core.Emit
         {
             if (import.Kind == SymbolKind.Variable)
             {
-                return import.TryGetSourceModel() switch
+                return import.SourceModel switch
                 {
                     SemanticModel bicepModel
                         => EvaluateImportedVariable(bicepModel, import),

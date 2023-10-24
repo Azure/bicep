@@ -166,6 +166,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is ImportedTypeSymbol ||
                         s is ImportedVariableSymbol ||
                         s is ImportedFunctionSymbol ||
+                        s is ErroredImportSymbol ||
                         s is WildcardImportSymbol);
                 }
 

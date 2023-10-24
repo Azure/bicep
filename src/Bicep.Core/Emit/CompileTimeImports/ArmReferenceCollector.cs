@@ -17,7 +17,6 @@ namespace Bicep.Core.Emit.CompileTimeImports;
 
 internal partial class ArmReferenceCollector
 {
-    private const string ArmTypeRefPrefix = "#/definitions/";
     private const string VariablesFunctionName = "variables";
     private readonly SchemaValidationContext schemaContext;
     private readonly TemplateVariablesEvaluator variablesEvaluator;
@@ -36,28 +35,15 @@ internal partial class ArmReferenceCollector
             .ToImmutableDictionary(fd => fd.Key, fd => fd.Function, StringComparer.OrdinalIgnoreCase);
     }
 
-    internal static ITemplateSchemaNode DereferenceArmType(SchemaValidationContext context, string typePointer)
-    {
-        // TODO make LocalSchemaRefResolver in Azure.Deployments.Templates public
-        if (!typePointer.StartsWith(ArmTypeRefPrefix) ||
-            typePointer[ArmTypeRefPrefix.Length..].Contains('/') ||
-            !context.Definitions.TryGetValue(typePointer[ArmTypeRefPrefix.Length..], out var typeDefinition))
-        {
-            throw new InvalidOperationException($"Invalid ARM template type reference ({typePointer}) encountered");
-        }
-
-        return typeDefinition;
-    }
-
     internal IEnumerable<ArmIdentifier> EnumerateReferencesUsedInDefinitionOf(ArmIdentifier armReference) => armReference.SymbolType switch
     {
-        ArmSymbolType.Type => EnumerateReferencesUsedIn(DereferenceArmType(schemaContext, armReference.Identifier)),
+        ArmSymbolType.Type => EnumerateReferencesUsedIn(ArmTemplateHelpers.DereferenceArmType(schemaContext, armReference.Identifier)),
         ArmSymbolType.Variable => EnumerateReferencesUsedInVariable(armReference.Identifier),
         ArmSymbolType.Function => EnumerateReferencesUsedInFunction(functionsByFullyQualifiedName[armReference.Identifier]),
         _ => throw new UnreachableException(),
     };
 
-    internal IEnumerable<ArmIdentifier> EnumerateReferencesUsedInVariable(string variableName)
+    private IEnumerable<ArmIdentifier> EnumerateReferencesUsedInVariable(string variableName)
     {
         if (variablesEvaluator.TryGetUnevaluatedDeclaringToken(variableName) is JToken declaration)
         {
