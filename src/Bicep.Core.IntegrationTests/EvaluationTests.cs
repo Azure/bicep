@@ -1141,7 +1141,16 @@ param location = 'westus'
 func joinWithSpace(values string[]) string => join(values, ' ')
 func greet(names string[]) string => 'Hi, ${joinWithSpace(names)}!'
 
-output sayHi string = greet(['Anthony', 'Martin'])
+func replaceMultiple(value string, input object) string => reduce(
+  map(items(input), i => { key: i.key, value: i.value, replaced: '' }),
+  { replaced: value },
+  (cur, next) => { replaced: replace(cur.replaced, next.key, next.value)}).replaced
+
+output sayHiWithComposition string = greet(['Anthony', 'Martin'])
+output sayHiWithLambdas string = replaceMultiple('Hi, $firstName $lastName!', {
+  '$firstName': 'Anthony'
+  '$lastName': 'Martin'
+})
 ";
 
     var (template, _, _) = CompilationHelper.Compile(services, bicepFile);
@@ -1150,7 +1159,8 @@ output sayHi string = greet(['Anthony', 'Martin'])
     {
       var evaluated = TemplateEvaluator.Evaluate(template);
 
-      evaluated.Should().HaveValueAtPath("$.outputs['sayHi'].value", "Hi, Anthony Martin!");
+      evaluated.Should().HaveValueAtPath("$.outputs['sayHiWithComposition'].value", "Hi, Anthony Martin!");
+      evaluated.Should().HaveValueAtPath("$.outputs['sayHiWithLambdas'].value", "Hi, Anthony Martin!");
     }
   }
 }
