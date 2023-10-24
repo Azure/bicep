@@ -23,7 +23,7 @@ namespace Bicep.Core.Registry
             options.Diagnostics.ApplySharedResourceManagerSettings();
             options.Environment = new ArmEnvironment(configuration.Cloud.ResourceManagerEndpointUri, configuration.Cloud.AuthenticationScope);
 
-            var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
+            var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.CredentialOptions, configuration.Cloud.ActiveDirectoryAuthorityUri);
             var armClient = new ArmClient(credential, subscriptionId, options);
 
             return new TemplateSpecRepository(armClient);

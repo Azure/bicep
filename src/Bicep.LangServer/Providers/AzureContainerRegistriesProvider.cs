@@ -75,7 +75,7 @@ namespace Bicep.LanguageServer.Providers
         private ArmClient GetArmClient(Uri templateUri)
         {
             var rootConfiguration = configurationManager.GetConfiguration(templateUri);
-            var credential = tokenCredentialFactory.CreateChain(rootConfiguration.Cloud.CredentialPrecedence, rootConfiguration.Cloud.ActiveDirectoryAuthorityUri);
+            var credential = tokenCredentialFactory.CreateChain(rootConfiguration.Cloud.CredentialPrecedence, rootConfiguration.Cloud.CredentialOptions, rootConfiguration.Cloud.ActiveDirectoryAuthorityUri);
 
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
