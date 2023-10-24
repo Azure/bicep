@@ -25,7 +25,7 @@ namespace Bicep.Core.Registry.Oci
         {
             if (!string.IsNullOrWhiteSpace(description))
             {
-                annotations[LanguageConstants.OciOpenContainerImageDescriptionAnnotation] = description;
+                annotations[OciAnnotationKeys.OciOpenContainerImageDescriptionAnnotation] = description;
             }
             return this;
         }
@@ -34,8 +34,20 @@ namespace Bicep.Core.Registry.Oci
         {
             if (!string.IsNullOrWhiteSpace(documentationUri))
             {
-                annotations[LanguageConstants.OciOpenContainerImageDocumentationAnnotation] = documentationUri;
+                annotations[OciAnnotationKeys.OciOpenContainerImageDocumentationAnnotation] = documentationUri;
             }
+            return this;
+        }
+
+        public OciManifestAnnotationsBuilder WithCreatedTime(DateTime dateTime)
+        {
+            annotations[OciAnnotationKeys.OciOpenContainerImageCreatedAnnotation] = dateTime.ToRfc3339Format();
+            return this;
+        }
+
+        public OciManifestAnnotationsBuilder WithTitle(string title)
+        {
+            annotations[OciAnnotationKeys.OciOpenContainerImageTitleAnnotation] = title;
             return this;
         }
     }
