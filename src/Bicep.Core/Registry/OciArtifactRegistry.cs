@@ -140,7 +140,7 @@ namespace Bicep.Core.Registry
         {
             var ociAnnotations = TryGetOciAnnotations(ociArtifactModuleReference);
             if (ociAnnotations is null ||
-                !ociAnnotations.TryGetValue(LanguageConstants.OciOpenContainerImageDocumentationAnnotation, out string? documentationUri)
+                !ociAnnotations.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDocumentationAnnotation, out string? documentationUri)
                 || string.IsNullOrWhiteSpace(documentationUri))
             {
                 // Automatically generate a help URI for public MCR modules
@@ -240,16 +240,27 @@ namespace Bicep.Core.Registry
             // NOTE: Bicep v0.20 and earlier will throw on this, so it's a breaking change.
             var config = new StreamDescriptor(new MemoryStream(Encoding.UTF8.GetBytes("{}")), BicepModuleMediaTypes.BicepModuleConfigV1);
 
-            List<StreamDescriptor> layers = new();
-            layers.Add(new StreamDescriptor(compiledArmTemplate, BicepModuleMediaTypes.BicepModuleLayerV1Json));
+            List<StreamDescriptor> layers = new()
+            {
+                new (
+                    compiledArmTemplate,
+                    BicepModuleMediaTypes.BicepModuleLayerV1Json,
+                    new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
+            };
+
             if (bicepSources is { } && features.PublishSourceEnabled)
             {
-                layers.Add(new StreamDescriptor(bicepSources, BicepModuleMediaTypes.BicepSourceV1Layer));
+                layers.Add(
+                    new StreamDescriptor(
+                        bicepSources,
+                        BicepModuleMediaTypes.BicepSourceV1Layer,
+                        new OciManifestAnnotationsBuilder().WithTitle("Source files").Build()));
             }
 
             var annotations = new OciManifestAnnotationsBuilder()
                 .WithDescription(description)
-                .WithDocumentationUri(documentationUri);
+                .WithDocumentationUri(documentationUri)
+                .WithCreatedTime(DateTime.Now);
 
             try
             {

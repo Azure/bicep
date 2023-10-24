@@ -1125,6 +1125,11 @@ namespace Bicep.Core.TypeSystem
         public override void VisitObjectSyntax(ObjectSyntax syntax)
             => AssignType(syntax, () =>
             {
+                foreach (var missingDeclarationSyntax in syntax.Children.OfType<MissingDeclarationSyntax>())
+                {
+                    VisitMissingDeclarationSyntax(missingDeclarationSyntax);
+                }
+
                 var errors = new List<ErrorDiagnostic>();
 
                 var duplicatedProperties = syntax.Properties

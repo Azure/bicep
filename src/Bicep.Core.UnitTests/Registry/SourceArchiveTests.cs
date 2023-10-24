@@ -128,7 +128,7 @@ public class SourceArchiveTests
             SourceArchive.SourceKind_Bicep => SourceFileFactory.CreateSourceFile(uri, actualContents),
             SourceArchive.SourceKind_TemplateSpec => SourceFileFactory.CreateTemplateSpecFile(uri, actualContents),
             _ => throw new Exception($"Unrecognized source kind: {sourceKind}")
-        }; ;
+        };
     }
 
     [TestMethod]

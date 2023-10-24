@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent CreateNestedResourceDeclarationSnippetInsertion(string name)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.NestedResourceDeclarationSnippetInsertion,
                 properties: new()
                 {
@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent CreateResourceBodySnippetInsertion(string name, string type)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.ResourceBodySnippetInsertion,
                 properties: new()
                 {
@@ -66,7 +66,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent CreateModuleBodySnippetInsertion(string name)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.ModuleBodySnippetInsertion,
                 properties: new()
                 {
@@ -75,7 +75,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent CreateTestBodySnippetInsertion(string name)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.TestBodySnippetInsertion,
                 properties: new()
                 {
@@ -84,7 +84,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent CreateObjectBodySnippetInsertion(string name)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.ObjectBodySnippetInsertion,
                 properties: new()
                 {
@@ -93,7 +93,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent InsertResourceSuccess(string resourceType, string apiVersion)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.InsertResourceSuccess,
                 properties: new()
                 {
@@ -103,7 +103,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent InsertResourceFailure(string failureType)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.InsertResourceFailure,
                 properties: new()
                 {
@@ -112,7 +112,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent ImportKubernetesManifestSuccess()
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.InsertKubernetesManifestSuccess,
                 properties: new()
                 {
@@ -122,7 +122,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent ImportKubernetesManifestFailure(string failureType)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.InsertKubernetesManifestFailure,
                 properties: new()
                 {
@@ -131,7 +131,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent CreateDisableNextLineDiagnostics(string code)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.DisableNextLineDiagnostics,
                 properties: new()
                 {
@@ -140,7 +140,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent EditLinterRule(string code, bool newConfigFile, bool newRuleAdded, string? error)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.EditLinterRule,
                 properties: new()
                 {
@@ -153,7 +153,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent CreateLinterRuleStateChangeInBicepConfig(string rule, string prevDiagnosticLevel, string curDiagnosticLevel)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.LinterRuleStateChange,
                 properties: new()
                 {
@@ -164,7 +164,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent CreateOverallLinterStateChangeInBicepConfig(string prevState, string curState)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.LinterCoreEnabledStateChange,
                 properties: new()
                 {
@@ -174,19 +174,19 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent CreateLinterStateOnBicepFileOpen(Dictionary<string, string> properties)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen,
                 properties: properties
             );
 
         public static BicepTelemetryEvent CreateBicepFileOpen(Dictionary<string, string> properties)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.BicepFileOpen,
                 properties: properties
             );
 
         public static BicepTelemetryEvent CreateDeployStart(string deployId)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.DeployStart,
                 properties: new()
                 {
@@ -195,7 +195,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent CreateDeployStartOrWaitForCompletionResult(string eventName, string deployId, bool isSuccess)
-            => new            (
+            => new(
                 eventName: eventName,
                 properties: new()
                 {
@@ -205,7 +205,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent DecompileSuccess(string decompileId, int countOutputFiles, int countConflictingFiles)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.DecompileSuccess,
                 properties: new()
                 {
@@ -216,7 +216,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent DecompileFailure(string decompileId, string failureType)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.DecompileFailure,
                 properties: new()
                 {
@@ -226,7 +226,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent DecompileSaveSuccess(string decompileId)
-            => new                (
+            => new(
                     eventName: TelemetryConstants.EventNames.DecompileSaveSuccess,
                     properties: new()
                     {
@@ -235,7 +235,7 @@ namespace Bicep.LanguageServer.Telemetry
                 );
 
         public static BicepTelemetryEvent DecompileSaveFailure(string decompileId, string failureType)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.DecompileSaveFailure,
                 properties: new()
                 {
@@ -245,7 +245,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent DecompileForPaste(string decompileId, string? pasteContext, string? pasteType, int jsonSize, int? bicepSize)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.DecompileForPaste,
                 properties: new()
                 {
@@ -258,7 +258,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent UnhandledException(Exception exception)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.UnhandledException,
                 properties: new()
                 {
@@ -267,7 +267,7 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent ModuleRegistryPathCompletion(string moduleRegistryType)
-            => new            (
+            => new(
                 eventName: TelemetryConstants.EventNames.ModuleRegistryPathCompletion,
                 properties: new()
                 {

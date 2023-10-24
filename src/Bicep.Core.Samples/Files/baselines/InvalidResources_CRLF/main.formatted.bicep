@@ -1580,3 +1580,47 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
     name: $account
   }
 }
+
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+resource sqlServer1 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sqlServer1'
+  location: 'polandcentral'
+
+  @
+ }
+resource sqlServer2 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sqlServer2'
+  location: 'polandcentral'
+
+  @description('var')
+  var test = 'x'
+
+  @description('module')
+  module x 'module.bicep' = {
+    name: 'x'
+  }
+}
+resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sqlServer3'
+  location: 'polandcentral'
+
+  @description('mising resource keyword')
+
+   }
+resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sqlServer4'
+  location: 'polandcentral'
+
+  @batchSize(1)
+
+   }
+resource sqlServer5 'Microsoft.Sql/servers@2021-11-01' = {
+  name: 'sqlServer5'
+  location: 'polandcentral'
+
+  @batchSize(1)
+  resource sqlDatabase 'databases' = {
+    name: 'db'
+    location: 'polandcentral'
+  }
+}

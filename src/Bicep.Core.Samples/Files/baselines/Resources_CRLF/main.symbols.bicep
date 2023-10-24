@@ -588,3 +588,27 @@ output p4_res1childtype string = p4_child1.type
 output p4_res1childid string = p4_child1.id
 //@[07:021) Output p4_res1childid. Type: string. Declaration start char: 0, length: 43
 
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+var dbs = ['db1', 'db2','db3']
+//@[04:007) Variable dbs. Type: ['db1', 'db2', 'db3']. Declaration start char: 0, length: 30
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+//@[09:018) Resource sqlServer. Type: Microsoft.Sql/servers@2021-11-01. Declaration start char: 0, length: 416
+  name: 'sql-server-name'
+  location: 'polandcentral'
+
+  @batchSize(1)
+  @description('Sql Databases')
+  resource sqlDatabases 'databases' = [for db in dbs: {
+//@[43:045) Local db. Type: 'db1' | 'db2' | 'db3'. Declaration start char: 43, length: 2
+//@[11:023) Resource sqlDatabases. Type: Microsoft.Sql/servers/databases@2021-11-01[]. Declaration start char: 2, length: 154
+    name: db
+    location: 'polandcentral'
+  }]
+
+  @description('Primary Sql Database')
+  resource primaryDb 'databases' = {
+//@[11:020) Resource primaryDb. Type: Microsoft.Sql/servers/databases@2021-11-01. Declaration start char: 2, length: 134
+    name: 'primary-db'
+    location: 'polandcentral'
+  }
+}
