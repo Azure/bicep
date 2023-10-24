@@ -6,19 +6,14 @@
   "$comment5": "                                                                                                        ",
   "$comment6": "Also, please add appropriate tests in Bicep.Core.UnitTests.Diagnostics.BicepConfigSchemaTests to verify this file's contents'",
   "$comment9": "=========================================================================================================",
-  "$schema": "http://json-schema.org/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Bicep Configuration",
   "definitions": {
     "level": {
       "title": "Diagnostic Level",
       "description": "Type of diagnostic to display, most rules default to warning",
       "type": "string",
-      "enum": [
-        "off",
-        "info",
-        "warning",
-        "error"
-      ]
+      "enum": ["off", "info", "warning", "error"]
     },
     "rule-def-level-warning": {
       "type": "object",
@@ -30,9 +25,7 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": [
-        "level"
-      ]
+      "required": ["level"]
     },
     "rule-def-level-error": {
       "type": "object",
@@ -44,9 +37,7 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": [
-        "level"
-      ]
+      "required": ["level"]
     },
     "rule-def-level-off": {
       "type": "object",
@@ -58,17 +49,12 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": [
-        "level"
-      ]
+      "required": ["level"]
     },
     "cloudProfile": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "resourceManagerEndpoint",
-        "activeDirectoryAuthority"
-      ],
+      "required": ["resourceManagerEndpoint", "activeDirectoryAuthority"],
       "properties": {
         "resourceManagerEndpoint": {
           "title": "Resource Manager Endpoint",
@@ -98,10 +84,7 @@
     "templateSpecModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "subscription",
-        "resourceGroup"
-      ],
+      "required": ["subscription", "resourceGroup"],
       "properties": {
         "subscription": {
           "title": "Subscription ID",
@@ -122,9 +105,7 @@
     "bicepRegistryModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "registry"
-      ],
+      "required": ["registry"],
       "properties": {
         "registry": {
           "title": "Registry",
@@ -144,9 +125,7 @@
     "bicepRegistryProviderAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "registry"
-      ],
+      "required": ["registry"],
       "properties": {
         "registry": {
           "title": "Registry",
@@ -171,20 +150,14 @@
       "title": "Cloud",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "currentProfile"
-      ],
+      "required": ["currentProfile"],
       "properties": {
         "currentProfile": {
           "title": "Current Profile",
           "description": "The current cloud profile",
           "anyOf": [
             {
-              "enum": [
-                "AzureCloud",
-                "AzureChinaCloud",
-                "AzureUSGovernment"
-              ]
+              "enum": ["AzureCloud", "AzureChinaCloud", "AzureUSGovernment"]
             },
             {
               "type": "string"
@@ -209,6 +182,44 @@
           },
           "minItems": 1,
           "uniqueItems": true
+        },
+        "credentialOptions": {
+          "title": "Credential Options",
+          "description": "Credential options for the credential types specified in credentialPrecedence.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "managedIdentity": {
+              "title": "Managed Identity",
+              "description": "The managed identity options",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "title": "Managed Identity Type",
+                  "description": "The managed identity type",
+                  "type": "string",
+                  "enum": ["SystemAssigned", "UserAssigned"],
+                  "default": "SystemAssigned",
+                  "enumDescriptions": [
+                    "Use a system-assigned managed identity",
+                    "Use a user-assigned managed identity"
+                  ]
+                },
+                "clientId": {
+                  "title": "Client ID",
+                  "description": "The user-assigned managed identity client ID",
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "resourceId": {
+                  "title": "Resource ID",
+                  "description": "The user-assigned managed identity resource ID",
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -411,9 +422,7 @@
                         "excludedhosts": {
                           "description": "Customize the list of hosts to allow even if they contain an excluded host as a substring",
                           "type": "array",
-                          "default": [
-                            "schema.management.azure.com"
-                          ],
+                          "default": ["schema.management.azure.com"],
                           "items": {
                             "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/excludedhosts/items",
                             "title": "Items",
@@ -720,19 +729,12 @@
         "indentKind": {
           "type": "string",
           "description": "The indentation kind",
-          "enum": [
-            "Space",
-            "Tab"
-          ]
+          "enum": ["Space", "Tab"]
         },
         "newlineKind": {
           "type": "string",
           "description": "The newline kind",
-          "enum": [
-            "LF",
-            "CRLF",
-            "CR"
-          ]
+          "enum": ["LF", "CRLF", "CR"]
         },
         "indentSize": {
           "type": "integer",
