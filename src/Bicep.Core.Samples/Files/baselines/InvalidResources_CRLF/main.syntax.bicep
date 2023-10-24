@@ -1,5 +1,5 @@
 
-//@[000:51742) ProgramSyntax
+//@[000:52706) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 // wrong declaration
 //@[020:00022) ├─Token(NewLine) |\r\n|
@@ -12104,6 +12104,300 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
 //@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
-//@[001:00003) ├─Token(NewLine) |\r\n|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
-//@[000:00000) └─Token(EndOfFile) ||
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+//@[084:00086) ├─Token(NewLine) |\r\n|
+resource sqlServer1 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00119) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00019) | ├─IdentifierSyntax
+//@[009:00019) | | └─Token(Identifier) |sqlServer1|
+//@[020:00054) | ├─StringSyntax
+//@[020:00054) | | └─Token(StringComplete) |'Microsoft.Sql/servers@2021-11-01'|
+//@[055:00056) | ├─Token(Assignment) |=|
+//@[057:00119) | └─ObjectSyntax
+//@[057:00058) |   ├─Token(LeftBrace) |{|
+//@[058:00060) |   ├─Token(NewLine) |\r\n|
+  name: 'sqlServer1'
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00020) |   | └─StringSyntax
+//@[008:00020) |   |   └─Token(StringComplete) |'sqlServer1'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
+  location: 'polandcentral'
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00027) |   | └─StringSyntax
+//@[012:00027) |   |   └─Token(StringComplete) |'polandcentral'|
+//@[027:00031) |   ├─Token(NewLine) |\r\n\r\n|
+
+  @
+//@[002:00005) |   ├─MissingDeclarationSyntax
+//@[002:00003) |   | ├─DecoratorSyntax
+//@[002:00003) |   | | ├─Token(At) |@|
+//@[003:00003) |   | | └─SkippedTriviaSyntax
+//@[003:00005) |   | └─Token(NewLine) |\r\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
+resource sqlServer2 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00231) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00019) | ├─IdentifierSyntax
+//@[009:00019) | | └─Token(Identifier) |sqlServer2|
+//@[020:00054) | ├─StringSyntax
+//@[020:00054) | | └─Token(StringComplete) |'Microsoft.Sql/servers@2021-11-01'|
+//@[055:00056) | ├─Token(Assignment) |=|
+//@[057:00231) | └─ObjectSyntax
+//@[057:00058) |   ├─Token(LeftBrace) |{|
+//@[058:00060) |   ├─Token(NewLine) |\r\n|
+  name: 'sqlServer2'
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00020) |   | └─StringSyntax
+//@[008:00020) |   |   └─Token(StringComplete) |'sqlServer2'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
+  location: 'polandcentral'
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00027) |   | └─StringSyntax
+//@[012:00027) |   |   └─Token(StringComplete) |'polandcentral'|
+//@[027:00031) |   ├─Token(NewLine) |\r\n\r\n|
+
+  @description('var')
+//@[002:00023) |   ├─MissingDeclarationSyntax
+//@[002:00021) |   | ├─DecoratorSyntax
+//@[002:00003) |   | | ├─Token(At) |@|
+//@[003:00021) |   | | └─FunctionCallSyntax
+//@[003:00014) |   | |   ├─IdentifierSyntax
+//@[003:00014) |   | |   | └─Token(Identifier) |description|
+//@[014:00015) |   | |   ├─Token(LeftParen) |(|
+//@[015:00020) |   | |   ├─FunctionArgumentSyntax
+//@[015:00020) |   | |   | └─StringSyntax
+//@[015:00020) |   | |   |   └─Token(StringComplete) |'var'|
+//@[020:00021) |   | |   └─Token(RightParen) |)|
+//@[021:00023) |   | └─Token(NewLine) |\r\n|
+  var test = 'x'
+//@[002:00002) |   ├─SkippedTriviaSyntax
+//@[002:00016) |   ├─ObjectPropertySyntax
+//@[002:00005) |   | ├─IdentifierSyntax
+//@[002:00005) |   | | └─Token(Identifier) |var|
+//@[006:00016) |   | ├─SkippedTriviaSyntax
+//@[006:00010) |   | | ├─Token(Identifier) |test|
+//@[011:00012) |   | | ├─Token(Assignment) |=|
+//@[013:00016) |   | | └─Token(StringComplete) |'x'|
+//@[016:00016) |   | └─SkippedTriviaSyntax
+//@[016:00020) |   ├─Token(NewLine) |\r\n\r\n|
+
+  @description('module')
+//@[002:00026) |   ├─MissingDeclarationSyntax
+//@[002:00024) |   | ├─DecoratorSyntax
+//@[002:00003) |   | | ├─Token(At) |@|
+//@[003:00024) |   | | └─FunctionCallSyntax
+//@[003:00014) |   | |   ├─IdentifierSyntax
+//@[003:00014) |   | |   | └─Token(Identifier) |description|
+//@[014:00015) |   | |   ├─Token(LeftParen) |(|
+//@[015:00023) |   | |   ├─FunctionArgumentSyntax
+//@[015:00023) |   | |   | └─StringSyntax
+//@[015:00023) |   | |   |   └─Token(StringComplete) |'module'|
+//@[023:00024) |   | |   └─Token(RightParen) |)|
+//@[024:00026) |   | └─Token(NewLine) |\r\n|
+  module x 'module.bicep' = {
+//@[002:00002) |   ├─SkippedTriviaSyntax
+//@[002:00029) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |module|
+//@[009:00029) |   | ├─SkippedTriviaSyntax
+//@[009:00010) |   | | ├─Token(Identifier) |x|
+//@[011:00025) |   | | ├─Token(StringComplete) |'module.bicep'|
+//@[026:00027) |   | | ├─Token(Assignment) |=|
+//@[028:00029) |   | | └─Token(LeftBrace) |{|
+//@[029:00029) |   | └─SkippedTriviaSyntax
+//@[029:00031) |   ├─Token(NewLine) |\r\n|
+    name: 'x'
+//@[004:00013) |   ├─ObjectPropertySyntax
+//@[004:00008) |   | ├─IdentifierSyntax
+//@[004:00008) |   | | └─Token(Identifier) |name|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00013) |   | └─StringSyntax
+//@[010:00013) |   |   └─Token(StringComplete) |'x'|
+//@[013:00015) |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:00003) |   └─Token(RightBrace) |}|
+//@[003:00005) ├─Token(NewLine) |\r\n|
+}
+//@[000:00001) ├─SkippedTriviaSyntax
+//@[000:00001) | └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
+resource sqlServer3 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00159) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00019) | ├─IdentifierSyntax
+//@[009:00019) | | └─Token(Identifier) |sqlServer3|
+//@[020:00054) | ├─StringSyntax
+//@[020:00054) | | └─Token(StringComplete) |'Microsoft.Sql/servers@2021-11-01'|
+//@[055:00056) | ├─Token(Assignment) |=|
+//@[057:00159) | └─ObjectSyntax
+//@[057:00058) |   ├─Token(LeftBrace) |{|
+//@[058:00060) |   ├─Token(NewLine) |\r\n|
+  name: 'sqlServer3'
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00020) |   | └─StringSyntax
+//@[008:00020) |   |   └─Token(StringComplete) |'sqlServer3'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
+  location: 'polandcentral'
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00027) |   | └─StringSyntax
+//@[012:00027) |   |   └─Token(StringComplete) |'polandcentral'|
+//@[027:00031) |   ├─Token(NewLine) |\r\n\r\n|
+
+  @description('mising resource keyword')
+//@[002:00045) |   ├─MissingDeclarationSyntax
+//@[002:00041) |   | ├─DecoratorSyntax
+//@[002:00003) |   | | ├─Token(At) |@|
+//@[003:00041) |   | | └─FunctionCallSyntax
+//@[003:00014) |   | |   ├─IdentifierSyntax
+//@[003:00014) |   | |   | └─Token(Identifier) |description|
+//@[014:00015) |   | |   ├─Token(LeftParen) |(|
+//@[015:00040) |   | |   ├─FunctionArgumentSyntax
+//@[015:00040) |   | |   | └─StringSyntax
+//@[015:00040) |   | |   |   └─Token(StringComplete) |'mising resource keyword'|
+//@[040:00041) |   | |   └─Token(RightParen) |)|
+//@[041:00045) |   | └─Token(NewLine) |\r\n\r\n|
+
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
+resource sqlServer4 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00133) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00019) | ├─IdentifierSyntax
+//@[009:00019) | | └─Token(Identifier) |sqlServer4|
+//@[020:00054) | ├─StringSyntax
+//@[020:00054) | | └─Token(StringComplete) |'Microsoft.Sql/servers@2021-11-01'|
+//@[055:00056) | ├─Token(Assignment) |=|
+//@[057:00133) | └─ObjectSyntax
+//@[057:00058) |   ├─Token(LeftBrace) |{|
+//@[058:00060) |   ├─Token(NewLine) |\r\n|
+  name: 'sqlServer4'
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00020) |   | └─StringSyntax
+//@[008:00020) |   |   └─Token(StringComplete) |'sqlServer4'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
+  location: 'polandcentral'
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00027) |   | └─StringSyntax
+//@[012:00027) |   |   └─Token(StringComplete) |'polandcentral'|
+//@[027:00031) |   ├─Token(NewLine) |\r\n\r\n|
+
+  @batchSize(1)
+//@[002:00019) |   ├─MissingDeclarationSyntax
+//@[002:00015) |   | ├─DecoratorSyntax
+//@[002:00003) |   | | ├─Token(At) |@|
+//@[003:00015) |   | | └─FunctionCallSyntax
+//@[003:00012) |   | |   ├─IdentifierSyntax
+//@[003:00012) |   | |   | └─Token(Identifier) |batchSize|
+//@[012:00013) |   | |   ├─Token(LeftParen) |(|
+//@[013:00014) |   | |   ├─FunctionArgumentSyntax
+//@[013:00014) |   | |   | └─IntegerLiteralSyntax
+//@[013:00014) |   | |   |   └─Token(Integer) |1|
+//@[014:00015) |   | |   └─Token(RightParen) |)|
+//@[015:00019) |   | └─Token(NewLine) |\r\n\r\n|
+
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
+resource sqlServer5 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00223) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00019) | ├─IdentifierSyntax
+//@[009:00019) | | └─Token(Identifier) |sqlServer5|
+//@[020:00054) | ├─StringSyntax
+//@[020:00054) | | └─Token(StringComplete) |'Microsoft.Sql/servers@2021-11-01'|
+//@[055:00056) | ├─Token(Assignment) |=|
+//@[057:00223) | └─ObjectSyntax
+//@[057:00058) |   ├─Token(LeftBrace) |{|
+//@[058:00060) |   ├─Token(NewLine) |\r\n|
+  name: 'sqlServer5'
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00020) |   | └─StringSyntax
+//@[008:00020) |   |   └─Token(StringComplete) |'sqlServer5'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
+  location: 'polandcentral'
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00027) |   | └─StringSyntax
+//@[012:00027) |   |   └─Token(StringComplete) |'polandcentral'|
+//@[027:00031) |   ├─Token(NewLine) |\r\n\r\n|
+
+  @batchSize(1)
+//@[002:00107) |   ├─ResourceDeclarationSyntax
+//@[002:00015) |   | ├─DecoratorSyntax
+//@[002:00003) |   | | ├─Token(At) |@|
+//@[003:00015) |   | | └─FunctionCallSyntax
+//@[003:00012) |   | |   ├─IdentifierSyntax
+//@[003:00012) |   | |   | └─Token(Identifier) |batchSize|
+//@[012:00013) |   | |   ├─Token(LeftParen) |(|
+//@[013:00014) |   | |   ├─FunctionArgumentSyntax
+//@[013:00014) |   | |   | └─IntegerLiteralSyntax
+//@[013:00014) |   | |   |   └─Token(Integer) |1|
+//@[014:00015) |   | |   └─Token(RightParen) |)|
+//@[015:00017) |   | ├─Token(NewLine) |\r\n|
+  resource sqlDatabase 'databases' = {
+//@[002:00010) |   | ├─Token(Identifier) |resource|
+//@[011:00022) |   | ├─IdentifierSyntax
+//@[011:00022) |   | | └─Token(Identifier) |sqlDatabase|
+//@[023:00034) |   | ├─StringSyntax
+//@[023:00034) |   | | └─Token(StringComplete) |'databases'|
+//@[035:00036) |   | ├─Token(Assignment) |=|
+//@[037:00090) |   | └─ObjectSyntax
+//@[037:00038) |   |   ├─Token(LeftBrace) |{|
+//@[038:00040) |   |   ├─Token(NewLine) |\r\n|
+    name: 'db'
+//@[004:00014) |   |   ├─ObjectPropertySyntax
+//@[004:00008) |   |   | ├─IdentifierSyntax
+//@[004:00008) |   |   | | └─Token(Identifier) |name|
+//@[008:00009) |   |   | ├─Token(Colon) |:|
+//@[010:00014) |   |   | └─StringSyntax
+//@[010:00014) |   |   |   └─Token(StringComplete) |'db'|
+//@[014:00016) |   |   ├─Token(NewLine) |\r\n|
+    location: 'polandcentral'
+//@[004:00029) |   |   ├─ObjectPropertySyntax
+//@[004:00012) |   |   | ├─IdentifierSyntax
+//@[004:00012) |   |   | | └─Token(Identifier) |location|
+//@[012:00013) |   |   | ├─Token(Colon) |:|
+//@[014:00029) |   |   | └─StringSyntax
+//@[014:00029) |   |   |   └─Token(StringComplete) |'polandcentral'|
+//@[029:00031) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00001) └─Token(EndOfFile) ||

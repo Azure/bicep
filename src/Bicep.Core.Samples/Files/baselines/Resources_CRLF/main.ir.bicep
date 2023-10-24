@@ -1,5 +1,9 @@
 
-//@[000:12777) ProgramExpression
+//@[000:13313) ProgramExpression
+//@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
+//@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
+//@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
+//@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -1331,3 +1335,46 @@ output p4_res1childid string = p4_child1.id
 //@[031:00043)   └─PropertyAccessExpression { PropertyName = id }
 //@[031:00040)     └─ResourceReferenceExpression
 
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+var dbs = ['db1', 'db2','db3']
+//@[000:00030) ├─DeclaredVariableExpression { Name = dbs }
+//@[010:00030) | └─ArrayExpression
+//@[011:00016) |   ├─StringLiteralExpression { Value = db1 }
+//@[018:00023) |   ├─StringLiteralExpression { Value = db2 }
+//@[024:00029) |   └─StringLiteralExpression { Value = db3 }
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:00416) ├─DeclaredResourceExpression
+//@[056:00416) | └─ObjectExpression
+  name: 'sql-server-name'
+  location: 'polandcentral'
+//@[002:00027) |   └─ObjectPropertyExpression
+//@[002:00010) |     ├─StringLiteralExpression { Value = location }
+//@[012:00027) |     └─StringLiteralExpression { Value = polandcentral }
+
+  @batchSize(1)
+//@[002:00156) ├─DeclaredResourceExpression
+  @description('Sql Databases')
+//@[015:00030) | ├─StringLiteralExpression { Value = Sql Databases }
+  resource sqlDatabases 'databases' = [for db in dbs: {
+//@[038:00106) | ├─ForLoopExpression
+//@[049:00052) | | ├─VariableReferenceExpression { Variable = dbs }
+//@[054:00105) | | └─ObjectExpression
+    name: db
+    location: 'polandcentral'
+//@[004:00029) | |   └─ObjectPropertyExpression
+//@[004:00012) | |     ├─StringLiteralExpression { Value = location }
+//@[014:00029) | |     └─StringLiteralExpression { Value = polandcentral }
+  }]
+
+  @description('Primary Sql Database')
+//@[002:00136) ├─DeclaredResourceExpression
+//@[015:00037) | ├─StringLiteralExpression { Value = Primary Sql Database }
+  resource primaryDb 'databases' = {
+//@[035:00096) | ├─ObjectExpression
+    name: 'primary-db'
+    location: 'polandcentral'
+//@[004:00029) | | └─ObjectPropertyExpression
+//@[004:00012) | |   ├─StringLiteralExpression { Value = location }
+//@[014:00029) | |   └─StringLiteralExpression { Value = polandcentral }
+  }
+}

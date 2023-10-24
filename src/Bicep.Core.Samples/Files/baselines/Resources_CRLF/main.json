@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14326560630100309498"
+      "templateHash": "9175006065683431096"
     }
   },
   "parameters": {
@@ -52,9 +52,44 @@
       }
     ],
     "canHaveDuplicatesAcrossScopes": "hello",
-    "duplicatesEverywhere": "hello"
+    "duplicatesEverywhere": "hello",
+    "dbs": [
+      "db1",
+      "db2",
+      "db3"
+    ]
   },
   "resources": [
+    {
+      "copy": {
+        "name": "sqlDatabases",
+        "count": "[length(variables('dbs'))]",
+        "mode": "serial",
+        "batchSize": 1
+      },
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2021-11-01",
+      "name": "[format('{0}/{1}', 'sql-server-name', variables('dbs')[copyIndex()])]",
+      "location": "polandcentral",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', 'sql-server-name')]"
+      ],
+      "metadata": {
+        "description": "Sql Databases"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2021-11-01",
+      "name": "[format('{0}/{1}', 'sql-server-name', 'primary-db')]",
+      "location": "polandcentral",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', 'sql-server-name')]"
+      ],
+      "metadata": {
+        "description": "Primary Sql Database"
+      }
+    },
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
@@ -588,6 +623,12 @@
       "type": "Microsoft.Rp1/resource1/child1",
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', 'res1', 'child1')]"
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-11-01",
+      "name": "sql-server-name",
+      "location": "polandcentral"
     }
   ],
   "outputs": {
