@@ -352,7 +352,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
             diagnostics.Count.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurataionPath}\" as valid JSON: \"The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.\".");
+            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurataionPath}\" as valid JSON: The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
         }
 
         [TestMethod]
@@ -379,7 +379,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
             diagnostics.Count.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Could not load the Bicep configuration file \"{configurataionPath}\": \"Not allowed.\".");
+            diagnostics[0].Message.Should().Be($"Could not load the Bicep configuration file \"{configurataionPath}\": Not allowed.");
         }
 
         [TestMethod]
@@ -401,57 +401,66 @@ namespace Bicep.Core.UnitTests.Configuration
             var diagnostics = configuration.DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
             diagnostics.Count.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Info);
-            diagnostics[0].Message.Should().Be("Error scanning \"foo\" for bicep configuration: \"Oops.\".");
+            diagnostics[0].Message.Should().Be("Error scanning \"foo\" for bicep configuration: Oops.");
             configuration.ToUtf8Json().Should().Be(IConfigurationManager.GetBuiltInConfiguration().ToUtf8Json());
         }
 
         [DataTestMethod]
-        [DataRow(@"{
-  ""cloud"": {
-    ""currentProfile"": ""MyCloud""
-  }
-}", "The cloud profile \"MyCloud\" does not exist in the Bicep configuration \"__CONFIGURATION_PATH__\". Available profiles include \"AzureChinaCloud\", \"AzureCloud\", \"AzureUSGovernment\".")]
-        [DataRow(@"{
-  ""cloud"": {
-    ""currentProfile"": ""MyCloud"",
-    ""profiles"": {
-      ""MyCloud"": {
-      }
-    }
-  }
-}", "The cloud profile \"MyCloud\" in the Bicep configuration \"__CONFIGURATION_PATH__\". The \"resourceManagerEndpoint\" property cannot be null or undefined.")]
-        [DataRow(@"{
-  ""cloud"": {
-    ""currentProfile"": ""MyCloud"",
-    ""profiles"": {
-      ""MyCloud"": {
-        ""resourceManagerEndpoint"": ""Not and URL""
-      }
-    }
-  }
-}", "The cloud profile \"MyCloud\" in the Bicep configuration \"__CONFIGURATION_PATH__\" is invalid. The value of the \"resourceManagerEndpoint\" property \"Not and URL\" is not a valid URL.")]
-        [DataRow(@"{
-  ""cloud"": {
-    ""currentProfile"": ""MyCloud"",
-    ""profiles"": {
-      ""MyCloud"": {
-        ""resourceManagerEndpoint"": ""https://example.invalid""
-      }
-    }
-  }
-}",
-            "The cloud profile \"MyCloud\" in the Bicep configuration \"__CONFIGURATION_PATH__\". The \"activeDirectoryAuthority\" property cannot be null or undefined.")]
-        [DataRow(@"{
-  ""cloud"": {
-    ""currentProfile"": ""MyCloud"",
-    ""profiles"": {
-      ""MyCloud"": {
-        ""resourceManagerEndpoint"": ""https://example.invalid"",
-        ""activeDirectoryAuthority"": ""Not an URL""
-      }
-    }
-  }
-}", "The cloud profile \"MyCloud\" in the Bicep configuration \"__CONFIGURATION_PATH__\" is invalid. The value of the \"activeDirectoryAuthority\" property \"Not an URL\" is not a valid URL.")]
+        [DataRow("""
+            {
+              "cloud": {
+                "currentProfile": "MyCloud"
+              }
+            }
+            """, @"The cloud profile ""MyCloud"" does not exist. Available profiles include ""AzureChinaCloud"", ""AzureCloud"", ""AzureUSGovernment"".")]
+        [DataRow("""
+            {
+              "cloud": {
+                "currentProfile": "MyCloud",
+                "profiles": {
+                  "MyCloud": {
+                  }
+                }
+              }
+            }
+            """, @"The cloud profile ""MyCloud"" is invalid. The ""resourceManagerEndpoint"" property cannot be null or undefined.")]
+        [DataRow("""
+            {
+              "cloud": {
+                "currentProfile": "MyCloud",
+                "profiles": {
+                  "MyCloud": {
+                    "resourceManagerEndpoint": "Not and URL"
+                  }
+                }
+              }
+            }
+            """, @"The cloud profile ""MyCloud"" is invalid. The value of the ""resourceManagerEndpoint"" property ""Not and URL"" is not a valid URL.")]
+        [DataRow("""
+            {
+              "cloud": {
+                "currentProfile": "MyCloud",
+                "profiles": {
+                  "MyCloud": {
+                    "resourceManagerEndpoint": "https://example.invalid"
+                  }
+                }
+              }
+            }
+            """, @"The cloud profile ""MyCloud"" is invalid. The ""activeDirectoryAuthority"" property cannot be null or undefined.")]
+        [DataRow("""
+            {
+              "cloud": {
+                "currentProfile": "MyCloud",
+                "profiles": {
+                  "MyCloud": {
+                    "resourceManagerEndpoint": "https://example.invalid",
+                    "activeDirectoryAuthority": "Not an URL"
+                  }
+                }
+              }
+            }
+            """, @"The cloud profile ""MyCloud"" is invalid. The value of the ""activeDirectoryAuthority"" property ""Not an URL"" is not a valid URL.")]
         public void GetConfiguration_InvalidCurrentCloudProfile_PropagatesConfigurationDiagnostic(string configurationContents, string expectedExceptionMessage)
         {
             // Arrange.
@@ -468,7 +477,77 @@ namespace Bicep.Core.UnitTests.Configuration
             var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
             diagnostics.Count.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
-            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": \"{expectedExceptionMessage.Replace("__CONFIGURATION_PATH__", configurationPath)}\".");
+            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {expectedExceptionMessage}");
+        }
+
+        [TestMethod]
+        [DataRow("""
+            {
+              "cloud": {
+                "credentialOptions": {
+                    "managedIdentity": {
+                        "type": "UserAssigned"
+                    }
+                }
+              }
+            }
+            """, @"The managed-identity configuration is invalid. Either ""clientId"" or ""resourceId"" must be set for user-assigned identity.")]
+        [DataRow("""
+            {
+              "cloud": {
+                "credentialOptions": {
+                    "managedIdentity": {
+                        "type": "UserAssigned",
+                        "clientId": "foo",
+                        "resourceId": "bar"
+                    }
+                }
+              }
+            }
+            """, @"The managed-identity configuration is invalid. ""clientId"" and ""resourceId"" cannot be set at the same time for user-assigned identity.")]
+        [DataRow("""
+            {
+              "cloud": {
+                "credentialOptions": {
+                    "managedIdentity": {
+                        "type": "UserAssigned",
+                        "clientId": "foo"
+                    }
+                }
+              }
+            }
+            """, @"The managed-identity configuration is invalid. ""clientId"" must be a GUID.")]
+        [DataRow("""
+            {
+              "cloud": {
+                "credentialOptions": {
+                    "managedIdentity": {
+                        "type": "UserAssigned",
+                        "resourceId": "bar"
+                    }
+                }
+              }
+            }
+            """, @"The managed-identity configuration is invalid. ""resourceId"" must be a valid Azure resource identifier.")]
+        public void GetConfiguration_InvalidUserAssignedIdentityOptions_PropagatesConfigurationDiagnostic(string configurationContents, string expectedExceptionMessage)
+        {
+            // Arrange.
+            var configurationPath = CreatePath("path/to/bicepconfig.json");
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                [configurationPath] = configurationContents,
+            });
+
+            var sut = new ConfigurationManager(fileSystem);
+            var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
+
+            // Act.
+            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
+
+            // Assert.
+            diagnostics.Count.Should().Be(1);
+            diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
+            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {expectedExceptionMessage}");
         }
 
         [TestMethod]
@@ -492,7 +571,13 @@ namespace Bicep.Core.UnitTests.Configuration
                     "credentialPrecedence": [
                         "AzurePowerShell",
                         "VisualStudioCode"
-                    ]
+                    ],
+                    "credentialOptions": {
+                      "managedIdentity": {
+                        "type": "UserAssigned",
+                        "clientId": "00000000-0000-0000-0000-000000000000"
+                      }
+                    }
                   },
                   "moduleAliases": {
                     "ts": {
@@ -584,13 +669,18 @@ namespace Bicep.Core.UnitTests.Configuration
                     "credentialPrecedence": [
                       "AzurePowerShell",
                       "VisualStudioCode"
-                    ]
+                    ],
+                    "credentialOptions": {
+                      "managedIdentity": {
+                        "type": "UserAssigned",
+                        "clientId": "00000000-0000-0000-0000-000000000000"
+                      }
+                    }
                   },
                   "moduleAliases": {
                     "ts": {
                       "mySpecPath": {
-                        "subscription": "B34C8680-F688-48C2-A44F-E1EFF5E01173",
-                        "resourceGroup": null
+                        "subscription": "B34C8680-F688-48C2-A44F-E1EFF5E01173"
                       }
                     },
                     "br": {
@@ -599,8 +689,7 @@ namespace Bicep.Core.UnitTests.Configuration
                         "modulePath": "root/modules"
                       },
                       "myRegistry": {
-                        "registry": "localhost:8000",
-                        "modulePath": null
+                        "registry": "localhost:8000"
                       },
                       "public": {
                         "registry": "mcr.microsoft.com",
