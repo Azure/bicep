@@ -15,5 +15,9 @@ describe("msbuild", () => {
     example.expectTemplate("bin/Debug/templates/net7.0/empty.json");
     example.expectTemplate("bin/Debug/templates/net7.0/passthrough.json");
     example.expectTemplate("bin/Debug/templates/net7.0/special/special.arm");
+
+    example.cleanProjectDir();
+
+    example.publish("net7.0");
   });
 });
