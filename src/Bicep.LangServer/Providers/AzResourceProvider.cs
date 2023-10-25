@@ -32,7 +32,7 @@ namespace Bicep.LanguageServer.Providers
                 options.SetApiVersion(new ResourceType(resourceType), apiVersion);
             }
 
-            var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
+            var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.CredentialOptions, configuration.Cloud.ActiveDirectoryAuthorityUri);
 
             return new ArmClient(credential, subscriptionId, options);
         }

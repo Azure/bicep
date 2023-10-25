@@ -1552,23 +1552,23 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnparsableBicepConfigFile(string configurationPath, string parsingErrorMessage) => new(
                 TextSpan,
                 "BCP271",
-                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: \"{parsingErrorMessage}\".");
+                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: {parsingErrorMessage.TrimEnd('.')}.");
 
             public ErrorDiagnostic UnloadableBicepConfigFile(string configurationPath, string loadErrorMessage) => new(
                 TextSpan,
                 "BCP272",
-                $"Could not load the Bicep configuration file \"{configurationPath}\": \"{loadErrorMessage}\".");
+                $"Could not load the Bicep configuration file \"{configurationPath}\": {loadErrorMessage.TrimEnd('.')}.");
 
             public ErrorDiagnostic InvalidBicepConfigFile(string configurationPath, string parsingErrorMessage) => new(
                 TextSpan,
                 "BCP273",
-                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": \"{parsingErrorMessage}\".");
+                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {parsingErrorMessage.TrimEnd('.')}.");
 
             public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(string? directoryPath, string scanErrorMessage) => new(
                 TextSpan,
                 DiagnosticLevel.Info, // should this be a warning instead?
                 "BCP274",
-                $"Error scanning \"{directoryPath}\" for bicep configuration: \"{scanErrorMessage}\".");
+                $"Error scanning \"{directoryPath}\" for bicep configuration: {scanErrorMessage.TrimEnd('.')}.");
 
             public ErrorDiagnostic FoundDirectoryInsteadOfFile(string directoryPath) => new(
                 TextSpan,

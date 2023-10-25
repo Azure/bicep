@@ -18,6 +18,7 @@ namespace Bicep.Core.Json
 
         private static readonly JsonSerializerOptions DefaultSerializeOptions = new()
         {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             Converters = { new JsonStringEnumConverter() },
         };

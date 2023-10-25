@@ -24,7 +24,7 @@ namespace Bicep.Core.Registry
             options.Diagnostics.ApplySharedContainerRegistrySettings();
             options.Audience = new ContainerRegistryAudience(configuration.Cloud.ResourceManagerAudience);
 
-            var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
+            var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.CredentialOptions, configuration.Cloud.ActiveDirectoryAuthorityUri);
 
             return new(registryUri, repository, credential, options);
         }
