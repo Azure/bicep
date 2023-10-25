@@ -22,10 +22,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string text, params string[] unusedVars)
         {
-            CompileAndTest(text, OnCompileErrors.IncludeErrors, unusedVars);
+            CompileAndTest(text, new(OnCompileErrors.IncludeErrors), unusedVars);
         }
 
-        private void CompileAndTest(string text, OnCompileErrors onCompileErrors, params string[] unusedVars)
+        private void CompileAndTest(string text, Options options, params string[] unusedVars)
         {
             AssertLinterRuleDiagnostics(NoUnusedVariablesRule.Code, text, diags =>
                 {
@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         diags.Should().BeEmpty();
                     }
                 },
-                new Options(onCompileErrors));
+                options);
         }
 
         [DataRow(@"
@@ -80,6 +80,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             CompileAndTest(text, unusedVars);
         }
 
+        [TestMethod]
+        public void Exported_variables_are_not_reported_as_unused()
+        {
+            CompileAndTest("""
+                @export()
+                var foo = 'foo'
+                """,
+                new Options(OnCompileErrors.IncludeErrors, FeatureOverrides: new(CompileTimeImportsEnabled: true)));
+        }
+
         [DataRow(@"
             // Syntax errors
             var string =
@@ -90,15 +100,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void SyntaxErrors(string text, params string[] unusedVars)
         {
-            CompileAndTest(text, OnCompileErrors.Ignore, unusedVars);
+            CompileAndTest(text, new(OnCompileErrors.Ignore), unusedVars);
         }
 
         [DataRow(@"var")] // Don't show as unused - no param name
         [DataRow(@"var // whoops")] // Don't show as unused - no param name
         [DataTestMethod]
-        public void Errors(string text, params string[] unusedParams)
+        public void Errors(string text, params string[] unusedVars)
         {
-            CompileAndTest(text, OnCompileErrors.Ignore);
+            CompileAndTest(text, new(OnCompileErrors.Ignore), unusedVars);
         }
     }
 }
