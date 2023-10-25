@@ -20,6 +20,7 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics
@@ -235,9 +236,9 @@ namespace Bicep.Core.Semantics
                     exports.AddRange(@namespace.Members.Where(kvp => IsExported(kvp.Value))
                         .Select(kvp => new ExportedFunctionMetadata(
                             Name: $"{namePrefix}{kvp.Key}",
-                            Parameters: kvp.Value.Parameters is TemplateFunctionParameter[] parameters
-                                ? parameters.Select(p => new ExportedFunctionParameterMetadata(p.Name?.Value ?? string.Empty, GetType(p), GetMostSpecificDescription(p))).ToImmutableArray()
-                                : ImmutableArray<ExportedFunctionParameterMetadata>.Empty,
+                            Parameters: kvp.Value.Parameters.CoalesceEnumerable()
+                                .Select(p => new ExportedFunctionParameterMetadata(p.Name?.Value ?? string.Empty, GetType(p), GetMostSpecificDescription(p)))
+                                .ToImmutableArray(),
                             Return: new(GetType(kvp.Value.Output), GetMostSpecificDescription(kvp.Value.Output)),
                             Description: kvp.Value.Metadata?.Value is JObject metadataObject ? GetDescriptionFromMetadata(metadataObject) : null)));
                 }
