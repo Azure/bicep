@@ -7,7 +7,7 @@ using Microsoft.Build.Utilities;
 
 namespace Azure.Bicep.MSBuild;
 
-public class Bicep : BicepToolTask
+public class BicepParam : BicepToolTask
 {
     [Required]
     public ITaskItem? SourceFile { get; set; }
@@ -19,7 +19,7 @@ public class Bicep : BicepToolTask
     {
         var builder = new CommandLineBuilder(quoteHyphensOnCommandLine: false, useNewLineSeparator: false);
 
-        builder.AppendSwitch("build");
+        builder.AppendSwitch("build-params");
         builder.AppendFileNameIfNotNull(this.SourceFile);
 
         builder.AppendSwitch("--outfile");
