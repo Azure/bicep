@@ -16,7 +16,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
     [TestClass]
     public class ExpressionHelpersTests
     {
-        private static readonly ExpressionSerializer ExpressionSerializer = new ExpressionSerializer(new ExpressionSerializerSettings
+        private static readonly ExpressionSerializer ExpressionSerializer = new(new ExpressionSerializerSettings
         {
             IncludeOuterSquareBrackets = true,
 

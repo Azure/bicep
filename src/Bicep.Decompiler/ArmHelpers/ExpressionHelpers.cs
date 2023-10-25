@@ -28,7 +28,7 @@ namespace Bicep.Decompiler.ArmHelpers
         }
 
         public static FunctionExpression Concat(params LanguageExpression[] expressions)
-            => new FunctionExpression("concat", expressions, new LanguageExpression[0]);
+            => new("concat", expressions, new LanguageExpression[0]);
 
         private static IEnumerable<LanguageExpression> CombineConcatArguments(IEnumerable<LanguageExpression> arguments)
         {

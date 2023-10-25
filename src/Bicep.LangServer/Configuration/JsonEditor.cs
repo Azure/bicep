@@ -194,7 +194,7 @@ namespace Bicep.LanguageServer.Configuration
         {
             indent ??= this.indent;
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             TextWriter textWriter = new StringWriter(sb);
             JsonTextWriter jsonWriter = new(textWriter);
             jsonWriter.Formatting = Formatting.Indented;
@@ -208,7 +208,7 @@ namespace Bicep.LanguageServer.Configuration
 
         private string IndentEachLine(string text, int indent)
         {
-            string indentString = new string(' ', indent);
+            string indentString = new(' ', indent);
             return indentString + text.Replace("\n", "\n" + indentString);
         }
 

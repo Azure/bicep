@@ -19,8 +19,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "decompiler-cleanup";
 
-        private Regex regexResourceNameNeedsCleanup = new Regex("[a-zA-Z0-9]+_resource$");
-        private Regex regexVariableNameNeedsCleanup = new Regex("[a-zA-Z0-9]+_var$");
+        private Regex regexResourceNameNeedsCleanup = new("[a-zA-Z0-9]+_resource$");
+        private Regex regexVariableNameNeedsCleanup = new("[a-zA-Z0-9]+_var$");
 
         public DecompilerCleanupRule() : base(
             code: Code,

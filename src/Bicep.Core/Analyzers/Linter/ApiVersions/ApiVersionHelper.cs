@@ -12,7 +12,7 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
         // Resource types are case-insensitive in ARM
         public static StringComparer Comparer = LanguageConstants.ResourceTypeComparer;
 
-        private static readonly Regex VersionPattern = new Regex(@"^((?<version>(\d{4}-\d{2}-\d{2}))(?<suffix>-(preview|alpha|beta|rc|privatepreview))?$)", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex VersionPattern = new(@"^((?<version>(\d{4}-\d{2}-\d{2}))(?<suffix>-(preview|alpha|beta|rc|privatepreview))?$)", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         public static (string? date, string? suffixWithHypen) TryParse(string apiVersion)
         {

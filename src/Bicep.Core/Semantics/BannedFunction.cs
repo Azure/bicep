@@ -17,9 +17,9 @@ namespace Bicep.Core.Semantics
 
         public string Name { get; }
 
-        public ErrorSymbol CreateSymbol(DiagnosticBuilder.DiagnosticBuilderInternal builder) => new ErrorSymbol(this.errorFunc(builder));
+        public ErrorSymbol CreateSymbol(DiagnosticBuilder.DiagnosticBuilderInternal builder) => new(this.errorFunc(builder));
 
         public static BannedFunction CreateForOperator(string name, string @operator) =>
-            new BannedFunction(name, builder => builder.FunctionNotSupportedOperatorAvailable(name, @operator));
+            new(name, builder => builder.FunctionNotSupportedOperatorAvailable(name, @operator));
     }
 }

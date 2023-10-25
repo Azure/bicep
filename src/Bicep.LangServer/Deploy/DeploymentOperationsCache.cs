@@ -9,7 +9,7 @@ namespace Bicep.LanguageServer.Deploy
 {
     public class DeploymentOperationsCache : IDeploymentOperationsCache
     {
-        private readonly ConcurrentDictionary<string, ArmOperation<ArmDeploymentResource>> deploymentOperationsCache = new ConcurrentDictionary<string, ArmOperation<ArmDeploymentResource>>();
+        private readonly ConcurrentDictionary<string, ArmOperation<ArmDeploymentResource>> deploymentOperationsCache = new();
 
         public void CacheDeploymentOperation(string deploymentId, ArmOperation<ArmDeploymentResource> armOperation)
         {

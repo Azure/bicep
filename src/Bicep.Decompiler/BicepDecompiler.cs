@@ -101,7 +101,7 @@ public class BicepDecompiler
         return PrettyPrinter.PrintValidSyntax(syntax, GetPrettyPrintOptions());
     }
 
-    private static PrettyPrintOptions GetPrettyPrintOptions() => new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);
+    private static PrettyPrintOptions GetPrettyPrintOptions() => new(NewlineOption.LF, IndentKindOption.Space, 2, false);
 
     private async Task<bool> RewriteSyntax(Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
     {

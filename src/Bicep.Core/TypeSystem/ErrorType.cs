@@ -22,10 +22,10 @@ namespace Bicep.Core.TypeSystem
             => Create(error.AsEnumerable());
 
         public static ErrorType Create(IEnumerable<ErrorDiagnostic> errors)
-            => new ErrorType(errors.ToImmutableArray());
+            => new(errors.ToImmutableArray());
 
         public static ErrorType Empty()
-            => new ErrorType(ImmutableArray<ErrorDiagnostic>.Empty);
+            => new(ImmutableArray<ErrorDiagnostic>.Empty);
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => this.errors;
 

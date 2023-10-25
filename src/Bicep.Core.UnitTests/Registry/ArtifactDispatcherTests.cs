@@ -108,9 +108,9 @@ namespace Bicep.Core.UnitTests.Registry
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef2)).Returns(false);
             mock.Setup(m => m.IsArtifactRestoreRequired(validRef3)).Returns(true);
 
-            Uri? validRefLocalUri = new Uri("untitled://validRef");
+            Uri? validRefLocalUri = new("untitled://validRef");
             mock.Setup(m => m.TryGetLocalArtifactEntryPointUri(validRef)).Returns(ResultHelper.Create(validRefLocalUri, @null));
-            Uri? validRef3LocalUri = new Uri("untitled://validRef3");
+            Uri? validRef3LocalUri = new("untitled://validRef3");
             mock.Setup(m => m.TryGetLocalArtifactEntryPointUri(validRef3)).Returns(ResultHelper.Create(validRef3LocalUri, @null));
 
             mock.Setup(m => m.RestoreArtifacts(It.IsAny<IEnumerable<ArtifactReference>>()))

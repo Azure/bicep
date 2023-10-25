@@ -24,7 +24,7 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class ScenarioTests
 {
-    private static ServiceBuilder Services => new ServiceBuilder();
+    private static ServiceBuilder Services => new();
 
     [NotNull] public TestContext? TestContext { get; set; }
 

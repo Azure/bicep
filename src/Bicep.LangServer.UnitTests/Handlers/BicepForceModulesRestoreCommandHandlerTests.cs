@@ -62,7 +62,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   location: 'global'
 }";
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
-            Uri bicepFileUri = new Uri(bicepFilePath);
+            Uri bicepFileUri = new(bicepFilePath);
 
             DocumentUri documentUri = DocumentUri.From(bicepFileUri);
             var compilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
@@ -104,7 +104,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             string bicepLocalModule1FilePath = FileHelper.SaveResultFile(TestContext, "localmodule1.bicep", bicepLocalModuleFileContents, testOutputPath);
             string bicepLocalModule2FilePath = FileHelper.SaveResultFile(TestContext, "localmodule2.bicep", bicepLocalModuleFileContents, testOutputPath);
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
-            Uri bicepFileUri = new Uri(bicepFilePath);
+            Uri bicepFileUri = new(bicepFilePath);
 
             DocumentUri documentUri = DocumentUri.From(bicepFileUri);
             var compilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
@@ -140,7 +140,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 }";
             string bicepLocalModule1FilePath = FileHelper.SaveResultFile(TestContext, "localmodule1.bicep", bicepLocalModuleFileContents, testOutputPath);
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
-            Uri bicepFileUri = new Uri(bicepFilePath);
+            Uri bicepFileUri = new(bicepFilePath);
 
             DocumentUri documentUri = DocumentUri.From(bicepFileUri);
             var compilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);

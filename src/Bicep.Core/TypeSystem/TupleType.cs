@@ -29,7 +29,7 @@ public class TupleType : ArrayType
     /// </summary>
     public TypedArrayType ToTypedArray() => ToTypedArray(MinLength, MaxLength);
 
-    public TypedArrayType ToTypedArray(long? minLength, long? maxLength) => new TypedArrayType(Item, ValidationFlags, minLength, maxLength);
+    public TypedArrayType ToTypedArray(long? minLength, long? maxLength) => new(Item, ValidationFlags, minLength, maxLength);
 
     public override bool Equals(object? other) => other is TupleType otherTuple && ValidationFlags == otherTuple.ValidationFlags && Items.SequenceEqual(otherTuple.Items);
 

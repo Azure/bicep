@@ -26,7 +26,7 @@ namespace Bicep.LanguageServer.Snippets;
 
 public class SnippetCacheBuilder
 {
-    private static readonly Regex SnippetPlaceholderCommentPattern = new Regex(@"\/\*(?<snippetPlaceholder>(.*?))\*\/('(.*?)'|\w+|-\d+|.*?)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+    private static readonly Regex SnippetPlaceholderCommentPattern = new(@"\/\*(?<snippetPlaceholder>(.*?))\*\/('(.*?)'|\w+|-\d+|.*?)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
     // Used to cache resource declaration information. Maps resource type reference to prefix, identifier, body text and description
     private readonly ConcurrentDictionary<ResourceTypeReference, SnippetCache.SnippetCacheSnippet> resourceTypeReferenceInfoMap = new();
@@ -196,7 +196,7 @@ public class SnippetCacheBuilder
     {
         if (typeProperty.Flags.HasFlag(TypePropertyFlags.Required))
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             if (typeProperty.TypeReference.Type is ObjectType objectType)
             {

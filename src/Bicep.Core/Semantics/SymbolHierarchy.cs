@@ -13,7 +13,7 @@ namespace Bicep.Core.Semantics
     /// </summary>
     public class SymbolHierarchy
     {
-        private readonly Dictionary<Symbol, Symbol?> parentMap = new Dictionary<Symbol, Symbol?>();
+        private readonly Dictionary<Symbol, Symbol?> parentMap = new();
 
         /// <summary>
         /// Adds a root node and indexes the parents for all child nodes recursively.

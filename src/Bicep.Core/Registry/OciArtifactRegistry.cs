@@ -240,12 +240,13 @@ namespace Bicep.Core.Registry
             // NOTE: Bicep v0.20 and earlier will throw on this, so it's a breaking change.
             var config = new StreamDescriptor(new MemoryStream(Encoding.UTF8.GetBytes("{}")), BicepModuleMediaTypes.BicepModuleConfigV1);
 
-            List<StreamDescriptor> layers = new List<StreamDescriptor>();
-            layers.Add(
-                new StreamDescriptor(
+            List<StreamDescriptor> layers = new()
+            {
+                new (
                     compiledArmTemplate,
                     BicepModuleMediaTypes.BicepModuleLayerV1Json,
-                    new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build()));
+                    new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
+            };
 
             if (bicepSources is { } && features.PublishSourceEnabled)
             {

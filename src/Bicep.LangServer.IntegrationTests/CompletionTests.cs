@@ -51,7 +51,7 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class CompletionTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder();
+        private static ServiceBuilder Services => new();
 
         private static readonly SharedLanguageHelperManager ServerWithNamespaceProvider = new();
 
@@ -376,7 +376,7 @@ resource service 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
 ";
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(bicepTextWithCursor, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///myMod.bicep")] = "",
@@ -668,7 +668,7 @@ module mod 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = @"param foo {
@@ -700,7 +700,7 @@ module mod 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = @"param foo {
@@ -938,7 +938,7 @@ module mod 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = module,
@@ -988,7 +988,7 @@ module mod 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = module,
@@ -1040,7 +1040,7 @@ module mod 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = module,
@@ -1566,7 +1566,7 @@ module bar2 'test.bicep' = [for item in list: |  ]
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///test.bicep")] = @"param foo string",
@@ -2097,7 +2097,7 @@ var modOut = m.outputs.inputTi|
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = moduleContent,
@@ -3128,7 +3128,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = moduleContent,
@@ -3337,7 +3337,7 @@ module aModule 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = moduleContent,
@@ -3396,7 +3396,7 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContentWithCursors, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = moduleContent,
@@ -4162,7 +4162,7 @@ var arr6 = [
               """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = modContent,
@@ -4257,7 +4257,7 @@ var arr6 = [
             var mainContent = "import {|} from 'mod.json'";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.json")] = jsonModContent,
@@ -4319,7 +4319,7 @@ var arr6 = [
               """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = modContent,
@@ -4388,7 +4388,7 @@ var arr6 = [
               """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.json")] = jsonModContent,
@@ -4442,7 +4442,7 @@ var arr6 = [
               """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = modContent,
@@ -4499,7 +4499,7 @@ var arr6 = [
               """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = modContent,

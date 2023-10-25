@@ -1,5 +1,6 @@
 root = true
 
+# Code files
 [*.cs]
 indent_style = space
 end_of_line = lf
@@ -7,7 +8,6 @@ indent_size = 4
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
-dotnet_sort_system_directives_first = true
 
 [*.{ts,tsx,js}]
 indent_style = space
@@ -17,6 +17,7 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+# Xml config files
 [.resx]
 indent_style = space
 end_of_line = lf
@@ -24,3 +25,14 @@ indent_size = 2
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
+
+
+#### .NET Coding Conventions ####
+[*.{cs,csx,cake,vb}]
+
+# Organize usings
+dotnet_separate_import_directive_groups = false
+dotnet_sort_system_directives_first = true
+
+# Expression-level preferences
+csharp_style_implicit_object_creation_when_type_is_apparent = true:warning

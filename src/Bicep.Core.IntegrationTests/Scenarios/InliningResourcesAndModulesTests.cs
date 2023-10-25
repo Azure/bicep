@@ -17,7 +17,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     [TestClass]
     public class InliningResourcesAndModulesTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder();
+        private static ServiceBuilder Services => new();
 
         [TestMethod]
         public void AssigningResourceToVariable_ShouldNotGenerateVariables()

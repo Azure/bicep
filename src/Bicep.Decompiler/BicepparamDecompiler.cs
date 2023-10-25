@@ -187,5 +187,5 @@ Following metadata was not decompiled:
         return filesToSave.ToImmutableDictionary();
     }
 
-    private static PrettyPrintOptions GetPrettyPrintOptions() => new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);
+    private static PrettyPrintOptions GetPrettyPrintOptions() => new(NewlineOption.LF, IndentKindOption.Space, 2, false);
 }

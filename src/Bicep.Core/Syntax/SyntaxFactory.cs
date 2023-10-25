@@ -44,7 +44,7 @@ namespace Bicep.Core.Syntax
         public static VariableAccessSyntax CreateVariableAccess(string text) => new(CreateIdentifier(text));
 
         public static VariableBlockSyntax CreateVariableBlock(IEnumerable<IdentifierSyntax> variables)
-            => new VariableBlockSyntax(
+            => new(
                 LeftParenToken,
                 Interleave(variables.Select(x => new LocalVariableSyntax(x)), () => CommaToken),
                 SyntaxFactory.RightParenToken);
@@ -117,7 +117,7 @@ namespace Bicep.Core.Syntax
         }
 
         public static ArrayItemSyntax CreateArrayItem(SyntaxBase value)
-            => new ArrayItemSyntax(value);
+            => new(value);
 
         public static ForSyntax CreateRangedForSyntax(string indexIdentifier, SyntaxBase count, SyntaxBase body)
         {
@@ -280,7 +280,7 @@ namespace Bicep.Core.Syntax
         }
 
         public static FunctionCallSyntax CreateFunctionCall(string functionName, params SyntaxBase[] argumentExpressions)
-            => new FunctionCallSyntax(
+            => new(
                 CreateIdentifier(functionName),
                 LeftParenToken,
                 Interleave(argumentExpressions.Select(x => new FunctionArgumentSyntax(x)), () => CommaToken),
@@ -296,7 +296,7 @@ namespace Bicep.Core.Syntax
                 RightParenToken);
 
         public static DecoratorSyntax CreateDecorator(string functionName, params SyntaxBase[] argumentExpressions)
-            => new DecoratorSyntax(AtToken, CreateFunctionCall(functionName, argumentExpressions));
+            => new(AtToken, CreateFunctionCall(functionName, argumentExpressions));
 
         private static IEnumerable<SyntaxBase> Interleave(IEnumerable<SyntaxBase> elements, Func<SyntaxBase> getInterleaveSyntax)
             => elements.SelectMany((x, i) => i > 0 ? getInterleaveSyntax().AsEnumerable().Concat(x) : x.AsEnumerable());

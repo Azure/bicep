@@ -14,7 +14,7 @@ namespace Bicep.LanguageServer.Extensions
     public static class IPositionableExtensions
     {
         public static TextSpan GetSpanSlice(this IPositionable positionable, int start, int length)
-            => new TextSpan(positionable.Span.Position + start, length);
+            => new(positionable.Span.Position + start, length);
 
         public static TextSpan TryGetSpanSlice(this IPositionable positionable, int start, int length)
             => GetSpanSlice(
@@ -23,7 +23,7 @@ namespace Bicep.LanguageServer.Extensions
                 Math.Min(length, positionable.Span.Length - start));
 
         public static Range ToRange(this IPositionable positionable, ImmutableArray<int> lineStarts) =>
-            new Range
+            new()
             {
                 Start = PositionHelper.GetPosition(lineStarts, positionable.Span.Position),
                 End = PositionHelper.GetPosition(lineStarts, positionable.GetEndPosition())

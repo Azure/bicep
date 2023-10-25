@@ -83,7 +83,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   location: 'global'
 }";
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
-            Uri bicepFileUri = new Uri(bicepFilePath);
+            Uri bicepFileUri = new(bicepFilePath);
 
             DocumentUri documentUri = DocumentUri.From(bicepFileUri);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
@@ -261,7 +261,7 @@ param accountName string = 'testAccount'
             string bicepFileContents = @"var textFromFile = loadTextContent('test.sql')";
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
 
-            Uri bicepFileUri = new Uri(bicepFilePath);
+            Uri bicepFileUri = new(bicepFilePath);
             DocumentUri documentUri = DocumentUri.From(bicepFileUri);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var bicepBuildCommandHandler = CreateHandler(bicepCompilationManager);

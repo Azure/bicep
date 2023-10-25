@@ -56,7 +56,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepDeploymentScopeRequestHandler = CreateHandler(bicepCompilationManager);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
-            BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
+            BicepDeploymentScopeParams bicepDeploymentScopeParams = new(textDocumentIdentifier);
 
             var result = await bicepDeploymentScopeRequestHandler.Handle(bicepDeploymentScopeParams, CancellationToken.None);
 
@@ -81,7 +81,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepDeploymentScopeRequestHandler = CreateHandler(bicepCompilationManager);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
-            BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
+            BicepDeploymentScopeParams bicepDeploymentScopeParams = new(textDocumentIdentifier);
 
             var result = await bicepDeploymentScopeRequestHandler.Handle(bicepDeploymentScopeParams, CancellationToken.None);
 
@@ -104,7 +104,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepDeploymentScopeRequestHandler = CreateHandler(bicepCompilationManager);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
-            BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
+            BicepDeploymentScopeParams bicepDeploymentScopeParams = new(textDocumentIdentifier);
 
             var result = await bicepDeploymentScopeRequestHandler.Handle(bicepDeploymentScopeParams, CancellationToken.None);
 
@@ -151,7 +151,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepDeploymentScopeRequestHandler = CreateHandler(bicepCompilationManager);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
-            BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
+            BicepDeploymentScopeParams bicepDeploymentScopeParams = new(textDocumentIdentifier);
 
             var bicepDeploymentScopeResponse = await bicepDeploymentScopeRequestHandler.Handle(bicepDeploymentScopeParams, CancellationToken.None);
 
@@ -173,7 +173,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepDeploymentScopeRequestHandler = CreateHandler(bicepCompilationManager, deploymentFileCompilationCache);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
-            BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
+            BicepDeploymentScopeParams bicepDeploymentScopeParams = new(textDocumentIdentifier);
 
             await bicepDeploymentScopeRequestHandler.Handle(bicepDeploymentScopeParams, CancellationToken.None);
 

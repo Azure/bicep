@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Assertions
 {
     public static class MockRegistryBlobClientExtensions
     {
-        public static MockRegistryAssertions Should(this MockRegistryBlobClient client) => new MockRegistryAssertions(client);
+        public static MockRegistryAssertions Should(this MockRegistryBlobClient client) => new(client);
     }
 
     public class MockRegistryAssertions : ReferenceTypeAssertions<MockRegistryBlobClient, MockRegistryAssertions>
