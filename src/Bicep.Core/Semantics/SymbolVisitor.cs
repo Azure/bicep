@@ -146,6 +146,11 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
+        public virtual void VisitWildcardImportInstanceFunctionSymbol(WildcardImportInstanceFunctionSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
         protected void VisitDescendants(Symbol symbol)
         {
             foreach (Symbol descendant in symbol.Descendants)

@@ -87,6 +87,9 @@ namespace Bicep.LanguageServer.Handlers
 
                 { Symbol: ImportedSymbol imported } => HandleImportedSymbolLocation(request, result, context, imported),
 
+                { Symbol: WildcardImportInstanceFunctionSymbol instanceFunctionSymbol }
+                    => HandleWildcardImportInstanceFunctionLocation(request, result, context, instanceFunctionSymbol),
+
                 { Symbol: DeclaredSymbol declaration } => HandleDeclaredDefinitionLocation(request, result, declaration),
 
                 // Object property: currently only used for module param goto
@@ -374,6 +377,9 @@ namespace Bicep.LanguageServer.Handlers
 
         private static LocationOrLocationLinks HandleImportedSymbolLocation(DefinitionParams request, SymbolResolutionResult result, CompilationContext context, ImportedSymbol imported)
             => HandleImportedSymbolLocation(result.Origin.ToRange(context.LineStarts), context, imported.SourceModel, imported.OriginalSymbolName, imported.EnclosingDeclaration);
+
+        private static LocationOrLocationLinks HandleWildcardImportInstanceFunctionLocation(DefinitionParams request, SymbolResolutionResult result, CompilationContext context, WildcardImportInstanceFunctionSymbol symbol)
+            => HandleImportedSymbolLocation(result.Origin.ToRange(context.LineStarts), context, symbol.BaseSymbol.SourceModel, symbol.Name, symbol.BaseSymbol.EnclosingDeclaration);
 
         private static LocationOrLocationLinks HandleImportedSymbolLocation(Range originSelectionRange, CompilationContext context, ISemanticModel sourceModel, string? originalSymbolName, IArtifactReferenceSyntax enclosingDeclaration)
         {
