@@ -16,6 +16,9 @@
     "Azure",
     "Programming Languages"
   ],
+  "capabilities": {
+    "virtualWorkspaces": false
+  },
   "keywords": [
     "Bicep",
     "Azure Resource Manager",
