@@ -9,13 +9,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
+using Azure.Deployments.Templates.Extensions;
 using Bicep.Core;
+using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -313,35 +316,7 @@ namespace Bicep.LanguageServer.Handlers
                 // The user should be redirected to the import target file if the symbol is a wildcard import
                 if (propertyAccesses.Count == 1 && ancestorSymbol is WildcardImportSymbol wildcardImport)
                 {
-                    if (wildcardImport.SourceModel is SemanticModel importedTargetBicepModel &&
-                        importedTargetBicepModel.Root.TypeDeclarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, propertyAccesses.Single().IdentifierName)).FirstOrDefault() is { } originalDeclaration)
-                    {
-                        var range = PositionHelper.GetNameRange(importedTargetBicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);
-
-                        return new(new LocationOrLocationLink(new LocationLink
-                        {
-                            // source of the link. Underline only the symbolic name
-                            OriginSelectionRange = result.Origin.ToRange(context.LineStarts),
-                            TargetUri = importedTargetBicepModel.SourceFile.FileUri,
-
-                            // entire span of the declaredSymbol
-                            TargetRange = range,
-                            TargetSelectionRange = range
-                        }));
-                    }
-
-                    return GetArmSourceTemplateInfo(context, wildcardImport.EnclosingDeclaration) switch
-                    {
-                        (Template template, Uri localFileUri) when template.Definitions?.TryGetValue(propertyAccesses.Single().IdentifierName, out var definition) == true && ToRange(definition) is { } range
-                            => new(new LocationOrLocationLink(new LocationLink
-                            {
-                                OriginSelectionRange = result.Origin.ToRange(context.LineStarts),
-                                TargetUri = localFileUri,
-                                TargetRange = range,
-                                TargetSelectionRange = range,
-                            })),
-                        _ => new(),
-                    };
+                    return HandleImportedSymbolLocation(result.Origin.ToRange(context.LineStarts), context, wildcardImport.SourceModel, propertyAccesses.Single().IdentifierName, wildcardImport.EnclosingDeclaration);
                 }
 
                 // Otherwise, we redirect user to the specified module, variable, or resource declaration
@@ -397,13 +372,13 @@ namespace Bicep.LanguageServer.Handlers
             }));
         }
 
-        private LocationOrLocationLinks HandleImportedSymbolLocation(DefinitionParams request, SymbolResolutionResult result, CompilationContext context, ImportedSymbol imported)
-        {
-            // source of the link. Underline only the symbolic name
-            var originSelectionRange = result.Origin.ToRange(context.LineStarts);
+        private static LocationOrLocationLinks HandleImportedSymbolLocation(DefinitionParams request, SymbolResolutionResult result, CompilationContext context, ImportedSymbol imported)
+            => HandleImportedSymbolLocation(result.Origin.ToRange(context.LineStarts), context, imported.SourceModel, imported.OriginalSymbolName, imported.EnclosingDeclaration);
 
-            if (imported.SourceModel is SemanticModel bicepModel &&
-                bicepModel.Root.Declarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, imported.OriginalSymbolName)).FirstOrDefault() is { } originalDeclaration)
+        private static LocationOrLocationLinks HandleImportedSymbolLocation(Range originSelectionRange, CompilationContext context, ISemanticModel sourceModel, string? originalSymbolName, IArtifactReferenceSyntax enclosingDeclaration)
+        {
+            if (sourceModel is SemanticModel bicepModel &&
+                bicepModel.Root.Declarations.Where(type => LanguageConstants.IdentifierComparer.Equals(type.Name, originalSymbolName)).FirstOrDefault() is { } originalDeclaration)
             {
                 // entire span of the declaredSymbol
                 var targetRange = PositionHelper.GetNameRange(bicepModel.SourceFile.LineStarts, originalDeclaration.DeclaringSyntax);
@@ -417,11 +392,11 @@ namespace Bicep.LanguageServer.Handlers
                 }));
             }
 
-            var (armTemplate, armTemplateUri) = GetArmSourceTemplateInfo(context, imported.EnclosingDeclaration);
+            var (armTemplate, armTemplateUri) = GetArmSourceTemplateInfo(context, enclosingDeclaration);
 
-            if (armTemplateUri is not null && imported.OriginalSymbolName is string nonNullName)
+            if (armTemplateUri is not null && originalSymbolName is string nonNullName && sourceModel.Exports.TryGetValue(nonNullName, out var exportMetadata))
             {
-                if (imported.Kind == Core.Semantics.SymbolKind.TypeAlias &&
+                if (exportMetadata.Kind == ExportMetadataKind.Type &&
                     armTemplate?.Definitions?.TryGetValue(nonNullName, out var originalTypeDefintion) is true &&
                     ToRange(originalTypeDefintion) is Range typeDefintionRange)
                 {
@@ -434,7 +409,7 @@ namespace Bicep.LanguageServer.Handlers
                     }));
                 }
 
-                if (imported.Kind == Core.Semantics.SymbolKind.Variable)
+                if (exportMetadata.Kind == ExportMetadataKind.Variable)
                 {
                     if (armTemplate?.Variables?.TryGetValue(nonNullName, out var variableDeclaration) is true && ToRange(variableDeclaration) is Range variableDefinitionRange)
                     {
@@ -462,6 +437,27 @@ namespace Bicep.LanguageServer.Handlers
                             TargetUri = armTemplateUri,
                             TargetRange = copyVariableDefinitionRange,
                             TargetSelectionRange = copyVariableDefinitionRange,
+                        }));
+                    }
+                }
+
+                if (exportMetadata.Kind == ExportMetadataKind.Function)
+                {
+                    var fullyQualifiedFunctionName = nonNullName.Contains('.')
+                        ? nonNullName
+                        : $"{EmitConstants.UserDefinedFunctionsNamespace}.{nonNullName}";
+
+                    if (armTemplate?.GetFunctionDefinitions()
+                        .Where(fd => StringComparer.OrdinalIgnoreCase.Equals(fd.Key, fullyQualifiedFunctionName))
+                        .FirstOrDefault() is FunctionDefinition functionDefinition &&
+                        ToRange(functionDefinition.Function) is Range functionDefinitionRange)
+                    {
+                        return new(new LocationOrLocationLink(new LocationLink
+                        {
+                            OriginSelectionRange = originSelectionRange,
+                            TargetUri = armTemplateUri,
+                            TargetRange = functionDefinitionRange,
+                            TargetSelectionRange = functionDefinitionRange,
                         }));
                     }
                 }

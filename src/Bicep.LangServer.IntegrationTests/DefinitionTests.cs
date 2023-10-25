@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core;
+using Bicep.Core.Emit;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
@@ -614,6 +615,59 @@ param |foo| string
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
                 .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true))
+                .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
+                {
+                    {new("file:///mod.json"), moduleContents},
+                })));
+            var helper = new ServerRequestHelper(TestContext, server);
+
+            var file = await helper.OpenFile("/main.bicep", contents);
+
+            foreach (var cursor in cursors)
+            {
+                var response = await file.GotoDefinition(cursor);
+
+                var expectedRange = PositionHelper.GetRange(TextCoordinateConverter.GetLineStarts(moduleContents), moduleCursors[0], moduleCursors[1]);
+                response.TargetUri.Path.Should().Be("/mod.json");
+                response.TargetRange.Should().Be(expectedRange);
+            }
+        }
+
+        [TestMethod]
+        public async Task Goto_definition_works_with_cherrypick_arm_function_import_statements_and_references()
+        {
+            var (contents, cursors) = ParserHelper.GetFileWithCursors("""
+                import {f|o|o| |a|s| |f|i|z|z} from 'mod.json'
+
+                var foo = f|i|z|z()
+                """);
+            var (moduleContents, moduleCursors) = ParserHelper.GetFileWithCursors($$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "functions": [
+                        {
+                            "namespace": "{{EmitConstants.UserDefinedFunctionsNamespace}}",
+                            "members": {
+                                "foo": {||
+                                    "parameters": [],
+                                    "output": {
+                                        "type": "string",
+                                        "value": "foo"
+                                    },
+                                    "metadata": {
+                                        "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                                    }
+                                }
+                            }
+                        }
+                    ],
+                    "resources": {}
+                }
+                """);
+
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
+                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedFunctionsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},
