@@ -49,7 +49,7 @@ namespace Bicep.Core.Semantics
             return BuildInternal();
         }
 
-        public virtual FunctionOverload BuildInternal() =>
+        protected virtual FunctionOverload BuildInternal() =>
             new(
                 Name,
                 GenericDescription,

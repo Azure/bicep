@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -55,6 +56,10 @@ namespace Bicep.Core.Semantics
 
                         switch (TypeAssignmentVisitor.UnwrapType(baseType))
                         {
+                            case NamespaceType when binder.GetSymbolInfo(ifc.BaseExpression) is WildcardImportSymbol wildcardImport &&
+                                wildcardImport.SourceModel.Exports.TryGetValue(ifc.Name.IdentifierName, out var exportMetadata) &&
+                                exportMetadata is ExportedFunctionMetadata exportedFunctionMetadata:
+                                    return new WildcardImportInstanceFunctionSymbol(wildcardImport, ifc.Name.IdentifierName, exportedFunctionMetadata);
                             case NamespaceType namespaceType when binder.GetParent(ifc) is DecoratorSyntax:
                                 return namespaceType.DecoratorResolver.TryGetSymbol(ifc.Name);
                             case ObjectType objectType:

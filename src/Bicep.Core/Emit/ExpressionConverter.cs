@@ -95,12 +95,17 @@ namespace Bicep.Core.Emit
                 case FunctionCallExpression function:
                     return CreateFunction(
                         function.Name,
-                        function.Parameters.Select(p => ConvertExpression(p)));
+                        function.Parameters.Select(ConvertExpression));
 
                 case UserDefinedFunctionCallExpression function:
                     return CreateFunction(
-                        $"{EmitConstants.UserDefinedFunctionsNamespace}.{function.Name}",
-                        function.Parameters.Select(p => ConvertExpression(p)));
+                        $"{EmitConstants.UserDefinedFunctionsNamespace}.{function.Symbol.Name}",
+                        function.Parameters.Select(ConvertExpression));
+
+                case SynthesizedUserDefinedFunctionCallExpression function:
+                    return CreateFunction(
+                        $"{function.Namespace}.{function.Name}",
+                        function.Parameters.Select(ConvertExpression));
 
                 case ResourceFunctionCallExpression listFunction when listFunction.Name.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix):
                     {

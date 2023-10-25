@@ -299,8 +299,9 @@ namespace Bicep.LanguageServer
         {
             AddTokenType(syntax.Name, model.GetSymbolInfo(syntax) switch
             {
-                TypeAliasSymbol or AmbientTypeSymbol => SemanticTokenType.Type,
-                ImportedSymbol imported when imported.Kind == Core.Semantics.SymbolKind.TypeAlias => SemanticTokenType.Type,
+                TypeAliasSymbol or
+                AmbientTypeSymbol or
+                ImportedTypeSymbol => SemanticTokenType.Type,
                 _ => SemanticTokenType.Variable,
             });
             base.VisitVariableAccessSyntax(syntax);

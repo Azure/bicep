@@ -1,4 +1,4 @@
-import {foo, fizz, pop} from 'modules/mod.bicep'
+import {foo, fizz, pop, greet} from 'modules/mod.bicep'
 //@[00:06) Identifier |import|
 //@[07:08) LeftBrace |{|
 //@[08:11) Identifier |foo|
@@ -6,10 +6,12 @@ import {foo, fizz, pop} from 'modules/mod.bicep'
 //@[13:17) Identifier |fizz|
 //@[17:18) Comma |,|
 //@[19:22) Identifier |pop|
-//@[22:23) RightBrace |}|
-//@[24:28) Identifier |from|
-//@[29:48) StringComplete |'modules/mod.bicep'|
-//@[48:49) NewLine |\n|
+//@[22:23) Comma |,|
+//@[24:29) Identifier |greet|
+//@[29:30) RightBrace |}|
+//@[31:35) Identifier |from|
+//@[36:55) StringComplete |'modules/mod.bicep'|
+//@[55:56) NewLine |\n|
 import * as mod2 from 'modules/mod2.bicep'
 //@[00:06) Identifier |import|
 //@[07:08) Asterisk |*|
@@ -78,6 +80,17 @@ output magicWord pop = refersToCopyVariable[3].value
 //@[45:46) RightSquare |]|
 //@[46:47) Dot |.|
 //@[47:52) Identifier |value|
-//@[52:53) NewLine |\n|
+//@[52:54) NewLine |\n\n|
+
+output greeting string = greet('friend')
+//@[00:06) Identifier |output|
+//@[07:15) Identifier |greeting|
+//@[16:22) Identifier |string|
+//@[23:24) Assignment |=|
+//@[25:30) Identifier |greet|
+//@[30:31) LeftParen |(|
+//@[31:39) StringComplete |'friend'|
+//@[39:40) RightParen |)|
+//@[40:41) NewLine |\n|
 
 //@[00:00) EndOfFile ||

@@ -4,10 +4,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
-using Azure.Deployments.Expression.Engines;
-using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
@@ -19,20 +19,27 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
 
-internal record WildcardImportPropertyReference(WildcardImportSymbol WildcardImport, string PropertyName) { }
+internal enum ArmSymbolType { Type, Variable, Function };
 
-internal record ImportedSymbolOriginMetadata(string SourceTemplateIdentifier, string OriginalName) { }
+internal record ArmIdentifier(ArmSymbolType SymbolType, string Identifier);
+
+internal record WildcardImportPropertyReference(WildcardImportSymbol WildcardImport, string PropertyName);
+
+internal record ImportedSymbolOriginMetadata(string SourceTemplateIdentifier, string OriginalName);
+
+internal record ImportedFunctionNamespaceMetadata(string Name, string? SourceTemplateIdentifier);
 
 internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedTypesInClosure,
     ImmutableArray<DeclaredVariableExpression> ImportedVariablesInClosure,
+    ImmutableArray<DeclaredFunctionExpression> ImportedFunctionsInClosure,
     ImmutableDictionary<WildcardImportPropertyReference, string> WildcardPropertyReferenceToImportedSymbolName,
     ImmutableDictionary<string, ImportedSymbolOriginMetadata> ImportedSymbolOriginMetadata)
 {
     private const string ArmTypeRefPrefix = "#/definitions/";
+    private const string BicepDefinedFunctionNamePrefix = $"{EmitConstants.UserDefinedFunctionsNamespace}.";
 
     public static ImportClosureInfo Calculate(SemanticModel model)
     {
@@ -41,21 +48,29 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
         var importedBicepSymbolNames = closureMetadata.Keys.OfType<BicepSymbolicReference>()
             .ToImmutableDictionary(@ref => @ref.Symbol, @ref => closureMetadata[@ref].UniqueNameWithinClosure);
-        var importedArmTypeNamesByFile = closureMetadata.Keys.OfType<ArmSymbolicTypeReference>()
-            .ToLookup(@ref => @ref.ArmTemplateFile)
-            .ToImmutableDictionary(grouping => grouping.Key,
-                grouping => grouping.ToImmutableDictionary(@ref => @ref.TypePointer, @ref => closureMetadata[@ref].UniqueNameWithinClosure));
-        var importedArmVariableNamesByFile = closureMetadata.Keys.OfType<ArmSymbolicVariableReference>()
-            .ToLookup(@ref => @ref.ArmTemplateFile)
-            .ToImmutableDictionary(grouping => grouping.Key,
-                grouping => grouping.ToImmutableDictionary(@ref => @ref.VariableName, @ref => closureMetadata[@ref].UniqueNameWithinClosure));
         var importSymbolNames = closure.ImportedSymbolsToIntraTemplateSymbols
             .ToImmutableDictionary(kvp => kvp.Key, kvp => closureMetadata[kvp.Value].UniqueNameWithinClosure);
         var wildcardImportPropertyNames = closure.WildcardImportPropertiesToIntraTemplateSymbols
             .ToImmutableDictionary(kvp => kvp.Key, kvp => closureMetadata[kvp.Value].UniqueNameWithinClosure);
 
+        ArmIdentifierEqualityComparer armIdentifierEqualityComparer = new();
+        var importedArmSymbolNamesByFile = closureMetadata.Keys.OfType<ArmSymbolicReference>()
+            .ToLookup(@ref => @ref.ArmTemplateFile)
+            .ToImmutableDictionary(grouping => grouping.Key, grouping => grouping.ToImmutableDictionary(
+                @ref => new ArmIdentifier(@ref.Type, @ref.Identifier),
+                @ref => closureMetadata[@ref].UniqueNameWithinClosure,
+                armIdentifierEqualityComparer));
+        var armDeclarationToExpressionConverters = closureMetadata.Keys.OfType<ArmSymbolicReference>()
+            .Select(@ref => @ref.ArmTemplateFile)
+            .Distinct()
+            .ToImmutableDictionary(templateFile => templateFile,
+                templateFile => new ArmDeclarationToExpressionConverter(templateFile.Template ?? throw new InvalidOperationException(),
+                    importedArmSymbolNamesByFile[templateFile],
+                    sourceSyntax: null));
+
         Dictionary<string, DeclaredTypeExpression> importedTypes = new();
         Dictionary<string, DeclaredVariableExpression> importedVariables = new();
+        Dictionary<string, DeclaredFunctionExpression> importedFunctions = new();
         var importedSymbolMetadata = ImmutableDictionary.CreateBuilder<string, ImportedSymbolOriginMetadata>();
 
         ConcurrentDictionary<SemanticModel, ExpressionBuilder> bicepExpressionBuilders = new();
@@ -65,29 +80,55 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
             importedSymbolMetadata.Add(name, originMetadata);
             switch (symbol)
             {
-                case ArmSymbolicTypeReference armTypeRef:
-                    importedTypes.Add(name, new ArmTypeToExpressionConverter(closure.ArmSchemaContexts[armTypeRef.ArmTemplateFile], importedArmTypeNamesByFile[armTypeRef.ArmTemplateFile], closure.SymbolsInImportClosure[armTypeRef])
-                        .ConvertToExpression(closureMetadata[armTypeRef].UniqueNameWithinClosure, armTypeRef.TypePointer));
+                case ArmSymbolicReference armRef:
+                    var converter = armDeclarationToExpressionConverters[armRef.ArmTemplateFile].WithSourceSyntax(closure.SymbolsInImportClosure[armRef]);
+                    switch (armRef.Type)
+                    {
+                        case ArmSymbolType.Type:
+                            importedTypes.Add(name, converter.CreateDeclaredTypeExpressionFor(armRef.Identifier));
+                            break;
+                        case ArmSymbolType.Variable:
+                            importedVariables.Add(name, converter.CreateDeclaredVariableExpressionFor(armRef.Identifier));
+                            break;
+                        case ArmSymbolType.Function:
+                            importedFunctions.Add(name, converter.CreateDeclaredFunctionExpressionFor(armRef.Identifier));
+                            break;
+                        default:
+                            throw new UnreachableException($"Unknown ARM symbol type: {armRef.Type}");
+                    }
                     break;
-                case BicepSymbolicReference bicepSymbolRef when bicepSymbolRef.Symbol is TypeAliasSymbol importedType:
-                    importedTypes.Add(name, new ImportedSymbolDeclarationMigrator(bicepSymbolRef.SourceBicepModel, importedBicepSymbolNames, importSymbolNames, wildcardImportPropertyNames, closure.SymbolsInImportClosure[bicepSymbolRef])
-                        .RewriteForMigration((DeclaredTypeExpression)bicepExpressionBuilders.GetOrAdd(bicepSymbolRef.SourceBicepModel, m => new(new(m))).Convert(importedType.DeclaringType)));
+                case BicepSymbolicReference bicepRef:
+                    var migrator = new ImportedSymbolDeclarationMigrator(bicepRef.SourceBicepModel,
+                        importedBicepSymbolNames,
+                        importSymbolNames,
+                        wildcardImportPropertyNames,
+                        closure.SymbolsInImportClosure[bicepRef]);
+                    var expressionBuilder = bicepExpressionBuilders.GetOrAdd(bicepRef.SourceBicepModel, m => new(new(m)));
+                    switch (bicepRef.Symbol)
+                    {
+                        case TypeAliasSymbol importedType:
+                            importedTypes.Add(name, migrator.RewriteForMigration((DeclaredTypeExpression)expressionBuilder.Convert(importedType.DeclaringType)));
+                            break;
+                        case VariableSymbol importedVariable:
+                            importedVariables.Add(name, migrator.RewriteForMigration((DeclaredVariableExpression)expressionBuilder.Convert(importedVariable.DeclaringVariable)));
+                            break;
+                        case DeclaredFunctionSymbol importedFunction:
+                            importedFunctions.Add(name, migrator.RewriteForMigration((DeclaredFunctionExpression)expressionBuilder.Convert(importedFunction.DeclaringFunction)));
+                            break;
+                        default:
+                            throw new UnreachableException($"Cannot import Bicep symbols of type {bicepRef.Symbol.GetType().Name}");
+                    }
                     break;
-                case ArmSymbolicVariableReference armVariableRef:
-                    importedVariables.Add(name, new ArmVariableToExpressionConverter(closure.ArmVariablesEvaluators[armVariableRef.ArmTemplateFile], importedArmVariableNamesByFile[armVariableRef.ArmTemplateFile], closure.SymbolsInImportClosure[armVariableRef])
-                        .ConvertToExpression(closureMetadata[armVariableRef].UniqueNameWithinClosure, armVariableRef.VariableName));
-                    break;
-                case BicepSymbolicReference bicepSymbolRef when bicepSymbolRef.Symbol is VariableSymbol importedVariable:
-                    importedVariables.Add(name, new ImportedSymbolDeclarationMigrator(bicepSymbolRef.SourceBicepModel, importedBicepSymbolNames, importSymbolNames, wildcardImportPropertyNames, closure.SymbolsInImportClosure[bicepSymbolRef])
-                        .RewriteForMigration((DeclaredVariableExpression)bicepExpressionBuilders.GetOrAdd(bicepSymbolRef.SourceBicepModel, m => new(new(m))).Convert(importedVariable.DeclaringVariable)));
-                    break;
+                default:
+                    throw new UnreachableException($"This switch was expected to exhaustively process all kinds of {nameof(IntraTemplateSymbolicReference)} but did not handle an instance of type {symbol.GetType().Name}");
             }
         }
 
         return new(ImmutableArray.CreateRange(importedTypes.Values.OrderBy(dte => dte.Name)),
             ImmutableArray.CreateRange(importedVariables.Values.OrderBy(dve => dve.Name)),
+            ImmutableArray.CreateRange(importedFunctions.Values.OrderBy(dfe => dfe.Name)),
             model.Root.WildcardImports
-                .SelectMany(w => GetImportedModel(w).Exports.Keys.Select(k => new WildcardImportPropertyReference(w, k)))
+                .SelectMany(w => w.SourceModel.Exports.Keys.Select(k => new WildcardImportPropertyReference(w, k)))
                 .ToImmutableDictionary(@ref => @ref, @ref => closureMetadata[closure.WildcardImportPropertiesToIntraTemplateSymbols[@ref]].UniqueNameWithinClosure),
             importedSymbolMetadata.ToImmutable());
     }
@@ -98,8 +139,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         Dictionary<IntraTemplateSymbolicReference, SyntaxBase> symbolsInImportClosure = new();
         Dictionary<ImportedSymbol, IntraTemplateSymbolicReference> importedSymbolsToIntraTemplateSymbols = new();
         Dictionary<WildcardImportPropertyReference, IntraTemplateSymbolicReference> wildcardImportPropertiesToIntraTemplateSymbols = new();
-        ConcurrentDictionary<ArmTemplateFile, SchemaValidationContext> armSchemaContextsByFile = new();
-        ConcurrentDictionary<ArmTemplateFile, TemplateVariablesEvaluator> armVariablesEvaluatorsByFile = new();
+        ConcurrentDictionary<ArmTemplateFile, ArmReferenceCollector> armReferenceCollectors = new();
 
         Queue<SearchQueueItem> searchQueue = new(model.Root.ImportedSymbols
             .Select(importedSymbol => new SearchQueueItem(importedSymbol.DeclaringSyntax, new BicepImportedSymbolReference(importedSymbol, model, GetImportReference(importedSymbol))))
@@ -120,9 +160,20 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
                     }
                 }
             }
+            else if (item.SymbolicReference is ArmSymbolicReference armSymbolicReference)
+            {
+                if (symbolsInImportClosure.TryAdd(armSymbolicReference, item.InitiallyDeclaringSyntax))
+                {
+                    ArmIdentifier refTarget = new(armSymbolicReference.Type, armSymbolicReference.Identifier);
+                    foreach (var reference in armReferenceCollectors.GetOrAdd(armSymbolicReference.ArmTemplateFile, f => new(f)).EnumerateReferencesUsedInDefinitionOf(refTarget))
+                    {
+                        searchQueue.Enqueue(new(item.InitiallyDeclaringSyntax, new ArmSymbolicReference(reference.SymbolType, reference.Identifier, armSymbolicReference.ArmTemplateFile, armSymbolicReference.SourceModel)));
+                    }
+                }
+            }
             else if (item.SymbolicReference is BicepWildcardImportSymbolicReference wildcardImportSymbolicReference)
             {
-                var targetModel = GetImportedModel(wildcardImportSymbolicReference.Symbol);
+                var targetModel = wildcardImportSymbolicReference.Symbol.SourceModel;
                 importedModuleReferences[targetModel] = wildcardImportSymbolicReference.ImportTarget;
 
                 foreach (var (propertyName, exportedSymbol) in EnumerateExportedSymbolsAsIntraTemplateSymbols(targetModel))
@@ -133,7 +184,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
             }
             else if (item.SymbolicReference is BicepImportedSymbolReference importedSymbolReference)
             {
-                var targetModel = GetImportedModel(importedSymbolReference.Symbol);
+                var targetModel = importedSymbolReference.Symbol.SourceModel;
                 importedModuleReferences[targetModel] = importedSymbolReference.ImportTarget;
 
                 var name = importedSymbolReference.Symbol.OriginalSymbolName
@@ -149,40 +200,14 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
                     SemanticModel targetBicepModel
                         => new BicepSymbolicReference(FindSymbolNamed(name, targetBicepModel), targetBicepModel),
                     ArmTemplateSemanticModel targetArmModel
-                        => ReferenceForArmTarget(name, exportMetadata, targetArmModel.SourceFile, targetModel),
+                        => ReferenceForArmTarget(exportMetadata, targetArmModel.SourceFile, targetModel),
                     TemplateSpecSemanticModel targetTemplateSpecModel
-                        => ReferenceForArmTarget(name, exportMetadata, targetTemplateSpecModel.SourceFile.MainTemplateFile, targetModel),
+                        => ReferenceForArmTarget(exportMetadata, targetTemplateSpecModel.SourceFile.MainTemplateFile, targetModel),
                     _ => throw new InvalidOperationException($"Unrecognized module type {targetModel.GetType().Name} encountered"),
                 };
 
                 importedSymbolsToIntraTemplateSymbols[importedSymbolReference.Symbol] = target;
                 searchQueue.Enqueue(new(item.InitiallyDeclaringSyntax, target));
-            }
-            else if (item.SymbolicReference is ArmSymbolicTypeReference armSymbolicTypeReference)
-            {
-                if (symbolsInImportClosure.TryAdd(armSymbolicTypeReference, item.InitiallyDeclaringSyntax))
-                {
-                    foreach (var reference in ArmTemplateHelpers.EnumerateTypeReferencesUsedIn(
-                        armSchemaContextsByFile.GetOrAdd(armSymbolicTypeReference.ArmTemplateFile, ArmTemplateHelpers.ContextFor),
-                        armSymbolicTypeReference.TypePointer))
-                    {
-                        searchQueue.Enqueue(new(item.InitiallyDeclaringSyntax,
-                            new ArmSymbolicTypeReference(reference, armSymbolicTypeReference.ArmTemplateFile, armSymbolicTypeReference.SourceModel)));
-                    }
-                }
-            }
-            else if (item.SymbolicReference is ArmSymbolicVariableReference armSymbolicVariableReference)
-            {
-                if (symbolsInImportClosure.TryAdd(armSymbolicVariableReference, item.InitiallyDeclaringSyntax))
-                {
-                    foreach (var variableReferenced in ArmTemplateHelpers.EnumerateVariableReferencesUsedIn(
-                        armVariablesEvaluatorsByFile.GetOrAdd(armSymbolicVariableReference.ArmTemplateFile, ArmTemplateHelpers.VariablesEvaluatorFor),
-                        armSymbolicVariableReference.VariableName))
-                    {
-                        searchQueue.Enqueue(new(item.InitiallyDeclaringSyntax,
-                            new ArmSymbolicVariableReference(variableReferenced, armSymbolicVariableReference.ArmTemplateFile, armSymbolicVariableReference.SourceModel)));
-                    }
-                }
             }
             else
             {
@@ -193,9 +218,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         return new(importedModuleReferences,
             symbolsInImportClosure,
             importedSymbolsToIntraTemplateSymbols,
-            wildcardImportPropertiesToIntraTemplateSymbols,
-            armSchemaContextsByFile,
-            armVariablesEvaluatorsByFile);
+            wildcardImportPropertiesToIntraTemplateSymbols);
     }
 
     private static ArtifactReference GetImportReference(ImportedSymbol symbol)
@@ -226,31 +249,12 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
                 LocalVariableSymbol => null, // local variables are contained within the expression and are not external references
                 TypeAliasSymbol typeAlias => new BicepSymbolicReference(typeAlias, typeReference.SourceBicepModel),
                 VariableSymbol variable => new BicepSymbolicReference(variable, typeReference.SourceBicepModel),
+                DeclaredFunctionSymbol declaredFunction => new BicepSymbolicReference(declaredFunction, typeReference.SourceBicepModel),
                 ImportedSymbol imported => new BicepImportedSymbolReference(imported, typeReference.SourceBicepModel, GetImportReference(imported)),
                 WildcardImportSymbol wildcardImport => new BicepWildcardImportSymbolicReference(wildcardImport, typeReference.SourceBicepModel, GetImportReference(wildcardImport)),
                 _ => throw new InvalidOperationException($"Invalid symbol {symbol.Name} of type {symbol.GetType().Name} encountered within a export expression"),
             })
             .WhereNotNull();
-
-    private static ISemanticModel GetImportedModel(ImportedSymbol symbol)
-    {
-        if (symbol.TryGetSemanticModel() is ISemanticModel model)
-        {
-            return model;
-        }
-
-        throw new InvalidOperationException("Unable to load model for import statement");
-    }
-
-    private static ISemanticModel GetImportedModel(WildcardImportSymbol symbol)
-    {
-        if (symbol.TryGetSemanticModel() is ISemanticModel model)
-        {
-            return model;
-        }
-
-        throw new InvalidOperationException("Unable to load model for import statement");
-    }
 
     private static IEnumerable<(string symbolName, IntraTemplateSymbolicReference reference)> EnumerateExportedSymbolsAsIntraTemplateSymbols(ISemanticModel model) => model switch
     {
@@ -266,7 +270,10 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
             .Select<TypeAliasSymbol, (string, IntraTemplateSymbolicReference)>(t => (t.Name, new BicepSymbolicReference(t, model)))
             .Concat(model.Root.VariableDeclarations
                 .Where(s => model.Exports.ContainsKey(s.Name))
-                .Select<VariableSymbol, (string, IntraTemplateSymbolicReference)>(v => (v.Name, new BicepSymbolicReference(v, model))));
+                .Select<VariableSymbol, (string, IntraTemplateSymbolicReference)>(v => (v.Name, new BicepSymbolicReference(v, model))))
+            .Concat(model.Root.FunctionDeclarations
+                .Where(s => model.Exports.ContainsKey(s.Name))
+                .Select<DeclaredFunctionSymbol, (string, IntraTemplateSymbolicReference)>(f => (f.Name, new BicepSymbolicReference(f, model))));
 
     private static IEnumerable<(string symbolName, IntraTemplateSymbolicReference reference)> EnumerateExportedSymbolsAsIntraTemplateSymbols(ArmTemplateSemanticModel model)
         => EnumerateExportedSymbolsAsIntraTemplateSymbols(model, model.SourceFile);
@@ -275,21 +282,20 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         => EnumerateExportedSymbolsAsIntraTemplateSymbols(model, model.SourceFile.MainTemplateFile);
 
     private static IEnumerable<(string symbolName, IntraTemplateSymbolicReference reference)> EnumerateExportedSymbolsAsIntraTemplateSymbols(ISemanticModel model, ArmTemplateFile templateFile)
-        => model.Exports.Values.Select<ExportMetadata, (string, IntraTemplateSymbolicReference)>(md => md switch
-        {
-            ExportedTypeMetadata => (md.Name, new ArmSymbolicTypeReference($"{ArmTypeRefPrefix}{md.Name}", templateFile, model)),
-            ExportedVariableMetadata => (md.Name, new ArmSymbolicVariableReference(md.Name, templateFile, model)),
-            _ => throw new InvalidOperationException($"Unrecognized export metadata type: {md.GetType().Name}"),
-        });
+        => model.Exports.Values.Select<ExportMetadata, (string, IntraTemplateSymbolicReference)>(md => (md.Name, ReferenceForArmTarget(md, templateFile, model)));
 
     private static DeclaredSymbol FindSymbolNamed(string nameOfSymbolSought, SemanticModel model)
         => model.Root.Declarations.Where(t => LanguageConstants.IdentifierComparer.Equals(t.Name, nameOfSymbolSought)).Single();
 
-    private static IntraTemplateSymbolicReference ReferenceForArmTarget(string targetName, ExportMetadata targetMetadata, ArmTemplateFile sourceTemplateFile, ISemanticModel sourceModel)
+    private static IntraTemplateSymbolicReference ReferenceForArmTarget(ExportMetadata targetMetadata, ArmTemplateFile sourceTemplateFile, ISemanticModel sourceModel)
         => targetMetadata switch
         {
-            ExportedTypeMetadata => new ArmSymbolicTypeReference($"{ArmTypeRefPrefix}{targetName}", sourceTemplateFile, sourceModel),
-            ExportedVariableMetadata => new ArmSymbolicVariableReference(targetName, sourceTemplateFile, sourceModel),
+            ExportedTypeMetadata => new ArmSymbolicReference(ArmSymbolType.Type, $"{ArmTypeRefPrefix}{targetMetadata.Name}", sourceTemplateFile, sourceModel),
+            ExportedVariableMetadata => new ArmSymbolicReference(ArmSymbolType.Variable, targetMetadata.Name, sourceTemplateFile, sourceModel),
+            ExportedFunctionMetadata => new ArmSymbolicReference(ArmSymbolType.Function,
+                !targetMetadata.Name.Contains('.') ? $"{EmitConstants.UserDefinedFunctionsNamespace}.{targetMetadata.Name}" : targetMetadata.Name,
+                sourceTemplateFile,
+                sourceModel),
             _ => throw new InvalidOperationException($"Unrecognized export metadata type: {targetMetadata.GetType().Name}"),
         };
 
@@ -299,12 +305,12 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         var importedSymbolMetadata = ImmutableDictionary.CreateBuilder<IntraTemplateSymbolicReference, (ImportedSymbolOriginMetadata, string)>();
 
         // Every symbol explicitly imported into the model by name should keep that name in the compiled template.
-        foreach (var importedType in model.Root.ImportedSymbols)
+        foreach (var importedSymbol in model.Root.ImportedSymbols)
         {
-            var importTarget = closure.ImportedSymbolsToIntraTemplateSymbols[importedType];
-            importedSymbolMetadata[closure.ImportedSymbolsToIntraTemplateSymbols[importedType]] = (
+            var importTarget = closure.ImportedSymbolsToIntraTemplateSymbols[importedSymbol];
+            importedSymbolMetadata[closure.ImportedSymbolsToIntraTemplateSymbols[importedSymbol]] = (
                 new(TemplateIdentifier(model, importTarget.SourceModel, closure.ImportedModuleReferences[importTarget.SourceModel]), SymbolIdentifier(importTarget)),
-                importedType.Name);
+                importedSymbol.Name);
         }
 
         int uniqueIdentifier = 1;
@@ -322,9 +328,9 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
             }
 
             var templateId = templateIds.GetOrAdd(sourceTemplateIdentifier, _ => uniqueIdentifier++);
-            var symbolId = Lexer.IsValidIdentifier(originalSymbolName) ? originalSymbolName : $"{uniqueIdentifier++}";
+            var symbolId = Lexer.IsValidIdentifier(originalSymbolName) ? originalSymbolName : $"_{uniqueIdentifier++}";
 
-            importedSymbolMetadata.Add(symbolInfo, (new(sourceTemplateIdentifier, originalSymbolName), $"{templateId}.{symbolId}"));
+            importedSymbolMetadata.Add(symbolInfo, (new(sourceTemplateIdentifier, originalSymbolName), $"_{templateId}.{symbolId}"));
         }
 
         return importedSymbolMetadata.ToImmutable();
@@ -334,7 +340,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         => reference switch
         {
             // for local modules, use the path on disk relative to the entry point template
-            LocalModuleReference localModule => entryPointModel.SourceFile.FileUri.MakeRelativeUri(GetSourceFileUri(modelToIdentify)).ToString(),
+            LocalModuleReference => entryPointModel.SourceFile.FileUri.MakeRelativeUri(GetSourceFileUri(modelToIdentify)).ToString(),
             ArtifactReference otherwise => otherwise.FullyQualifiedReference,
         };
 
@@ -349,42 +355,50 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
     private static string SymbolIdentifier(IntraTemplateSymbolicReference reference) => reference switch
     {
         BicepSymbolicReference bicepSymbolicReference => bicepSymbolicReference.Symbol.Name,
-        ArmSymbolicVariableReference armSymbolicVariableReference => armSymbolicVariableReference.VariableName,
         // For ARM JSON type references, the name is a JSON pointer
         // If the pointer starts with "#/definitions/" and everything after that is a valid idenfitier (this will be the case for anything compiled from Bicep), use the last path segment
-        ArmSymbolicTypeReference armTypeRef when armTypeRef.TypePointer.StartsWith(ArmTypeRefPrefix) && Lexer.IsValidIdentifier(armTypeRef.TypePointer[ArmTypeRefPrefix.Length..])
-            => armTypeRef.TypePointer[ArmTypeRefPrefix.Length..],
-        // for all other ARM type pointers, use the full pointer
-        ArmSymbolicTypeReference armSymbolicTypeReference => armSymbolicTypeReference.TypePointer,
+        ArmSymbolicReference armRef when armRef.Type == ArmSymbolType.Type && armRef.Identifier.StartsWith(ArmTypeRefPrefix)
+            => armRef.Identifier[ArmTypeRefPrefix.Length..],
+        // For ARM user-defined function references, the name will be of the format "<namespace>.<name>"
+        // If the namespace is "__bicep" (this will be the case for anything compiled from Bicep), use everything after the '.'
+        ArmSymbolicReference armRef when armRef.Type == ArmSymbolType.Function && armRef.Identifier.StartsWith(BicepDefinedFunctionNamePrefix)
+            => armRef.Identifier[BicepDefinedFunctionNamePrefix.Length..],
+        ArmSymbolicReference armRef => armRef.Identifier,
         _ => throw new InvalidOperationException($"Unexpected symbolic reference type of {reference.GetType().Name} encountered."),
     };
 
-    private record SymbolicReference(ISemanticModel SourceModel) { }
-    private record InterTemplateSymbolicReference(SemanticModel SourceBicepModule) : SymbolicReference(SourceBicepModule) { }
+    private record SymbolicReference(ISemanticModel SourceModel);
+    private record InterTemplateSymbolicReference(SemanticModel SourceBicepModule) : SymbolicReference(SourceBicepModule);
     private record BicepWildcardImportSymbolicReference(WildcardImportSymbol Symbol, SemanticModel SourceBicepModel, ArtifactReference ImportTarget)
-        : InterTemplateSymbolicReference(SourceBicepModel)
-    { }
+        : InterTemplateSymbolicReference(SourceBicepModel);
     private record BicepImportedSymbolReference(ImportedSymbol Symbol, SemanticModel SourceBicepModel, ArtifactReference ImportTarget)
-        : InterTemplateSymbolicReference(SourceBicepModel)
-    { }
+        : InterTemplateSymbolicReference(SourceBicepModel);
 
-    private record IntraTemplateSymbolicReference(ISemanticModel SourceModel) : SymbolicReference(SourceModel) { }
-    private record BicepSymbolicReference(DeclaredSymbol Symbol, SemanticModel SourceBicepModel) : IntraTemplateSymbolicReference(SourceBicepModel) { }
-    private record ArmSymbolicTypeReference(string TypePointer, ArmTemplateFile ArmTemplateFile, ISemanticModel SourceModel)
-        : IntraTemplateSymbolicReference(SourceModel)
-    { }
-    private record ArmSymbolicVariableReference(string VariableName, ArmTemplateFile ArmTemplateFile, ISemanticModel SourceModel)
-        : IntraTemplateSymbolicReference(SourceModel)
-    { }
+    private record IntraTemplateSymbolicReference(ISemanticModel SourceModel) : SymbolicReference(SourceModel);
+    private record BicepSymbolicReference(DeclaredSymbol Symbol, SemanticModel SourceBicepModel) : IntraTemplateSymbolicReference(SourceBicepModel);
+    private record ArmSymbolicReference(ArmSymbolType Type, string Identifier, ArmTemplateFile ArmTemplateFile, ISemanticModel SourceModel) : IntraTemplateSymbolicReference(SourceModel);
 
     private record ImportClosure(
         IReadOnlyDictionary<ISemanticModel, ArtifactReference> ImportedModuleReferences,
         IReadOnlyDictionary<IntraTemplateSymbolicReference, SyntaxBase> SymbolsInImportClosure,
         IReadOnlyDictionary<ImportedSymbol, IntraTemplateSymbolicReference> ImportedSymbolsToIntraTemplateSymbols,
-        IReadOnlyDictionary<WildcardImportPropertyReference, IntraTemplateSymbolicReference> WildcardImportPropertiesToIntraTemplateSymbols,
-        IReadOnlyDictionary<ArmTemplateFile, SchemaValidationContext> ArmSchemaContexts,
-        IReadOnlyDictionary<ArmTemplateFile, TemplateVariablesEvaluator> ArmVariablesEvaluators)
-    { }
+        IReadOnlyDictionary<WildcardImportPropertyReference, IntraTemplateSymbolicReference> WildcardImportPropertiesToIntraTemplateSymbols);
 
-    private record SearchQueueItem(SyntaxBase InitiallyDeclaringSyntax, SymbolicReference SymbolicReference) { }
+    private record SearchQueueItem(SyntaxBase InitiallyDeclaringSyntax, SymbolicReference SymbolicReference);
+
+    private class ArmIdentifierEqualityComparer : IEqualityComparer<ArmIdentifier>
+    {
+        public bool Equals(ArmIdentifier? x, ArmIdentifier? y)
+        {
+            if (x is null)
+            {
+                return y is null;
+            }
+
+            return x.SymbolType == y?.SymbolType && StringComparer.OrdinalIgnoreCase.Equals(x.Identifier, y?.Identifier);
+        }
+
+        public int GetHashCode([DisallowNull] ArmIdentifier obj)
+            => obj.GetHashCode();
+    }
 }

@@ -30,6 +30,13 @@ public class ImportedSymbolsListItemSyntax : SyntaxBase, INamedDeclarationSyntax
         };
     }
 
+    public string? TryGetOriginalSymbolNameText() => OriginalSymbolName switch
+    {
+        IdentifierSyntax identifier => identifier.IdentifierName,
+        StringSyntax @string when @string.TryGetLiteralValue() is string literalValue => literalValue,
+        _ => null,
+    };
+
     public SyntaxBase OriginalSymbolName { get; }
 
     public SyntaxBase? AsClause { get; }

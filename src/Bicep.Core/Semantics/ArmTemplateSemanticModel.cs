@@ -13,12 +13,14 @@ using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics
@@ -166,9 +168,11 @@ namespace Bicep.Core.Semantics
         /// <param name="schemaNode">The starting point for the search</param>
         /// <returns></returns>
         private string? GetMostSpecificDescription(ITemplateSchemaNode schemaNode)
+            => GetMetadata(schemaNode) is JObject metadataObject ? GetDescriptionFromMetadata(metadataObject) : null;
+
+        private static string? GetDescriptionFromMetadata(JObject metadataObject)
         {
-            if (GetMetadata(schemaNode) is JObject metadataObject &&
-                metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
+            if (metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
                 descriptionToken is JValue { Value: string description })
             {
                 return description;
@@ -213,6 +217,31 @@ namespace Bicep.Core.Semantics
             {
                 exports.AddRange(typeDefinitions.Where(kvp => IsExported(kvp.Value))
                     .Select(kvp => new ExportedTypeMetadata(kvp.Key, GetType(kvp.Value), GetMostSpecificDescription(kvp.Value))));
+            }
+
+            if (template.Functions is { } userDefinedFunctions)
+            {
+                foreach (var @namespace in userDefinedFunctions)
+                {
+                    // User-defined functions in ARM *must* be namespaced -- a missing namespace name indicates an invalid or incomplete template.
+                    if (@namespace.Namespace?.Value is not string nsName)
+                    {
+                        continue;
+                    }
+
+                    // A user-defined function residing in the namespace used by the Bicep compiler must be imported by its unqualified name.
+                    // Functions in any other namespace must be imported using their fully qualified name ("<namespace name>.<function name>")
+                    var namePrefix = !nsName.Equals(EmitConstants.UserDefinedFunctionsNamespace) ? $"{nsName}." : string.Empty;
+
+                    exports.AddRange(@namespace.Members.Where(kvp => IsExported(kvp.Value))
+                        .Select(kvp => new ExportedFunctionMetadata(
+                            Name: $"{namePrefix}{kvp.Key}",
+                            Parameters: kvp.Value.Parameters.CoalesceEnumerable()
+                                .Select(p => new ExportedFunctionParameterMetadata(p.Name?.Value ?? string.Empty, GetType(p), GetMostSpecificDescription(p)))
+                                .ToImmutableArray(),
+                            Return: new(GetType(kvp.Value.Output), GetMostSpecificDescription(kvp.Value.Output)),
+                            Description: kvp.Value.Metadata?.Value is JObject metadataObject ? GetDescriptionFromMetadata(metadataObject) : null)));
+                }
             }
 
             if (template.Metadata?.TryGetValue(LanguageConstants.TemplateMetadataExportedVariablesName, out var exportedVariables) is true
@@ -304,7 +333,11 @@ namespace Bicep.Core.Semantics
         ///   type private = public
         /// </code>
         /// </remarks>
-        private static bool IsExported(TemplateTypeDefinition typeDefinition) => typeDefinition.Metadata?.Value is JObject metadataDict &&
+        private static bool IsExported(TemplateTypeDefinition type) => type.Metadata?.Value is JObject metadataDict &&  MetadataRequestsExport(metadataDict);
+
+        private static bool IsExported(TemplateFunction function) => function.Metadata?.Value is JObject metadataDict && MetadataRequestsExport(metadataDict);
+
+        private static bool MetadataRequestsExport(JObject metadataDict) =>
             metadataDict.TryGetValue(LanguageConstants.MetadataExportedPropertyName, out var exportMarkerToken) &&
             exportMarkerToken is JValue { Value: true };
 

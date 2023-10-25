@@ -134,4 +134,10 @@ public interface IExpressionVisitor
     void VisitImportedVariableReferenceExpression(ImportedVariableReferenceExpression expression);
 
     void VisitWildcardImportVariablePropertyReferenceExpression(WildcardImportVariablePropertyReferenceExpression expression);
+
+    void VisitSynthesizedUserDefinedFunctionCallExpression(SynthesizedUserDefinedFunctionCallExpression expression);
+
+    void VisitImportedUserDefinedFunctionCallExpression(ImportedUserDefinedFunctionCallExpression expression);
+
+    void VisitWildcardImportInstanceFunctionCallExpression(WildcardImportInstanceFunctionCallExpression expression);
 }

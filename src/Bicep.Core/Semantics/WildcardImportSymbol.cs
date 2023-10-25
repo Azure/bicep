@@ -15,11 +15,14 @@ namespace Bicep.Core.Semantics;
 
 public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
 {
-    public WildcardImportSymbol(ISymbolContext context, WildcardImportSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclaration)
+    public WildcardImportSymbol(ISymbolContext context, ISemanticModel sourceModel, WildcardImportSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclaration)
         : base(context, declaringSyntax.Name.IdentifierName, declaringSyntax, declaringSyntax.AliasAsClause.Alias)
     {
+        SourceModel = sourceModel;
         EnclosingDeclaration = enclosingDeclaration;
     }
+
+    public ISemanticModel SourceModel { get; }
 
     public CompileTimeImportDeclarationSyntax EnclosingDeclaration { get; }
 
@@ -32,20 +35,15 @@ public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
 
     public NamespaceType? TryGetNamespaceType() => this.Type as NamespaceType;
 
-    public ISemanticModel? TryGetSemanticModel()
-        => SemanticModelHelper.TryGetModelForArtifactReference(Context.Compilation.SourceFileGrouping,
-            EnclosingDeclaration,
-            Context.Compilation)
-            .TryUnwrap();
-
     public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference()
         => Context.Compilation.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 
     public override IEnumerable<ErrorDiagnostic> GetDiagnostics()
     {
-        if (TryGetSemanticModel()?.Exports.Values.OfType<DuplicatedExportMetadata>() is { } duplicatedExports && duplicatedExports.Any())
+        if (SourceModel.Exports.Values.OfType<DuplicatedExportMetadata>().Any())
         {
-            yield return DiagnosticBuilder.ForPosition(DeclaringSyntax).ImportedModelContainsAmbiguousExports(duplicatedExports.Select(md => md.Name));
+            yield return DiagnosticBuilder.ForPosition(DeclaringSyntax).ImportedModelContainsAmbiguousExports(
+                SourceModel.Exports.Values.OfType<DuplicatedExportMetadata>().Select(md => md.Name));
         }
     }
 }
