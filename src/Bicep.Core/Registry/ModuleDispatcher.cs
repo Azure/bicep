@@ -166,19 +166,19 @@ namespace Bicep.Core.Registry
                 // if we're asked to purge modules cache
                 if (forceRestore)
                 {
-                    var forceModulesRestoreStatuses = await registry.InvalidateArtifactsCache(referencesByRegistry[registry]);
+                    var invalidateFailures = await registry.InvalidateArtifactsCache(referencesByRegistry[registry]);
 
                     // update cache invalidation status for each failed module
-                    foreach (var (failedReference, failureBuilder) in forceModulesRestoreStatuses)
+                    foreach (var (failedReference, failureBuilder) in invalidateFailures)
                     {
                         this.SetRestoreFailure(failedReference, configurationManager.GetConfiguration(failedReference.ParentModuleUri), failureBuilder);
                     }
                 }
 
-                var restoreStatuses = await registry.RestoreArtifacts(referencesByRegistry[registry]);
+                var restoreFailures = await registry.RestoreArtifacts(referencesByRegistry[registry]);
 
                 // update restore status for each failed module restore
-                foreach (var (failedReference, failureBuilder) in restoreStatuses)
+                foreach (var (failedReference, failureBuilder) in restoreFailures)
                 {
                     this.SetRestoreFailure(failedReference, configurationManager.GetConfiguration(failedReference.ParentModuleUri), failureBuilder);
                 }
@@ -227,7 +227,7 @@ namespace Bicep.Core.Registry
 
         private bool HasRestoreFailed(ArtifactReference reference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            if (this.restoreFailures.TryGetValue(new(configuration.Cloud, reference), out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))
+                if (this.restoreFailures.TryGetValue(new(configuration.Cloud, reference), out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))
             {
                 // the restore operation failed on the module previously
                 // and the record of the failure has not yet expired

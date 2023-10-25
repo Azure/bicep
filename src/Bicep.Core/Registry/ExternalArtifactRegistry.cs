@@ -160,7 +160,7 @@ namespace Bicep.Core.Registry
         // base implementation for cache invalidation that should fit all external registries
         protected async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCacheInternal(IEnumerable<TArtifactReference> references)
         {
-            var statuses = new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+            var failures = new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 
             foreach (var reference in references)
             {
@@ -176,18 +176,18 @@ namespace Bicep.Core.Registry
                 {
                     if (exception.Message is { } message)
                     {
-                        statuses.Add(reference, x => x.ArtifactDeleteFailedWithMessage(reference.FullyQualifiedReference, message));
+                        failures.Add(reference, x => x.ArtifactDeleteFailedWithMessage(reference.FullyQualifiedReference, message));
                         timer.OnFail($"Unexpected exception {exception}: {message}");
 
-                        return statuses;
+                        return failures;
                     }
 
-                    statuses.Add(reference, x => x.ArtifactDeleteFailed(reference.FullyQualifiedReference));
+                    failures.Add(reference, x => x.ArtifactDeleteFailed(reference.FullyQualifiedReference));
                     timer.OnFail($"Unexpected exception {exception}.");
                 }
             }
 
-            return statuses;
+            return failures;
         }
     }
 }

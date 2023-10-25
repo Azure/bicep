@@ -204,7 +204,7 @@ namespace Bicep.Core.Registry
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<OciArtifactReference> references)
         {
-            var statuses = new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+            var failures = new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 
             foreach (var reference in references)
             {
@@ -215,18 +215,18 @@ namespace Bicep.Core.Registry
                 {
                     if (errorMessage is not null)
                     {
-                        statuses.Add(reference, x => x.ModuleRestoreFailedWithMessage(reference.FullyQualifiedReference, errorMessage));
+                        failures.Add(reference, x => x.ModuleRestoreFailedWithMessage(reference.FullyQualifiedReference, errorMessage));
                         timer.OnFail(errorMessage);
                     }
                     else
                     {
-                        statuses.Add(reference, x => x.ModuleRestoreFailed(reference.FullyQualifiedReference));
+                        failures.Add(reference, x => x.ModuleRestoreFailed(reference.FullyQualifiedReference));
                         timer.OnFail();
                     }
                 }
             }
 
-            return statuses;
+            return failures;
         }
 
         public override async Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<OciArtifactReference> references)
