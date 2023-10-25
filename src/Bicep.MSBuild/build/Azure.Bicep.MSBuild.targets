@@ -2,6 +2,7 @@
   <PropertyGroup>
     <!-- by default run after the Build target -->
     <BicepCompileAfterTargets Condition=" $(BicepCompileAfterTargets) == '' ">CoreCompile</BicepCompileAfterTargets>
+    <BicepParamCompileAfterTargets Condition=" $(BicepParamCompileAfterTargets) == '' ">CoreCompile</BicepParamCompileAfterTargets>
 
     <!-- default to project OutputPath -->
     <BicepOutputPath Condition=" $(BicepOutputPath) == '' ">$(OutputPath)</BicepOutputPath>
@@ -60,7 +61,7 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="BicepParamCompile" Inputs="@(_BicepParamResolved);@(_BicepParamSkipped)" Outputs="%(_BicepParamResolved.OutputFile)" DependsOnTargets="$(BicepCompileDependsOn)" AfterTargets="$(BicepCompileAfterTargets)" BeforeTargets="$(BicepCompileBeforeTargets)">
+  <Target Name="BicepParamCompile" Inputs="@(_BicepParamResolved);@(_BicepParamSkipped)" Outputs="%(_BicepParamResolved.OutputFile)" DependsOnTargets="$(BicepParamCompileDependsOn)" AfterTargets="$(BicepParamCompileAfterTargets)" BeforeTargets="$(BicepParamCompileBeforeTargets)">
     <BicepParam SourceFile="%(_BicepParamResolved.FullPath)" OutputFile="%(OutputFile)" ToolExe="$(BicepPath)" YieldDuringToolExecution="true" />
     <Message Importance="High" Text="$(MSBuildProjectName) -&gt; %(_BicepParamResolved.OutputFile)" />
 
