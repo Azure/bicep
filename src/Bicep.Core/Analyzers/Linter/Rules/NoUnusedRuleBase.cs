@@ -7,6 +7,8 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Analyzers.Linter.Rules;
@@ -25,6 +27,9 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
         var fixableDiagnosticForSpan = CreateFixableDiagnosticForSpan(diagnosticLevel, nameSpan, codeFix, name);
         return fixableDiagnosticForSpan;
     }
+
+    protected static bool IsExported(SemanticModel model, StatementSyntax declaringSyntax)
+        => SemanticModelHelper.TryGetDecoratorInNamespace(model, declaringSyntax, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is not null;
 
     private static TextSpan GetSpanForRow(ProgramSyntax programSyntax, SyntaxBase declaringSyntax)
     {
