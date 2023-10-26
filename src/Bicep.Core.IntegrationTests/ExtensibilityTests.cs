@@ -259,9 +259,9 @@ provider 'kubernetes@1.0.0' with {
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(new[] {
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"kubernetes\" is declared multiple times. Remove or rename the duplicates."),
-                ("BCP207", DiagnosticLevel.Error, "Namespace \"kubernetes\" is imported multiple times. Remove the duplicates."),
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"kubernetes\" is declared multiple times. Remove the duplicates."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"kubernetes\" is declared multiple times. Remove or rename the duplicates."),
-                ("BCP207", DiagnosticLevel.Error, "Namespace \"kubernetes\" is imported multiple times. Remove the duplicates."),
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"kubernetes\" is declared multiple times. Remove the duplicates."),
             });
         }
 
@@ -640,7 +640,7 @@ provider 'br/public:az@1.0.0' with {}
 
             result.Should().NotGenerateATemplate();
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP205", DiagnosticLevel.Error, "Imported namespace \"az\" does not support configuration."),
+                ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
             });
         }
     }

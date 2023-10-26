@@ -57,7 +57,7 @@ namespace Bicep.Core.IntegrationTests
 provider 'br/public:az@1.0.0'
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP203", DiagnosticLevel.Error, "Using import statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
+                ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
                 // BCP084 is raised because BCP203 prevented the compiler from binding a namespace to the `az` symbol (an ErrorType was bound instead).
                 ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\"."),
             });
@@ -104,13 +104,14 @@ provider 'kubernetes@1.0.0' with {
 } as
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP202", DiagnosticLevel.Error, "Expected an import alias name at this location."),
+                ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
 provider 'br/public:az@1.0.0' as
 ");
             result.Should().HaveDiagnostics(new[] {
+                ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
         }
 
@@ -132,7 +133,7 @@ import 'br/public:az@1.0.0' as foo
 provider 'madeUpNamespace@1.0.0'
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP204", DiagnosticLevel.Error, "Imported namespace \"madeUpNamespace\" is not recognized."),
+                ("BCP204", DiagnosticLevel.Error, "Provider namespace \"madeUpNamespace\" is not recognized."),
             });
         }
 
@@ -145,7 +146,7 @@ provider 'br/public:az@1.0.0' with {
 }
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP205", DiagnosticLevel.Error, "Imported namespace \"az\" does not support configuration."),
+                ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
             });
         }
 
@@ -208,10 +209,10 @@ provider 'sys@1.0.0' as sys2
 ");
 
             result.Should().HaveDiagnostics(new[] {
-                ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is imported multiple times. Remove the duplicates."),
-                ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is imported multiple times. Remove the duplicates."),
-                ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is imported multiple times. Remove the duplicates."),
-                ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is imported multiple times. Remove the duplicates."),
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is declared multiple times. Remove the duplicates."),
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is declared multiple times. Remove the duplicates."),
             });
         }
 
@@ -344,7 +345,7 @@ provider 'mockNs@1.0.0' as ns2
             var result = CompilationHelper.Compile(ServicesWithImports, @"provider 'microsoftGraph@1.0.0' as graph");
 
             result.Should().HaveDiagnostics(new[] {
-                ("BCP204", DiagnosticLevel.Error, "Imported namespace \"microsoftGraph\" is not recognized."),
+                ("BCP204", DiagnosticLevel.Error, "Provider namespace \"microsoftGraph\" is not recognized."),
             });
 
             var serviceWithPreview = new ServiceBuilder()

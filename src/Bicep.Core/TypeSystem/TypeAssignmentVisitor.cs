@@ -760,7 +760,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     if (namespaceType.ConfigurationType is null)
                     {
-                        diagnostics.Write(syntax.Config, x => x.ImportProviderDoesNotSupportConfiguration(namespaceType.ProviderName));
+                        diagnostics.Write(syntax.Config, x => x.ProviderDoesNotSupportConfiguration(namespaceType.ProviderName));
                     }
                     else
                     {
@@ -774,7 +774,7 @@ namespace Bicep.Core.TypeSystem
                         namespaceType.ConfigurationType is not null &&
                         namespaceType.ConfigurationType.Properties.Values.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)))
                     {
-                        diagnostics.Write(syntax, x => x.ImportProviderRequiresConfiguration(namespaceType.ProviderName));
+                        diagnostics.Write(syntax, x => x.ProviderRequiresConfiguration(namespaceType.ProviderName));
                     }
                 }
 
