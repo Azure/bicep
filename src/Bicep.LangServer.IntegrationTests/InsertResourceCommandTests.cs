@@ -15,7 +15,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -58,7 +57,7 @@ namespace Bicep.LangServer.IntegrationTests
         private async Task<LanguageServerHelper> StartLanguageServer(
             Listeners listeners,
             IAzResourceProvider azResourceProvider,
-            IAzResourceTypeLoader azResourceTypeLoader)
+            IResourceTypeLoader azResourceTypeLoader)
         {
             return await LanguageServerHelper.StartServer(
                 this.TestContext,

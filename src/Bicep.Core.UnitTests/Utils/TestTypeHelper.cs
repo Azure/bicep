@@ -17,7 +17,7 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class TestTypeHelper
     {
-        private class TestResourceTypeLoader : IAzResourceTypeLoader
+        private class TestResourceTypeLoader : IResourceTypeLoader
         {
             private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes;
 
@@ -33,13 +33,13 @@ namespace Bicep.Core.UnitTests.Utils
                 => resourceTypes.Keys;
         }
 
-        public static IAzResourceTypeLoader CreateEmptyAzResourceTypeLoader()
+        public static IResourceTypeLoader CreateEmptyAzResourceTypeLoader()
             => new TestResourceTypeLoader(Enumerable.Empty<ResourceTypeComponents>());
 
-        public static IAzResourceTypeLoader CreateAzResourceTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
+        public static IResourceTypeLoader CreateAzResourceTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
             => new TestResourceTypeLoader(resourceTypes);
 
-        public static IAzResourceTypeLoaderFactory CreateAzResourceTypeLoaderFactory(IAzResourceTypeLoader loader)
+        public static IAzResourceTypeLoaderFactory CreateAzResourceTypeLoaderFactory(IResourceTypeLoader loader)
         {
             var factory = StrictMock.Of<IAzResourceTypeLoaderFactory>();
             factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<string>(), It.IsAny<IFeatureProvider>())).Returns(loader);

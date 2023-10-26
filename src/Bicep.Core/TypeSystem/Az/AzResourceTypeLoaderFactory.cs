@@ -17,9 +17,9 @@ namespace Bicep.Core.TypeSystem.Az
 
         private readonly IFeatureProviderFactory featureProviderFactory;
 
-        private Dictionary<string, IAzResourceTypeLoader> resourceTypeLoaders;
+        private Dictionary<string, IResourceTypeLoader> resourceTypeLoaders;
 
-        public AzResourceTypeLoaderFactory(IFeatureProviderFactory featureProviderFactory, IAzResourceTypeLoader defaultAzResourceTypeLoader)
+        public AzResourceTypeLoaderFactory(IFeatureProviderFactory featureProviderFactory, IResourceTypeLoader defaultAzResourceTypeLoader)
         {
             this.featureProviderFactory = featureProviderFactory;
             this.resourceTypeLoaders = new() {
@@ -27,12 +27,12 @@ namespace Bicep.Core.TypeSystem.Az
             };
         }
 
-        public IAzResourceTypeLoader GetBuiltInTypeLoader()
+        public IResourceTypeLoader GetBuiltInTypeLoader()
         {
             return resourceTypeLoaders[BuiltInLoaderKey];
         }
 
-        public IAzResourceTypeLoader? GetResourceTypeLoader(string? providerVersion, IFeatureProvider features)
+        public IResourceTypeLoader? GetResourceTypeLoader(string? providerVersion, IFeatureProvider features)
         {
             if (!features.DynamicTypeLoadingEnabled || providerVersion is null)
             {

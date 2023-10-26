@@ -13,6 +13,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
@@ -64,7 +65,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration), FeatureOverrides);
 
-        public static readonly IAzResourceTypeLoader BuiltinAzResourceTypeLoader = BicepTestConstants.AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, BicepTestConstants.Features)!;
+        public static readonly IResourceTypeLoader BuiltinAzResourceTypeLoader = BicepTestConstants.AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, BicepTestConstants.Features)!;
 
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
         public static readonly IArtifactRegistryProvider RegistryProvider = new DefaultArtifactRegistryProvider(EmptyServiceProvider, FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);

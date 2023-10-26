@@ -35,7 +35,7 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-        .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
+        .AddSingleton<IResourceTypeLoader, AzResourceTypeLoader>()
         .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
@@ -102,7 +102,7 @@ public static class IServiceCollectionExtensions
         => services.WithAzResourceTypeLoaderFactory(
             TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(resourceTypes));
 
-    public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IAzResourceTypeLoader loader)
+    public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IResourceTypeLoader loader)
     {
         var factory = StrictMock.Of<IAzResourceTypeLoaderFactory>();
         factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<string>(), It.IsAny<IFeatureProvider>())).Returns(loader);
