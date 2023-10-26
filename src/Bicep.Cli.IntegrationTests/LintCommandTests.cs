@@ -82,7 +82,7 @@ public class LintCommandTests : TestBase
             output.Should().BeEmpty();
 
             error.Should().NotBeEmpty();
-            error.Should().Contain($@"The specified input ""/dev/zero"" was not recognized as a Bicep file. Bicep files must use the {LanguageConstants.LanguageFileExtension} extension.");
+            error.Should().Contain($@"The specified input ""/dev/zero"" was not recognized as a Bicep or Bicep Parameters file. Valid files must either the .bicep or .bicepparam extension");
         }
     }
 
@@ -206,6 +206,50 @@ param notUsedParam int = 3
         result.Should().Be(0);
         output.Should().BeEmpty();
         error.Should().StartWith($"{inputFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+    }
+
+    [TestMethod]
+    public async Task Lint_bicepparam_with_warnings_should_log_warnings_and_return_0_exit_code()
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+@minValue(1)
+@maxValue(50)
+param notUsedParam int
+", outputPath);
+        var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
+using 'main.bicep'
+param notUsedParam = 3
+", outputPath);
+
+        var (output, error, result) = await Bicep("lint", inputFile);
+
+        result.Should().Be(0);
+        output.Should().BeEmpty();
+        error.Should().StartWith($"{bicepFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+    }
+
+    [TestMethod]
+    public async Task Lint_bicepparam_with_error_should_fail()
+    {
+        var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+@minValue(1)
+@maxValue(50)
+param notUsedParam int
+", outputPath);
+        var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
+using 'main.bicep'
+param notUsedParm = 'string'
+", outputPath);
+
+        var (output, error, result) = await Bicep("lint", inputFile);
+
+        result.Should().Be(1);
+        output.Should().BeEmpty();
+        error.Should().Contain($"{bicepFile}(4,7) : Warning no-unused-params: Parameter \"notUsedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+        error.Should().Contain($"{inputFile}(2,7) : Error BCP258: The following parameters are declared in the Bicep file but are missing an assignment in the params file: \"notUsedParam\".");
+        error.Should().Contain($"{inputFile}(3,1) : Error BCP259: The parameter \"notUsedParm\" is assigned in the params file without being declared in the Bicep file.");
     }
 
     [TestMethod]
