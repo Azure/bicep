@@ -39,9 +39,9 @@ namespace Bicep.Core.UnitTests.Utils
         public static IResourceTypeLoader CreateAzResourceTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
             => new TestResourceTypeLoader(resourceTypes);
 
-        public static IAzResourceTypeLoaderFactory CreateAzResourceTypeLoaderFactory(IResourceTypeLoader loader)
+        public static IResourceTypeLoaderFactory CreateAzResourceTypeLoaderFactory(IResourceTypeLoader loader)
         {
-            var factory = StrictMock.Of<IAzResourceTypeLoaderFactory>();
+            var factory = StrictMock.Of<IResourceTypeLoaderFactory>();
             factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<string>(), It.IsAny<IFeatureProvider>())).Returns(loader);
             factory.Setup(m => m.GetBuiltInTypeLoader()).Returns(loader);
             return factory.Object;

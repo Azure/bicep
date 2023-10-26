@@ -24,7 +24,7 @@ namespace Bicep.RegistryModuleTool.Extensions
             .AddSingleton<IFileSystem, FileSystem>()
             .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
             .AddSingleton<IResourceTypeLoader, AzResourceTypeLoader>()
-            .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
+            .AddSingleton<IResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
             .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
             .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
             .AddSingleton<IModuleDispatcher, ModuleDispatcher>()

@@ -3,9 +3,9 @@
 
 using Bicep.Core.Features;
 
-namespace Bicep.Core.TypeSystem.Az
+namespace Bicep.Core.TypeSystem
 {
-    public interface IAzResourceTypeLoaderFactory
+    public interface IResourceTypeLoaderFactory
     {
         IResourceTypeLoader? GetResourceTypeLoader(string? version, IFeatureProvider features);
 

@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class AzResourceTypeLoaderFactory : IAzResourceTypeLoaderFactory
+    public class AzResourceTypeLoaderFactory : IResourceTypeLoaderFactory
     {
         private const string typesArtifactFilename = "types.tgz";
         private const string BuiltInLoaderKey = "builtin";

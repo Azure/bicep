@@ -41,7 +41,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager), FeatureOverrides);
 
-        public static readonly IAzResourceTypeLoaderFactory AzResourceTypeLoaderFactory = new AzResourceTypeLoaderFactory(FeatureProviderFactory, new AzResourceTypeLoader());
+        public static readonly IResourceTypeLoaderFactory AzResourceTypeLoaderFactory = new AzResourceTypeLoaderFactory(FeatureProviderFactory, new AzResourceTypeLoader());
 
         public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(AzResourceTypeLoaderFactory);
 

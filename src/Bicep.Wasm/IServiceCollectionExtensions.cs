@@ -24,7 +24,7 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
         .AddSingleton<IResourceTypeLoader, AzResourceTypeLoader>()
-        .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
+        .AddSingleton<IResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
         .AddSingleton<IArtifactRegistryProvider, EmptyModuleRegistryProvider>()

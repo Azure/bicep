@@ -56,7 +56,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
         .AddSingleton<IResourceTypeLoader, AzResourceTypeLoader>()
-        .AddSingleton<IAzResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
+        .AddSingleton<IResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
