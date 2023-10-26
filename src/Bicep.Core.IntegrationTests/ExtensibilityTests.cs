@@ -26,7 +26,7 @@ namespace Bicep.Core.IntegrationTests
         public void Bar_import_bad_config_is_blocked()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   madeUpProperty: 'asdf'
 } as stg
 ");
@@ -40,11 +40,11 @@ import 'bar@0.0.1' with {
         public void Bar_import_can_be_duplicated()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: 'connectionString1'
 } as stg
 
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: 'connectionString2'
 } as stg2
 ");
@@ -55,7 +55,7 @@ import 'bar@0.0.1' with {
         public void Bar_import_basic_test()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
@@ -76,11 +76,11 @@ resource blob 'blob' = {
         public void Ambiguous_type_references_return_errors()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg2
 
@@ -93,11 +93,11 @@ resource container 'container' = {
             });
 
             result = CompilationHelper.Compile(Services, @"
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg2
 
@@ -112,7 +112,7 @@ resource container 'stg2:container' = {
         public void Bar_import_basic_test_loops_and_referencing()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
@@ -152,7 +152,7 @@ output base64Content string = blobs[3]['base64Content']
         public void Foo_import_basic_test_loops_and_referencing()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'foo@1.2.3' as foo
+provider 'foo@1.2.3' as foo
 param numApps int
 
 resource myApp 'application' = {
@@ -182,7 +182,7 @@ output myAppsLoopId2 string = myAppsLoop[3]['appId']
         {
             // we've accidentally used 'name' even though this resource type doesn't support it
             var result = CompilationHelper.Compile(Services, @"
-import 'foo@1.2.3'
+provider 'foo@1.2.3'
 
 resource myApp 'application' existing = {
   name: 'foo'
@@ -198,7 +198,7 @@ resource myApp 'application' existing = {
 
             // oops! let's change it to 'uniqueName'
             result = CompilationHelper.Compile(Services, @"
-import 'foo@1.2.3' as foo
+provider 'foo@1.2.3' as foo
 
 resource myApp 'application' existing = {
   uniqueName: 'foo'
@@ -215,7 +215,7 @@ resource myApp 'application' existing = {
         public void Kubernetes_import_existing_warns_with_readonly_fields()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'kubernetes@1.0.0' with {
+provider 'kubernetes@1.0.0' with {
   namespace: 'default'
   kubeConfig: ''
 }
@@ -245,12 +245,12 @@ resource service 'core/Service@v1' existing = {
         public void Kubernetes_competing_imports_are_blocked()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'kubernetes@1.0.0' with {
+provider 'kubernetes@1.0.0' with {
   namespace: 'default'
   kubeConfig: ''
 }
 
-import 'kubernetes@1.0.0' with {
+provider 'kubernetes@1.0.0' with {
   namespace: 'default'
   kubeConfig: ''
 }
@@ -269,7 +269,7 @@ import 'kubernetes@1.0.0' with {
         public void Kubernetes_import_existing_resources()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'kubernetes@1.0.0' with {
+provider 'kubernetes@1.0.0' with {
   namespace: 'default'
   kubeConfig: ''
 }
@@ -305,7 +305,7 @@ resource configmap 'core/ConfigMap@v1' existing = {
         public void Kubernetes_import_existing_connectionstring_test()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'kubernetes@1.0.0' with {
+provider 'kubernetes@1.0.0' with {
   namespace: 'default'
   kubeConfig: ''
 }
@@ -343,7 +343,7 @@ resource secret 'core/Secret@v1' = {
         public void Kubernetes_CustomResourceType_EmitWarning()
         {
             var result = CompilationHelper.Compile(Services, """
-                import 'kubernetes@1.0.0' with {
+                provider 'kubernetes@1.0.0' with {
                   namespace: 'default'
                   kubeConfig: ''
                 }
@@ -364,7 +364,7 @@ resource secret 'core/Secret@v1' = {
         public void Kubernetes_AmbiguousFallbackType_MustFullyQualify()
         {
             var result = CompilationHelper.Compile(Services, """
-                import 'kubernetes@1.0.0' with {
+                provider 'kubernetes@1.0.0' with {
                   namespace: 'default'
                   kubeConfig: ''
                 }
@@ -398,7 +398,7 @@ resource secret 'core/Secret@v1' = {
         public void Bar_import_basic_test_with_qualified_type()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
@@ -419,7 +419,7 @@ resource blob 'stg:blob' = {
         public void Invalid_namespace_qualifier_returns_error()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
@@ -444,7 +444,7 @@ resource blob 'bar:blob' = {
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: 'asdf'
 } as stg
 
@@ -492,7 +492,7 @@ module website './website.bicep' = {
 @secure()
 param connectionString string
 
-import 'bar@0.0.1' with {
+provider 'bar@0.0.1' with {
   connectionString: connectionString
 } as stg
 
@@ -624,7 +624,7 @@ Hello from Bicep!"));
         public void Az_namespace_can_be_used_without_configuration()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'br/public:az@1.0.0'
+provider 'br/public:az@1.0.0'
 ");
 
             result.Should().GenerateATemplate();
@@ -635,7 +635,7 @@ import 'br/public:az@1.0.0'
         public void Az_namespace_errors_with_configuration()
         {
             var result = CompilationHelper.Compile(Services, @"
-import 'br/public:az@1.0.0' with {}
+provider 'br/public:az@1.0.0' with {}
 ");
 
             result.Should().NotGenerateATemplate();

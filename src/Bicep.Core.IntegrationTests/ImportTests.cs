@@ -54,7 +54,7 @@ namespace Bicep.Core.IntegrationTests
         public void Imports_are_disabled_unless_feature_is_enabled()
         {
             var result = CompilationHelper.Compile(@"
-import 'br/public:az@1.0.0'
+provider 'br/public:az@1.0.0'
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using import statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
@@ -67,28 +67,28 @@ import 'br/public:az@1.0.0'
         public void Import_statement_parse_diagnostics_are_guiding()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import
+provider
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\", the \"*\" character, or the \"{\" character at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'br/public:az@1.0.0' blahblah
+provider 'br/public:az@1.0.0' blahblah
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'kubernetes@1.0.0' with
+provider 'kubernetes@1.0.0' with
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'kubernetes@1.0.0' with {
+provider 'kubernetes@1.0.0' with {
   kubeConfig: 'foo'
   namespace: 'bar'
 } something
@@ -98,7 +98,7 @@ import 'kubernetes@1.0.0' with {
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'kubernetes@1.0.0' with {
+provider 'kubernetes@1.0.0' with {
   kubeConfig: 'foo'
   namespace: 'bar'
 } as
@@ -108,10 +108,20 @@ import 'kubernetes@1.0.0' with {
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'br/public:az@1.0.0' as
+provider 'br/public:az@1.0.0' as
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP202", DiagnosticLevel.Error, "Expected an import alias name at this location."),
+            });
+        }
+
+        [TestMethod]
+        public void Using_import_instead_of_provider_raises_warning()
+        {
+            var result = CompilationHelper.Compile(ServicesWithImports, @"
+import 'br/public:az@1.0.0' as foo
+");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP381", DiagnosticLevel.Warning, "Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead."),
             });
         }
 
@@ -119,7 +129,7 @@ import 'br/public:az@1.0.0' as
         public void Imports_return_error_with_unrecognized_namespace()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'madeUpNamespace@1.0.0'
+provider 'madeUpNamespace@1.0.0'
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP204", DiagnosticLevel.Error, "Imported namespace \"madeUpNamespace\" is not recognized."),
@@ -130,7 +140,7 @@ import 'madeUpNamespace@1.0.0'
         public void Import_configuration_is_blocked_by_default()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'br/public:az@1.0.0' with {
+provider 'br/public:az@1.0.0' with {
   foo: 'bar'
 }
 ");
@@ -143,7 +153,7 @@ import 'br/public:az@1.0.0' with {
         public void Using_import_statements_frees_up_the_namespace_symbol()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'br/public:az@1.0.0' as newAz
+provider 'br/public:az@1.0.0' as newAz
 
 var az = 'Fake AZ!'
 var myRg = newAz.resourceGroup()
@@ -159,8 +169,8 @@ output rgLocation string = myRg.location
         public void You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'br/public:az@1.0.0' as sys
-import 'sys@1.0.0' as az
+provider 'br/public:az@1.0.0' as sys
+provider 'sys@1.0.0' as az
 
 var myRg = sys.resourceGroup()
 
@@ -176,7 +186,7 @@ output rgLocation string = myRg.location
         public void Overwriting_single_built_in_namespace_with_import_is_prohibited()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'br/public:az@1.0.0' as sys
+provider 'br/public:az@1.0.0' as sys
 
 var myRg = sys.resourceGroup()
 
@@ -190,11 +200,11 @@ output rgLocation string = myRg.location
         public void Singleton_imports_cannot_be_used_multiple_times()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'br/public:az@1.0.0' as az1
-import 'br/public:az@1.0.0' as az2
+provider 'br/public:az@1.0.0' as az1
+provider 'br/public:az@1.0.0' as az2
 
-import 'sys@1.0.0' as sys1
-import 'sys@1.0.0' as sys2
+provider 'sys@1.0.0' as sys1
+provider 'sys@1.0.0' as sys2
 ");
 
             result.Should().HaveDiagnostics(new[] {
@@ -209,8 +219,8 @@ import 'sys@1.0.0' as sys2
         public void Import_names_must_not_conflict_with_other_symbols()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'br/public:az@1.0.0'
-import 'kubernetes@1.0.0' with {
+provider 'br/public:az@1.0.0'
+provider 'kubernetes@1.0.0' with {
   kubeConfig: ''
   namespace: ''
 } as az
@@ -264,8 +274,8 @@ import 'kubernetes@1.0.0' with {
             var services = ServicesWithImports.WithNamespaceProvider(nsProvider);
 
             var result = CompilationHelper.Compile(services, @"
-import 'ns1@1.0.0' as ns1
-import 'ns2@1.0.0' as ns2
+provider 'ns1@1.0.0' as ns1
+provider 'ns2@1.0.0' as ns2
 
 output ambiguousResult string = dupeFunc()
 output ns1Result string = ns1Func()
@@ -278,8 +288,8 @@ output ns2Result string = ns2Func()
 
             // fix by fully-qualifying
             result = CompilationHelper.Compile(services, @"
-import 'ns1@1.0.0' as ns1
-import 'ns2@1.0.0' as ns2
+provider 'ns1@1.0.0' as ns1
+provider 'ns2@1.0.0' as ns2
 
 output ambiguousResult string = ns1.dupeFunc()
 output ns1Result string = ns1Func()
@@ -319,10 +329,10 @@ output ns2Result string = ns2Func()
             var services = ServicesWithImports.WithNamespaceProvider(nsProvider);
 
             var result = CompilationHelper.Compile(services, @"
-import 'mockNs@1.0.0' with {
+provider 'mockNs@1.0.0' with {
   optionalConfig: 'blah blah'
 } as ns1
-import 'mockNs@1.0.0' as ns2
+provider 'mockNs@1.0.0' as ns2
 ");
 
             result.Should().NotHaveAnyDiagnostics();
@@ -331,7 +341,7 @@ import 'mockNs@1.0.0' as ns2
         [TestMethod]
         public void MicrosoftGraph_imports_succeed_with_preview_feature_enabled()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @"import 'microsoftGraph@1.0.0' as graph");
+            var result = CompilationHelper.Compile(ServicesWithImports, @"provider 'microsoftGraph@1.0.0' as graph");
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP204", DiagnosticLevel.Error, "Imported namespace \"microsoftGraph\" is not recognized."),
@@ -340,7 +350,7 @@ import 'mockNs@1.0.0' as ns2
             var serviceWithPreview = new ServiceBuilder()
                 .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: true));
 
-            result = CompilationHelper.Compile(serviceWithPreview, @"import 'microsoftGraph@1.0.0' as graph");
+            result = CompilationHelper.Compile(serviceWithPreview, @"provider 'microsoftGraph@1.0.0' as graph");
 
             result.Should().NotHaveAnyDiagnostics();
         }
