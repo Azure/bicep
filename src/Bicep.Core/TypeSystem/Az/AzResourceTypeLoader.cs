@@ -11,7 +11,7 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class AzResourceTypeLoader : IAzResourceTypeLoader
+    public class AzResourceTypeLoader : IResourceTypeLoader
     {
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;

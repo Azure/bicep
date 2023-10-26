@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 using Moq;
 
 namespace Bicep.Core.UnitTests.Mock
@@ -6338,10 +6337,10 @@ Fake.Support/supportTickets/communications@2419-05-01-preview
 Fake.Support/supportTickets/communications@2420-04-01
 Fake.Web/publishingCredentials@2415-08-01";
 
-        public static Mock<IAzResourceTypeLoader> GetAzResourceTypeLoaderWithInjectedTypes(string[] resourceTypes)
+        public static Mock<IResourceTypeLoader> GetAzResourceTypeLoaderWithInjectedTypes(string[] resourceTypes)
         {
             var fakeResourceTypeReferences = FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes);
-            var typesLoader = StrictMock.Of<IAzResourceTypeLoader>();
+            var typesLoader = StrictMock.Of<IResourceTypeLoader>();
             typesLoader.Setup(m => m.LoadType(It.IsAny<ResourceTypeReference>()))
                 .Returns<ResourceTypeReference>((tr) => new ResourceTypeComponents(
                     tr,

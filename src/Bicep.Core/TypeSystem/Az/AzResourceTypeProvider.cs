@@ -71,7 +71,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         public string Version { get; } = "1.0.0";
 
-        private readonly IAzResourceTypeLoader resourceTypeLoader;
+        private readonly IResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
@@ -191,7 +191,7 @@ namespace Bicep.Core.TypeSystem.Az
             }, null));
         }
 
-        public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader, string providerVersion)
+        public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, string providerVersion)
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
             this.Version = providerVersion;

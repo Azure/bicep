@@ -24,7 +24,7 @@ using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
@@ -51,14 +51,14 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ILanguageServerFacade server;
         private readonly ICompilationManager compilationManager;
         private readonly IAzResourceProvider azResourceProvider;
-        private readonly IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory;
+        private readonly IResourceTypeLoaderFactory azResourceTypeLoaderFactory;
         private readonly TelemetryAndErrorHandlingHelper<Unit> helper;
 
         public InsertResourceHandler(
             ILanguageServerFacade server,
             ICompilationManager compilationManager,
             IAzResourceProvider azResourceProvider,
-            IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory,
+            IResourceTypeLoaderFactory azResourceTypeLoaderFactory,
             ITelemetryProvider telemetryProvider)
         {
             this.server = server;

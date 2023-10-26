@@ -3,9 +3,9 @@
 using System.Collections.Generic;
 using Bicep.Core.Resources;
 
-namespace Bicep.Core.TypeSystem.Az
+namespace Bicep.Core.TypeSystem
 {
-    public interface IAzResourceTypeLoader
+    public interface IResourceTypeLoader
     {
         ResourceTypeComponents LoadType(ResourceTypeReference reference);
 

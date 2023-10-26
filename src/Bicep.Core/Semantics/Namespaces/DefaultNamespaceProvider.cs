@@ -21,9 +21,9 @@ public class DefaultNamespaceProvider : INamespaceProvider
         string? version = null);
     private readonly ImmutableDictionary<string, GetNamespaceDelegate> providerLookup;
 
-    private readonly IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory;
+    private readonly IResourceTypeLoaderFactory azResourceTypeLoaderFactory;
 
-    public DefaultNamespaceProvider(IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory)
+    public DefaultNamespaceProvider(IResourceTypeLoaderFactory azResourceTypeLoaderFactory)
     {
         var builtInAzResourceTypeLoaderVersion = "1.0.0";
         var builtInAzResourceTypeProvider = new AzResourceTypeProvider(azResourceTypeLoaderFactory.GetBuiltInTypeLoader(), builtInAzResourceTypeLoaderVersion);

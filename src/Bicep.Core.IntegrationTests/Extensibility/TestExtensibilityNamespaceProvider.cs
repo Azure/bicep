@@ -5,7 +5,6 @@ using System.Linq;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.IntegrationTests.Extensibility;
@@ -14,7 +13,7 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
 {
     private readonly INamespaceProvider defaultNamespaceProvider;
 
-    public TestExtensibilityNamespaceProvider(IAzResourceTypeLoaderFactory azResourceTypeLoaderFactory)
+    public TestExtensibilityNamespaceProvider(IResourceTypeLoaderFactory azResourceTypeLoaderFactory)
     {
         defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoaderFactory);
     }

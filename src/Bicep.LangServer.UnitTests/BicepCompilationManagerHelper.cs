@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Bicep.Core;
 using Bicep.Core.Configuration;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
@@ -93,7 +93,7 @@ namespace Bicep.LangServer.UnitTests
         public static ICompilationProvider CreateEmptyCompilationProvider(IConfigurationManager? configurationManager = null)
         {
             var helper = ServiceBuilder.Create(services => services
-                .AddSingleton<IAzResourceTypeLoader>(TestTypeHelper.CreateEmptyAzResourceTypeLoader())
+                .AddSingleton<IResourceTypeLoader>(TestTypeHelper.CreateEmptyAzResourceTypeLoader())
                 .AddSingletonIfNonNull<IConfigurationManager>(configurationManager)
                 .AddSingleton<BicepCompilationProvider>());
 

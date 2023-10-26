@@ -12,7 +12,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Text;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
@@ -45,7 +45,7 @@ public class LinterRuleTestsBase
         OnCompileErrors OnCompileErrors = OnCompileErrors.Default,
         IncludePosition IncludePosition = IncludePosition.Default,
         Func<RootConfiguration, RootConfiguration>? ConfigurationPatch = null,
-        IAzResourceTypeLoader? AzResourceTypeLoader = null,
+        IResourceTypeLoader? AzResourceTypeLoader = null,
         (string path, string contents)[]? AdditionalFiles = null,
         FeatureProviderOverrides? FeatureOverrides = null
     );
