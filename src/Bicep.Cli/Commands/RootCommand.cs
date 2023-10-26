@@ -63,10 +63,10 @@ Usage:
       <file>        The input file
 
     Options:
-      --outdir <dir>                Saves the output at the specified directory.
-      --outfile <file>              Saves the output as the specified file path.
-      --stdout                      Prints the output to stdout.
-      --no-restore                  Builds the bicep file without restoring external modules.
+      --outdir <dir>                 Saves the output at the specified directory.
+      --outfile <file>               Saves the output as the specified file path.
+      --stdout                       Prints the output to stdout.
+      --no-restore                   Builds the bicep file without restoring external modules.
       --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
 
     Examples:
@@ -214,16 +214,18 @@ Usage:
       <file>        The input Bicepparam file
 
     Options:
-      --bicep-file <file> Verifies if the specified bicep file path matches the one provided in the params file using declaration
-      --outfile <file>    Saves the param output json as the specified file path.
-      --stdout            Prints the param and bicep json output to stdout.
-      --no-restore        Builds the bicep file (referenced in using declaration) without restoring external modules.
+      --bicep-file <file>            Verifies if the specified bicep file path matches the one provided in the params file using declaration
+      --outfile <file>               Saves the param output json as the specified file path.
+      --stdout                       Prints the param and bicep json output to stdout.
+      --no-restore                   Builds the bicep file (referenced in using declaration) without restoring external modules.
+      --diagnostics-format <format>  Sets the format with which diagnostics are displayed. Valid values are ( {string.Join(" | ", Enum.GetNames(typeof(DiagnosticsFormat)))} ).
 
     Examples:
       bicep build-params params.bicepparam
       bicep build-params params.bicepparam --stdout
       bicep build-params params.bicepparam --outfile otherParams.json
       bicep build-params params.bicepparam --no-restore
+      bicep build-params params.bicepparam --diagnostics-format sarif
 
 "; // this newline is intentional
 

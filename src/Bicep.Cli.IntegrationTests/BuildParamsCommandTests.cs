@@ -27,6 +27,7 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
@@ -357,6 +358,45 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Fail().And.NotHaveStdout();
             result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the module with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
+        }
+
+        [DataRow(new string[] { })]
+        [DataRow(new[] { "--diagnostics-format", "defAULt" })]
+        [DataRow(new[] { "--diagnostics-format", "sArif" })]
+        [TestMethod]
+        public async Task BuildParams_supports_sarif_diagnostics_format(string[] args)
+        {
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var bicepFile = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+    @minValue(1)
+    @maxValue(50)
+    param unusedParam int
+    ", outputPath);
+            var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicepparam", @"
+    using 'main.bicep'
+
+    param unusedParam = 3
+    ", outputPath);
+
+            var expectedOutputFile = FileHelper.GetResultFilePath(TestContext, "main.json", outputPath);
+
+            File.Exists(expectedOutputFile).Should().BeFalse();
+            var (output, error, result) = await Bicep(new[] { "build-params", inputFile }.Concat(args).ToArray());
+
+            File.Exists(expectedOutputFile).Should().BeTrue();
+            output.Should().BeEmpty();
+            if (Array.Exists(args, x => x.Equals("sarif", StringComparison.OrdinalIgnoreCase)))
+            {
+                var sarifLog = JsonConvert.DeserializeObject<SarifLog>(error)!;
+                sarifLog.Runs[0].Results[0].RuleId.Should().Be("no-unused-params");
+                sarifLog.Runs[0].Results[0].Message.Text.Should().Be("Parameter \"unusedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+            }
+            else
+            {
+                error.Should().Contain($"{bicepFile}(4,11) : Warning no-unused-params: Parameter \"unusedParam\" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+            }
+
+            result.Should().Be(0);
         }
     }
 }
