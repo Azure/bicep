@@ -18,7 +18,7 @@ namespace Bicep.Core.Syntax
         public ProviderDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase specificationString, SyntaxBase withClause, SyntaxBase asClause)
             : base(leadingNodes)
         {
-            AssertKeyword(keyword, nameof(keyword), LanguageConstants.ImportKeyword);
+            AssertKeyword(keyword, nameof(keyword), LanguageConstants.ImportKeyword, LanguageConstants.ProviderKeyword);
             AssertSyntaxType(specificationString, nameof(specificationString), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
 
             this.Keyword = keyword;
