@@ -402,7 +402,7 @@ output length int =
         [TestMethod]
         public async Task CompletionsShouldContainMicrosoftGraphWhenPreviewFeatureEnabled()
         {
-            var codeFragment = @"import 'microsoftGraph@1.0.0' as graph";
+            var codeFragment = @"provider 'microsoftGraph@1.0.0' as graph";
             var completionProvider = CreateProvider();
             var offset = 7;
             var featureOverrides = new FeatureProviderOverrides(ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: true);
