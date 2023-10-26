@@ -404,7 +404,7 @@ output length int =
         {
             var codeFragment = @"provider 'microsoftGraph@1.0.0' as graph";
             var completionProvider = CreateProvider();
-            var offset = 7;
+            var offset = 9;
             var featureOverrides = new FeatureProviderOverrides(ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: true);
             var serviceWithGraph = new ServiceBuilder().WithFeatureOverrides(featureOverrides);
 
