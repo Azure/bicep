@@ -16,7 +16,6 @@ namespace Bicep.Core.Registry.Oci
     [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
     public partial class OciManifestSerializationContext : JsonSerializerContext { }
 
-    [JsonSerializable(typeof(OciManifest))]
     public class OciManifest
     {
         [JsonConstructor]
