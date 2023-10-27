@@ -61,6 +61,24 @@ export async function executeShowVisualizerToSideCommand(
   );
 }
 
+export async function executeShowDeployPaneCommand(
+  documentUri: vscode.Uri,
+): Promise<vscode.ViewColumn | undefined> {
+  return await vscode.commands.executeCommand(
+    "bicep.showDeployPane",
+    documentUri,
+  );
+}
+
+export async function executeShowDeployPaneToSideCommand(
+  documentUri: vscode.Uri,
+): Promise<vscode.ViewColumn | undefined> {
+  return await vscode.commands.executeCommand(
+    "bicep.showDeployPaneToSide",
+    documentUri,
+  );
+}
+
 export async function executeShowSourceCommand(): Promise<
   vscode.TextEditor | undefined
 > {

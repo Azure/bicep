@@ -11,14 +11,14 @@ interface DeploymentScopeInputViewProps {
 export const DeploymentScopeInputView: FC<DeploymentScopeInputViewProps> = ({ scope, onPickScope }) => {
   return (
     <FormSection title="Deployment Scope">
-      <VSCodeDataGrid>
-      {scope && (scope.scopeType === 'resourceGroup' || scope.scopeType === 'subscription') && getGridRow('Subscription Id', scope.subscriptionId)}
-      {scope && (scope.scopeType === 'resourceGroup') && getGridRow('Resource Group', scope.resourceGroup)}
-      {scope && (scope.scopeType === 'managementGroup' || scope.scopeType === 'tenant') && getGridRow('Tenant Id', scope.tenantId)}
-      {scope && (scope.scopeType === 'managementGroup') && getGridRow('Management Group', scope.managementGroup)}
-      {scope && (scope.scopeType === 'managementGroup' || scope.scopeType === 'tenant') && getGridRow('Authenticated Subscription Id', scope.associatedSubscriptionId)}
-      {scope && scope.scopeType !== 'resourceGroup' && getGridRow('Location', scope.location)}
-      </VSCodeDataGrid>
+      {scope && <VSCodeDataGrid>
+        {(scope.scopeType === 'resourceGroup' || scope.scopeType === 'subscription') && getGridRow('Subscription Id', scope.subscriptionId)}
+        {(scope.scopeType === 'resourceGroup') && getGridRow('Resource Group', scope.resourceGroup)}
+        {(scope.scopeType === 'managementGroup' || scope.scopeType === 'tenant') && getGridRow('Tenant Id', scope.tenantId)}
+        {(scope.scopeType === 'managementGroup') && getGridRow('Management Group', scope.managementGroup)}
+        {(scope.scopeType === 'managementGroup' || scope.scopeType === 'tenant') && getGridRow('Authenticated Subscription Id', scope.associatedSubscriptionId)}
+        {scope.scopeType !== 'resourceGroup' && getGridRow('Location', scope.location)}
+      </VSCodeDataGrid>}
 
       <div className="controls">
         <VSCodeButton onClick={onPickScope} appearance={!scope ? "primary" : "secondary"}>{!scope ? "Pick Scope" : "Change Scope"}</VSCodeButton>

@@ -95,9 +95,9 @@
           "description": "When completing 'br:' module references, query Azure for all container registries accessible to the user (may be slow). If this option is off, only registries configured under moduleAliases in bicepconfig.json will be listed.",
           "default": false
         },
-        "bicep.experimental.deployPane": {
+        "bicep.experimental.disableDeploymentPane": {
           "type": "boolean",
-          "description": "(Experimental) Show the new Bicep deploy pane.",
+          "description": "Disable the experimental Bicep Deployment Pane.",
           "default": false
         },
         "bicep.trace.server": {
@@ -182,14 +182,14 @@
     "commands": [
       {
         "command": "bicep.showDeployPane",
-        "when": "config.bicep.experimental.deployPane",
+        "when": "!config.bicep.experimental.disableDeploymentPane",
         "title": "Show Deployment Pane",
         "category": "Bicep",
         "icon": "$(cloud-upload)"
       },
       {
         "command": "bicep.showDeployPaneToSide",
-        "when": "config.bicep.experimental.deployPane",
+        "when": "!config.bicep.experimental.disableDeploymentPane",
         "title": "Show Deployment Pane to the Side",
         "category": "Bicep",
         "icon": "$(cloud-upload)"
@@ -335,7 +335,7 @@
       "editor/title": [
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "config.bicep.experimental.deployPane && (editorLangId == bicep || editorLangId == bicep-params)",
+          "when": "!config.bicep.experimental.disableDeploymentPane && (editorLangId == bicep || editorLangId == bicep-params)",
           "alt": "bicep.showDeployPane",
           "group": "navigation"
         },
@@ -394,12 +394,12 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "config.bicep.experimental.deployPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
           "group": "2_bicep_2_deploy"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "config.bicep.experimental.deployPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
           "group": "2_bicep_2_deploy"
         },
         {
@@ -456,12 +456,12 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "config.bicep.experimental.deployPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
           "group": "2_bicep_2_deploy"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "config.bicep.experimental.deployPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
           "group": "2_bicep_2_deploy"
         },
         {
@@ -523,12 +523,12 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "config.bicep.experimental.deployPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
           "group": "2_bicep_2_deploy"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "config.bicep.experimental.deployPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
+          "when": "!config.bicep.experimental.disableDeploymentPane && (resourceLangId == bicep || resourceLangId == bicep-params)",
           "group": "2_bicep_2_deploy"
         },
         {
@@ -580,12 +580,12 @@
         },
         {
           "command": "bicep.showDeployPane",
-          "when": "config.bicep.experimental.deployPane",
+          "when": "!config.bicep.experimental.disableDeploymentPane",
           "group": "0_bicep"
         },
         {
           "command": "bicep.showDeployPaneToSide",
-          "when": "config.bicep.experimental.deployPane",
+          "when": "!config.bicep.experimental.disableDeploymentPane",
           "group": "0_bicep"
         },
         {
