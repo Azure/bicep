@@ -274,20 +274,22 @@ namespace Bicep.Core.Parsing
         {
             var keyword = ExpectKeyword(LanguageConstants.ImportKeyword);
 
-            // Provider namespace imports will use the `provider` keyword soon, but in the meantime, the keyword is
-            // shared between provider imports and type imports. If the next character is a '{' or '*', assume the
-            // statement is a type import
+            // Provider namespace declarations use the `provider` keyword as of Bicep 0.23, but to avoid breaking
+            // extensibility users without warning, the `import` keyword is shared between provider declarations and
+            // compile-time imports. If the token following the keyword is a string, assume the statement is a provider
+            // declaration.
             return reader.Peek().Type switch
             {
-                TokenType.LeftBrace or TokenType.Asterisk => CompileTimeImportDeclaration(keyword, leadingNodes),
-                _ => ProviderImportDeclaration(keyword, leadingNodes),
+                TokenType.StringLeftPiece or
+                TokenType.StringComplete => ProviderImportDeclaration(keyword, leadingNodes),
+                _ => CompileTimeImportDeclaration(keyword, leadingNodes),
             };
         }
 
         private ProviderDeclarationSyntax ProviderImportDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
         {
             var providerSpecification = this.WithRecovery(
-                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecificationOrCompileTimeImportExpression()),
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification()),
                 RecoveryFlags.None,
                 TokenType.Assignment,
                 TokenType.NewLine);

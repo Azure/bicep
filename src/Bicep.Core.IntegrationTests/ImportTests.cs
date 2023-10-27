@@ -70,7 +70,7 @@ provider 'br/public:az@1.0.0'
 provider
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\", the \"*\" character, or the \"{\" character at this location."),
+                ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
