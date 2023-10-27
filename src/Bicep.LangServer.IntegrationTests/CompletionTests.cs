@@ -4124,6 +4124,21 @@ var arr6 = [
         }
 
         [TestMethod]
+        public async Task Compile_time_imports_offer_import_expression_completions()
+        {
+            var fileWithCursors = """
+              import |
+              """;
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithCompileTimeImportsEnabled).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(x => x.Label == "{}");
+            completions.Should().Contain(x => x.Label == "* as");
+        }
+
+        [TestMethod]
         public async Task Compile_time_imports_offer_as_keyword_completions()
         {
             var fileWithCursors = """

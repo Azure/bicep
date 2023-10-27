@@ -789,13 +789,10 @@ namespace Bicep.LanguageServer.Completions
 
         private static bool IsImportIdentifierContext(List<SyntaxBase> matchingNodes, int offset) =>
             // import |
-            // because extensibility and compile-time imports share a keyword at present, an incomplete statement will be parsed as a ProviderDeclarationSyntax node instead of a CompileTimeImportDeclarationSyntax node
-            SyntaxMatcher.IsTailMatch<ProviderDeclarationSyntax>(matchingNodes, declaration => declaration.SpecificationString is SkippedTriviaSyntax &&
-                declaration.SpecificationString.Span.ContainsInclusive(offset) &&
-                declaration.WithClause is SkippedTriviaSyntax &&
-                declaration.WithClause.Span.Length == 0 &&
-                declaration.AsClause is SkippedTriviaSyntax &&
-                declaration.AsClause.Span.Length == 0);
+            SyntaxMatcher.IsTailMatch<CompileTimeImportDeclarationSyntax>(matchingNodes, declaration => declaration.ImportExpression is SkippedTriviaSyntax &&
+                declaration.ImportExpression.Span.ContainsInclusive(offset) &&
+                declaration.FromClause is SkippedTriviaSyntax &&
+                declaration.FromClause.Span.Length == 0);
 
         private static bool IsImportedSymbolListItemContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<ImportedSymbolsListItemSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
