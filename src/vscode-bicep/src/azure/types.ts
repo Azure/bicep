@@ -16,33 +16,34 @@ export type AzureLoginStatus =
   | "LoggedIn"
   | "LoggedOut";
 
-type DeploymentScopeBase = {
+type DeploymentScopeBase<T> = {
   portalUrl: string;
   tenantId: string;
-};
+} & T;
 
-export type DeploymentScope =
-  | (DeploymentScopeBase & {
+export type DeploymentScope = DeploymentScopeBase<
+  | {
       scopeType: "resourceGroup";
       subscriptionId: string;
       resourceGroup: string;
-    })
-  | (DeploymentScopeBase & {
+    }
+  | {
       scopeType: "subscription";
       location: string;
       subscriptionId: string;
-    })
-  | (DeploymentScopeBase & {
+    }
+  | {
       scopeType: "managementGroup";
       associatedSubscriptionId: string;
       location: string;
       managementGroup: string;
-    })
-  | (DeploymentScopeBase & {
+    }
+  | {
       scopeType: "tenant";
       associatedSubscriptionId: string;
       location: string;
-    });
+    }
+>;
 
 export type DeploymentScopeType =
   | "resourceGroup"

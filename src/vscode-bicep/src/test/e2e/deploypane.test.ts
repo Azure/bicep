@@ -36,14 +36,17 @@ describe("deploypane", (): void => {
   it.each([
     resolveExamplePath("201", "sql", "main.bicepparam"),
     resolveExamplePath("201", "sql", "main.bicep"),
-  ])("should open deployment pane webview to side for %s", async (examplePath) => {
-    const { document } = await openDocument(examplePath);
+  ])(
+    "should open deployment pane webview to side for %s",
+    async (examplePath) => {
+      const { document } = await openDocument(examplePath);
 
-    const viewColumn = await executeShowDeployPaneToSideCommand(document.uri);
-    await waitForWebViewReady(document.uri);
-    expectDefined(viewColumn);
-    expect(viewColumn).toBe(vscode.ViewColumn.Beside);
-  });
+      const viewColumn = await executeShowDeployPaneToSideCommand(document.uri);
+      await waitForWebViewReady(document.uri);
+      expectDefined(viewColumn);
+      expect(viewColumn).toBe(vscode.ViewColumn.Beside);
+    },
+  );
 });
 
 function webViewReady(documentUri: vscode.Uri): boolean {
