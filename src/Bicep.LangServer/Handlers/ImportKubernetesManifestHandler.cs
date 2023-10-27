@@ -15,6 +15,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
@@ -69,8 +70,8 @@ namespace Bicep.LanguageServer.Handlers
 
                 new ProviderDeclarationSyntax(
                     Enumerable.Empty<SyntaxBase>(),
-                    SyntaxFactory.CreateIdentifierToken("import"),
-                    SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
+                    SyntaxFactory.CreateIdentifierToken(LanguageConstants.ProviderKeyword),
+                    SyntaxFactory.CreateStringLiteral($"{K8sNamespaceType.BuiltInName}@{K8sNamespaceType.BuiltInVersion}"),
                     new ProviderWithClauseSyntax(
                         SyntaxFactory.CreateToken(TokenType.WithKeyword),
                         SyntaxFactory.CreateObject(new[]
