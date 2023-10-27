@@ -753,7 +753,7 @@ namespace Bicep.Core.TypeSystem
 
                 if (syntax.Keyword.Text.Equals(LanguageConstants.ImportKeyword))
                 {
-                    diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated());
+                    diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated(syntax));
                 }
 
                 if (syntax.Config is not null)
