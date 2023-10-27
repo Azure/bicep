@@ -2111,12 +2111,22 @@ namespace Bicep.Core.Diagnostics
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
 
-            public Diagnostic ProviderDeclarationViaImportKeywordIsDeprecated() => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
-                "BCP381",
-                $"Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead.",
-                styling: DiagnosticStyling.ShowCodeDeprecated);
+            public FixableDiagnostic ProviderDeclarationViaImportKeywordIsDeprecated(ProviderDeclarationSyntax syntax) {
+                var codeFix = new CodeFix(
+                    "Replace the import with the provider keyword",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax.Keyword.Span, LanguageConstants.ProviderKeyword));
+
+                return new FixableDiagnostic(
+                    TextSpan,
+                    DiagnosticLevel.Warning,
+                    "BCP381",
+                    $"Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead.",
+                    documentationUri: null,
+                    DiagnosticStyling.Default,
+                    codeFix);
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
