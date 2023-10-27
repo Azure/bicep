@@ -117,14 +117,6 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            if (this.DeployTimeConstantContainer is not IfConditionSyntax and not ForSyntax)
-            {
-                // We can skip validation if we are inside a resource/module body or a function call, because the
-                // type checker should be able to produce type errors if the reference is invalid. There are also
-                // locations where referencing an entire resource/module module body is expected (e.g., scope).
-                return;
-            }
-
             switch (this.SemanticModel.Binder.GetParent(syntax))
             {
                 // var foo = [for x in [...]: {
