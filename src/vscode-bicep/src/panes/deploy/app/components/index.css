@@ -29,7 +29,7 @@ body {
   display: grid;
   grid-auto-flow: row;
   grid-row-gap: 0.5rem;
-  padding: 0.5rem;
+  padding: 0.75rem;
 }
 
 .alert-error {

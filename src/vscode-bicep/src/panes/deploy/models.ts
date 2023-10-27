@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { ErrorResponse } from "@azure/arm-resources";
+import { DeploymentScope, DeploymentScopeType } from "../../azure/types";
 
 export interface TemplateMetadata {
   scopeType?: DeploymentScopeType;
@@ -31,42 +32,9 @@ export interface DeployResult {
   error?: ErrorResponse;
 }
 
-type DeploymentScopeBase = {
-  portalUrl: string;
-  tenantId: string;
-};
-
-export type DeploymentScope =
-  | (DeploymentScopeBase & {
-      scopeType: "resourceGroup";
-      subscriptionId: string;
-      resourceGroup: string;
-    })
-  | (DeploymentScopeBase & {
-      scopeType: "subscription";
-      location: string;
-      subscriptionId: string;
-    })
-  | (DeploymentScopeBase & {
-      scopeType: "managementGroup";
-      associatedSubscriptionId: string;
-      location: string;
-      managementGroup: string;
-    })
-  | (DeploymentScopeBase & {
-      scopeType: "tenant";
-      associatedSubscriptionId: string;
-      location: string;
-    });
-
-export type DeploymentScopeType =
-  | "resourceGroup"
-  | "subscription"
-  | "managementGroup"
-  | "tenant";
-
 export interface DeployPaneState {
   scope: DeploymentScope;
 }
 
 export type UntypedError = unknown;
+export { DeploymentScope, DeploymentScopeType };

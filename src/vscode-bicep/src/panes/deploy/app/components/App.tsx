@@ -53,6 +53,14 @@ export const App: FC = () => {
 
   return (
     <main id="webview-body">
+      <FormSection title="Experimental Warning">
+        <div className="alert-error">
+          <span className="codicon codicon-beaker" />
+          The Bicep Deployment Pane is an experimental feature.
+          <br/>
+          Documentation is available <a href="https://github.com/Azure/bicep/blob/main/docs/deploy-ui.md">here</a>. Please raise issues or feature requests <a href={createNewIssueUrl()}>here</a>.
+        </div>
+      </FormSection>
       <DeploymentScopeInputView
         scope={messages.scope}
         onPickScope={messages.pickScope} />
@@ -67,6 +75,7 @@ export const App: FC = () => {
 
       <FormSection title="Actions">
         {errorMessage && <div className="alert-error">
+          <span className="codicon codicon-error" />
           {errorMessage}
         </div>}
         <div className="controls">
@@ -86,3 +95,13 @@ export const App: FC = () => {
     </main>
   );
 };
+
+function createNewIssueUrl() {
+  const title = 'Deployment Pane: <description>'
+  const labels = ['story: deploy pane']
+  const body = `
+
+`;
+
+  return `https://github.com/Azure/bicep/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=${encodeURIComponent(labels.join(','))}`;
+}

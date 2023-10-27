@@ -5,8 +5,8 @@ import { LanguageClient } from "vscode-languageclient/node";
 
 import { DeployPaneView } from "./view";
 import { Disposable } from "../../utils/disposable";
-import { TreeManager } from "../../tree/TreeManager";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
+import { IAzureUiManager } from "../../azure/types";
 
 export class DeployPaneViewManager
   extends Disposable
@@ -23,7 +23,7 @@ export class DeployPaneViewManager
     private readonly extensionContext: vscode.ExtensionContext,
     private readonly extensionUri: vscode.Uri,
     private readonly languageClient: LanguageClient,
-    private readonly treeManager: TreeManager,
+    private readonly azureMgr: IAzureUiManager,
   ) {
     super();
 
@@ -66,7 +66,7 @@ export class DeployPaneViewManager
       DeployPaneView.create(
         this.extensionContext,
         this.context,
-        this.treeManager,
+        this.azureMgr,
         this.languageClient,
         viewColumn,
         this.extensionUri,
@@ -89,7 +89,7 @@ export class DeployPaneViewManager
       DeployPaneView.revive(
         this.extensionContext,
         this.context,
-        this.treeManager,
+        this.azureMgr,
         this.languageClient,
         webviewPanel,
         this.extensionUri,
