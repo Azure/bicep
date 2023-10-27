@@ -164,7 +164,7 @@ namespace Bicep.Core.Semantics
             TypeSymbol declaredType;
             if (!features.ExtensibilityEnabled)
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
+                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ProvidersAreDisabled());
             }
             else if (syntax.SpecificationString is StringSyntax specificationString && specificationString.IsInterpolated())
             {
@@ -179,7 +179,7 @@ namespace Bicep.Core.Semantics
             else if (namespaceProvider.TryGetNamespace(syntax.Specification.Name, syntax.Alias?.IdentifierName ?? syntax.Specification.Name, targetScope, features, sourceFileKind, syntax.Specification?.Version) is not { } namespaceType
                 || (syntax.Specification?.Name == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled))
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification!.Name));
+                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification!.Name));
             }
             else
             {

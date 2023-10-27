@@ -1225,35 +1225,35 @@ namespace Bicep.Core.Diagnostics
                 "BCP201",
                 "Expected a provider specification string of format \"<providerName>@<providerVersion>\", the \"*\" character, or the \"{\" character at this location.");
 
-            public ErrorDiagnostic ExpectedImportAliasName() => new(
+            public ErrorDiagnostic ExpectedProviderAliasName() => new(
                 TextSpan,
                 "BCP202",
-                "Expected an import alias name at this location.");
+                "Expected a provider alias name at this location.");
 
-            public ErrorDiagnostic ImportsAreDisabled() => new(
+            public ErrorDiagnostic ProvidersAreDisabled() => new(
                 TextSpan,
                 "BCP203",
-                $@"Using import statements requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Extensibility)}"".");
+                $@"Using provider statements requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Extensibility)}"".");
 
-            public ErrorDiagnostic UnrecognizedImportProvider(string identifier) => new(
+            public ErrorDiagnostic UnrecognizedProvider(string identifier) => new(
                 TextSpan,
                 "BCP204",
-                $"Imported namespace \"{identifier}\" is not recognized.");
+                $"Provider namespace \"{identifier}\" is not recognized.");
 
-            public ErrorDiagnostic ImportProviderDoesNotSupportConfiguration(string identifier) => new(
+            public ErrorDiagnostic ProviderDoesNotSupportConfiguration(string identifier) => new(
                 TextSpan,
                 "BCP205",
-                $"Imported namespace \"{identifier}\" does not support configuration.");
+                $"Provider namespace \"{identifier}\" does not support configuration.");
 
-            public ErrorDiagnostic ImportProviderRequiresConfiguration(string identifier) => new(
+            public ErrorDiagnostic ProviderRequiresConfiguration(string identifier) => new(
                 TextSpan,
                 "BCP206",
-                $"Imported namespace \"{identifier}\" requires configuration, but none was provided.");
+                $"Provider namespace \"{identifier}\" requires configuration, but none was provided.");
 
             public ErrorDiagnostic NamespaceMultipleDeclarations(string identifier) => new(
                 TextSpan,
                 "BCP207",
-                $"Namespace \"{identifier}\" is imported multiple times. Remove the duplicates.");
+                $"Namespace \"{identifier}\" is declared multiple times. Remove the duplicates.");
 
             public ErrorDiagnostic UnknownResourceReferenceScheme(string badNamespace, IEnumerable<string> allowedNamespaces) => new(
                 TextSpan,
@@ -2111,6 +2111,12 @@ namespace Bicep.Core.Diagnostics
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
 
+            public Diagnostic ProviderDeclarationViaImportKeywordIsDeprecated() => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP381",
+                $"Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead.",
+                styling: DiagnosticStyling.ShowCodeDeprecated);
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -70,6 +70,7 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
                             LanguageConstants.TestKeyword => this.TestDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
+                            LanguageConstants.ProviderKeyword => this.ProviderImportDeclaration(ExpectKeyword(LanguageConstants.ProviderKeyword), leadingNodes),
                             LanguageConstants.AssertKeyword => this.AssertDeclaration(leadingNodes),
                             _ => leadingNodes.Length > 0
                                 ? new MissingDeclarationSyntax(leadingNodes)
@@ -297,7 +298,7 @@ namespace Bicep.Core.Parsing
                 TokenType.NewLine or
                 TokenType.AsKeyword => this.SkipEmpty(),
 
-                _ => this.WithRecovery(() => this.ImportWithClause(), GetSuppressionFlag(providerSpecification), TokenType.NewLine),
+                _ => this.WithRecovery(() => this.ProviderWithClause(), GetSuppressionFlag(providerSpecification), TokenType.NewLine),
             };
 
             var asClause = this.reader.Peek().Type switch
@@ -305,13 +306,13 @@ namespace Bicep.Core.Parsing
                 TokenType.EndOfFile or
                 TokenType.NewLine => this.SkipEmpty(),
 
-                _ => this.WithRecovery(() => this.ImportAsClause(), GetSuppressionFlag(withClause), TokenType.NewLine),
+                _ => this.WithRecovery(() => this.ProviderAsClause(), GetSuppressionFlag(withClause), TokenType.NewLine),
             };
 
             return new(leadingNodes, keyword, providerSpecification, withClause, asClause);
         }
 
-        private ProviderWithClauseSyntax ImportWithClause()
+        private ProviderWithClauseSyntax ProviderWithClause()
         {
             var keyword = this.Expect(TokenType.WithKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
             var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.AsKeyword, TokenType.NewLine);
@@ -319,10 +320,10 @@ namespace Bicep.Core.Parsing
             return new(keyword, config);
         }
 
-        private AliasAsClauseSyntax ImportAsClause()
+        private AliasAsClauseSyntax ProviderAsClause()
         {
             var keyword = this.Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword));
-            var modifier = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.NewLine);
+            var modifier = this.IdentifierWithRecovery(b => b.ExpectedProviderAliasName(), RecoveryFlags.None, TokenType.NewLine);
 
             return new(keyword, modifier);
         }

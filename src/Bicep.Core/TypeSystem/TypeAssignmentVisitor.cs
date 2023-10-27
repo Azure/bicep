@@ -751,11 +751,16 @@ namespace Bicep.Core.TypeSystem
 
                 this.ValidateDecorators(syntax.Decorators, namespaceType, diagnostics);
 
+                if (syntax.Keyword.Text.Equals(LanguageConstants.ImportKeyword))
+                {
+                    diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated());
+                }
+
                 if (syntax.Config is not null)
                 {
                     if (namespaceType.ConfigurationType is null)
                     {
-                        diagnostics.Write(syntax.Config, x => x.ImportProviderDoesNotSupportConfiguration(namespaceType.ProviderName));
+                        diagnostics.Write(syntax.Config, x => x.ProviderDoesNotSupportConfiguration(namespaceType.ProviderName));
                     }
                     else
                     {
@@ -769,7 +774,7 @@ namespace Bicep.Core.TypeSystem
                         namespaceType.ConfigurationType is not null &&
                         namespaceType.ConfigurationType.Properties.Values.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)))
                     {
-                        diagnostics.Write(syntax, x => x.ImportProviderRequiresConfiguration(namespaceType.ProviderName));
+                        diagnostics.Write(syntax, x => x.ProviderRequiresConfiguration(namespaceType.ProviderName));
                     }
                 }
 
