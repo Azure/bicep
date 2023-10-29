@@ -333,7 +333,7 @@ namespace Bicep.Core.Semantics
         ///   type private = public
         /// </code>
         /// </remarks>
-        private static bool IsExported(TemplateTypeDefinition type) => type.Metadata?.Value is JObject metadataDict &&  MetadataRequestsExport(metadataDict);
+        private static bool IsExported(TemplateTypeDefinition type) => type.Metadata?.Value is JObject metadataDict && MetadataRequestsExport(metadataDict);
 
         private static bool IsExported(TemplateFunction function) => function.Metadata?.Value is JObject metadataDict && MetadataRequestsExport(metadataDict);
 
