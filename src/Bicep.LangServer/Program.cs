@@ -80,7 +80,8 @@ namespace Bicep.LanguageServer
                 server = new(
                     options => options
                         .WithInput(clientPipe)
-                        .WithOutput(clientPipe));
+                        .WithOutput(clientPipe)
+                        .RegisterForDisposal(clientPipe));
             }
             else if (options.Socket is { } port)
             {
