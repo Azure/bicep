@@ -84,7 +84,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             };
 
             var commandOrCodeActionContainer = await bicepEditLinterRuleHandler.Handle(codeActionParams, CancellationToken.None);
-            return commandOrCodeActionContainer.GetCodeActions();
+            return commandOrCodeActionContainer!.GetCodeActions();
         }
     }
 }

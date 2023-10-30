@@ -110,7 +110,7 @@ namespace Bicep.LanguageServer.Handlers
             return Unit.Task;
         }
 
-        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) => new()
+        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(TextSynchronizationCapability capability, ClientCapabilities clientCapabilities) => new()
         {
             Change = TextDocumentSyncKind.Full,
             DocumentSelector = DocumentSelectorFactory.CreateForTextDocumentSync()

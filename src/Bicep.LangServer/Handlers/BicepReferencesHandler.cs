@@ -22,18 +22,19 @@ namespace Bicep.LanguageServer.Handlers
             this.symbolResolver = symbolResolver;
         }
 
-        public override Task<LocationContainer> Handle(ReferenceParams request, CancellationToken cancellationToken)
+        public override async Task<LocationContainer?> Handle(ReferenceParams request, CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
             if (result == null)
             {
-                return Task.FromResult(new LocationContainer());
+                return null;
             }
 
             if (result.Symbol is PropertySymbol)
             {
                 // TODO: Implement for PropertySymbol
-                return Task.FromResult(new LocationContainer());
+                return null;
             }
 
             var references = result.Context.Compilation.GetEntrypointSemanticModel()
@@ -45,7 +46,7 @@ namespace Bicep.LanguageServer.Handlers
                     Range = PositionHelper.GetNameRange(result.Context.LineStarts, referenceSyntax),
                 });
 
-            return Task.FromResult(new LocationContainer(references));
+            return new(references);
         }
 
         protected override ReferenceRegistrationOptions CreateRegistrationOptions(ReferenceCapability capability, ClientCapabilities clientCapabilities) => new()
