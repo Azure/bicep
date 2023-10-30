@@ -9,7 +9,7 @@ namespace Bicep.LanguageServer.Deploy
 {
     public class DeploymentFileCompilationCache : IDeploymentFileCompilationCache
     {
-        private readonly ConcurrentDictionary<DocumentUri, Compilation> compilationCache = new ConcurrentDictionary<DocumentUri, Compilation>();
+        private readonly ConcurrentDictionary<DocumentUri, Compilation> compilationCache = new();
 
         public void CacheCompilation(DocumentUri documentUri, Compilation compilation)
         {

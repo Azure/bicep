@@ -72,7 +72,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         }
 
         private OverloadRecord Convert(FunctionOverload overload) =>
-            new OverloadRecord(
+            new(
                 overload.Name,
                 overload.Description,
                 overload.FixedParameters.Select(fixedParam => new FixedParameterRecord(fixedParam.Name, fixedParam.Description, fixedParam.Type.Name, fixedParam.Required)).ToImmutableArray(),

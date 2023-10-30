@@ -105,13 +105,13 @@ namespace Bicep.LanguageServer.Handlers
                     return AsMarkdown(CodeBlockWithDescription(
                         WithTypeModifiers($"type {declaredType.Name}: {declaredType.Type}", declaredType.Type), TryGetDescriptionMarkdown(result, declaredType)));
 
-                case ImportedSymbol imported when imported.Kind == Bicep.Core.Semantics.SymbolKind.TypeAlias:
+                case ImportedTypeSymbol importedType:
                     return AsMarkdown(CodeBlockWithDescription(
-                        WithTypeModifiers($"type {imported.Name}: {imported.Type}", imported.Type),
-                        imported.TryGetDescription()));
+                        WithTypeModifiers($"type {importedType.Name}: {importedType.Type}", importedType.Type),
+                        importedType.Description));
 
-                case ImportedSymbol imported when imported.Kind == Bicep.Core.Semantics.SymbolKind.Variable:
-                    return AsMarkdown(CodeBlockWithDescription($"var {imported.Name}: {imported.Type}", imported.TryGetDescription()));
+                case ImportedVariableSymbol importedVariable:
+                    return AsMarkdown(CodeBlockWithDescription($"var {importedVariable.Name}: {importedVariable.Type}", importedVariable.Description));
 
                 case AmbientTypeSymbol ambientType:
                     return AsMarkdown(CodeBlock(WithTypeModifiers($"type {ambientType.Name}: {ambientType.Type}", ambientType.Type)));
@@ -148,8 +148,10 @@ namespace Bicep.LanguageServer.Handlers
                     return GetFunctionMarkdown(function, functionCall, result.Context.Compilation.GetEntrypointSemanticModel());
 
                 case DeclaredFunctionSymbol function:
-                    // A declared function can only have a single overload!
-                    return AsMarkdown(GetFunctionOverloadMarkdown(function.Overloads.Single()));
+                    return AsMarkdown(GetFunctionOverloadMarkdown(function.Overload));
+
+                case ImportedFunctionSymbol importedFunction:
+                    return AsMarkdown(GetFunctionOverloadMarkdown(importedFunction.Overload));
 
                 case PropertySymbol property:
                     return AsMarkdown(CodeBlockWithDescription(WithTypeModifiers($"{property.Name}: {property.Type}", property.Type), property.Description));
@@ -348,14 +350,14 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static MarkedStringsOrMarkupContent AsMarkdown(string markdown) => new MarkedStringsOrMarkupContent(new MarkupContent
+        private static MarkedStringsOrMarkupContent AsMarkdown(string markdown) => new(new MarkupContent
         {
             Kind = MarkupKind.Markdown,
             Value = markdown,
         });
 
         private static MarkedStringsOrMarkupContent AsMarkdown(IEnumerable<string> markdown)
-            => new MarkedStringsOrMarkupContent(markdown.Select(md => new MarkedString(md)));
+            => new(markdown.Select(md => new MarkedString(md)));
 
         protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()
         {

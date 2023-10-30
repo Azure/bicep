@@ -19,6 +19,6 @@ namespace Bicep.Core.CodeAction
         public string Text { get; }
 
         public static CodeReplacement FromSyntax(TextSpan span, SyntaxBase syntax)
-            => new CodeReplacement(span, syntax.ToText());
+            => new(span, syntax.ToText());
     }
 }

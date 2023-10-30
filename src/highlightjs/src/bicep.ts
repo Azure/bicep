@@ -38,6 +38,7 @@ const KEYWORDS = {
     'using',
     'func',
     'assert',
+    'provider',
   ],
   literal: [
     "true",

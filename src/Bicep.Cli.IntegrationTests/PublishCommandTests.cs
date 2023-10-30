@@ -162,7 +162,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
 
-            List<string> requiredArgs = new List<string> { "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1" };
+            List<string> requiredArgs = new() { "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1" };
 
             if (!string.IsNullOrWhiteSpace(documentationUri))
             {
@@ -220,7 +220,7 @@ namespace Bicep.Cli.IntegrationTests
             AssertNoErrors(error3);
 
             // compile to get what the new expected main.json should be
-            List<string> buildArgs = new List<string> { "build", bicepFilePath, "--outfile", $"{compiledFilePath}.modified" };
+            List<string> buildArgs = new() { "build", bicepFilePath, "--outfile", $"{compiledFilePath}.modified" };
             var (output4, error4, result4) = await Bicep(settings, buildArgs.ToArray());
             result4.Should().Be(0);
             output4.Should().BeEmpty();
@@ -284,9 +284,10 @@ namespace Bicep.Cli.IntegrationTests
             output3.Should().BeEmpty();
             AssertNoErrors(error3);
 
-            // we should still only have 1 module
+            // we should still only have 1 reachable module. (The old module will still exist because it has a timestamp and therefore a
+            // different digest, but is not in the tags list. It could still be reached via digest until cleaned up.)
             expectedCompiledStream.Position = 0;
-            testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
+            testClient.Should().OnlyHaveReachableModule("v1", expectedCompiledStream);
 
             // There are no Bicep sources, it's only an ARM template being published, so even if published with sources, there should be no sources
             testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);

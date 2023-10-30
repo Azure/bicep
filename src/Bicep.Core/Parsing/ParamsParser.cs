@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
@@ -44,17 +45,17 @@ namespace Bicep.Core.Parsing
             return programSyntax;
         }
 
-        protected override SyntaxBase Declaration() =>
+        protected override SyntaxBase Declaration(params string[] expectedKeywords) =>
             this.WithRecovery(
                 () =>
                 {
                     var leadingNodes = DecorableSyntaxLeadingNodes().ToImmutableArray();
 
-                    Token current = reader.Peek();
+                    var current = reader.Peek();
 
                     return current.Type switch
                     {
-                        TokenType.Identifier => current.Text switch
+                        TokenType.Identifier => ValidateKeyword(current.Text) switch
                         {
                             LanguageConstants.UsingKeyword => this.UsingDeclaration(),
                             LanguageConstants.ParameterKeyword => this.ParameterAssignment(),
@@ -63,9 +64,11 @@ namespace Bicep.Core.Parsing
                             _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
-
                         _ => throw new ExpectedTokenException(current, b => b.UnrecognizedParamsFileDeclaration()),
                     };
+
+                    string? ValidateKeyword(string keyword) =>
+                        expectedKeywords.Length == 0 || expectedKeywords.Contains(keyword) ? keyword : null;
                 },
                 RecoveryFlags.None,
                 TokenType.NewLine);

@@ -14,7 +14,7 @@ namespace Bicep.LangServer.UnitTests.Completions
     [TestClass]
     public class BicepCompletionContextTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder();
+        private static ServiceBuilder Services => new();
 
         private static BicepCompletionContext CreateContextFromTextWithCursor(string text)
         {

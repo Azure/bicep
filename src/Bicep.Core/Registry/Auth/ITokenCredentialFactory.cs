@@ -10,8 +10,8 @@ namespace Bicep.Core.Registry.Auth
 {
     public interface ITokenCredentialFactory
     {
-        TokenCredential CreateChain(IEnumerable<CredentialType> credentialPrecedence, Uri authorityUri);
+        TokenCredential CreateChain(IEnumerable<CredentialType> credentialPrecedence, CredentialOptions? credentialOptions, Uri authorityUri);
 
-        TokenCredential CreateSingle(CredentialType credentialType, Uri authorityUri);
+        TokenCredential CreateSingle(CredentialType credentialType, CredentialOptions? credentialOptions, Uri authorityUri);
     }
 }

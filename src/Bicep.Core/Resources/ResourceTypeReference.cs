@@ -14,8 +14,8 @@ namespace Bicep.Core.Resources
         private const string VersionPattern = "[a-z0-9][a-z0-9-]+";
 
         private const RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
-        private static readonly Regex ResourceTypePattern = new Regex(@$"^(?<types>{TypeSegmentPattern}(/{TypeSegmentPattern})*)(@(?<version>{VersionPattern}))?$", PatternRegexOptions);
-        private static readonly Regex ResourceTypePrefixPattern = new Regex(@$"^(?<types>{TypeSegmentPattern}(/{TypeSegmentPattern})*)@", PatternRegexOptions);
+        private static readonly Regex ResourceTypePattern = new(@$"^(?<types>{TypeSegmentPattern}(/{TypeSegmentPattern})*)(@(?<version>{VersionPattern}))?$", PatternRegexOptions);
+        private static readonly Regex ResourceTypePrefixPattern = new(@$"^(?<types>{TypeSegmentPattern}(/{TypeSegmentPattern})*)@", PatternRegexOptions);
 
         public ResourceTypeReference(string type, string? version)
         {

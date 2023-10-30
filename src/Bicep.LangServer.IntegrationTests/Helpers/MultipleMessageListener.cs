@@ -38,7 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         public async Task<List<T>> WaitForAll(int timeout = DefaultTimeout)
         {
-            List<T> onMessageTasks = new List<T>();
+            List<T> onMessageTasks = new();
 
             foreach (var completionSource in completionSources)
             {

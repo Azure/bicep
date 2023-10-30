@@ -2466,6 +2466,109 @@ output p4_res1childid string = p4_child1.id
 //@[031:040) Identifier |p4_child1|
 //@[040:041) Dot |.|
 //@[041:043) Identifier |id|
-//@[043:045) NewLine |\r\n|
+//@[043:047) NewLine |\r\n\r\n|
 
-//@[000:000) EndOfFile ||
+// parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
+//@[084:086) NewLine |\r\n|
+var dbs = ['db1', 'db2','db3']
+//@[000:003) Identifier |var|
+//@[004:007) Identifier |dbs|
+//@[008:009) Assignment |=|
+//@[010:011) LeftSquare |[|
+//@[011:016) StringComplete |'db1'|
+//@[016:017) Comma |,|
+//@[018:023) StringComplete |'db2'|
+//@[023:024) Comma |,|
+//@[024:029) StringComplete |'db3'|
+//@[029:030) RightSquare |]|
+//@[030:032) NewLine |\r\n|
+resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
+//@[000:008) Identifier |resource|
+//@[009:018) Identifier |sqlServer|
+//@[019:053) StringComplete |'Microsoft.Sql/servers@2021-11-01'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:059) NewLine |\r\n|
+  name: 'sql-server-name'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:025) StringComplete |'sql-server-name'|
+//@[025:027) NewLine |\r\n|
+  location: 'polandcentral'
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:027) StringComplete |'polandcentral'|
+//@[027:031) NewLine |\r\n\r\n|
+
+  @batchSize(1)
+//@[002:003) At |@|
+//@[003:012) Identifier |batchSize|
+//@[012:013) LeftParen |(|
+//@[013:014) Integer |1|
+//@[014:015) RightParen |)|
+//@[015:017) NewLine |\r\n|
+  @description('Sql Databases')
+//@[002:003) At |@|
+//@[003:014) Identifier |description|
+//@[014:015) LeftParen |(|
+//@[015:030) StringComplete |'Sql Databases'|
+//@[030:031) RightParen |)|
+//@[031:033) NewLine |\r\n|
+  resource sqlDatabases 'databases' = [for db in dbs: {
+//@[002:010) Identifier |resource|
+//@[011:023) Identifier |sqlDatabases|
+//@[024:035) StringComplete |'databases'|
+//@[036:037) Assignment |=|
+//@[038:039) LeftSquare |[|
+//@[039:042) Identifier |for|
+//@[043:045) Identifier |db|
+//@[046:048) Identifier |in|
+//@[049:052) Identifier |dbs|
+//@[052:053) Colon |:|
+//@[054:055) LeftBrace |{|
+//@[055:057) NewLine |\r\n|
+    name: db
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:012) Identifier |db|
+//@[012:014) NewLine |\r\n|
+    location: 'polandcentral'
+//@[004:012) Identifier |location|
+//@[012:013) Colon |:|
+//@[014:029) StringComplete |'polandcentral'|
+//@[029:031) NewLine |\r\n|
+  }]
+//@[002:003) RightBrace |}|
+//@[003:004) RightSquare |]|
+//@[004:008) NewLine |\r\n\r\n|
+
+  @description('Primary Sql Database')
+//@[002:003) At |@|
+//@[003:014) Identifier |description|
+//@[014:015) LeftParen |(|
+//@[015:037) StringComplete |'Primary Sql Database'|
+//@[037:038) RightParen |)|
+//@[038:040) NewLine |\r\n|
+  resource primaryDb 'databases' = {
+//@[002:010) Identifier |resource|
+//@[011:020) Identifier |primaryDb|
+//@[021:032) StringComplete |'databases'|
+//@[033:034) Assignment |=|
+//@[035:036) LeftBrace |{|
+//@[036:038) NewLine |\r\n|
+    name: 'primary-db'
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:022) StringComplete |'primary-db'|
+//@[022:024) NewLine |\r\n|
+    location: 'polandcentral'
+//@[004:012) Identifier |location|
+//@[012:013) Colon |:|
+//@[014:029) StringComplete |'polandcentral'|
+//@[029:031) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:001) EndOfFile ||

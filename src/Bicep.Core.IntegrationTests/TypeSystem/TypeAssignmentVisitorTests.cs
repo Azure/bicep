@@ -14,7 +14,7 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class TypeAssignmentVisitorTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder();
+        private static ServiceBuilder Services => new();
 
         private static SemanticModel GetSemanticModelForTest(string programText)
         {

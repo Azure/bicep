@@ -512,14 +512,15 @@ namespace Bicep.Core.TypeSystem
                 BuiltInNamespaceSymbol or ProviderNamespaceSymbol or WildcardImportSymbol
                     => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NamespaceSymbolUsedAsType(syntax.Name.IdentifierName)),
                 AmbientTypeSymbol ambientType => UnwrapType(ambientType.Type),
-                ImportedSymbol imported when imported.Kind == SymbolKind.TypeAlias => UnwrapType(imported.Type),
+                ImportedTypeSymbol importedType => UnwrapType(importedType.Type),
                 TypeAliasSymbol declaredType => TypeRefToType(syntax, declaredType),
                 DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
             };
 
         private IEnumerable<string> GetValidTypeNames() => binder.NamespaceResolver.GetKnownPropertyNames()
-            .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name).Concat(binder.FileSymbol.ImportedSymbols.Where(i => i.Kind == SymbolKind.TypeAlias).Select(i => i.Name)))
+            .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name))
+            .Concat(binder.FileSymbol.ImportedTypes.Select(i => i.Name))
             .Distinct();
 
         private ITypeReference TypeRefToType(VariableAccessSyntax signifier, TypeAliasSymbol signified) => new DeferredTypeReference(() =>
@@ -935,8 +936,8 @@ namespace Bicep.Core.TypeSystem
                     var variableType = this.typeManager.GetTypeInfo(variableSymbol.DeclaringVariable.Value);
                     return new DeclaredTypeAssignment(variableType, variableSymbol.DeclaringVariable);
 
-                case ImportedSymbol importedSymbol when importedSymbol.Kind == SymbolKind.Variable:
-                    return new DeclaredTypeAssignment(importedSymbol.Type, declaringSyntax: null);
+                case ImportedVariableSymbol importedVariable:
+                    return new DeclaredTypeAssignment(importedVariable.Type, declaringSyntax: null);
 
                 case WildcardImportSymbol wildcardImportSymbol:
                     return new DeclaredTypeAssignment(wildcardImportSymbol.Type, declaringSyntax: null);

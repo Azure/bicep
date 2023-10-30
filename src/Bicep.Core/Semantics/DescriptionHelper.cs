@@ -8,6 +8,7 @@ using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.Core.Modules;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 
@@ -70,7 +71,7 @@ namespace Bicep.Core.Semantics
         public static string? TryGetFromOciManifestAnnotations(ImmutableDictionary<string, string>? ociAnnotations)
         {
             if (ociAnnotations is not null
-                && ociAnnotations.TryGetValue(LanguageConstants.OciOpenContainerImageDescriptionAnnotation, out string? description)
+                && ociAnnotations.TryGetValue(OciAnnotationKeys.OciOpenContainerImageDescriptionAnnotation, out string? description)
                 && !string.IsNullOrWhiteSpace(description))
             {
                 return description;

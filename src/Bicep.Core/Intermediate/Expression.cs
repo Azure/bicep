@@ -270,7 +270,7 @@ public record SynthesizedVariableReferenceExpression(
 
 public record ImportedVariableReferenceExpression(
     SyntaxBase? SourceSyntax,
-    ImportedSymbol Variable
+    ImportedVariableSymbol Variable
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
@@ -552,9 +552,11 @@ public record AccessChainExpression(
 
 public record DeclaredFunctionExpression(
     SyntaxBase? SourceSyntax,
+    string Namespace,
     string Name,
     Expression Lambda,
-    Expression? Description = null
+    Expression? Description = null,
+    Expression? Exported = null
 ) : DescribableExpression(SourceSyntax, Description)
 {
     public override void Accept(IExpressionVisitor visitor)
@@ -565,14 +567,52 @@ public record DeclaredFunctionExpression(
 
 public record UserDefinedFunctionCallExpression(
     SyntaxBase? SourceSyntax,
-    string Name,
+    DeclaredFunctionSymbol Symbol,
     ImmutableArray<Expression> Parameters
 ) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitUserDefinedFunctionCallExpression(this);
 
+    protected override object? GetDebugAttributes() => new { Symbol.Name };
+}
+
+public record SynthesizedUserDefinedFunctionCallExpression(
+    SyntaxBase? SourceSyntax,
+    string Namespace,
+    string Name,
+    ImmutableArray<Expression> Parameters
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitSynthesizedUserDefinedFunctionCallExpression(this);
+
     protected override object? GetDebugAttributes() => new { Name };
+}
+
+public record ImportedUserDefinedFunctionCallExpression(
+    SyntaxBase? SourceSyntax,
+    ImportedFunctionSymbol Symbol,
+    ImmutableArray<Expression> Parameters
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitImportedUserDefinedFunctionCallExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Symbol.Name };
+}
+
+public record WildcardImportInstanceFunctionCallExpression(
+    SyntaxBase? SourceSyntax,
+    WildcardImportSymbol ImportSymbol,
+    string MethodName,
+    ImmutableArray<Expression> Parameters
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitWildcardImportInstanceFunctionCallExpression(this);
+
+    protected override object? GetDebugAttributes() => new { Variable = $"{ImportSymbol.Name}.{MethodName}" };
 }
 
 public record DeclaredTypeExpression(
@@ -655,7 +695,7 @@ public record SynthesizedTypeAliasReferenceExpression(
 
 public record ImportedTypeReferenceExpression(
     SyntaxBase? SourceSyntax,
-    ImportedSymbol Symbol,
+    ImportedTypeSymbol Symbol,
     TypeSymbol ExpressedType
 ) : TypeExpression(SourceSyntax, ExpressedType)
 {

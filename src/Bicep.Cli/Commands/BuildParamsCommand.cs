@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
@@ -71,48 +72,8 @@ namespace Bicep.Cli.Commands
                 return 1;
             }
 
-            var paramsOverridesJson = environment.GetVariable("BICEP_PARAMETERS_OVERRIDES") ?? "";
-
-            var workspace = new Workspace();
-            var parameters = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(
-                paramsOverridesJson,
-                new JsonSerializerSettings()
-                {
-                    DateParseHandling = DateParseHandling.None,
-                });
-
-            if (parameters is { })
-            {
-                var fileContents = await File.ReadAllTextAsync(paramsInputPath);
-                var sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
-
-                var newProgramSyntax = CallbackRewriter.Rewrite(sourceFile.ProgramSyntax, syntax =>
-                {
-                    if (syntax is not ParameterAssignmentSyntax paramSyntax)
-                    {
-                        return syntax;
-                    }
-
-                    if (parameters.TryGetValue(paramSyntax.Name.IdentifierName, out var overrideValue))
-                    {
-                        var replacementValue = ConvertJsonToBicepSyntax(overrideValue);
-
-                        return new ParameterAssignmentSyntax(
-                            paramSyntax.Keyword,
-                            paramSyntax.Name,
-                            paramSyntax.Assignment,
-                            replacementValue
-                        );
-                    }
-
-                    return syntax;
-                });
-
-                fileContents = newProgramSyntax.ToTextPreserveFormatting();
-                sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
-                workspace.UpsertSourceFile(sourceFile);
-            }
-
+            diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
+            var workspace = await CreateWorkspaceWithParamOverrides(paramsInputPath);
             var paramsCompilation = await compilationService.CompileAsync(
                 paramsInputPath,
                 args.NoRestore,
@@ -160,6 +121,9 @@ namespace Bicep.Cli.Commands
                 }
             }
 
+            diagnosticLogger.FlushLog();
+
+            // return non-zero exit code on errors
             return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
         }
 
@@ -186,5 +150,52 @@ namespace Bicep.Cli.Commands
             },
             _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported token: {token.Type}")
         };
+
+        private async Task<Workspace> CreateWorkspaceWithParamOverrides(string paramsInputPath)
+        {
+            var paramsOverridesJson = environment.GetVariable("BICEP_PARAMETERS_OVERRIDES") ?? "";
+
+            var workspace = new Workspace();
+            var parameters = JsonConvert.DeserializeObject<Dictionary<string, JToken>>(
+                paramsOverridesJson,
+                new JsonSerializerSettings()
+                {
+                    DateParseHandling = DateParseHandling.None,
+                });
+
+            if (parameters is { })
+            {
+                var fileContents = await File.ReadAllTextAsync(paramsInputPath);
+                var sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
+
+                var newProgramSyntax = CallbackRewriter.Rewrite(sourceFile.ProgramSyntax, syntax =>
+                {
+                    if (syntax is not ParameterAssignmentSyntax paramSyntax)
+                    {
+                        return syntax;
+                    }
+
+                    if (parameters.TryGetValue(paramSyntax.Name.IdentifierName, out var overrideValue))
+                    {
+                        var replacementValue = ConvertJsonToBicepSyntax(overrideValue);
+
+                        return new ParameterAssignmentSyntax(
+                            paramSyntax.Keyword,
+                            paramSyntax.Name,
+                            paramSyntax.Assignment,
+                            replacementValue
+                        );
+                    }
+
+                    return syntax;
+                });
+
+                fileContents = newProgramSyntax.ToTextPreserveFormatting();
+                sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
+                workspace.UpsertSourceFile(sourceFile);
+            }
+
+            return workspace;
+        }
     }
 }

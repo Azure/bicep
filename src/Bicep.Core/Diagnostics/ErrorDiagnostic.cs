@@ -14,6 +14,6 @@ namespace Bicep.Core.Diagnostics
         }
 
         public ErrorDiagnostic WithSpan(TextSpan newSpan)
-            => new ErrorDiagnostic(newSpan, Code, Message);
+            => new(newSpan, Code, Message);
     }
 }

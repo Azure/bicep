@@ -33,7 +33,7 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class TelemetryTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder();
+        private static ServiceBuilder Services => new();
 
         [NotNull]
         public TestContext? TestContext { get; set; }

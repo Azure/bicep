@@ -51,9 +51,9 @@
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Direct",
-        "requested": "[17.6.40, )",
-        "resolved": "17.6.40",
-        "contentHash": "uU8vYr/Nx3ldEWcsbiHiyAX1G7od3eFK1+Aga6ZvgCvU+nQkcXYVkIMcSEkIDWkFaldx1dkoVvX3KRNQD0R7dw=="
+        "requested": "[17.7.30, )",
+        "resolved": "17.7.30",
+        "contentHash": "7s/ERY/7eEuyuZE9fzQZZq5FolzckFyoITlkod8butB0ioB8ulW8qzVUAx6E4utMvQn8XAZzbadEUZccZYq+Ng=="
       },
       "Microsoft.VisualStudio.Utilities": {
         "type": "Direct",

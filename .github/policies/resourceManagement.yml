@@ -56,7 +56,7 @@ configuration:
       - addLabel:
           label: 'Needs: Triage :mag:'
 
-    - description: "Replace 'Needs: Author Feedback' with 'Needs: Attention' label when author comments"
+    - description: "Replace 'Needs: Author Feedback' with 'Needs: Triage' label when author comments"
       if:
       - payloadType: Issue_Comment
       - isAction:
@@ -68,7 +68,7 @@ configuration:
       - isOpen
       then:
       - addLabel:
-          label: 'Needs: Attention :wave:'
+          label: 'Needs: Triage :mag:'
       - removeLabel:
           label: 'Needs: Author Feedback'
 

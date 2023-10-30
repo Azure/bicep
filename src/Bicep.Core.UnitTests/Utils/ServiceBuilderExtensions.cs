@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -24,6 +25,9 @@ public static class ServiceBuilderExtensions
 
     public static ServiceBuilder WithFeatureOverrides(this ServiceBuilder serviceBuilder, FeatureProviderOverrides overrides)
         => serviceBuilder.WithRegistration(x => x.WithFeatureOverrides(overrides));
+
+    public static ServiceBuilder WithFeatureProviderFactory(this ServiceBuilder serviceBuilder, IFeatureProviderFactory featureProviderFactory)
+        => serviceBuilder.WithRegistration(x => x.WithFeatureProviderFactory(featureProviderFactory));
 
     public static ServiceBuilder WithNamespaceProvider(this ServiceBuilder serviceBuilder, INamespaceProvider namespaceProvider)
         => serviceBuilder.WithRegistration(x => x.WithNamespaceProvider(namespaceProvider));

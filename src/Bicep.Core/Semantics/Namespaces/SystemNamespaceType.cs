@@ -1070,10 +1070,10 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         private static LambdaType OneParamLambda(TypeSymbol paramType, TypeSymbol returnType)
-            => new LambdaType(ImmutableArray.Create<ITypeReference>(paramType), returnType);
+            => new(ImmutableArray.Create<ITypeReference>(paramType), returnType);
 
         private static LambdaType TwoParamLambda(TypeSymbol param1Type, TypeSymbol param2Type, TypeSymbol returnType)
-            => new LambdaType(ImmutableArray.Create<ITypeReference>(param1Type, param2Type), returnType);
+            => new(ImmutableArray.Create<ITypeReference>(param1Type, param2Type), returnType);
 
         private static FunctionResult LoadTextContentResultBuilder(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
@@ -1444,12 +1444,13 @@ namespace Bicep.Core.Semantics.Namespaces
             if (featureProvider.CompileTimeImportsEnabled && sourceFileKind == BicepSourceFileKind.BicepFile)
             {
                 yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
-                    .WithDescription("Allows a type or variable to be imported into other Bicep files.")
-                    .WithFlags(FunctionFlags.TypeOrVariableDecorator)
+                    .WithDescription("Allows a type, variable, or function to be imported into other Bicep files.")
+                    .WithFlags(FunctionFlags.TypeVariableOrFunctionDecorator)
                     .WithEvaluator(static (functionCall, decorated) => decorated switch
                     {
                         DeclaredTypeExpression declaredType => declaredType with { Exported = functionCall },
                         DeclaredVariableExpression declaredVariable => declaredVariable with { Exported = functionCall },
+                        DeclaredFunctionExpression declaredFunction => declaredFunction with { Exported = functionCall },
                         _ => decorated,
                     })
                     .WithValidator(static (decoratorName, decoratorSyntax, _, _, binder, _, diagnosticWriter) =>
@@ -1466,6 +1467,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             var nonExportableSymbolsInClosure = binder.GetReferencedSymbolClosureFor(targetedDeclaration)
                                 .Where(s => s is not VariableSymbol and
                                     not TypeAliasSymbol and
+                                    not DeclaredFunctionSymbol and
                                     not ImportedSymbol and
                                     not WildcardImportSymbol and
                                     not LocalVariableSymbol)

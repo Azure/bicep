@@ -1,5 +1,5 @@
-import {foo, fizz, pop} from 'modules/mod.bicep'
-//@    "1.buzz": {
+import {foo, fizz, pop, greet} from 'modules/mod.bicep'
+//@    "_1.buzz": {
 //@      "type": "object",
 //@      "properties": {
 //@        "property": {
@@ -16,7 +16,7 @@ import {foo, fizz, pop} from 'modules/mod.bicep'
 //@    "fizz": {
 //@      "type": "array",
 //@      "items": {
-//@        "$ref": "#/definitions/1.buzz"
+//@        "$ref": "#/definitions/_1.buzz"
 //@      },
 //@      "metadata": {
 //@        "__bicep_imported_from!": {
@@ -32,11 +32,28 @@ import {foo, fizz, pop} from 'modules/mod.bicep'
 //@        }
 //@      }
 //@    }
-//@    "1.bar": "[variables('1.baz')]",
-//@    "1.baz": "quux",
-//@    "foo": "[variables('1.bar')]",
+//@        "greet": {
+//@          "parameters": [
+//@            {
+//@              "type": "string",
+//@              "name": "name"
+//@            }
+//@          ],
+//@          "output": {
+//@            "type": "string",
+//@            "value": "[format('Hi, {0}!', parameters('name'))]"
+//@          },
+//@          "metadata": {
+//@            "__bicep_imported_from!": {
+//@              "sourceTemplate": "modules/mod.bicep"
+//@            }
+//@          }
+//@        }
+//@    "_1.bar": "[variables('_1.baz')]",
+//@    "_1.baz": "quux",
+//@    "foo": "[variables('_1.bar')]",
 import * as mod2 from 'modules/mod2.bicep'
-//@    "3.fizz": {
+//@    "_3.fizz": {
 //@      "type": "string",
 //@      "allowedValues": [
 //@        "buzz"
@@ -47,32 +64,33 @@ import * as mod2 from 'modules/mod2.bicep'
 //@        }
 //@      }
 //@    },
-//@    "3.foo": "bar",
+//@    "_3.foo": "bar",
 import {
   'not-a-valid-bicep-identifier' as withInvalidIdentifier
 //@      "minLength": 3,
 //@    "withInvalidIdentifier": "value"
   refersToCopyVariable
 //@      {
-//@        "name": "2.copyVariable",
-//@        "count": "[length(range(0, variables('2.copyVariableCount')))]",
+//@        "name": "_2.copyVariable",
+//@        "count": "[length(range(0, variables('_2.copyVariableCount')))]",
 //@        "input": {
-//@          "count": "[copyIndex('2.copyVariable')]",
-//@          "value": "[variables('2.notExported')[mod(copyIndex('2.copyVariable'), 2)]]"
+//@          "count": "[copyIndex('_2.copyVariable')]",
+//@          "value": "[variables('_2.notExported')[mod(copyIndex('_2.copyVariable'), 2)]]"
 //@        }
 //@      }
-//@    "2.copyVariableCount": 10,
-//@    "2.notExported": [
+//@    "_2.copyVariableCount": 10,
+//@    "_2.notExported": [
 //@      "bippity boppity boop",
 //@      "abracadabra"
 //@    ],
-//@    "refersToCopyVariable": "[variables('2.copyVariable')]",
+//@    "refersToCopyVariable": "[variables('_2.copyVariable')]",
 } from 'modules/mod.json'
 
 var aliasedFoo = foo
+//@            "description": "Say hi to someone!",
 //@    "aliasedFoo": "[variables('foo')]",
 var aliasedBar = mod2.foo
-//@    "aliasedBar": "[variables('3.foo')]",
+//@    "aliasedBar": "[variables('_3.foo')]",
 
 type fizzes = fizz[]
 //@    "fizzes": {
@@ -84,11 +102,17 @@ type fizzes = fizz[]
 
 param fizzParam mod2.fizz
 //@    "fizzParam": {
-//@      "$ref": "#/definitions/3.fizz"
+//@      "$ref": "#/definitions/_3.fizz"
 //@    }
 output magicWord pop = refersToCopyVariable[3].value
 //@    "magicWord": {
 //@      "$ref": "#/definitions/pop",
 //@      "value": "[variables('refersToCopyVariable')[3].value]"
+//@    },
+
+output greeting string = greet('friend')
+//@    "greeting": {
+//@      "type": "string",
+//@      "value": "[__bicep.greet('friend')]"
 //@    }
 

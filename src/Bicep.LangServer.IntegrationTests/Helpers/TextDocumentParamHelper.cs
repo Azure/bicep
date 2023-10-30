@@ -11,7 +11,7 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
     public static class TextDocumentParamHelper
     {
         public static DidOpenTextDocumentParams CreateDidOpenDocumentParams(DocumentUri documentUri, string text, int version) =>
-            new DidOpenTextDocumentParams
+            new()
             {
                 TextDocument = new TextDocumentItem
                 {
@@ -32,7 +32,7 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
                 version);
 
         public static DidChangeTextDocumentParams CreateDidChangeTextDocumentParams(DocumentUri documentUri, string text, int version) =>
-            new DidChangeTextDocumentParams
+            new()
             {
                 TextDocument = new OptionalVersionedTextDocumentIdentifier
                 {

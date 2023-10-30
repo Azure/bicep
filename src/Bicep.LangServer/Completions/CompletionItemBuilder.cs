@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Completions
             this.label = label;
         }
 
-        public static CompletionItemBuilder Create(CompletionItemKind kind, string label) => new CompletionItemBuilder(kind, label);
+        public static CompletionItemBuilder Create(CompletionItemKind kind, string label) => new(kind, label);
 
         public CompletionItem Build()
         {

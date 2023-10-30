@@ -1220,40 +1220,40 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedProviderSpecificationOrCompileTimeImportExpression() => new(
+            public ErrorDiagnostic ExpectedProviderSpecification() => new(
                 TextSpan,
                 "BCP201",
-                "Expected a provider specification string of format \"<providerName>@<providerVersion>\", the \"*\" character, or the \"{\" character at this location.");
+                "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location.");
 
-            public ErrorDiagnostic ExpectedImportAliasName() => new(
+            public ErrorDiagnostic ExpectedProviderAliasName() => new(
                 TextSpan,
                 "BCP202",
-                "Expected an import alias name at this location.");
+                "Expected a provider alias name at this location.");
 
-            public ErrorDiagnostic ImportsAreDisabled() => new(
+            public ErrorDiagnostic ProvidersAreDisabled() => new(
                 TextSpan,
                 "BCP203",
-                $@"Using import statements requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Extensibility)}"".");
+                $@"Using provider statements requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Extensibility)}"".");
 
-            public ErrorDiagnostic UnrecognizedImportProvider(string identifier) => new(
+            public ErrorDiagnostic UnrecognizedProvider(string identifier) => new(
                 TextSpan,
                 "BCP204",
-                $"Imported namespace \"{identifier}\" is not recognized.");
+                $"Provider namespace \"{identifier}\" is not recognized.");
 
-            public ErrorDiagnostic ImportProviderDoesNotSupportConfiguration(string identifier) => new(
+            public ErrorDiagnostic ProviderDoesNotSupportConfiguration(string identifier) => new(
                 TextSpan,
                 "BCP205",
-                $"Imported namespace \"{identifier}\" does not support configuration.");
+                $"Provider namespace \"{identifier}\" does not support configuration.");
 
-            public ErrorDiagnostic ImportProviderRequiresConfiguration(string identifier) => new(
+            public ErrorDiagnostic ProviderRequiresConfiguration(string identifier) => new(
                 TextSpan,
                 "BCP206",
-                $"Imported namespace \"{identifier}\" requires configuration, but none was provided.");
+                $"Provider namespace \"{identifier}\" requires configuration, but none was provided.");
 
             public ErrorDiagnostic NamespaceMultipleDeclarations(string identifier) => new(
                 TextSpan,
                 "BCP207",
-                $"Namespace \"{identifier}\" is imported multiple times. Remove the duplicates.");
+                $"Namespace \"{identifier}\" is declared multiple times. Remove the duplicates.");
 
             public ErrorDiagnostic UnknownResourceReferenceScheme(string badNamespace, IEnumerable<string> allowedNamespaces) => new(
                 TextSpan,
@@ -1552,23 +1552,23 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnparsableBicepConfigFile(string configurationPath, string parsingErrorMessage) => new(
                 TextSpan,
                 "BCP271",
-                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: \"{parsingErrorMessage}\".");
+                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: {parsingErrorMessage.TrimEnd('.')}.");
 
             public ErrorDiagnostic UnloadableBicepConfigFile(string configurationPath, string loadErrorMessage) => new(
                 TextSpan,
                 "BCP272",
-                $"Could not load the Bicep configuration file \"{configurationPath}\": \"{loadErrorMessage}\".");
+                $"Could not load the Bicep configuration file \"{configurationPath}\": {loadErrorMessage.TrimEnd('.')}.");
 
             public ErrorDiagnostic InvalidBicepConfigFile(string configurationPath, string parsingErrorMessage) => new(
                 TextSpan,
                 "BCP273",
-                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": \"{parsingErrorMessage}\".");
+                $"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": {parsingErrorMessage.TrimEnd('.')}.");
 
             public Diagnostic PotentialConfigDirectoryCouldNotBeScanned(string? directoryPath, string scanErrorMessage) => new(
                 TextSpan,
                 DiagnosticLevel.Info, // should this be a warning instead?
                 "BCP274",
-                $"Error scanning \"{directoryPath}\" for bicep configuration: \"{scanErrorMessage}\".");
+                $"Error scanning \"{directoryPath}\" for bicep configuration: {scanErrorMessage.TrimEnd('.')}.");
 
             public ErrorDiagnostic FoundDirectoryInsteadOfFile(string directoryPath) => new(
                 TextSpan,
@@ -2110,7 +2110,23 @@ namespace Bicep.Core.Diagnostics
                 "BCP380",
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
-            
+
+            public FixableDiagnostic ProviderDeclarationViaImportKeywordIsDeprecated(ProviderDeclarationSyntax syntax) {
+                var codeFix = new CodeFix(
+                    "Replace the import with the provider keyword",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax.Keyword.Span, LanguageConstants.ProviderKeyword));
+
+                return new FixableDiagnostic(
+                    TextSpan,
+                    DiagnosticLevel.Warning,
+                    "BCP381",
+                    $"Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead.",
+                    documentationUri: null,
+                    DiagnosticStyling.Default,
+                    codeFix);
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Cli.Helpers;
+
 namespace Bicep.Cli.Arguments
 {
     public class BuildParamsArguments : ArgumentsBase
@@ -37,6 +39,19 @@ namespace Bicep.Cli.Arguments
                         i++;
                         break;
 
+                    case "--diagnostics-format":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --diagnostics-format parameter expects an argument");
+                        }
+                        if (DiagnosticsFormat is not null)
+                        {
+                            throw new CommandLineException($"The --diagnostics-format parameter cannot be specified twice");
+                        }
+                        DiagnosticsFormat = ArgumentHelper.ToDiagnosticsFormat(args[i + 1]);
+                        i++;
+                        break;
+
                     case "--stdout":
                         OutputToStdOut = true;
                         break;
@@ -68,16 +83,23 @@ namespace Bicep.Cli.Arguments
             {
                 throw new CommandLineException($"The --stdout can not be used when --outfile is specified");
             }
+
+            if (DiagnosticsFormat is null)
+            {
+                DiagnosticsFormat = Arguments.DiagnosticsFormat.Default;
+            }
         }
 
         public bool OutputToStdOut { get; }
-
-        public bool NoRestore { get; }
 
         public string ParamsFile { get; }
 
         public string? BicepFile { get; }
 
         public string? OutputFile { get; }
+
+        public DiagnosticsFormat? DiagnosticsFormat { get; }
+
+        public bool NoRestore { get; }
     }
 }

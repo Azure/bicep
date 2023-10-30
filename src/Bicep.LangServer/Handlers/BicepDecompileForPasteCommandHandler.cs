@@ -67,7 +67,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly TelemetryAndErrorHandlingHelper<BicepDecompileForPasteCommandResult> telemetryHelper;
         private readonly BicepCompiler bicepCompiler;
 
-        private static readonly Uri JsonDummyUri = new Uri("file://from-clipboard.json", UriKind.Absolute);
+        private static readonly Uri JsonDummyUri = new("file://from-clipboard.json", UriKind.Absolute);
         private static readonly Uri BicepDummyUri = PathHelper.ChangeToBicepExtension(JsonDummyUri);
 
         public const string? PasteType_None = null;
@@ -170,7 +170,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private async Task<ResultAndTelemetry> TryDecompileForPaste(string bicepContents, int rangeOffset, int rangeLength, string json, bool queryCanPaste)
         {
-            StringBuilder output = new StringBuilder();
+            StringBuilder output = new();
             string decompileId = Guid.NewGuid().ToString();
             var pasteContext = GetPasteContext(bicepContents, rangeOffset, rangeLength);
 

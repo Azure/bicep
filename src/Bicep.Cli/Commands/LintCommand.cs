@@ -38,26 +38,26 @@ public class LintCommand : ICommand
     public async Task<int> RunAsync(LintArguments args)
     {
         var inputPath = PathHelper.ResolvePath(args.InputFile);
+        var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
-        if (IsBicepFile(inputPath))
+        if (!PathHelper.HasBicepExtension(inputUri) &&
+            !PathHelper.HasBicepparamsExension(inputUri))
         {
-            diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
-            var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
-
-            if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is { } warningMessage)
-            {
-                logger.LogWarning(warningMessage);
-            }
-
-            diagnosticLogger.FlushLog();
-
-            // return non-zero exit code on errors
-            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+            logger.LogError(CliResources.UnrecognizedBicepOrBicepparamsFileExtensionMessage, inputPath);
+            return 1;
         }
 
-        logger.LogError(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath);
-        return 1;
-    }
+        diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
+        var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
-    private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
+        if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is { } warningMessage)
+        {
+            logger.LogWarning(warningMessage);
+        }
+
+        diagnosticLogger.FlushLog();
+
+        // return non-zero exit code on errors
+        return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+    }
 }

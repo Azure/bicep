@@ -228,7 +228,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             var binderMock = StrictMock.Of<IBinder>();
             binderMock.Setup(t => t.GetSymbolInfo(expression))
-                .Returns<Symbol?>(null);
+                .Returns<SyntaxBase>(x => null);
 
             var parsingErrorLookupMock = StrictMock.Of<IDiagnosticLookup>();
             parsingErrorLookupMock.Setup(x => x.Contains(expression)).Returns(false);
@@ -955,11 +955,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             binderMock
                 .Setup(x => x.GetSymbolInfo(It.IsAny<SyntaxBase>()))
-                .Returns<Symbol?>(null);
+                .Returns<SyntaxBase>(x => null);
 
             parsingErrorLookup ??= EmptyDiagnosticLookup.Instance;
 
-            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, BicepTestConstants.EmptyEnvironment, fileResolverMock.Object, parsingErrorLookup, StrictMock.Of<ISourceFileLookup>().Object, StrictMock.Of<ISemanticModelLookup>().Object, Core.Workspaces.BicepSourceFileKind.BicepFile);
+            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, BicepTestConstants.EmptyEnvironment, fileResolverMock.Object, parsingErrorLookup, StrictMock.Of<ISourceFileLookup>().Object, StrictMock.Of<ISemanticModelLookup>().Object);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, parsingErrorLookup, diagnosticWriter, expression, targetType);

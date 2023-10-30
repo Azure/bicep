@@ -38,4 +38,22 @@ internal class ImportReferenceExpressionRewriter : ExpressionRewriteVisitor
 
     public override Expression ReplaceWildcardImportVariablePropertyReferenceExpression(WildcardImportVariablePropertyReferenceExpression expression)
         => new SynthesizedVariableReferenceExpression(sourceSyntax ?? expression.SourceSyntax, wildcardImportPropertyNames[new(expression.ImportSymbol, expression.PropertyName)]);
+
+    public override Expression ReplaceImportedUserDefinedFunctionCallExpression(ImportedUserDefinedFunctionCallExpression expression)
+    {
+        var (namespaceName, functionName) = GetFunctionName(importedSymbolNames[expression.Symbol]);
+        return new SynthesizedUserDefinedFunctionCallExpression(sourceSyntax ?? expression.SourceSyntax, namespaceName, functionName, expression.Parameters);
+    }
+
+    public override Expression ReplaceWildcardImportInstanceFunctionCallExpression(WildcardImportInstanceFunctionCallExpression expression)
+    {
+        var (namespaceName, functionName) = GetFunctionName(wildcardImportPropertyNames[new(expression.ImportSymbol, expression.MethodName)]);
+        return new SynthesizedUserDefinedFunctionCallExpression(sourceSyntax ?? expression.SourceSyntax, namespaceName, functionName, expression.Parameters);
+    }
+
+    protected static (string namespaceName, string functionName) GetFunctionName(string potentiallyQualifiedName) => potentiallyQualifiedName.IndexOf('.') switch
+    {
+        int separatorLocation when separatorLocation > -1 => (potentiallyQualifiedName[..separatorLocation], potentiallyQualifiedName[(separatorLocation + 1)..]),
+        _ => (EmitConstants.UserDefinedFunctionsNamespace, potentiallyQualifiedName),
+    };
 }

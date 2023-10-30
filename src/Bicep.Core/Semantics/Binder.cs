@@ -21,12 +21,27 @@ namespace Bicep.Core.Semantics
         private readonly ConcurrentDictionary<DeclaredSymbol, ImmutableHashSet<DeclaredSymbol>> referencedSymbolClosures = new();
         private readonly Stack<DeclaredSymbol> closureCalculationStack = new();
 
-        public Binder(INamespaceProvider namespaceProvider, IFeatureProvider features, BicepSourceFile sourceFile, ISymbolContext symbolContext, IArtifactReferenceFactory artifactReferenceFactory)
+        public Binder(
+            INamespaceProvider namespaceProvider,
+            IFeatureProvider features,
+            ISourceFileLookup sourceFileLookup,
+            ISemanticModelLookup modelLookup,
+            BicepSourceFile sourceFile,
+            ISymbolContext symbolContext,
+            IArtifactReferenceFactory artifactReferenceFactory)
         {
             // TODO use lazy or some other pattern for init
             this.bicepFile = sourceFile;
             this.TargetScope = SyntaxHelper.GetTargetScope(sourceFile);
-            var fileScope = DeclarationVisitor.GetDeclarations(namespaceProvider, features, TargetScope, sourceFile, symbolContext, artifactReferenceFactory);
+            var fileScope = DeclarationVisitor.GetDeclarations(
+                namespaceProvider,
+                features,
+                sourceFileLookup,
+                modelLookup,
+                TargetScope,
+                sourceFile,
+                symbolContext,
+                artifactReferenceFactory);
             this.NamespaceResolver = NamespaceResolver.Create(features, namespaceProvider, sourceFile, this.TargetScope, fileScope);
             this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope);
             this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);

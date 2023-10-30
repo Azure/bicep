@@ -7,7 +7,9 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Unicode;
@@ -29,44 +31,43 @@ namespace Bicep.LanguageServer.Providers
     /// </summary>
     public class PublicRegistryModuleMetadataProvider : IPublicRegistryModuleMetadataProvider
     {
-        private record ModuleTagPropertiesEntry(string description);
-        private record ModuleMetadata(string moduleName, List<string> tags, Dictionary<string /*key: tag*/, ModuleTagPropertiesEntry>? properties);
+        private record ModuleTagPropertiesEntry(string Description, string DocumentationUri);
 
-        private const string LiveDataEndpoint = "https://aka.ms/BicepModulesMetadata";
+        private record ModuleMetadata(
+            string ModuleName,
+            List<string> Tags,
+            ImmutableDictionary<string /*key: tag*/, ModuleTagPropertiesEntry> Properties);
+
+        private const string LiveDataEndpoint = "https://aka.ms/br-module-index-data";
+
+        private static readonly JsonSerializerOptions JsonSerializerOptions = new()
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
+
+        private readonly HttpClient httpClient;
+
         private readonly TimeSpan CacheValidFor = TimeSpan.FromHours(1);
+
         private readonly TimeSpan InitialThrottleDelay = TimeSpan.FromSeconds(5);
+
         private readonly TimeSpan MaxThrottleDelay = TimeSpan.FromMinutes(2);
 
+        private readonly object queryingLiveSyncObject = new();
+
         private ImmutableArray<ModuleMetadata> cachedModules = ImmutableArray<ModuleMetadata>.Empty;
+
         private bool isQueryingLiveData = false;
-        private object queryingLiveSyncObject = new();
+
         private DateTime? lastSuccessfulQuery;
+
         private int consecutiveFailures = 0;
-        private Func<Task<Stream>> getDataStream;
 
-        public PublicRegistryModuleMetadataProvider(bool initializeCacheInBackground = false)
-            : this((Func<Task<Stream>>?)null, initializeCacheInBackground)
+        public PublicRegistryModuleMetadataProvider(HttpClient httpClient)
         {
-        }
+            this.httpClient = httpClient;
 
-        public PublicRegistryModuleMetadataProvider(string testData, bool initializeCache = false)
-            : this(() => Task.FromResult<Stream>(new MemoryStream(UTF8Encoding.UTF8.GetBytes(testData))), initializeCache)
-        {
-        }
-
-        private PublicRegistryModuleMetadataProvider(Func<Task<Stream>>? getDataStream = null, bool initializeCacheInBackground = false)
-        {
-            getDataStream ??= async () =>
-            {
-                using var httpClient = new HttpClient();
-                return await httpClient.GetStreamAsync(LiveDataEndpoint);
-            };
-            this.getDataStream = getDataStream;
-
-            if (initializeCacheInBackground)
-            {
-                this.CheckUpdateCacheAsync(true);
-            }
+            this.CheckUpdateCacheAsync(true);
         }
 
         public async Task<bool> TryUpdateCacheAsync()
@@ -86,7 +87,7 @@ namespace Bicep.LanguageServer.Providers
 
         private void CheckUpdateCacheAsync(bool initialDelay = false)
         {
-            if (!IsCacheExpired() && cachedModules.Any())
+            if (!IsCacheExpired() && this.cachedModules.Any())
             {
                 return;
             }
@@ -102,7 +103,7 @@ namespace Bicep.LanguageServer.Providers
                 this.isQueryingLiveData = true;
             }
 
-            var _ = Task.Run(async () =>
+            _ = Task.Run(async () =>
             {
                 try
                 {
@@ -154,8 +155,7 @@ namespace Bicep.LanguageServer.Providers
 
             try
             {
-                var metadataStream = await this.getDataStream();
-                var metadata = JsonSerializer.Deserialize<ModuleMetadata[]>(metadataStream);
+                var metadata = await this.httpClient.GetFromJsonAsync<ModuleMetadata[]>(LiveDataEndpoint, JsonSerializerOptions);
 
                 if (metadata is not null)
                 {
@@ -177,23 +177,23 @@ namespace Bicep.LanguageServer.Providers
         public Task<IEnumerable<PublicRegistryModule>> GetModules()
         {
             CheckUpdateCacheAsync();
-            var modules = cachedModules.ToArray();
+            var modules = this.cachedModules.ToArray();
             return Task.FromResult(
                 modules.Select(metadata =>
-                    new PublicRegistryModule(metadata.moduleName, GetDescription(metadata), GetDocumentationUri(metadata))));
+                    new PublicRegistryModule(metadata.ModuleName, GetDescription(metadata), GetDocumentationUri(metadata))));
         }
 
         public Task<IEnumerable<PublicRegistryModuleVersion>> GetVersions(string modulePath)
         {
             CheckUpdateCacheAsync();
-            var modules = cachedModules.ToArray();
-            ModuleMetadata? metadata = modules.FirstOrDefault(x => x.moduleName.Equals(modulePath, StringComparison.Ordinal));
+            var modules = this.cachedModules.ToArray();
+            ModuleMetadata? metadata = modules.FirstOrDefault(x => x.ModuleName.Equals(modulePath, StringComparison.Ordinal));
             if (metadata == null)
             {
                 return Task.FromResult(Enumerable.Empty<PublicRegistryModuleVersion>());
             }
 
-            var versions = metadata.tags.OrderDescending().ToArray() ?? Enumerable.Empty<string>();
+            var versions = metadata.Tags.OrderDescending().ToArray() ?? Enumerable.Empty<string>();
             return Task.FromResult(
                 versions.Select(v =>
                     new PublicRegistryModuleVersion(v, GetDescription(metadata, v), GetDocumentationUri(metadata, v))));
@@ -201,7 +201,7 @@ namespace Bicep.LanguageServer.Providers
 
         private static string? GetDescription(ModuleMetadata moduleMetadata, string? version = null)
         {
-            if (moduleMetadata.properties is null)
+            if (moduleMetadata.Properties is null)
             {
                 return null;
             }
@@ -209,25 +209,25 @@ namespace Bicep.LanguageServer.Providers
             if (version is null)
             {
                 // Get description for most recent version with a description
-                return moduleMetadata.tags.Select(tag => moduleMetadata.properties.TryGetValue(tag, out var propertiesEntry) ? propertiesEntry.description : null)
+                return moduleMetadata.Tags.Select(tag => moduleMetadata.Properties.TryGetValue(tag, out var propertiesEntry) ? propertiesEntry.Description : null)
                         .WhereNotNull().
                         LastOrDefault();
             }
             else
             {
-                return moduleMetadata.properties.TryGetValue(version, out var propertiesEntry) ? propertiesEntry.description : null;
+                return moduleMetadata.Properties.TryGetValue(version, out var propertiesEntry) ? propertiesEntry.Description : null;
             }
         }
 
-        private string? GetDocumentationUri(ModuleMetadata moduleMetadata, string? version = null)
+        private static string? GetDocumentationUri(ModuleMetadata moduleMetadata, string? version = null)
         {
-            version ??= moduleMetadata.tags.OrderDescending().FirstOrDefault();
-            return version is null ? null : OciArtifactRegistry.GetPublicBicepModuleDocumentationUri(moduleMetadata.moduleName, version);
+            version ??= moduleMetadata.Tags.OrderDescending().FirstOrDefault();
+            return version is null ? null : moduleMetadata.Properties[version].DocumentationUri;
         }
 
-        public TimeSpan GetExponentialDelay(TimeSpan initialDelay, int consecutiveFailures, TimeSpan maxDelay)
+        public static TimeSpan GetExponentialDelay(TimeSpan initialDelay, int consecutiveFailures, TimeSpan maxDelay)
         {
-            int maxFailuresToConsider = (int)Math.Ceiling(Math.Log(maxDelay.TotalSeconds, 2)); // Avoid overflow on Math.Pow()
+            var maxFailuresToConsider = (int)Math.Ceiling(Math.Log(maxDelay.TotalSeconds, 2)); // Avoid overflow on Math.Pow()
             var secondsDelay = initialDelay.TotalSeconds * Math.Pow(2, Math.Min(consecutiveFailures, maxFailuresToConsider));
             var delay = TimeSpan.FromSeconds(secondsDelay);
 

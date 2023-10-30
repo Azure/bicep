@@ -70,7 +70,7 @@ namespace Bicep.Core.UnitTests
         public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
 
         // By default turns off only problematic analyzers
-        public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer();
+        public static readonly LinterAnalyzer LinterAnalyzer = new();
 
         public static IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
 
@@ -109,7 +109,7 @@ namespace Bicep.Core.UnitTests
             return RootConfiguration.Bind(element, configurationPath);
         }
 
-        public static ConfigurationManager CreateFilesystemConfigurationManager() => new ConfigurationManager(new IOFileSystem());
+        public static ConfigurationManager CreateFilesystemConfigurationManager() => new(new IOFileSystem());
 
         public static IConfigurationManager CreateConfigurationManager(Func<RootConfiguration, RootConfiguration> patchFunc)
             => new PatchingConfigurationManager(CreateFilesystemConfigurationManager(), patchFunc);

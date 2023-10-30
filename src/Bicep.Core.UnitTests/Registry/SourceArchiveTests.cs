@@ -119,7 +119,7 @@ public class SourceArchiveTests
     private ISourceFile CreateSourceFile(MockFileSystem fs, Uri projectFolderUri, string relativePath, string sourceKind, string content)
     {
         projectFolderUri.AbsolutePath.Should().EndWith("/");
-        Uri uri = new Uri(projectFolderUri, relativePath);
+        Uri uri = new(projectFolderUri, relativePath);
         fs.AddFile(uri.LocalPath, content);
         string actualContents = fs.File.ReadAllText(uri.LocalPath);
         return sourceKind switch
@@ -128,13 +128,13 @@ public class SourceArchiveTests
             SourceArchive.SourceKind_Bicep => SourceFileFactory.CreateSourceFile(uri, actualContents),
             SourceArchive.SourceKind_TemplateSpec => SourceFileFactory.CreateTemplateSpecFile(uri, actualContents),
             _ => throw new Exception($"Unrecognized source kind: {sourceKind}")
-        }; ;
+        };
     }
 
     [TestMethod]
     public void CanPackAndUnpackSourceFiles()
     {
-        Uri projectFolder = new Uri("file:///my project/my sources/", UriKind.Absolute);
+        Uri projectFolder = new("file:///my project/my sources/", UriKind.Absolute);
         var fs = new MockFileSystem();
         fs.AddDirectory(projectFolder.LocalPath);
 

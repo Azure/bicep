@@ -475,7 +475,7 @@ namespace Bicep.LanguageServer
             int variables = 0;
             int lineCount = 0;
             int disableNextLineDirectivesCount = 0;
-            List<DisableNextLineDirectiveEndPositionAndCodes> disableNextLineDirectiveEndPositionAndCodesInReferencedFiles = new List<DisableNextLineDirectiveEndPositionAndCodes>();
+            List<DisableNextLineDirectiveEndPositionAndCodes> disableNextLineDirectiveEndPositionAndCodesInReferencedFiles = new();
 
             foreach (var sourceFile in sourceFiles)
             {

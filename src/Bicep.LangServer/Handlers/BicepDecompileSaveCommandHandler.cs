@@ -69,7 +69,7 @@ namespace Bicep.LanguageServer.Handlers
             bool overwrite // If false, will create copy(ies) of the output file(s)
         )
         {
-            StringBuilder output = new StringBuilder();
+            StringBuilder output = new();
 
             try
             {

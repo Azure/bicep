@@ -17,7 +17,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios;
 [TestClass]
 public class NullabilityTests
 {
-    private static ServiceBuilder Services => new ServiceBuilder();
+    private static ServiceBuilder Services => new();
 
     [DataTestMethod]
     [DynamicData(nameof(GetTemplatesWithSingleUnexpectedlyNullableValue), DynamicDataSourceType.Method)]

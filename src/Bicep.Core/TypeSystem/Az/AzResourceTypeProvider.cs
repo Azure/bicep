@@ -15,8 +15,8 @@ namespace Bicep.Core.TypeSystem.Az
     public class AzResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
         private static readonly RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
-        private static readonly Regex ResourceTypePattern = new Regex(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+$", PatternRegexOptions);
-        private static readonly Regex ApiVersionPattern = new Regex(@"^\d{4}-\d{2}-\d{2}(|-(preview|alpha|beta|rc|privatepreview))$", PatternRegexOptions);
+        private static readonly Regex ResourceTypePattern = new(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+$", PatternRegexOptions);
+        private static readonly Regex ApiVersionPattern = new(@"^\d{4}-\d{2}-\d{2}(|-(preview|alpha|beta|rc|privatepreview))$", PatternRegexOptions);
 
         public const string ResourceIdPropertyName = "id";
         public const string ResourceLocationPropertyName = "location";

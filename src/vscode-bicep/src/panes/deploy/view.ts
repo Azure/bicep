@@ -17,13 +17,13 @@ import { getDeploymentDataRequestType } from "../../language";
 import { Disposable } from "../../utils/disposable";
 import { debounce } from "../../utils/time";
 import { getLogger } from "../../utils/logger";
-import { TreeManager } from "../../tree/TreeManager";
 import {
   callWithTelemetryAndErrorHandlingSync,
   IActionContext,
 } from "@microsoft/vscode-azext-utils";
 import { GlobalStateKeys } from "../../globalState";
 import { DeployPaneState } from "./models";
+import { IAzureUiManager } from "../../azure/types";
 
 export class DeployPaneView extends Disposable {
   public static viewType = "bicep.deployPane";
@@ -36,7 +36,7 @@ export class DeployPaneView extends Disposable {
   private constructor(
     private readonly extensionContext: ExtensionContext,
     private readonly context: IActionContext,
-    private readonly treeManager: TreeManager,
+    private readonly azureMgr: IAzureUiManager,
     private readonly languageClient: LanguageClient,
     private readonly webviewPanel: vscode.WebviewPanel,
     private readonly extensionUri: vscode.Uri,
@@ -81,7 +81,7 @@ export class DeployPaneView extends Disposable {
   public static create(
     extensionContext: ExtensionContext,
     context: IActionContext,
-    treeManager: TreeManager,
+    azureMgr: IAzureUiManager,
     languageClient: LanguageClient,
     viewColumn: vscode.ViewColumn,
     extensionUri: vscode.Uri,
@@ -101,7 +101,7 @@ export class DeployPaneView extends Disposable {
     return new DeployPaneView(
       extensionContext,
       context,
-      treeManager,
+      azureMgr,
       languageClient,
       webviewPanel,
       extensionUri,
@@ -112,7 +112,7 @@ export class DeployPaneView extends Disposable {
   public static revive(
     extensionContext: ExtensionContext,
     context: IActionContext,
-    treeManager: TreeManager,
+    azureMgr: IAzureUiManager,
     languageClient: LanguageClient,
     webviewPanel: vscode.WebviewPanel,
     extensionUri: vscode.Uri,
@@ -121,7 +121,7 @@ export class DeployPaneView extends Disposable {
     return new DeployPaneView(
       extensionContext,
       context,
-      treeManager,
+      azureMgr,
       languageClient,
       webviewPanel,
       extensionUri,
@@ -196,6 +196,9 @@ export class DeployPaneView extends Disposable {
   private async handleDidReceiveMessage(message: ViewMessage) {
     switch (message.kind) {
       case "READY": {
+        getLogger().debug(
+          `Deployment Pane for ${this.documentUri.fsPath} is ready.`,
+        );
         this.readyToRender = true;
         this.render();
         return;
@@ -245,168 +248,23 @@ export class DeployPaneView extends Disposable {
       }
       case "GET_ACCESS_TOKEN": {
         try {
-          switch (message.scope.scopeType) {
-            case "resourceGroup": {
-              const scopeId = `/subscriptions/${message.scope.subscriptionId}/resourceGroups/${message.scope.resourceGroup}`;
-              const treeItem =
-                await this.treeManager.azResourceGroupTreeItem.findTreeItem(
-                  scopeId,
-                  this.context,
-                );
-              if (!treeItem) {
-                throw `Failed to find authenticated context for scope ${scopeId}`;
-              }
+          const accessToken = await this.azureMgr.getAccessToken(message.scope);
 
-              const accessToken =
-                await treeItem.subscription.credentials.getToken();
-              await this.webviewPanel.webview.postMessage(
-                createGetAccessTokenResultMessage(accessToken),
-              );
-              return;
-            }
-            case "subscription": {
-              const scopeId = `/subscriptions/${message.scope.subscriptionId}`;
-              const treeItem =
-                await this.treeManager.azLocationTree.findTreeItem(
-                  scopeId,
-                  this.context,
-                );
-              if (!treeItem) {
-                throw `Failed to find authenticated context for scope ${scopeId}`;
-              }
-
-              const accessToken =
-                await treeItem.subscription.credentials.getToken();
-              await this.webviewPanel.webview.postMessage(
-                createGetAccessTokenResultMessage(accessToken),
-              );
-              return;
-            }
-            case "managementGroup": {
-              const scopeId = `/subscriptions/${message.scope.associatedSubscriptionId}`;
-              const treeItem =
-                await this.treeManager.azLocationTree.findTreeItem(
-                  scopeId,
-                  this.context,
-                );
-              if (!treeItem) {
-                throw `Failed to find authenticated context for scope ${scopeId}`;
-              }
-
-              const accessToken =
-                await treeItem.subscription.credentials.getToken();
-              await this.webviewPanel.webview.postMessage(
-                createGetAccessTokenResultMessage(accessToken),
-              );
-              return;
-            }
-            case "tenant": {
-              const scopeId = `/subscriptions/${message.scope.associatedSubscriptionId}`;
-              const treeItem =
-                await this.treeManager.azLocationTree.findTreeItem(
-                  scopeId,
-                  this.context,
-                );
-              if (!treeItem) {
-                throw `Failed to find authenticated context for scope ${scopeId}`;
-              }
-
-              const accessToken =
-                await treeItem.subscription.credentials.getToken();
-              await this.webviewPanel.webview.postMessage(
-                createGetAccessTokenResultMessage(accessToken),
-              );
-              return;
-            }
-          }
+          await this.webviewPanel.webview.postMessage(
+            createGetAccessTokenResultMessage(accessToken),
+          );
         } catch (error) {
           await this.webviewPanel.webview.postMessage(
             createGetAccessTokenResultMessage(undefined, error),
           );
         }
-
         return;
       }
       case "GET_DEPLOYMENT_SCOPE": {
-        switch (message.scopeType) {
-          case "resourceGroup": {
-            const treeItem =
-              await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker(
-                "",
-                this.context,
-              );
-            await this.webviewPanel.webview.postMessage(
-              createGetDeploymentScopeResultMessage({
-                scopeType: message.scopeType,
-                portalUrl: treeItem.subscription.environment.portalUrl,
-                tenantId: treeItem.subscription.tenantId,
-                subscriptionId: treeItem.subscription.subscriptionId,
-                resourceGroup: treeItem.label,
-              }),
-            );
-            return;
-          }
-          case "subscription": {
-            const treeItem =
-              await this.treeManager.azLocationTree.showTreeItemPicker(
-                "",
-                this.context,
-              );
-            await this.webviewPanel.webview.postMessage(
-              createGetDeploymentScopeResultMessage({
-                scopeType: message.scopeType,
-                portalUrl: treeItem.subscription.environment.portalUrl,
-                tenantId: treeItem.subscription.tenantId,
-                subscriptionId: treeItem.subscription.subscriptionId,
-                location: treeItem.label,
-              }),
-            );
-            return;
-          }
-          case "managementGroup": {
-            const locationItem =
-              await this.treeManager.azLocationTree.showTreeItemPicker(
-                "",
-                this.context,
-              );
-            const treeItem =
-              await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker(
-                "",
-                this.context,
-              );
-            await this.webviewPanel.webview.postMessage(
-              createGetDeploymentScopeResultMessage({
-                scopeType: message.scopeType,
-                portalUrl: locationItem.subscription.environment.portalUrl,
-                tenantId: treeItem.subscription.tenantId,
-                managementGroup: treeItem.label,
-                associatedSubscriptionId:
-                  locationItem.subscription.subscriptionId,
-                location: locationItem.label,
-              }),
-            );
-            return;
-          }
-          case "tenant": {
-            const locationItem =
-              await this.treeManager.azLocationTree.showTreeItemPicker(
-                "",
-                this.context,
-              );
-            await this.webviewPanel.webview.postMessage(
-              createGetDeploymentScopeResultMessage({
-                scopeType: message.scopeType,
-                portalUrl: locationItem.subscription.environment.portalUrl,
-                tenantId: locationItem.subscription.tenantId,
-                associatedSubscriptionId:
-                  locationItem.subscription.subscriptionId,
-                location: locationItem.label,
-              }),
-            );
-            return;
-          }
-        }
-
+        const scope = await this.azureMgr.pickScope(message.scopeType);
+        await this.webviewPanel.webview.postMessage(
+          createGetDeploymentScopeResultMessage(scope),
+        );
         return;
       }
       case "PUBLISH_TELEMETRY": {

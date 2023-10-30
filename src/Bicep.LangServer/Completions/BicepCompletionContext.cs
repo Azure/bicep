@@ -29,24 +29,24 @@ namespace Bicep.LanguageServer.Completions
 
         private static readonly CompositeSyntaxPattern ExpectingImportSpecification = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "import |",
-            "import |'kuber'",
-            "import 'kuber|'");
+            "provider |",
+            "provider |'kuber'",
+            "provider 'kuber|'");
 
         private static readonly CompositeSyntaxPattern ExpectingImportWithOrAsKeyword = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "import 'kubernetes@1.0.0' |",
-            "import 'kubernetes@1.0.0' a|",
-            "import 'kubernetes@1.0.0' |b");
+            "provider 'kubernetes@1.0.0' |",
+            "provider 'kubernetes@1.0.0' a|",
+            "provider 'kubernetes@1.0.0' |b");
 
         private static readonly CompositeSyntaxPattern ExpectingImportConfig = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "import 'kubernetes@1.0.0' with |",
-            "import 'kubernetes@1.0.0' with | as foo");
+            "provider 'kubernetes@1.0.0' with |",
+            "provider 'kubernetes@1.0.0' with | as foo");
 
         private static readonly SyntaxPattern ExpectingImportAsKeyword = SyntaxPattern.Create(
             cursor: '|',
-            "import 'kubernetes@1.0.0' with { foo: true } |");
+            "provider 'kubernetes@1.0.0' with { foo: true } |");
 
         // completions will replace only these token types
         // all others will result in an insertion upon completion commit
@@ -789,13 +789,10 @@ namespace Bicep.LanguageServer.Completions
 
         private static bool IsImportIdentifierContext(List<SyntaxBase> matchingNodes, int offset) =>
             // import |
-            // because extensibility and compile-time imports share a keyword at present, an incomplete statement will be parsed as a ProviderDeclarationSyntax node instead of a CompileTimeImportDeclarationSyntax node
-            SyntaxMatcher.IsTailMatch<ProviderDeclarationSyntax>(matchingNodes, declaration => declaration.SpecificationString is SkippedTriviaSyntax &&
-                declaration.SpecificationString.Span.ContainsInclusive(offset) &&
-                declaration.WithClause is SkippedTriviaSyntax &&
-                declaration.WithClause.Span.Length == 0 &&
-                declaration.AsClause is SkippedTriviaSyntax &&
-                declaration.AsClause.Span.Length == 0);
+            SyntaxMatcher.IsTailMatch<CompileTimeImportDeclarationSyntax>(matchingNodes, declaration => declaration.ImportExpression is SkippedTriviaSyntax &&
+                declaration.ImportExpression.Span.ContainsInclusive(offset) &&
+                declaration.FromClause is SkippedTriviaSyntax &&
+                declaration.FromClause.Span.Length == 0);
 
         private static bool IsImportedSymbolListItemContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<ImportedSymbolsListItemSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||

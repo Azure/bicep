@@ -234,7 +234,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
-                .Returns<ArmDeploymentCollection>(null);
+                .Returns((ArmDeploymentCollection)null!);
             var documentPath = "some_path";
             var deploymentHelper = new DeploymentHelper();
 

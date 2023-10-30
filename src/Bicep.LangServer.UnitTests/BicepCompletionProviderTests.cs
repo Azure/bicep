@@ -28,6 +28,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using RichardSzalay.MockHttp;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.UnitTests
@@ -39,13 +40,17 @@ namespace Bicep.LangServer.UnitTests
 
         private static BicepCompletionProvider CreateProvider()
         {
+            var mockHttpMessageHandler = new MockHttpMessageHandler();
+            mockHttpMessageHandler.When("*").Respond("application/json", "{}");
+
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)
                 .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>()
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ISettingsProvider, SettingsProvider>()
-                .AddSingleton<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
                 .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
+                .AddHttpClient<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()
+                    .ConfigurePrimaryHttpMessageHandler(() => mockHttpMessageHandler).Services
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<BicepCompletionProvider>());
 
@@ -403,9 +408,9 @@ output length int =
         [TestMethod]
         public async Task CompletionsShouldContainMicrosoftGraphWhenPreviewFeatureEnabled()
         {
-            var codeFragment = @"import 'microsoftGraph@1.0.0' as graph";
+            var codeFragment = @"provider 'microsoftGraph@1.0.0' as graph";
             var completionProvider = CreateProvider();
-            var offset = 7;
+            var offset = 9;
             var featureOverrides = new FeatureProviderOverrides(ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: true);
             var serviceWithGraph = new ServiceBuilder().WithFeatureOverrides(featureOverrides);
 

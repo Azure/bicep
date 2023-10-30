@@ -45,8 +45,8 @@ namespace Bicep.LanguageServer.Completions
 
         private static readonly Container<string> PropertyAccessCommitChars = new(".");
 
-        private static readonly Regex ModuleRegistryWithoutAliasPattern = new Regex(@"'br:(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
-        private static readonly Regex ModuleRegistryWithAliasPattern = new Regex(@"'br/(.*?):(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex ModuleRegistryWithoutAliasPattern = new(@"'br:(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        private static readonly Regex ModuleRegistryWithAliasPattern = new(@"'br/(.*?):(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
@@ -150,7 +150,12 @@ namespace Bicep.LanguageServer.Completions
                         yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.TypeKeyword, "Type keyword", context.ReplacementRange);
 
-                        if (model.Features.ExtensibilityEnabled || model.Features.CompileTimeImportsEnabled)
+                        if (model.Features.ExtensibilityEnabled)
+                        {
+                            yield return CreateKeywordCompletion(LanguageConstants.ProviderKeyword, "Provider keyword", context.ReplacementRange);
+                        }
+
+                        if (model.Features.CompileTimeImportsEnabled)
                         {
                             yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
                         }
@@ -359,13 +364,11 @@ namespace Bicep.LanguageServer.Completions
         }
 
         private static IEnumerable<CompletionItem> GetImportedTypeCompletions(SemanticModel model, BicepCompletionContext context)
-            => model.Root.ImportedSymbols
-                .Where(imported => imported.Kind == SymbolKind.TypeAlias)
+            => model.Root.ImportedTypes
                 .Select(importedType => CreateImportedCompletion(importedType, context.ReplacementRange, CompletionPriority.High))
                 .Concat(model.Root.WildcardImports
-                    .SelectMany(wildcardImport => wildcardImport.TryGetSemanticModel() is ISemanticModel importedModel
-                        ? importedModel.Exports.Values.OfType<ExportedTypeMetadata>().Select(exportMetadata => (wildcardImport, exportMetadata))
-                        : Enumerable.Empty<(WildcardImportSymbol, ExportedTypeMetadata)>())
+                    .SelectMany(wildcardImport => wildcardImport.SourceModel.Exports.Values.OfType<ExportedTypeMetadata>()
+                        .Select(exportMetadata => (wildcardImport, exportMetadata)))
                     .Select(t => CreateWildcardPropertyCompletion(t.Item1, t.Item2, context.ReplacementRange, CompletionPriority.High)));
 
         private static bool IsTypeLiteralSyntax(SyntaxBase syntax) => syntax is BooleanLiteralSyntax
@@ -750,7 +753,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 var bicepFile = compitation.SourceFileGrouping.EntryPoint;
                 Range enclosingDeclarationRange = parameterDeclarationSyntax.Keyword.ToRange(bicepFile.LineStarts);
-                TextEdit textEdit = new TextEdit()
+                TextEdit textEdit = new()
                 {
                     Range = new Range()
                     {
@@ -1731,7 +1734,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(imported.Type.Name)
                 .WithSortText(GetSortText(imported.Name, priority));
 
-            if (imported.TryGetDescription() is string documentation)
+            if (imported.Description is string documentation)
             {
                 builder = builder.WithDocumentation(documentation);
             }

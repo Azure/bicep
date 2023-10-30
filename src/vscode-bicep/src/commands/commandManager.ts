@@ -75,18 +75,6 @@ export class CommandManager extends Disposable {
       );
     }
 
-    // activationEvents
-    const activationEvents = this._packageJson.activationEvents;
-    assert(!!activationEvents, "Missing activationEvents in package.json");
-    const activationKey = `onCommand:${command.id}`;
-    const activation: string | undefined = activationEvents.find(
-      (a) => a === activationKey,
-    );
-    assert(
-      !!activation,
-      `Internal error: Add an entry for '${activationKey}' to package.json's activationEvents array. This ensures that the command will be functional even if the extension is not yet activated.`,
-    );
-
     assert(
       command.id.startsWith("bicep."),
       `Command ID doesn't start with 'bicep.': ${command.id}`,

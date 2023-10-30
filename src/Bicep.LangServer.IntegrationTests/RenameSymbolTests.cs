@@ -200,7 +200,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         private static TextEdit CreateExpectedTextEdit(ImmutableArray<int> lineStarts, string newText, SyntaxBase syntax) =>
-            new TextEdit
+            new()
             {
                 NewText = newText,
                 Range = PositionHelper.GetNameRange(lineStarts, syntax)

@@ -183,6 +183,16 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return TestSyntaxFactory.CreatePropertyAccess(TestSyntaxFactory.CreateVariableAccess("identifier"), "propertyName");
             }
 
+            if (parameter.ParameterType == typeof(ProviderDeclarationSyntax))
+            {
+                return new ProviderDeclarationSyntax(
+                    Enumerable.Empty<SyntaxBase>(),
+                    SyntaxFactory.CreateIdentifierToken("import"),
+                    SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
+                    withClause: SyntaxFactory.EmptySkippedTrivia,
+                    asClause: SyntaxFactory.EmptySkippedTrivia);
+            }
+
             if (parameter.ParameterType == typeof(ExportMetadataKind))
             {
                 return ExportMetadataKind.Error;

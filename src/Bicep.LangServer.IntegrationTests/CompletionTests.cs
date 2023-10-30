@@ -51,7 +51,7 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class CompletionTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder();
+        private static ServiceBuilder Services => new();
 
         private static readonly SharedLanguageHelperManager ServerWithNamespaceProvider = new();
 
@@ -376,7 +376,7 @@ resource service 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
 ";
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(bicepTextWithCursor, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///myMod.bicep")] = "",
@@ -668,7 +668,7 @@ module mod 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = @"param foo {
@@ -700,7 +700,7 @@ module mod 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = @"param foo {
@@ -938,7 +938,7 @@ module mod 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = module,
@@ -988,7 +988,7 @@ module mod 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = module,
@@ -1040,7 +1040,7 @@ module mod 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = module,
@@ -1566,7 +1566,7 @@ module bar2 'test.bicep' = [for item in list: |  ]
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///test.bicep")] = @"param foo string",
@@ -1783,19 +1783,19 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         }
 
         [TestMethod]
-        public async Task Import_completions_work_if_feature_enabled()
+        public async Task Provider_completions_work_if_feature_enabled()
         {
             var fileWithCursors = @"
 |
-import 'ns1@1.0.0' |
-import 'ns2@1.0.0' a|
-import 'ns3@1.0.0' as|
-import |
-import a|
+provider 'ns1@1.0.0' |
+provider 'ns2@1.0.0' a|
+provider 'ns3@1.0.0' as|
+provider |
+provider a|
 ";
             await RunCompletionScenarioTest(this.TestContext, ServerWithExtensibilityEnabled, fileWithCursors,
                 completions => completions.Should().SatisfyRespectively(
-                    c => c!.Select(x => x.Label).Should().Contain("import"),
+                    c => c!.Select(x => x.Label).Should().Contain("provider"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
@@ -1806,7 +1806,7 @@ import a|
 
             await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors,
                 completions => completions.Should().SatisfyRespectively(
-                    c => c!.Select(x => x.Label).Should().NotContain("import"),
+                    c => c!.Select(x => x.Label).Should().NotContain("provider"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
@@ -1817,11 +1817,11 @@ import a|
         }
 
         [TestMethod]
-        public async Task Import_configuration_completions_work()
+        public async Task Provider_configuration_completions_work()
         {
             {
                 var fileWithCursors = @"
-import 'kubernetes@1.0.0' with | as k8s
+provider 'kubernetes@1.0.0' with | as k8s
 ";
 
                 var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
@@ -1833,7 +1833,7 @@ import 'kubernetes@1.0.0' with | as k8s
 
                 var updatedFile = file.ApplyCompletion(completions, "required-properties");
                 updatedFile.Should().HaveSourceText(@"
-import 'kubernetes@1.0.0' with {
+provider 'kubernetes@1.0.0' with {
   kubeConfig: $1
   namespace: $2
 }| as k8s
@@ -1842,7 +1842,7 @@ import 'kubernetes@1.0.0' with {
 
             {
                 var fileWithCursors = @"
-import 'kubernetes@1.0.0' with {
+provider 'kubernetes@1.0.0' with {
   |
 }
 ";
@@ -1856,7 +1856,7 @@ import 'kubernetes@1.0.0' with {
 
                 var updatedFile = file.ApplyCompletion(completions, "kubeConfig");
                 updatedFile.Should().HaveSourceText(@"
-import 'kubernetes@1.0.0' with {
+provider 'kubernetes@1.0.0' with {
   kubeConfig:|
 }
 ");
@@ -2097,7 +2097,7 @@ var modOut = m.outputs.inputTi|
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = moduleContent,
@@ -3128,7 +3128,7 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = moduleContent,
@@ -3337,7 +3337,7 @@ module aModule 'mod.bicep' = {
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = moduleContent,
@@ -3396,7 +3396,7 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 }";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContentWithCursors, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = moduleContent,
@@ -4124,6 +4124,21 @@ var arr6 = [
         }
 
         [TestMethod]
+        public async Task Compile_time_imports_offer_import_expression_completions()
+        {
+            var fileWithCursors = """
+              import |
+              """;
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
+            var file = await new ServerRequestHelper(TestContext, ServerWithCompileTimeImportsEnabled).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(x => x.Label == "{}");
+            completions.Should().Contain(x => x.Label == "* as");
+        }
+
+        [TestMethod]
         public async Task Compile_time_imports_offer_as_keyword_completions()
         {
             var fileWithCursors = """
@@ -4162,7 +4177,7 @@ var arr6 = [
               """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = modContent,
@@ -4257,7 +4272,7 @@ var arr6 = [
             var mainContent = "import {|} from 'mod.json'";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.json")] = jsonModContent,
@@ -4319,7 +4334,7 @@ var arr6 = [
               """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = modContent,
@@ -4388,7 +4403,7 @@ var arr6 = [
               """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.json")] = jsonModContent,
@@ -4442,7 +4457,7 @@ var arr6 = [
               """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = modContent,
@@ -4499,7 +4514,7 @@ var arr6 = [
               """;
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = modContent,

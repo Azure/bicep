@@ -10,9 +10,11 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -44,7 +46,8 @@ public class LinterRuleTestsBase
         IncludePosition IncludePosition = IncludePosition.Default,
         Func<RootConfiguration, RootConfiguration>? ConfigurationPatch = null,
         IProviderTypeLoader? AzProviderTypeLoader = null,
-        (string path, string contents)[]? AdditionalFiles = null
+        (string path, string contents)[]? AdditionalFiles = null,
+        FeatureProviderOverrides? FeatureOverrides = null
     );
 
     private static string FormatDiagnostic(IDiagnostic diagnostic, ImmutableArray<int> lineStarts, IncludePosition includePosition)
@@ -109,8 +112,9 @@ public class LinterRuleTestsBase
     {
         options ??= new Options();
         var services = new ServiceBuilder();
-        services = options.ConfigurationPatch is { } ? services.WithConfigurationPatch(options.ConfigurationPatch) : services;
+        services = options.ConfigurationPatch is not null ? services.WithConfigurationPatch(options.ConfigurationPatch) : services;
         services = options.AzProviderTypeLoader is { } ? services.WithAzResourceTypeLoader(options.AzProviderTypeLoader) : services;
+        services = options.FeatureOverrides is not null ? services.WithFeatureOverrides(options.FeatureOverrides) : services;
         var result = CompilationHelper.Compile(services, files);
         using (new AssertionScope().WithFullSource(result.BicepFile))
         {

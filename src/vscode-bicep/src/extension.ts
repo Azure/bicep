@@ -58,6 +58,7 @@ import { setGlobalStateKeysToSyncBetweenMachines } from "./globalState";
 import * as surveys from "./feedback/surveys";
 import { DecompileParamsCommand } from "./commands/decompileParams";
 import { DeployPaneViewManager } from "./panes/deploy";
+import { AzureUiManager } from "./azure/AzureUiManager";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -152,7 +153,7 @@ export async function activate(
             extensionContext,
             extension.extensionUri,
             languageClient,
-            treeManager,
+            new AzureUiManager(actionContext, treeManager),
           ),
         );
 

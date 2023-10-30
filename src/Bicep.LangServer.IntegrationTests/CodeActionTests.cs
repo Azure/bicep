@@ -39,7 +39,7 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class CodeActionTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder();
+        private static ServiceBuilder Services => new();
 
         private const string SecureTitle = "Add @secure";
         private const string DescriptionTitle = "Add @description";
@@ -555,6 +555,23 @@ param foo2 string", "param foo2 string")]
             updatedFile.Should().HaveSourceText(expectedText);
         }
 
+        [TestMethod]
+        public async Task Provider_codefix_works()
+        {
+            var server = await MultiFileLanguageServerHelper.StartLanguageServer(
+                TestContext,
+                services => services.WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true)));
+
+            (var codeActions, var bicepFile) = await RunSyntaxTest(@"
+impo|rt 'sys@1.0.0' as sys
+", server: server);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith("Replace the import with the provider keyword")));
+            updatedFile.Should().HaveSourceText(@"
+provider 'sys@1.0.0' as sys
+");
+        }
+
         [DataRow("var|")]
         [DataRow("var |")]
         [DataTestMethod]
@@ -819,15 +836,15 @@ param fo|o {paramType}
             return await RunSyntaxTest(fileWithCursors, '|');
         }
 
-        private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunSyntaxTest(string fileWithCursors, char cursor)
+        private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunSyntaxTest(string fileWithCursors, char cursor = '|', MultiFileLanguageServerHelper? server = null)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, cursor);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
 
-            var helper = await DefaultServer.GetAsync();
-            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+            server ??= await DefaultServer.GetAsync();
+            await server.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
 
-            var codeActions = await RequestCodeActions(helper.Client, bicepFile, cursors.Single());
+            var codeActions = await RequestCodeActions(server.Client, bicepFile, cursors.Single());
             return (codeActions, bicepFile);
         }
 

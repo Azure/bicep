@@ -19,7 +19,7 @@ public class SnippetsProvider : ISnippetsProvider
 {
     private const string RequiredPropertiesDescription = "Required properties";
     private const string RequiredPropertiesLabel = "required-properties";
-    private static readonly Regex ParentPropertyPattern = new Regex(@"^.*parent:.*$[\r\n]*", RegexOptions.Compiled | RegexOptions.Multiline);
+    private static readonly Regex ParentPropertyPattern = new(@"^.*parent:.*$[\r\n]*", RegexOptions.Compiled | RegexOptions.Multiline);
 
     // Used to cache resource body snippets
     private readonly ConcurrentDictionary<(ResourceTypeReference resourceTypeReference, bool isExistingResource), IEnumerable<Snippet>> resourceBodySnippetsCache = new();
@@ -136,7 +136,7 @@ public class SnippetsProvider : ISnippetsProvider
     private Snippet? GetRequiredPropertiesSnippet(ObjectType objectType, string label, string? discriminatedObjectKey = null)
     {
         int index = 1;
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         var sortedProperties = objectType.Properties.OrderBy(x =>
         {
@@ -173,7 +173,7 @@ public class SnippetsProvider : ISnippetsProvider
     {
         if (TypeHelper.IsRequired(typeProperty))
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             if (typeProperty.TypeReference.Type is ObjectType objectType)
             {

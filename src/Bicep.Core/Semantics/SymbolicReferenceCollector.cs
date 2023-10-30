@@ -9,7 +9,7 @@ namespace Bicep.Core.Semantics;
 
 internal class SymbolicReferenceCollector : AstVisitor
 {
-    private readonly ConcurrentDictionary<DeclaredSymbol, ImmutableSortedSet<VariableAccessSyntax>.Builder> references = new();
+    private readonly ConcurrentDictionary<DeclaredSymbol, ImmutableSortedSet<SyntaxBase>.Builder> references = new();
     private readonly IBinder binder;
 
     private SymbolicReferenceCollector(IBinder binder)
@@ -17,7 +17,7 @@ internal class SymbolicReferenceCollector : AstVisitor
         this.binder = binder;
     }
 
-    internal static ImmutableDictionary<DeclaredSymbol, ImmutableSortedSet<VariableAccessSyntax>> CollectSymbolsReferenced(IBinder binder, SyntaxBase syntaxToSearch)
+    internal static ImmutableDictionary<DeclaredSymbol, ImmutableSortedSet<SyntaxBase>> CollectSymbolsReferenced(IBinder binder, SyntaxBase syntaxToSearch)
     {
         SymbolicReferenceCollector collector = new(binder);
         syntaxToSearch.Accept(collector);
@@ -28,8 +28,19 @@ internal class SymbolicReferenceCollector : AstVisitor
     {
         if (binder.GetSymbolInfo(syntax) is DeclaredSymbol signified)
         {
-            references.GetOrAdd(signified, _ => ImmutableSortedSet.CreateBuilder<VariableAccessSyntax>(SyntaxSourceOrderComparer.Instance))
+            references.GetOrAdd(signified, _ => ImmutableSortedSet.CreateBuilder<SyntaxBase>(SyntaxSourceOrderComparer.Instance))
                 .Add(syntax);
         }
+    }
+
+    public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
+    {
+        if (binder.GetSymbolInfo(syntax) is DeclaredSymbol signified)
+        {
+            references.GetOrAdd(signified, _ => ImmutableSortedSet.CreateBuilder<SyntaxBase>(SyntaxSourceOrderComparer.Instance))
+                .Add(syntax);
+        }
+
+        base.VisitFunctionCallSyntax(syntax);
     }
 }

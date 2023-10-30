@@ -63,6 +63,7 @@ namespace Bicep.Core
         public const string FunctionKeyword = "func";
         public const string ExistingKeyword = "existing";
         public const string ImportKeyword = "import";
+        public const string ProviderKeyword = "provider";
         public const string AssertKeyword = "assert";
         public const string WithKeyword = "with";
         public const string AsKeyword = "as";
@@ -118,11 +119,6 @@ namespace Bicep.Core
         public const string ListFunctionPrefix = "list";
 
         public const string McrRepositoryPrefix = "bicep/";
-
-        // https://github.com/opencontainers/image-spec/blob/main/annotations.md
-        public const string OciOpenContainerImageDocumentationAnnotation = "org.opencontainers.image.documentation";
-        public const string OciOpenContainerImageDescriptionAnnotation = "org.opencontainers.image.description";
-        public const string OciOpenContainerImageCreatedAnnotation = "org.opencontainers.image.created";
 
         public static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {

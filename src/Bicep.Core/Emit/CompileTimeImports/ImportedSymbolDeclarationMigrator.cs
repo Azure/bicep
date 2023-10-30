@@ -41,28 +41,38 @@ internal class ImportedSymbolDeclarationMigrator : ImportReferenceExpressionRewr
     protected override Expression Replace(Expression current)
         => base.Replace(current) with { SourceSyntax = sourceSyntax };
 
-    public override Expression ReplaceDeclaredTypeExpression(DeclaredTypeExpression expression)
-        => new DeclaredTypeExpression(sourceSyntax,
-            declaredSymbolNames[LookupTypeAliasByName(expression.Name)],
-            RewriteForMigration(expression.Value),
-            expression.Description,
-            expression.Metadata,
-            expression.Secure,
-            expression.MinLength,
-            expression.MaxLength,
-            expression.MinValue,
-            expression.MaxValue,
-            expression.Sealed,
-            // An imported type is never automatically re-exported
-            Exported: null);
+    public override Expression ReplaceDeclaredTypeExpression(DeclaredTypeExpression expression) => expression with
+    {
+        SourceSyntax = sourceSyntax,
+        Name = declaredSymbolNames[LookupTypeAliasByName(expression.Name)],
+        Value = RewriteForMigration(expression.Value),
+        // An imported type is never automatically re-exported
+        Exported = null,
+    };
 
-    public override Expression ReplaceDeclaredVariableExpression(DeclaredVariableExpression expression)
-        => new DeclaredVariableExpression(sourceSyntax,
-            declaredSymbolNames[LookupVariableByName(expression.Name)],
-            RewriteForMigration(expression.Value),
-            expression.Description,
-            // An imported variable is never automatically re-exported
-            Exported: null);
+    public override Expression ReplaceDeclaredVariableExpression(DeclaredVariableExpression expression) => expression with
+    {
+        SourceSyntax = sourceSyntax,
+        Name = declaredSymbolNames[LookupVariableByName(expression.Name)],
+        Value = RewriteForMigration(expression.Value),
+        // An imported variable is never automatically re-exported
+        Exported = null,
+    };
+
+    public override Expression ReplaceDeclaredFunctionExpression(DeclaredFunctionExpression expression)
+    {
+        var (namespaceName, name) = GetFunctionName(declaredSymbolNames[LookupDeclaredFunctionByName(expression.Name)]);
+
+        return expression with
+        {
+            SourceSyntax = sourceSyntax,
+            Namespace = namespaceName,
+            Name = name,
+            Lambda = RewriteForMigration(expression.Lambda),
+            // An imported function is never automatically re-exported
+            Exported = null,
+        };
+    }
 
     public override Expression ReplaceTypeAliasReferenceExpression(TypeAliasReferenceExpression expression)
         => new SynthesizedTypeAliasReferenceExpression(sourceSyntax, declaredSymbolNames[expression.Symbol], expression.ExpressedType);
@@ -70,12 +80,22 @@ internal class ImportedSymbolDeclarationMigrator : ImportReferenceExpressionRewr
     public override Expression ReplaceVariableReferenceExpression(VariableReferenceExpression expression)
         => new SynthesizedVariableReferenceExpression(sourceSyntax, declaredSymbolNames[expression.Variable]);
 
+    public override Expression ReplaceUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
+    {
+        var (namespaceName, name) = GetFunctionName(declaredSymbolNames[expression.Symbol]);
+        return new SynthesizedUserDefinedFunctionCallExpression(sourceSyntax, namespaceName, name, expression.Parameters);
+    }
+
     private TypeAliasSymbol LookupTypeAliasByName(string name) => sourceModel.Root.TypeDeclarations
         .Where(NameEquals<TypeAliasSymbol>(name))
         .Single();
 
     private VariableSymbol LookupVariableByName(string name) => sourceModel.Root.VariableDeclarations
         .Where(NameEquals<VariableSymbol>(name))
+        .Single();
+
+    private DeclaredFunctionSymbol LookupDeclaredFunctionByName(string name) => sourceModel.Root.FunctionDeclarations
+        .Where(NameEquals<DeclaredFunctionSymbol>(name))
         .Single();
 
     private static Func<S, bool> NameEquals<S>(string name) where S : DeclaredSymbol

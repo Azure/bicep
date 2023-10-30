@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TaskAssembly>$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\Azure.Bicep.MSBuild.dll</TaskAssembly>
     <BicepDefaultOutputFileExtension Condition=" $(BicepDefaultOutputFileExtension) == '' ">.json</BicepDefaultOutputFileExtension>
+    <BicepParamDefaultOutputFileExtension Condition=" $(BicepParamDefaultOutputFileExtension) == '' ">.parameters.json</BicepParamDefaultOutputFileExtension>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +12,9 @@
       - Makes "Bicep" one of the Build Actions available for a file.
     -->
     <AvailableItemName Include="Bicep" />
+    <AvailableItemName Include="BicepParam" />
   </ItemGroup>
 
   <UsingTask TaskName="Bicep" AssemblyFile="$(TaskAssembly)" />
+  <UsingTask TaskName="BicepParam" AssemblyFile="$(TaskAssembly)" />
 </Project>

@@ -36,22 +36,103 @@ namespace Bicep.Core.Semantics
             this.FileKind = sourceFile.FileKind;
             this.LocalScopes = fileScope.ChildScopes;
 
-            // TODO: Avoid looping 12 times?
-            this.DeclarationsBySyntax = fileScope.Declarations.ToImmutableDictionary(x => x.DeclaringSyntax);
-            this.ProviderDeclarations = fileScope.Declarations.OfType<ProviderNamespaceSymbol>().ToImmutableArray();
-            this.MetadataDeclarations = fileScope.Declarations.OfType<MetadataSymbol>().ToImmutableArray();
-            this.ParameterDeclarations = fileScope.Declarations.OfType<ParameterSymbol>().ToImmutableArray();
-            this.TypeDeclarations = fileScope.Declarations.OfType<TypeAliasSymbol>().ToImmutableArray();
-            this.VariableDeclarations = fileScope.Declarations.OfType<VariableSymbol>().ToImmutableArray();
-            this.FunctionDeclarations = fileScope.Declarations.OfType<DeclaredFunctionSymbol>().ToImmutableArray();
-            this.ResourceDeclarations = fileScope.Declarations.OfType<ResourceSymbol>().ToImmutableArray();
-            this.ModuleDeclarations = fileScope.Declarations.OfType<ModuleSymbol>().ToImmutableArray();
-            this.OutputDeclarations = fileScope.Declarations.OfType<OutputSymbol>().ToImmutableArray();
-            this.AssertDeclarations = fileScope.Declarations.OfType<AssertSymbol>().ToImmutableArray();
-            this.ParameterAssignments = fileScope.Declarations.OfType<ParameterAssignmentSymbol>().ToImmutableArray();
-            this.TestDeclarations = fileScope.Declarations.OfType<TestSymbol>().ToImmutableArray();
-            this.ImportedSymbols = fileScope.Declarations.OfType<ImportedSymbol>().ToImmutableArray();
-            this.WildcardImports = fileScope.Declarations.OfType<WildcardImportSymbol>().ToImmutableArray();
+            var declartionsBySyntax = ImmutableDictionary.CreateBuilder<SyntaxBase, DeclaredSymbol>();
+            var providerDeclarations = ImmutableArray.CreateBuilder<ProviderNamespaceSymbol>();
+            var metadataDeclarations = ImmutableArray.CreateBuilder<MetadataSymbol>();
+            var parameterDeclarations = ImmutableArray.CreateBuilder<ParameterSymbol>();
+            var typeDeclarations = ImmutableArray.CreateBuilder<TypeAliasSymbol>();
+            var variableDeclarations = ImmutableArray.CreateBuilder<VariableSymbol>();
+            var functionDeclarations = ImmutableArray.CreateBuilder<DeclaredFunctionSymbol>();
+            var resourceDeclarations = ImmutableArray.CreateBuilder<ResourceSymbol>();
+            var moduleDeclarations = ImmutableArray.CreateBuilder<ModuleSymbol>();
+            var outputDeclarations = ImmutableArray.CreateBuilder<OutputSymbol>();
+            var assertDeclarations = ImmutableArray.CreateBuilder<AssertSymbol>();
+            var parameterAssignments = ImmutableArray.CreateBuilder<ParameterAssignmentSymbol>();
+            var testDeclarations = ImmutableArray.CreateBuilder<TestSymbol>();
+            var importedTypes = ImmutableArray.CreateBuilder<ImportedTypeSymbol>();
+            var importedVariables = ImmutableArray.CreateBuilder<ImportedVariableSymbol>();
+            var importedFunctions = ImmutableArray.CreateBuilder<ImportedFunctionSymbol>();
+            var erroredImports = ImmutableArray.CreateBuilder<ErroredImportSymbol>();
+            var wildcardImports = ImmutableArray.CreateBuilder<WildcardImportSymbol>();
+
+            foreach (var declaration in fileScope.Declarations)
+            {
+                declartionsBySyntax.Add(declaration.DeclaringSyntax, declaration);
+
+                switch (declaration)
+                {
+                    case ProviderNamespaceSymbol providerNamespace:
+                        providerDeclarations.Add(providerNamespace);
+                        break;
+                    case MetadataSymbol metadata:
+                        metadataDeclarations.Add(metadata);
+                        break;
+                    case ParameterSymbol parameter:
+                        parameterDeclarations.Add(parameter);
+                        break;
+                    case TypeAliasSymbol typeAlias:
+                        typeDeclarations.Add(typeAlias);
+                        break;
+                    case VariableSymbol variable:
+                        variableDeclarations.Add(variable);
+                        break;
+                    case DeclaredFunctionSymbol declaredFunction:
+                        functionDeclarations.Add(declaredFunction);
+                        break;
+                    case ResourceSymbol resource:
+                        resourceDeclarations.Add(resource);
+                        break;
+                    case ModuleSymbol module:
+                        moduleDeclarations.Add(module);
+                        break;
+                    case OutputSymbol output:
+                        outputDeclarations.Add(output);
+                        break;
+                    case AssertSymbol assertion:
+                        assertDeclarations.Add(assertion);
+                        break;
+                    case ParameterAssignmentSymbol parameterAssignment:
+                        parameterAssignments.Add(parameterAssignment);
+                        break;
+                    case TestSymbol test:
+                        testDeclarations.Add(test);
+                        break;
+                    case ImportedTypeSymbol importedType:
+                        importedTypes.Add(importedType);
+                        break;
+                    case ImportedVariableSymbol importedVariable:
+                        importedVariables.Add(importedVariable);
+                        break;
+                    case ImportedFunctionSymbol importedFunction:
+                        importedFunctions.Add(importedFunction);
+                        break;
+                    case ErroredImportSymbol erroredImport:
+                        erroredImports.Add(erroredImport);
+                        break;
+                    case WildcardImportSymbol wildcardImport:
+                        wildcardImports.Add(wildcardImport);
+                        break;
+                }
+            }
+
+            DeclarationsBySyntax = declartionsBySyntax.ToImmutable();
+            ProviderDeclarations = providerDeclarations.ToImmutable();
+            MetadataDeclarations = metadataDeclarations.ToImmutable();
+            ParameterDeclarations = parameterDeclarations.ToImmutable();
+            TypeDeclarations = typeDeclarations.ToImmutable();
+            VariableDeclarations = variableDeclarations.ToImmutable();
+            FunctionDeclarations = functionDeclarations.ToImmutable();
+            ResourceDeclarations = resourceDeclarations.ToImmutable();
+            ModuleDeclarations = moduleDeclarations.ToImmutable();
+            OutputDeclarations = outputDeclarations.ToImmutable();
+            AssertDeclarations = assertDeclarations.ToImmutable();
+            ParameterAssignments = parameterAssignments.ToImmutable();
+            TestDeclarations = testDeclarations.ToImmutable();
+            ImportedTypes = importedTypes.ToImmutable();
+            ImportedVariables = importedVariables.ToImmutable();
+            ImportedFunctions = importedFunctions.ToImmutable();
+            ErroredImports = erroredImports.ToImmutable();
+            WildcardImports = wildcardImports.ToImmutable();
 
             this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
 
@@ -73,7 +154,10 @@ namespace Bicep.Core.Semantics
             .Concat(this.AssertDeclarations)
             .Concat(this.ParameterAssignments)
             .Concat(this.TestDeclarations)
-            .Concat(this.ImportedSymbols)
+            .Concat(this.ImportedTypes)
+            .Concat(this.ImportedVariables)
+            .Concat(this.ImportedFunctions)
+            .Concat(this.ErroredImports)
             .Concat(this.WildcardImports);
 
         public IEnumerable<Symbol> Namespaces =>
@@ -118,7 +202,17 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<ParameterAssignmentSymbol> ParameterAssignments { get; }
 
-        public ImmutableArray<ImportedSymbol> ImportedSymbols { get; }
+        public ImmutableArray<ImportedTypeSymbol> ImportedTypes { get; }
+
+        public ImmutableArray<ImportedVariableSymbol> ImportedVariables { get; }
+
+        public ImmutableArray<ImportedFunctionSymbol> ImportedFunctions { get; }
+
+        public ImmutableArray<ErroredImportSymbol> ErroredImports { get; }
+
+        public IEnumerable<ImportedSymbol> ImportedSymbols => ImportedTypes
+            .Concat<ImportedSymbol>(ImportedVariables)
+            .Concat(ImportedFunctions);
 
         public ImmutableArray<WildcardImportSymbol> WildcardImports { get; }
 
@@ -234,7 +328,7 @@ namespace Bicep.Core.Semantics
                 // TODO: validation for alias x name.
                 this.Diagnostics.AddRange(
                     FindDuplicateNamespaceImports(namespaceDeclarations)
-                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringImport.Specification).NamespaceMultipleDeclarations(decl.DeclaringImport.Specification.Name)));
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringProvider.Specification).NamespaceMultipleDeclarations(decl.DeclaringProvider.Specification.Name)));
             }
 
             private static IEnumerable<DeclaredSymbol> FindDuplicateNamedSymbols(IEnumerable<DeclaredSymbol> symbols)
@@ -258,7 +352,7 @@ namespace Bicep.Core.Semantics
 
                 return typeBySymbol
                     .Where(kvp => kvp.Value.Settings.IsSingleton)
-                    .GroupBy(kvp => kvp.Key.DeclaringImport.Specification.Name, LanguageConstants.IdentifierComparer)
+                    .GroupBy(kvp => kvp.Key.DeclaringProvider.Specification.Name, LanguageConstants.IdentifierComparer)
                     .Where(group => group.Count() > 1)
                     .SelectMany(group => group.Select(kvp => kvp.Key));
             }

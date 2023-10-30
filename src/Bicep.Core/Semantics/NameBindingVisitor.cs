@@ -346,7 +346,8 @@ namespace Bicep.Core.Semantics
 
                 if (scope.ScopeResolution == ScopeResolution.InheritFunctionsOnly)
                 {
-                    symbolFilter = symbol => symbol is DeclaredFunctionSymbol;
+                    // FIXME: How can we make sure only wildcard import instance functions are included in the local scope?
+                    symbolFilter = symbol => symbol is DeclaredFunctionSymbol or ImportedFunctionSymbol or WildcardImportSymbol;
                 }
             }
 

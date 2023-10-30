@@ -192,6 +192,7 @@ public class ExpressionBuilder
             case FunctionDeclarationSyntax function:
                 return EvaluateDecorators(function, new DeclaredFunctionExpression(
                     function,
+                    EmitConstants.UserDefinedFunctionsNamespace,
                     function.Name.IdentifierName,
                     ConvertWithoutLowering(function.Lambda)));
 
@@ -246,7 +247,7 @@ public class ExpressionBuilder
             {
                 AmbientTypeSymbol ambientType => new AmbientTypeReferenceExpression(syntax, ambientType.Name, ambientType.Type),
                 TypeAliasSymbol typeAlias => new TypeAliasReferenceExpression(syntax, typeAlias, typeAlias.Type),
-                ImportedSymbol importedSymbol when importedSymbol.Kind == SymbolKind.TypeAlias => new ImportedTypeReferenceExpression(syntax, importedSymbol, importedSymbol.Type),
+                ImportedTypeSymbol importedSymbol => new ImportedTypeReferenceExpression(syntax, importedSymbol, importedSymbol.Type),
                 Symbol otherwise => throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression."),
                 _ => throw new ArgumentException($"Unable to locate symbol for name '{variableAccess.Name.IdentifierName}'.")
             },
@@ -617,7 +618,7 @@ public class ExpressionBuilder
     }
 
     private ObjectExpression ConvertObject(ObjectSyntax @object)
-        => new ObjectExpression(
+        => new(
             @object,
             @object.Properties.Select(ConvertObjectProperty).ToImmutableArray());
 
@@ -690,7 +691,25 @@ public class ExpressionBuilder
         {
             return new UserDefinedFunctionCallExpression(
                 functionCall,
-                functionCall.Name.IdentifierName,
+                declaredFunction,
+                functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
+        }
+
+        if (Context.SemanticModel.GetSymbolInfo(functionCall) is ImportedFunctionSymbol importedFunction)
+        {
+            return new ImportedUserDefinedFunctionCallExpression(
+                functionCall,
+                importedFunction,
+                functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
+        }
+
+        if (functionCall is InstanceFunctionCallSyntax instanceFunctionCall &&
+            Context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression) is WildcardImportSymbol wildcardImport)
+        {
+            return new WildcardImportInstanceFunctionCallExpression(
+                functionCall,
+                wildcardImport,
+                instanceFunctionCall.Name.IdentifierName,
                 functionCall.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray());
         }
 
@@ -891,7 +910,7 @@ public class ExpressionBuilder
             case LocalVariableSymbol localVariableSymbol:
                 return GetLocalVariableExpression(variableAccessSyntax, localVariableSymbol);
 
-            case ImportedSymbol importedSymbol when importedSymbol.Kind == SymbolKind.Variable:
+            case ImportedVariableSymbol importedSymbol:
                 return new ImportedVariableReferenceExpression(variableAccessSyntax, importedSymbol);
 
             default:

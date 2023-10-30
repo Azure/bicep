@@ -9,6 +9,7 @@ namespace Bicep.Core.Semantics.Namespaces
     public static class K8sNamespaceType
     {
         public const string BuiltInName = "kubernetes";
+        public const string BuiltInVersion = "1.0.0";
 
         private static readonly IResourceTypeProvider TypeProvider = new K8sResourceTypeProvider(new K8sResourceTypeLoader());
 
@@ -17,7 +18,7 @@ namespace Bicep.Core.Semantics.Namespaces
             BicepProviderName: BuiltInName,
             ConfigurationType: GetConfigurationType(),
             ArmTemplateProviderName: "Kubernetes",
-            ArmTemplateProviderVersion: "1.0.0");
+            ArmTemplateProviderVersion: BuiltInVersion);
 
         private static ObjectType GetConfigurationType()
         {

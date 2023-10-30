@@ -35,7 +35,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
-        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
+        private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
         private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
 

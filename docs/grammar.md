@@ -4,7 +4,7 @@ The following is the active pseudo-grammar of the bicep language.
 program -> statement* EOF
 statement ->
   targetScopeDecl |
-  importDecl |
+  providerDecl |
   compileTimeImportDecl |
   metadataDecl |
   parameterDecl |
@@ -20,11 +20,11 @@ statement ->
 
 targetScopeDecl -> "targetScope" "=" expression
 
-importDecl -> decorator* "import" interpString(specification) importWithClause? importAsClause? NL
+providerDecl -> decorator* "provider" interpString(specification) providerWithClause? providerAsClause? NL
 
-importWithClause -> "with" object
+providerWithClause -> "with" object
 
-importAsClause -> "as" IDENTIFIER(alias)
+providerAsClause -> "as" IDENTIFIER(alias)
 
 compileTimeImportDecl -> decorator* "import" compileTimeImportTarget compileTimeImportFromClause
 

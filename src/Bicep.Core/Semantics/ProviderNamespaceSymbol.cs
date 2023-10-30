@@ -19,7 +19,7 @@ namespace Bicep.Core.Semantics
 
         public TypeSymbol DeclaredType => declaredType.Type;
 
-        public ProviderDeclarationSyntax DeclaringImport => (ProviderDeclarationSyntax)this.DeclaringSyntax;
+        public ProviderDeclarationSyntax DeclaringProvider => (ProviderDeclarationSyntax)this.DeclaringSyntax;
 
         public override void Accept(SymbolVisitor visitor)
         {

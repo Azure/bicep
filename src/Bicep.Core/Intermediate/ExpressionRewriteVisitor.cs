@@ -301,13 +301,41 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     {
         var hasChanges =
             TryRewrite(expression.Lambda, out var lambda) |
-            TryRewriteDescription(expression, out var description);
+            TryRewriteDescription(expression, out var description) |
+            TryRewrite(expression.Exported, out var exported);
 
-        return hasChanges ? expression with { Lambda = lambda, Description = description } : expression;
+        return hasChanges ? expression with { Lambda = lambda, Description = description, Exported = exported } : expression;
     }
 
     void IExpressionVisitor.VisitUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression) => ReplaceCurrent(expression, ReplaceUserDefinedFunctionCallExpression);
     public virtual Expression ReplaceUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
+    {
+        var hasChanges =
+            TryRewrite(expression.Parameters, out var parameters);
+
+        return hasChanges ? expression with { Parameters = parameters } : expression;
+    }
+
+    void IExpressionVisitor.VisitSynthesizedUserDefinedFunctionCallExpression(SynthesizedUserDefinedFunctionCallExpression expression) => ReplaceCurrent(expression, ReplaceSynthesizedUserDefinedFunctionCallExpression);
+    public virtual Expression ReplaceSynthesizedUserDefinedFunctionCallExpression(SynthesizedUserDefinedFunctionCallExpression expression)
+    {
+        var hasChanges =
+            TryRewrite(expression.Parameters, out var parameters);
+
+        return hasChanges ? expression with { Parameters = parameters } : expression;
+    }
+
+    void IExpressionVisitor.VisitImportedUserDefinedFunctionCallExpression(ImportedUserDefinedFunctionCallExpression expression) => ReplaceCurrent(expression, ReplaceImportedUserDefinedFunctionCallExpression);
+    public virtual Expression ReplaceImportedUserDefinedFunctionCallExpression(ImportedUserDefinedFunctionCallExpression expression)
+    {
+        var hasChanges =
+            TryRewrite(expression.Parameters, out var parameters);
+
+        return hasChanges ? expression with { Parameters = parameters } : expression;
+    }
+
+    void IExpressionVisitor.VisitWildcardImportInstanceFunctionCallExpression(WildcardImportInstanceFunctionCallExpression expression) => ReplaceCurrent(expression, ReplaceWildcardImportInstanceFunctionCallExpression);
+    public virtual Expression ReplaceWildcardImportInstanceFunctionCallExpression(WildcardImportInstanceFunctionCallExpression expression)
     {
         var hasChanges =
             TryRewrite(expression.Parameters, out var parameters);

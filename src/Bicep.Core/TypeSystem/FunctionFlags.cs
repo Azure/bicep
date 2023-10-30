@@ -102,7 +102,7 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The function can be used as a type or variable decorator.
         /// </summary>
-        TypeOrVariableDecorator = TypeDecorator | VariableDecorator,
+        TypeVariableOrFunctionDecorator = TypeDecorator | VariableDecorator | FunctionDecorator,
 
         /// <summary>
         /// The function can be used as a decorator anywhere.
