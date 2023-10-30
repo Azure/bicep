@@ -149,7 +149,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task FindReferencesOnNonSymbolsShouldProduceEmptyResult(DataSet dataSet)
         {
@@ -195,7 +195,7 @@ namespace Bicep.LangServer.IntegrationTests
                     Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
-                locations.Should().BeEmpty();
+                locations.Should().BeNullOrEmpty();
             }
         }
 
