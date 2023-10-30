@@ -2111,7 +2111,8 @@ namespace Bicep.Core.Diagnostics
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
 
-            public FixableDiagnostic ProviderDeclarationViaImportKeywordIsDeprecated(ProviderDeclarationSyntax syntax) {
+            public FixableDiagnostic ProviderDeclarationViaImportKeywordIsDeprecated(ProviderDeclarationSyntax syntax)
+            {
                 var codeFix = new CodeFix(
                     "Replace the import with the provider keyword",
                     true,
