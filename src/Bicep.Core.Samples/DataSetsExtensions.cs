@@ -92,6 +92,7 @@ namespace Bicep.Core.Samples
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
+                .AddSingleton(BicepTestConstants.ResourceTypeProviderFactory)
                 .AddSingleton(featureProviderFactory)
                 ).Construct<IModuleDispatcher>();
 

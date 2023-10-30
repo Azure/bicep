@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static OciArtifactReference CreateModuleReference(string registry, string repository, string? tag, string? digest)
         {
-            var rawValue = $"{registry}/{repository}" + tag is not null ? $":{tag}" : $"@{digest}";
+            var rawValue = $"{registry}/{repository}" + (tag is null ? $"@{digest}" : $":{tag}");
             OciArtifactReference.TryParse(
                 ArtifactType.Module,
                 null,

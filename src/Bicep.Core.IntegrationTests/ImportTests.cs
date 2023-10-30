@@ -47,7 +47,7 @@ namespace Bicep.Core.IntegrationTests
                     => typesProviderDescriptor.Name switch
                     {
                         SystemNamespaceType.BuiltInName => SystemNamespaceType.Create(typesProviderDescriptor.Alias, features, sourceFileKind),
-                        { } _ when builderDict.TryGetValue(typesProviderDescriptor.Alias) is { } builderFunc => builderFunc(typesProviderDescriptor.Alias),
+                        { } _ when builderDict.TryGetValue(typesProviderDescriptor.Name) is { } builderFunc => builderFunc(typesProviderDescriptor.Alias),
                         _ => default,
                     };
         }

@@ -184,7 +184,6 @@ namespace Bicep.Cli.IntegrationTests
             var registry = "example.com";
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
-            var dataSet = DataSets.Empty;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var (client, clientFactory) = await OciArtifactRegistryHelper.PublishArtifactLayersToMockClient(

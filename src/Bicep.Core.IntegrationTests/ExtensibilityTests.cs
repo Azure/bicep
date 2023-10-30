@@ -20,7 +20,7 @@ namespace Bicep.Core.IntegrationTests
 
         private ServiceBuilder Services => new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory));
+            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
 
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()

@@ -8,6 +8,7 @@ using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -106,6 +107,7 @@ public static class IServiceCollectionExtensions
         var factory = StrictMock.Of<IResourceTypeProviderFactory>();
         var provider = new AzResourceTypeProvider(loader);
         factory.Setup(m => m.GetBuiltInAzResourceTypesProvider()).Returns(provider);
+        factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<TypesProviderDescriptor>(), It.IsAny<IFeatureProvider>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
         return Register(services, factory.Object);
     }
 
