@@ -128,7 +128,7 @@ namespace Bicep.LangServer.IntegrationTests
                         };
 
                         var bicepFixes = allFixables.Where(spansOverlapOrAbut).SelectMany(f => f.Fixes).ToHashSet();
-                        var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
+                        var quickFixList = quickFixes!.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
 
                         var bicepFixTitles = bicepFixes.Select(f => f.Title);
                         var quickFixTitles = quickFixList.Select(f => f.CodeAction?.Title);
@@ -260,7 +260,7 @@ namespace Bicep.LangServer.IntegrationTests
                 Range = diagnostics.First().ToRange(lineStarts)
             });
 
-            var disableCodeAction = codeActions.Single(x => x.CodeAction?.Title == "Disable no-unused-params for this line");
+            var disableCodeAction = codeActions!.Single(x => x.CodeAction?.Title == "Disable no-unused-params for this line");
             disableCodeAction.CodeAction!.Edit!.Changes!.First().Value.First().NewText.Should().Be("#disable-next-line no-unused-params\n");
         }
 
@@ -372,7 +372,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
                 Range = diagnostics.First().ToRange(lineStarts)
             });
 
-            var disableCodeActions = codeActions.Where(x => x.CodeAction!.Title.StartsWith("Disable "));
+            var disableCodeActions = codeActions!.Where(x => x.CodeAction!.Title.StartsWith("Disable "));
             disableCodeActions.Count().Should().Be(2);
             disableCodeActions.Should().SatisfyRespectively(
                 x =>
@@ -886,7 +886,7 @@ param fo|o {paramType}
                 Range = new Range(startPosition, endPosition),
             });
 
-            return result.Select(x => x.CodeAction).WhereNotNull();
+            return result!.Select(x => x.CodeAction).WhereNotNull();
         }
 
         private static BicepFile ApplyCodeAction(BicepFile bicepFile, CodeAction codeAction, params string[] tabStops)

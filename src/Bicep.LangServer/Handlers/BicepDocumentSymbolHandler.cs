@@ -29,18 +29,19 @@ namespace Bicep.LanguageServer.Handlers
             this.compilationManager = compilationManager;
         }
 
-        public override Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken)
+        public override async Task<SymbolInformationOrDocumentSymbolContainer?> Handle(DocumentSymbolParams request, CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
             var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
             if (context is null)
             {
                 // we have not yet compiled this document, which shouldn't really happen
                 this.logger.LogError("Document symbol request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
 
-                return Task.FromResult(new SymbolInformationOrDocumentSymbolContainer());
+                return null;
             }
 
-            return Task.FromResult(new SymbolInformationOrDocumentSymbolContainer(GetSymbols(context)));
+            return new(GetSymbols(context));
         }
 
         private IEnumerable<SymbolInformationOrDocumentSymbol> GetSymbols(CompilationContext context)

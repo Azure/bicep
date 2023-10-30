@@ -83,7 +83,7 @@ namespace Bicep.LangServer.IntegrationTests
                 });
 
                 // all URIs should be the same in the results
-                locations.Select(r => r.Uri).Should().AllBeEquivalentTo(uri);
+                locations!.Select(r => r.Uri).Should().AllBeEquivalentTo(uri);
 
                 // calculate expected ranges
                 var expectedRanges = symbolToSyntaxLookup[symbol]
@@ -94,7 +94,7 @@ namespace Bicep.LangServer.IntegrationTests
                     .WithAnnotations(compilation.SourceFileGrouping.EntryPoint, "actual", locations, _ => "here", x => x.Range))
                 {
                     // ranges should match what we got from our own symbol table
-                    locations.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
+                    locations!.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
                 }
             }
         }
@@ -132,7 +132,7 @@ namespace Bicep.LangServer.IntegrationTests
                 });
 
                 // all URIs should be the same in the results
-                locations.Select(r => r.Uri).Should().AllBeEquivalentTo(uri);
+                locations!.Select(r => r.Uri).Should().AllBeEquivalentTo(uri);
 
                 // exclude declarations when calculating expected ranges
                 var expectedRanges = symbolToSyntaxLookup[symbol]
@@ -144,7 +144,7 @@ namespace Bicep.LangServer.IntegrationTests
                     .WithAnnotations(compilation.SourceFileGrouping.EntryPoint, "actual", locations, _ => "here", x => x.Range))
                 {
                     // ranges should match what we got from our own symbol table
-                    locations.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
+                    locations!.Select(l => l.Range).Should().BeEquivalentTo(expectedRanges);
                 }
             }
         }
