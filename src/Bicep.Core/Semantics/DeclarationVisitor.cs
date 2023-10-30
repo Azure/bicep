@@ -7,6 +7,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -21,11 +22,19 @@ namespace Bicep.Core.Semantics
         private readonly ResourceScope targetScope;
         private readonly ISymbolContext context;
         private readonly BicepSourceFileKind sourceFileKind;
+        private readonly IArtifactReferenceFactory factory;
         private readonly IList<ScopeInfo> localScopes;
 
         private readonly Stack<ScopeInfo> activeScopes = new();
 
-        private DeclarationVisitor(INamespaceProvider namespaceProvider, IFeatureProvider features, ResourceScope targetScope, ISymbolContext context, IList<ScopeInfo> localScopes, BicepSourceFileKind sourceFileKind)
+        private DeclarationVisitor(
+            INamespaceProvider namespaceProvider,
+            IFeatureProvider features,
+            ResourceScope targetScope,
+            ISymbolContext context,
+            IList<ScopeInfo> localScopes,
+            BicepSourceFileKind sourceFileKind,
+            IArtifactReferenceFactory factory)
         {
             this.namespaceProvider = namespaceProvider;
             this.features = features;
@@ -33,14 +42,28 @@ namespace Bicep.Core.Semantics
             this.context = context;
             this.localScopes = localScopes;
             this.sourceFileKind = sourceFileKind;
+            this.factory = factory;
         }
 
         // Returns the list of top level declarations as well as top level scopes.
-        public static LocalScope GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, ResourceScope targetScope, BicepSourceFile sourceFile, ISymbolContext symbolContext)
+        public static LocalScope GetDeclarations(
+            INamespaceProvider namespaceProvider,
+            IFeatureProvider features,
+            ResourceScope targetScope,
+            BicepSourceFile sourceFile,
+            ISymbolContext symbolContext,
+            IArtifactReferenceFactory factory)
         {
             // collect declarations
             var localScopes = new List<ScopeInfo>();
-            var declarationVisitor = new DeclarationVisitor(namespaceProvider, features, targetScope, symbolContext, localScopes, sourceFile.FileKind);
+            var declarationVisitor = new DeclarationVisitor(
+                namespaceProvider,
+                features,
+                targetScope,
+                symbolContext,
+                localScopes,
+                sourceFile.FileKind,
+                factory);
             declarationVisitor.Visit(sourceFile.ProgramSyntax);
 
             return MakeImmutable(localScopes.Single());
@@ -154,8 +177,7 @@ namespace Bicep.Core.Semantics
         public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
         {
             base.VisitProviderDeclarationSyntax(syntax);
-
-            var declaredType = new DeferredTypeReference(() =>
+            TypeSymbol resolveProviderSymbol()
             {
                 if (!features.ExtensibilityEnabled)
                 {
@@ -178,21 +200,26 @@ namespace Bicep.Core.Semantics
                 // Check if the MSGraph provider is recognized and enabled
                 if (syntax.Specification.Name == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification!.Name));
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification.Name));
                 }
 
-                // Try to resolve the provider folder in the local cache from the specification (only works for az provider)
-                if (!syntax.TryGetManifestPath(context).IsSuccess(out var providerPathInLocalCache, out var errorBuilder))
+
+                // Try to resolve the provider folder in the local cache from the specification (only works for az provider
+                string? providerPathInLocalCache = null;
+                if (syntax.Specification.Name.Equals(AzNamespaceType.BuiltInName) &&
+                    !syntax.TryGetProviderDirectoryInCache(factory, features, context.SourceFileUri).IsSuccess(out providerPathInLocalCache, out var errorBuilder))
                 {
+
                     return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
                 }
+
 
                 if (namespaceProvider.TryGetNamespace(
                         new(
                             syntax.Specification.Name,
-                            syntax.Alias?.IdentifierName,
                             providerPathInLocalCache,
-                            syntax.Specification?.Version),
+                            syntax.Alias?.IdentifierName,
+                            syntax.Specification.Version),
                         targetScope,
                         features,
                         sourceFileKind) is not { } namespaceType)
@@ -201,10 +228,8 @@ namespace Bicep.Core.Semantics
                 }
 
                 return namespaceType;
-            });
-
-            var symbol = new ProviderNamespaceSymbol(this.context, syntax, declaredType);
-            DeclareSymbol(symbol);
+            }
+            DeclareSymbol(new ProviderNamespaceSymbol(this.context, syntax, resolveProviderSymbol()));
         }
 
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)

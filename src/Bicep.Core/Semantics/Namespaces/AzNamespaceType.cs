@@ -494,7 +494,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }
         }
 
-        public static NamespaceType Create(string aliasName, ResourceScope resourceScope, AzResourceTypeProvider resourceTypeProvider, BicepSourceFileKind bicepSourceFileKind)
+        public static NamespaceType Create(string aliasName, ResourceScope resourceScope, IResourceTypeProvider resourceTypeProvider, BicepSourceFileKind bicepSourceFileKind)
         {
             return new NamespaceType(
                 aliasName,

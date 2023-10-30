@@ -29,7 +29,6 @@ namespace Bicep.Core.TypeSystem.Az
         public const string ResourceTypeManagementGroup = "Microsoft.Management/managementGroups";
         public const string ResourceTypeKeyVault = "Microsoft.KeyVault/vaults";
         public const string GetSecretFunctionName = "getSecret";
-
         /*
          * The following top-level properties must be set deploy-time constant values,
          * and it is safe to read them at deploy-time because their values cannot be changed.
@@ -69,9 +68,9 @@ namespace Bicep.Core.TypeSystem.Az
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
         public static readonly TypeSymbol ResourceAsserts = new ObjectType(nameof(ResourceAsserts), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Bool, TypePropertyFlags.DeployTimeConstant);
 
-        public string Version { get; } = "1.0.0";
+        public string Version { get; }
 
-        private readonly IResourceTypeLoader resourceTypeLoader;
+        private readonly IProviderTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
@@ -191,7 +190,7 @@ namespace Bicep.Core.TypeSystem.Az
             }, null));
         }
 
-        public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, string providerVersion)
+        public AzResourceTypeProvider(IProviderTypeLoader resourceTypeLoader, string providerVersion = IResourceTypeProvider.BuiltInVersion)
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
             this.Version = providerVersion;
@@ -199,6 +198,8 @@ namespace Bicep.Core.TypeSystem.Az
             this.definedTypeCache = new ResourceTypeCache();
             this.generatedTypeCache = new ResourceTypeCache();
         }
+
+        public AzResourceTypeProvider() : this(new AzResourceTypeLoader()) { }
 
         private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)
         {

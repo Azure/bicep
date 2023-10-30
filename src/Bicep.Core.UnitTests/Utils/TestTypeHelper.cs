@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Resources;
@@ -17,11 +18,11 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class TestTypeHelper
     {
-        private class TestResourceTypeLoader : IResourceTypeLoader
+        private class TestProviderTypeLoader : IProviderTypeLoader
         {
             private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes;
 
-            public TestResourceTypeLoader(IEnumerable<ResourceTypeComponents> resourceTypes)
+            public TestProviderTypeLoader(IEnumerable<ResourceTypeComponents> resourceTypes)
             {
                 this.resourceTypes = resourceTypes.ToImmutableDictionary(x => x.TypeReference);
             }
@@ -33,24 +34,30 @@ namespace Bicep.Core.UnitTests.Utils
                 => resourceTypes.Keys;
         }
 
-        public static IResourceTypeLoader CreateEmptyAzResourceTypeLoader()
-            => new TestResourceTypeLoader(Enumerable.Empty<ResourceTypeComponents>());
+        public static IResourceTypeProvider CreateAzResourceTypeProviderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
+        => new AzResourceTypeProvider(new TestProviderTypeLoader(resourceTypes), "fake");
 
-        public static IResourceTypeLoader CreateAzResourceTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
-            => new TestResourceTypeLoader(resourceTypes);
+        public static IProviderTypeLoader CreateEmptyResourceTypeLoader()
+            => new TestProviderTypeLoader(Enumerable.Empty<ResourceTypeComponents>());
 
-        public static IResourceTypeLoaderFactory CreateAzResourceTypeLoaderFactory(IResourceTypeLoader loader)
+        public static IProviderTypeLoader CreateProviderTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
+            => new TestProviderTypeLoader(resourceTypes);
+
+        public static IResourceTypeProviderFactory CreateResourceTypeLoaderFactory(IResourceTypeProvider provider)
         {
-            var factory = StrictMock.Of<IResourceTypeLoaderFactory>();
-            factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<TypesProviderDescriptor>(), It.IsAny<IFeatureProvider>())).Returns(loader);
-            factory.Setup(m => m.GetBuiltInTypeLoader()).Returns(loader);
+            var factory = StrictMock.Of<IResourceTypeProviderFactory>();
+            factory.Setup(m => m.GetResourceTypeProvider(
+                It.IsAny<TypesProviderDescriptor>(),
+                It.IsAny<IFeatureProvider>()))
+                .Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
+            factory.Setup(m => m.GetBuiltInAzResourceTypesProvider()).Returns(provider);
             return factory.Object;
         }
 
-        public static INamespaceProvider CreateEmptyProvider()
+        public static INamespaceProvider CreateEmptyNamespaceProvider()
             => new DefaultNamespaceProvider(
-                CreateAzResourceTypeLoaderFactory(
-                    CreateAzResourceTypeLoaderWithTypes(
+                CreateResourceTypeLoaderFactory(
+                    CreateAzResourceTypeProviderWithTypes(
                         Enumerable.Empty<ResourceTypeComponents>())));
 
         public static ResourceTypeComponents CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)

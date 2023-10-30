@@ -13,7 +13,7 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
 {
     private readonly INamespaceProvider defaultNamespaceProvider;
 
-    public TestExtensibilityNamespaceProvider(IResourceTypeLoaderFactory azResourceTypeLoaderFactory)
+    public TestExtensibilityNamespaceProvider(IResourceTypeProviderFactory azResourceTypeLoaderFactory)
     {
         defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoaderFactory);
     }

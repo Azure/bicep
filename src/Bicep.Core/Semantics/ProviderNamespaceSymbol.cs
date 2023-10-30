@@ -11,7 +11,7 @@ namespace Bicep.Core.Semantics
     public class ProviderNamespaceSymbol : DeclaredSymbol, INamespaceSymbol
     {
         private readonly ITypeReference declaredType;
-        public ProviderNamespaceSymbol(ISymbolContext context, ProviderDeclarationSyntax declaringSyntax, ITypeReference declaredType)
+        public ProviderNamespaceSymbol(ISymbolContext context, ProviderDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
             : base(context, declaringSyntax.Alias?.IdentifierName ?? declaringSyntax.Specification.Name, declaringSyntax, declaringSyntax.Alias as ISymbolNameSource ?? declaringSyntax.Specification)
         {
             this.declaredType = declaredType;

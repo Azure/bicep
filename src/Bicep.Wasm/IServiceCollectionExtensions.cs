@@ -23,8 +23,8 @@ namespace Bicep.Wasm;
 public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
-        .AddSingleton<IResourceTypeLoader, AzResourceTypeLoader>()
-        .AddSingleton<IResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
+        .AddSingleton<IProviderTypeLoader, AzResourceTypeLoader>()
+        .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
         .AddSingleton<IArtifactRegistryProvider, EmptyModuleRegistryProvider>()

@@ -2377,13 +2377,13 @@ module withSeparateConfig './child/folder with separate config/moduleWithAzImpor
 //@            "_generator": {
 //@              "name": "bicep",
 //@              "version": "dev",
-//@              "templateHash": "8139539847401806108"
+//@              "templateHash": "2846749952698758252"
 //@            }
 //@          },
 //@          "imports": {
 //@            "az": {
 //@              "provider": "AzureResourceManager",
-//@              "version": "1.0.0"
+//@              "version": "builtin"
 //@            }
 //@          },
 //@          "resources": {},

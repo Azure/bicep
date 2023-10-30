@@ -937,7 +937,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private TypeSymbol CreateDummyResourceType()
         {
-            var typeProvider = TestTypeHelper.CreateEmptyProvider();
+            var typeProvider = TestTypeHelper.CreateEmptyNamespaceProvider();
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
             var azNamespaceType = typeProvider.TryGetNamespace(new(AzNamespaceType.BuiltInName), ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
 

@@ -40,7 +40,7 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithAzResources(this ServiceBuilder serviceBuilder, IEnumerable<ResourceTypeComponents> resourceTypes)
         => serviceBuilder.WithRegistration(x => x.WithAzResources(resourceTypes));
 
-    public static ServiceBuilder WithAzResourceTypeLoader(this ServiceBuilder serviceBuilder, IResourceTypeLoader azResourceTypeLoader)
+    public static ServiceBuilder WithAzResourceTypeLoader(this ServiceBuilder serviceBuilder, IProviderTypeLoader azResourceTypeLoader)
         => serviceBuilder.WithRegistration(x => x.WithAzResourceTypeLoaderFactory(azResourceTypeLoader));
 
     public static ServiceBuilder WithEmptyAzResources(this ServiceBuilder serviceBuilder)

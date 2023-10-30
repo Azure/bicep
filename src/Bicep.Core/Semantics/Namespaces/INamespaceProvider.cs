@@ -11,21 +11,25 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public record TypesProviderDescriptor
 {
-    public TypesProviderDescriptor(string name, string? alias = null, string? path = null, string? version = null)
+    public TypesProviderDescriptor(
+        string name,
+        string? path = null,
+        string? alias = null,
+        string version = IResourceTypeProvider.BuiltInVersion)
     {
         Name = name;
         Alias = alias ?? name;
-        Path = path;
         Version = version;
+        Path = path ?? "builtin";
     }
 
     public string Name { get; }
 
     public string Alias { get; }
 
-    public string? Path { get; }
+    public string Path { get; }
 
-    public string? Version { get; }
+    public string Version { get; }
 }
 
 public interface INamespaceProvider

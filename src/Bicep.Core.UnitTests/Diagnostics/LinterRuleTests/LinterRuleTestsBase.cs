@@ -43,7 +43,7 @@ public class LinterRuleTestsBase
         OnCompileErrors OnCompileErrors = OnCompileErrors.Default,
         IncludePosition IncludePosition = IncludePosition.Default,
         Func<RootConfiguration, RootConfiguration>? ConfigurationPatch = null,
-        IResourceTypeLoader? AzResourceTypeLoader = null,
+        IProviderTypeLoader? AzProviderTypeLoader = null,
         (string path, string contents)[]? AdditionalFiles = null
     );
 
@@ -110,7 +110,7 @@ public class LinterRuleTestsBase
         options ??= new Options();
         var services = new ServiceBuilder();
         services = options.ConfigurationPatch is { } ? services.WithConfigurationPatch(options.ConfigurationPatch) : services;
-        services = options.AzResourceTypeLoader is { } ? services.WithAzResourceTypeLoader(options.AzResourceTypeLoader) : services;
+        services = options.AzProviderTypeLoader is { } ? services.WithAzResourceTypeLoader(options.AzProviderTypeLoader) : services;
         var result = CompilationHelper.Compile(services, files);
         using (new AssertionScope().WithFullSource(result.BicepFile))
         {

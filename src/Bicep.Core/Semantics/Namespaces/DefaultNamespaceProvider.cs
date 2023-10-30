@@ -20,40 +20,41 @@ public class DefaultNamespaceProvider : INamespaceProvider
         BicepSourceFileKind sourceFileKind);
 
     private readonly ImmutableDictionary<string, GetNamespaceDelegate> providerLookup;
+    private readonly IResourceTypeProviderFactory resourceTypeLoaderFactory;
 
-    public DefaultNamespaceProvider(IResourceTypeLoaderFactory azResourceTypeLoaderFactory)
+    public DefaultNamespaceProvider(IResourceTypeProviderFactory resourceTypeLoaderFactory)
     {
-        var builtInAzResourceTypeLoaderVersion = "1.0.0";
-        var builtInAzResourceTypeProvider = new AzResourceTypeProvider(azResourceTypeLoaderFactory.GetBuiltInTypeLoader(), builtInAzResourceTypeLoaderVersion);
-
+        this.resourceTypeLoaderFactory = resourceTypeLoaderFactory;
         this.providerLookup = new Dictionary<string, GetNamespaceDelegate>
         {
-            [SystemNamespaceType.BuiltInName] = (providerDescriptor, scope, features, sourceFileKind) => SystemNamespaceType.Create(providerDescriptor.Alias, features, sourceFileKind),
-            [AzNamespaceType.BuiltInName] = (providerDescriptor, scope, features, sourceFileKind) =>
-            {
-                AzResourceTypeProvider? provider = builtInAzResourceTypeProvider;
-                if (features.DynamicTypeLoadingEnabled && providerDescriptor.Version is not null)
-                {
-                    // TODO(asilverman): Current implementation of dynamic type loading needs to be refactored to handle caching of the provider to optimize 
-                    // performance hit as a result of recreating the provider for each call to TryGetNamespace.
-                    // Tracked by - https://msazure.visualstudio.com/One/_sprints/taskboard/Azure-ARM-Deployments/One/Custom/Azure-ARM/Gallium/Jul-2023?workitem=24563440
-                    var loader = azResourceTypeLoaderFactory.GetResourceTypeLoader(providerDescriptor, features);
-                    if (loader is null)
-                    {
-                        return null;
-                    }
-                    var overriddenProviderVersion = builtInAzResourceTypeLoaderVersion;
-                    if (features.DynamicTypeLoadingEnabled)
-                    {
-                        overriddenProviderVersion = providerDescriptor.Version ?? overriddenProviderVersion;
-                    }
-                    provider = new AzResourceTypeProvider(loader, overriddenProviderVersion);
-                }
-                return AzNamespaceType.Create(providerDescriptor.Alias, scope, provider, sourceFileKind);
-            },
-            [K8sNamespaceType.BuiltInName] = (providerDescriptor, scope, features, sourceFileKind) => K8sNamespaceType.Create(providerDescriptor.Alias),
-            [MicrosoftGraphNamespaceType.BuiltInName] = (providerDescriptor, scope, features, sourceFileKind) => MicrosoftGraphNamespaceType.Create(providerDescriptor.Alias),
+            [SystemNamespaceType.BuiltInName] = CreateSystemNamespace,
+            [AzNamespaceType.BuiltInName] = CreateAzNamespace,
+            [K8sNamespaceType.BuiltInName] = CreateK8sNamespace,
+            [MicrosoftGraphNamespaceType.BuiltInName] = CreateMicrosoftGraphNamespace
         }.ToImmutableDictionary();
+    }
+
+    // Define delegate functions for each namespace type
+    private readonly GetNamespaceDelegate CreateSystemNamespace = (providerDescriptor, resourceScope, features, sourceFileKind)
+        => SystemNamespaceType.Create(providerDescriptor.Alias, features, sourceFileKind);
+
+    private readonly GetNamespaceDelegate CreateK8sNamespace = (providerDescriptor, resourceScope, features, sourceFileKind)
+        => K8sNamespaceType.Create(providerDescriptor.Alias);
+
+    private readonly GetNamespaceDelegate CreateMicrosoftGraphNamespace = (providerDescriptor, resourceScope, features, sourceFileKind)
+        => MicrosoftGraphNamespaceType.Create(providerDescriptor.Alias);
+
+
+    private NamespaceType CreateAzNamespace(TypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
+    {
+        IResourceTypeProvider provider = resourceTypeLoaderFactory.GetBuiltInAzResourceTypesProvider();
+
+        if (features.DynamicTypeLoadingEnabled && resourceTypeLoaderFactory.GetResourceTypeProvider(providerDescriptor, features).IsSuccess(out var dynamicallyLoadedProvider))
+        {
+            provider = dynamicallyLoadedProvider;
+        }
+
+        return AzNamespaceType.Create(providerDescriptor.Alias, scope, provider, sourceFileKind);
     }
 
     public NamespaceType? TryGetNamespace(

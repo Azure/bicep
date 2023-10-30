@@ -7,22 +7,22 @@ using System.IO;
 using System.IO.Compression;
 using Azure.Bicep.Types;
 
-namespace Bicep.Core.TypeSystem.Az
+namespace Bicep.Core.TypeSystem
 {
-    public class OciAzTypeLoader : TypeLoader
+    public class OciTypeLoader : TypeLoader
     {
         private readonly ImmutableDictionary<string, byte[]> typesCache;
-
-        public OciAzTypeLoader(ImmutableDictionary<string, byte[]> typesCache)
+        private const string typesArtifactFilename = "types.tgz";
+        public OciTypeLoader(ImmutableDictionary<string, byte[]> typesCache)
         {
             this.typesCache = typesCache;
         }
 
-        public static OciAzTypeLoader FromTgz(string pathToGzip)
+        public static OciTypeLoader FromTgz(string typesFileDir)
         {
             var typesCacheBuilder = ImmutableDictionary.CreateBuilder<string, byte[]>();
 
-            using var fileStream = File.OpenRead(pathToGzip);
+            using var fileStream = File.OpenRead(Path.Combine(typesFileDir, typesArtifactFilename));
             using var gzipStream = new GZipStream(fileStream, CompressionMode.Decompress);
             using var tarReader = new TarReader(gzipStream);
 
@@ -33,7 +33,7 @@ namespace Bicep.Core.TypeSystem.Az
                 if (entry.DataStream is null)
                 {
                     var errorMessage = $"Failed to restore {entry.Name} from OCI provider data";
-                    throw new ArgumentException(errorMessage, nameof(entry.Name));
+                    throw new ArgumentException(errorMessage, entry.Name);
                 }
 
                 using var memoryStream = new MemoryStream();
@@ -48,12 +48,12 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             var typesCache = typesCacheBuilder.ToImmutableDictionary();
-            return new OciAzTypeLoader(typesCache);
+            return new OciTypeLoader(typesCache);
         }
 
         protected override Stream GetContentStreamAtPath(string path)
         {
-            if (this.typesCache.TryGetValue($"{path}", out var bytes))
+            if (typesCache.TryGetValue($"{path}", out var bytes))
             {
                 return new MemoryStream(bytes);
             }

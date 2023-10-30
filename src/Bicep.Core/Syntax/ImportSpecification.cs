@@ -53,7 +53,7 @@ namespace Bicep.Core.Syntax
             Span = span;
         }
 
-        private string BicepRegistryAddress { get; }
+        public string BicepRegistryAddress { get; }
 
         public string Name { get; }
 
@@ -78,14 +78,6 @@ namespace Bicep.Core.Syntax
                 specificationSyntax.Span);
         }
 
-        public SyntaxBase ToPath()
-        {
-            if (!this.IsValid)
-            {
-                return new SkippedTriviaSyntax(this.Span, Enumerable.Empty<SyntaxBase>());
-            }
-            return SyntaxFactory.CreateStringLiteral(this.BicepRegistryAddress);
-        }
 
         // copy from https://github.com/Azure/bicep/blob/main/src/Bicep.Core/Registry/OciArtifactRegistry.cs#L339-L378
         public static string GetArtifactDirectoryPath(ArtifactReference reference, string cacheRootDirectory)
@@ -129,7 +121,6 @@ namespace Bicep.Core.Syntax
                 throw new InvalidOperationException("Module reference is missing both tag and digest.");
             }
 
-            //var packageDir = WebUtility.UrlEncode(reference.UnqualifiedReference);
             return Path.Combine(cacheRootDirectory, registry, repository, tagOrDigest);
         }
 

@@ -35,8 +35,8 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-        .AddSingleton<IResourceTypeLoader, AzResourceTypeLoader>()
-        .AddSingleton<IResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
+        .AddSingleton<IProviderTypeLoader, AzResourceTypeLoader>()
+        .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
@@ -99,14 +99,13 @@ public static class IServiceCollectionExtensions
         => Register(services, bicepAnalyzer);
 
     public static IServiceCollection WithAzResources(this IServiceCollection services, IEnumerable<ResourceTypeComponents> resourceTypes)
-        => services.WithAzResourceTypeLoaderFactory(
-            TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(resourceTypes));
+        => services.WithAzResourceTypeLoaderFactory(TestTypeHelper.CreateProviderTypeLoaderWithTypes(resourceTypes));
 
-    public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IResourceTypeLoader loader)
+    public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IProviderTypeLoader loader)
     {
-                var factory = StrictMock.Of<IResourceTypeLoaderFactory>();
-        factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<TypesProviderDescriptor>(), It.IsAny<IFeatureProvider>())).Returns(loader);
-        factory.Setup(m => m.GetBuiltInTypeLoader()).Returns(loader);
+        var factory = StrictMock.Of<IResourceTypeProviderFactory>();
+        var provider = new AzResourceTypeProvider(loader);
+        factory.Setup(m => m.GetBuiltInAzResourceTypesProvider()).Returns(provider);
         return Register(services, factory.Object);
     }
 

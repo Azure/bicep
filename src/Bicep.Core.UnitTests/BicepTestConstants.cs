@@ -41,7 +41,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager), FeatureOverrides);
 
-        public static readonly IResourceTypeLoaderFactory AzResourceTypeLoaderFactory = new AzResourceTypeLoaderFactory(new AzResourceTypeLoader());
+        public static readonly IResourceTypeProviderFactory AzResourceTypeLoaderFactory = new ResourceTypeProviderFactory();
 
         public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(AzResourceTypeLoaderFactory);
 
@@ -50,9 +50,7 @@ namespace Bicep.Core.UnitTests
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
         // Linter rules added to this list will be automtically disabled for most tests.
-        public static readonly string[] AnalyzerRulesToDisableInTests = new string[] {
-            // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
-        };
+        public static readonly string[] AnalyzerRulesToDisableInTests = Array.Empty<string>();
 
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = IConfigurationManager.GetBuiltInConfiguration();
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
@@ -65,9 +63,8 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration), FeatureOverrides);
 
-        public static readonly IResourceTypeLoader BuiltinAzResourceTypeLoader = AzResourceTypeLoaderFactory.GetResourceTypeLoader(new(AzNamespaceType.BuiltInName), Features)!;
-
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
+
         public static readonly IArtifactRegistryProvider RegistryProvider = new DefaultArtifactRegistryProvider(EmptyServiceProvider, FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
 
         public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));

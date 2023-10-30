@@ -8,21 +8,18 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class AzResourceTypeLoader : IResourceTypeLoader
+    public class AzResourceTypeLoader : IProviderTypeLoader
     {
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
         private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<TypeLocation>>> availableFunctions;
 
-        private static TypeLoader defaultAzTypeLoader = new AzTypeLoader();
-
-        public AzResourceTypeLoader() : this(AzResourceTypeLoader.defaultAzTypeLoader) { }
-
-        public AzResourceTypeLoader(TypeLoader typeLoader)
+        public AzResourceTypeLoader(ITypeLoader typeLoader)
         {
             this.typeLoader = typeLoader;
             this.resourceTypeFactory = new AzResourceTypeFactory();
@@ -39,11 +36,10 @@ namespace Bicep.Core.TypeSystem.Az
                 StringComparer.OrdinalIgnoreCase);
         }
 
-        public IEnumerable<ResourceTypeReference> GetAvailableTypes()
-            => availableTypes.Keys;
+        public AzResourceTypeLoader() : this(new AzTypeLoader()) { }
+        public IEnumerable<ResourceTypeReference> GetAvailableTypes() => availableTypes.Keys;
 
-        public bool HasType(ResourceTypeReference reference)
-            => availableTypes.ContainsKey(reference);
+        public bool HasType(ResourceTypeReference reference) => availableTypes.ContainsKey(reference);
 
         public ResourceTypeComponents LoadType(ResourceTypeReference reference)
         {

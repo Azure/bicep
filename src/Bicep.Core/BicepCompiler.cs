@@ -58,7 +58,6 @@ public class BicepCompiler
                 // modules had to be restored - recompile
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, workspace, sourceFileGrouping);
             }
-            //TODO(asilverman): I want to inject here the logic that restores the providers
         }
 
         return new Compilation(featureProviderFactory, environment, namespaceProvider, sourceFileGrouping, configurationManager, bicepAnalyzer, moduleDispatcher);

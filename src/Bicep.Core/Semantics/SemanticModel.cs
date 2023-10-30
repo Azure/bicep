@@ -61,7 +61,12 @@ namespace Bicep.Core.Semantics
             // (if a type check is done too early, unbound symbol references would cause incorrect type check results)
             var symbolContext = new SymbolContext(compilation, this);
             this.SymbolContext = symbolContext;
-            this.Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, this.SymbolContext);
+            this.Binder = new Binder(
+                compilation.NamespaceProvider,
+                features,
+                sourceFile,
+                this.SymbolContext,
+                compilation.ArtifactReferenceFactory);
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
             this.TypeManager = new TypeManager(features, Binder, environment, fileResolver, this.ParsingErrorLookup, Compilation.SourceFileGrouping, Compilation, this.SourceFile.FileKind);
 
