@@ -14,6 +14,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
+using System.IO;
 
 namespace Bicep.Core.Semantics
 {
@@ -191,18 +192,24 @@ namespace Bicep.Core.Semantics
                 }
 
                 // Try to resolve the provider folder in the local cache from the specification (only works for az provider
-                string? providerPathInLocalCache = null;
+                string? providerPackageCacheDir = null;
                 if (syntax.Specification.Name.Equals(AzNamespaceType.BuiltInName) &&
-                    !syntax.TryGetProviderDirectoryInCache(factory, features, context.SourceFileUri).IsSuccess(out providerPathInLocalCache, out var errorBuilder))
+                    !syntax.TryGetProviderDirectoryInCache(factory, features, context.SourceFileUri).IsSuccess(out providerPackageCacheDir, out var errorBuilder))
                 {
 
                     return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
                 }
 
+                // Check if the provider folder exists, if it doesn't then the provider could not be restored
+                if (providerPackageCacheDir is not null && !Directory.Exists(providerPackageCacheDir))
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
+                }
+
                 if (namespaceProvider.TryGetNamespace(
                        new(
                            syntax.Specification.Name,
-                           providerPathInLocalCache,
+                           providerPackageCacheDir,
                            syntax.Alias?.IdentifierName,
                            syntax.Specification.Version),
                        targetScope,

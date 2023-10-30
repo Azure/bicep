@@ -23,7 +23,6 @@ namespace Bicep.RegistryModuleTool.Extensions
         public static IServiceCollection AddBicepCompiler(this IServiceCollection services) => services
             .AddSingleton<IFileSystem, FileSystem>()
             .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-            .AddSingleton<IProviderTypeLoader, AzResourceTypeLoader>()
             .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
             .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
             .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()

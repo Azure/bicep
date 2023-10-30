@@ -8,7 +8,7 @@ using Microsoft.Graph.Bicep.Types;
 
 namespace Bicep.Core.TypeSystem.MicrosoftGraph
 {
-    public class MicrosoftGraphResourceTypeLoader
+    public class MicrosoftGraphResourceTypeLoader : IProviderTypeLoader
     {
         private readonly ITypeLoader typeLoader;
         private readonly MicrosoftGraphResourceTypeFactory resourceTypeFactory;

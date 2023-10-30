@@ -13,8 +13,8 @@ public record TypesProviderDescriptor
 {
     public TypesProviderDescriptor(
         string name,
-        string? path = null,
         string? alias = null,
+        string? path = null,
         string version = IResourceTypeProvider.BuiltInVersion)
     {
         Name = name;
