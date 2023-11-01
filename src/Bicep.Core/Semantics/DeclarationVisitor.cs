@@ -22,7 +22,7 @@ namespace Bicep.Core.Semantics
     {
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFeatureProvider features;
-        private readonly ISourceFileLookup sourceFileLookup;
+        private readonly IArtifactFileLookup sourceFileLookup;
         private readonly ISemanticModelLookup modelLookup;
         private readonly ResourceScope targetScope;
         private readonly ISymbolContext context;
@@ -32,7 +32,7 @@ namespace Bicep.Core.Semantics
 
         private readonly Stack<ScopeInfo> activeScopes = new();
 
-        private DeclarationVisitor(INamespaceProvider namespaceProvider, IFeatureProvider features, ISourceFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, ISymbolContext context, IList<ScopeInfo> localScopes, BicepSourceFileKind sourceFileKind, IArtifactReferenceFactory factory)
+        private DeclarationVisitor(INamespaceProvider namespaceProvider, IFeatureProvider features, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, ISymbolContext context, IList<ScopeInfo> localScopes, BicepSourceFileKind sourceFileKind, IArtifactReferenceFactory factory)
         {
             this.namespaceProvider = namespaceProvider;
             this.features = features;
@@ -46,7 +46,7 @@ namespace Bicep.Core.Semantics
         }
 
         // Returns the list of top level declarations as well as top level scopes.
-        public static LocalScope GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, ISourceFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, BicepSourceFile sourceFile, ISymbolContext symbolContext, IArtifactReferenceFactory factory)
+        public static LocalScope GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, BicepSourceFile sourceFile, ISymbolContext symbolContext, IArtifactReferenceFactory factory)
         {
             // collect declarations
             var localScopes = new List<ScopeInfo>();
@@ -191,30 +191,20 @@ namespace Bicep.Core.Semantics
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
                 }
 
-                // Try to resolve the provider folder in the local cache from the specification (only works for az provider
-                string? providerPackageCacheDir = null;
-                if (syntax.Specification.Name.Equals(AzNamespaceType.BuiltInName) &&
-                    !syntax.TryGetProviderDirectoryInCache(factory, features, context.SourceFileUri).IsSuccess(out providerPackageCacheDir, out var errorBuilder))
+                Uri? providerUri = null;
+                if (syntax.Specification.Name == AzNamespaceType.BuiltInName &&
+                    !this.sourceFileLookup.TryGetProviderFileUri(syntax).IsSuccess(out providerUri, out var providerUriLookupErrorBuilder))
                 {
-
-                    return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
+                    return ErrorType.Create(providerUriLookupErrorBuilder(DiagnosticBuilder.ForPosition(syntax)));
                 }
 
-                // Check if the provider folder exists, if it doesn't then the provider could not be restored
-                if (providerPackageCacheDir is not null && !Directory.Exists(providerPackageCacheDir))
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
-                }
+                TypesProviderDescriptor providerDescriptor = new(
+                    syntax.Specification.Name,
+                    syntax.Alias?.IdentifierName,
+                    providerUri,
+                    syntax.Specification.Version);
 
-                if (namespaceProvider.TryGetNamespace(
-                       new(
-                           syntax.Specification.Name,
-                           providerPackageCacheDir,
-                           syntax.Alias?.IdentifierName,
-                           syntax.Specification.Version),
-                       targetScope,
-                       features,
-                       sourceFileKind) is not { } namespaceType)
+                if (namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind) is not { } namespaceType)
                 {
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification!.Name));
                 }

@@ -59,10 +59,13 @@ public static class IServiceCollectionExtensions
 
     private static IServiceCollection Register<TService>(IServiceCollection services, TService service)
         where TService : class
-        => services.AddSingleton<TService>(service);
+        => services.AddSingleton(service);
 
     public static IServiceCollection WithFileResolver(this IServiceCollection services, IFileResolver fileResolver)
         => Register(services, fileResolver);
+
+    public static IServiceCollection WithContainerRegistryClientFactory(this IServiceCollection services, IContainerRegistryClientFactory containerRegistryClientFactory)
+        => Register(services, containerRegistryClientFactory);
 
     public static IServiceCollection WithWorkspace(this IServiceCollection services, IWorkspace workspace)
         => Register(services, workspace);

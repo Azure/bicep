@@ -3,8 +3,11 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Parsing;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
@@ -45,16 +48,28 @@ public class DefaultNamespaceProvider : INamespaceProvider
         => MicrosoftGraphNamespaceType.Create(providerDescriptor.Alias);
 
 
-    private NamespaceType CreateAzNamespace(TypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
+    private NamespaceType? CreateAzNamespace(TypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
     {
-        IResourceTypeProvider provider = resourceTypeLoaderFactory.GetBuiltInAzResourceTypesProvider();
-
-        if (features.DynamicTypeLoadingEnabled && resourceTypeLoaderFactory.GetResourceTypeProvider(providerDescriptor, features).IsSuccess(out var dynamicallyLoadedProvider))
+        if (!features.DynamicTypeLoadingEnabled)
         {
-            provider = dynamicallyLoadedProvider;
+            return AzNamespaceType.Create(
+                providerDescriptor.Alias,
+                scope,
+                resourceTypeLoaderFactory.GetBuiltInAzResourceTypesProvider(),
+                sourceFileKind);
         }
 
-        return AzNamespaceType.Create(providerDescriptor.Alias, scope, provider, sourceFileKind);
+        if (!resourceTypeLoaderFactory.GetResourceTypeProvider(providerDescriptor, features).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+        {
+            Trace.WriteLine($"Failed to load types from {providerDescriptor.Path}: {errorBuilder(DiagnosticBuilder.ForPosition(providerDescriptor.Span))}");
+            return null;
+        }
+        return AzNamespaceType.Create(
+              providerDescriptor.Alias,
+              scope,
+              dynamicallyLoadedProvider!,
+              sourceFileKind);
+
     }
 
     public NamespaceType? TryGetNamespace(

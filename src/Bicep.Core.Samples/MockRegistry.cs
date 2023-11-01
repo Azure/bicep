@@ -42,7 +42,7 @@ public class MockRegistry
             modules[registryPath] = new(sourceFile.Contents, new(registryPath));
         }
 
-        var clientFactory = DataSetsExtensions.CreateMockRegistryClients(modules.ToImmutableDictionary(), publishSource).Object;
+        var clientFactory = DataSetsExtensions.CreateMockRegistryClients(modules.ToImmutableDictionary(), publishSource);
         await DataSetsExtensions.PublishModulesToRegistryAsync(modules.ToImmutableDictionary(), clientFactory, publishSource);
 
         return clientFactory;

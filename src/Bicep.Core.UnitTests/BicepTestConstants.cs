@@ -12,6 +12,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -30,6 +31,8 @@ namespace Bicep.Core.UnitTests
     public static class BicepTestConstants
     {
         public const string DevAssemblyFileVersion = "dev";
+
+        public const string BicepRegistryFolderName = "br";
 
         public const string GeneratorTemplateHashPath = "metadata._generator.templateHash";
 
@@ -130,5 +133,29 @@ namespace Bicep.Core.UnitTests
 
             return telemetryProvider;
         }
+
+        public static BinaryData BicepProviderManifestWithEmptyTypesLayer = BinaryData.FromString($$"""
+{
+    "schemaVersion": 2,
+    "mediaType": "application/vnd.oci.image.manifest.v1+json",
+    "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
+    "config": {
+    "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
+    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "size": 2
+    },
+    "layers": [
+    {
+        "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
+        "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0
+    }
+    ],
+    "annotations": {
+    "bicep.serialization.format": "v1",
+    "org.opencontainers.image.created": "2023-05-04T16:40:05Z"
+    }
+}
+""");
     }
 }

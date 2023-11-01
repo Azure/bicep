@@ -24,7 +24,7 @@ namespace Bicep.Core.Semantics
         public Binder(
             INamespaceProvider namespaceProvider,
             IFeatureProvider features,
-            ISourceFileLookup sourceFileLookup,
+            IArtifactFileLookup sourceFileLookup,
             ISemanticModelLookup modelLookup,
             BicepSourceFile sourceFile,
             ISymbolContext symbolContext,

@@ -19,6 +19,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
 using SharpYaml.Tokens;
@@ -99,7 +100,11 @@ namespace Bicep.Core.UnitTests.Registry
         public override async Task<Response<UploadRegistryBlobResult>> UploadBlobAsync(Stream stream, CancellationToken cancellationToken = default)
         {
             await Task.Yield();
+            return UploadBlob(stream, cancellationToken);
+        }
 
+        public override Response<UploadRegistryBlobResult> UploadBlob(Stream stream, CancellationToken cancellationToken = default)
+        {
             var (copy, digest) = ReadStream(stream);
             Blobs.TryAdd(digest, new TextByteArray(copy));
 
@@ -111,7 +116,11 @@ namespace Bicep.Core.UnitTests.Registry
         public override async Task<Response<SetManifestResult>> SetManifestAsync(BinaryData manifest, string? tag = default, ManifestMediaType? mediaType = default, CancellationToken cancellationToken = default)
         {
             await Task.Yield();
+            return SetManifest(manifest, tag, mediaType, cancellationToken);
+        }
 
+        public override Response<SetManifestResult> SetManifest(BinaryData manifest, string? tag = default, ManifestMediaType? mediaType = default, CancellationToken cancellationToken = default)
+        {
             var (copy, digest) = ReadStream(manifest.ToStream());
             Manifests.TryAdd(digest, new TextByteArray(copy));
 

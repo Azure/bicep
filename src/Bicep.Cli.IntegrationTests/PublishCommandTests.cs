@@ -151,7 +151,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource, (registryUri, repository)).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(publishSource, (registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
@@ -249,7 +249,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: false, (registryUri, repository)).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: false, (registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -303,7 +303,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: true, (registryUri, repository)).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: true, (registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -448,7 +448,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var blobClient = blobClients[(registryUri, repository)];
 
-            await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory.Object, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
+            await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
 
             var manifest = blobClient.Manifests.Single().Value.Text;
 

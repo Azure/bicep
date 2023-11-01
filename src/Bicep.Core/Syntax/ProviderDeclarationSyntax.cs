@@ -56,21 +56,21 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Path => SyntaxFactory.CreateStringLiteral(this.Specification.BicepRegistryAddress);
 
-        public ResultWithDiagnostic<string> TryGetProviderDirectoryInCache(IArtifactReferenceFactory factory, IFeatureProvider features, Uri parentModuleUri)
-        {
-            if (!this.Specification.IsValid)
-            {
-                return new(x => x.InvalidProviderSpecification());
-            }
-            if (this.Specification.BicepRegistryAddress == null)
-            {
-                return new(IResourceTypeProvider.BuiltInVersion); // since specification is valid it must be builtin
-            }
-            if (!factory.TryGetArtifactReference(ArtifactType.Provider, this.Specification.BicepRegistryAddress, parentModuleUri).IsSuccess(out var reference, out var errorbuilder))
-            {
-                return new(errorbuilder);
-            }
-            return new(ImportSpecification.GetArtifactDirectoryPath(reference, features.CacheRootDirectory));
-        }
+        //public ResultWithDiagnostic<string> TryGetProviderDirectoryInCache(IArtifactReferenceFactory factory, IFeatureProvider features, Uri parentModuleUri)
+        //{
+        //    if (!this.Specification.IsValid)
+        //    {
+        //        return new(x => x.InvalidProviderSpecification());
+        //    }
+        //    if (this.Specification.BicepRegistryAddress == null)
+        //    {
+        //        return new(IResourceTypeProvider.BuiltInVersion); // since specification is valid it must be builtin
+        //    }
+        //    if (!factory.TryGetArtifactReference(ArtifactType.Provider, this.Specification.BicepRegistryAddress, parentModuleUri).IsSuccess(out var reference, out var errorbuilder))
+        //    {
+        //        return new(errorbuilder);
+        //    }
+        //    return new(ImportSpecification.GetArtifactDirectoryPath(reference, features.CacheRootDirectory));
+        //}
     }
 }

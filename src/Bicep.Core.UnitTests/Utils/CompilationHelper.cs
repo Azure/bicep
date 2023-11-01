@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
@@ -14,6 +15,8 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.Utils
@@ -44,8 +47,19 @@ namespace Bicep.Core.UnitTests.Utils
         public static CompilationResult Compile(ServiceBuilder services, params (string fileName, string fileContents)[] files)
         {
             files.Select(x => x.fileName).Should().Contain("main.bicep");
+            var filesToAppend = files.Select(file => (file.fileName == "main.bicep" ? "" : "/path/to", file.fileName, file.fileContents));
 
-            var (uriDictionary, entryUri) = CreateFileDictionary(files, "main.bicep");
+            //string azProviderPath = Path.Combine(
+            //    FileHelper.GetCacheRootPath(testContext),
+            //    BicepTestConstants.
+            //    "br",
+            //    );
+            string azProviderPath = $"/.bicep/br/mcr.microsoft.com/bicep$providers$az/0.0.0$";
+            filesToAppend = filesToAppend.Append((azProviderPath, "types.tgz", ""));
+            filesToAppend = filesToAppend.Append((azProviderPath, "manifest", ""));
+            filesToAppend = filesToAppend.Append((azProviderPath, "metadata", ""));
+
+            var (uriDictionary, entryUri) = CreateFileDictionary(filesToAppend, "main.bicep");
             var fileResolver = new InMemoryFileResolver(uriDictionary);
 
             return Compile(services, fileResolver, uriDictionary.Keys, entryUri);
@@ -86,7 +100,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             files.Select(x => x.fileName).Should().Contain("parameters.bicepparam");
 
-            var (uriDictionary, entryUri) = CreateFileDictionary(files, "parameters.bicepparam");
+            var (uriDictionary, entryUri) = CreateFileDictionary(files.Select(file => ("/path/to", file.fileName, file.fileContents)).ToArray(), "parameters.bicepparam");
             var fileResolver = new InMemoryFileResolver(uriDictionary);
             services = services.WithFileResolver(fileResolver);
 
@@ -99,12 +113,13 @@ namespace Bicep.Core.UnitTests.Utils
             return CompileParams(compilation);
         }
 
-        public static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(IEnumerable<(string fileName, string fileContents)> files, string entryFileName)
+        public static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(IEnumerable<(string filePath, string fileName, string fileContents)> files, string entryFileName)
         {
+            var (entryFilePath, _, _) = files.Where(x => x.fileName == entryFileName).First();
             var uriDictionary = files.ToDictionary(
-                x => InMemoryFileResolver.GetFileUri($"/path/to/{x.fileName}"),
+                x => InMemoryFileResolver.GetFileUri($"{x.filePath}/{x.fileName}"),
                 x => x.fileContents);
-            var entryUri = InMemoryFileResolver.GetFileUri($"/path/to/{entryFileName}");
+            var entryUri = InMemoryFileResolver.GetFileUri($"{entryFilePath}/{entryFileName}");
             return (uriDictionary, entryUri);
         }
 

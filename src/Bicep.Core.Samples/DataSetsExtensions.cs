@@ -43,7 +43,7 @@ namespace Bicep.Core.Samples
         {
             features ??= new(testContext, RegistryEnabled: dataSet.HasExternalModules);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, enablePublishSource);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(testContext, enablePublishSource);
 
@@ -55,10 +55,10 @@ namespace Bicep.Core.Samples
             return (compilation, outputDirectory, fileUri);
         }
 
-        public static Mock<IContainerRegistryClientFactory> CreateMockRegistryClients(this DataSet dataSet, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
             => CreateMockRegistryClients(dataSet.RegistryModules, enablePublishSource, additionalClients);
 
-        public static Mock<IContainerRegistryClientFactory> CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
         {
             var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: enablePublishSource));
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
@@ -85,51 +85,17 @@ namespace Bicep.Core.Samples
             return CreateMockRegistryClients(enablePublishSource, clients.Concat(additionalClients).ToArray()).factoryMock;
         }
 
-        public static (Mock<IContainerRegistryClientFactory> factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(bool? publishSource, params (Uri registryUri, string repository)[] clients)
+        public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(bool? publishSource, params (Uri registryUri, string repository)[] clients)
         {
-            var clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
-            var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: publishSource));
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
-                .AddSingleton(BicepTestConstants.ClientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                .AddSingleton(BicepTestConstants.ResourceTypeProviderFactory)
-                .AddSingleton(featureProviderFactory)
-                ).Construct<IModuleDispatcher>();
-
+            var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
+          
             foreach (var (registryUri, repository) in clients)
             {
-                clientsBuilder.TryAdd((registryUri, repository), new MockRegistryBlobClient());
+                containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryUri, repository);
+                    
             }
 
-            var repoToClient = clientsBuilder.ToImmutable();
-
-            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
-
-            clientFactory
-                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
-                .Returns<RootConfiguration, Uri, string>((_, registryUri, repository) =>
-                {
-                    if (repoToClient.TryGetValue((registryUri, repository), out var client))
-                    {
-                        return client;
-                    }
-
-                    throw new InvalidOperationException($"No mock authenticated client was registered for Uri '{registryUri}' and repository '{repository}'.");
-                });
-
-            clientFactory
-                .Setup(m => m.CreateAnonymousBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
-                .Returns<RootConfiguration, Uri, string>((_, registryUri, repository) =>
-                {
-                    if (repoToClient.TryGetValue((registryUri, repository), out var client))
-                    {
-                        return client;
-                    }
-
-                    throw new InvalidOperationException($"No mock anonymous client was registered for Uri '{registryUri}' and repository '{repository}'.");
-                });
-
-            return (clientFactory, repoToClient);
+            return containerRegistryFactoryBuilder.Build();
         }
 
         public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory(bool enablePublishSource = false)

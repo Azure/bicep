@@ -45,7 +45,7 @@ namespace Bicep.Core.Semantics
             });
         }
 
-        public static Result<ISemanticModel, ErrorDiagnostic> TryGetModelForArtifactReference(ISourceFileLookup sourceFileLookup,
+        public static Result<ISemanticModel, ErrorDiagnostic> TryGetModelForArtifactReference(IArtifactFileLookup sourceFileLookup,
             IArtifactReferenceSyntax reference,
             ISemanticModelLookup semanticModelLookup)
         {
@@ -57,7 +57,7 @@ namespace Bicep.Core.Semantics
             return new(semanticModelLookup.GetSemanticModel(sourceFile));
         }
 
-        public static Result<ISemanticModel, ErrorDiagnostic> TryGetTemplateModelForArtifactReference(ISourceFileLookup sourceFileLookup,
+        public static Result<ISemanticModel, ErrorDiagnostic> TryGetTemplateModelForArtifactReference(IArtifactFileLookup sourceFileLookup,
             IArtifactReferenceSyntax reference,
             DiagnosticBuilder.ErrorBuilderDelegate onInvalidSourceFileType,
             ISemanticModelLookup semanticModelLookup)
@@ -78,7 +78,7 @@ namespace Bicep.Core.Semantics
             return new(semanticModelLookup.GetSemanticModel(sourceFile));
         }
 
-        private static Result<ISourceFile, ErrorDiagnostic> TryGetSourceFile(ISourceFileLookup sourceFileLookup, IArtifactReferenceSyntax reference)
+        private static Result<ISourceFile, ErrorDiagnostic> TryGetSourceFile(IArtifactFileLookup sourceFileLookup, IArtifactReferenceSyntax reference)
         {
             if (!sourceFileLookup.TryGetSourceFile(reference).IsSuccess(out var sourceFile, out var errorBuilder))
             {

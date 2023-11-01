@@ -68,7 +68,7 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Build_Valid_SingleFile_WithTemplateSpecReference_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(false).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(false);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
@@ -112,52 +112,29 @@ namespace Bicep.Cli.IntegrationTests
         // Negative
         [DataRow("az", false)]
         [DataRow("br:invalid.azureacr.io/bicep/providers/az", false)]
-        // [DataRow("br/unknown:az", false)]
-        public async Task Build_Valid_SingleFile_WithProviderDeclarationStatement(string providerDeclarationSyntax, bool shouldSucceed, string containingFolder = "")
+        [DataRow("br/unknown:az", false)]
+        public async Task Build_Valid_SingleFile_WithProviderDeclarationStatement(
+            string providerDeclarationSyntax,
+            bool shouldSucceed,
+            string containingFolder = "")
         {
             // SETUP
             // 1. create a mock registry client
-            var registyUris = new[] {
-                new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}"),
-                new Uri($"https://contoso.azurecr.io"),
-                new Uri($"https://invalid.azureacr.io"),
-            };
-            var repository = "bicep/providers/az";
-            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients(
-                false,
-                registyUris.Select(uri => (uri, repository)).ToArray()
-            );
+            var builder = new TestContainerRegistryClientFactoryBuilder();
+            foreach (var registryHost in new[] {
+                LanguageConstants.BicepPublicMcrRegistry,
+                "contoso.azurecr.io",
+                "invalid.azureacr.io" })
+            {
+                builder.RegisterMockRepositoryBlobClient(new Uri($"https://{registryHost}"), "bicep/providers/az");
+            }
+
             // 2. upload a manifest and its blob layer
-            var manifestStr = $$"""
-{
-    "schemaVersion": 2,
-    "mediaType": "application/vnd.oci.image.manifest.v1+json",
-    "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
-    "config": {
-    "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
-    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "size": 2
-    },
-    "layers": [
-    {
-        "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
-        "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "size": 0
-    }
-    ],
-    "annotations": {
-    "bicep.serialization.format": "v1",
-    "org.opencontainers.image.created": "2023-05-04T16:40:05Z"
-    }
-}
-""";
+            var (clientFactory, blobClients) = builder.Build();
             foreach (var ((uri, _), client) in blobClients)
             {
-                if (uri.Host.Contains("invalid"))
-                {
-                    continue;
-                }
-                await client.SetManifestAsync(BinaryData.FromString(manifestStr), "2.0.0");
+                if (uri.Host.Contains("invalid")) { continue; }
+                await client.SetManifestAsync(BicepTestConstants.BicepProviderManifestWithEmptyTypesLayer, "2.0.0");
                 await client.UploadBlobAsync(new MemoryStream());
             }
 
@@ -169,7 +146,6 @@ import '{providerDeclarationSyntax}@2.0.0'
             Directory.CreateDirectory(tempDirectory);
             var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
             File.WriteAllText(bicepFilePath, bicepFile);
-
 
             var bicepConfigFile = $$"""
 {
@@ -191,7 +167,7 @@ import '{providerDeclarationSyntax}@2.0.0'
             File.WriteAllText(bicepConfigPath, bicepConfigFile);
 
             // 4. create a settings object with the mock registry client and relevant features enabled
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, ExtensibilityEnabled: true, DynamicTypeLoading: true), clientFactory.Object, Repository.Create<ITemplateSpecRepositoryFactory>().Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, ExtensibilityEnabled: true, DynamicTypeLoading: true), clientFactory, Repository.Create<ITemplateSpecRepositoryFactory>().Object);
 
             // TEST
             // 5. run bicep build
@@ -211,6 +187,7 @@ import '{providerDeclarationSyntax}@2.0.0'
             if (shouldSucceed)
             {
                 // 7. assert the provider files were restored to the cache directory
+                //TODO(asilverman): Use `CachedModules.GetCachedRegistryModules`
                 Directory.Exists(settings.FeatureOverrides.CacheRootDirectory).Should().BeTrue();
                 var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ModuleReferenceSchemes.Oci, containingFolder, "bicep$providers$az", "2.0.0$");
                 Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });
@@ -222,7 +199,7 @@ import '{providerDeclarationSyntax}@2.0.0'
         public async Task Build_Valid_SingleFile_WithTemplateSpecReference_ToStdOut_ShouldSucceed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(false).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(false);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
@@ -261,7 +238,7 @@ import '{providerDeclarationSyntax}@2.0.0'
         public async Task Build_Valid_SingleFile_After_Restore_Should_Succeed(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(false).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(false);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);

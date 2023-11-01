@@ -22,21 +22,21 @@ public record UriResolutionError(
     DiagnosticBuilder.ErrorBuilderDelegate ErrorBuilder,
     bool RequiresRestore);
 
-public class SourceFileGrouping : ISourceFileLookup
+public class SourceFileGrouping : IArtifactFileLookup
 {
     public SourceFileGrouping(IFileResolver fileResolver,
         Uri entryFileUri,
         ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri,
-        ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> uriResultByArtifactReference,
+        ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference,
         ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup)
     {
         FileResolver = fileResolver;
         EntryFileUri = entryFileUri;
         FileResultByUri = fileResultByUri;
-        UriResultByArtifactReference = uriResultByArtifactReference;
+        FileUriResultByArtifactReference = fileUriResultByArtifactReference;
         SourceFileParentLookup = sourceFileParentLookup;
 
-        UriResults = uriResultByArtifactReference.Values.SelectMany(kvp => kvp).ToImmutableDictionary();
+        UriResults = fileUriResultByArtifactReference.Values.SelectMany(kvp => kvp).ToImmutableDictionary();
     }
 
     public IFileResolver FileResolver { get; }
@@ -45,17 +45,17 @@ public class SourceFileGrouping : ISourceFileLookup
 
     public ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> FileResultByUri { get; }
 
-    public ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> UriResultByArtifactReference { get; }
+    public ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> FileUriResultByArtifactReference { get; }
 
     public ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>> UriResults { get; }
 
     public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; }
 
-    public IEnumerable<ArtifactResolutionInfo> GetModulesToRestore()
+    public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore()
     {
-        foreach (var (sourceFile, moduleResults) in UriResultByArtifactReference)
+        foreach (var (sourceFile, artifactResults) in FileUriResultByArtifactReference)
         {
-            foreach (var (syntax, result) in moduleResults)
+            foreach (var (syntax, result) in artifactResults)
             {
                 if (!result.IsSuccess(out _, out var failure) && failure.RequiresRestore)
                 {
@@ -72,13 +72,23 @@ public class SourceFileGrouping : ISourceFileLookup
 
     public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference)
     {
-        var uriResult = UriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
+        var uriResult = FileUriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
         if (!uriResult.IsSuccess(out var fileUri, out var error))
         {
             return new(error.ErrorBuilder);
         }
 
         return FileResultByUri[fileUri];
+    }
+
+    public ResultWithDiagnostic<Uri> TryGetProviderFileUri(IArtifactReferenceSyntax foreignTemplateReference)
+    {
+        var uriResult = FileUriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
+        if (!uriResult.IsSuccess(out var fileUri, out var error))
+        {
+            return new(error.ErrorBuilder);
+        }
+        return new(fileUri);
     }
 
     public ImmutableHashSet<ISourceFile> GetFilesDependingOn(ISourceFile sourceFile)
