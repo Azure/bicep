@@ -315,7 +315,7 @@ output outputa string = '${inputa}-${inputb}'
         public void Test_Issue5960_case1()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateProviderTypeLoaderWithTypes(new[] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
@@ -343,7 +343,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         public void Test_Issue5960_case2()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateProviderTypeLoaderWithTypes(new[] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
@@ -371,7 +371,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         public void Test_Issue5960_case3()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateProviderTypeLoaderWithTypes(new[] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
@@ -398,7 +398,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         public void Test_Issue5960_case4()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateProviderTypeLoaderWithTypes(new[] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
@@ -441,7 +441,7 @@ module mod 'mod.bicep' = {
         public void Test_Issue5960_case6()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateProviderTypeLoaderWithTypes(new[] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.Object, TypePropertyFlags.Required, "required property"),
@@ -468,7 +468,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         public void Test_Issue5960_case7()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateProviderTypeLoaderWithTypes(new[] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("systemRequired", LanguageConstants.Object, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty, "system required property"),
@@ -495,7 +495,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         public void Test_Issue5960_case8()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateProviderTypeLoaderWithTypes(new[] {
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("systemRequired", LanguageConstants.Object, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty, "system required property"),
@@ -550,7 +550,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
                                 ("onlyOnVal2", LanguageConstants.Bool)))))),
             };
 
-            var typeLoader = TestTypeHelper.CreateProviderTypeLoaderWithTypes(customTypes);
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(customTypes);
 
             // explicitly pass a valid scope
             var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"

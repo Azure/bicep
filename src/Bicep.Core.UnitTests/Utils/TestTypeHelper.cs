@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static IResourceTypeLoader CreateEmptyResourceTypeLoader()
             => new TestProviderTypeLoader(Enumerable.Empty<ResourceTypeComponents>());
 
-        public static IResourceTypeLoader CreateProviderTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
+        public static IResourceTypeLoader CreateResourceTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
             => new TestProviderTypeLoader(resourceTypes);
 
         public static IResourceTypeProviderFactory CreateResourceTypeLoaderFactory(IResourceTypeProvider provider)

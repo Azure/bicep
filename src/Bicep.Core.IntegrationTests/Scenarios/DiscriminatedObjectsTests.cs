@@ -54,7 +54,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
             };
 
             var result = CompilationHelper.Compile(
-                TestTypeHelper.CreateProviderTypeLoaderWithTypes(customTypes),
+                TestTypeHelper.CreateResourceTypeLoaderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -92,7 +92,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var failedResult = CompilationHelper.Compile(
-                TestTypeHelper.CreateProviderTypeLoaderWithTypes(customTypes),
+                TestTypeHelper.CreateResourceTypeLoaderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -147,7 +147,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
             };
 
             var result = CompilationHelper.Compile(
-                TestTypeHelper.CreateProviderTypeLoaderWithTypes(customTypes),
+                TestTypeHelper.CreateResourceTypeLoaderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -185,7 +185,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var failedResult = CompilationHelper.Compile(
-                TestTypeHelper.CreateProviderTypeLoaderWithTypes(customTypes),
+                TestTypeHelper.CreateResourceTypeLoaderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'

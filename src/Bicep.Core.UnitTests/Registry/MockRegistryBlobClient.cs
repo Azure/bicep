@@ -19,7 +19,6 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions.Interfaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Moq;
 using SharpYaml.Tokens;

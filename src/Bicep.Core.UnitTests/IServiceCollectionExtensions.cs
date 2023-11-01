@@ -102,7 +102,7 @@ public static class IServiceCollectionExtensions
         => Register(services, bicepAnalyzer);
 
     public static IServiceCollection WithAzResources(this IServiceCollection services, IEnumerable<ResourceTypeComponents> resourceTypes)
-        => services.WithAzResourceTypeLoaderFactory(TestTypeHelper.CreateProviderTypeLoaderWithTypes(resourceTypes));
+        => services.WithAzResourceTypeLoaderFactory(TestTypeHelper.CreateResourceTypeLoaderWithTypes(resourceTypes));
 
     public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IResourceTypeLoader loader)
     {
