@@ -192,7 +192,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var symbolReferences = GetAllBoundSymbolReferences(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
 
             var symbols = symbolReferences
-                .Select(symRef => semanticModel.GetSymbolInfo(symRef))
+                .Select(semanticModel.GetSymbolInfo)
                 .Distinct();
 
             symbols.Should().NotContainNulls();

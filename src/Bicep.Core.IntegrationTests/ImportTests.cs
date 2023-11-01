@@ -34,7 +34,18 @@ namespace Bicep.Core.IntegrationTests
            .WithFeatureOverrides(new(
                CacheRootDirectory: @"C:/.bicep",
                ExtensibilityEnabled: true,
-               DynamicTypeLoading: true));
+               DynamicTypeLoading: true))
+            .WithNamespaceProvider(
+            new TestNamespaceProvider(new()
+            {
+                [AzNamespaceType.BuiltInName] = aliasName => AzNamespaceType.Create(
+                    aliasName,
+                    ResourceScope.ResourceGroup,
+                     new AzResourceTypeProvider(),
+                     BicepSourceFileKind.BicepFile),
+                [K8sNamespaceType.BuiltInName] = K8sNamespaceType.Create
+            })
+            );
 
         private class TestNamespaceProvider : INamespaceProvider
         {
@@ -215,16 +226,6 @@ output rgLocation string = myRg.location
         [TestMethod]
         public void Singleton_imports_cannot_be_used_multiple_times()
         {
-            var nsProvider = new TestNamespaceProvider(new()
-            {
-                [AzNamespaceType.BuiltInName] = aliasName => AzNamespaceType.Create(
-                    aliasName,
-                    ResourceScope.ResourceGroup,
-                     new AzResourceTypeProvider(),
-                     BicepSourceFileKind.BicepFile),
-            });
-            var services = ServicesWithImports.WithNamespaceProvider(nsProvider);
-
             var result = CompilationHelper.Compile(ServicesWithImports, @"
 provider 'br/public:az@0.0.0' as az1
 provider 'br/public:az@0.0.0' as az2
@@ -244,18 +245,7 @@ provider 'sys@1.0.0' as sys2
         [TestMethod]
         public void Import_names_must_not_conflict_with_other_symbols()
         {
-            var nsProvider = new TestNamespaceProvider(new()
-            {
-                [AzNamespaceType.BuiltInName] = aliasName => AzNamespaceType.Create(
-                    aliasName,
-                    ResourceScope.ResourceGroup,
-                     new AzResourceTypeProvider(),
-                     BicepSourceFileKind.BicepFile),
-                ["kubernetes"] = K8sNamespaceType.Create,
-            });
-            var services = ServicesWithImports.WithNamespaceProvider(nsProvider);
-
-            var result = CompilationHelper.Compile(services, @"
+            var result = CompilationHelper.Compile(ServicesWithImports, @"
 provider 'br/public:az@0.0.0'
 provider 'kubernetes@1.0.0' with {
   kubeConfig: ''
