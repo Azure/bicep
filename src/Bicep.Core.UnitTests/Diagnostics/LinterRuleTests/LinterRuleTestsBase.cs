@@ -113,7 +113,7 @@ public class LinterRuleTestsBase
         options ??= new Options();
         var services = new ServiceBuilder();
         services = options.ConfigurationPatch is not null ? services.WithConfigurationPatch(options.ConfigurationPatch) : services;
-        services = options.AzProviderTypeLoader is { } ? services.WithAzResourceTypeLoader(options.AzProviderTypeLoader) : services;
+        services = options.AzResourceTypeLoader is { } ? services.WithAzResourceTypeLoader(options.AzResourceTypeLoader) : services;
         services = options.FeatureOverrides is not null ? services.WithFeatureOverrides(options.FeatureOverrides) : services;
         var result = CompilationHelper.Compile(services, files);
         using (new AssertionScope().WithFullSource(result.BicepFile))
