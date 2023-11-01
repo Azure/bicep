@@ -25,7 +25,7 @@ namespace Bicep.Core.TypeSystem
         public ResourceTypeProviderFactory()
         {
             resourceTypeLoaders = new() {
-                {BuiltInAzLoaderKey, new(new AzResourceTypeProvider())},
+                {BuiltInAzLoaderKey, new(new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader())))},
             };
         }
 

@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
+using Azure.Bicep.Types.Az;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -41,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
                 [AzNamespaceType.BuiltInName] = aliasName => AzNamespaceType.Create(
                     aliasName,
                     ResourceScope.ResourceGroup,
-                     new AzResourceTypeProvider(),
+                     new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader())),
                      BicepSourceFileKind.BicepFile),
                 [K8sNamespaceType.BuiltInName] = K8sNamespaceType.Create
             })

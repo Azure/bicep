@@ -36,7 +36,6 @@ namespace Bicep.Core.TypeSystem.Az
                 StringComparer.OrdinalIgnoreCase);
         }
 
-        public AzResourceTypeLoader() : this(new AzTypeLoader()) { }
         public IEnumerable<ResourceTypeReference> GetAvailableTypes() => availableTypes.Keys;
 
         public bool HasType(ResourceTypeReference reference) => availableTypes.ContainsKey(reference);
