@@ -12,7 +12,7 @@ using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class AzResourceTypeLoader : IProviderTypeLoader
+    public class AzResourceTypeLoader : IResourceTypeLoader
     {
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;

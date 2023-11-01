@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class TestTypeHelper
     {
-        private class TestProviderTypeLoader : IProviderTypeLoader
+        private class TestProviderTypeLoader : IResourceTypeLoader
         {
             private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes;
 
@@ -37,10 +37,10 @@ namespace Bicep.Core.UnitTests.Utils
         public static IResourceTypeProvider CreateAzResourceTypeProviderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
         => new AzResourceTypeProvider(new TestProviderTypeLoader(resourceTypes), "fake");
 
-        public static IProviderTypeLoader CreateEmptyResourceTypeLoader()
+        public static IResourceTypeLoader CreateEmptyResourceTypeLoader()
             => new TestProviderTypeLoader(Enumerable.Empty<ResourceTypeComponents>());
 
-        public static IProviderTypeLoader CreateProviderTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
+        public static IResourceTypeLoader CreateProviderTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
             => new TestProviderTypeLoader(resourceTypes);
 
         public static IResourceTypeProviderFactory CreateResourceTypeLoaderFactory(IResourceTypeProvider provider)

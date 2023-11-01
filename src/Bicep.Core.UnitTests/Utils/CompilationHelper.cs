@@ -75,7 +75,7 @@ namespace Bicep.Core.UnitTests.Utils
             return Compile(services.BuildCompilation(sourceFileDict, entryUri));
         }
 
-        public static CompilationResult Compile(IProviderTypeLoader providerTypeLoader, params (string fileName, string fileContents)[] files)
+        public static CompilationResult Compile(IResourceTypeLoader providerTypeLoader, params (string fileName, string fileContents)[] files)
             => Compile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides).WithAzResourceTypeLoader(providerTypeLoader), files);
 
         public static CompilationResult Compile(params (string fileName, string fileContents)[] files)

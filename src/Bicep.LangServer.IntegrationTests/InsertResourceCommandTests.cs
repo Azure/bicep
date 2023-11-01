@@ -57,7 +57,7 @@ namespace Bicep.LangServer.IntegrationTests
         private async Task<LanguageServerHelper> StartLanguageServer(
             Listeners listeners,
             IAzResourceProvider azResourceProvider,
-            IProviderTypeLoader azResourceTypeLoader)
+            IResourceTypeLoader azResourceTypeLoader)
         {
             return await LanguageServerHelper.StartServer(
                 this.TestContext,

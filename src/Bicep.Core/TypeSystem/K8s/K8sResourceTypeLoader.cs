@@ -8,7 +8,7 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.K8s
 {
-    public class K8sResourceTypeLoader : IProviderTypeLoader
+    public class K8sResourceTypeLoader : IResourceTypeLoader
     {
         private readonly ITypeLoader typeLoader;
         private readonly K8sResourceTypeFactory resourceTypeFactory;

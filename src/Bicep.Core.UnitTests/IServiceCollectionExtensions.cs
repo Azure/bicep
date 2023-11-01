@@ -104,7 +104,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithAzResources(this IServiceCollection services, IEnumerable<ResourceTypeComponents> resourceTypes)
         => services.WithAzResourceTypeLoaderFactory(TestTypeHelper.CreateProviderTypeLoaderWithTypes(resourceTypes));
 
-    public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IProviderTypeLoader loader)
+    public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IResourceTypeLoader loader)
     {
         var factory = StrictMock.Of<IResourceTypeProviderFactory>();
         var provider = new AzResourceTypeProvider(loader);

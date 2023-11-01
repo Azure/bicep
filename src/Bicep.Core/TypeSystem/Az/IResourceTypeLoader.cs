@@ -6,7 +6,7 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem
 {
-    public interface IProviderTypeLoader
+    public interface IResourceTypeLoader
     {
         ResourceTypeComponents LoadType(ResourceTypeReference reference);
 

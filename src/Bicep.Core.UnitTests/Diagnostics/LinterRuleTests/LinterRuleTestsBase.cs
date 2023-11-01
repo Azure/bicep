@@ -45,7 +45,7 @@ public class LinterRuleTestsBase
         OnCompileErrors OnCompileErrors = OnCompileErrors.Default,
         IncludePosition IncludePosition = IncludePosition.Default,
         Func<RootConfiguration, RootConfiguration>? ConfigurationPatch = null,
-        IProviderTypeLoader? AzProviderTypeLoader = null,
+        IResourceTypeLoader? AzProviderTypeLoader = null,
         (string path, string contents)[]? AdditionalFiles = null,
         FeatureProviderOverrides? FeatureOverrides = null
     );

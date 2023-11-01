@@ -70,7 +70,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         public string Version { get; }
 
-        private readonly IProviderTypeLoader resourceTypeLoader;
+        private readonly IResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
@@ -190,7 +190,7 @@ namespace Bicep.Core.TypeSystem.Az
             }, null));
         }
 
-        public AzResourceTypeProvider(IProviderTypeLoader resourceTypeLoader, string providerVersion = IResourceTypeProvider.BuiltInVersion)
+        public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, string providerVersion = IResourceTypeProvider.BuiltInVersion)
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
             this.Version = providerVersion;
