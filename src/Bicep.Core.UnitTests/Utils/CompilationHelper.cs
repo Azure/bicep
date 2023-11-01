@@ -47,7 +47,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static CompilationResult Compile(ServiceBuilder services, params (string fileName, string fileContents)[] files)
         {
             files.Select(x => x.fileName).Should().Contain("main.bicep");
-            var filesToAppend = files.Select(file => (file.fileName == "main.bicep" ? "" : "/path/to", file.fileName, file.fileContents));
+            var filesToAppend = files.Select(file => ("/path/to", file.fileName, file.fileContents));
 
             //string azProviderPath = Path.Combine(
             //    FileHelper.GetCacheRootPath(testContext),
