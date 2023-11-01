@@ -62,7 +62,7 @@ namespace Bicep.Core.IntegrationTests
             public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new[] { SystemNamespaceType.BuiltInName });
 
             public NamespaceType? TryGetNamespace(
-                TypesProviderDescriptor typesProviderDescriptor,
+                ResourceTypesProviderDescriptor typesProviderDescriptor,
                 ResourceScope resourceScope,
                 IFeatureProvider features,
                 BicepSourceFileKind sourceFileKind)

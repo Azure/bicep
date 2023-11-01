@@ -49,11 +49,6 @@ namespace Bicep.Core.UnitTests.Utils
             files.Select(x => x.fileName).Should().Contain("main.bicep");
             var filesToAppend = files.Select(file => ("/path/to", file.fileName, file.fileContents));
 
-            //string azProviderPath = Path.Combine(
-            //    FileHelper.GetCacheRootPath(testContext),
-            //    BicepTestConstants.
-            //    "br",
-            //    );
             string azProviderPath = $"/.bicep/br/mcr.microsoft.com/bicep$providers$az/0.0.0$";
             filesToAppend = filesToAppend.Append((azProviderPath, "types.tgz", ""));
             filesToAppend = filesToAppend.Append((azProviderPath, "manifest", ""));
@@ -75,8 +70,8 @@ namespace Bicep.Core.UnitTests.Utils
             return Compile(services.BuildCompilation(sourceFileDict, entryUri));
         }
 
-        public static CompilationResult Compile(IResourceTypeLoader providerTypeLoader, params (string fileName, string fileContents)[] files)
-            => Compile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides).WithAzResourceTypeLoader(providerTypeLoader), files);
+        public static CompilationResult Compile(IResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
+            => Compile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides).WithAzResourceTypeLoader(resourceTypeLoader), files);
 
         public static CompilationResult Compile(params (string fileName, string fileContents)[] files)
             => Compile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides), files);

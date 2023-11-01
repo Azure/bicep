@@ -29,7 +29,7 @@ namespace Bicep.Core.TypeSystem
             };
         }
 
-        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(TypesProviderDescriptor providerDescriptor, IFeatureProvider features)
+        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ResourceTypesProviderDescriptor providerDescriptor, IFeatureProvider features)
         {
             if (!features.DynamicTypeLoadingEnabled)
             {

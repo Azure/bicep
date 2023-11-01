@@ -22,7 +22,7 @@ namespace Bicep.Core.Semantics
     {
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFeatureProvider features;
-        private readonly IArtifactFileLookup sourceFileLookup;
+        private readonly IArtifactFileLookup artifactFileLookup;
         private readonly ISemanticModelLookup modelLookup;
         private readonly ResourceScope targetScope;
         private readonly ISymbolContext context;
@@ -36,7 +36,7 @@ namespace Bicep.Core.Semantics
         {
             this.namespaceProvider = namespaceProvider;
             this.features = features;
-            this.sourceFileLookup = sourceFileLookup;
+            this.artifactFileLookup = sourceFileLookup;
             this.modelLookup = modelLookup;
             this.targetScope = targetScope;
             this.context = context;
@@ -194,12 +194,12 @@ namespace Bicep.Core.Semantics
                 Uri? providerUri = null;
                 if (syntax.Specification.Name == AzNamespaceType.BuiltInName &&
                     features.DynamicTypeLoadingEnabled &&
-                    !this.sourceFileLookup.TryGetProviderFileUri(syntax).IsSuccess(out providerUri, out var providerUriLookupErrorBuilder))
+                    !this.artifactFileLookup.TryGetProviderFileUri(syntax).IsSuccess(out providerUri, out var providerUriLookupErrorBuilder))
                 {
                     return ErrorType.Create(providerUriLookupErrorBuilder(DiagnosticBuilder.ForPosition(syntax)));
                 }
 
-                TypesProviderDescriptor providerDescriptor = new(
+                ResourceTypesProviderDescriptor providerDescriptor = new(
                     syntax.Specification.Name,
                     syntax.Alias?.IdentifierName,
                     providerUri,
@@ -383,7 +383,7 @@ namespace Bicep.Core.Semantics
                 return new(DiagnosticBuilder.ForPosition(syntax).CompileTimeImportsNotSupported());
             }
 
-            if (!SemanticModelHelper.TryGetModelForArtifactReference(sourceFileLookup, syntax, modelLookup).IsSuccess(out var model, out var modelLoadError))
+            if (!SemanticModelHelper.TryGetModelForArtifactReference(artifactFileLookup, syntax, modelLookup).IsSuccess(out var model, out var modelLoadError))
             {
                 return new(modelLoadError);
             }

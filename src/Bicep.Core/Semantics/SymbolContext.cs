@@ -26,10 +26,6 @@ namespace Bicep.Core.Semantics
 
         public BicepSourceFile SourceFile => WithLockCheck(() => this.semanticModel.SourceFile);
 
-        public Uri SourceFileUri => this.semanticModel.SourceFile.FileUri;
-
-        public RootConfiguration Configuration => WithLockCheck(() => this.semanticModel.Configuration);
-
         public void Unlock() => this.unlocked = true;
 
         private T WithLockCheck<T>(Func<T> getFunc)

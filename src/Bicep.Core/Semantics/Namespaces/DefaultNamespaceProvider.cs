@@ -17,7 +17,7 @@ namespace Bicep.Core.Semantics.Namespaces;
 public class DefaultNamespaceProvider : INamespaceProvider
 {
     private delegate NamespaceType? GetNamespaceDelegate(
-        TypesProviderDescriptor typesProviderDescriptor,
+        ResourceTypesProviderDescriptor typesProviderDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
         BicepSourceFileKind sourceFileKind);
@@ -30,25 +30,14 @@ public class DefaultNamespaceProvider : INamespaceProvider
         this.resourceTypeLoaderFactory = resourceTypeLoaderFactory;
         this.providerLookup = new Dictionary<string, GetNamespaceDelegate>
         {
-            [SystemNamespaceType.BuiltInName] = CreateSystemNamespace,
             [AzNamespaceType.BuiltInName] = CreateAzNamespace,
-            [K8sNamespaceType.BuiltInName] = CreateK8sNamespace,
-            [MicrosoftGraphNamespaceType.BuiltInName] = CreateMicrosoftGraphNamespace
+            [SystemNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => SystemNamespaceType.Create(providerDescriptor.Alias, features, sourceFileKind),
+            [K8sNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => K8sNamespaceType.Create(providerDescriptor.Alias),
+            [MicrosoftGraphNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => MicrosoftGraphNamespaceType.Create(providerDescriptor.Alias),
         }.ToImmutableDictionary();
     }
 
-    // Define delegate functions for each namespace type
-    private readonly GetNamespaceDelegate CreateSystemNamespace = (providerDescriptor, resourceScope, features, sourceFileKind)
-        => SystemNamespaceType.Create(providerDescriptor.Alias, features, sourceFileKind);
-
-    private readonly GetNamespaceDelegate CreateK8sNamespace = (providerDescriptor, resourceScope, features, sourceFileKind)
-        => K8sNamespaceType.Create(providerDescriptor.Alias);
-
-    private readonly GetNamespaceDelegate CreateMicrosoftGraphNamespace = (providerDescriptor, resourceScope, features, sourceFileKind)
-        => MicrosoftGraphNamespaceType.Create(providerDescriptor.Alias);
-
-
-    private NamespaceType? CreateAzNamespace(TypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
+    private NamespaceType? CreateAzNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
     {
         if (!features.DynamicTypeLoadingEnabled)
         {
@@ -69,16 +58,19 @@ public class DefaultNamespaceProvider : INamespaceProvider
               scope,
               dynamicallyLoadedProvider!,
               sourceFileKind);
-
     }
 
     public NamespaceType? TryGetNamespace(
-        TypesProviderDescriptor typesProviderDescriptor,
+        ResourceTypesProviderDescriptor typesProviderDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
         BicepSourceFileKind sourceFileKind)
-    //TODO(asilverman): This is the location where we would like to add support for extensibility providers, we want to add a new key and a new loader for the ext. provider
-        => providerLookup.TryGetValue(typesProviderDescriptor.Name)?.Invoke(typesProviderDescriptor, resourceScope, features, sourceFileKind);
+        => providerLookup.TryGetValue(typesProviderDescriptor.Name)?
+        .Invoke(
+            typesProviderDescriptor,
+            resourceScope,
+            features,
+            sourceFileKind);
 
     public IEnumerable<string> AvailableNamespaces
         => providerLookup.Keys;

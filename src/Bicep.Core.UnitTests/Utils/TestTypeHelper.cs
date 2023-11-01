@@ -18,11 +18,11 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class TestTypeHelper
     {
-        private class TestProviderTypeLoader : IResourceTypeLoader
+        private class TestResourceTypeLoader : IResourceTypeLoader
         {
             private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes;
 
-            public TestProviderTypeLoader(IEnumerable<ResourceTypeComponents> resourceTypes)
+            public TestResourceTypeLoader(IEnumerable<ResourceTypeComponents> resourceTypes)
             {
                 this.resourceTypes = resourceTypes.ToImmutableDictionary(x => x.TypeReference);
             }
@@ -35,19 +35,19 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static IResourceTypeProvider CreateAzResourceTypeProviderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
-        => new AzResourceTypeProvider(new TestProviderTypeLoader(resourceTypes), "fake");
+        => new AzResourceTypeProvider(new TestResourceTypeLoader(resourceTypes), "fake");
 
         public static IResourceTypeLoader CreateEmptyResourceTypeLoader()
-            => new TestProviderTypeLoader(Enumerable.Empty<ResourceTypeComponents>());
+            => new TestResourceTypeLoader(Enumerable.Empty<ResourceTypeComponents>());
 
         public static IResourceTypeLoader CreateResourceTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
-            => new TestProviderTypeLoader(resourceTypes);
+            => new TestResourceTypeLoader(resourceTypes);
 
         public static IResourceTypeProviderFactory CreateResourceTypeLoaderFactory(IResourceTypeProvider provider)
         {
             var factory = StrictMock.Of<IResourceTypeProviderFactory>();
             factory.Setup(m => m.GetResourceTypeProvider(
-                It.IsAny<TypesProviderDescriptor>(),
+                It.IsAny<ResourceTypesProviderDescriptor>(),
                 It.IsAny<IFeatureProvider>()))
                 .Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
             factory.Setup(m => m.GetBuiltInAzResourceTypesProvider()).Returns(provider);

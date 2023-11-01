@@ -109,7 +109,7 @@ public static class IServiceCollectionExtensions
         var factory = StrictMock.Of<IResourceTypeProviderFactory>();
         var provider = new AzResourceTypeProvider(loader);
         factory.Setup(m => m.GetBuiltInAzResourceTypesProvider()).Returns(provider);
-        factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<TypesProviderDescriptor>(), It.IsAny<IFeatureProvider>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
+        factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<ResourceTypesProviderDescriptor>(), It.IsAny<IFeatureProvider>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
         return Register(services, factory.Object);
     }
 

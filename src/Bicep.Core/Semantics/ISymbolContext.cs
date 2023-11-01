@@ -13,12 +13,8 @@ namespace Bicep.Core.Semantics
 
         Compilation Compilation { get; }
 
-        RootConfiguration Configuration { get; }
-
         IBinder Binder { get; }
 
         BicepSourceFile SourceFile { get; }
-
-        Uri SourceFileUri { get; }
     }
 }

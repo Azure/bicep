@@ -35,21 +35,6 @@ namespace Bicep.Core.Configuration
                 analyzersConfiguration.DiagnosticBuilders);
         }
 
-        public static RootConfiguration WithCacheRootDirectory(this RootConfiguration toModify, string directory)
-        {
-            return new RootConfiguration(
-                toModify.Cloud,
-                toModify.ModuleAliases,
-                toModify.ProviderAliases,
-                toModify.Analyzers,
-                directory,
-                toModify.ExperimentalFeaturesEnabled,
-                toModify.Formatting,
-                toModify.ConfigurationPath,
-                toModify.DiagnosticBuilders
-                );
-        }
-
         public static RootConfiguration WithAnalyzersDisabled(this RootConfiguration analyzersConfiguration, params string[] analyzerCodesToDisable)
         {
             return new RootConfiguration(
