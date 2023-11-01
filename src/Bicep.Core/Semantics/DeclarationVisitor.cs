@@ -193,6 +193,7 @@ namespace Bicep.Core.Semantics
 
                 Uri? providerUri = null;
                 if (syntax.Specification.Name == AzNamespaceType.BuiltInName &&
+                    features.DynamicTypeLoadingEnabled &&
                     !this.sourceFileLookup.TryGetProviderFileUri(syntax).IsSuccess(out providerUri, out var providerUriLookupErrorBuilder))
                 {
                     return ErrorType.Create(providerUriLookupErrorBuilder(DiagnosticBuilder.ForPosition(syntax)));

@@ -34,7 +34,7 @@ namespace Bicep.Core.IntegrationTests
            .WithFeatureOverrides(new(
                CacheRootDirectory: @"C:/.bicep",
                ExtensibilityEnabled: true,
-               DynamicTypeLoading: true))
+               DynamicTypeLoadingEnabled: true))
             .WithNamespaceProvider(
             new TestNamespaceProvider(new()
             {

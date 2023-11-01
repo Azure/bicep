@@ -29,14 +29,18 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
         IFeatureProvider featureProvider,
         BicepSourceFileKind sourceFileKind)
     {
-        if (defaultNamespaceProvider.TryGetNamespace(
-            typesProviderDescriptor,
-            resourceScope,
-            featureProvider,
-            sourceFileKind) is { } namespaceType)
+
+        if (typesProviderDescriptor.Name == AzNamespaceType.BuiltInName && typesProviderDescriptor.Version == "0.0.0")
         {
-            return namespaceType;
+            typesProviderDescriptor = new(typesProviderDescriptor.Name);
         }
+
+        var namespaceType = defaultNamespaceProvider.TryGetNamespace(
+           typesProviderDescriptor,
+           resourceScope,
+           featureProvider,
+           sourceFileKind);
+
 
         return typesProviderDescriptor.Name switch
         {
@@ -45,7 +49,7 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
             BarNamespaceType.BuiltInName
                 => BarNamespaceType.Create(typesProviderDescriptor.Alias),
             _
-                => default,
+                => namespaceType,
         };
     }
 }

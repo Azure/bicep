@@ -19,7 +19,7 @@ namespace Bicep.Core.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         private ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true))
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: $"C:/.bicep"))
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
 
         [TestMethod]
@@ -624,7 +624,7 @@ Hello from Bicep!"));
         public void Az_namespace_can_be_used_without_configuration()
         {
             var result = CompilationHelper.Compile(Services, @"
-provider 'br/public:az@1.0.0'
+provider 'br/public:az@0.0.0'
 ");
 
             result.Should().GenerateATemplate();
@@ -635,7 +635,7 @@ provider 'br/public:az@1.0.0'
         public void Az_namespace_errors_with_configuration()
         {
             var result = CompilationHelper.Compile(Services, @"
-provider 'br/public:az@1.0.0' with {}
+provider 'br/public:az@0.0.0' with {}
 ");
 
             result.Should().NotGenerateATemplate();
