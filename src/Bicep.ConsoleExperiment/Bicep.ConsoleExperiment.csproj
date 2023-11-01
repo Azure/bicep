@@ -11,4 +11,12 @@
     <PackageReference Include="Spectre.Console" Version="0.47.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AdditionalFiles Remove="C:\repos\bicep\src\/BannedSymbols.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Remove="C:\repos\bicep\src\/BannedSymbols.txt" />
+  </ItemGroup>
+
 </Project>

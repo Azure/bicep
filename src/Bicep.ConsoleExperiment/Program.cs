@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.ConsoleExperiment;
 using Spectre.Console;
+using Spectre.Console.Rendering;
 
 public static class Example
 {
@@ -19,25 +21,11 @@ public static class Example
         }
         return value;
     }
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         //create dummy deployment info
         var deploymentObj = new DeploymentInfo("azureDeploy2", "stephy-rg", "0.01 (AzHPCImageGallery/AlmaLinuxHPC-8.6-gen2/0.0.1) - Microsoft Azure", "Value");
-
-        // Render each item in list on separate line
-        AnsiConsole.Write("Deploment name: ");
-        AnsiConsole.Write(new Text(deploymentObj.Name, new Style(Color.Blue)));
-        AnsiConsole.WriteLine();
-        AnsiConsole.Write("Resource group: ");
-        AnsiConsole.Write(new Text(deploymentObj.ResourceGroup, new Style(Color.Blue)));
-        AnsiConsole.WriteLine();
-        AnsiConsole.Write("Portal Link: ");
-        AnsiConsole.Write(new Text(deploymentObj.PortalLink, new Style(Color.Blue)));
-        AnsiConsole.WriteLine();
-        AnsiConsole.Write("Correlation ID: ");
-        AnsiConsole.Write(new Text(deploymentObj.CorrelationID, new Style(Color.Blue)));
-        AnsiConsole.WriteLine("\n");
-
+    
         //create dummy deployment objects
         var d1 = new Deployments("networkInterfaceName", "Microsoft.Network/networkInterfaces", "Creating");
         var d2 = new Deployments("networkSecurityGroup", "Microsoft.Network/networkSecurityGroups", "Created");
@@ -54,127 +42,211 @@ public static class Example
 
         //group in a list
         var deploymentList = new List<Deployments>() { d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12 }; //original
+       
         var w = Console.WindowWidth;
+        var h = Console.WindowHeight;
         //fill up to 800
         var truncatedList = new List<Deployments>(); //modified
-        for (int i = 0; i < 40; i++)
+        for (int i = 0; i < 60; i++)
         {
-            truncatedList.Add(deploymentList[i % 12]);
-            truncatedList[i].Name = Truncate(truncatedList[i].Name, w / 3);
+            var name = "name" + i;
+            var type = "resourceType" + i;
+            var status = "status" + i;
+            var tempDepObj = new Deployments(name, type, status);
+            truncatedList.Add(tempDepObj);
+            //truncatedList[i].Name = deploymentList[i % 12].Name + "#" + i;
+            //truncatedList[i].Name = Truncate(truncatedList[i].Name, w / 4); 
         }
 
         //group by resource type
         var resourceGroups = truncatedList.GroupBy(d => d.ResourceType);
 
-        var table = new Table().LeftAligned();
-        table.Border = TableBorder.Simple;
-        table.Collapse();
-        table.Width(w);
-        table.AddColumn("Name").LeftAligned();
-        table.AddColumn("Resource Type");// column=>column.Width(60).Alignment(Justify.Right));
-        table.AddColumn("Status").LeftAligned();
-        await AnsiConsole.Live(table)
-        .StartAsync(async ctx =>
-        {
-            foreach (var group in resourceGroups)
-            {
-                foreach (var item in group)
-                {
-                    if (item.Status.Equals("Creating"))
-                    {
-                        table.AddRow($"[yellow]{item.Name}[/]", item.ResourceType, $"[blue]{item.Status}[/]").LeftAligned();
-                    }
-                    else
-                    {
-                        table.AddRow($"[yellow]{item.Name}[/]", item.ResourceType, $"[green]{item.Status}[/]").LeftAligned();
-                    }
-                    ctx.Refresh();
-                    await Task.Delay(50);
-                }
-            }
-            //update all statuses to created
-            var count = 0;
-            foreach (var group in resourceGroups)
-            {
-                foreach (var item in group)
-                {
-                    count++;
-                    if (item.Status.Equals("Creating"))
-                    {
-                        table.UpdateCell(count - 1, 2, "[green]Created[/]");
-                        await Task.Delay(500);
-                        ctx.Refresh();
-                    }
-                }
-            }
-            
-        });
+        const int startX = 0;
+        const int startY = 5;
+        const int optionsPerLine = 3;
+        const int spacingPerLine = 55;
 
-        //All deployments should be set to created at this point
-        //modify deployment list to reflect changes
+        int currentSelection = 0;
 
-        for (int i = 0; i < deploymentList.Count; i++)
+        ConsoleKey key;
+
+        Console.CursorVisible = false;
+
+        //organized deployments list
+        var rgList = new List<string>();
+        rgList.Add("Name ");
+        rgList.Add("Resource Type");
+        rgList.Add("Status ");
+
+        foreach (var group in resourceGroups)
         {
-            deploymentList[i].Status = "Created";
+            foreach (var item in group)
+            {
+                rgList.Add(item.Name);
+                rgList.Add(item.ResourceType);
+                rgList.Add(item.Status);
+            }
         }
-        
-        //Loop to adjust for change in terminal size width
-        while (true)
+
+        //var rgList2 = resourceGroups.SelectMany(item => item).ToList();
+        //var count = 5;
+
+        Console.SetCursorPosition(0, 0);
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("Deploment name: ");
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine(deploymentObj.Name);
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("Resource group: ");
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine(deploymentObj.ResourceGroup);
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("Portal Link: ");
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine(deploymentObj.PortalLink);
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.Write("Correlation ID: ");
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine(deploymentObj.CorrelationID);
+        Console.ResetColor();
+        var viewableRange = 3 * (h - 5);
+        var flag = 0;
+        var tempList = new List<string>(new string[viewableRange]);
+        do
         {
-            w = Console.WindowWidth;
-            if (w != Console.WindowWidth)
+            if (currentSelection > viewableRange)
             {
-                w = Console.WindowWidth;
-                AnsiConsole.Write("Deploment name: ");
-                AnsiConsole.Write(new Text(deploymentObj.Name, new Style(Color.Blue)));
-                AnsiConsole.WriteLine();
-                AnsiConsole.Write("Resource group: ");
-                AnsiConsole.Write(new Text(deploymentObj.ResourceGroup, new Style(Color.Blue)));
-                AnsiConsole.WriteLine();
-                AnsiConsole.Write("Portal Link: ");
-                AnsiConsole.Write(new Text(deploymentObj.PortalLink, new Style(Color.Blue)));
-                AnsiConsole.WriteLine();
-                AnsiConsole.Write("Correlation ID: ");
-                AnsiConsole.Write(new Text(deploymentObj.CorrelationID, new Style(Color.Blue)));
-                AnsiConsole.WriteLine("\n");
-
-                for (int i = 0; i < 40; i++)
+                flag = 1;
+                var count = currentSelection;
+                for (int i = 0; i < viewableRange; i++)
                 {
-                    truncatedList[i].Name = Truncate(deploymentList[i % 12].Name, w / 3);
-                }
+                    Console.SetCursorPosition(startX + (i % optionsPerLine) * spacingPerLine, startY + i / optionsPerLine);
 
-                //group by resource type
-                resourceGroups = truncatedList.GroupBy(d => d.ResourceType);
-
-                table = new Table().LeftAligned();
-                table.Border = TableBorder.Simple;
-                table.Collapse();
-                table.Width(w);
-                table.AddColumn("Name").LeftAligned();
-                table.AddColumn("Resource Type");// column=>column.Width(60).Alignment(Justify.Right));
-                table.AddColumn("Status").LeftAligned();
-                //table.Columns
-                await AnsiConsole.Live(table)
-                .StartAsync(async ctx =>
-                {
-                    foreach (var group in resourceGroups)
+                    if (i == viewableRange - 3)
                     {
-                        foreach (var item in group)
+                        Console.ForegroundColor = ConsoleColor.Red;
+                    }
+                    if (count < rgList.Count)
+                    {
+                        Console.Write(rgList[count - viewableRange + i]);
+                        Console.Write(new String(' ', Math.Abs(rgList[count - viewableRange + i].Length - tempList[i].Length)));
+                        tempList[i] = rgList[count - viewableRange + i];
+                    }
+                    Console.ResetColor();
+                }
+            }
+            else
+            {
+                for (int i = 0; i < viewableRange; i++)
+                {
+                    Console.SetCursorPosition(startX + (i % optionsPerLine) * spacingPerLine, startY + i / optionsPerLine);
+                    
+                    if (i == currentSelection)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                    }
+
+                    Console.Write(rgList[i]);
+                    tempList[i] = rgList[i];
+                    if (flag == 1)
+                    {
+                        Console.Write(new String(' ', Math.Abs(rgList[i].Length - tempList[i].Length)));
+                    }
+                    Console.ResetColor();
+                }
+                if (flag == 1)
+                {
+                    flag = 0;
+                }
+            }
+
+            key = Console.ReadKey(true).Key;
+
+            switch (key)
+            {
+                case ConsoleKey.LeftArrow:
+                    {
+                        if (currentSelection % optionsPerLine > 0)
                         {
-                            if (item.Status.Equals("Creating"))
-                            {
-                                table.AddRow($"[yellow]{item.Name}[/]", item.ResourceType, $"[blue]{item.Status}[/]").LeftAligned();
-                            }
-                            else
-                            {
-                                table.AddRow($"[yellow]{item.Name}[/]", item.ResourceType, $"[green]{item.Status}[/]").LeftAligned();
-                            }
+                            currentSelection--;
                         }
+                        break;
                     }
-                    ctx.Refresh();
-                    await Task.Delay(50);
-                });
+                case ConsoleKey.RightArrow:
+                    {
+                        if (currentSelection % optionsPerLine < optionsPerLine - 1)
+                        {
+                            currentSelection++;
+                        }
+                        break;
+                    }
+                case ConsoleKey.UpArrow:
+                    {
+                        if (currentSelection >= optionsPerLine) {
+                                currentSelection -= optionsPerLine;
+                        }
+                        break;
+                    }
+                case ConsoleKey.DownArrow:
+                    {
+                    if (currentSelection + optionsPerLine < rgList.Count)
+                    {
+                        currentSelection += optionsPerLine;
+                    }
+                        break;
+                    }
+                case ConsoleKey.Escape:
+                    {
+                       return;
+                    }
             }
-        }
+
+        } while (key != ConsoleKey.Enter);
+
+        Console.CursorVisible = true;
+
+        return;
     }
+
+    //while (true)
+    //{
+    //    Console.Clear();
+
+    //    for (int i = 0; i < truncatedList.Count; i++)
+    //    {
+    //        Console.SetCursorPosition(cursor.Left + (i % 10), cursor.Top +  i);
+
+    //        if (i == viewableIndex)
+    //        {
+    //            Console.ForegroundColor = ConsoleColor.Red;
+    //        }
+
+    //        Console.WriteLine(truncatedList[i].Name + " " + truncatedList[i].ResourceType + " " + truncatedList[i].Status);
+
+    //        Console.ResetColor();
+    //    }
+
+    //    if (Console.KeyAvailable)
+    //    {
+    //        ConsoleKeyInfo key = Console.ReadKey(true);
+    //        switch (key.Key)
+    //        {
+    //            case ConsoleKey.UpArrow:
+    //                if (viewableIndex != 0)
+    //                {
+    //                    viewableIndex--;
+    //                }
+    //                break;
+    //            case ConsoleKey.DownArrow:
+    //                if (viewableIndex < truncatedList.Count)
+    //                {
+    //                    viewableIndex++;
+    //                }
+    //                break;
+    //            default:
+    //                break;
+    //        }
+    //    }
+    //}
 }
+
