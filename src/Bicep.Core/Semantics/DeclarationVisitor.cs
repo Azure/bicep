@@ -3,18 +3,18 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Registry;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
-using System.IO;
 
 namespace Bicep.Core.Semantics
 {

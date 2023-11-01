@@ -88,11 +88,11 @@ namespace Bicep.Core.Samples
         public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(bool? publishSource, params (Uri registryUri, string repository)[] clients)
         {
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
-          
+
             foreach (var (registryUri, repository) in clients)
             {
                 containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryUri, repository);
-                    
+
             }
 
             return containerRegistryFactoryBuilder.Build();

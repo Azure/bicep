@@ -26,9 +26,9 @@ namespace Bicep.LangServer.UnitTests.Snippets
             => ServiceBuilder.Create(s => s.AddSingleton<SnippetsProvider>()).Construct<SnippetsProvider>();
 
         private readonly NamespaceType azNamespaceType = BicepTestConstants.NamespaceProvider.TryGetNamespace(
-            new(AzNamespaceType.BuiltInName), 
-            ResourceScope.ResourceGroup, 
-            BicepTestConstants.Features, 
+            new(AzNamespaceType.BuiltInName),
+            ResourceScope.ResourceGroup,
+            BicepTestConstants.Features,
             BicepSourceFileKind.BicepFile)!;
 
         [TestMethod]
