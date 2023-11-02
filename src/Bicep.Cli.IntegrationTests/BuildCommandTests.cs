@@ -187,7 +187,6 @@ import '{providerDeclarationSyntax}@2.0.0'
             if (shouldSucceed)
             {
                 // 7. assert the provider files were restored to the cache directory
-                //TODO(asilverman): Use `CachedModules.GetCachedRegistryModules`
                 Directory.Exists(settings.FeatureOverrides.CacheRootDirectory).Should().BeTrue();
                 var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ModuleReferenceSchemes.Oci, containingFolder, "bicep$providers$az", "2.0.0$");
                 Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });

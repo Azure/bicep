@@ -45,8 +45,7 @@ namespace Bicep.Core.TypeSystem
             var ociManifestPath = Path.Combine(providerDescriptor.Path, "manifest");
             if (!File.Exists(ociManifestPath))
             {
-                //TODO(asilverman): Review/Fix error message
-                return new(x => x.ErrorOccurredReadingFile(ociManifestPath));
+                return new(x => x.ArtifactFilePathCouldNotBeResolved(ociManifestPath));
             }
 
             // Read the OCI manifest
@@ -55,7 +54,6 @@ namespace Bicep.Core.TypeSystem
 
             if (ociManifest is null)
             {
-                //TODO(asilverman): Review/Fix error message
                 return new(x => x.ErrorOccurredReadingFile(ociManifestPath)); ;
             }
 

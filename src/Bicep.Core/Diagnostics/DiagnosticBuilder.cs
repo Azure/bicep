@@ -2111,6 +2111,12 @@ namespace Bicep.Core.Diagnostics
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
 
+            public ErrorDiagnostic ArtifactFilePathCouldNotBeResolved(string ociManifestPath) => new(
+                TextSpan,
+                "BCP381",
+                $"The artifact file path could not be resolved from the OCI manifest file: \"{ociManifestPath}\"."
+            );
+
             public FixableDiagnostic ProviderDeclarationViaImportKeywordIsDeprecated(ProviderDeclarationSyntax syntax)
             {
                 var codeFix = new CodeFix(
