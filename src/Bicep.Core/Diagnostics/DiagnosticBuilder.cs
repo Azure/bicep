@@ -2110,13 +2110,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP380",
                 $"Artifacts of type: \"{artifactType}\" are not supported."
             );
-
-            public ErrorDiagnostic ArtifactFilePathCouldNotBeResolved(string ociManifestPath) => new(
-                TextSpan,
-                "BCP381",
-                $"The artifact file path could not be resolved from the OCI manifest file: \"{ociManifestPath}\"."
-            );
-
+            
             public FixableDiagnostic ProviderDeclarationViaImportKeywordIsDeprecated(ProviderDeclarationSyntax syntax)
             {
                 var codeFix = new CodeFix(
@@ -2134,6 +2128,12 @@ namespace Bicep.Core.Diagnostics
                     DiagnosticStyling.Default,
                     codeFix);
             }
+
+            public ErrorDiagnostic ArtifactFilePathCouldNotBeResolved(string ociManifestPath) => new(
+                TextSpan,
+                "BCP382",
+                $"The artifact file path could not be resolved from the OCI manifest file: \"{ociManifestPath}\"."
+            );
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
