@@ -423,10 +423,41 @@ namespace Bicep.Core.Parsing
             return new VariableAccessSyntax(identifier);
         }
 
-        private SyntaxBase TypeVariableAccess()
+        private SyntaxBase ParameterizedTypeArgument()
+        {
+            var expression = this.WithRecovery(TypeExpression, RecoveryFlags.None, TokenType.NewLine, TokenType.Comma, TokenType.RightChevron);
+
+            return new ParameterizedTypeArgumentSyntax(expression);
+        }
+
+        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, Token CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax utilityTypeName)
+        {
+            var openChevron = this.Expect(TokenType.LeftChevron, b => b.ExpectedCharacter("<"));
+
+            var itemsOrTokens = HandleFunctionElements(
+                closingTokenType: TokenType.RightChevron,
+                parseChildElement: ParameterizedTypeArgument);
+
+            var closeChevron = this.Expect(TokenType.RightChevron, b => b.ExpectedCharacter(">"));
+
+            return (utilityTypeName, openChevron, itemsOrTokens, closeChevron);
+        }
+
+        private SyntaxBase UtilityTypeOrTypeVariableAccess()
         {
             var identifierToken = Expect(TokenType.Identifier, b => b.ExpectedTypeIdentifier());
             var identifier = new IdentifierSyntax(identifierToken);
+
+            if (Check(TokenType.LeftChevron))
+            {
+                var utilityType = ParameterizedTypeInstantiation(identifier);
+
+                return new ParameterizedTypeInstantiationSyntax(
+                    utilityType.Identifier,
+                    utilityType.OpenChevron,
+                    utilityType.ParameterNodes,
+                    utilityType.CloseChevron);
+            }
 
             return new VariableAccessSyntax(identifier);
         }
@@ -1218,7 +1249,7 @@ namespace Bicep.Core.Parsing
                     return this.ParenthesizedTypeExpression();
 
                 case TokenType.Identifier:
-                    return this.TypeVariableAccess();
+                    return this.UtilityTypeOrTypeVariableAccess();
 
                 default:
                     throw new ExpectedTokenException(nextToken, b => b.UnrecognizedTypeExpression());
@@ -1310,8 +1341,9 @@ namespace Bicep.Core.Parsing
 
         protected SyntaxBase Type(bool allowOptionalResourceType)
         {
-            if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is { } resourceKeyword)
+            if (CheckKeyword(LanguageConstants.ResourceKeyword) && this.reader.PeekAhead(1)?.Type != TokenType.LeftChevron)
             {
+                var resourceKeyword = reader.Read();
                 var type = this.WithRecoveryNullable(
                     () =>
                     {

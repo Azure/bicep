@@ -1140,5 +1140,34 @@ namespace Bicep.Core.Syntax
             return new CompileTimeImportFromClauseSyntax(keyword, path);
         }
         void ISyntaxVisitor.VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceCompileTimeImportFromClauseSyntax);
+
+        protected virtual SyntaxBase ReplaceParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewriteStrict(syntax.OpenChevron, out var openChevron);
+            hasChanges |= TryRewriteStrict(syntax.Children, out var children);
+            hasChanges |= TryRewriteStrict(syntax.CloseChevron, out var closeChevron);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ParameterizedTypeInstantiationSyntax(name, openChevron, children, closeChevron);
+        }
+        void ISyntaxVisitor.VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax) => ReplaceCurrent(syntax, ReplaceParameterizedTypeInstantiationSyntax);
+
+        protected virtual SyntaxBase ReplaceParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.Expression, out var expression);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ParameterizedTypeArgumentSyntax(expression);
+        }
+        void ISyntaxVisitor.VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax) => ReplaceCurrent(syntax, ReplaceParameterizedTypeArgumentSyntax);
     }
 }

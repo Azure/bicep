@@ -147,6 +147,10 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax);
 
+        public abstract void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax);
+
+        public abstract void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax);
+
         public void Visit(SyntaxBase? node)
         {
             if (node == null)

@@ -536,6 +536,22 @@ type multilineUnion = 'a'
             fromPath.TryGetLiteralValue().Should().Be("other.bicep");
         }
 
+        [TestMethod]
+        public void Utility_type_should_parse_successfully()
+        {
+            var typeStatement = "type saType = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>";
+
+            var parsed = ParserHelper.Parse(typeStatement);
+            var statement = parsed.Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>().Subject;
+
+            var imported = statement.Value.Should().BeOfType<ParameterizedTypeInstantiationSyntax>().Subject;
+            imported.Name.IdentifierName.Should().Be("resource");
+            imported.Arguments.Should().HaveCount(1);
+
+            var singleParam = imported.Arguments.Single().Expression.Should().BeOfType<StringSyntax>().Subject;
+            singleParam.TryGetLiteralValue().Should().Be("Microsoft.Storage/storageAccounts@2022-09-01");
+        }
+
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)
         {
             SyntaxBase expression = ParserHelper.ParseExpression(text);
