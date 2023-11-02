@@ -8,7 +8,6 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
-using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.TypeSystem.Az
 {

@@ -3,14 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
@@ -55,22 +52,5 @@ namespace Bicep.Core.Syntax
         public ArtifactType GetArtifactType() => ArtifactType.Provider;
 
         public SyntaxBase Path => SyntaxFactory.CreateStringLiteral(this.Specification.BicepRegistryAddress);
-
-        //public ResultWithDiagnostic<string> TryGetProviderDirectoryInCache(IArtifactReferenceFactory factory, IFeatureProvider features, Uri parentModuleUri)
-        //{
-        //    if (!this.Specification.IsValid)
-        //    {
-        //        return new(x => x.InvalidProviderSpecification());
-        //    }
-        //    if (this.Specification.BicepRegistryAddress == null)
-        //    {
-        //        return new(IResourceTypeProvider.BuiltInVersion); // since specification is valid it must be builtin
-        //    }
-        //    if (!factory.TryGetArtifactReference(ArtifactType.Provider, this.Specification.BicepRegistryAddress, parentModuleUri).IsSuccess(out var reference, out var errorbuilder))
-        //    {
-        //        return new(errorbuilder);
-        //    }
-        //    return new(ImportSpecification.GetArtifactDirectoryPath(reference, features.CacheRootDirectory));
-        //}
     }
 }

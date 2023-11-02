@@ -27,7 +27,6 @@ namespace Bicep.Core.Semantics
         private readonly ResourceScope targetScope;
         private readonly ISymbolContext context;
         private readonly BicepSourceFileKind sourceFileKind;
-        private readonly IArtifactReferenceFactory factory;
         private readonly IList<ScopeInfo> localScopes;
 
         private readonly Stack<ScopeInfo> activeScopes = new();
@@ -42,7 +41,6 @@ namespace Bicep.Core.Semantics
             this.context = context;
             this.localScopes = localScopes;
             this.sourceFileKind = sourceFileKind;
-            this.factory = factory;
         }
 
         // Returns the list of top level declarations as well as top level scopes.
