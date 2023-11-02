@@ -64,18 +64,19 @@ namespace Bicep.LanguageServer.Handlers
             this.featureProviderFactory = featureProviderFactory;
         }
 
-        public override Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)
+        public override async Task<LocationOrLocationLinks?> Handle(DefinitionParams request, CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
             var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
             if (context is null)
             {
-                return Task.FromResult(new LocationOrLocationLinks());
+                return null;
             }
 
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
 
             // No parent Symbol: ad hoc syntax matching
-            var response = result switch
+            return result switch
             {
                 null => HandleUnboundSymbolLocation(request, context),
 
@@ -98,10 +99,8 @@ namespace Bicep.LanguageServer.Handlers
                 // Used for module (name), variable, wildcard import, or resource property access
                 { Symbol: PropertySymbol } => HandlePropertyLocation(request, result, context),
 
-                _ => new(),
+                _ => null,
             };
-
-            return Task.FromResult(response);
         }
 
         protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, ClientCapabilities clientCapabilities) => new()

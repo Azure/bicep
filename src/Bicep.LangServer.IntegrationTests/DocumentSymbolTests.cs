@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Bicep.LangServer.IntegrationTests.Assertions;
@@ -196,6 +197,6 @@ param three = []
                 {
                     Uri = documentUri
                 }
-            });
+            }) ?? throw new InvalidOperationException("Failed to get symbols");
     }
 }
