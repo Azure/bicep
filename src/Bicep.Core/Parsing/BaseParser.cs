@@ -76,9 +76,9 @@ namespace Bicep.Core.Parsing
             TokenType.Plus or
             TokenType.Minus => 90,
 
-            TokenType.GreaterThan or
+            TokenType.RightChevron or
             TokenType.GreaterThanOrEqual or
-            TokenType.LessThan or
+            TokenType.LeftChevron or
             TokenType.LessThanOrEqual => 80,
 
             TokenType.Equals or
