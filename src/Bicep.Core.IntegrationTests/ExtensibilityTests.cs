@@ -7,6 +7,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,7 +22,7 @@ namespace Bicep.Core.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         private ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: Path.Combine(Environment.OSVersion.Platform.Equals(PlatformID.Win32NT) ? @"C:/" : "/", ".bicep")))
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: InMemoryFileResolver.GetFileUri("/.bicep").LocalPath))
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
 
         [TestMethod]

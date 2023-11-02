@@ -20,6 +20,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
@@ -33,7 +34,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private ServiceBuilder ServicesWithImports => new ServiceBuilder()
            .WithFeatureOverrides(new(
-               CacheRootDirectory: @"C:/.bicep",
+               CacheRootDirectory: InMemoryFileResolver.GetFileUri("/.bicep").LocalPath,
                ExtensibilityEnabled: true,
                DynamicTypeLoadingEnabled: true))
             .WithNamespaceProvider(
