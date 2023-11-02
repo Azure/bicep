@@ -3,6 +3,7 @@
 using Bicep.Core.Extensions;
 using Bicep.Core.Rewriters;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

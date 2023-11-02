@@ -7,6 +7,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Visitors;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 

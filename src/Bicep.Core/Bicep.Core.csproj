@@ -62,4 +62,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties configuration_4bicepconfig_1json__JsonSchema="https://appsemble.app/api.json" /></VisualStudio></ProjectExtensions>
+  <ItemGroup>
+    <Content Remove="obj\Debug\net7.0\ThirdPartyNotices.txt" />
+  </ItemGroup>
 </Project>

@@ -1,0 +1,18 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
+using Azure.Bicep.Types;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
+using Bicep.Core.Semantics.Namespaces;
+
+namespace Bicep.Core.TypeSystem.Providers.Az
+{
+    public interface IResourceTypeProviderFactory
+    {
+        ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ResourceTypesProviderDescriptor providerDescriptor, IFeatureProvider features);
+
+        IResourceTypeProvider GetBuiltInAzResourceTypesProvider();
+    }
+}

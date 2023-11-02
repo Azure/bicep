@@ -1,0 +1,40 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using Azure.Bicep.Types;
+using Azure.Bicep.Types.K8s;
+using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Types;
+
+namespace Bicep.Core.TypeSystem.Providers.K8s
+{
+    public class K8sResourceTypeLoader : IResourceTypeLoader
+    {
+        private readonly ITypeLoader typeLoader;
+        private readonly K8sResourceTypeFactory resourceTypeFactory;
+        private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
+
+        public K8sResourceTypeLoader()
+        {
+            typeLoader = new K8sTypeLoader();
+            resourceTypeFactory = new K8sResourceTypeFactory();
+            var indexedTypes = typeLoader.LoadTypeIndex();
+            availableTypes = indexedTypes.Resources.ToImmutableDictionary(
+                kvp => ResourceTypeReference.Parse(kvp.Key),
+                kvp => kvp.Value);
+        }
+
+        public IEnumerable<ResourceTypeReference> GetAvailableTypes()
+            => availableTypes.Keys;
+
+        public ResourceTypeComponents LoadType(ResourceTypeReference reference)
+        {
+            var typeLocation = availableTypes[reference];
+
+            var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
+            return resourceTypeFactory.GetResourceType(serializedResourceType);
+        }
+    }
+}

@@ -10,7 +10,8 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
