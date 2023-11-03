@@ -16,16 +16,19 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.TypeSystem
 {
+
+
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
+        private record Key(string Name, string Version);
 
-        private readonly (string, string) BuiltInAzLoaderKey = ("az", IResourceTypeProvider.BuiltInVersion);
-        private readonly Dictionary<(string, string), Lazy<IResourceTypeProvider>> resourceTypeLoaders;
+        private readonly Key BuiltInAzLoaderKey = new("az", IResourceTypeProvider.BuiltInVersion);
+        private readonly Dictionary<Key, IResourceTypeProvider> resourceTypeLoaders;
 
         public ResourceTypeProviderFactory()
         {
             resourceTypeLoaders = new() {
-                {BuiltInAzLoaderKey, new(new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader())))},
+                {BuiltInAzLoaderKey, new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()))},
             };
         }
 
@@ -33,12 +36,13 @@ namespace Bicep.Core.TypeSystem
         {
             if (!features.DynamicTypeLoadingEnabled)
             {
-                return new(resourceTypeLoaders[BuiltInAzLoaderKey].Value);
+                return new(resourceTypeLoaders[BuiltInAzLoaderKey]);
             }
-            var key = (providerDescriptor.Alias, providerDescriptor.Version);
+            var key = new Key(providerDescriptor.Alias, providerDescriptor.Version);
+
             if (resourceTypeLoaders.ContainsKey(key))
             {
-                return new(resourceTypeLoaders[key].Value);
+                return new(resourceTypeLoaders[key]);
             }
 
             // compose the path to the OCI manifest based on the cache root directory and provider version
@@ -58,20 +62,19 @@ namespace Bicep.Core.TypeSystem
             }
 
             // Register a new types loader
-            Lazy<IResourceTypeProvider> newResourceTypeLoader = providerDescriptor.Alias switch
+            IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Alias switch
             {
-                AzNamespaceType.BuiltInName => new(new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(providerDescriptor.Path)), providerDescriptor.Version)),
+                AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(providerDescriptor.Path)), providerDescriptor.Version),
                 _ => throw new NotImplementedException($"The provider {providerDescriptor.Alias} is not supported."),
             };
 
-            resourceTypeLoaders[key] = newResourceTypeLoader;
-            return new(newResourceTypeLoader.Value);
+            return new(resourceTypeLoaders[key] = newResourceTypeLoader);
 
         }
 
         public IResourceTypeProvider GetBuiltInAzResourceTypesProvider()
         {
-            return resourceTypeLoaders[BuiltInAzLoaderKey].Value;
+            return resourceTypeLoaders[BuiltInAzLoaderKey];
         }
     }
 }

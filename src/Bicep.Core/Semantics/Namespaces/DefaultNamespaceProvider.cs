@@ -29,14 +29,14 @@ public class DefaultNamespaceProvider : INamespaceProvider
         this.resourceTypeLoaderFactory = resourceTypeLoaderFactory;
         this.providerLookup = new Dictionary<string, GetNamespaceDelegate>
         {
-            [AzNamespaceType.BuiltInName] = CreateAzNamespace,
+            [AzNamespaceType.BuiltInName] = TryCreateAzNamespace,
             [SystemNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => SystemNamespaceType.Create(providerDescriptor.Alias, features, sourceFileKind),
             [K8sNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => K8sNamespaceType.Create(providerDescriptor.Alias),
             [MicrosoftGraphNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => MicrosoftGraphNamespaceType.Create(providerDescriptor.Alias),
         }.ToImmutableDictionary();
     }
 
-    private NamespaceType? CreateAzNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
+    private NamespaceType? TryCreateAzNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
     {
         if (!features.DynamicTypeLoadingEnabled)
         {

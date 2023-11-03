@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -88,8 +89,12 @@ namespace Bicep.Core.Registry
             {
                 ArtifactType.Module => !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.ModuleMain)),
                 ArtifactType.Provider => !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Provider)),
-                _ => default // should never happen
+                _ => throw new UnreachableException()
             };
+
+            // TODO: Provider artifacts don't write a ModuleMain file, so this code is incorrect.
+            //   That can be solved by only writing layer data files only (see code under features.PublishSourceEnabled)
+            //   and not main.json directly (https://github.com/Azure/bicep/issues/11900)
             return artifactFilesNotFound ||
                 !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Manifest)) ||
                 !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Metadata));
@@ -138,7 +143,7 @@ namespace Bicep.Core.Registry
             {
                 ArtifactType.Module => ArtifactFileType.ModuleMain,
                 ArtifactType.Provider => ArtifactFileType.Provider,
-                _ => default // should never happen
+                _ => throw new UnreachableException()
             };
 
             var localUri = this.GetArtifactFileUri(reference, artifactFileType);
