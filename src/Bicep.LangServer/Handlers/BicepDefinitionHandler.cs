@@ -121,8 +121,7 @@ namespace Bicep.LanguageServer.Handlers
                  && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax).IsSuccess(out var sourceFile)
-                 && this.moduleDispatcher.TryGetArtifactReference(moduleDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var artifactReference)
-                 && artifactReference is OciArtifactReference moduleReference)
+                 && this.moduleDispatcher.TryGetArtifactReference(moduleDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
                 {
                     return HandleModuleReference(context, stringToken, sourceFile, moduleReference);
                 }
@@ -135,8 +134,7 @@ namespace Bicep.LanguageServer.Handlers
                  && matchingNodes[^4] is CompileTimeImportDeclarationSyntax importDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
                  && context.Compilation.SourceFileGrouping.TryGetSourceFile(importDeclarationSyntax).IsSuccess(out var sourceFile)
-                 && this.moduleDispatcher.TryGetArtifactReference(importDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var artifactReference)
-                 && artifactReference is OciArtifactReference moduleReference)
+                 && this.moduleDispatcher.TryGetArtifactReference(importDeclarationSyntax, request.TextDocument.Uri.ToUriEncoded()).IsSuccess(out var moduleReference))
                 {
                     // goto beginning of the module file.
                     return GetFileDefinitionLocation(
@@ -181,7 +179,7 @@ namespace Bicep.LanguageServer.Handlers
             return new();
         }
 
-        private LocationOrLocationLinks HandleModuleReference(CompilationContext context, StringSyntax stringToken, ISourceFile sourceFile, OciArtifactReference reference)
+        private LocationOrLocationLinks HandleModuleReference(CompilationContext context, StringSyntax stringToken, ISourceFile sourceFile, ArtifactReference reference)
         {
             // Return the correct link format so our language client can display the sources
             return GetFileDefinitionLocation(
@@ -191,23 +189,22 @@ namespace Bicep.LanguageServer.Handlers
                 new() { Start = new(0, 0), End = new(0, 0) });
         }
 
-        private Uri GetModuleSourceLinkUri(ISourceFile sourceFile, OciArtifactReference reference)
+        private Uri GetModuleSourceLinkUri(ISourceFile sourceFile, ArtifactReference reference)
         {
-            if (!this.CanClientAcceptRegistryContent() || !reference.IsExternal)
+            if (!this.CanClientAcceptRegistryContent() || !reference.IsExternal || reference is not OciArtifactReference ociReference)
             {
                 // the client doesn't support the bicep-extsrc scheme or we're dealing with a local module
                 // just use the file URI
                 return sourceFile.FileUri;
             }
 
-            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(reference, moduleDispatcher.TryGetModuleSources(reference));
+            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(ociReference, moduleDispatcher.TryGetModuleSources(reference));
         }
 
         private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, DefinitionParams request, SymbolResolutionResult result, WildcardImportSymbol wildcardImport)
         {
             if (context.Compilation.SourceFileGrouping.TryGetSourceFile(wildcardImport.EnclosingDeclaration).IsSuccess(out var sourceFile) &&
-                wildcardImport.TryGetArtifactReference().IsSuccess(out var artifactReference)
-                && artifactReference is OciArtifactReference moduleReference)
+                wildcardImport.TryGetArtifactReference().IsSuccess(out var moduleReference))
             {
                 return GetFileDefinitionLocation(
                     GetModuleSourceLinkUri(sourceFile, moduleReference),
