@@ -1,16 +1,29 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as vscode from "vscode";
-import {
-  LanguageClient,
-  TextDocumentIdentifier,
-} from "vscode-languageclient/node";
+import { LanguageClient } from "vscode-languageclient/node";
 import { Disposable } from "../utils/disposable";
-import { bicepCacheRequestType } from "./protocol";
+import { bicepExternalSourceRequestType } from "./protocol";
 import * as path from "path";
 import { Uri } from "vscode";
 
-export class BicepCacheContentProvider
+export const BicepExternalSourceScheme = "bicep-extsrc";
+type ExternalSource = {
+  // The title to display for the document,
+  //   e.g. "br:myregistry.azurecr.io/myrepo/module/main.json:v1/main.json (module:v1)" or similar
+  // VSCode will display everything after the last slash in the document's tab, and the full string
+  //   on hover.
+  title: string;
+  // Full module reference, e.g. "myregistry.azurecr.io/myrepo/module:v1"
+  moduleReference: string;
+  // File being requested from the source, relative to the module root.
+  //   e.g. main.bicep or mypath/module.bicep
+  // This should be undefined to request the compiled JSON file (can't use "main.json" because there
+  //   might actually be a source file called "main.json" in the original module sources).
+  requestedSourceFile?: string;
+};
+
+export class BicepExternalSourceContentProvider
   extends Disposable
   implements vscode.TextDocumentContentProvider
 {
@@ -25,7 +38,7 @@ export class BicepCacheContentProvider
          *   the language server is called for a particular file only once
          * Moving this to an event listener instead avoids these issues entirely.
          */
-        this.tryFixCacheContentLanguage(document);
+        this.trySetExternalSourceLanguage(document);
       }),
     );
   }
@@ -38,43 +51,42 @@ export class BicepCacheContentProvider
   ): Promise<string> {
     // Ask the language server for the sources for the cached module
     const response = await this.languageClient.sendRequest(
-      bicepCacheRequestType,
-      this.getBicepCacheRequest(uri),
+      bicepExternalSourceRequestType,
+      this.bicepExternalSourceRequest(uri),
       token,
     );
 
     return response.content;
   }
 
-  private getBicepCacheRequest(uri: vscode.Uri) {
-    const [moduleReference, cachePath] = this.decodeBicepCacheUri(uri);
+  private bicepExternalSourceRequest(uri: vscode.Uri) {
+    const { moduleReference } = this.decodeExternalSourceUri(uri);
     return {
-      textDocument: TextDocumentIdentifier.create(cachePath),
       target: moduleReference,
     };
   }
 
-  private decodeBicepCacheUri(uri: vscode.Uri): [
-    moduleReference: string, // e.g. br:myregistry.azurecr.io/myrepo:v1
-    cachePath: string, // eg /Users/MyUserName/.bicep/br/myregistry.azurecr.io/myrepo/v1$/main.json
-  ] {
-    // The uri passed in has this format:
-    //   bicep-cache:module-reference#cache-file-path
-    //
-    // Example decoded URI:
-    //   bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/main.json
-    //
-    // It's important that the path end in the correct file extension so that VS Code can
-    // correctly determine the language ID.
-    const registry = decodeURIComponent(uri.path);
-    const cachePath = decodeURIComponent(uri.fragment);
+  // NOTE: This should match the logic in BicepExternalSourceRequestHandler.GetExternalSourceLinkUri and
+  // also bicep\src\Bicep.LangServer.UnitTests\BicepExternalSourceRequestHandlerTests.cs.DecodeExternalSourceUri
+  private decodeExternalSourceUri(uri: vscode.Uri): ExternalSource {
+    // The uri passed in has this format (encoded):
+    //   bicep-extsrc:{title}?{module-reference}[#{source-file-relative-path}]
+    const title = decodeURIComponent(uri.path);
+    const moduleReference = decodeURIComponent(uri.query);
+    let requestedSourceFile: string | undefined = decodeURIComponent(
+      uri.fragment,
+    );
 
-    return [registry, cachePath];
+    if (requestedSourceFile === "") {
+      requestedSourceFile = undefined;
+    }
+
+    return { title, moduleReference, requestedSourceFile };
   }
 
   private getModuleReferenceScheme(uri: Uri): "br" | "ts" {
-    // e.g. 'br:registry.azurecr.io/module:v3'
-    const [moduleReference] = this.decodeBicepCacheUri(uri);
+    // e.g. 'br:registry.azurecr.io/module:v3' => 'br'
+    const { moduleReference } = this.decodeExternalSourceUri(uri);
 
     const colonIndex = moduleReference.indexOf(":");
     if (colonIndex >= 0) {
@@ -89,21 +101,24 @@ export class BicepCacheContentProvider
     );
   }
 
-  private tryFixCacheContentLanguage(document: vscode.TextDocument): void {
+  private trySetExternalSourceLanguage(document: vscode.TextDocument): void {
     if (
-      document.uri.scheme === "bicep-cache" &&
+      document.uri.scheme === BicepExternalSourceScheme &&
       document.languageId === "plaintext"
     ) {
-      // the file is showing content from the bicep cache and the language is still set to plain text
+      // The file is showing content from the bicep cache and the language is still set to plain text, so
       // we should try to correct it
 
       const scheme = this.getModuleReferenceScheme(document.uri);
-      const [, cachePath] = this.decodeBicepCacheUri(document.uri);
+      const { requestedSourceFile } = this.decodeExternalSourceUri(
+        document.uri,
+      );
 
       // Not necessary to wait for this to finish
       void vscode.languages.setTextDocumentLanguage(
         document,
-        this.getLanguageId(scheme, cachePath),
+        // If no requestedSourceFile, we're being asked for the compiled main.json file
+        this.getLanguageId(scheme, requestedSourceFile ?? "main.json"),
       );
     }
   }

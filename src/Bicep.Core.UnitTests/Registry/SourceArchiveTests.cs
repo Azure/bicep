@@ -148,7 +148,7 @@ public class SourceArchiveTests
         stream.Length.Should().BeGreaterThan(0);
 
         SourceArchive sourceArchive = SourceArchive.FromStream(stream);
-        sourceArchive.EntrypointPath.Should().Be("main.bicep");
+        sourceArchive.EntrypointRelativePath.Should().Be("main.bicep");
 
 
         var archivedFiles = sourceArchive.SourceFiles.ToArray();
@@ -212,7 +212,7 @@ public class SourceArchiveTests
 
         SourceArchive sourceArchive = SourceArchive.FromStream(stream);
 
-        sourceArchive.EntrypointPath.Should().Be("my main.bicep");
+        sourceArchive.EntrypointRelativePath.Should().Be("my main.bicep");
 
         var archivedTestFile = sourceArchive.SourceFiles.Single(f => f.Path != "my main.bicep");
         archivedTestFile.Path.Should().Be(expecteArchivedUri);
