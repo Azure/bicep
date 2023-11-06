@@ -92,9 +92,6 @@ namespace Bicep.Core.Registry
                 _ => throw new UnreachableException()
             };
 
-            // TODO: Provider artifacts don't write a ModuleMain file, so this code is incorrect.
-            //   That can be solved by only writing layer data files only (see code under features.PublishSourceEnabled)
-            //   and not main.json directly (https://github.com/Azure/bicep/issues/11900)
             return artifactFilesNotFound ||
                 !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Manifest)) ||
                 !this.FileResolver.FileExists(this.GetArtifactFileUri(reference, ArtifactFileType.Metadata));
