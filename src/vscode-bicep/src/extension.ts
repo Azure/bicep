@@ -19,7 +19,6 @@ import { ImportKubernetesManifestCommand } from "./commands/importKubernetesMani
 import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
 import {
   BicepExternalSourceContentProvider,
-  BicepExternalSourceScheme,
   createLanguageService,
   ensureDotnetRuntimeInstalled,
 } from "./language";
@@ -60,6 +59,7 @@ import * as surveys from "./feedback/surveys";
 import { DecompileParamsCommand } from "./commands/decompileParams";
 import { DeployPaneViewManager } from "./panes/deploy";
 import { AzureUiManager } from "./azure/AzureUiManager";
+import { BicepExternalSourceScheme } from "./language/decodeExternalSourceUri";
 
 let languageClient: lsp.LanguageClient | null = null;
 
