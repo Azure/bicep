@@ -144,7 +144,7 @@ jobs:
         os:
           - windows-latest
           - ubuntu-latest
-          - macos-latest
+          - macos-latest-x-large
 
     steps:
       - uses: actions/checkout@v4
@@ -333,7 +333,7 @@ jobs:
           - os: ubuntu-latest
             rid: linux-x64
             runTests: true
-          - os: macos-latest
+          - os: macos-latest-x-large
             rid: osx-x64
             runTests: true
           - os: ubuntu-latest
@@ -514,7 +514,7 @@ jobs:
             rid: linux-x64
           - os: ubuntu-latest
             rid: linux-musl-x64
-          - os: macos-latest
+          - os: macos-latest-x-large
             rid: osx-x64
 
     steps:
@@ -671,7 +671,7 @@ jobs:
             rid: win-x64
           - os: ubuntu-latest
             rid: linux-x64
-          - os: macos-latest
+          - os: macos-latest-x-large
             rid: osx-x64
     runs-on: ${{ matrix.runtime.os }}
     needs:
