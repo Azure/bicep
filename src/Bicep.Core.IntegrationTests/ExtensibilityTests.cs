@@ -22,7 +22,7 @@ namespace Bicep.Core.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         private ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: InMemoryFileResolver.GetFileUri("/.bicep").LocalPath))
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: InMemoryFileResolver.GetFileUri("/test/.bicep").LocalPath))
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
 
         [TestMethod]

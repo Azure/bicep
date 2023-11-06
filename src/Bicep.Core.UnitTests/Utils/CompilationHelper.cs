@@ -49,7 +49,7 @@ namespace Bicep.Core.UnitTests.Utils
             files.Select(x => x.fileName).Should().Contain("main.bicep");
             var filesToAppend = files.Select(file => ("/path/to", file.fileName, file.fileContents));
 
-            string azProviderPath = $"/.bicep/br/mcr.microsoft.com/bicep$providers$az/0.0.0$";
+            string azProviderPath = $"/test/.bicep/br/mcr.microsoft.com/bicep$providers$az/0.0.0$";
             filesToAppend = filesToAppend.Append((azProviderPath, "types.tgz", ""));
             filesToAppend = filesToAppend.Append((azProviderPath, "manifest", ""));
             filesToAppend = filesToAppend.Append((azProviderPath, "metadata", ""));

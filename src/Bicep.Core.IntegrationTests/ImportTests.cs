@@ -34,7 +34,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private ServiceBuilder ServicesWithImports => new ServiceBuilder()
            .WithFeatureOverrides(new(
-               CacheRootDirectory: InMemoryFileResolver.GetFileUri("/.bicep").LocalPath,
+               CacheRootDirectory: InMemoryFileResolver.GetFileUri("/test/.bicep").LocalPath,
                ExtensibilityEnabled: true,
                DynamicTypeLoadingEnabled: true))
             .WithNamespaceProvider(
