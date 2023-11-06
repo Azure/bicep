@@ -58,6 +58,9 @@ namespace Bicep.Core.Samples
         public static Mock<IContainerRegistryClientFactory> CreateMockRegistryClients(this DataSet dataSet, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
             => CreateMockRegistryClients(dataSet.RegistryModules, enablePublishSource, additionalClients);
 
+        public static Mock<IContainerRegistryClientFactory> CreateMockRegistryClientsForTypes(this DataSet dataSet, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
+            => CreateMockRegistryClients(dataSet.RegistryTypes, enablePublishSource, additionalClients);
+
         public static Mock<IContainerRegistryClientFactory> CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
         {
             var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: enablePublishSource));
@@ -211,6 +214,17 @@ namespace Bicep.Core.Samples
             using Stream? sourcesStream = publishSource ? SourceArchive.PackSourcesIntoStream(result.Compilation.SourceFileGrouping) : null;
 
             await dispatcher.PublishModule(targetReference, stream, sourcesStream, documentationUri);
+        }
+
+        public static async Task PublishTypesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory, bool publishSource = true)
+            => await PublishTypesToRegistryAsync(dataSet.RegistryTypes, clientFactory, publishSource);
+
+        public static async Task PublishTypesToRegistryAsync(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, IContainerRegistryClientFactory clientFactory, bool publishSource)
+        {
+            foreach (var (moduleName, publishInfo) in registryModules)
+            {
+                await PublishModuleToRegistryAsync(clientFactory, moduleName, publishInfo.Metadata.Target, publishInfo.ModuleSource, publishSource, null);
+            }
         }
 
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());

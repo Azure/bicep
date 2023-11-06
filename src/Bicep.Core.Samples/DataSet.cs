@@ -35,6 +35,8 @@ namespace Bicep.Core.Samples
         public const string TestFunctionsPrefix = TestFunctionsDirectory + "/";
         public const string TestPublishDirectory = "Publish";
         public const string TestPublishPrefix = TestPublishDirectory + "/";
+
+        public const string TestPublishTypePrefix = TestPublishDirectory + "/";
         public const string TestTemplateSpecsDirectory = "TemplateSpecs";
         public const string TestTemplateSpecsPrefix = TestTemplateSpecsDirectory + "/";
 
@@ -68,6 +70,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyModulesToPublish;
 
+        private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyTypesToPublish;
+
         private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyTemplateSpecs;
 
         public DataSet(string name)
@@ -86,6 +90,7 @@ namespace Bicep.Core.Samples
             this.lazySourceMap = this.CreateIffValid(TestFileMainSourceMap);
             this.lazyCompletions = new(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyModulesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishPrefix)), LazyThreadSafetyMode.PublicationOnly);
+            this.lazyTypesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishTypePrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyTemplateSpecs = new(() => ReadTemplateSpecsData(GetStreamName(TestTemplateSpecsPrefix)), LazyThreadSafetyMode.PublicationOnly);
         }
 
@@ -116,6 +121,8 @@ namespace Bicep.Core.Samples
         public ImmutableDictionary<string, string> Completions => this.lazyCompletions.Value;
 
         public ImmutableDictionary<string, ExternalModuleInfo> RegistryModules => this.lazyModulesToPublish.Value;
+
+        public ImmutableDictionary<string, ExternalModuleInfo> RegistryTypes => this.lazyTypesToPublish.Value;
 
         public ImmutableDictionary<string, ExternalModuleInfo> TemplateSpecs => this.lazyTemplateSpecs.Value;
 
