@@ -16,8 +16,6 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.TypeSystem
 {
-
-
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
         private record Key(string Name, string Version);
