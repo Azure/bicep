@@ -38,15 +38,6 @@ public class DefaultNamespaceProvider : INamespaceProvider
 
     private NamespaceType? TryCreateAzNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
     {
-        if (!features.DynamicTypeLoadingEnabled)
-        {
-            return AzNamespaceType.Create(
-                providerDescriptor.Alias,
-                scope,
-                resourceTypeLoaderFactory.GetBuiltInAzResourceTypesProvider(),
-                sourceFileKind);
-        }
-
         if (!resourceTypeLoaderFactory.GetResourceTypeProvider(providerDescriptor, features).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
         {
             Trace.WriteLine($"Failed to load types from {providerDescriptor.Path}: {errorBuilder(DiagnosticBuilder.ForPosition(providerDescriptor.Span))}");

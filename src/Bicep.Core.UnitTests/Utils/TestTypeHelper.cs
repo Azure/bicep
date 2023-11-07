@@ -50,7 +50,6 @@ namespace Bicep.Core.UnitTests.Utils
                 It.IsAny<ResourceTypesProviderDescriptor>(),
                 It.IsAny<IFeatureProvider>()))
                 .Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
-            factory.Setup(m => m.GetBuiltInAzResourceTypesProvider()).Returns(provider);
             return factory.Object;
         }
 

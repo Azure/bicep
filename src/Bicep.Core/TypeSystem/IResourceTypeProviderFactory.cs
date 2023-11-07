@@ -11,7 +11,5 @@ namespace Bicep.Core.TypeSystem
     public interface IResourceTypeProviderFactory
     {
         ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ResourceTypesProviderDescriptor providerDescriptor, IFeatureProvider features);
-
-        IResourceTypeProvider GetBuiltInAzResourceTypesProvider();
     }
 }
