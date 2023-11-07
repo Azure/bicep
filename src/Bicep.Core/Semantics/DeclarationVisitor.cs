@@ -304,7 +304,7 @@ namespace Bicep.Core.Semantics
                                         item,
                                         item.Name,
                                         ImmutableArray.Create(DiagnosticBuilder.ForPosition(item.OriginalSymbolName).FuncDeclarationStatementsUnsupported())),
-                                    _ when exportMetadata.Kind == ExportMetadataKind.Error  => new ErroredImportSymbol(context,
+                                    _ when exportMetadata.Kind == ExportMetadataKind.Error => new ErroredImportSymbol(context,
                                         importedOriginalName,
                                         item,
                                         item.Name,

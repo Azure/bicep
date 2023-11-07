@@ -15,12 +15,12 @@
   "private": true,
   "devDependencies": {
     "@types/node": "^20.8.7",
-    "@types/pako": "^2.0.1",
-    "@types/react": "^18.2.28",
+    "@types/pako": "^2.0.2",
+    "@types/react": "^18.2.33",
     "@types/react-dom": "^18.2.13",
     "@types/webpack": "^5.28.4",
     "@typescript-eslint/eslint-plugin": "^6.8.0",
-    "@typescript-eslint/parser": "^6.7.5",
+    "@typescript-eslint/parser": "^6.9.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
     "eslint": "^8.52.0",
@@ -38,12 +38,12 @@
     "webpack-dev-server": "^4.15.1"
   },
   "dependencies": {
-    "@microsoft/applicationinsights-web": "^3.0.3",
+    "@microsoft/applicationinsights-web": "^3.0.4",
     "bootstrap": "^5.3.2",
     "monaco-editor": "^0.44.0",
     "pako": "^2.1.0",
     "react": "^18.2.0",
-    "react-bootstrap": "^2.9.0",
+    "react-bootstrap": "^2.9.1",
     "react-dom": "^18.2.0"
   }
 }

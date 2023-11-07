@@ -38,7 +38,8 @@ internal class ArmDeclarationToExpressionConverter
             template.GetFunctionDefinitions().ToImmutableDictionary(fd => fd.Key, fd => fd.Function, StringComparer.OrdinalIgnoreCase),
             new(template),
             armIdentifierToSymbolNameMapping,
-            sourceSyntax) {}
+            sourceSyntax)
+    { }
 
     private ArmDeclarationToExpressionConverter(SchemaValidationContext schemaContext,
         ImmutableDictionary<string, TemplateFunction> functionsByFullyQualifiedName,

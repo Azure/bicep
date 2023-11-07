@@ -49,8 +49,9 @@ namespace Bicep.LanguageServer.Handlers
             this.compilationManager = compilationManager;
         }
 
-        public override Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken)
+        public override async Task<CommandOrCodeActionContainer?> Handle(CodeActionParams request, CancellationToken cancellationToken)
         {
+            await Task.CompletedTask;
             cancellationToken.ThrowIfCancellationRequested();
 
             var documentUri = request.TextDocument.Uri;
@@ -58,7 +59,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (compilationContext == null)
             {
-                return Task.FromResult(new CommandOrCodeActionContainer());
+                return null;
             }
 
             var requestStartOffset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Range.Start);
@@ -126,7 +127,7 @@ namespace Bicep.LanguageServer.Handlers
                 .Select(fix => CreateCodeFix(request.TextDocument.Uri, compilationContext, fix));
             commandOrCodeActions.AddRange(codeFixes);
 
-            return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
+            return new(commandOrCodeActions);
         }
 
         private IEnumerable<DecoratorCodeFixProvider> GetDecoratorCodeFixProviders(SemanticModel semanticModel)

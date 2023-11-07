@@ -458,6 +458,9 @@
   <data name="ExperimentalFeatureNames_DynamicTypeLoading" xml:space="preserve">
     <value>Dynamic type loading</value>
   </data>
+  <data name="ExperimentalFeatureNames_ProviderRegistry" xml:space="preserve">
+    <value>Provider registry</value>
+  </data>
   <data name="ExperimentalFeatureNames_Extensibility" xml:space="preserve">
     <value>Extensibility</value>
   </data>
