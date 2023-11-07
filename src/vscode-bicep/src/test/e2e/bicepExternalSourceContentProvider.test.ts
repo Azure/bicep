@@ -11,7 +11,7 @@ describe("bicepExternalSourceContentProvider", () => {
     const decoded = decodeExternalSourceUri(Uri.parse(uri));
 
     expect(decoded.moduleReference).toBe(
-      "br:saw.azurecr.io/complicated:1.0-beta",
+      "br:saw.azurecr.io/complicated:v1.0-beta",
     );
     expect(decoded.requestedSourceFile).toBe("entrypoint.bicep");
     expect(decoded.title).toBe(
