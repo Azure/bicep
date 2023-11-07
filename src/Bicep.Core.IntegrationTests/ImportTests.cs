@@ -43,7 +43,7 @@ namespace Bicep.Core.IntegrationTests
                 [AzNamespaceType.BuiltInName] = aliasName => AzNamespaceType.Create(
                     aliasName,
                     ResourceScope.ResourceGroup,
-                     new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader())),
+                     new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), IResourceTypeProvider.BuiltInVersion),
                      BicepSourceFileKind.BicepFile),
                 [K8sNamespaceType.BuiltInName] = K8sNamespaceType.Create
             })

@@ -190,7 +190,7 @@ namespace Bicep.Core.TypeSystem.Az
             }, null));
         }
 
-        public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, string providerVersion = IResourceTypeProvider.BuiltInVersion)
+        public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, string providerVersion)
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
             this.Version = providerVersion;

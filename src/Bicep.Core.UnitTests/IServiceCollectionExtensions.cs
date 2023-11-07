@@ -107,7 +107,7 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IResourceTypeLoader loader)
     {
         var factory = StrictMock.Of<IResourceTypeProviderFactory>();
-        var provider = new AzResourceTypeProvider(loader);
+        var provider = new AzResourceTypeProvider(loader, IResourceTypeProvider.BuiltInVersion);
         factory.Setup(m => m.GetBuiltInAzResourceTypesProvider()).Returns(provider);
         factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<ResourceTypesProviderDescriptor>(), It.IsAny<IFeatureProvider>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
         return Register(services, factory.Object);

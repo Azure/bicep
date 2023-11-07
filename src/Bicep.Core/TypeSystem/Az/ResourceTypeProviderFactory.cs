@@ -28,7 +28,7 @@ namespace Bicep.Core.TypeSystem
         public ResourceTypeProviderFactory()
         {
             resourceTypeLoaders = new() {
-                {BuiltInAzLoaderKey, new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()))},
+                {BuiltInAzLoaderKey, new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()),IResourceTypeProvider.BuiltInVersion)},
             };
         }
 
@@ -43,6 +43,12 @@ namespace Bicep.Core.TypeSystem
             if (resourceTypeLoaders.ContainsKey(key))
             {
                 return new(resourceTypeLoaders[key]);
+            }
+
+            if (providerDescriptor.Path  == null)
+            {
+                // should never happen since builtin providers are handled prior and path is required for non-builtin providers
+                throw new ArgumentNullException("Provider filepath is null");
             }
 
             // compose the path to the OCI manifest based on the cache root directory and provider version

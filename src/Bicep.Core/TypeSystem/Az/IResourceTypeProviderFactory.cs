@@ -5,7 +5,6 @@ using System;
 using Azure.Bicep.Types;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
-using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.TypeSystem
 {
