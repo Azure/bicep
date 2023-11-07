@@ -24,8 +24,8 @@ jest.mock(
       Window: 10,
     },
     StatusBarAlignment: { Left: 1, Right: 2 },
-    ThemeColor: jest.fn(() => throwNYI()),
-    ThemeIcon: jest.fn(() => throwNYI()),
+    ThemeColor: jest.fn(),
+    ThemeIcon: jest.fn(),
     window: {
       createStatusBarItem: jest.fn(() => ({
         show: jest.fn(() => throwNYI()),
@@ -66,9 +66,8 @@ jest.mock(
       executeCommand: jest.fn(() => throwNYI()),
       registerCommand: jest.fn(() => throwNYI()),
     },
-    CodeLen: jest.fn(() => throwNYI()),
     l10n: {
-      t: jest.fn(() => throwNYI()),
+      t: jest.fn(),
     },
   }),
   { virtual: true },
