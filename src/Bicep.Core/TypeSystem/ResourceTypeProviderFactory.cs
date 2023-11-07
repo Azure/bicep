@@ -18,14 +18,14 @@ namespace Bicep.Core.TypeSystem
 {
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
-        private record Key(string Name, string Version);
+        private record ResourceTypeLoaderKey(string Name, string Version);
 
-        private readonly Key BuiltInAzLoaderKey = new("az", IResourceTypeProvider.BuiltInVersion);
-        private readonly Dictionary<Key, IResourceTypeProvider> resourceTypeLoaders;
+        private readonly ResourceTypeLoaderKey BuiltInAzLoaderKey = new("az", IResourceTypeProvider.BuiltInVersion);
+        private readonly Dictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders;
 
         public ResourceTypeProviderFactory()
         {
-            resourceTypeLoaders = new() {
+            cachedResourceTypeLoaders = new() {
                 {BuiltInAzLoaderKey, new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()),IResourceTypeProvider.BuiltInVersion)},
             };
         }
@@ -34,13 +34,13 @@ namespace Bicep.Core.TypeSystem
         {
             if (!features.DynamicTypeLoadingEnabled)
             {
-                return new(resourceTypeLoaders[BuiltInAzLoaderKey]);
+                return new(cachedResourceTypeLoaders[BuiltInAzLoaderKey]);
             }
-            var key = new Key(providerDescriptor.Alias, providerDescriptor.Version);
+            var key = new ResourceTypeLoaderKey(providerDescriptor.Alias, providerDescriptor.Version);
 
-            if (resourceTypeLoaders.ContainsKey(key))
+            if (cachedResourceTypeLoaders.ContainsKey(key))
             {
-                return new(resourceTypeLoaders[key]);
+                return new(cachedResourceTypeLoaders[key]);
             }
 
             if (providerDescriptor.Path  == null)
@@ -72,13 +72,13 @@ namespace Bicep.Core.TypeSystem
                 _ => throw new NotImplementedException($"The provider {providerDescriptor.Alias} is not supported."),
             };
 
-            return new(resourceTypeLoaders[key] = newResourceTypeLoader);
+            return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);
 
         }
 
         public IResourceTypeProvider GetBuiltInAzResourceTypesProvider()
         {
-            return resourceTypeLoaders[BuiltInAzLoaderKey];
+            return cachedResourceTypeLoaders[BuiltInAzLoaderKey];
         }
     }
 }
