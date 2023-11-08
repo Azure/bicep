@@ -26,7 +26,7 @@ public class PrettyPrint
 
     private static BenchmarkData CreateBenchmarkData()
     {
-        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(typeof(DataSet).Assembly, "Files");
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(typeof(DataSet).Assembly, DataSet.Prefix);
 
         var dataSets = DataSets.AllDataSets
             .Where(x => x.IsValid)

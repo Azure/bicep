@@ -24,14 +24,14 @@ public class Compilation
 
     private static BenchmarkData CreateBenchmarkData()
     {
-        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(typeof(DataSet).Assembly, "Files");
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(typeof(DataSet).Assembly, DataSet.Prefix);
 
         var dataSets = DataSets.AllDataSets
             .Where(x => !x.HasRegistryModules)
             .ToImmutableArray();
 
         var bicepService = new ServiceBuilder()
-            .WithRegistration(x => x.AddSingleton<IFileSystem>(fileSystem)).Build();
+            .WithRegistration(x => x.AddSingleton(fileSystem)).Build();
 
         return new(dataSets, bicepService);
     }
