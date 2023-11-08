@@ -51,8 +51,8 @@ namespace Bicep.Core.Emit
         private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
         private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
         private readonly ImmutableDictionary<string, ImportedVariableSymbol> importsByName;
-        private readonly ImmutableDictionary<string, WildcardImportSymbol> wildcardImportsByName;
-        private readonly ImportReferenceExpressionRewriter importReferenceExpressionRewriter;
+        private readonly ImmutableDictionary<string, WildcardImportPropertyReference> wildcardImportPropertiesByName;
+        private readonly ExpressionConverter converter;
 
         public ParameterAssignmentEvaluator(SemanticModel model)
         {
@@ -63,17 +63,17 @@ namespace Bicep.Core.Emit
             this.variablesByName = model.Root.VariableDeclarations
                 .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
                 .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
-            this.importsByName = model.Root.ImportedVariables
-                .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
-                .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
-            this.wildcardImportsByName = model.Root.WildcardImports
-                .GroupBy(x => x.Name, LanguageConstants.IdentifierComparer)
-                .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
-            this.importReferenceExpressionRewriter = new(model.Root.ImportedSymbols.ToImmutableDictionary(s => s, s => s.Name),
-                model.Root.WildcardImports
-                    .SelectMany(w => w.SourceModel.Exports.Keys.Select(name => new WildcardImportPropertyReference(w, name)))
-                    .ToImmutableDictionary(w => w, w => $"{w.WildcardImport.Name}.{w.PropertyName}"),
-                sourceSyntax: null);
+
+            EmitterContext context = new(model);
+            this.converter = new(context);
+            this.importsByName = context.ImportClosureInfo.ImportedSymbolNames.Keys
+                .OfType<ImportedVariableSymbol>()
+                .Select(importedVariable => (context.ImportClosureInfo.ImportedSymbolNames[importedVariable], importedVariable))
+                .GroupBy(x => x.Item1, LanguageConstants.IdentifierComparer)
+                .ToImmutableDictionary(x => x.Key, x => x.First().importedVariable, LanguageConstants.IdentifierComparer);
+            this.wildcardImportPropertiesByName = context.ImportClosureInfo.WildcardImportPropertyNames
+                .GroupBy(x => x.Value, LanguageConstants.IdentifierComparer)
+                .ToImmutableDictionary(x => x.Key, x => x.First().Key, LanguageConstants.IdentifierComparer);
         }
 
         public Result EvaluateParameter(ParameterAssignmentSymbol parameter)
@@ -82,7 +82,6 @@ namespace Bicep.Core.Emit
                 parameter =>
                 {
                     var context = GetExpressionEvaluationContext();
-                    var converter = new ExpressionConverter(new(model));
 
                     var intermediate = converter.ConvertToIntermediateExpression(parameter.DeclaringParameterAssignment.Value);
 
@@ -90,8 +89,6 @@ namespace Bicep.Core.Emit
                     {
                         return Result.For(keyVaultReferenceExpression);
                     }
-
-                    intermediate = importReferenceExpressionRewriter.ReplaceImportReferences(intermediate);
 
                     try
                     {
@@ -112,9 +109,7 @@ namespace Bicep.Core.Emit
                     try
                     {
                         var context = GetExpressionEvaluationContext();
-                        var converter = new ExpressionConverter(new(model));
                         var intermediate = converter.ConvertToIntermediateExpression(variable.DeclaringVariable.Value);
-                        intermediate = importReferenceExpressionRewriter.ReplaceImportReferences(intermediate);
 
                         return Result.For(converter.ConvertExpression(intermediate).EvaluateExpression(context));
                     }
@@ -255,9 +250,10 @@ namespace Bicep.Core.Emit
                     return EvaluateImport(imported).Value ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
                 }
 
-                if (name.IndexOf(".") is int separatorIndex && separatorIndex > -1 && wildcardImportsByName.TryGetValue(name[..separatorIndex], out var wildcardImport))
+                if (wildcardImportPropertiesByName.TryGetValue(name, out var wildcardImportProperty))
                 {
-                    return EvaluateWildcardImportPropertyAsVariable(new(wildcardImport, name[(separatorIndex + 1)..])).Value ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
+                    return EvaluateWildcardImportPropertyAsVariable(wildcardImportProperty).Value
+                        ?? throw new InvalidOperationException($"Imported variable {wildcardImportProperty.WildcardImport.Name}.{wildcardImportProperty.PropertyName} has an invalid value");
                 }
 
                 throw new InvalidOperationException($"Variable {name} not found");

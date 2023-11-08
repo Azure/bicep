@@ -1745,4 +1745,29 @@ public class CompileTimeImportTests
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Template.Should().HaveValueAtPath("parameters.foo.items.$ref", "#/definitions/Foo");
     }
+
+    // https://github.com/Azure/bicep/issues/12396
+    [TestMethod]
+    public void Test_Issue12396()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import { _helloWorld } from 'types.bicep'
+
+                resource st_account 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                    name: last(split(_helloWorld, ''))
+                    location: resourceGroup().location
+                    sku: {
+                        name: 'Standard_LRS'
+                    }
+                    kind: 'BlobStorage'
+                }
+                """),
+            ("types.bicep", """
+                @export()
+                var _helloWorld = 'hello world'
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+    }
 }
