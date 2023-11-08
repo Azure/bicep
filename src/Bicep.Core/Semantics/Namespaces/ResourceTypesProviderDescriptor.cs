@@ -10,9 +10,9 @@ public record ResourceTypesProviderDescriptor
 {
     public ResourceTypesProviderDescriptor(
         string name,
+        string version,
         string? alias = null,
         Uri? path = null,
-        string version = IResourceTypeProvider.BuiltInVersion,
         TextSpan? span = null)
     {
         Span = span ?? TextSpan.TextDocumentStart;

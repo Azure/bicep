@@ -29,18 +29,11 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
         IFeatureProvider featureProvider,
         BicepSourceFileKind sourceFileKind)
     {
-
-        if (providerDescriptor.Name == AzNamespaceType.BuiltInName && providerDescriptor.Version == "0.0.0")
-        {
-            providerDescriptor = new(providerDescriptor.Name);
-        }
-
         var namespaceType = defaultNamespaceProvider.TryGetNamespace(
            providerDescriptor,
            resourceScope,
            featureProvider,
            sourceFileKind);
-
 
         return providerDescriptor.Name switch
         {

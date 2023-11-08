@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Diagnostics;
@@ -12,6 +13,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
+using Microsoft.WindowsAzure.ResourceStack.Common.EventSources.ManifestInstaller;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.TypeSystem
@@ -19,14 +21,13 @@ namespace Bicep.Core.TypeSystem
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
         private record ResourceTypeLoaderKey(string Name, string Version);
-
-        private readonly ResourceTypeLoaderKey BuiltInAzLoaderKey = new("az", IResourceTypeProvider.BuiltInVersion);
+        private readonly ResourceTypeLoaderKey BuiltInAzResourceTypeLoaderKey = new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion);
         private readonly Dictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders;
 
         public ResourceTypeProviderFactory()
         {
             cachedResourceTypeLoaders = new() {
-                {BuiltInAzLoaderKey, new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()),IResourceTypeProvider.BuiltInVersion)},
+                {BuiltInAzResourceTypeLoaderKey, new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()),AzNamespaceType.Settings.ArmTemplateProviderVersion)},
             };
         }
 
@@ -34,7 +35,7 @@ namespace Bicep.Core.TypeSystem
         {
             if (!features.DynamicTypeLoadingEnabled)
             {
-                return new(cachedResourceTypeLoaders[BuiltInAzLoaderKey]);
+                return new(cachedResourceTypeLoaders[BuiltInAzResourceTypeLoaderKey]);
             }
             var key = new ResourceTypeLoaderKey(providerDescriptor.Alias, providerDescriptor.Version);
 
@@ -43,7 +44,7 @@ namespace Bicep.Core.TypeSystem
                 return new(cachedResourceTypeLoaders[key]);
             }
 
-            if (providerDescriptor.Path  == null)
+            if (providerDescriptor.Path == null)
             {
                 // should never happen since builtin providers are handled prior and path is required for non-builtin providers
                 throw new ArgumentNullException("Provider filepath is null");
@@ -78,7 +79,7 @@ namespace Bicep.Core.TypeSystem
 
         public IResourceTypeProvider GetBuiltInAzResourceTypesProvider()
         {
-            return cachedResourceTypeLoaders[BuiltInAzLoaderKey];
+            return cachedResourceTypeLoaders[BuiltInAzResourceTypeLoaderKey];
         }
     }
 }

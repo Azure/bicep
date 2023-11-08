@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.Linq;
+using Azure.Bicep.Types.Az;
+using System.Reflection;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
@@ -106,8 +108,9 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IResourceTypeLoader loader)
     {
+       
         var factory = StrictMock.Of<IResourceTypeProviderFactory>();
-        var provider = new AzResourceTypeProvider(loader, IResourceTypeProvider.BuiltInVersion);
+        var provider = new AzResourceTypeProvider(loader, AzNamespaceType.Settings.ArmTemplateProviderVersion);
         factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<ResourceTypesProviderDescriptor>(), It.IsAny<IFeatureProvider>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
         return Register(services, factory.Object);
     }

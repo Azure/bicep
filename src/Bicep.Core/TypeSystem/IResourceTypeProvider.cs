@@ -8,8 +8,6 @@ namespace Bicep.Core.TypeSystem
 {
     public interface IResourceTypeProvider
     {
-        public const string BuiltInVersion = "builtin";
-
         /// <summary>
         /// Tries to get a resource type from the set of well known resource types. Returns null if none is available.
         /// </summary>

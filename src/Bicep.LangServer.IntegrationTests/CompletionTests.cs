@@ -1785,6 +1785,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         [TestMethod]
         public async Task Provider_completions_work_if_feature_enabled()
         {
+
             var fileWithCursors = @"
 |
 provider 'ns1@1.0.0' |
@@ -1799,8 +1800,8 @@ provider a|
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().Equal("'az@1.0.0'", "'kubernetes@1.0.0'", "'sys@1.0.0'"),
-                    c => c!.Select(x => x.Label).Should().Equal("'az@1.0.0'", "'kubernetes@1.0.0'", "'sys@1.0.0'")
+                    c => c!.Select(x => x.Label).Should().Equal($"'az@{BicepTestConstants.BuiltinAzProviderVersion}'", "'kubernetes@1.0.0'", "'sys@1.0.0'"),
+                    c => c!.Select(x => x.Label).Should().Equal($"'az@{BicepTestConstants.BuiltinAzProviderVersion}'", "'kubernetes@1.0.0'", "'sys@1.0.0'")
                 ),
                 '|');
 

@@ -158,5 +158,7 @@ namespace Bicep.Core.UnitTests
             }
         }
         """);
+
+        public static string BuiltinAzProviderVersion = AzNamespaceType.Settings.ArmTemplateProviderVersion;
     }
 }
