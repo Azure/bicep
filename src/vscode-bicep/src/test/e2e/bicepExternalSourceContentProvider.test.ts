@@ -15,7 +15,7 @@ describe("bicepExternalSourceContentProvider", () => {
     );
     expect(decoded.requestedSourceFile).toBe("my entrypoint.bicep");
     expect(decoded.title).toBe(
-      "br:saw.azurecr.com/complicated:v1.0-beta/my entrypoint.bicep (very complicated for just version v1.0-beta)",
+      "br:saw.azurecr.io/complicated:v1.0-beta/my entrypoint.bicep (very complicated for just version v1.0-beta)",
     );
   });
 
