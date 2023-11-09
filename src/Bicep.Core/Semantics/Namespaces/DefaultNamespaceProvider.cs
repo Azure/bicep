@@ -46,8 +46,8 @@ public class DefaultNamespaceProvider : INamespaceProvider
         if (resourceTypeLoaderFactory.GetResourceTypeProvider(providerDescriptor, features).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
         {
             return AzNamespaceType.Create(providerDescriptor.Alias, scope, dynamicallyLoadedProvider, sourceFileKind);
-
         }
+
         Trace.WriteLine($"Failed to load types from {providerDescriptor.Path}: {errorBuilder(DiagnosticBuilder.ForPosition(providerDescriptor.Span))}");
         return null;
     }
