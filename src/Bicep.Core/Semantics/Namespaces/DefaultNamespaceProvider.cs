@@ -43,16 +43,13 @@ public class DefaultNamespaceProvider : INamespaceProvider
             providerDescriptor = new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion);
         }
 
-        if (!resourceTypeLoaderFactory.GetResourceTypeProvider(providerDescriptor, features).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+        if (resourceTypeLoaderFactory.GetResourceTypeProvider(providerDescriptor, features).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
         {
-            Trace.WriteLine($"Failed to load types from {providerDescriptor.Path}: {errorBuilder(DiagnosticBuilder.ForPosition(providerDescriptor.Span))}");
-            return null;
+            return AzNamespaceType.Create(providerDescriptor.Alias, scope, dynamicallyLoadedProvider, sourceFileKind);
+
         }
-        return AzNamespaceType.Create(
-              providerDescriptor.Alias,
-              scope,
-              dynamicallyLoadedProvider!,
-              sourceFileKind);
+        Trace.WriteLine($"Failed to load types from {providerDescriptor.Path}: {errorBuilder(DiagnosticBuilder.ForPosition(providerDescriptor.Span))}");
+        return null;
     }
 
     public NamespaceType? TryGetNamespace(
