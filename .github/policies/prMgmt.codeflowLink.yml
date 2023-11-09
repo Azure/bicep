@@ -1,0 +1,19 @@
+id: prMgmt.codeflowLink
+name: GitOps.PullRequestIssueManagement
+description: Adds a CodeFlow link to new PRs
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: "Adds a link to a pull request body that allows Microsoft reviewers to open the pull request in CodeFlow"
+        if:
+          - payloadType: Pull_Request
+          - isAction:
+              action: Opened
+        then:
+          - addCodeFlowLink
+onFailure:
+onSuccess:
