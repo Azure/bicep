@@ -1745,4 +1745,24 @@ public class CompileTimeImportTests
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Template.Should().HaveValueAtPath("parameters.foo.items.$ref", "#/definitions/Foo");
     }
+
+    // https://github.com/Azure/bicep/issues/12401
+    [TestMethod]
+    public void Symbolic_name_target_is_used_when_function_import_closure_includes_a_user_defined_type()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+            ("main.bicep", """
+                import { capitalizer } from 'function.bicep'
+                """),
+            ("function.bicep", """
+                type myString = string
+
+                @export()
+                func capitalizer(in myString) string => toUpper(in)
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
+        result.Template.Should().HaveValueAtPath("functions[0].members.capitalizer.parameters[0].$ref", "#/definitions/_1.myString");
+    }
 }
