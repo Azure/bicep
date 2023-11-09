@@ -375,9 +375,18 @@ namespace Bicep.Decompiler
                         {
                             return SyntaxFactory.CreateObjectProperty(keyLiteral, pair[1]);
                         }
+                        else
+                        {
+                            // key is an interpolated string
+                            return new ObjectPropertySyntax(pair[0], SyntaxFactory.ColonToken, pair[1]);
+                        }
                     }
 
-                    return new ObjectPropertySyntax(pair[0], SyntaxFactory.ColonToken, pair[1]);
+                    // key is a non-string expression
+                    // since ObjectPropertySyntax only accepts IdentifierSyntax or StringSyntax, we need
+                    // to wrap it in a string syntax
+                    var keySyntax = SyntaxFactory.CreateString(new[] { string.Empty, string.Empty }, pair[0].AsEnumerable());
+                    return new ObjectPropertySyntax(keySyntax, SyntaxFactory.ColonToken, pair[1]);
                 }));
                 return true;
             }
