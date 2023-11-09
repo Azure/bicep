@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using Azure.Bicep.Types;
@@ -43,15 +44,11 @@ namespace Bicep.Core.TypeSystem
             {
                 return new(cachedResourceTypeLoaders[key]);
             }
-
-            if (providerDescriptor.Path == null)
-            {
-                // should never happen since builtin providers are handled prior and path is required for non-builtin providers
-                throw new ArgumentNullException("Provider filepath is null");
-            }
+            // should neverbe null since provider restore success is validated prior.
+            string providerDirectory = Path.GetDirectoryName(providerDescriptor.Path) ?? throw new UnreachableException("the provider directory doesn't exist");
 
             // compose the path to the OCI manifest based on the cache root directory and provider version
-            var ociManifestPath = Path.Combine(providerDescriptor.Path, "manifest");
+            var ociManifestPath = Path.Combine(providerDirectory, "manifest");
             if (!File.Exists(ociManifestPath))
             {
                 return new(x => x.ArtifactFilePathCouldNotBeResolved(ociManifestPath));
@@ -69,7 +66,7 @@ namespace Bicep.Core.TypeSystem
             // Register a new types loader
             IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Alias switch
             {
-                AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(providerDescriptor.Path)), providerDescriptor.Version),
+                AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(providerDirectory)), providerDescriptor.Version),
                 _ => throw new NotImplementedException($"The provider {providerDescriptor.Alias} is not supported."),
             };
 

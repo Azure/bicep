@@ -35,7 +35,6 @@ public class SourceFileGrouping : IArtifactFileLookup
         FileResultByUri = fileResultByUri;
         FileUriResultByArtifactReference = fileUriResultByArtifactReference;
         SourceFileParentLookup = sourceFileParentLookup;
-
         UriResults = fileUriResultByArtifactReference.Values.SelectMany(kvp => kvp).ToImmutableDictionary();
     }
 
@@ -81,7 +80,7 @@ public class SourceFileGrouping : IArtifactFileLookup
         return FileResultByUri[fileUri];
     }
 
-    public ResultWithDiagnostic<Uri> TryGetProviderFileUri(IArtifactReferenceSyntax foreignTemplateReference)
+    public ResultWithDiagnostic<Uri> TryGetResourceTypesFileUri(ProviderDeclarationSyntax foreignTemplateReference)
     {
         var uriResult = FileUriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
         if (!uriResult.IsSuccess(out var fileUri, out var error))

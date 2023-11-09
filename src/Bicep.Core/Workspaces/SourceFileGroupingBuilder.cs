@@ -161,8 +161,8 @@ namespace Bicep.Core.Workspaces
                 {
                     continue;
                 }
-                var (childModuleReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
 
+                var (childArtifactReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
                 fileUriResultByArtifactReference.GetOrAdd(file, f => new())[restorable] = uriResult;
 
                 if (!uriResult.IsSuccess(out var artifactUri))
@@ -170,14 +170,16 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
-                if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
-                    (childResult.IsSuccess(out var childFile) && sourceFilesToRebuild is not null && sourceFilesToRebuild.Contains(childFile)))
+                if (restorable is not ProviderDeclarationSyntax)
                 {
-                    // only recurse if we've not seen this file before - to avoid infinite loops
-                    childResult = PopulateRecursive(artifactUri, childModuleReference, sourceFilesToRebuild, featureProviderFactory);
+                    if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
+                        (childResult.IsSuccess(out var childFile) && sourceFilesToRebuild is not null && sourceFilesToRebuild.Contains(childFile)))
+                    {
+                        // only recurse if we've not seen this file before - to avoid infinite loops
+                        childResult = PopulateRecursive(artifactUri, childArtifactReference, sourceFilesToRebuild, featureProviderFactory);
+                    }
+                    fileResultByUri[artifactUri] = childResult;
                 }
-
-                fileResultByUri[artifactUri] = childResult;
             }
         }
 
@@ -236,7 +238,8 @@ namespace Bicep.Core.Workspaces
             {
                 foreach (var (statement, urlResult) in uriResultByModuleForFile)
                 {
-                    if (urlResult.IsSuccess(out var fileUri) &&
+                    if (statement.GetArtifactType() == ArtifactType.Module &&
+                        urlResult.IsSuccess(out var fileUri) &&
                         fileResultByUri[fileUri].IsSuccess(out var sourceFile) &&
                         cycles.TryGetValue(sourceFile, out var cycle))
                     {
@@ -266,8 +269,8 @@ namespace Bicep.Core.Workspaces
         /// </remarks>
         private static IEnumerable<IArtifactReferenceSyntax> GetReferenceSourceNodes(ISourceFile sourceFile) => sourceFile switch
         {
-            BicepFile bicepFile => bicepFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>(),
-            BicepParamFile paramsFile => paramsFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>(),
+            BicepFile bicepFile => bicepFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>().Where(x => x is not ProviderDeclarationSyntax),
+            BicepParamFile paramsFile => paramsFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>().Where(x => x is not ProviderDeclarationSyntax),
             _ => Enumerable.Empty<IArtifactReferenceSyntax>(),
         };
 
