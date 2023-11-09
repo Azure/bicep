@@ -1,0 +1,590 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.17.1.54307",
+      "templateHash": "5405776266194845598"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    },
+    "baseName": {
+      "type": "string",
+      "defaultValue": "adecosmosapp2",
+      "metadata": {
+        "description": "Base name that will appear for all resources."
+      }
+    },
+    "environmentName": {
+      "type": "string",
+      "defaultValue": "cicd",
+      "metadata": {
+        "description": "Three letter environment abreviation to denote environment that will appear in all resource names"
+      }
+    },
+    "appServicePlanSKU": {
+      "type": "string",
+      "defaultValue": "D1",
+      "metadata": {
+        "description": "App Service Plan Sku"
+      }
+    },
+    "logAnalyticsResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource Group Log Analytics Workspace is in"
+      }
+    },
+    "logAnalyticsWorkspace": {
+      "type": "string",
+      "metadata": {
+        "description": "Log Analytics Workspace Name"
+      }
+    },
+    "cosmosDBResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource Group CosmosDB is in"
+      }
+    },
+    "cosmosDBName": {
+      "type": "string",
+      "metadata": {
+        "description": "CosmosDB Name"
+      }
+    },
+    "devCenterProjectName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Dev Center Project Name"
+      }
+    },
+    "adeName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Name for the Azure Deployment Environment"
+      }
+    }
+  },
+  "variables": {
+    "regionReference": {
+      "centralus": "cus",
+      "eastus": "eus",
+      "westus": "wus",
+      "westus2": "wus2"
+    },
+    "language": "Bicep",
+    "nameSuffix": "[if(empty(parameters('adeName')), toLower(format('{0}-{1}-{2}', parameters('baseName'), parameters('environmentName'), variables('regionReference')[parameters('location')])), format('{0}-{1}', parameters('devCenterProjectName'), parameters('adeName')))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "userAssignedIdentityModule",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "userIdentityName": {
+            "value": "[variables('nameSuffix')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.21.1.54444",
+              "templateHash": "8742261869599076453"
+            }
+          },
+          "parameters": {
+            "userIdentityName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name for the User Assigned Identity"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for resource."
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2023-01-31",
+              "name": "[toLower(format('ui-{0}', parameters('userIdentityName')))]",
+              "location": "[parameters('location')]"
+            }
+          ],
+          "outputs": {
+            "userIdentityPrincipalOutput": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', toLower(format('ui-{0}', parameters('userIdentityName')))), '2023-01-31').principalId]"
+            },
+            "userIdentityNameOutput": {
+              "type": "string",
+              "value": "[toLower(format('ui-{0}', parameters('userIdentityName')))]"
+            },
+            "userIdentityResrouceId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', toLower(format('ui-{0}', parameters('userIdentityName'))))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "appServicePlanModule",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "appServicePlanName": {
+            "value": "[variables('nameSuffix')]"
+          },
+          "language": {
+            "value": "[variables('language')]"
+          },
+          "appServicePlanSKU": {
+            "value": "[parameters('appServicePlanSKU')]"
+          },
+          "appServiceKind": {
+            "value": "linux"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.17.1.54307",
+              "templateHash": "11575484912783472992"
+            }
+          },
+          "parameters": {
+            "appServicePlanName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name for the App Service Plan"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for resource."
+              }
+            },
+            "language": {
+              "type": "string",
+              "metadata": {
+                "description": "What language was used to deploy this resource"
+              }
+            },
+            "appServicePlanSKU": {
+              "type": "string",
+              "defaultValue": "D1",
+              "allowedValues": [
+                "B1",
+                "B2",
+                "B3",
+                "D1",
+                "F1",
+                "FREE",
+                "I1",
+                "I1v2",
+                "I2",
+                "I2v2",
+                "I3",
+                "I3v2",
+                "P1V2",
+                "P1V3",
+                "P2V2",
+                "P2V3",
+                "P3V2",
+                "P3V3",
+                "S1",
+                "S2",
+                "S3",
+                "SHARED",
+                "WS1",
+                "WS2",
+                "WS3"
+              ],
+              "metadata": {
+                "description": "AppService Plan Sku"
+              }
+            },
+            "appServiceKind": {
+              "type": "string",
+              "defaultValue": "windows",
+              "allowedValues": [
+                "windows",
+                "linux",
+                "windowscontainer"
+              ],
+              "metadata": {
+                "description": "AppService Plan Kind"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2022-09-01",
+              "name": "[toLower(format('asp-{0}', parameters('appServicePlanName')))]",
+              "location": "[parameters('location')]",
+              "kind": "[parameters('appServiceKind')]",
+              "sku": {
+                "name": "[parameters('appServicePlanSKU')]"
+              },
+              "tags": {
+                "Language": "[parameters('language')]"
+              },
+              "properties": {}
+            }
+          ],
+          "outputs": {
+            "appServicePlanID": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Web/serverfarms', toLower(format('asp-{0}', parameters('appServicePlanName'))))]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "appServiceModule",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "appServicePlanID": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appServicePlanModule'), '2022-09-01').outputs.appServicePlanID.value]"
+          },
+          "appServiceName": {
+            "value": "[variables('nameSuffix')]"
+          },
+          "principalId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'userAssignedIdentityModule'), '2022-09-01').outputs.userIdentityResrouceId.value]"
+          },
+          "appSettingsArray": {
+            "value": [
+              {
+                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appInsightsModule'), '2022-09-01').outputs.appInsightsInstrumentationKey.value]"
+              },
+              {
+                "name": "CosmosDb:Account",
+                "value": "[format('https://{0}.documents.azure.com:443/', parameters('cosmosDBName'))]"
+              },
+              {
+                "name": "CosmosDb:DatabaseName",
+                "value": "Tasks"
+              },
+              {
+                "name": "CosmosDb:ContainerName",
+                "value": "Item"
+              },
+              {
+                "name": "WEBSITE_RUN_FROM_PACKAGE",
+                "value": "1"
+              },
+              {
+                "name": "SCM_DO_BUILD_DURING_DEPLOYMENT",
+                "value": "true"
+              },
+              {
+                "name": "ApplicationInsightsAgent_EXTENSION_VERSION",
+                "value": "~2"
+              }
+            ]
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.21.1.54444",
+              "templateHash": "17939456747319951573"
+            }
+          },
+          "parameters": {
+            "appServiceName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name for the App Service"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for resource."
+              }
+            },
+            "appServicePlanID": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of the App Service Plan"
+              }
+            },
+            "principalId": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "User Asisgned Identity for App Service"
+              }
+            },
+            "appSettingsArray": {
+              "type": "array",
+              "defaultValue": [],
+              "metadata": {
+                "description": "App Settings for the Application"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2022-09-01",
+              "name": "[toLower(format('app-{0}', parameters('appServiceName')))]",
+              "location": "[parameters('location')]",
+              "identity": "[if(empty(parameters('principalId')), createObject('type', 'SystemAssigned'), createObject('type', 'SystemAssigned, UserAssigned', 'userAssignedIdentities', createObject(format('{0}', parameters('principalId')), createObject())))]",
+              "tags": {
+                "displayName": "Website"
+              },
+              "properties": {
+                "serverFarmId": "[parameters('appServicePlanID')]",
+                "httpsOnly": true,
+                "siteConfig": {
+                  "minTlsVersion": "1.2",
+                  "appSettings": "[parameters('appSettingsArray')]"
+                }
+              }
+            }
+          ],
+          "outputs": {
+            "appServiceManagedIdentity": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Web/sites', toLower(format('app-{0}', parameters('appServiceName')))), '2022-09-01', 'full').identity.principalId]"
+            },
+            "appServiceName": {
+              "type": "string",
+              "value": "[toLower(format('app-{0}', parameters('appServiceName')))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'appInsightsModule')]",
+        "[resourceId('Microsoft.Resources/deployments', 'appServicePlanModule')]",
+        "[resourceId('Microsoft.Resources/deployments', 'userAssignedIdentityModule')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "appInsightsModule",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "appInsightsName": {
+            "value": "[variables('nameSuffix')]"
+          },
+          "logAnalyticsWorkspaceID": {
+            "value": "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('logAnalyticsResourceGroup')), 'Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspace'))]"
+          },
+          "language": {
+            "value": "[variables('language')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.17.1.54307",
+              "templateHash": "8259659730084283799"
+            }
+          },
+          "parameters": {
+            "appInsightsName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name for the Application Insights"
+              }
+            },
+            "location": {
+              "type": "string",
+              "metadata": {
+                "description": "Location for resource."
+              }
+            },
+            "logAnalyticsWorkspaceID": {
+              "type": "string",
+              "metadata": {
+                "description": "Log Analytics Workspace ID to send App Insights Log To"
+              }
+            },
+            "language": {
+              "type": "string",
+              "metadata": {
+                "description": "What language was used to deploy this resource"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Insights/components",
+              "apiVersion": "2020-02-02",
+              "name": "[toLower(format('ai-{0}', parameters('appInsightsName')))]",
+              "location": "[parameters('location')]",
+              "kind": "string",
+              "tags": {
+                "displayName": "AppInsight",
+                "Language": "[parameters('language')]"
+              },
+              "properties": {
+                "Application_Type": "web",
+                "WorkspaceResourceId": "[parameters('logAnalyticsWorkspaceID')]"
+              }
+            }
+          ],
+          "outputs": {
+            "appInsightsInstrumentationKey": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Insights/components', toLower(format('ai-{0}', parameters('appInsightsName')))), '2020-02-02').InstrumentationKey]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "cosmosRBACModule",
+      "resourceGroup": "[parameters('cosmosDBResourceGroup')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "databaseAccountName": {
+            "value": "[parameters('cosmosDBName')]"
+          },
+          "databaseAccountResourceGroup": {
+            "value": "[parameters('cosmosDBResourceGroup')]"
+          },
+          "principalId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appServiceModule'), '2022-09-01').outputs.appServiceManagedIdentity.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.21.1.54444",
+              "templateHash": "1729550539667574121"
+            }
+          },
+          "parameters": {
+            "databaseAccountName": {
+              "type": "string"
+            },
+            "databaseAccountResourceGroup": {
+              "type": "string"
+            },
+            "roleDefinitionId": {
+              "type": "string",
+              "defaultValue": "00000000-0000-0000-0000-000000000002"
+            },
+            "principalId": {
+              "type": "string"
+            },
+            "dataActions": {
+              "type": "array",
+              "defaultValue": [
+                "Microsoft.DocumentDB/databaseAccounts/readMetadata",
+                "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/*"
+              ],
+              "metadata": {
+                "description": "Data actions permitted by the Role Definition"
+              }
+            },
+            "roleDefinitionName": {
+              "type": "string",
+              "defaultValue": "My Read Write Role",
+              "metadata": {
+                "description": "Friendly name for the SQL Role Definition"
+              }
+            }
+          },
+          "variables": {
+            "roleAssignmentId": "[guid(parameters('roleDefinitionId'), parameters('principalId'), resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName')))]",
+            "roleDefinition": "[guid('sql-role-definition-', parameters('principalId'), resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName')))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
+              "apiVersion": "2023-04-15",
+              "name": "[format('{0}/{1}', parameters('databaseAccountName'), variables('roleAssignmentId'))]",
+              "properties": {
+                "principalId": "[parameters('principalId')]",
+                "roleDefinitionId": "[format('/{0}/resourceGroups/{1}/providers/Microsoft.DocumentDB/databaseAccounts/{2}/sqlRoleDefinitions/{3}', subscription().id, parameters('databaseAccountResourceGroup'), parameters('databaseAccountName'), parameters('roleDefinitionId'))]",
+                "scope": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccountName'))]"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'appServiceModule')]"
+      ]
+    }
+  ]
+}
