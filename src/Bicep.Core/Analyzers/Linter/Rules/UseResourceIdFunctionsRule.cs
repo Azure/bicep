@@ -10,8 +10,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -240,7 +238,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private static Failure? AnalyzeIdProperty(SemanticModel model, ObjectPropertySyntax propertySyntax)
             {
                 var type = model.GetTypeInfo(propertySyntax.Value);
-                if (type.IsString() || (TypeHelper.TryRemoveNullability(type) is TypeSymbol nonNull && nonNull.IsString()))
+                if (type.IsString() || type.IsNullableString())
                 {
                     return AnalyzeIdPropertyValue(model, propertySyntax, propertySyntax.Value, Array.Empty<DeclaredSymbol>());
                 }
