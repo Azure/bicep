@@ -1,12 +1,19 @@
 
 param (
+  # Folder containing bicep executable
   [Parameter(Mandatory = $true)]
   [string]
   $BicepPath,
 
+  # E.g. ~/repos/bicep-registry-modules/modules
+  #   or ~/repos/azure-quickstart-templates/quickstarts or 
   [Parameter(Mandatory = $true)]
   [string]
   $ExamplesPath,
+
+  [Parameter(Mandatory = $true)]
+  [string]
+  $RegistryName,
 
   [Parameter(Mandatory = $true)]
   [string]
@@ -27,13 +34,12 @@ try
     
     foreach ($moduleDir in $moduleDirs) {
       $bicep = Join-Path -Path $moduleDir.Fullname -ChildPath 'main.bicep';
-      $json = Join-Path -Path $moduleDir.Fullname -ChildPath 'main.json';
 
-      if((Test-Path $bicep) -and (Test-Path $json))
+      if(Test-Path $bicep)
       {
-        $artifactRef = "br:majastrzoci.azurecr.io/examples/$($levelDir.Name)/$($moduleDir.Name):$($Tag)";
+        $artifactRef = "br:$($RegistryName).azurecr.io/examples/$($levelDir.Name)/$($moduleDir.Name):$($Tag)";
         Write-Output $artifactRef;
-        .\bicep.exe publish $bicep --target $artifactRef
+        ./bicep publish $bicep --target $artifactRef
       }
     }
   }
