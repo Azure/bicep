@@ -7,5 +7,6 @@ namespace Bicep.Core.Registry
     {
         Module,
         Provider,
+        Type
     }
 }

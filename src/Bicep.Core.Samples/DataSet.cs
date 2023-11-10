@@ -20,6 +20,7 @@ namespace Bicep.Core.Samples
     public class DataSet
     {
         public const string TestFileMain = "main.bicep";
+        public const string TestFileIndex = "index.json";
         public const string TestFileMainDiagnostics = "main.diagnostics.bicep";
         public const string TestFileMainIr = "main.ir.bicep";
         public const string TestFileMainTokens = "main.tokens.bicep";
@@ -35,14 +36,18 @@ namespace Bicep.Core.Samples
         public const string TestFunctionsPrefix = TestFunctionsDirectory + "/";
         public const string TestPublishDirectory = "Publish";
         public const string TestPublishPrefix = TestPublishDirectory + "/";
-
+        public const string TestPublishTypeDirectory = "Publish";
         public const string TestPublishTypePrefix = TestPublishDirectory + "/";
         public const string TestTemplateSpecsDirectory = "TemplateSpecs";
         public const string TestTemplateSpecsPrefix = TestTemplateSpecsDirectory + "/";
 
         public record ExternalModuleInfo(string ModuleSource, ExternalModuleMetadata Metadata);
 
+        public record ExternalTypeInfo(string TypeSource, ExternalTypeMetadata Metadata);
+
         public record ExternalModuleMetadata(string Target);
+
+        public record ExternalTypeMetadata(string Target);
 
         public static readonly string Prefix = "Files/baselines/";
 
@@ -70,7 +75,7 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyModulesToPublish;
 
-        private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyTypesToPublish;
+        private readonly Lazy<ImmutableDictionary<string, ExternalTypeInfo>> lazyTypesToPublish;
 
         private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyTemplateSpecs;
 
@@ -90,7 +95,7 @@ namespace Bicep.Core.Samples
             this.lazySourceMap = this.CreateIffValid(TestFileMainSourceMap);
             this.lazyCompletions = new(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyModulesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishPrefix)), LazyThreadSafetyMode.PublicationOnly);
-            this.lazyTypesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishTypePrefix)), LazyThreadSafetyMode.PublicationOnly);
+            this.lazyTypesToPublish = new(() => ReadPublishTypeData(GetStreamName(TestPublishTypePrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyTemplateSpecs = new(() => ReadTemplateSpecsData(GetStreamName(TestTemplateSpecsPrefix)), LazyThreadSafetyMode.PublicationOnly);
         }
 
@@ -122,7 +127,7 @@ namespace Bicep.Core.Samples
 
         public ImmutableDictionary<string, ExternalModuleInfo> RegistryModules => this.lazyModulesToPublish.Value;
 
-        public ImmutableDictionary<string, ExternalModuleInfo> RegistryTypes => this.lazyTypesToPublish.Value;
+        public ImmutableDictionary<string, ExternalTypeInfo> RegistryTypes => this.lazyTypesToPublish.Value;
 
         public ImmutableDictionary<string, ExternalModuleInfo> TemplateSpecs => this.lazyTemplateSpecs.Value;
 
@@ -178,6 +183,9 @@ namespace Bicep.Core.Samples
         private static ImmutableDictionary<string, ExternalModuleInfo> ReadTemplateSpecsData(string streamNamePrefix) =>
             ReadExternalModuleData(streamNamePrefix, LanguageConstants.JsonFileExtension);
 
+        private static ImmutableDictionary<string, ExternalTypeInfo> ReadPublishTypeData(string streamNamePrefix) =>
+            ReadExternalTypeData(streamNamePrefix, LanguageConstants.JsonLanguageId);
+
         private static ImmutableDictionary<string, ExternalModuleInfo> ReadExternalModuleData(string streamNamePrefix, string moduleExtension)
         {
             static string GetModuleName(string fileName)
@@ -213,6 +221,46 @@ namespace Bicep.Core.Samples
                 var metadata = JsonConvert.DeserializeObject<ExternalModuleMetadata>(moduleMetadataText) ?? throw new AssertFailedException($"Module metadata file '{moduleMetadataName}' deserialized into a null object.");
 
                 builder.Add(moduleName, new ExternalModuleInfo(moduleSource, metadata));
+            }
+
+            return builder.ToImmutable();
+        }
+
+        private static ImmutableDictionary<string, ExternalTypeInfo> ReadExternalTypeData(string streamNamePrefix, string typeExtension)
+        {
+            static string GetTypeName(string fileName)
+            {
+                var parts = fileName.Split('.', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length < 2 && parts[0].Equals("type"))
+                {
+                    throw new InvalidOperationException($"File '{fileName}' doesn't match the expected naming convention.");
+                }
+
+                return parts[0];
+            }
+
+            var rawFiles = ReadDataSetDictionary(streamNamePrefix);
+            var typeFilesToPublish = rawFiles.Keys.Select(GetTypeName).Distinct();
+
+            var builder = ImmutableDictionary.CreateBuilder<string, ExternalTypeInfo>();
+            foreach (var fileName in typeFilesToPublish)
+            {
+                var typeSourceName = $"{fileName}.{typeExtension}";
+                var typeMetadataName = $"{fileName}.metadata.json";
+
+                if (!rawFiles.TryGetValue(typeSourceName, out var typeSource))
+                {
+                    throw new AssertFailedException($"The source file '{typeSourceName}' is missing.");
+                }
+
+                if (!rawFiles.TryGetValue(typeMetadataName, out var typeMetadataText))
+                {
+                    throw new AssertFailedException($"The metadata file '{typeMetadataName}' is missing.");
+                }
+
+                var metadata = JsonConvert.DeserializeObject<ExternalTypeMetadata>(typeMetadataText) ?? throw new AssertFailedException($"Metadata file '{typeMetadataName}' deserialized into a null object.");
+
+                builder.Add(fileName, new ExternalTypeInfo(typeSource, metadata));
             }
 
             return builder.ToImmutable();

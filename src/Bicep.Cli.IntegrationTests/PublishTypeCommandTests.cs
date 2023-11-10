@@ -36,8 +36,8 @@ namespace Bicep.Cli.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithDocUriAndPublishSource), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(OnlyPublishTypeDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
         public async Task Publish_AllValidDataSets_ShouldSucceed(string testName, DataSet dataSet, string documentationUri, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -48,18 +48,19 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource, (registryUri, repository)).Object;
+            var clientFactory = dataSet.CreateMockRegistryClientsForTypes((registryUri, repository)).Object;
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
+            //Why are we publishing something?
+/*            await dataSet.PublishTypesToRegistryAsync(clientFactory);*/
+            var indexFilePath = Path.Combine(outputDirectory, DataSet.TestFileIndex);
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileIndex);
 
             // mock client factory caches the clients
             var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
 
-            List<string> requiredArgs = new() { "publish", bicepFilePath, "--target", $"br:{registryStr}/{repository}:v1" };
+            List<string> requiredArgs = new() { "publish-type", indexFilePath, "--target", $"br:{registryStr}/{repository}:v1" };
 
             if (!string.IsNullOrWhiteSpace(documentationUri))
             {
@@ -74,7 +75,6 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error, result) = await Bicep(settings, args);
             result.Should().Be(0);
-            output.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
             AssertNoErrors(error);
 
             using var expectedCompiledStream = new FileStream(compiledFilePath, FileMode.Open, FileAccess.Read);
@@ -91,7 +91,7 @@ namespace Bicep.Cli.IntegrationTests
             }
 
             // Modify the source
-            File.AppendAllText(bicepFilePath, "\noutput newoutput string = 'hello'");
+            File.AppendAllText(indexFilePath, "\noutput newoutput string = 'hello'");
 
             // publish the same content again without --force
             var (output2, error2, result2) = await Bicep(settings, args);
@@ -117,7 +117,7 @@ namespace Bicep.Cli.IntegrationTests
             AssertNoErrors(error3);
 
             // compile to get what the new expected main.json should be
-            List<string> buildArgs = new() { "build", bicepFilePath, "--outfile", $"{compiledFilePath}.modified" };
+            List<string> buildArgs = new() { "build", indexFilePath, "--outfile", $"{compiledFilePath}.modified" };
             var (output4, error4, result4) = await Bicep(settings, buildArgs.ToArray());
             result4.Should().Be(0);
             output4.Should().BeEmpty();
@@ -275,6 +275,15 @@ namespace Bicep.Cli.IntegrationTests
             {
                 yield return new object[] { $"{ds.Name}, without docUri, not publishing source", ds, "", false };
                 yield return new object[] { $"{ds.Name}, with docUri, publishing source", ds, "https://example.com", true };
+            }
+        }
+
+        private static IEnumerable<object[]> OnlyPublishTypeDataSets()
+        {
+            foreach (var ds in DataSets.AllDataSets.Where(ds => ds.Name == "Publish_Types"))
+            {
+                yield return new object[] { $"{ds.Name}, publishing types", ds, "", false };
+                break;
             }
         }
 

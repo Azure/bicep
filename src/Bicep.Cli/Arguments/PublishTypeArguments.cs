@@ -23,12 +23,12 @@ namespace Bicep.Cli.Arguments
                             throw new CommandLineException("The --target parameter expects an argument.");
                         }
 
-                        if (this.TargetModuleReference is not null)
+                        if (this.TargetTypeReference is not null)
                         {
                             throw new CommandLineException("The --target parameter cannot be specified twice.");
                         }
 
-                        TargetModuleReference = args[i + 1];
+                        TargetTypeReference = args[i + 1];
                         i++;
                         break;
 
@@ -51,10 +51,6 @@ namespace Bicep.Cli.Arguments
                         }
 
                         i++;
-                        break;
-
-                    case "--with-source":
-                        WithSource = true;
                         break;
 
                     case "--force":
@@ -82,7 +78,7 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException($"The input file path was not specified.");
             }
 
-            if (TargetModuleReference is null)
+            if (TargetTypeReference is null)
             {
                 throw new CommandLineException("The target module was not specified.");
             }
@@ -92,12 +88,10 @@ namespace Bicep.Cli.Arguments
 
         public string InputFile { get; }
 
-        public string TargetModuleReference { get; }
+        public string TargetTypeReference { get; }
 
         public bool NoRestore { get; }
 
         public bool Force { get; }
-
-        public bool WithSource { get; }
     }
 }

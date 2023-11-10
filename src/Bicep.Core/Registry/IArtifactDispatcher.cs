@@ -25,6 +25,8 @@ namespace Bicep.Core.Registry
 
         Task PublishModule(ArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri);
 
+        Task PublishType(ArtifactReference reference, Stream compiledArmTemplate);
+
         void PruneRestoreStatuses();
 
         // Retrieves the sources that have been restored along with the module into the cache (if available)

@@ -49,6 +49,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<FormatCommand>()
             .AddSingleton<GenerateParametersFileCommand>()
             .AddSingleton<PublishCommand>()
+            .AddSingleton<PublishTypeCommand>()
             .AddSingleton<RestoreCommand>()
             .AddSingleton<LintCommand>()
             .AddSingleton<RootCommand>();
