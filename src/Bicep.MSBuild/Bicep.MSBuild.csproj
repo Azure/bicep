@@ -21,5 +21,6 @@
     <!-- do not upgrade these packages - we need to support msbuild 16 -->
     <PackageReference Include="Microsoft.Build.Framework" Version="17.7.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.7.2" PrivateAssets="All" />
+    <PackageReference Include="StreamJsonRpc" Version="2.16.36" />
   </ItemGroup>
 </Project>

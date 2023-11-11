@@ -52,22 +52,8 @@
     <Error Text="The path to the Bicep compiler is not set. Reference the appropriate Azure.Bicep.CommandLine.* package for your runtime or set the BicepPath property." Condition=" $(BicepPath) == '' " />
   </Target>
 
-  <Target Name="BicepCompile" Inputs="@(_BicepResolved);@(_BicepSkipped)" Outputs="%(_BicepResolved.OutputFile)" DependsOnTargets="$(BicepCompileDependsOn)" AfterTargets="$(BicepCompileAfterTargets)" BeforeTargets="$(BicepCompileBeforeTargets)">
-    <Bicep SourceFile="%(_BicepResolved.FullPath)" OutputFile="%(OutputFile)" ToolExe="$(BicepPath)" YieldDuringToolExecution="true" />
-    <Message Importance="High" Text="$(MSBuildProjectName) -&gt; %(_BicepResolved.OutputFile)" />
-
-    <ItemGroup>
-      <FileWrites Include="%(_BicepResolved.OutputFile)" />
-    </ItemGroup>
-  </Target>
-
-  <Target Name="BicepParamCompile" Inputs="@(_BicepParamResolved);@(_BicepParamSkipped)" Outputs="%(_BicepParamResolved.OutputFile)" DependsOnTargets="$(BicepParamCompileDependsOn)" AfterTargets="$(BicepParamCompileAfterTargets)" BeforeTargets="$(BicepParamCompileBeforeTargets)">
-    <BicepParam SourceFile="%(_BicepParamResolved.FullPath)" OutputFile="%(OutputFile)" ToolExe="$(BicepPath)" YieldDuringToolExecution="true" />
-    <Message Importance="High" Text="$(MSBuildProjectName) -&gt; %(_BicepParamResolved.OutputFile)" />
-
-    <ItemGroup>
-      <FileWrites Include="%(_BicepParamResolved.OutputFile)" />
-    </ItemGroup>
+  <Target Name="BicepCompile" DependsOnTargets="$(BicepCompileDependsOn)" AfterTargets="$(BicepCompileAfterTargets)" BeforeTargets="$(BicepCompileBeforeTargets)">
+    <BicepJsonRpcTask SourceFiles="%(_BicepResolved.FullPath)" ToolExe="$(BicepPath)" YieldDuringToolExecution="true" />
   </Target>
 
   <Target Name="ComputeBicepCompiledFilesToPublish" AfterTargets="PrepareForPublish">
