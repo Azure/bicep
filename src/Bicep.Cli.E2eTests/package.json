@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
-    "@types/cross-spawn": "^6.0.4",
+    "@types/cross-spawn": "^6.0.5",
     "@types/jest": "^27.4.1",
     "@types/minimist": "^1.2.4",
     "@types/rimraf": "^4.0.5",
