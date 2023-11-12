@@ -6,7 +6,7 @@
     "@types/html-escaper": "^3.0.1",
     "@types/jest": "^28.1.8",
     "@types/node": "^20.8.10",
-    "@types/plist": "^3.0.4",
+    "@types/plist": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "eslint": "^8.53.0",
