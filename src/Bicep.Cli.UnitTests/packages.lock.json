@@ -756,8 +756,8 @@
       },
       "Sarif.Sdk": {
         "type": "Transitive",
-        "resolved": "4.3.5",
-        "contentHash": "UZgTnChvpsXb2jzmpOFWi0BRA0wHL21U1xDU6w3HAVpbTOFQKY+lSx/Ud3ybMxrd+s8qpObwbcOGVaNu5zkwzg==",
+        "resolved": "4.3.7",
+        "contentHash": "TTDEZ7EmYTzkqk3ee9R8xXPpZWtzIGljY/A2SJRkhhv37cs0Gdkn419DyIi7LzhbLM7ldOpa0N16qPCZg5IJag==",
         "dependencies": {
           "Microsoft.Diagnostics.Tracing.EventRegister": "1.1.28",
           "Microsoft.Diagnostics.Tracing.TraceEvent": "3.1.3",
@@ -1887,7 +1887,7 @@
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Decompiler": "[1.0.0, )",
           "Microsoft.Extensions.Logging": "[7.0.0, )",
-          "Sarif.Sdk": "[4.3.5, )"
+          "Sarif.Sdk": "[4.3.7, )"
         }
       }
     },
