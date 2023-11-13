@@ -3,7 +3,7 @@
   "private": true,
   "devDependencies": {
     "tmlanguage-generator": "^0.5.0",
-    "@types/html-escaper": "^3.0.1",
+    "@types/html-escaper": "^3.0.2",
     "@types/jest": "^28.1.8",
     "@types/node": "^20.9.0",
     "@types/plist": "^3.0.5",
