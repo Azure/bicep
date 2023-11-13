@@ -1643,6 +1643,149 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             },
             DisplayName = "Regress #8424"
         )]
+        [DataRow("""
+            param location string = resourceGroup().location
+
+            param webSiteName string
+
+            param appServicePlanId string
+
+            param acrPullMI {
+              clientId: string
+              id: string
+            }
+
+            resource appService 'Microsoft.Web/sites@2022-09-01' = {
+              name: webSiteName
+              location: location
+              properties: {
+                serverFarmId: appServicePlanId
+                siteConfig: {
+                  acrUseManagedIdentityCreds: true
+                  acrUserManagedIdentityID: acrPullMI.clientId
+                }
+              }
+              identity: {
+                type: 'UserAssigned'
+                userAssignedIdentities: {
+                  '${acrPullMI.id}': {}
+                }
+              }
+            }
+            """,
+            new string[]
+            {
+                // pass
+            },
+            DisplayName = "Parameter properties"
+        )]
+        [DataRow("""
+            param location string = resourceGroup().location
+
+            param webSiteName string
+
+            param appServicePlanId string
+
+            param acrPullMI {
+              clientId: string?
+              id: string
+            }
+
+            resource appService 'Microsoft.Web/sites@2022-09-01' = {
+              name: webSiteName
+              location: location
+              properties: {
+                serverFarmId: appServicePlanId
+                siteConfig: {
+                  acrUseManagedIdentityCreds: true
+                  acrUserManagedIdentityID: (acrPullMI.clientId!)
+                }
+              }
+              identity: {
+                type: 'UserAssigned'
+                userAssignedIdentities: {
+                  '${acrPullMI.id}': {}
+                }
+              }
+            }
+            """,
+            new string[]
+            {
+                // pass
+            },
+            DisplayName = "Nullable parameter properties"
+        )]
+        [DataRow("""
+            param location string = resourceGroup().location
+
+            param webSiteName string
+
+            param appServicePlanId string
+
+            param acrPullMIId string
+
+            param acrPullMIClientId string?
+
+            resource appService 'Microsoft.Web/sites@2022-09-01' = {
+              name: webSiteName
+              location: location
+              properties: {
+                serverFarmId: appServicePlanId
+                siteConfig: {
+                  acrUseManagedIdentityCreds: true
+                  acrUserManagedIdentityID: acrPullMIClientId!
+                }
+              }
+              identity: {
+                type: 'UserAssigned'
+                userAssignedIdentities: {
+                  '${acrPullMIId}': {}
+                }
+              }
+            }
+            """,
+            new string[]
+            {
+                // pass
+            },
+            DisplayName = "Nullable parameters"
+        )]
+        [DataRow("""
+            param location string = resourceGroup().location
+
+            param webSiteName string
+
+            param appServicePlanId string
+
+            param acrPullMIId string
+
+            @minLength(1)
+            param acrPullMIClientIds string[]
+
+            resource appService 'Microsoft.Web/sites@2022-09-01' = {
+              name: webSiteName
+              location: location
+              properties: {
+                serverFarmId: appServicePlanId
+                siteConfig: {
+                  acrUseManagedIdentityCreds: true
+                  acrUserManagedIdentityID: acrPullMIClientIds[0]
+                }
+              }
+              identity: {
+                type: 'UserAssigned'
+                userAssignedIdentities: {
+                  '${acrPullMIId}': {}
+                }
+              }
+            }
+            """,
+            new string[]
+            {
+                // pass
+            },
+            DisplayName = "Array parameter elements"
+        )]
         [DataTestMethod]
         public void Test(string text, string[] expectedMessages)
         {
