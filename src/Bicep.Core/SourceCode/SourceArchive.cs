@@ -28,7 +28,7 @@ namespace Bicep.Core.SourceCode
     public partial class SourceArchive
     {
         public ImmutableArray<SourceFileInfo> SourceFiles { get; init; }
-        public string EntrypointPath { get; init; }
+        public string EntrypointRelativePath { get; init; }
 
         public const string SourceKind_Bicep = "bicep";
         public const string SourceKind_ArmTemplate = "armTemplate";
@@ -183,7 +183,7 @@ namespace Bicep.Core.SourceCode
                 infos.Add(new SourceFileInfo(info.Path, info.ArchivePath, info.Kind, contents));
             }
 
-            this.EntrypointPath = metadata.EntryPoint;
+            this.EntrypointRelativePath = metadata.EntryPoint;
             this.SourceFiles = infos.ToImmutableArray();
         }
 

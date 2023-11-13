@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
             Subject.Should().NotBeNull();
 
-            Subject!.EntrypointPath.Should().Be(archive.EntrypointPath);
+            Subject!.EntrypointRelativePath.Should().Be(archive.EntrypointRelativePath);
             Subject.SourceFiles.Select(entry => entry.Path).Should().BeEquivalentTo(archive.SourceFiles.Select(entry => entry.Path));
 
             var ourFiles = Subject.SourceFiles.ToArray();
