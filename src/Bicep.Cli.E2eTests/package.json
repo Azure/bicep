@@ -4,7 +4,7 @@
   "devDependencies": {
     "@types/cross-spawn": "^6.0.5",
     "@types/jest": "^27.4.1",
-    "@types/minimist": "^1.2.4",
+    "@types/minimist": "^1.2.5",
     "@types/rimraf": "^4.0.5",
     "@types/uuid": "^9.0.6",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
