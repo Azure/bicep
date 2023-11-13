@@ -1,0 +1,20 @@
+id: issueMgmt.triageNew
+name: GitOps.PullRequestIssueManagement
+description: Adds a triage tag to new issues
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    eventResponderTasks:
+      - description: "Adds 'Needs: Triage' label for new issues"
+        if:
+          - payloadType: Issues
+          - isAction:
+              action: Opened
+        then:
+          - addLabel:
+              label: "Needs: Triage :mag:"
+onFailure:
+onSuccess:

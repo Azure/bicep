@@ -518,8 +518,7 @@ namespace Bicep.Core.Emit
                     {
                         referencedValueHasError = true;
                     }
-
-                    if (referenced.Key is ParameterAssignmentSymbol parameterAssignment)
+                    else if (referenced.Key is ParameterAssignmentSymbol parameterAssignment)
                     {
                         if (generated[parameterAssignment].KeyVaultReferenceExpression is not null)
                         {
