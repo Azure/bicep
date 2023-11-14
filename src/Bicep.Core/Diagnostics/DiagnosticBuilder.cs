@@ -2129,7 +2129,7 @@ namespace Bicep.Core.Diagnostics
                     codeFix);
             }
 
-            public ErrorDiagnostic ArtifactFilePathCouldNotBeResolved(string ociManifestPath) => new(
+            public ErrorDiagnostic MalformedProviderPackage(string ociManifestPath) => new(
                 TextSpan,
                 "BCP382",
                 $"The artifact file path could not be resolved from the OCI manifest file: \"{ociManifestPath}\"."

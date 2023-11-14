@@ -45,7 +45,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             var ociManifestPath = Path.Combine(providerDescriptor.Path, "manifest");
             if (!File.Exists(ociManifestPath))
             {
-                return new(x => x.ArtifactFilePathCouldNotBeResolved(ociManifestPath));
+                return new(x => x.MalformedProviderPackage(ociManifestPath));
             }
 
             // Read the OCI manifest
