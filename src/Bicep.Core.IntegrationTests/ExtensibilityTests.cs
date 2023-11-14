@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,8 +22,10 @@ namespace Bicep.Core.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         private ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory));
+            //.WithAzResourceTypeLoader()
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: InMemoryFileResolver.GetFileUri("/test/.bicep").LocalPath))
+            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory)
+            );
 
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()
@@ -623,8 +628,8 @@ Hello from Bicep!"));
         [TestMethod]
         public void Az_namespace_can_be_used_without_configuration()
         {
-            var result = CompilationHelper.Compile(Services, @"
-provider 'br/public:az@1.0.0'
+            var result = CompilationHelper.Compile(Services, @$"
+provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
 ");
 
             result.Should().GenerateATemplate();
@@ -634,8 +639,8 @@ provider 'br/public:az@1.0.0'
         [TestMethod]
         public void Az_namespace_errors_with_configuration()
         {
-            var result = CompilationHelper.Compile(Services, @"
-provider 'br/public:az@1.0.0' with {}
+            var result = CompilationHelper.Compile(Services, @$"
+provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' with {{}}
 ");
 
             result.Should().NotGenerateATemplate();

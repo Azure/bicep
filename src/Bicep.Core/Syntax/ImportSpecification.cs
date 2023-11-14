@@ -4,13 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
+using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.Syntax
@@ -21,7 +26,7 @@ namespace Bicep.Core.Syntax
         // language=regex
         private const string NamePattern = "[a-zA-Z][a-zA-Z0-9]+";
 
-        private const string FromRegistryPattern = @"br[:\/]\S+";
+        private const string BicepRegistryAddressPattern = @"br[:\/]\S+";
 
         // Regex copied from https://semver.org/.
         // language=regex
@@ -32,23 +37,23 @@ namespace Bicep.Core.Syntax
             RegexOptions.ECMAScript | RegexOptions.Compiled);
 
         private static readonly Regex FromRegistrySpecificationPattern = new(
-            @$"^(?<address>{FromRegistryPattern})@(?<version>{SemanticVersionPattern})$",
+            @$"^(?<address>{BicepRegistryAddressPattern})@(?<version>{SemanticVersionPattern})$",
             RegexOptions.ECMAScript | RegexOptions.Compiled);
 
         private static readonly Regex RepositoryNamePattern = new(
             @"^\S*[:\/](?<name>az)$",
             RegexOptions.ECMAScript | RegexOptions.Compiled);
 
-        private ImportSpecification(string unexpandedPath, string name, string version, bool isValid, TextSpan span)
+        private ImportSpecification(string bicepRegistryAddress, string name, string version, bool isValid, TextSpan span)
         {
-            UnexpandedPath = unexpandedPath;
+            BicepRegistryAddress = bicepRegistryAddress;
             Name = name;
             Version = version;
             IsValid = isValid;
             Span = span;
         }
 
-        private string UnexpandedPath { get; }
+        public string BicepRegistryAddress { get; }
 
         public string Name { get; }
 
@@ -71,15 +76,6 @@ namespace Bicep.Core.Syntax
                 LanguageConstants.ErrorName,
                 false,
                 specificationSyntax.Span);
-        }
-
-        public SyntaxBase ToPath()
-        {
-            if (!this.IsValid)
-            {
-                return new SkippedTriviaSyntax(this.Span, Enumerable.Empty<SyntaxBase>());
-            }
-            return SyntaxFactory.CreateStringLiteral(this.UnexpandedPath);
         }
 
         private static ImportSpecification CreateFromStringSyntax(StringSyntax stringSyntax, string value)

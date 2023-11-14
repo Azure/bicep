@@ -65,7 +65,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             TestContext.WriteLine(testName);
 
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
@@ -115,7 +115,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             TestContext.WriteLine(testName);
 
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
@@ -184,7 +184,6 @@ namespace Bicep.Cli.IntegrationTests
             var registry = "example.com";
             var registryUri = new Uri("https://" + registry);
             var repository = "hello/there";
-            var dataSet = DataSets.Empty;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
 
             var (client, clientFactory) = await OciArtifactRegistryHelper.PublishArtifactLayersToMockClient(
@@ -493,7 +492,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
         [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
         public async Task Restore_NonExistentModules_ShouldFail(string testName, DataSet dataSet, bool publishSource)
         {
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
 

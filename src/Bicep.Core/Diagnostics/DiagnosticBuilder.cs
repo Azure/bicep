@@ -2128,6 +2128,12 @@ namespace Bicep.Core.Diagnostics
                     DiagnosticStyling.Default,
                     codeFix);
             }
+
+            public ErrorDiagnostic MalformedProviderPackage(string ociManifestPath) => new(
+                TextSpan,
+                "BCP382",
+                $"The provider package is malformed and could not be loaded from \"{ociManifestPath}\"."
+            );
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

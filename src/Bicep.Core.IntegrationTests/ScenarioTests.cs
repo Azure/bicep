@@ -2796,7 +2796,7 @@ var myValue = 2147483647
     public void Test_Issue5456_1()
     {
         var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-        var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[]
+        var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[]
         {
             new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new[]
             {

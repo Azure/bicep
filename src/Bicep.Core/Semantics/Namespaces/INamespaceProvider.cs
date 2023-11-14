@@ -11,13 +11,10 @@ namespace Bicep.Core.Semantics.Namespaces;
 public interface INamespaceProvider
 {
     NamespaceType? TryGetNamespace(
-        string providerName,
-        string aliasName,
+        ResourceTypesProviderDescriptor providerDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
-        BicepSourceFileKind sourceFileKind,
-        string? providerVersion = null
-    );
+        BicepSourceFileKind sourceFileKind);
 
     IEnumerable<string> AvailableNamespaces { get; }
 }

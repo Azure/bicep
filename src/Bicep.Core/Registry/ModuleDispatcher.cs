@@ -112,7 +112,7 @@ namespace Bicep.Core.Registry
             var registry = this.GetRegistry(artifactReference);
             var configuration = configurationManager.GetConfiguration(artifactReference.ParentModuleUri);
 
-            // have we already failed to restore this module?
+            // have we already failed to restore this artifact?
             if (this.HasRestoreFailed(artifactReference, configuration, out var restoreFailureBuilder))
             {
                 failureBuilder = restoreFailureBuilder;

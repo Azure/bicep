@@ -53,12 +53,11 @@ public class BicepCompiler
             // however we still want to surface as many errors as we can for the module refs that are valid
             // so we will try to restore modules with valid refs and skip everything else
             // (the diagnostics will be collected during compilation)
-            if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.GetModulesToRestore())))
+            if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.GetArtifactsToRestore())))
             {
                 // modules had to be restored - recompile
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, workspace, sourceFileGrouping);
             }
-            //TODO(asilverman): I want to inject here the logic that restores the providers
         }
 
         return new Compilation(featureProviderFactory, environment, namespaceProvider, sourceFileGrouping, configurationManager, bicepAnalyzer, moduleDispatcher);

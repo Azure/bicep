@@ -44,7 +44,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         private async Task<SourceFileGrouping> GetSourceFileGrouping(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(false).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(false);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
@@ -55,7 +55,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(BicepTestConstants.EmptyServiceProvider, BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeatureProviderFactory(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), configManager), configManager), configManager);
             Workspace workspace = new();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), BicepTestConstants.FeatureProviderFactory);
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.GetModulesToRestore())))
+            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.GetArtifactsToRestore())))
             {
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(BicepTestConstants.FeatureProviderFactory, dispatcher, workspace, sourceFileGrouping);
             }

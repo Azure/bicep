@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
@@ -485,8 +486,16 @@ output length int =
 
             var namespaceProvider = BicepTestConstants.NamespaceProvider;
             var namespaces = new[] {
-                namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
-                namespaceProvider.TryGetNamespace("sys", "sys", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
+                namespaceProvider.TryGetNamespace(
+                    new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion),
+                    ResourceScope.ResourceGroup,
+                    BicepTestConstants.Features,
+                    BicepSourceFileKind.BicepFile)!,
+                namespaceProvider.TryGetNamespace(
+                    new(SystemNamespaceType.BuiltInName, SystemNamespaceType.Settings.ArmTemplateProviderVersion),
+                    ResourceScope.ResourceGroup,
+                    BicepTestConstants.Features,
+                    BicepSourceFileKind.BicepFile)!,
             };
 
             var availableFunctionNames = namespaces

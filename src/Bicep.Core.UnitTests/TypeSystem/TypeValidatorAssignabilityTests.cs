@@ -10,6 +10,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -936,9 +937,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private TypeSymbol CreateDummyResourceType()
         {
-            var typeProvider = TestTypeHelper.CreateEmptyProvider();
+            var typeProvider = TestTypeHelper.CreateEmptyNamespaceProvider();
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
-            var azNamespaceType = typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
+            ResourceTypesProviderDescriptor builtInAzProviderDescriptor = new(
+                AzNamespaceType.BuiltInName,
+                AzNamespaceType.Settings.ArmTemplateProviderVersion);
+            var azNamespaceType = typeProvider.TryGetNamespace(builtInAzProviderDescriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
 
             return azNamespaceType.ResourceTypeProvider.TryGenerateFallbackType(azNamespaceType, typeReference, ResourceTypeGenerationFlags.None)!;
         }
@@ -958,7 +962,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             parsingErrorLookup ??= EmptyDiagnosticLookup.Instance;
 
-            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, BicepTestConstants.EmptyEnvironment, fileResolverMock.Object, parsingErrorLookup, StrictMock.Of<ISourceFileLookup>().Object, StrictMock.Of<ISemanticModelLookup>().Object);
+            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, BicepTestConstants.EmptyEnvironment, fileResolverMock.Object, parsingErrorLookup, StrictMock.Of<IArtifactFileLookup>().Object, StrictMock.Of<ISemanticModelLookup>().Object);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, parsingErrorLookup, diagnosticWriter, expression, targetType);
