@@ -14,7 +14,6 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
-using Microsoft.WindowsAzure.ResourceStack.Common.EventSources.ManifestInstaller;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.TypeSystem
@@ -51,7 +50,7 @@ namespace Bicep.Core.TypeSystem
             var ociManifestPath = Path.Combine(providerDirectory, "manifest");
             if (!File.Exists(ociManifestPath))
             {
-                return new(x => x.ArtifactFilePathCouldNotBeResolved(ociManifestPath));
+                return new(x => x.MalformedProviderPackage(ociManifestPath));
             }
 
             // Read the OCI manifest
