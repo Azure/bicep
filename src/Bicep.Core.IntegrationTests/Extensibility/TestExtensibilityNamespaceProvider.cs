@@ -5,6 +5,7 @@ using System.Linq;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.IntegrationTests.Extensibility;

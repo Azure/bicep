@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using Bicep.Core.Semantics;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public record NamespaceSettings(
         bool IsSingleton,

@@ -4,7 +4,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public class LambdaType : TypeSymbol
     {
@@ -26,6 +26,6 @@ namespace Bicep.Core.TypeSystem
                 $"{argumentTypes.Single().Type.FormatNameForCompoundTypes()} => {bodyType.Type.FormatNameForCompoundTypes()}" :
                 $"({string.Join(", ", argumentTypes.Select(x => x.Type.FormatNameForCompoundTypes()))}) => {bodyType.Type.FormatNameForCompoundTypes()}";
 
-        public override string FormatNameForCompoundTypes() => this.WrapTypeName();
+        public override string FormatNameForCompoundTypes() => WrapTypeName();
     }
 }

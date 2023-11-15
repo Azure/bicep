@@ -17,6 +17,7 @@ using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using System;
 using System.Diagnostics;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics.Namespaces
 {

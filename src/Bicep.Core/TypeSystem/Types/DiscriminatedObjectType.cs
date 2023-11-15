@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public class DiscriminatedObjectType : TypeSymbol
     {
@@ -42,10 +42,10 @@ namespace Bicep.Core.TypeSystem
             }
 
             // NOTE(kylealbert): keys are bicep string literals (ex: "'a'" and not "a")
-            this.UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
-            this.ValidationFlags = validationFlags;
-            this.DiscriminatorKeysUnionType = TypeHelper.CreateTypeUnion(unionKeyTypes);
-            this.DiscriminatorProperty = new TypeProperty(discriminatorKey, this.DiscriminatorKeysUnionType, discriminatorPropertyFlags);
+            UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
+            ValidationFlags = validationFlags;
+            DiscriminatorKeysUnionType = TypeHelper.CreateTypeUnion(unionKeyTypes);
+            DiscriminatorProperty = new TypeProperty(discriminatorKey, DiscriminatorKeysUnionType, discriminatorPropertyFlags);
         }
 
         public override TypeKind TypeKind => TypeKind.DiscriminatedObject;
@@ -58,7 +58,7 @@ namespace Bicep.Core.TypeSystem
 
         public TypeProperty DiscriminatorProperty { get; }
 
-        public string DiscriminatorKey => this.DiscriminatorProperty.Name;
+        public string DiscriminatorKey => DiscriminatorProperty.Name;
 
         public TypeSymbol DiscriminatorKeysUnionType { get; }
 

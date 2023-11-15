@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.Semantics

@@ -3,7 +3,7 @@
 using System.Collections.Immutable;
 using Bicep.Core.Resources;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public record ResourceTypeComponents(
         ResourceTypeReference TypeReference,

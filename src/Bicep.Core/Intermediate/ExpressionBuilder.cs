@@ -15,6 +15,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using static Bicep.Core.Emit.ScopeHelper;

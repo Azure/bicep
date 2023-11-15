@@ -25,6 +25,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;

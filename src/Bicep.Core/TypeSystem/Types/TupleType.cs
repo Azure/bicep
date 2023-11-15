@@ -5,7 +5,7 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Bicep.Core.TypeSystem;
+namespace Bicep.Core.TypeSystem.Types;
 
 /// <summary>
 /// Represents an array with a fixed number of items, each of which has an independently defined type.

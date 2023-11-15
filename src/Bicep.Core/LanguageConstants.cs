@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Parsing;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core
 {

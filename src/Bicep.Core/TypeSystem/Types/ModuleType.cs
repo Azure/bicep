@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public class ModuleType : TypeSymbol, IScopeReference
     {
@@ -34,7 +34,7 @@ namespace Bicep.Core.TypeSystem
 
         public TypeSymbol? TryGetParameterType(string propertyName)
         {
-            if (this.Body is ObjectType objectType &&
+            if (Body is ObjectType objectType &&
                 objectType.Properties.TryGetValue(LanguageConstants.ModuleParamsPropertyName, out var paramsProperty) &&
                 paramsProperty.TypeReference.Type is ObjectType paramsType &&
                 paramsType.Properties.TryGetValue(propertyName, out var property))

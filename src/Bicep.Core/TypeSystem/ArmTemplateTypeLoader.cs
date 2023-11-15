@@ -11,6 +11,7 @@ using Azure.Deployments.Expression.Extensions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 

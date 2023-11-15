@@ -8,6 +8,7 @@ using System.Linq;
 using System.Numerics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem;
 

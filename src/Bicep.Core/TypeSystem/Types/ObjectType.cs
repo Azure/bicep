@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Semantics;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     /// <summary>
     /// Represents an object with any property of any type.
@@ -21,11 +21,11 @@ namespace Bicep.Core.TypeSystem
         public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags, Func<ObjectType, FunctionResolver> methodResolverBuilder)
             : base(name)
         {
-            this.ValidationFlags = validationFlags;
-            this.Properties = properties.ToImmutableSortedDictionary(property => property.Name, property => property, LanguageConstants.IdentifierComparer);
-            this.MethodResolver = methodResolverBuilder(this);
-            this.AdditionalPropertiesType = additionalPropertiesType;
-            this.AdditionalPropertiesFlags = additionalPropertiesFlags;
+            ValidationFlags = validationFlags;
+            Properties = properties.ToImmutableSortedDictionary(property => property.Name, property => property, LanguageConstants.IdentifierComparer);
+            MethodResolver = methodResolverBuilder(this);
+            AdditionalPropertiesType = additionalPropertiesType;
+            AdditionalPropertiesFlags = additionalPropertiesFlags;
         }
 
         public override TypeKind TypeKind => TypeKind.Object;
@@ -49,11 +49,11 @@ namespace Bicep.Core.TypeSystem
             Tuple<ITypeReference?>? additionalPropertiesType = null,
             TypePropertyFlags? additionalPropertiesFlags = null,
             Func<ObjectType, FunctionResolver>? methodResolverBuilder = null) => new(
-                this.Name,
-                validationFlags ?? this.ValidationFlags,
-                properties ?? this.Properties.Values,
-                additionalPropertiesType is not null ? additionalPropertiesType.Item1 : this.AdditionalPropertiesType,
-                additionalPropertiesFlags ?? this.AdditionalPropertiesFlags,
-                methodResolverBuilder ?? this.MethodResolver.CopyToObject);
+                Name,
+                validationFlags ?? ValidationFlags,
+                properties ?? Properties.Values,
+                additionalPropertiesType is not null ? additionalPropertiesType.Item1 : AdditionalPropertiesType,
+                additionalPropertiesFlags ?? AdditionalPropertiesFlags,
+                methodResolverBuilder ?? MethodResolver.CopyToObject);
     }
 }

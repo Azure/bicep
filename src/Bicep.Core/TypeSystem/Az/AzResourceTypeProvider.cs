@@ -11,6 +11,7 @@ using Azure.Deployments.Core.Comparers;
 using Bicep.Core.Emit;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Az
 {

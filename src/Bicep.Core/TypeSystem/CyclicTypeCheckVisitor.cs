@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.TypeSystem;

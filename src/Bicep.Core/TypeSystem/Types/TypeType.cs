@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
 
-namespace Bicep.Core.TypeSystem;
+namespace Bicep.Core.TypeSystem.Types;
 
 /// <summary>
 /// The type of a symbol that may only be used as a type, not a value.
@@ -14,7 +14,7 @@ public class TypeType : TypeSymbol
 
     public TypeType(TypeSymbol toWrap) : base($"Type<{toWrap.Name}>")
     {
-        this.wrappedType = toWrap;
+        wrappedType = toWrap;
     }
 
     public TypeSymbol Unwrapped => wrappedType;

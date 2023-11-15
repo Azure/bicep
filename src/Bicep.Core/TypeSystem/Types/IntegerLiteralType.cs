@@ -4,7 +4,7 @@
 using System;
 using System.Globalization;
 
-namespace Bicep.Core.TypeSystem;
+namespace Bicep.Core.TypeSystem.Types;
 
 public class IntegerLiteralType : TypeSymbol
 {

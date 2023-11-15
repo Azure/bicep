@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Bicep.Core.TypeSystem;
+namespace Bicep.Core.TypeSystem.Types;
 
 internal class TypeComparer : IComparer<TypeSymbol>
 {

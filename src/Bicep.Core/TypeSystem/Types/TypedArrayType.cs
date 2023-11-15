@@ -3,7 +3,7 @@
 using System.Collections.Generic;
 using Bicep.Core.Semantics;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public class TypedArrayType : ArrayType
     {
@@ -17,7 +17,7 @@ namespace Bicep.Core.TypeSystem
         {
             get
             {
-                yield return this.Item.Type;
+                yield return Item.Type;
             }
         }
 

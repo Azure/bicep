@@ -7,6 +7,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.UnitTests.Utils
 {

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem
 {

@@ -4,17 +4,17 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public class UnionType : TypeSymbol
     {
         public UnionType(string name, ImmutableArray<ITypeReference> members)
             : base(name)
         {
-            this.Members = members;
+            Members = members;
         }
 
-        public override TypeKind TypeKind => this.Members.IsEmpty ? TypeKind.Never : TypeKind.Union;
+        public override TypeKind TypeKind => Members.IsEmpty ? TypeKind.Never : TypeKind.Union;
 
         public ImmutableArray<ITypeReference> Members { get; }
 

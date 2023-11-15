@@ -10,6 +10,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces

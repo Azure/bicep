@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.K8s;
 using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.K8s
 {
