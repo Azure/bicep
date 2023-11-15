@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.IO;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Services;
 using FluentAssertions;
@@ -11,17 +12,19 @@ namespace Bicep.Cli.UnitTests
     [TestClass]
     public class ArgumentParserTests
     {
+        private static readonly IOContext IO = new(new StringWriter(), new StringWriter());
+
         [TestMethod]
         public void Empty_parameters_should_return_null()
         {
-            var arguments = ArgumentParser.TryParse(Array.Empty<string>());
+            var arguments = ArgumentParser.TryParse(Array.Empty<string>(), IO);
             arguments.Should().BeNull();
         }
 
         [TestMethod]
         public void Wrong_command_should_return_null()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "wrong" });
+            var arguments = ArgumentParser.TryParse(new[] { "wrong" }, IO);
             arguments.Should().BeNull();
         }
 
@@ -62,7 +65,7 @@ namespace Bicep.Cli.UnitTests
         [DataRow(new[] { "restore", "file1", "file2" }, "The input file path cannot be specified multiple times.")]
         public void Invalid_args_trigger_validation_exceptions(string[] parameters, string expectedException)
         {
-            Action parseFunc = () => ArgumentParser.TryParse(parameters);
+            Action parseFunc = () => ArgumentParser.TryParse(parameters, IO);
 
             parseFunc.Should().Throw<CommandLineException>().WithMessage(expectedException);
         }
@@ -70,7 +73,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void BuildOneFile_ShouldReturnOneFile()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "build", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "build", "file1" }, IO);
             var buildArguments = (BuildArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -85,7 +88,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void BuildOneFileStdOut_ShouldReturnOneFileAndStdout()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "build", "--stdout", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "build", "--stdout", "file1" }, IO);
             var buildArguments = (BuildArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -100,7 +103,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void BuildOneFileStdOut_and_no_restore_ShouldReturnOneFileAndStdout()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "build", "--stdout", "--no-restore", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "build", "--stdout", "--no-restore", "file1" }, IO);
             var buildArguments = (BuildArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -115,7 +118,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void BuildOneFileStdOutAllCaps_ShouldReturnOneFileAndStdout()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "build", "--STDOUT", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "build", "--STDOUT", "file1" }, IO);
             var buildArguments = (BuildArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -131,7 +134,7 @@ namespace Bicep.Cli.UnitTests
         public void Build_with_outputdir_parameter_should_parse_correctly()
         {
             // Use relative . to ensure directory exists else the parser will throw.
-            var arguments = ArgumentParser.TryParse(new[] { "build", "--outdir", ".", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "build", "--outdir", ".", "file1" }, IO);
             var buildArguments = (BuildArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -147,7 +150,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Build_with_outputfile_parameter_should_parse_correctly()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "build", "--outfile", "jsonFile", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "build", "--outfile", "jsonFile", "file1" }, IO);
             var buildArguments = (BuildArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -162,7 +165,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Build_with_outputfile_and_no_restore_parameter_should_parse_correctly()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "build", "--outfile", "jsonFile", "file1", "--no-restore" });
+            var arguments = ArgumentParser.TryParse(new[] { "build", "--outfile", "jsonFile", "file1", "--no-restore" }, IO);
             var buildArguments = (BuildArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -177,7 +180,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void License_argument_should_return_appropriate_RootArguments_instance()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "--license" });
+            var arguments = ArgumentParser.TryParse(new[] { "--license" }, IO);
 
             arguments.Should().BeOfType<RootArguments>();
             if (arguments is RootArguments rootArguments)
@@ -192,7 +195,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Third_party_notices_argument_should_return_appropriate_RootArguments_instance()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "--third-party-notices" });
+            var arguments = ArgumentParser.TryParse(new[] { "--third-party-notices" }, IO);
 
             arguments.Should().BeOfType<RootArguments>();
             if (arguments is RootArguments rootArguments)
@@ -207,7 +210,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Version_argument_should_return_VersionArguments_instance()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "--version" });
+            var arguments = ArgumentParser.TryParse(new[] { "--version" }, IO);
 
             arguments.Should().BeOfType<RootArguments>();
             if (arguments is RootArguments rootArguments)
@@ -222,7 +225,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Help_argument_should_return_HelpArguments_instance()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "--help" });
+            var arguments = ArgumentParser.TryParse(new[] { "--help" }, IO);
 
             arguments.Should().BeOfType<RootArguments>();
             if (arguments is RootArguments rootArguments)
@@ -237,7 +240,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Version_argument_should_return_VersionShortArguments_instance()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "-v" });
+            var arguments = ArgumentParser.TryParse(new[] { "-v" }, IO);
 
             arguments.Should().BeOfType<RootArguments>();
             if (arguments is RootArguments rootArguments)
@@ -252,7 +255,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Help_argument_should_return_HelpShortArguments_instance()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "-h" });
+            var arguments = ArgumentParser.TryParse(new[] { "-h" }, IO);
 
             arguments.Should().BeOfType<RootArguments>();
             if (arguments is RootArguments rootArguments)
@@ -267,7 +270,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void DecompileOneFile_ShouldReturnOneFile()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "decompile", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "decompile", "file1" }, IO);
             var bulidOrDecompileArguments = (DecompileArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -281,7 +284,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void DecompileOneFileStdOut_ShouldReturnOneFileAndStdout()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "decompile", "--stdout", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "decompile", "--stdout", "file1" }, IO);
             var bulidOrDecompileArguments = (DecompileArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -295,7 +298,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void DecompileOneFileStdOutAllCaps_ShouldReturnOneFileAndStdout()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "decompile", "--STDOUT", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "decompile", "--STDOUT", "file1" }, IO);
             var bulidOrDecompileArguments = (DecompileArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -310,7 +313,7 @@ namespace Bicep.Cli.UnitTests
         public void Decompile_with_outputdir_parameter_should_parse_correctly()
         {
             // Use relative . to ensure directory exists else the parser will throw.
-            var arguments = ArgumentParser.TryParse(new[] { "decompile", "--outdir", ".", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "decompile", "--outdir", ".", "file1" }, IO);
             var bulidOrDecompileArguments = (DecompileArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -324,7 +327,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Decompile_with_outputfile_parameter_should_parse_correctly()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "decompile", "--outfile", "jsonFile", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "decompile", "--outfile", "jsonFile", "file1" }, IO);
             var bulidOrDecompileArguments = (DecompileArguments?)arguments;
 
             // using classic assert so R# understands the value is not null
@@ -338,7 +341,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Publish_should_parse_correctly()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "publish", "file1", "--target", "target1" });
+            var arguments = ArgumentParser.TryParse(new[] { "publish", "file1", "--target", "target1" }, IO);
             arguments.Should().BeOfType<PublishArguments>();
             var typed = (PublishArguments)arguments!;
 
@@ -350,7 +353,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Publish_with_no_restore_should_parse_correctly()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "publish", "file1", "--target", "target1", "--no-restore" });
+            var arguments = ArgumentParser.TryParse(new[] { "publish", "file1", "--target", "target1", "--no-restore" }, IO);
             arguments.Should().BeOfType<PublishArguments>();
             var typed = (PublishArguments)arguments!;
 
@@ -362,7 +365,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Restore__with_no_force_should_parse_correctly()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "restore", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "restore", "file1" }, IO);
             arguments.Should().BeOfType<RestoreArguments>();
             var typed = (RestoreArguments)arguments!;
 
@@ -373,7 +376,7 @@ namespace Bicep.Cli.UnitTests
         [TestMethod]
         public void Restore_with_force_should_parse_correctly()
         {
-            var arguments = ArgumentParser.TryParse(new[] { "restore", "--force", "file1" });
+            var arguments = ArgumentParser.TryParse(new[] { "restore", "--force", "file1" }, IO);
             arguments.Should().BeOfType<RestoreArguments>();
             var typed = (RestoreArguments)arguments!;
 

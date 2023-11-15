@@ -227,7 +227,7 @@ namespace Bicep.Cli.IntegrationTests
                 // Skip if input file is empty
                 return;
             }
-            var (output, error, result) = await Bicep("format", bicepFilePath, "--newLine", "LF");
+            var (output, error, result) = await Bicep("format", bicepFilePath, "--newline", "LF");
 
             // Should format successfully
             using (new AssertionScope())
@@ -270,7 +270,7 @@ namespace Bicep.Cli.IntegrationTests
                 // Skip if input file is empty
                 return;
             }
-            var (output, error, result) = await Bicep("format", bicepFilePath, "--newLine", "CRLF", "--insertFinalNewline");
+            var (output, error, result) = await Bicep("format", bicepFilePath, "--newLine", "CRLF", "--insert-final-newline");
 
             // Should format successfully
             using (new AssertionScope())
@@ -354,7 +354,7 @@ namespace Bicep.Cli.IntegrationTests
                 // Skip if input file is empty
                 return;
             }
-            var (output, error, result) = await Bicep("format", bicepFilePath, "--newLine", "CRLF", "--indentSize", "4");
+            var (output, error, result) = await Bicep("format", bicepFilePath, "--newLine", "CRLF", "--indent-size", "4");
 
             // Should format successfully
             using (new AssertionScope())
@@ -438,11 +438,11 @@ output myOutput string = 'hello!'
 output myOutput string = 'hello!'
             ");
 
-            var (output, error, result) = await Bicep("format", "--indentSize", "2", "--indentKind", "Tab", bicepPath);
+            var (output, error, result) = await Bicep("format", "--indent-size", "2", "--indent-kind", "Tab", bicepPath);
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The --indentSize cannot be used when --indentKind is ""Tab""");
+            error.Should().MatchRegex(@"The --indent-size cannot be used when --indent-kind is ""Tab""");
         }
 
         [TestMethod]
@@ -458,6 +458,23 @@ output myOutput string = 'hello!'
             result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().MatchRegex(@"The specified output directory "".*outputdir"" does not exist");
+        }
+
+        [TestMethod]
+        public async Task Format_WithDeprecatedParams_PrintsDeprecationMessage()
+        {
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
+output myOutput string = 'hello!'
+            ");
+
+            var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
+            var (output, error, result) = await Bicep("format", bicepPath, "--indentKind", "space", "--indentSize", "4", "--insertFinalNewline");
+
+            result.Should().Be(0);
+            output.Should().BeEmpty();
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentKind is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-kind instead.");
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentSize is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-size instead.");
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --insertFinalNewline is deprecated and will be removed in a future version of Bicpe CLI. Use --insert-final-newline instead.");
         }
 
         [TestMethod]

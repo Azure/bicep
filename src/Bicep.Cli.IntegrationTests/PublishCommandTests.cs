@@ -108,11 +108,11 @@ namespace Bicep.Cli.IntegrationTests
         {
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
-            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentationUri");
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentation-uri");
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The --documentationUri parameter expects an argument.");
+            error.Should().MatchRegex(@"The --documentation-uri parameter expects an argument.");
         }
 
         [TestMethod]
@@ -120,15 +120,27 @@ namespace Bicep.Cli.IntegrationTests
         {
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
-            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentationUri", "https://example.com", "--documentationUri", "https://example.com");
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentation-uri", "https://example.com", "--documentation-uri", "https://example.com");
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The --documentationUri parameter cannot be specified more than once.");
+            error.Should().MatchRegex(@"The --documentation-uri parameter cannot be specified more than once.");
         }
 
         [TestMethod]
         public async Task Publish_WithInvalidDocumentUri_ShouldProduceExpectedError()
+        {
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentation-uri", "invalid_uri");
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().MatchRegex(@"The --documentation-uri should be a well formed uri string.");
+        }
+
+        [TestMethod]
+        public async Task Publish_WithDeprecatedParameter_PrintsDeprecationMessage()
         {
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
@@ -137,6 +149,7 @@ namespace Bicep.Cli.IntegrationTests
             result.Should().Be(1);
             output.Should().BeEmpty();
             error.Should().MatchRegex(@"The --documentationUri should be a well formed uri string.");
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --documentationUri is deprecated and will be removed in a future version of Bicpe CLI. Use --documentation-uri instead.");
         }
 
         [DataTestMethod]
@@ -166,7 +179,7 @@ namespace Bicep.Cli.IntegrationTests
 
             if (!string.IsNullOrWhiteSpace(documentationUri))
             {
-                requiredArgs.AddRange(new List<string> { "--documentationUri", documentationUri });
+                requiredArgs.AddRange(new List<string> { "--documentation-uri", documentationUri });
             }
             if (publishSource)
             {

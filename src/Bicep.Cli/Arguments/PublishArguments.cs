@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using Bicep.Cli.Extensions;
 
 namespace Bicep.Cli.Arguments
 {
     public class PublishArguments : ArgumentsBase
     {
-        public PublishArguments(string[] args) : base(Constants.Command.Publish)
+        public PublishArguments(string[] args, IOContext io) : base(Constants.Command.Publish)
         {
             for (int i = 0; i < args.Length; i++)
             {
@@ -33,6 +34,8 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--documentationuri":
+                        io.WriteParameterDeprecationWarning("--documentationUri", "--documentation-uri");
+
                         if (isLast)
                         {
                             throw new CommandLineException("The --documentationUri parameter expects an argument.");
@@ -48,6 +51,26 @@ namespace Bicep.Cli.Arguments
                         if (!Uri.IsWellFormedUriString(DocumentationUri, UriKind.Absolute))
                         {
                             throw new CommandLineException("The --documentationUri should be a well formed uri string.");
+                        }
+
+                        i++;
+                        break;
+                    case "--documentation-uri":
+                        if (isLast)
+                        {
+                            throw new CommandLineException("The --documentation-uri parameter expects an argument.");
+                        }
+
+                        if (this.DocumentationUri is not null)
+                        {
+                            throw new CommandLineException("The --documentation-uri parameter cannot be specified more than once.");
+                        }
+
+                        DocumentationUri = args[i + 1];
+
+                        if (!Uri.IsWellFormedUriString(DocumentationUri, UriKind.Absolute))
+                        {
+                            throw new CommandLineException("The --documentation-uri should be a well formed uri string.");
                         }
 
                         i++;

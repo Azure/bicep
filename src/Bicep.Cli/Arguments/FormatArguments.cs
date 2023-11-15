@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using Bicep.Cli.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.PrettyPrint.Options;
 
@@ -10,7 +11,7 @@ namespace Bicep.Cli.Arguments
 {
     public class FormatArguments : ArgumentsBase
     {
-        public FormatArguments(string[] args) : base(Constants.Command.Format)
+        public FormatArguments(string[] args, IOContext io) : base(Constants.Command.Format)
         {
             for (var i = 0; i < args.Length; i++)
             {
@@ -64,6 +65,8 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--indentkind":
+                        io.WriteParameterDeprecationWarning("--indentKind", "--indent-kind");
+
                         if (args.Length == i + 1)
                         {
                             throw new CommandLineException($"The --indentKind parameter expects an argument");
@@ -72,15 +75,33 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --indentKind parameter cannot be specified twice");
                         }
-                        if (!Enum.TryParse<IndentKindOption>(args[i + 1], true, out var indentKind) || !Enum.IsDefined<IndentKindOption>(indentKind))
+                        if (!Enum.TryParse<IndentKindOption>(args[i + 1], true, out var indentKind) || !Enum.IsDefined(indentKind))
                         {
                             throw new CommandLineException($"The --indentKind parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(IndentKindOption)))}");
                         }
                         IndentKind = indentKind;
                         i++;
                         break;
+                    case "--indent-kind":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --indent-kind parameter expects an argument");
+                        }
+                        if (IndentKind is not null)
+                        {
+                            throw new CommandLineException($"The --indent-kind parameter cannot be specified twice");
+                        }
+                        if (!Enum.TryParse(args[i + 1], true, out indentKind) || !Enum.IsDefined(indentKind))
+                        {
+                            throw new CommandLineException($"The --indent-kind parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(IndentKindOption)))}");
+                        }
+                        IndentKind = indentKind;
+                        i++;
+                        break;
 
                     case "--indentsize":
+                        io.WriteParameterDeprecationWarning("--indentSize", "--indent-size");
+
                         if (args.Length == i + 1)
                         {
                             throw new CommandLineException($"The --indentSize parameter expects an argument");
@@ -96,11 +117,36 @@ namespace Bicep.Cli.Arguments
                         IndentSize = indentSize;
                         i++;
                         break;
+                    case "--indent-size":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --indent-size parameter expects an argument");
+                        }
+                        if (IndentSize is not null)
+                        {
+                            throw new CommandLineException($"The --indent-size parameter cannot be specified twice");
+                        }
+                        if (!int.TryParse(args[i + 1], out indentSize))
+                        {
+                            throw new CommandLineException($"The --indent-size parameter only accepts integer values");
+                        }
+                        IndentSize = indentSize;
+                        i++;
+                        break;
 
                     case "--insertfinalnewline":
+                        io.WriteParameterDeprecationWarning("--insertFinalNewline", "--insert-final-newline");
+
                         if (InsertFinalNewline is not null)
                         {
                             throw new CommandLineException($"The --insertFinalNewline parameter cannot be specified twice");
+                        }
+                        InsertFinalNewline = true;
+                        break;
+                    case "--insert-final-newline":
+                        if (InsertFinalNewline is not null)
+                        {
+                            throw new CommandLineException($"The --insert-final-newline parameter cannot be specified twice");
                         }
                         InsertFinalNewline = true;
                         break;
@@ -141,7 +187,7 @@ namespace Bicep.Cli.Arguments
 
             if (IndentSize is not null && IndentKind == IndentKindOption.Tab)
             {
-                throw new CommandLineException($"The --indentSize cannot be used when --indentKind is \"Tab\"");
+                throw new CommandLineException($"The --indent-size cannot be used when --indent-kind is \"Tab\"");
             }
 
             if (OutputDir is not null)

@@ -69,7 +69,7 @@ namespace Bicep.Cli
 
             try
             {
-                switch (ArgumentParser.TryParse(args))
+                switch (ArgumentParser.TryParse(args, this.io))
                 {
                     case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
                         return await services.GetRequiredService<BuildCommand>().RunAsync(buildArguments);
