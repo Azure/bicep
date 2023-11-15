@@ -1,16 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import * as vscode from "vscode";
-import {
-  LanguageClient,
-  TextDocumentIdentifier,
-} from "vscode-languageclient/node";
+import { LanguageClient } from "vscode-languageclient/node";
 import { Disposable } from "../utils/disposable";
-import { bicepCacheRequestType } from "./protocol";
+import { bicepExternalSourceRequestType } from "./protocol";
 import * as path from "path";
 import { Uri } from "vscode";
+import {
+  BicepExternalSourceScheme,
+  decodeExternalSourceUri,
+} from "./decodeExternalSourceUri";
 
-export class BicepCacheContentProvider
+export class BicepExternalSourceContentProvider
   extends Disposable
   implements vscode.TextDocumentContentProvider
 {
@@ -25,7 +27,7 @@ export class BicepCacheContentProvider
          *   the language server is called for a particular file only once
          * Moving this to an event listener instead avoids these issues entirely.
          */
-        this.tryFixCacheContentLanguage(document);
+        this.trySetExternalSourceLanguage(document);
       }),
     );
   }
@@ -38,43 +40,24 @@ export class BicepCacheContentProvider
   ): Promise<string> {
     // Ask the language server for the sources for the cached module
     const response = await this.languageClient.sendRequest(
-      bicepCacheRequestType,
-      this.getBicepCacheRequest(uri),
+      bicepExternalSourceRequestType,
+      this.bicepExternalSourceRequest(uri),
       token,
     );
 
     return response.content;
   }
 
-  private getBicepCacheRequest(uri: vscode.Uri) {
-    const [moduleReference, cachePath] = this.decodeBicepCacheUri(uri);
+  private bicepExternalSourceRequest(uri: vscode.Uri) {
+    const { moduleReference } = decodeExternalSourceUri(uri);
     return {
-      textDocument: TextDocumentIdentifier.create(cachePath),
       target: moduleReference,
     };
   }
 
-  private decodeBicepCacheUri(uri: vscode.Uri): [
-    moduleReference: string, // e.g. br:myregistry.azurecr.io/myrepo:v1
-    cachePath: string, // eg /Users/MyUserName/.bicep/br/myregistry.azurecr.io/myrepo/v1$/main.json
-  ] {
-    // The uri passed in has this format:
-    //   bicep-cache:module-reference#cache-file-path
-    //
-    // Example decoded URI:
-    //   bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/main.json
-    //
-    // It's important that the path end in the correct file extension so that VS Code can
-    // correctly determine the language ID.
-    const registry = decodeURIComponent(uri.path);
-    const cachePath = decodeURIComponent(uri.fragment);
-
-    return [registry, cachePath];
-  }
-
   private getModuleReferenceScheme(uri: Uri): "br" | "ts" {
-    // e.g. 'br:registry.azurecr.io/module:v3'
-    const [moduleReference] = this.decodeBicepCacheUri(uri);
+    // e.g. 'br:registry.azurecr.io/module:v3' => 'br'
+    const { moduleReference } = decodeExternalSourceUri(uri);
 
     const colonIndex = moduleReference.indexOf(":");
     if (colonIndex >= 0) {
@@ -89,21 +72,22 @@ export class BicepCacheContentProvider
     );
   }
 
-  private tryFixCacheContentLanguage(document: vscode.TextDocument): void {
+  private trySetExternalSourceLanguage(document: vscode.TextDocument): void {
     if (
-      document.uri.scheme === "bicep-cache" &&
+      document.uri.scheme === BicepExternalSourceScheme &&
       document.languageId === "plaintext"
     ) {
-      // the file is showing content from the bicep cache and the language is still set to plain text
+      // The file is showing content from the bicep cache and the language is still set to plain text, so
       // we should try to correct it
 
       const scheme = this.getModuleReferenceScheme(document.uri);
-      const [, cachePath] = this.decodeBicepCacheUri(document.uri);
+      const { requestedSourceFile } = decodeExternalSourceUri(document.uri);
 
       // Not necessary to wait for this to finish
       void vscode.languages.setTextDocumentLanguage(
         document,
-        this.getLanguageId(scheme, cachePath),
+        // If no requestedSourceFile, we're being asked for the compiled main.json file
+        this.getLanguageId(scheme, requestedSourceFile ?? "main.json"),
       );
     }
   }

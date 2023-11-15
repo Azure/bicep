@@ -3,10 +3,12 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -20,7 +22,7 @@ namespace Bicep.Core.Semantics
     {
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFeatureProvider features;
-        private readonly ISourceFileLookup sourceFileLookup;
+        private readonly IArtifactFileLookup artifactFileLookup;
         private readonly ISemanticModelLookup modelLookup;
         private readonly ResourceScope targetScope;
         private readonly ISymbolContext context;
@@ -29,11 +31,11 @@ namespace Bicep.Core.Semantics
 
         private readonly Stack<ScopeInfo> activeScopes = new();
 
-        private DeclarationVisitor(INamespaceProvider namespaceProvider, IFeatureProvider features, ISourceFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, ISymbolContext context, IList<ScopeInfo> localScopes, BicepSourceFileKind sourceFileKind)
+        private DeclarationVisitor(INamespaceProvider namespaceProvider, IFeatureProvider features, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, ISymbolContext context, IList<ScopeInfo> localScopes, BicepSourceFileKind sourceFileKind, IArtifactReferenceFactory factory)
         {
             this.namespaceProvider = namespaceProvider;
             this.features = features;
-            this.sourceFileLookup = sourceFileLookup;
+            this.artifactFileLookup = sourceFileLookup;
             this.modelLookup = modelLookup;
             this.targetScope = targetScope;
             this.context = context;
@@ -42,11 +44,11 @@ namespace Bicep.Core.Semantics
         }
 
         // Returns the list of top level declarations as well as top level scopes.
-        public static LocalScope GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, ISourceFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, BicepSourceFile sourceFile, ISymbolContext symbolContext)
+        public static LocalScope GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, BicepSourceFile sourceFile, ISymbolContext symbolContext, IArtifactReferenceFactory factory)
         {
             // collect declarations
             var localScopes = new List<ScopeInfo>();
-            var declarationVisitor = new DeclarationVisitor(namespaceProvider, features, sourceFileLookup, modelLookup, targetScope, symbolContext, localScopes, sourceFile.FileKind);
+            var declarationVisitor = new DeclarationVisitor(namespaceProvider, features, sourceFileLookup, modelLookup, targetScope, symbolContext, localScopes, sourceFile.FileKind, factory);
             declarationVisitor.Visit(sourceFile.ProgramSyntax);
 
             return MakeImmutable(localScopes.Single());
@@ -160,34 +162,55 @@ namespace Bicep.Core.Semantics
         public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
         {
             base.VisitProviderDeclarationSyntax(syntax);
+            DeclareSymbol(new ProviderNamespaceSymbol(this.context, syntax, ResolveProviderSymbol(syntax)));
+        }
 
-            TypeSymbol declaredType;
+        private TypeSymbol ResolveProviderSymbol(ProviderDeclarationSyntax syntax)
+        {
             if (!features.ExtensibilityEnabled)
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ProvidersAreDisabled());
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ProvidersAreDisabled());
             }
-            else if (syntax.SpecificationString is StringSyntax specificationString && specificationString.IsInterpolated())
+
+            // Check for interpolated specification strings
+            if (syntax.SpecificationString is StringSyntax specificationString && specificationString.IsInterpolated())
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.SpecificationString).ProviderSpecificationInterpolationUnsupported());
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.SpecificationString).ProviderSpecificationInterpolationUnsupported());
             }
-            else if (!syntax.Specification.IsValid)
+
+            if (!syntax.Specification.IsValid)
             {
-                declaredType = syntax.SpecificationString is StringSyntax
+                return (syntax.SpecificationString is StringSyntax)
                     ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification())
                     : ErrorType.Empty();
             }
-            else if (namespaceProvider.TryGetNamespace(syntax.Specification.Name, syntax.Alias?.IdentifierName ?? syntax.Specification.Name, targetScope, features, sourceFileKind, syntax.Specification?.Version) is not { } namespaceType
-                || (syntax.Specification?.Name == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled))
+
+            // Check if the MSGraph provider is recognized and enabled
+            if (syntax.Specification.Name == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled)
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification!.Name));
-            }
-            else
-            {
-                declaredType = namespaceType;
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
             }
 
-            var symbol = new ProviderNamespaceSymbol(this.context, syntax, declaredType);
-            DeclareSymbol(symbol);
+            Uri? providerUri = null;
+            if (syntax.Specification.Name == AzNamespaceType.BuiltInName &&
+                features.DynamicTypeLoadingEnabled &&
+                !this.artifactFileLookup.TryGetResourceTypesFileUri(syntax).IsSuccess(out providerUri, out var providerUriLookupErrorBuilder))
+            {
+                return ErrorType.Create(providerUriLookupErrorBuilder(DiagnosticBuilder.ForPosition(syntax)));
+            }
+
+            ResourceTypesProviderDescriptor providerDescriptor = new(
+                syntax.Specification.Name,
+                syntax.Specification.Version,
+                syntax.Alias?.IdentifierName,
+                providerUri);
+
+            if (namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind) is not { } namespaceType)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification!.Name));
+            }
+
+            return namespaceType;
         }
 
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
@@ -358,7 +381,7 @@ namespace Bicep.Core.Semantics
                 return new(DiagnosticBuilder.ForPosition(syntax).CompileTimeImportsNotSupported());
             }
 
-            if (!SemanticModelHelper.TryGetModelForArtifactReference(sourceFileLookup, syntax, modelLookup).IsSuccess(out var model, out var modelLoadError))
+            if (!SemanticModelHelper.TryGetModelForArtifactReference(artifactFileLookup, syntax, modelLookup).IsSuccess(out var model, out var modelLoadError))
             {
                 return new(modelLoadError);
             }

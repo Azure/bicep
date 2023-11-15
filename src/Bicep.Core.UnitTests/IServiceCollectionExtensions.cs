@@ -5,9 +5,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.Linq;
+using Azure.Bicep.Types.Az;
+using System.Reflection;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -35,8 +38,7 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services
         .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-        .AddSingleton<IResourceTypeLoader, AzResourceTypeLoader>()
-        .AddSingleton<IResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
+        .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
         .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
         .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
         .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
@@ -59,10 +61,13 @@ public static class IServiceCollectionExtensions
 
     private static IServiceCollection Register<TService>(IServiceCollection services, TService service)
         where TService : class
-        => services.AddSingleton<TService>(service);
+        => services.AddSingleton(service);
 
     public static IServiceCollection WithFileResolver(this IServiceCollection services, IFileResolver fileResolver)
         => Register(services, fileResolver);
+
+    public static IServiceCollection WithContainerRegistryClientFactory(this IServiceCollection services, IContainerRegistryClientFactory containerRegistryClientFactory)
+        => Register(services, containerRegistryClientFactory);
 
     public static IServiceCollection WithWorkspace(this IServiceCollection services, IWorkspace workspace)
         => Register(services, workspace);
@@ -99,14 +104,14 @@ public static class IServiceCollectionExtensions
         => Register(services, bicepAnalyzer);
 
     public static IServiceCollection WithAzResources(this IServiceCollection services, IEnumerable<ResourceTypeComponents> resourceTypes)
-        => services.WithAzResourceTypeLoaderFactory(
-            TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(resourceTypes));
+        => services.WithAzResourceTypeLoaderFactory(TestTypeHelper.CreateResourceTypeLoaderWithTypes(resourceTypes));
 
     public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IResourceTypeLoader loader)
     {
-        var factory = StrictMock.Of<IResourceTypeLoaderFactory>();
-        factory.Setup(m => m.GetResourceTypeLoader(It.IsAny<string>(), It.IsAny<IFeatureProvider>())).Returns(loader);
-        factory.Setup(m => m.GetBuiltInTypeLoader()).Returns(loader);
+       
+        var factory = StrictMock.Of<IResourceTypeProviderFactory>();
+        var provider = new AzResourceTypeProvider(loader, AzNamespaceType.Settings.ArmTemplateProviderVersion);
+        factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<ResourceTypesProviderDescriptor>(), It.IsAny<IFeatureProvider>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
         return Register(services, factory.Object);
     }
 

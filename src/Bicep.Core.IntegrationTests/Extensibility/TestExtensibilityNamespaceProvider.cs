@@ -13,9 +13,9 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
 {
     private readonly INamespaceProvider defaultNamespaceProvider;
 
-    public TestExtensibilityNamespaceProvider(IResourceTypeLoaderFactory azResourceTypeLoaderFactory)
+    public TestExtensibilityNamespaceProvider(IResourceTypeProviderFactory azResourceTypeProviderFactory)
     {
-        defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoaderFactory);
+        defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeProviderFactory);
     }
 
     public IEnumerable<string> AvailableNamespaces => defaultNamespaceProvider.AvailableNamespaces.Concat(new[] {
@@ -24,26 +24,25 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
     });
 
     public NamespaceType? TryGetNamespace(
-        string providerName,
-        string aliasName,
+        ResourceTypesProviderDescriptor providerDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider featureProvider,
-        BicepSourceFileKind sourceFileKind,
-        string? version = null)
+        BicepSourceFileKind sourceFileKind)
     {
-        if (defaultNamespaceProvider.TryGetNamespace(providerName, aliasName, resourceScope, featureProvider, sourceFileKind) is { } namespaceType)
-        {
-            return namespaceType;
-        }
+        var namespaceType = defaultNamespaceProvider.TryGetNamespace(
+           providerDescriptor,
+           resourceScope,
+           featureProvider,
+           sourceFileKind);
 
-        switch (providerName)
+        return providerDescriptor.Name switch
         {
-            case FooNamespaceType.BuiltInName:
-                return FooNamespaceType.Create(aliasName);
-            case BarNamespaceType.BuiltInName:
-                return BarNamespaceType.Create(aliasName);
-        }
-
-        return default;
+            FooNamespaceType.BuiltInName
+                => FooNamespaceType.Create(providerDescriptor.Alias),
+            BarNamespaceType.BuiltInName
+                => BarNamespaceType.Create(providerDescriptor.Alias),
+            _
+                => namespaceType,
+        };
     }
 }

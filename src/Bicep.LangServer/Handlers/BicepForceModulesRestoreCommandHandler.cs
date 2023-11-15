@@ -65,25 +65,25 @@ namespace Bicep.LanguageServer.Handlers
                 featureProviderFactory);
 
             // Ignore modules to restore logic, include all modules to be restored
-            var modulesToRestore = sourceFileGrouping.UriResultByArtifactReference
+            var artifactsToRestore = sourceFileGrouping.FileUriResultByArtifactReference
                 .SelectMany(kvp => kvp.Value.Keys.Where(x => x is ModuleDeclarationSyntax or UsingDeclarationSyntax).Select(mds => new ArtifactResolutionInfo(mds, kvp.Key)));
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging
-            var modulesToRestoreReferences = this.moduleDispatcher.GetValidModuleReferences(modulesToRestore)
+            var artifactReferencesToRestore = this.moduleDispatcher.GetValidModuleReferences(artifactsToRestore)
                 .Distinct()
                 .OrderBy(key => key.FullyQualifiedReference);
 
-            if (!modulesToRestoreReferences.Any())
+            if (!artifactReferencesToRestore.Any())
             {
                 return $"Restore (force) skipped. No modules references in input file.";
             }
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await this.moduleDispatcher.RestoreModules(modulesToRestoreReferences, forceRestore: true);
+            await this.moduleDispatcher.RestoreModules(artifactReferencesToRestore, forceRestore: true);
 
             // if all are marked as success
             var sbRestoreSummary = new StringBuilder();
-            foreach (var module in modulesToRestoreReferences)
+            foreach (var module in artifactReferencesToRestore)
             {
                 var restoreStatus = this.moduleDispatcher.GetArtifactRestoreStatus(module, out _);
                 sbRestoreSummary.Append($"{Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");

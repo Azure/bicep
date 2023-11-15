@@ -73,7 +73,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDeploymentParametersHandler>()
                     .WithHandler<ImportKubernetesManifestHandler>()
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
-                    .WithHandler<BicepRegistryCacheRequestHandler>()
+                    .WithHandler<BicepExternalSourceRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
                     .WithHandler<ConfigurationSettingsHandler>()
                     .WithServices(RegisterServices);

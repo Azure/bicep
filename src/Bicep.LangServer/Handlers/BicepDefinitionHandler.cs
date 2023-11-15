@@ -17,6 +17,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.SourceCode;
@@ -190,42 +191,14 @@ namespace Bicep.LanguageServer.Handlers
 
         private Uri GetModuleSourceLinkUri(ISourceFile sourceFile, ArtifactReference reference)
         {
-            if (!this.CanClientAcceptRegistryContent() || !reference.IsExternal)
+            if (!this.CanClientAcceptRegistryContent() || !reference.IsExternal || reference is not OciArtifactReference ociReference)
             {
-                // the client doesn't support the bicep-cache scheme or we're dealing with a local module
+                // the client doesn't support the bicep-extsrc scheme or we're dealing with a local module
                 // just use the file URI
                 return sourceFile.FileUri;
             }
 
-            // this path is specific to clients that indicate to the server that they can handle bicep-cache document URIs
-            // the client expectation when the user navigates to a file with a bicep-cache:// URI is to request file content
-            // via the textDocument/bicepCache LSP request implemented in the BicepRegistryCacheRequestHandler.
-
-            var sourceFilePath = sourceFile.FileUri.AbsolutePath;
-
-            if (moduleDispatcher.TryGetModuleSources(reference) is SourceArchive sourceArchive)
-            {
-                // We have Bicep source code available.
-                // Replace the local cached JSON name (always main.json) with the actual source entrypoint filename (e.g.
-                //   myentrypoint.bicep) so clients know to request the bicep instead of json, and so they know to use the
-                //   bicep language server to display the code.
-                //   e.g. "path/main.json" -> "path/myentrypoint.bicep"
-                // The "path/myentrypoint.bicep" path is virtual (doesn't actually exist).
-                var entrypointFilename = Path.GetFileName(sourceArchive.EntrypointPath);
-                sourceFilePath = Path.Join(Path.GetDirectoryName(sourceFilePath), entrypointFilename);
-            }
-
-            // The file path and fully qualified reference may contain special characters (like :) that need to be url-encoded.
-            sourceFilePath = WebUtility.UrlEncode(sourceFilePath);
-            var fullyQualifiedReference = WebUtility.UrlEncode(reference.FullyQualifiedReference);
-
-            // Encode the source file path as a path and the fully qualified reference as a fragment.
-            // VsCode will pass it to our language client, which will respond by requesting the source to display via
-            //   a textDocument/bicepCache request (see BicepCacheHandler)
-            // Example: bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/main.json (encoded)
-            //   or if source is available:
-            // Example: bicep-cache:br:myregistry.azurecr.io/myrepo:v1#/Users/MyUserName/.bicep/br/registry.azurecr.io/myrepo/v1$/entrypoint.bicep (encoded)
-            return new Uri($"bicep-cache:{fullyQualifiedReference}#{sourceFilePath}");
+            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(ociReference, moduleDispatcher.TryGetModuleSources(reference));
         }
 
         private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, DefinitionParams request, SymbolResolutionResult result, WildcardImportSymbol wildcardImport)
@@ -553,7 +526,7 @@ namespace Bicep.LanguageServer.Handlers
             _ => null,
         };
 
-        // True if the client knows how (like our vscode extension) to handle the "bicep-cache:" schema
+        // True if the client knows how (like our vscode extension) to handle the "bicep-extsrc:" schema
         private bool CanClientAcceptRegistryContent()
         {
             if (this.languageServer.ClientSettings.InitializationOptions is not JObject obj ||

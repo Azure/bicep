@@ -51,20 +51,17 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ILanguageServerFacade server;
         private readonly ICompilationManager compilationManager;
         private readonly IAzResourceProvider azResourceProvider;
-        private readonly IResourceTypeLoaderFactory azResourceTypeLoaderFactory;
         private readonly TelemetryAndErrorHandlingHelper<Unit> helper;
 
         public InsertResourceHandler(
             ILanguageServerFacade server,
             ICompilationManager compilationManager,
             IAzResourceProvider azResourceProvider,
-            IResourceTypeLoaderFactory azResourceTypeLoaderFactory,
             ITelemetryProvider telemetryProvider)
         {
             this.server = server;
             this.compilationManager = compilationManager;
             this.azResourceProvider = azResourceProvider;
-            this.azResourceTypeLoaderFactory = azResourceTypeLoaderFactory;
             this.helper = new TelemetryAndErrorHandlingHelper<Unit>(server.Window, telemetryProvider);
         }
 

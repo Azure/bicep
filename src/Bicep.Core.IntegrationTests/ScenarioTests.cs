@@ -2796,7 +2796,7 @@ var myValue = 2147483647
     public void Test_Issue5456_1()
     {
         var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-        var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[]
+        var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(new[]
         {
             new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new[]
             {
@@ -5296,6 +5296,73 @@ resource foo3 'Microsoft.Storage/storageAccounts@2022-09-01' = {
         result.Should().HaveDiagnostics(new[]
         {
             ("BCP037", DiagnosticLevel.Error, "The property \"baz\" is not allowed on objects of type \"{ bar: string }\". No other properties are allowed."),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/12417
+    [TestMethod]
+    public void Test_Issue12417()
+    {
+        var result = CompilationHelper.CompileParams(
+("parameters.bicepparam", @"
+using 'test.bicep'
+
+param azureEnvironments
+
+param region = azureEnvironments.AzureCloud.eventHubName.dev
+"),
+("test.bicep", @"
+@description('Azure environment specific configuration settings')
+type AzureEnvironmentType = {
+  @description('Azure  US Government specific settings')
+  AzureUSGovernment: {
+    @description('Azure  Gov Event Hub ResourceIds')
+    eventHubName: {
+      prod: 'resourceId'
+      qa: 'resourceId'
+      dev: 'resourceId'
+    }
+    @description('Azure  Gov supported regions')
+    region: {
+      usgovvirginia: 'ugv'
+      usgovtexas: 'ugt'
+    }
+    @description('Azure  Gov Log Analytics ResourceIds')
+    workspace: {
+      prod: 'resourceId'
+      qa: 'resourceId'
+      dev: 'resourceId'
+    }
+  }
+  @description('Azure  Global specific settings')
+  AzureCloud: {
+    @description('Azure  Global Event Hub ResourceIds')
+    eventHubName: {
+      prod: 'resourceId'
+      qa: 'resourceId'
+      dev: 'resourceId'
+    }
+    @description('Azure  Global supported regions')
+    region: {
+      eastus: 'eus'
+      westus: 'wus'
+    }
+    @description('Azure  Global Log Analytics ResourceIds')
+    workspace: {
+      prod: 'resourceId'
+      qa: 'resourceId'
+      dev: 'resourceId'
+    }
+  }
+}
+
+param azureEnvironments AzureEnvironmentType
+"));
+
+        result.Should().HaveDiagnostics(new[] {
+            ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location."),
+            ("BCP259", DiagnosticLevel.Error, "The parameter \"region\" is assigned in the params file without being declared in the Bicep file."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"azureEnvironments\" is not valid."),
         });
     }
 }

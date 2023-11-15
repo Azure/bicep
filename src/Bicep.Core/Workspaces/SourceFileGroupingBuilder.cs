@@ -25,7 +25,7 @@ namespace Bicep.Core.Workspaces
         private readonly IReadOnlyWorkspace workspace;
 
         private readonly Dictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri;
-        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> uriResultByArtifactReference;
+        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference;
 
         private readonly bool forceRestore;
 
@@ -38,7 +38,7 @@ namespace Bicep.Core.Workspaces
             this.fileResolver = fileResolver;
             this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
-            this.uriResultByArtifactReference = new();
+            this.fileUriResultByArtifactReference = new();
             this.fileResultByUri = new();
             this.forceRestore = forceModulesRestore;
         }
@@ -53,7 +53,7 @@ namespace Bicep.Core.Workspaces
             this.fileResolver = fileResolver;
             this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
-            this.uriResultByArtifactReference = new(current.UriResultByArtifactReference.Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToDictionary(p => p.Key, p => p.Value))));
+            this.fileUriResultByArtifactReference = new(current.FileUriResultByArtifactReference.Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToDictionary(p => p.Key, p => p.Value))));
             this.fileResultByUri = current.FileResultByUri.Where(x => x.Value.TryUnwrap() is not null).ToDictionary(x => x.Key, x => x.Value);
             this.forceRestore = forceArtifactRestore;
         }
@@ -69,11 +69,11 @@ namespace Bicep.Core.Workspaces
         {
             var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current);
             var isParamsFile = current.EntryPoint is BicepParamFile;
-            var modulesToRestore = current.GetModulesToRestore().ToHashSet();
+            var modulesToRestore = current.GetArtifactsToRestore().ToHashSet();
 
             foreach (var (module, sourceFile) in modulesToRestore)
             {
-                builder.uriResultByArtifactReference[sourceFile].Remove(module);
+                builder.fileUriResultByArtifactReference[sourceFile].Remove(module);
             }
 
             // Rebuild source files that contain external module references restored during the inital build.
@@ -106,7 +106,7 @@ namespace Bicep.Core.Workspaces
                 fileResolver,
                 entryFileUri,
                 fileResultByUri.ToImmutableDictionary(),
-                uriResultByArtifactReference.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutableDictionary()),
+                fileUriResultByArtifactReference.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutableDictionary()),
                 sourceFileDependencies.InvertLookup().ToImmutableDictionary());
         }
 
@@ -161,23 +161,25 @@ namespace Bicep.Core.Workspaces
                 {
                     continue;
                 }
-                var (childModuleReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
 
-                uriResultByArtifactReference.GetOrAdd(file, f => new())[restorable] = uriResult;
+                var (childArtifactReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
+                fileUriResultByArtifactReference.GetOrAdd(file, f => new())[restorable] = uriResult;
 
                 if (!uriResult.IsSuccess(out var artifactUri))
                 {
                     continue;
                 }
 
-                if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
-                    (childResult.IsSuccess(out var childFile) && sourceFilesToRebuild is not null && sourceFilesToRebuild.Contains(childFile)))
+                if (restorable is not ProviderDeclarationSyntax)
                 {
-                    // only recurse if we've not seen this file before - to avoid infinite loops
-                    childResult = PopulateRecursive(artifactUri, childModuleReference, sourceFilesToRebuild, featureProviderFactory);
+                    if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
+                        (childResult.IsSuccess(out var childFile) && sourceFilesToRebuild is not null && sourceFilesToRebuild.Contains(childFile)))
+                    {
+                        // only recurse if we've not seen this file before - to avoid infinite loops
+                        childResult = PopulateRecursive(artifactUri, childArtifactReference, sourceFilesToRebuild, featureProviderFactory);
+                    }
+                    fileResultByUri[artifactUri] = childResult;
                 }
-
-                fileResultByUri[artifactUri] = childResult;
             }
         }
 
@@ -189,9 +191,9 @@ namespace Bicep.Core.Workspaces
                 return (null, new(new UriResolutionError(referenceResolutionError, false)));
             }
 
-            if (!dispatcher.TryGetLocalArtifactEntryPointUri(artifactReference).IsSuccess(out var moduleFileUri, out var moduleGetPathFailureBuilder))
+            if (!dispatcher.TryGetLocalArtifactEntryPointUri(artifactReference).IsSuccess(out var artifactFileUri, out var artifactGetPathFailureBuilder))
             {
-                return (artifactReference, new(new UriResolutionError(moduleGetPathFailureBuilder, false)));
+                return (artifactReference, new(new UriResolutionError(artifactGetPathFailureBuilder, false)));
             }
 
             if (forceRestore)
@@ -214,7 +216,7 @@ namespace Bicep.Core.Workspaces
                     break;
             }
 
-            return (artifactReference, new(moduleFileUri));
+            return (artifactReference, new(artifactFileUri));
         }
 
         private ILookup<ISourceFile, ISourceFile> ReportFailuresForCycles()
@@ -223,7 +225,7 @@ namespace Bicep.Core.Workspaces
                 .Select(x => x.TryUnwrap())
                 .WhereNotNull()
                 .SelectMany(sourceFile => GetReferenceSourceNodes(sourceFile)
-                    .SelectMany(moduleDeclaration => this.uriResultByArtifactReference.Values.Select(f => f.TryGetValue(moduleDeclaration)?.TryUnwrap()))
+                    .SelectMany(moduleDeclaration => this.fileUriResultByArtifactReference.Values.Select(f => f.TryGetValue(moduleDeclaration)?.TryUnwrap()))
                     .WhereNotNull()
                     .Select(fileUri => this.fileResultByUri[fileUri].TryUnwrap())
                     .WhereNotNull()
@@ -232,11 +234,12 @@ namespace Bicep.Core.Workspaces
                 .ToLookup(x => x.sourceFile, x => x.referencedFile);
 
             var cycles = CycleDetector<ISourceFile>.FindCycles(sourceFileGraph);
-            foreach (var (file, uriResultByModuleForFile) in uriResultByArtifactReference)
+            foreach (var (file, uriResultByModuleForFile) in fileUriResultByArtifactReference)
             {
                 foreach (var (statement, urlResult) in uriResultByModuleForFile)
                 {
-                    if (urlResult.IsSuccess(out var fileUri) &&
+                    if (statement.GetArtifactType() == ArtifactType.Module &&
+                        urlResult.IsSuccess(out var fileUri) &&
                         fileResultByUri[fileUri].IsSuccess(out var sourceFile) &&
                         cycles.TryGetValue(sourceFile, out var cycle))
                     {
@@ -266,8 +269,8 @@ namespace Bicep.Core.Workspaces
         /// </remarks>
         private static IEnumerable<IArtifactReferenceSyntax> GetReferenceSourceNodes(ISourceFile sourceFile) => sourceFile switch
         {
-            BicepFile bicepFile => bicepFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>(),
-            BicepParamFile paramsFile => paramsFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>(),
+            BicepFile bicepFile => bicepFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>().Where(x => x is not ProviderDeclarationSyntax),
+            BicepParamFile paramsFile => paramsFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>().Where(x => x is not ProviderDeclarationSyntax),
             _ => Enumerable.Empty<IArtifactReferenceSyntax>(),
         };
 

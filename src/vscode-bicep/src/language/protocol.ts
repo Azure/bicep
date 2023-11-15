@@ -59,8 +59,7 @@ export const getDeploymentDataRequestType = new ProtocolRequestType<
   void
 >("bicep/getDeploymentData");
 
-export interface BicepCacheParams {
-  textDocument: TextDocumentIdentifier;
+export interface BicepExternalSourceParams {
   target: string;
 }
 
@@ -147,17 +146,17 @@ export enum ParameterType {
   String = 5,
 }
 
-export interface BicepCacheResponse {
+export interface BicepExternalSourceResponse {
   content: string;
 }
 
-export const bicepCacheRequestType = new ProtocolRequestType<
-  BicepCacheParams,
-  BicepCacheResponse,
+export const bicepExternalSourceRequestType = new ProtocolRequestType<
+  BicepExternalSourceParams,
+  BicepExternalSourceResponse,
   never,
   void,
   void
->("textDocument/bicepCache");
+>("textDocument/bicepExternalSource");
 
 export interface InsertResourceParams {
   textDocument: TextDocumentIdentifier;

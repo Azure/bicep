@@ -18,11 +18,7 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
         private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<TypeLocation>>> availableFunctions;
 
-        private static TypeLoader defaultAzTypeLoader = new AzTypeLoader();
-
-        public AzResourceTypeLoader() : this(AzResourceTypeLoader.defaultAzTypeLoader) { }
-
-        public AzResourceTypeLoader(TypeLoader typeLoader)
+        public AzResourceTypeLoader(ITypeLoader typeLoader)
         {
             this.typeLoader = typeLoader;
             this.resourceTypeFactory = new AzResourceTypeFactory();
@@ -39,11 +35,9 @@ namespace Bicep.Core.TypeSystem.Az
                 StringComparer.OrdinalIgnoreCase);
         }
 
-        public IEnumerable<ResourceTypeReference> GetAvailableTypes()
-            => availableTypes.Keys;
+        public IEnumerable<ResourceTypeReference> GetAvailableTypes() => availableTypes.Keys;
 
-        public bool HasType(ResourceTypeReference reference)
-            => availableTypes.ContainsKey(reference);
+        public bool HasType(ResourceTypeReference reference) => availableTypes.ContainsKey(reference);
 
         public ResourceTypeComponents LoadType(ResourceTypeReference reference)
         {

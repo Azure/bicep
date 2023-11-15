@@ -17,6 +17,12 @@ namespace Bicep.Core.Analyzers.Linter.Common
         }
 
         /// <summary>
+        /// True if the given type symbol is a nullable string type (and not "any")
+        /// </summary>
+        public static bool IsNullableString(this TypeSymbol typeSymbol)
+            => TypeHelper.TryRemoveNullability(typeSymbol) is TypeSymbol nonNull && nonNull.IsString();
+
+        /// <summary>
         /// True if the given type symbol is an object type (and not "any")
         /// </summary>
         public static bool IsObject(this TypeSymbol typeSymbol)

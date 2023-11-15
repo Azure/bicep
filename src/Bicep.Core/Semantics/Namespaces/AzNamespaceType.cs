@@ -3,6 +3,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Azure.Bicep.Types.Az;
+using System.Reflection;
 using Azure.Deployments.Core.Definitions.Identifiers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -13,6 +15,8 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
+using System;
+using System.Diagnostics;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -20,13 +24,14 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public const string BuiltInName = "az";
         public const string GetSecretFunctionName = "getSecret";
+        private static string embeddedAzProviderVersion = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version ?? throw new UnreachableException("The 'Azure.Bicep.Types.Az' assembly should always have a file version attribute.");
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
             BicepProviderName: BuiltInName,
             ConfigurationType: null,
             ArmTemplateProviderName: "AzureResourceManager",
-            ArmTemplateProviderVersion: "1.0.0");
+            ArmTemplateProviderVersion: new Version(embeddedAzProviderVersion).ToString(3));
 
         private static FunctionOverload.ResultBuilderDelegate AddDiagnosticsAndReturnResult(TypeSymbol returnType, DiagnosticBuilder.DiagnosticBuilderDelegate writeDiagnostic)
         {
@@ -494,7 +499,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }
         }
 
-        public static NamespaceType Create(string aliasName, ResourceScope resourceScope, AzResourceTypeProvider resourceTypeProvider, BicepSourceFileKind bicepSourceFileKind)
+        public static NamespaceType Create(string aliasName, ResourceScope resourceScope, IResourceTypeProvider resourceTypeProvider, BicepSourceFileKind bicepSourceFileKind)
         {
             return new NamespaceType(
                 aliasName,

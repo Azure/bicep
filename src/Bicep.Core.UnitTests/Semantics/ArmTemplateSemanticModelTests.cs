@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
@@ -362,6 +363,76 @@ public class ArmTemplateSemanticModelTests
         var members = parameterType.As<UnionType>().Members;
         members.Should().HaveCount(2);
         members.Should().Contain(new[] { LanguageConstants.Null, LanguageConstants.LooseString });
+    }
+
+    [TestMethod]
+    public void Model_creates_tagged_union_types_from_nullable_modifier()
+    {
+        var parameterType = GetLoadedParameterType(
+            """
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "languageVersion": "2.0",
+              "contentVersion": "1.0.0.0",
+              "definitions": {
+                "typeA": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "allowedValues": [
+                        "a"
+                      ]
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                "typeB": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "allowedValues": [
+                        "b"
+                      ]
+                    },
+                    "value": {
+                      "type": "int"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "parameters": {
+                "foo": {
+                  "type": "object",
+                  "discriminator": {
+                    "propertyName": "type",
+                    "mapping": {
+                      "a": {
+                        "$ref": "#/definitions/typeA"
+                      },
+                      "b": {
+                        "$ref": "#/definitions/typeB"
+                      }
+                    }
+                  }
+                }
+              },
+              "resources": {}
+            }
+            """,
+            "foo");
+
+        var taggedUnionType = parameterType.Should().BeOfType<DiscriminatedObjectType>().Subject;
+
+        taggedUnionType.DiscriminatorKey.Should().Be("type");
+        taggedUnionType.UnionMembersByKey.Keys.Order().Should().Equal(new [] { "'a'", "'b'" });
+        taggedUnionType.UnionMembersByKey["'a'"].Properties["value"].TypeReference.Type.Should().Be(LanguageConstants.String);
+        taggedUnionType.UnionMembersByKey["'b'"].Properties["value"].TypeReference.Type.Should().Be(LanguageConstants.Int);
     }
 
     private static TypeSymbol GetLoadedParameterType(string jsonTemplate, string parameterName)

@@ -10,17 +10,13 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
 
-internal class ImportedSymbolDeclarationMigrator : ImportReferenceExpressionRewriter
+internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
 {
     private readonly SemanticModel sourceModel;
     private readonly ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames;
     private readonly SyntaxBase? sourceSyntax;
 
-    public ImportedSymbolDeclarationMigrator(SemanticModel sourceModel,
-        ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames,
-        ImmutableDictionary<ImportedSymbol, string> importedSymbolNames,
-        ImmutableDictionary<WildcardImportPropertyReference, string> wildcardImportPropertyNames,
-        SyntaxBase sourceSyntax) : base(importedSymbolNames, wildcardImportPropertyNames, sourceSyntax)
+    public ImportedSymbolDeclarationMigrator(SemanticModel sourceModel, ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames, SyntaxBase sourceSyntax)
     {
         this.sourceModel = sourceModel;
         this.declaredSymbolNames = declaredSymbolNames;
@@ -100,4 +96,10 @@ internal class ImportedSymbolDeclarationMigrator : ImportReferenceExpressionRewr
 
     private static Func<S, bool> NameEquals<S>(string name) where S : DeclaredSymbol
         => s => LanguageConstants.IdentifierComparer.Equals(s.Name, name);
+
+    private static (string namespaceName, string functionName) GetFunctionName(string potentiallyQualifiedName) => potentiallyQualifiedName.IndexOf('.') switch
+    {
+        int separatorLocation when separatorLocation > -1 => (potentiallyQualifiedName[..separatorLocation], potentiallyQualifiedName[(separatorLocation + 1)..]),
+        _ => (EmitConstants.UserDefinedFunctionsNamespace, potentiallyQualifiedName),
+    };
 }

@@ -26,16 +26,15 @@ internal enum ArmSymbolType { Type, Variable, Function };
 
 internal record ArmIdentifier(ArmSymbolType SymbolType, string Identifier);
 
-internal record WildcardImportPropertyReference(WildcardImportSymbol WildcardImport, string PropertyName);
+public record WildcardImportPropertyReference(WildcardImportSymbol WildcardImport, string PropertyName);
 
-internal record ImportedSymbolOriginMetadata(string SourceTemplateIdentifier, string OriginalName);
+public record ImportedSymbolOriginMetadata(string SourceTemplateIdentifier, string OriginalName);
 
-internal record ImportedFunctionNamespaceMetadata(string Name, string? SourceTemplateIdentifier);
-
-internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedTypesInClosure,
+public record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> ImportedTypesInClosure,
     ImmutableArray<DeclaredVariableExpression> ImportedVariablesInClosure,
     ImmutableArray<DeclaredFunctionExpression> ImportedFunctionsInClosure,
-    ImmutableDictionary<WildcardImportPropertyReference, string> WildcardPropertyReferenceToImportedSymbolName,
+    ImmutableDictionary<ImportedSymbol, string> ImportedSymbolNames,
+    ImmutableDictionary<WildcardImportPropertyReference, string> WildcardImportPropertyNames,
     ImmutableDictionary<string, ImportedSymbolOriginMetadata> ImportedSymbolOriginMetadata)
 {
     private const string ArmTypeRefPrefix = "#/definitions/";
@@ -48,7 +47,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
 
         var importedBicepSymbolNames = closureMetadata.Keys.OfType<BicepSymbolicReference>()
             .ToImmutableDictionary(@ref => @ref.Symbol, @ref => closureMetadata[@ref].UniqueNameWithinClosure);
-        var importSymbolNames = closure.ImportedSymbolsToIntraTemplateSymbols
+        var importedSymbolNames = closure.ImportedSymbolsToIntraTemplateSymbols
             .ToImmutableDictionary(kvp => kvp.Key, kvp => closureMetadata[kvp.Value].UniqueNameWithinClosure);
         var wildcardImportPropertyNames = closure.WildcardImportPropertiesToIntraTemplateSymbols
             .ToImmutableDictionary(kvp => kvp.Key, kvp => closureMetadata[kvp.Value].UniqueNameWithinClosure);
@@ -98,11 +97,7 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
                     }
                     break;
                 case BicepSymbolicReference bicepRef:
-                    var migrator = new ImportedSymbolDeclarationMigrator(bicepRef.SourceBicepModel,
-                        importedBicepSymbolNames,
-                        importSymbolNames,
-                        wildcardImportPropertyNames,
-                        closure.SymbolsInImportClosure[bicepRef]);
+                    var migrator = new ImportedSymbolDeclarationMigrator(bicepRef.SourceBicepModel, importedBicepSymbolNames, closure.SymbolsInImportClosure[bicepRef]);
                     var expressionBuilder = bicepExpressionBuilders.GetOrAdd(bicepRef.SourceBicepModel, m => new(new(m)));
                     switch (bicepRef.Symbol)
                     {
@@ -127,9 +122,8 @@ internal record ImportClosureInfo(ImmutableArray<DeclaredTypeExpression> Importe
         return new(ImmutableArray.CreateRange(importedTypes.Values.OrderBy(dte => dte.Name)),
             ImmutableArray.CreateRange(importedVariables.Values.OrderBy(dve => dve.Name)),
             ImmutableArray.CreateRange(importedFunctions.Values.OrderBy(dfe => dfe.Name)),
-            model.Root.WildcardImports
-                .SelectMany(w => w.SourceModel.Exports.Keys.Select(k => new WildcardImportPropertyReference(w, k)))
-                .ToImmutableDictionary(@ref => @ref, @ref => closureMetadata[closure.WildcardImportPropertiesToIntraTemplateSymbols[@ref]].UniqueNameWithinClosure),
+            importedSymbolNames,
+            wildcardImportPropertyNames,
             importedSymbolMetadata.ToImmutable());
     }
 

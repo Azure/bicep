@@ -107,6 +107,23 @@ namespace Bicep.Core.Emit
                         $"{function.Namespace}.{function.Name}",
                         function.Parameters.Select(ConvertExpression));
 
+                case ImportedUserDefinedFunctionCallExpression importedFunction:
+                    {
+                        var (namespaceName, functionName) = GetFunctionName(context.ImportClosureInfo.ImportedSymbolNames[importedFunction.Symbol]);
+                        return CreateFunction(
+                            $"{namespaceName}.{functionName}",
+                            importedFunction.Parameters.Select(ConvertExpression));
+                    }
+
+                case WildcardImportInstanceFunctionCallExpression importedFunction:
+                    {
+                        var (namespaceName, functionName) = GetFunctionName(
+                            context.ImportClosureInfo.WildcardImportPropertyNames[new(importedFunction.ImportSymbol, importedFunction.MethodName)]);
+                        return CreateFunction(
+                            $"{namespaceName}.{functionName}",
+                            importedFunction.Parameters.Select(ConvertExpression));
+                    }
+
                 case ResourceFunctionCallExpression listFunction when listFunction.Name.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix):
                     {
                         var resource = listFunction.Resource.Metadata;
@@ -147,6 +164,13 @@ namespace Bicep.Core.Emit
 
                 case SynthesizedVariableReferenceExpression exp:
                     return CreateFunction("variables", new JTokenExpression(exp.Name));
+
+                case ImportedVariableReferenceExpression exp:
+                    return CreateFunction("variables", new JTokenExpression(context.ImportClosureInfo.ImportedSymbolNames[exp.Variable]));
+
+                case WildcardImportVariablePropertyReferenceExpression exp:
+                    return CreateFunction("variables",
+                    new JTokenExpression(context.ImportClosureInfo.WildcardImportPropertyNames[new(exp.ImportSymbol, exp.PropertyName)]));
 
                 case ParametersReferenceExpression exp:
                     return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
@@ -851,10 +875,16 @@ namespace Bicep.Core.Emit
         private static FunctionExpression CreateFunction(string name, IEnumerable<LanguageExpression> parameters)
             => new(name, parameters.ToArray(), Array.Empty<LanguageExpression>());
 
-        public static FunctionExpression AppendProperties(FunctionExpression function, params LanguageExpression[] properties)
+        private static FunctionExpression AppendProperties(FunctionExpression function, params LanguageExpression[] properties)
             => AppendProperties(function, properties as IEnumerable<LanguageExpression>);
 
-        public static FunctionExpression AppendProperties(FunctionExpression function, IEnumerable<LanguageExpression> properties)
+        private static FunctionExpression AppendProperties(FunctionExpression function, IEnumerable<LanguageExpression> properties)
             => new(function.Function, function.Parameters, function.Properties.Concat(properties).ToArray());
+
+        private static (string namespaceName, string functionName) GetFunctionName(string potentiallyQualifiedName) => potentiallyQualifiedName.IndexOf('.') switch
+        {
+            int separatorLocation when separatorLocation > -1 => (potentiallyQualifiedName[..separatorLocation], potentiallyQualifiedName[(separatorLocation + 1)..]),
+            _ => (EmitConstants.UserDefinedFunctionsNamespace, potentiallyQualifiedName),
+        };
     }
 }

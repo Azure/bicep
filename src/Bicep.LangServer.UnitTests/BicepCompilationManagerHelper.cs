@@ -47,7 +47,7 @@ namespace Bicep.LangServer.UnitTests
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)
-                .WithAzResourceTypeLoaderFactory(TestTypeHelper.CreateEmptyAzResourceTypeLoader())
+                .WithAzResourceTypeLoaderFactory(TestTypeHelper.CreateEmptyResourceTypeLoader())
                 .AddSingleton(CreateMockScheduler().Object)
                 .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
@@ -93,7 +93,7 @@ namespace Bicep.LangServer.UnitTests
         public static ICompilationProvider CreateEmptyCompilationProvider(IConfigurationManager? configurationManager = null)
         {
             var helper = ServiceBuilder.Create(services => services
-                .AddSingleton<IResourceTypeLoader>(TestTypeHelper.CreateEmptyAzResourceTypeLoader())
+                .AddSingleton(TestTypeHelper.CreateEmptyResourceTypeLoader())
                 .AddSingletonIfNonNull<IConfigurationManager>(configurationManager)
                 .AddSingleton<BicepCompilationProvider>());
 
