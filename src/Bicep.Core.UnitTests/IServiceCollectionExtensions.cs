@@ -31,6 +31,7 @@ using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.UnitTests;
 

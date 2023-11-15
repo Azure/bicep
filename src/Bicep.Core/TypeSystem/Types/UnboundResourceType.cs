@@ -3,7 +3,7 @@
 
 using Bicep.Core.Resources;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     /// <summary>
     /// UnboundResourceType represents a resource type that has been specified but not validated.
@@ -16,7 +16,7 @@ namespace Bicep.Core.TypeSystem
         public UnboundResourceType(ResourceTypeReference typeReference)
             : base(typeReference.FormatType())
         {
-            this.TypeReference = typeReference;
+            TypeReference = typeReference;
         }
 
         public ResourceTypeReference TypeReference { get; }

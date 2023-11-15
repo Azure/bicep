@@ -5,14 +5,14 @@ using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public class ResourceParentType : TypeSymbol
     {
         public ResourceParentType(ResourceTypeReference childTypeReference)
             : base(GetFullyQualifiedParentTypeName(childTypeReference))
         {
-            this.ChildTypeReference = childTypeReference;
+            ChildTypeReference = childTypeReference;
         }
 
         public ResourceTypeReference ChildTypeReference { get; }

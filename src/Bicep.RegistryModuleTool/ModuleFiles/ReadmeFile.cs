@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Markdig;

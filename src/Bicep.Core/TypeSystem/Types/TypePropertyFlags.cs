@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     [Flags]
     public enum TypePropertyFlags

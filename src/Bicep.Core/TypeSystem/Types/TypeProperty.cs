@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public class TypeProperty
     {
         public TypeProperty(string name, ITypeReference typeReference, TypePropertyFlags flags = TypePropertyFlags.None, string? description = null)
         {
-            this.Name = name;
-            this.TypeReference = typeReference;
-            this.Flags = flags;
-            this.Description = description;
+            Name = name;
+            TypeReference = typeReference;
+            Flags = flags;
+            Description = description;
         }
 
         public string Name { get; }
@@ -21,6 +21,6 @@ namespace Bicep.Core.TypeSystem
 
         public TypePropertyFlags Flags { get; }
 
-        public TypeProperty With(TypePropertyFlags flags) => new(this.Name, this.TypeReference, flags, this.Description);
+        public TypeProperty With(TypePropertyFlags flags) => new(Name, TypeReference, flags, Description);
     }
 }

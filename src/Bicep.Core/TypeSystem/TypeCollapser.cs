@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Extensions;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem;
 

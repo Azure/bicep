@@ -3,15 +3,15 @@
 
 using Bicep.Core.Resources;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public class ResourceParameterType : TypeSymbol
     {
         public ResourceParameterType(NamespaceType declaringNamespace, ResourceTypeReference typeReference)
             : base(typeReference.FormatType())
         {
-            this.DeclaringNamespace = declaringNamespace;
-            this.TypeReference = typeReference;
+            DeclaringNamespace = declaringNamespace;
+            TypeReference = typeReference;
         }
 
         public NamespaceType DeclaringNamespace { get; }

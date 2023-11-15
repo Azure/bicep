@@ -4,7 +4,7 @@
 using System;
 using Bicep.Core.Parsing;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public class StringLiteralType : TypeSymbol
     {

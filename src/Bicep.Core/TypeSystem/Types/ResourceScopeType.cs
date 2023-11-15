@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public class ResourceScopeType : TypeSymbol, IScopeReference
     {
@@ -18,6 +18,6 @@ namespace Bicep.Core.TypeSystem
         public ResourceScope Scope { get; }
 
         public override string FormatNameForCompoundTypes() =>
-            Enum.IsDefined(typeof(ResourceScope), this.Scope) ? this.Name : this.WrapTypeName();
+            Enum.IsDefined(typeof(ResourceScope), Scope) ? Name : WrapTypeName();
     }
 }

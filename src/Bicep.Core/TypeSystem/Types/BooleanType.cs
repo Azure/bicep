@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Bicep.Core.TypeSystem;
+namespace Bicep.Core.TypeSystem.Types;
 
 public class BooleanType : TypeSymbol
 {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Azure.Bicep.Types;
 using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem.Types;
 using Microsoft.Graph.Bicep.Types;
 
 namespace Bicep.Core.TypeSystem.MicrosoftGraph

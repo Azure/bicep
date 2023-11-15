@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Types
 {
     public class ErrorType : TypeSymbol
     {
@@ -27,11 +27,10 @@ namespace Bicep.Core.TypeSystem
         public static ErrorType Empty()
             => new(ImmutableArray<ErrorDiagnostic>.Empty);
 
-        public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => this.errors;
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => errors;
 
         public override TypeSymbolValidationFlags ValidationFlags => TypeSymbolValidationFlags.PreventAssignment;
 
         public override TypeKind TypeKind => TypeKind.Error;
     }
 }
-
