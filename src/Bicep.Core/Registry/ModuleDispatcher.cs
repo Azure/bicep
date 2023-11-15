@@ -208,6 +208,12 @@ namespace Bicep.Core.Registry
             return await registry.CheckArtifactExists(reference);
         }
 
+        public async Task<bool> CheckTypeExists(ArtifactReference reference)
+        {
+            var registry = this.GetRegistry(reference);
+            return await registry.CheckArtifactExists(reference);
+        }
+
         public void PruneRestoreStatuses()
         {
             // concurrent dictionary enumeration does NOT provide a point-in-time snapshot of values in the dictionary

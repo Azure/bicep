@@ -23,6 +23,8 @@ namespace Bicep.Core.Registry
 
         Task<bool> CheckModuleExists(ArtifactReference reference);
 
+        Task<bool> CheckTypeExists(ArtifactReference reference);
+
         Task PublishModule(ArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri);
 
         Task PublishType(ArtifactReference reference, Stream compiledArmTemplate);

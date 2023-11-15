@@ -57,14 +57,14 @@ namespace Bicep.Cli.Commands
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
             var documentationUri = args.DocumentationUri;
-            var moduleReference = ValidateReference(args.TargetTypeReference, inputUri);
+            var typeReference = ValidateReference(args.TargetTypeReference, inputUri);
             var overwriteIfExists = args.Force;
 
             if (PathHelper.HasArmTemplateLikeExtension(inputUri))
             {
                 // Publishing an ARM template file.
                 using var armTemplateStream = this.fileSystem.FileStream.New(inputPath, FileMode.Open, FileAccess.Read);
-                await this.PublishTypeAsync(moduleReference, armTemplateStream, overwriteIfExists);
+                await this.PublishTypeAsync(typeReference, armTemplateStream, overwriteIfExists);
 
                 return 0;
             }
@@ -89,21 +89,21 @@ namespace Bicep.Cli.Commands
             try
             {
                 // If we don't want to overwrite, ensure module doesn't exist
-                if (!overwriteIfExists && await this.moduleDispatcher.CheckModuleExists(target))
+                if (!overwriteIfExists && await this.moduleDispatcher.CheckTypeExists(target))
                 {
-                    throw new BicepException($"The module \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing module.");
+                    throw new BicepException($"The Type \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing type.");
                 }
                 await this.moduleDispatcher.PublishType(target, compiledArmTemplate);
             }
             catch (ExternalArtifactException exception)
             {
-                throw new BicepException($"Unable to publish module \"{target.FullyQualifiedReference}\": {exception.Message}");
+                throw new BicepException($"Unable to publish type \"{target.FullyQualifiedReference}\": {exception.Message}");
             }
         }
 
-        private ArtifactReference ValidateReference(string targetModuleReference, Uri targetModuleUri)
+        private ArtifactReference ValidateReference(string targetTypeReference, Uri targetTypeUri)
         {
-            if (!this.moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, targetModuleReference, targetModuleUri).IsSuccess(out var moduleReference, out var failureBuilder))
+            if (!this.moduleDispatcher.TryGetArtifactReference(ArtifactType.Type, targetTypeReference, targetTypeUri).IsSuccess(out var typeReference, out var failureBuilder))
             {
                 // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
@@ -111,12 +111,12 @@ namespace Bicep.Cli.Commands
                 throw new BicepException(message);
             }
 
-            if (!this.moduleDispatcher.GetRegistryCapabilities(moduleReference).HasFlag(RegistryCapabilities.Publish))
+            if (!this.moduleDispatcher.GetRegistryCapabilities(typeReference).HasFlag(RegistryCapabilities.Publish))
             {
-                throw new BicepException($"The specified module target \"{targetModuleReference}\" is not supported.");
+                throw new BicepException($"The specified type target \"{targetTypeReference}\" is not supported.");
             }
 
-            return moduleReference;
+            return typeReference;
         }
     }
 }

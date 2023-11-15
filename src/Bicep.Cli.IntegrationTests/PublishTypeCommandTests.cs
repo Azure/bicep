@@ -38,7 +38,7 @@ namespace Bicep.Cli.IntegrationTests
 
         [TestMethod]
         [DynamicData(nameof(OnlyPublishTypeDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
-        public async Task Publish_AllValidDataSets_ShouldSucceed(string testName, DataSet dataSet, string documentationUri, bool publishSource)
+        public async Task Publish_AllValidDataSets_ShouldSucceed(string testName, DataSet dataSet)
         {
             TestContext.WriteLine(testName);
 
@@ -52,24 +52,15 @@ namespace Bicep.Cli.IntegrationTests
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             //Why are we publishing something?
 /*            await dataSet.PublishTypesToRegistryAsync(clientFactory);*/
-            var indexFilePath = Path.Combine(outputDirectory, DataSet.TestFileIndex);
-            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileIndex);
+            var typesPath = Path.Combine(outputDirectory, DataSet.TestTypesFolder);
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestTypesFolder);
 
             // mock client factory caches the clients
             var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
-            List<string> requiredArgs = new() { "publish-type", indexFilePath, "--target", $"br:{registryStr}/{repository}:v1" };
-
-            if (!string.IsNullOrWhiteSpace(documentationUri))
-            {
-                requiredArgs.AddRange(new List<string> { "--documentationUri", documentationUri });
-            }
-            if (publishSource)
-            {
-                requiredArgs.Add("--with-source");
-            }
+            List<string> requiredArgs = new() { "publish-type", typesPath, "--target", $"br:{registryStr}/{repository}:v1" };
 
             string[] args = requiredArgs.ToArray();
 
@@ -80,44 +71,27 @@ namespace Bicep.Cli.IntegrationTests
             using var expectedCompiledStream = new FileStream(compiledFilePath, FileMode.Open, FileAccess.Read);
 
             // verify the module was published
-            testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
-            if (publishSource)
-            {
-                testClient.Should().HaveModuleWithSource("v1", expectedCompiledStream);
-            }
-            else
-            {
-                testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);
-            }
+            testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);
 
             // Modify the source
-            File.AppendAllText(indexFilePath, "\noutput newoutput string = 'hello'");
+            File.AppendAllText(typesPath, "\noutput newoutput string = 'hello'");
 
             // publish the same content again without --force
             var (output2, error2, result2) = await Bicep(settings, args);
             result2.Should().Be(1);
-            output2.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
             error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
 
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
-            if (publishSource)
-            {
-                testClient.Should().HaveModuleWithSource("v1", expectedCompiledStream);
-            }
-            else
-            {
-                testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);
-            }
+            testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);
 
             // publish the same content again with --force
             requiredArgs.Add("--force");
             var (output3, error3, result3) = await Bicep(settings, requiredArgs.ToArray());
             result3.Should().Be(0);
-            output3.Should().MatchRegex(publishSource ? "WARNING: The following experimental Bicep features.*publishSource.*testing purposes only" : "^$");
             AssertNoErrors(error3);
 
             // compile to get what the new expected main.json should be
-            List<string> buildArgs = new() { "build", indexFilePath, "--outfile", $"{compiledFilePath}.modified" };
+            List<string> buildArgs = new() { "build", typesPath, "--outfile", $"{compiledFilePath}.modified" };
             var (output4, error4, result4) = await Bicep(settings, buildArgs.ToArray());
             result4.Should().Be(0);
             output4.Should().BeEmpty();
@@ -126,14 +100,7 @@ namespace Bicep.Cli.IntegrationTests
 
             // we should still only have 1 module
             testClient.Should().OnlyHaveReachableModule("v1", expectedModifiedCompiledStream);
-            if (publishSource)
-            {
-                testClient.Should().HaveModuleWithSource("v1", expectedModifiedCompiledStream);
-            }
-            else
-            {
-                testClient.Should().HaveModuleWithNoSource("v1", expectedModifiedCompiledStream);
-            }
+            testClient.Should().HaveModuleWithNoSource("v1", expectedModifiedCompiledStream);
         }
 
         [DataTestMethod]
@@ -282,7 +249,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             foreach (var ds in DataSets.AllDataSets.Where(ds => ds.Name == "Publish_Types"))
             {
-                yield return new object[] { $"{ds.Name}, publishing types", ds, "", false };
+                yield return new object[] { $"{ds.Name}, publishing types", ds };
                 break;
             }
         }
