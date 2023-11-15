@@ -65,7 +65,8 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--indentkind":
-                        io.WriteParameterDeprecationWarning("--indentKind", "--indent-kind");
+                        // TODO: Uncomment this once Azure CLI is updated to support the new parameter.
+                        //io.WriteParameterDeprecationWarning("--indentKind", "--indent-kind");
 
                         if (args.Length == i + 1)
                         {
@@ -100,7 +101,8 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--indentsize":
-                        io.WriteParameterDeprecationWarning("--indentSize", "--indent-size");
+                        // TODO: Uncomment this once Azure CLI is updated to support the new parameter.
+                        //io.WriteParameterDeprecationWarning("--indentSize", "--indent-size");
 
                         if (args.Length == i + 1)
                         {
@@ -135,7 +137,8 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--insertfinalnewline":
-                        io.WriteParameterDeprecationWarning("--insertFinalNewline", "--insert-final-newline");
+                        // TODO: Uncomment this once Azure CLI is updated to support the new parameter.
+                        //io.WriteParameterDeprecationWarning("--insertFinalNewline", "--insert-final-newline");
 
                         if (InsertFinalNewline is not null)
                         {

@@ -34,7 +34,8 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--documentationuri":
-                        io.WriteParameterDeprecationWarning("--documentationUri", "--documentation-uri");
+                        // TODO: Uncomment this once Azure CLI is updated to support the new parameter.
+                        //io.WriteParameterDeprecationWarning("--documentationUri", "--documentation-uri");
 
                         if (isLast)
                         {

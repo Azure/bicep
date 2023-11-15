@@ -460,22 +460,21 @@ output myOutput string = 'hello!'
             error.Should().MatchRegex(@"The specified output directory "".*outputdir"" does not exist");
         }
 
-        [TestMethod]
-        public async Task Format_WithDeprecatedParams_PrintsDeprecationMessage()
-        {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
-output myOutput string = 'hello!'
-            ");
+        // TODO: Enable this test once Azure CLI is updated to support the new parameters.
+        //[TestMethod]
+        //public async Task Format_WithDeprecatedParams_PrintsDeprecationMessage()
+        //{
+        //    var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "output myOutput string = 'hello!'");
 
-            var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
-            var (output, error, result) = await Bicep("format", bicepPath, "--indentKind", "space", "--indentSize", "4", "--insertFinalNewline");
+        //    var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
+        //    var (output, error, result) = await Bicep("format", bicepPath, "--indentKind", "space", "--indentSize", "4", "--insertFinalNewline");
 
-            result.Should().Be(0);
-            output.Should().BeEmpty();
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentKind is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-kind instead.");
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentSize is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-size instead.");
-            error.Should().MatchRegex(@"DEPRECATED: The parameter --insertFinalNewline is deprecated and will be removed in a future version of Bicpe CLI. Use --insert-final-newline instead.");
-        }
+        //    result.Should().Be(0);
+        //    output.Should().BeEmpty();
+        //    error.Should().MatchRegex(@"DEPRECATED: The parameter --indentKind is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-kind instead.");
+        //    error.Should().MatchRegex(@"DEPRECATED: The parameter --indentSize is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-size instead.");
+        //    error.Should().MatchRegex(@"DEPRECATED: The parameter --insertFinalNewline is deprecated and will be removed in a future version of Bicpe CLI. Use --insert-final-newline instead.");
+        //}
 
         [TestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
