@@ -13,7 +13,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
     {
         private readonly ImmutableDictionary<string, byte[]> typesCache;
         private const string typesArtifactFilename = "types.tgz";
-        public OciTypeLoader(ImmutableDictionary<string, byte[]> typesCache)
+        private OciTypeLoader(ImmutableDictionary<string, byte[]> typesCache)
         {
             this.typesCache = typesCache;
         }
@@ -33,7 +33,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 if (entry.DataStream is null)
                 {
                     var errorMessage = $"Failed to restore {entry.Name} from OCI provider data";
-                    throw new ArgumentException(errorMessage, entry.Name);
+                    throw new InvalidOperationException(errorMessage);
                 }
 
                 using var memoryStream = new MemoryStream();
@@ -53,7 +53,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
         protected override Stream GetContentStreamAtPath(string path)
         {
-            if (typesCache.TryGetValue($"{path}", out var bytes))
+            if (typesCache.TryGetValue(path, out var bytes))
             {
                 return new MemoryStream(bytes);
             }

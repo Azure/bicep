@@ -36,7 +36,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private ServiceBuilder ServicesWithImports => new ServiceBuilder()
            .WithFeatureOverrides(new(
-               CacheRootDirectory: InMemoryFileResolver.GetFileUri("/.bicep").LocalPath,
+               CacheRootDirectory: InMemoryFileResolver.GetFileUri("/test/.bicep").LocalPath,
                ExtensibilityEnabled: true,
                DynamicTypeLoadingEnabled: true))
             .WithNamespaceProvider(
@@ -45,7 +45,7 @@ namespace Bicep.Core.IntegrationTests
                 [AzNamespaceType.BuiltInName] = aliasName => AzNamespaceType.Create(
                     aliasName,
                     ResourceScope.ResourceGroup,
-                     new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader())),
+                     new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), AzNamespaceType.Settings.ArmTemplateProviderVersion),
                      BicepSourceFileKind.BicepFile),
                 [K8sNamespaceType.BuiltInName] = K8sNamespaceType.Create
             })
@@ -148,8 +148,8 @@ provider 'sys@1.0.0' as
         [TestMethod]
         public void Using_import_instead_of_provider_raises_warning()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'br/public:az@0.0.0' as foo
+            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP381", DiagnosticLevel.Warning, "Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead."),
@@ -170,10 +170,10 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public void Import_configuration_is_blocked_by_default()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @"
-            provider 'br/public:az@0.0.0' with {
+            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' with {{
               foo: 'bar'
-            }
+            }}
             ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
@@ -183,8 +183,8 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public void Using_import_statements_frees_up_the_namespace_symbol()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @"
-provider 'br/public:az@0.0.0' as newAz
+            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as newAz
 
 var az = 'Fake AZ!'
 var myRg = newAz.resourceGroup()
@@ -199,8 +199,8 @@ output rgLocation string = myRg.location
         [TestMethod]
         public void You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @"
-provider 'br/public:az@0.0.0' as sys
+            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
 provider 'sys@1.0.0' as az
 
 var myRg = sys.resourceGroup()
@@ -216,8 +216,8 @@ output rgLocation string = myRg.location
         [TestMethod]
         public void Overwriting_single_built_in_namespace_with_import_is_prohibited()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @"
-provider 'br/public:az@0.0.0' as sys
+            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
 
 var myRg = sys.resourceGroup()
 
@@ -230,9 +230,9 @@ output rgLocation string = myRg.location
         [TestMethod]
         public void Singleton_imports_cannot_be_used_multiple_times()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @"
-provider 'br/public:az@0.0.0' as az1
-provider 'br/public:az@0.0.0' as az2
+            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az1
+provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az2
 
 provider 'sys@1.0.0' as sys1
 provider 'sys@1.0.0' as sys2
@@ -249,12 +249,12 @@ provider 'sys@1.0.0' as sys2
         [TestMethod]
         public void Import_names_must_not_conflict_with_other_symbols()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @"
-provider 'br/public:az@0.0.0'
-provider 'kubernetes@1.0.0' with {
+            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
+provider 'kubernetes@1.0.0' with {{
   kubeConfig: ''
   namespace: ''
-} as az
+}} as az
 ");
 
             result.Should().HaveDiagnostics(new[] {

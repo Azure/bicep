@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Diagnostics;
@@ -14,18 +16,18 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Newtonsoft.Json;
 
-namespace Bicep.Core.TypeSystem.Providers.Az
+namespace Bicep.Core.TypeSystem
 {
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
-
-        private readonly (string, string) BuiltInAzLoaderKey = ("az", IResourceTypeProvider.BuiltInVersion);
-        private readonly Dictionary<(string, string), Lazy<IResourceTypeProvider>> resourceTypeLoaders;
+        private record ResourceTypeLoaderKey(string Name, string Version);
+        private readonly ResourceTypeLoaderKey BuiltInAzResourceTypeLoaderKey = new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion);
+        private readonly Dictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders;
 
         public ResourceTypeProviderFactory()
         {
-            resourceTypeLoaders = new() {
-                {BuiltInAzLoaderKey, new(new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader())))},
+            cachedResourceTypeLoaders = new() {
+                {BuiltInAzResourceTypeLoaderKey, new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()),AzNamespaceType.Settings.ArmTemplateProviderVersion)},
             };
         }
 
@@ -33,16 +35,19 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         {
             if (!features.DynamicTypeLoadingEnabled)
             {
-                return new(resourceTypeLoaders[BuiltInAzLoaderKey].Value);
+                return new(cachedResourceTypeLoaders[BuiltInAzResourceTypeLoaderKey]);
             }
-            var key = (providerDescriptor.Alias, providerDescriptor.Version);
-            if (resourceTypeLoaders.ContainsKey(key))
+            var key = new ResourceTypeLoaderKey(providerDescriptor.Alias, providerDescriptor.Version);
+
+            if (cachedResourceTypeLoaders.ContainsKey(key))
             {
-                return new(resourceTypeLoaders[key].Value);
+                return new(cachedResourceTypeLoaders[key]);
             }
+            // should neverbe null since provider restore success is validated prior.
+            string providerDirectory = Path.GetDirectoryName(providerDescriptor.Path) ?? throw new UnreachableException("the provider directory doesn't exist");
 
             // compose the path to the OCI manifest based on the cache root directory and provider version
-            var ociManifestPath = Path.Combine(providerDescriptor.Path, "manifest");
+            var ociManifestPath = Path.Combine(providerDirectory, "manifest");
             if (!File.Exists(ociManifestPath))
             {
                 return new(x => x.MalformedProviderPackage(ociManifestPath));
@@ -58,20 +63,19 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             }
 
             // Register a new types loader
-            Lazy<IResourceTypeProvider> newResourceTypeLoader = providerDescriptor.Alias switch
+            IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Alias switch
             {
-                AzNamespaceType.BuiltInName => new(new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(providerDescriptor.Path)), providerDescriptor.Version)),
+                AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(providerDirectory)), providerDescriptor.Version),
                 _ => throw new NotImplementedException($"The provider {providerDescriptor.Alias} is not supported."),
             };
 
-            resourceTypeLoaders[key] = newResourceTypeLoader;
-            return new(newResourceTypeLoader.Value);
+            return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);
 
         }
 
         public IResourceTypeProvider GetBuiltInAzResourceTypesProvider()
         {
-            return resourceTypeLoaders[BuiltInAzLoaderKey].Value;
+            return cachedResourceTypeLoaders[BuiltInAzResourceTypeLoaderKey];
         }
     }
 }

@@ -163,55 +163,55 @@ namespace Bicep.Core.Semantics
         public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
         {
             base.VisitProviderDeclarationSyntax(syntax);
+            DeclareSymbol(new ProviderNamespaceSymbol(this.context, syntax, ResolveProviderSymbol(syntax)));
+        }
 
-            TypeSymbol resolveProviderSymbol()
+        private TypeSymbol ResolveProviderSymbol(ProviderDeclarationSyntax syntax)
+        {
+            if (!features.ExtensibilityEnabled)
             {
-                if (!features.ExtensibilityEnabled)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ProvidersAreDisabled());
-                }
-
-                // Check for interpolated specification strings
-                if (syntax.SpecificationString is StringSyntax specificationString && specificationString.IsInterpolated())
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.SpecificationString).ProviderSpecificationInterpolationUnsupported());
-                }
-
-                if (!syntax.Specification.IsValid)
-                {
-                    return (syntax.SpecificationString is StringSyntax)
-                        ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification())
-                        : ErrorType.Empty();
-                }
-
-                // Check if the MSGraph provider is recognized and enabled
-                if (syntax.Specification.Name == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
-                }
-
-                Uri? providerUri = null;
-                if (syntax.Specification.Name == AzNamespaceType.BuiltInName &&
-                    features.DynamicTypeLoadingEnabled &&
-                    !this.artifactFileLookup.TryGetProviderFileUri(syntax).IsSuccess(out providerUri, out var providerUriLookupErrorBuilder))
-                {
-                    return ErrorType.Create(providerUriLookupErrorBuilder(DiagnosticBuilder.ForPosition(syntax)));
-                }
-
-                ResourceTypesProviderDescriptor providerDescriptor = new(
-                    syntax.Specification.Name,
-                    syntax.Alias?.IdentifierName,
-                    providerUri,
-                    syntax.Specification.Version);
-
-                if (namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind) is not { } namespaceType)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification!.Name));
-                }
-
-                return namespaceType;
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ProvidersAreDisabled());
             }
-            DeclareSymbol(new ProviderNamespaceSymbol(this.context, syntax, resolveProviderSymbol()));
+
+            // Check for interpolated specification strings
+            if (syntax.SpecificationString is StringSyntax specificationString && specificationString.IsInterpolated())
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.SpecificationString).ProviderSpecificationInterpolationUnsupported());
+            }
+
+            if (!syntax.Specification.IsValid)
+            {
+                return (syntax.SpecificationString is StringSyntax)
+                    ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification())
+                    : ErrorType.Empty();
+            }
+
+            // Check if the MSGraph provider is recognized and enabled
+            if (syntax.Specification.Name == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
+            }
+
+            Uri? providerUri = null;
+            if (syntax.Specification.Name == AzNamespaceType.BuiltInName &&
+                features.DynamicTypeLoadingEnabled &&
+                !this.artifactFileLookup.TryGetResourceTypesFileUri(syntax).IsSuccess(out providerUri, out var providerUriLookupErrorBuilder))
+            {
+                return ErrorType.Create(providerUriLookupErrorBuilder(DiagnosticBuilder.ForPosition(syntax)));
+            }
+
+            ResourceTypesProviderDescriptor providerDescriptor = new(
+                syntax.Specification.Name,
+                syntax.Specification.Version,
+                syntax.Alias?.IdentifierName,
+                providerUri);
+
+            if (namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind) is not { } namespaceType)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification!.Name));
+            }
+
+            return namespaceType;
         }
 
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)

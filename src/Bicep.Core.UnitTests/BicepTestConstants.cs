@@ -53,7 +53,8 @@ namespace Bicep.Core.UnitTests
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
         // Linter rules added to this list will be automtically disabled for most tests.
-        public static readonly string[] AnalyzerRulesToDisableInTests = Array.Empty<string>();
+        // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
+        public static readonly string[] AnalyzerRulesToDisableInTests = Array.Empty<string>(); 
 
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = IConfigurationManager.GetBuiltInConfiguration();
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
@@ -135,27 +136,29 @@ namespace Bicep.Core.UnitTests
         }
 
         public static BinaryData BicepProviderManifestWithEmptyTypesLayer = BinaryData.FromString($$"""
-{
-    "schemaVersion": 2,
-    "mediaType": "application/vnd.oci.image.manifest.v1+json",
-    "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
-    "config": {
-    "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
-    "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
-    "size": 2
-    },
-    "layers": [
-    {
-        "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
-        "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        "size": 0
-    }
-    ],
-    "annotations": {
-    "bicep.serialization.format": "v1",
-    "org.opencontainers.image.created": "2023-05-04T16:40:05Z"
-    }
-}
-""");
+        {
+            "schemaVersion": 2,
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
+            "config": {
+            "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
+            "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "size": 2
+            },
+            "layers": [
+            {
+                "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
+                "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "size": 0
+            }
+            ],
+            "annotations": {
+            "bicep.serialization.format": "v1",
+            "org.opencontainers.image.created": "2023-05-04T16:40:05Z"
+            }
+        }
+        """);
+
+        public static string BuiltinAzProviderVersion = AzNamespaceType.Settings.ArmTemplateProviderVersion;
     }
 }

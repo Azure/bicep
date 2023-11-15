@@ -30,34 +30,27 @@ public class DefaultNamespaceProvider : INamespaceProvider
         this.resourceTypeLoaderFactory = resourceTypeLoaderFactory;
         this.providerLookup = new Dictionary<string, GetNamespaceDelegate>
         {
-            [AzNamespaceType.BuiltInName] = CreateAzNamespace,
+            [AzNamespaceType.BuiltInName] = TryCreateAzNamespace,
             [SystemNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => SystemNamespaceType.Create(providerDescriptor.Alias, features, sourceFileKind),
             [K8sNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => K8sNamespaceType.Create(providerDescriptor.Alias),
             [MicrosoftGraphNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => MicrosoftGraphNamespaceType.Create(providerDescriptor.Alias),
         }.ToImmutableDictionary();
     }
 
-    private NamespaceType? CreateAzNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
+    private NamespaceType? TryCreateAzNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
     {
         if (!features.DynamicTypeLoadingEnabled)
         {
-            return AzNamespaceType.Create(
-                providerDescriptor.Alias,
-                scope,
-                resourceTypeLoaderFactory.GetBuiltInAzResourceTypesProvider(),
-                sourceFileKind);
+            providerDescriptor = new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion);
         }
 
-        if (!resourceTypeLoaderFactory.GetResourceTypeProvider(providerDescriptor, features).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+        if (resourceTypeLoaderFactory.GetResourceTypeProvider(providerDescriptor, features).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
         {
-            Trace.WriteLine($"Failed to load types from {providerDescriptor.Path}: {errorBuilder(DiagnosticBuilder.ForPosition(providerDescriptor.Span))}");
-            return null;
+            return AzNamespaceType.Create(providerDescriptor.Alias, scope, dynamicallyLoadedProvider, sourceFileKind);
         }
-        return AzNamespaceType.Create(
-              providerDescriptor.Alias,
-              scope,
-              dynamicallyLoadedProvider!,
-              sourceFileKind);
+
+        Trace.WriteLine($"Failed to load types from {providerDescriptor.Path}: {errorBuilder(DiagnosticBuilder.ForPosition(providerDescriptor.Span))}");
+        return null;
     }
 
     public NamespaceType? TryGetNamespace(

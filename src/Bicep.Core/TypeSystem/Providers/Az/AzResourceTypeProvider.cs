@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using Azure.Bicep.Types.Az;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core.Emit;
 using Bicep.Core.Resources;
@@ -69,7 +71,8 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
         public static readonly TypeSymbol ResourceAsserts = new ObjectType(nameof(ResourceAsserts), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Bool, TypePropertyFlags.DeployTimeConstant);
 
-        public string Version { get; }
+        public string Version { get; } = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
+
 
         private readonly IResourceTypeLoader resourceTypeLoader;
         private readonly ResourceTypeCache definedTypeCache;
@@ -191,7 +194,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             }, null));
         }
 
-        public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, string providerVersion = IResourceTypeProvider.BuiltInVersion)
+        public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, string providerVersion)
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
             Version = providerVersion;
