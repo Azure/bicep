@@ -41,17 +41,19 @@ namespace Bicep.Core.Emit
             public static Result For(IDiagnostic diagnostic) => new(null, null, diagnostic);
         }
 
-        private readonly ConcurrentDictionary<ParameterAssignmentSymbol, Result> Results = new();
-        private readonly ConcurrentDictionary<VariableSymbol, Result> VarResults = new();
-        private readonly ConcurrentDictionary<ImportedVariableSymbol, Result> ImportResults = new();
-        private readonly ConcurrentDictionary<WildcardImportPropertyReference, Result> WildcardImportVariablesResults = new();
-        private readonly ConcurrentDictionary<SemanticModel, ParameterAssignmentEvaluator> BicepEvaluators = new();
-        private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> ArmEvaluators = new();
+        private readonly ConcurrentDictionary<ParameterAssignmentSymbol, Result> results = new();
+        private readonly ConcurrentDictionary<VariableSymbol, Result> varResults = new();
+        private readonly ConcurrentDictionary<ImportedVariableSymbol, Result> importResults = new();
+        private readonly ConcurrentDictionary<WildcardImportPropertyReference, Result> wildcardImportVariableResults = new();
+        private readonly ConcurrentDictionary<Expression, Result> synthesizedVariableResults = new();
+        private readonly ConcurrentDictionary<SemanticModel, ParameterAssignmentEvaluator> bicepEvaluators = new();
+        private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> armEvaluators = new();
         private readonly SemanticModel model;
         private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
         private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
         private readonly ImmutableDictionary<string, ImportedVariableSymbol> importsByName;
         private readonly ImmutableDictionary<string, WildcardImportPropertyReference> wildcardImportPropertiesByName;
+        private readonly ImmutableDictionary<string, Expression> synthesizedVariableValuesByName;
         private readonly ExpressionConverter converter;
 
         public ParameterAssignmentEvaluator(SemanticModel model)
@@ -74,10 +76,13 @@ namespace Bicep.Core.Emit
             this.wildcardImportPropertiesByName = context.ImportClosureInfo.WildcardImportPropertyNames
                 .GroupBy(x => x.Value, LanguageConstants.IdentifierComparer)
                 .ToImmutableDictionary(x => x.Key, x => x.First().Key, LanguageConstants.IdentifierComparer);
+            this.synthesizedVariableValuesByName = context.FunctionVariables.Values
+                .GroupBy(result => result.Name)
+                .ToImmutableDictionary(x => x.Key, x => x.First().Value);
         }
 
         public Result EvaluateParameter(ParameterAssignmentSymbol parameter)
-            => Results.GetOrAdd(
+            => results.GetOrAdd(
                 parameter,
                 parameter =>
                 {
@@ -102,7 +107,7 @@ namespace Bicep.Core.Emit
                 });
 
         private Result EvaluateVariable(VariableSymbol variable)
-            => VarResults.GetOrAdd(
+            => varResults.GetOrAdd(
                 variable,
                 variable =>
                 {
@@ -120,7 +125,22 @@ namespace Bicep.Core.Emit
                     }
                 });
 
-        private Result EvaluateImport(ImportedVariableSymbol import) => ImportResults.GetOrAdd(import, import =>
+        private Result EvaluateSynthesizeVariableExpression(string name, Expression expression)
+            => synthesizedVariableResults.GetOrAdd(
+                expression,
+                expression =>
+                {
+                    try
+                    {
+                        return Result.For(converter.ConvertExpression(expression).EvaluateExpression(GetExpressionEvaluationContext()));
+                    }
+                    catch (Exception e)
+                    {
+                        return Result.For(DiagnosticBuilder.ForDocumentStart().FailedToEvaluateVariable(name, e.Message));
+                    }
+                });
+
+        private Result EvaluateImport(ImportedVariableSymbol import) => importResults.GetOrAdd(import, import =>
         {
             if (import.Kind == SymbolKind.Variable)
             {
@@ -148,7 +168,7 @@ namespace Bicep.Core.Emit
                 .Where(v => LanguageConstants.IdentifierComparer.Equals(v.Name, symbol.OriginalSymbolName))
                 .FirstOrDefault() is VariableSymbol exportedVariable)
             {
-                return BicepEvaluators.GetOrAdd(importedFrom, model => new(model)).EvaluateVariable(exportedVariable);
+                return bicepEvaluators.GetOrAdd(importedFrom, model => new(model)).EvaluateVariable(exportedVariable);
             }
 
             return Result.For(DiagnosticBuilder.ForPosition(symbol.DeclaringImportedSymbolsListItem.OriginalSymbolName).ImportedSymbolNotFound(symbol.OriginalSymbolName ?? LanguageConstants.MissingName));
@@ -163,7 +183,7 @@ namespace Bicep.Core.Emit
 
             try
             {
-                return Result.For(ArmEvaluators.GetOrAdd(importedFrom, t => new(t)).GetEvaluatedVariableValue(originalSymbolName));
+                return Result.For(armEvaluators.GetOrAdd(importedFrom, t => new(t)).GetEvaluatedVariableValue(originalSymbolName));
             }
             catch (Exception e)
             {
@@ -172,7 +192,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private Result EvaluateWildcardImportPropertyAsVariable(WildcardImportPropertyReference propertyReference) => WildcardImportVariablesResults.GetOrAdd(propertyReference, r => r.WildcardImport.SourceModel switch
+        private Result EvaluateWildcardImportPropertyAsVariable(WildcardImportPropertyReference propertyReference) => wildcardImportVariableResults.GetOrAdd(propertyReference, r => r.WildcardImport.SourceModel switch
         {
             SemanticModel bicepModel
                 => EvaluateWildcardImportPropertyAsVariable(bicepModel, r),
@@ -193,7 +213,7 @@ namespace Bicep.Core.Emit
             }
 
             var variableDeclaration = importedFrom.Root.VariableDeclarations.Where(v => v.Name.Equals(propertyReference.PropertyName, StringComparison.OrdinalIgnoreCase)).Single();
-            var evaluated = BicepEvaluators.GetOrAdd(importedFrom, m => new(m)).EvaluateVariable(variableDeclaration);
+            var evaluated = bicepEvaluators.GetOrAdd(importedFrom, m => new(m)).EvaluateVariable(variableDeclaration);
             if (evaluated.Value is not null)
             {
                 return Result.For(evaluated.Value);
@@ -209,7 +229,7 @@ namespace Bicep.Core.Emit
                 return Result.For(diagnostic);
             }
 
-            var evaluator = ArmEvaluators.GetOrAdd(importedFrom, t => new(t));
+            var evaluator = armEvaluators.GetOrAdd(importedFrom, t => new(t));
             try
             {
                 return Result.For(evaluator.GetEvaluatedVariableValue(propertyReference.PropertyName));
@@ -254,6 +274,12 @@ namespace Bicep.Core.Emit
                 {
                     return EvaluateWildcardImportPropertyAsVariable(wildcardImportProperty).Value
                         ?? throw new InvalidOperationException($"Imported variable {wildcardImportProperty.WildcardImport.Name}.{wildcardImportProperty.PropertyName} has an invalid value");
+                }
+
+                if (synthesizedVariableValuesByName.TryGetValue(name, out var value))
+                {
+                    return EvaluateSynthesizeVariableExpression(name, value).Value
+                        ?? throw new InvalidOperationException($"Synthesized variable {name} has an invalid value");
                 }
 
                 throw new InvalidOperationException($"Variable {name} not found");
