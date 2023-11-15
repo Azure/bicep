@@ -7,7 +7,7 @@ using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem.K8s
+namespace Bicep.Core.TypeSystem.Providers.K8s
 {
     public class K8sResourceTypeFactory
     {

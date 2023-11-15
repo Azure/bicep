@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 using System.Text.RegularExpressions;
 
-namespace Bicep.Core.TypeSystem.Az
+namespace Bicep.Core.TypeSystem.Providers.Az
 {
     public static class AzConstants
     {

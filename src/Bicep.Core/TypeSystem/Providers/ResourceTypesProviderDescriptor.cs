@@ -4,7 +4,7 @@
 using System;
 using Bicep.Core.Parsing;
 
-namespace Bicep.Core.TypeSystem;
+namespace Bicep.Core.TypeSystem.Providers;
 
 public record ResourceTypesProviderDescriptor
 {

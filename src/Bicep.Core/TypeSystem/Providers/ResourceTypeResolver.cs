@@ -7,10 +7,10 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Providers
 {
     public class ResourceTypeResolver
     {
@@ -33,7 +33,7 @@ namespace Bicep.Core.TypeSystem
 
         public (ResourceSymbol?, ObjectType?) TryResolveRuntimeExistingResourceSymbolAndBodyType(SyntaxBase resourceOrModuleAccessSyntax)
         {
-            var resolved = this.TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax);
+            var resolved = TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax);
 
             if (resolved is (ResourceSymbol resourceSymbol, { } bodyType) &&
                 resourceSymbol.DeclaringResource.IsExistingResource())
@@ -61,17 +61,17 @@ namespace Bicep.Core.TypeSystem
                 return TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax, false);
             }
 
-            var indexExprTypeInfo = this.semanticModel.GetTypeInfo(indexExpression);
+            var indexExprTypeInfo = semanticModel.GetTypeInfo(indexExpression);
             var isCollection = indexExprTypeInfo.TypeKind != TypeKind.StringLiteral;
 
             var syntaxToResolve = isCollection ? baseAccessSyntax : resourceOrModuleAccessSyntax;
             return TryResolveResourceOrModuleSymbolAndBodyType(syntaxToResolve, isCollection);
         }
 
-        private (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection) => this.semanticModel.GetSymbolInfo(syntax) switch
+        private (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection) => semanticModel.GetSymbolInfo(syntax) switch
         {
             ResourceSymbol resourceSymbol when resourceSymbol.IsCollection == isCollection =>
-                (resourceSymbol, this.existingResourceBodyTypeOverrides.GetValueOrDefault(resourceSymbol) ?? resourceSymbol.TryGetBodyObjectType()),
+                (resourceSymbol, existingResourceBodyTypeOverrides.GetValueOrDefault(resourceSymbol) ?? resourceSymbol.TryGetBodyObjectType()),
             ModuleSymbol moduleSymbol when moduleSymbol.IsCollection == isCollection =>
                 (moduleSymbol, moduleSymbol.TryGetBodyObjectType()),
             ParameterSymbol parameterSymbol when parameterSymbol.IsCollection == isCollection =>

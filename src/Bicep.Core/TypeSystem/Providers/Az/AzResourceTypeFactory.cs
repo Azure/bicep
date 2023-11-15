@@ -8,7 +8,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem.Az
+namespace Bicep.Core.TypeSystem.Providers.Az
 {
     public class AzResourceTypeFactory
     {

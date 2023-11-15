@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Core.TypeSystem.Types
 {

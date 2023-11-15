@@ -13,7 +13,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem.Az
+namespace Bicep.Core.TypeSystem.Providers.Az
 {
     public class AzResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
@@ -197,10 +197,10 @@ namespace Bicep.Core.TypeSystem.Az
         public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, string providerVersion)
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
-            this.Version = providerVersion;
+            Version = providerVersion;
             this.resourceTypeLoader = resourceTypeLoader;
-            this.definedTypeCache = new ResourceTypeCache();
-            this.generatedTypeCache = new ResourceTypeCache();
+            definedTypeCache = new ResourceTypeCache();
+            generatedTypeCache = new ResourceTypeCache();
         }
 
         private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)
@@ -429,7 +429,7 @@ namespace Bicep.Core.TypeSystem.Az
             // It's important to cache this result because generating the resource type is an expensive operation
             var resourceType = definedTypeCache.GetOrAdd(flags, typeReference, () =>
            {
-               var resourceType = this.resourceTypeLoader.LoadType(typeReference);
+               var resourceType = resourceTypeLoader.LoadType(typeReference);
 
                return SetBicepResourceProperties(resourceType, flags);
            });

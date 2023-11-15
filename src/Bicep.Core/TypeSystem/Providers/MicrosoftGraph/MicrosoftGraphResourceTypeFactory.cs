@@ -7,7 +7,7 @@ using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem.MicrosoftGraph
+namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
 {
     public class MicrosoftGraphResourceTypeFactory
     {

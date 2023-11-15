@@ -10,7 +10,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem.Az
+namespace Bicep.Core.TypeSystem.Providers.Az
 {
     public class AzResourceTypeLoader : IResourceTypeLoader
     {
@@ -22,12 +22,12 @@ namespace Bicep.Core.TypeSystem.Az
         public AzResourceTypeLoader(ITypeLoader typeLoader)
         {
             this.typeLoader = typeLoader;
-            this.resourceTypeFactory = new AzResourceTypeFactory();
+            resourceTypeFactory = new AzResourceTypeFactory();
             var indexedTypes = typeLoader.LoadTypeIndex();
-            this.availableTypes = indexedTypes.Resources.ToImmutableDictionary(
+            availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);
-            this.availableFunctions = indexedTypes.Functions.ToImmutableDictionary(
+            availableFunctions = indexedTypes.Functions.ToImmutableDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value.ToImmutableDictionary(
                     x => x.Key,

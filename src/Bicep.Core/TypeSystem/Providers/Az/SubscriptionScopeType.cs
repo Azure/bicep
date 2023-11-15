@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem.Az
+namespace Bicep.Core.TypeSystem.Providers.Az
 {
     public class SubscriptionScopeType : ObjectType, IScopeReference
     {
