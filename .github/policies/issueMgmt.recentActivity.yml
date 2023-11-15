@@ -24,7 +24,7 @@ configuration:
         actions:
           - closeIssue
 
-      - description: "Add 'Status: No Recent Activity' label to issues"
+      - description: "Add 'Status: No Recent Activity' label to issues with 'Needs: Author Feedback' and inactive"
         frequencies:
           - hourly:
               hour: 12
@@ -59,20 +59,6 @@ configuration:
               label: "Needs: Triage :mag:"
           - removeLabel:
               label: "Needs: Author Feedback"
-
-      - description: "Remove 'Status: No Recent Activity' label from issues and add Needs: Triage"
-        if:
-          - payloadType: Issues
-          - not:
-              isAction:
-                action: Closed
-          - hasLabel:
-              label: "Status: No Recent Activity"
-        then:
-          - removeLabel:
-              label: "Status: No Recent Activity"
-          - addLabel:
-              label: "Needs: Triage :mag:"
 
       - description: "Remove 'Status: No Recent Activity' label when an issue is commented on"
         if:
