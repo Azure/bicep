@@ -14,12 +14,17 @@ internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
 {
     private readonly SemanticModel sourceModel;
     private readonly ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames;
+    private readonly ImmutableDictionary<string, string> synthesizedVariableNames;
     private readonly SyntaxBase? sourceSyntax;
 
-    public ImportedSymbolDeclarationMigrator(SemanticModel sourceModel, ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames, SyntaxBase sourceSyntax)
+    public ImportedSymbolDeclarationMigrator(SemanticModel sourceModel,
+        ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames,
+        ImmutableDictionary<string, string> synthesizedVariableNames,
+        SyntaxBase sourceSyntax)
     {
         this.sourceModel = sourceModel;
         this.declaredSymbolNames = declaredSymbolNames;
+        this.synthesizedVariableNames = synthesizedVariableNames;
         this.sourceSyntax = sourceSyntax;
     }
 
@@ -81,6 +86,9 @@ internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
         var (namespaceName, name) = GetFunctionName(declaredSymbolNames[expression.Symbol]);
         return new SynthesizedUserDefinedFunctionCallExpression(sourceSyntax, namespaceName, name, expression.Parameters);
     }
+
+    public override Expression ReplaceSynthesizedVariableReferenceExpression(SynthesizedVariableReferenceExpression expression)
+        => new SynthesizedVariableReferenceExpression(sourceSyntax, synthesizedVariableNames[expression.Name]);
 
     private TypeAliasSymbol LookupTypeAliasByName(string name) => sourceModel.Root.TypeDeclarations
         .Where(NameEquals<TypeAliasSymbol>(name))
