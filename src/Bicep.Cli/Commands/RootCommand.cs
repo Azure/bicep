@@ -88,16 +88,16 @@ Usage:
       --outfile <file>      Saves the output as the specified file path.
       --stdout              Prints the output to stdout.
       --newline             Set newline char. Valid values are ( Auto | LF | CRLF | CR ).
-      --indentKind          Set indentation kind. Valid values are ( Space | Tab ).
-      --indentSize          Number of spaces to indent with (Only valid with --indentKind set to Space).
-      --insertFinalNewline  Insert a final newline.
+      --indent-kind          Set indentation kind. Valid values are ( Space | Tab ).
+      --indent-size          Number of spaces to indent with (Only valid with --indentKind set to Space).
+      --insert-final-newline  Insert a final newline.
 
     Examples:
       bicep format file.bicep
       bicep format file.bicep --stdout
       bicep format file.bicep --outdir dir1
       bicep format file.bicep --outfile file.json
-      bicep format file.bicep --indentKind Tab
+      bicep format file.bicep --indent-kind Tab
 
   {exeName} decompile [options] <file>
     Attempts to decompile a template .json file to .bicep.
@@ -184,15 +184,15 @@ Usage:
       <ref>         The module reference
 
     Options:
-      --documentationUri  Module documentation uri
+      --documentation-uri  Module documentation uri
       --with-source       [Experimental] Publish source code with the module
       --force             Overwrite existing published module or file
 
     Examples:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --force
-      bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --documentationUri https://github.com/hello-world/README.md --with-source
-      bicep publish file.json --target br:example.azurecr.io/hello/world:v1 --documentationUri https://github.com/hello-world/README.md
+      bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1 --documentation-uri https://github.com/hello-world/README.md --with-source
+      bicep publish file.json --target br:example.azurecr.io/hello/world:v1 --documentation-uri https://github.com/hello-world/README.md
 
   {exeName} restore <file>
     Restores external modules from the specified Bicep file to the local module cache.

@@ -8,7 +8,7 @@ namespace Bicep.Cli.Services
 {
     public static class ArgumentParser
     {
-        public static ArgumentsBase? TryParse(string[] args)
+        public static ArgumentsBase? TryParse(string[] args, IOContext io)
         {
             if (args.Length < 1)
             {
@@ -30,11 +30,11 @@ namespace Bicep.Cli.Services
                 Constants.Command.Build => new BuildArguments(args[1..]),
                 Constants.Command.Test => new TestArguments(args[1..]),
                 Constants.Command.BuildParams => new BuildParamsArguments(args[1..]),
-                Constants.Command.Format => new FormatArguments(args[1..]),
+                Constants.Command.Format => new FormatArguments(args[1..], io),
                 Constants.Command.GenerateParamsFile => new GenerateParametersFileArguments(args[1..]),
                 Constants.Command.Decompile => new DecompileArguments(args[1..]),
                 Constants.Command.DecompileParams => new DecompileParamsArguments(args[1..]),
-                Constants.Command.Publish => new PublishArguments(args[1..]),
+                Constants.Command.Publish => new PublishArguments(args[1..], io),
                 Constants.Command.Restore => new RestoreArguments(args[1..]),
                 Constants.Command.Lint => new LintArguments(args[1..]),
                 _ => null,
