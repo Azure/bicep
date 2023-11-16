@@ -720,7 +720,8 @@
         "publishSource": {
           "type": "boolean"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "formatting": {
       "type": "object",
