@@ -12,8 +12,15 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Registry.Oci
 {
+    // Currently this can be a module or a provider.
     public class OciArtifactReference : ArtifactReference, IOciArtifactReference
     {
+        public OciArtifactReference(ArtifactType type, IArtifactIdParts artifactIdParts, Uri parentModuleUri) :
+            base(OciArtifactReferenceFacts.Scheme, parentModuleUri)
+        {
+            ArtifactIdParts = artifactIdParts;
+        }
+
         public OciArtifactReference(ArtifactType type, string registry, string repository, string? tag, string? digest, Uri parentModuleUri) :
             base(OciArtifactReferenceFacts.Scheme, parentModuleUri)
         {
@@ -25,59 +32,76 @@ namespace Bicep.Core.Registry.Oci
                     throw new ArgumentException($"Both {nameof(tag)} and {nameof(digest)} cannot be non-null.");
             }
 
-            this.Registry = registry;
-            this.Repository = repository;
-            this.Tag = tag;
-            this.Digest = digest;
-            this.Type = type;
+            Type = type;
+            ArtifactIdParts = new ArtifactIdParts(registry, repository, tag, digest);
         }
 
-        /// <summary>
-        /// Gets the registry URI.
-        /// </summary>
-        public string Registry { get; }
-
-        /// <summary>
-        /// Gets the repository name. The repository name is the path to an artifact in the registry without the tag.
-        /// </summary>
-        public string Repository { get; }
-
-        /// <summary>
-        /// Gets the tag. Either tag or digest is set but not both.
-        /// </summary>
-        public string? Tag { get; }
-
-        /// <summary>
-        /// Gets the digest. Either tag or digest is set but not both.
-        /// </summary>
-        public string? Digest { get; }
-
-        /// <summary>
-        /// Gets the artifact ID.
-        /// </summary>
-        public string ArtifactId => this.Digest is null
-            ? $"{this.Registry}/{this.Repository}:{this.Tag}"
-            : $"{this.Registry}/{this.Repository}@{this.Digest}";
+        public IArtifactIdParts ArtifactIdParts { get; }
 
         /// <summary>
         /// Gets the type of artifact reference. Either module or provider.
         /// </summary>
         public ArtifactType Type { get; }
 
+        /// <summary>
+        /// Gets the registry URI.
+        /// </summary>
+        public string Registry => ArtifactIdParts.Registry;
+
+        /// <summary>
+        /// Gets the repository name. The repository name is the path to an artifact in the registry without the tag.
+        /// </summary>
+        public string Repository => ArtifactIdParts.Repository;
+
+        /// <summary>
+        /// Gets the tag. Either tag or digest is set but not both.
+        /// </summary>
+        public string? Tag => ArtifactIdParts.Tag;
+
+        /// <summary>
+        /// Gets the digest. Either tag or digest is set but not both.
+        /// </summary>
+        public string? Digest => ArtifactIdParts.Digest;
+
+        /// <summary>
+        /// Gets the artifact ID.
+        /// </summary>
+        public string ArtifactId => ArtifactIdParts.ArtifactId;
+
         public override string UnqualifiedReference => ArtifactId;
 
         public override bool IsExternal => true;
 
-        public static ResultWithDiagnostic<OciArtifactReference> TryParseModule(string? aliasName, string rawValue, RootConfiguration configuration, Uri parentModuleUri)
-            => TryParse(ArtifactType.Module, aliasName, rawValue, configuration, parentModuleUri);
+        // unqualifiedRawValue is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
+        public static ResultWithDiagnostic<OciArtifactReference> TryParseModule(string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
+            => TryParse(ArtifactType.Module, aliasName, unqualifiedReference, configuration, parentModuleUri);
 
-        public static ResultWithDiagnostic<OciArtifactReference> TryParse(ArtifactType type, string? aliasName, string rawValue, RootConfiguration configuration, Uri parentModuleUri)
+        public static ResultWithDiagnostic<OciArtifactReference> TryParse(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
+        {
+            if (TryParseParts(type, aliasName, unqualifiedReference, configuration).IsSuccess(out var parts, out var errorBuilder))
+            {
+                return new(new OciArtifactReference(type, parts.Registry, parts.Repository, parts.Tag, parts.Digest, parentModuleUri));
+            }
+            else
+            {
+                return new(errorBuilder);
+            }
+        }
+
+        // Doesn't handle aliases
+        public static ResultWithDiagnostic<IArtifactIdParts> TryParseFullyQualifiedParts(string rawValue)
+        {
+            return TryParseParts(ArtifactType.Module, aliasName: null, rawValue, configuration: null);
+        }
+
+        // TODO: Completely remove aliasName and configuration dependencies and move the non-dependent portion to a static method on ArtifactIdParts
+        private static ResultWithDiagnostic<IArtifactIdParts> TryParseParts(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration)
         {
             static string GetBadReference(string referenceValue) => $"{OciArtifactReferenceFacts.Scheme}:{referenceValue}";
 
             static string DecodeSegment(string segment) => HttpUtility.UrlDecode(segment);
 
-            if (aliasName is not null)
+            if (configuration is { } && aliasName is not null)
             {
                 switch (type)
                 {
@@ -86,14 +110,14 @@ namespace Bicep.Core.Registry.Oci
                         {
                             return new(moduleFailureBuilder);
                         }
-                        rawValue = $"{moduleAlias}/{rawValue}";
+                        unqualifiedReference = $"{moduleAlias}/{unqualifiedReference}";
                         break;
                     case ArtifactType.Provider:
                         if (!configuration.ProviderAliases.TryGetOciArtifactProviderAlias(aliasName).IsSuccess(out var providerAlias, out var providerFailureBuilder))
                         {
                             return new(providerFailureBuilder);
                         }
-                        rawValue = $"{providerAlias}/{rawValue}";
+                        unqualifiedReference = $"{providerAlias}/{unqualifiedReference}";
                         break;
                     default:
                         return new(x => x.UnsupportedArtifactType(type));
@@ -102,11 +126,11 @@ namespace Bicep.Core.Registry.Oci
 
             // the set of valid OCI artifact refs is a subset of the set of valid URIs if you remove the scheme portion from each URI
             // manually prepending any valid URI scheme allows to get free validation via the built-in URI parser
-            if (!Uri.TryCreate($"{OciArtifactReferenceFacts.Scheme}://{rawValue}", UriKind.Absolute, out var artifactUri) ||
+            if (!Uri.TryCreate($"{OciArtifactReferenceFacts.Scheme}://{unqualifiedReference}", UriKind.Absolute, out var artifactUri) ||
                 artifactUri.Segments.Length <= 1 ||
                 !string.Equals(artifactUri.Segments[0], "/", StringComparison.Ordinal))
             {
-                return new(x => x.InvalidOciArtifactReference(aliasName, GetBadReference(rawValue)));
+                return new(x => x.InvalidOciArtifactReference(aliasName, GetBadReference(unqualifiedReference)));
             }
 
             string registry = artifactUri.Authority;
@@ -114,7 +138,7 @@ namespace Bicep.Core.Registry.Oci
             {
                 return new(x => x.InvalidOciArtifactReferenceRegistryTooLong(
                     aliasName,
-                    GetBadReference(rawValue),
+                    GetBadReference(unqualifiedReference),
                     registry,
                     OciArtifactReferenceFacts.MaxRegistryLength));
             }
@@ -130,7 +154,7 @@ namespace Bicep.Core.Registry.Oci
                 if (!OciArtifactReferenceFacts.IsOciNamespaceSegment(segmentWithoutTrailingSlash))
                 {
                     var invalidSegment = DecodeSegment(segmentWithoutTrailingSlash);
-                    return new(x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), invalidSegment));
+                    return new(x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(unqualifiedReference), invalidSegment));
                 }
 
                 // even though chars that require URL-escaping are not part of the allowed regexes
@@ -156,7 +180,7 @@ namespace Bicep.Core.Registry.Oci
             var name = DecodeSegment(!delimiter.HasValue ? lastSegment : lastSegment[..indexOfLastSegmentDelimiter]);
             if (!OciArtifactReferenceFacts.IsOciNamespaceSegment(name))
             {
-                return new(x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), name));
+                return new(x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(unqualifiedReference), name));
             }
 
             repoBuilder.Append(name);
@@ -166,7 +190,7 @@ namespace Bicep.Core.Registry.Oci
             {
                 return new(x => x.InvalidOciArtifactReferenceRepositoryTooLong(
                     aliasName,
-                    GetBadReference(rawValue),
+                    GetBadReference(unqualifiedReference),
                     repository,
                     OciArtifactReferenceFacts.MaxRepositoryLength));
             }
@@ -174,13 +198,13 @@ namespace Bicep.Core.Registry.Oci
             // now we can complain about the missing tag or digest
             if (!delimiter.HasValue)
             {
-                return new(x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue)));
+                return new(x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(unqualifiedReference)));
             }
 
             var tagOrDigest = DecodeSegment(lastSegment.Substring(indexOfLastSegmentDelimiter + 1));
             if (string.IsNullOrEmpty(tagOrDigest))
             {
-                return new(x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue)));
+                return new(x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(unqualifiedReference)));
             }
 
             switch (delimiter.Value)
@@ -191,7 +215,7 @@ namespace Bicep.Core.Registry.Oci
                     {
                         return new(x => x.InvalidOciArtifactReferenceTagTooLong(
                             aliasName,
-                            GetBadReference(rawValue),
+                            GetBadReference(unqualifiedReference),
                             tag,
                             OciArtifactReferenceFacts.MaxTagLength));
                     }
@@ -200,20 +224,20 @@ namespace Bicep.Core.Registry.Oci
                     {
                         return new(x => x.InvalidOciArtifactReferenceInvalidTag(
                             aliasName,
-                            GetBadReference(rawValue),
+                            GetBadReference(unqualifiedReference),
                             tag));
                     }
 
-                    return new(new OciArtifactReference(type, registry, repository, tag, digest: null, parentModuleUri: parentModuleUri));
+                    return new(new ArtifactIdParts(registry, repository, tag, digest: null));
 
                 case '@':
                     var digest = tagOrDigest;
                     if (!OciArtifactReferenceFacts.IsOciDigest(digest))
                     {
-                        return new(x => x.InvalidOciArtifactReferenceInvalidDigest(aliasName, GetBadReference(rawValue), digest));
+                        return new(x => x.InvalidOciArtifactReferenceInvalidDigest(aliasName, GetBadReference(unqualifiedReference), digest));
                     }
 
-                    return new(new OciArtifactReference(type, registry, repository, tag: null, digest: digest, parentModuleUri: parentModuleUri));
+                    return new(new ArtifactIdParts(registry, repository, tag: null, digest: digest));
 
                 default:
                     throw new NotImplementedException($"Unexpected last segment delimiter character '{delimiter.Value}'.");
@@ -229,20 +253,15 @@ namespace Bicep.Core.Registry.Oci
             }
 
             return
-                // TODO: Are all of these case-sensitive?
-                OciArtifactReferenceFacts.RegistryComparer.Equals(this.Registry, other.Registry) &&
-                OciArtifactReferenceFacts.RepositoryComparer.Equals(this.Repository, other.Repository) &&
-                OciArtifactReferenceFacts.TagComparer.Equals(this.Tag, other.Tag) &&
-                OciArtifactReferenceFacts.DigestComparer.Equals(this.Digest, other.Digest);
+                Type == other.Type &&
+                ArtifactIdParts.Equals(other.ArtifactIdParts);
         }
 
         public override int GetHashCode()
         {
             var hash = new HashCode();
-            hash.Add(this.Registry, OciArtifactReferenceFacts.RegistryComparer);
-            hash.Add(this.Repository, OciArtifactReferenceFacts.RepositoryComparer);
-            hash.Add(this.Tag, OciArtifactReferenceFacts.TagComparer);
-            hash.Add(this.Digest, OciArtifactReferenceFacts.DigestComparer);
+            hash.Add(Type);
+            hash.Add(ArtifactIdParts);
 
             return hash.ToHashCode();
         }

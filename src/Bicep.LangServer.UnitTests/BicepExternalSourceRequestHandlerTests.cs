@@ -298,7 +298,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public void GetExternalSourceLinkUri_ModuleReferenceShouldBeCorrect(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
-            DecodeExternalSourceUri(result).ModuleReference.Should().Be($"br:{testData.registry}/{testData.repository}{testData.tagOrDigest}");
+            DecodeExternalSourceUri(result).ModuleParts.ArtifactId.Should().Be($"{testData.registry}/{testData.repository}{testData.tagOrDigest}");
         }
 
         [DataTestMethod]
@@ -307,7 +307,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             Uri result = GetExternalSourceLinkUri(testData);
             var expectedRequestedFile = testData.sourceEntrypoint is null ? "main.json" : Path.GetFileName(testData.sourceEntrypoint);
-            DecodeExternalSourceUri(result).RequestedSourceFile.Should().Be(expectedRequestedFile);
+            DecodeExternalSourceUri(result).RequestedFile.Should().Be(expectedRequestedFile);
         }
 
         [DataTestMethod]
@@ -340,7 +340,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             Uri result = GetExternalSourceLinkUri(testData);
             var decoded = DecodeExternalSourceUri(result);
-            (decoded.RequestedSourceFile ?? "main.json").Should().MatchRegex(".+\\.(bicep|json)$", "requested source file should end with .json or .bicep");
+            (decoded.RequestedFile ?? "main.json").Should().MatchRegex(".+\\.(bicep|json)$", "requested source file should end with .json or .bicep");
         }
 
         private Uri GetExternalSourceLinkUri(ExternalSourceLinkTestData testData)
@@ -362,35 +362,17 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     }))
                 : null;
 
-            var result = BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(reference, sourceArchive);
-
-            return result;
+            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(reference, sourceArchive);
         }
 
-        private record ExternalSource(
-            // The title to display for the document,
-            //   e.g. "br:myregistry.azurecr.io/myrepo/module/v1/main.json (module:v1)" or something similar.
-            // VSCode will display everything after the last slash in the document's tab, and the full string
-            //   on hover.
-            string Title,
-            // Full module reference, e.g. "myregistry.azurecr.io/myrepo/module:v1"
-            string ModuleReference,
-            // File being requested from the source, relative to the module root.
-            //   e.g. main.bicep or mypath/module.bicep
-            // This should be undefined to request the compiled JSON file (can't use "main.json" because there
-            //   might actually be a source file called "main.json" in the original module sources).
-            string? RequestedSourceFile
-        );
-
-        private ExternalSource DecodeExternalSourceUri(Uri uri)
+        public ExternalSourceReference DecodeExternalSourceUri(Uri uri)
         {
-            // NOTE: This should match src\vscode-bicep\src\language\bicepExternalSourceContentProvider.ts
+            // NOTE: This code should match src\vscode-bicep\src\language\bicepExternalSourceContentProvider.ts
             string title = Uri.UnescapeDataString(uri.AbsolutePath);
+            string moduleReference = Uri.UnescapeDataString(uri.Query[1..]); // skip '?'
+            string? requestedSourceFile = Uri.UnescapeDataString(uri.Fragment[1..]); // skip '#'
 
-            string moduleReference = Uri.UnescapeDataString(uri.Query[1..]);
-            string? requestedSourceFile = Uri.UnescapeDataString(uri.Fragment[1..]);
-
-            return new ExternalSource(title, moduleReference, requestedSourceFile);
+            return new ExternalSourceReference(title, moduleReference, requestedSourceFile);
         }
 
         public record ExternalSourceLinkTestData(
@@ -409,37 +391,38 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             static IEnumerable<ExternalSourceLinkTestData> GetData()
             {
-                // vary entrypoint
+                // vary entrypoint (any valid file path character)
                 yield return new ExternalSourceLinkTestData(sourceEntrypoint: "main.bicep");
                 yield return new ExternalSourceLinkTestData(sourceEntrypoint: "my main.bicep");
                 yield return new ExternalSourceLinkTestData(sourceEntrypoint: "my+main.bicep");
+                yield return new ExternalSourceLinkTestData(sourceEntrypoint: "my$main.bicep");
                 yield return new ExternalSourceLinkTestData(sourceEntrypoint: "my#main.bicep");
                 yield return new ExternalSourceLinkTestData(sourceEntrypoint: "my(main).bicep");
                 yield return new ExternalSourceLinkTestData(sourceEntrypoint: "my%main.bicep");
                 yield return new ExternalSourceLinkTestData(sourceEntrypoint: "subfolder/main.bicep");
                 yield return new ExternalSourceLinkTestData(sourceEntrypoint: "sub folder/my main.bicep");
 
-                // vary registry
+                // vary registry (can only be lower-case alphanumeric and '.', '_', '-')
                 yield return new ExternalSourceLinkTestData(registry: "myregistry.azurecr.io");
-                yield return new ExternalSourceLinkTestData(registry: "hello.my$registry.azurecr.io");
-                yield return new ExternalSourceLinkTestData(registry: "hello.my%registry.azurecr.io");
+                yield return new ExternalSourceLinkTestData(registry: "hello.my_registry.azurecr.io");
+                yield return new ExternalSourceLinkTestData(registry: "hello.my-registry.azurecr.io");
 
-                // vary repo
+                // vary repo (can only be lower-case alphanumeric and '.', '_', '-')
                 yield return new ExternalSourceLinkTestData(registry: "myrepo");
                 yield return new ExternalSourceLinkTestData(registry: "myrepo/bicep");
-                yield return new ExternalSourceLinkTestData(registry: "myrepo/bicep/MODULE1");
-                yield return new ExternalSourceLinkTestData(registry: "myrepo/bicep/MOD+ULE1");
-                yield return new ExternalSourceLinkTestData(registry: "my%repo/bicep/MODULE1");
+                yield return new ExternalSourceLinkTestData(registry: "myrepo/bicep/module1");
+                yield return new ExternalSourceLinkTestData(registry: "myrepo/bicep/mod-ul-e1");
+                yield return new ExternalSourceLinkTestData(registry: "my-repo/bicep/mod.ul.e1");
+                yield return new ExternalSourceLinkTestData(registry: "my-repo/bicep/mod_ul_e1");
 
-                // vary tag/digest
+                // vary tag/digest (valid tag characters are alphanumeric, ".", "_", or "-" but the tag cannot begin with ".", "_", or "-")
                 yield return new ExternalSourceLinkTestData(tagOrDigest: ":v1");
                 yield return new ExternalSourceLinkTestData(tagOrDigest: ":v1.2");
                 yield return new ExternalSourceLinkTestData(tagOrDigest: ":1.2.3");
-                yield return new ExternalSourceLinkTestData(tagOrDigest: ":v+1");
-                yield return new ExternalSourceLinkTestData(tagOrDigest: ":v@1");
-                yield return new ExternalSourceLinkTestData(tagOrDigest: ":v/1");
+                yield return new ExternalSourceLinkTestData(tagOrDigest: ":v-1");
+                yield return new ExternalSourceLinkTestData(tagOrDigest: ":v_1");
                 yield return new ExternalSourceLinkTestData(tagOrDigest: ":whoa");
-                yield return new ExternalSourceLinkTestData(tagOrDigest: "@02345342dhklfas2379");
+                yield return new ExternalSourceLinkTestData(tagOrDigest: "@sha256:02345342df02345342df02345342df02345342df02345342df02345342df1234");
             }
         }
 
