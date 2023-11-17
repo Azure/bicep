@@ -3,7 +3,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Visitors
 {
     /// <summary>
     /// Visitor used to collect errors caused by expression assignment to a compile-time constant property.
@@ -27,37 +27,37 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            this.AppendError(syntax);
+            AppendError(syntax);
         }
 
         public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
         {
-            this.AppendError(syntax);
+            AppendError(syntax);
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            this.AppendError(syntax);
+            AppendError(syntax);
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            this.AppendError(syntax);
+            AppendError(syntax);
         }
 
         public override void VisitForSyntax(ForSyntax syntax)
         {
-            this.AppendError(syntax);
+            AppendError(syntax);
         }
 
         public override void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax)
         {
-            this.AppendError(syntax);
+            AppendError(syntax);
         }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            this.AppendError(syntax);
+            AppendError(syntax);
         }
 
         public override void VisitStringSyntax(StringSyntax syntax)
@@ -65,13 +65,13 @@ namespace Bicep.Core.TypeSystem
             // Flag string interpolation since we don't support constant folding and constant propagation.
             if (syntax.IsInterpolated())
             {
-                this.AppendError(syntax);
+                AppendError(syntax);
             }
         }
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
         {
-            this.AppendError(syntax);
+            AppendError(syntax);
         }
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
@@ -85,17 +85,17 @@ namespace Bicep.Core.TypeSystem
                 return;
             }
 
-            this.AppendError(syntax);
+            AppendError(syntax);
         }
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            this.AppendError(syntax);
+            AppendError(syntax);
         }
 
         private void AppendError(SyntaxBase syntax)
         {
-            this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).CompileTimeConstantRequired());
+            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).CompileTimeConstantRequired());
         }
     }
 }

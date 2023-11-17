@@ -10,7 +10,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 
-namespace Bicep.Core.TypeSystem;
+namespace Bicep.Core.TypeSystem.Visitors;
 
 public sealed class CyclicTypeCheckVisitor : AstVisitor
 {

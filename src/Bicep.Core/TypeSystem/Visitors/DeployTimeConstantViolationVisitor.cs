@@ -12,7 +12,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Visitors
 {
     public abstract class DeployTimeConstantViolationVisitor : AstVisitor
     {
@@ -22,10 +22,10 @@ namespace Bicep.Core.TypeSystem
             IDiagnosticWriter diagnosticWriter,
             ResourceTypeResolver resourceTypeResolver)
         {
-            this.DeployTimeConstantContainer = deployTimeConstantContainer;
-            this.SemanticModel = semanticModel;
-            this.DiagnosticWriter = diagnosticWriter;
-            this.ResourceTypeResolver = resourceTypeResolver;
+            DeployTimeConstantContainer = deployTimeConstantContainer;
+            SemanticModel = semanticModel;
+            DiagnosticWriter = diagnosticWriter;
+            ResourceTypeResolver = resourceTypeResolver;
         }
 
         protected SyntaxBase DeployTimeConstantContainer { get; }
@@ -41,15 +41,15 @@ namespace Bicep.Core.TypeSystem
             var accessedSymbolName = accessedSymbol?.Name;
             var accessiblePropertyNames = GetAccessiblePropertyNames(accessedSymbol, accessedObjectType);
 
-            var containerObjectSyntax = this.DeployTimeConstantContainer is ObjectPropertySyntax
-                ? this.SemanticModel.Binder.GetParent(this.DeployTimeConstantContainer) as ObjectSyntax
+            var containerObjectSyntax = DeployTimeConstantContainer is ObjectPropertySyntax
+                ? SemanticModel.Binder.GetParent(DeployTimeConstantContainer) as ObjectSyntax
                 : null;
             var containerObjectType = containerObjectSyntax is not null
-                ? this.SemanticModel.TypeManager.GetDeclaredType(containerObjectSyntax)
+                ? SemanticModel.TypeManager.GetDeclaredType(containerObjectSyntax)
                 : null;
 
             var diagnosticBuilder = DiagnosticBuilder.ForPosition(errorSyntax);
-            var diagnostic = this.DeployTimeConstantContainer switch
+            var diagnostic = DeployTimeConstantContainer switch
             {
                 ObjectPropertySyntax propertySyntax when propertySyntax.TryGetKeyText() is { } propertyName =>
                     diagnosticBuilder.RuntimeValueNotAllowedInProperty(propertyName, containerObjectType?.Name, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
@@ -62,14 +62,14 @@ namespace Bicep.Core.TypeSystem
                 ForSyntax => diagnosticBuilder.RuntimeValueNotAllowedInForExpression(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
                 FunctionCallSyntaxBase functionCallSyntaxBase => diagnosticBuilder.RuntimeValueNotAllowedInRunTimeFunctionArguments(functionCallSyntaxBase.Name.IdentifierName, accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
                 FunctionDeclarationSyntax => diagnosticBuilder.RuntimeValueNotAllowedInFunctionDeclaration(accessedSymbolName, accessiblePropertyNames, variableDependencyChain),
-                _ => throw new ArgumentOutOfRangeException(nameof(this.DeployTimeConstantContainer), "Expected an ObjectPropertySyntax with a propertyName, an IfConditionSyntax, a ForSyntax, a FunctionCallSyntaxBase, or a FunctionDeclarationSyntax."),
+                _ => throw new ArgumentOutOfRangeException(nameof(DeployTimeConstantContainer), "Expected an ObjectPropertySyntax with a propertyName, an IfConditionSyntax, a ForSyntax, a FunctionCallSyntaxBase, or a FunctionDeclarationSyntax."),
             };
 
-            this.DiagnosticWriter.Write(diagnostic);
+            DiagnosticWriter.Write(diagnostic);
         }
 
         private string? ErrorSyntaxInForBodyOfVariable(ForSyntax forSyntax, SyntaxBase errorSyntax) =>
-            this.SemanticModel.Binder.GetParent(forSyntax) is VariableDeclarationSyntax variableDeclarationSyntax &&
+            SemanticModel.Binder.GetParent(forSyntax) is VariableDeclarationSyntax variableDeclarationSyntax &&
             TextSpan.AreOverlapping(errorSyntax, forSyntax.Body)
                 ? variableDeclarationSyntax.Name.IdentifierName
                 : null;

@@ -14,6 +14,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Core.TypeSystem.Visitors;
 
 namespace Bicep.Core.TypeSystem
 {

@@ -8,7 +8,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Visitors
 {
     public class DeployTimeConstantDirectViolationVisitor : DeployTimeConstantViolationVisitor
     {
@@ -19,13 +19,13 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 var indexExprTypeInfo = SemanticModel.GetTypeInfo(syntax.IndexExpression);
                 if (indexExprTypeInfo is StringLiteralType { RawStringValue: var propertyName })
                 {
                     // Validate property access via string literal index (myResource['sku']).
-                    this.FlagIfPropertyNotReadableAtDeployTime(syntax, propertyName, accessedSymbol, accessedBodyType);
+                    FlagIfPropertyNotReadableAtDeployTime(syntax, propertyName, accessedSymbol, accessedBodyType);
                 }
                 else if (indexExprTypeInfo is UnionType { Members: var indexUnionMembers })
                 {
@@ -34,18 +34,18 @@ namespace Bicep.Core.TypeSystem
                     {
                         foreach (var unionMemberType in unionMemberTypes.Cast<StringLiteralType>().OrderBy(l => l.RawStringValue))
                         {
-                            this.FlagIfPropertyNotReadableAtDeployTime(syntax, unionMemberType.RawStringValue, accessedSymbol, accessedBodyType);
+                            FlagIfPropertyNotReadableAtDeployTime(syntax, unionMemberType.RawStringValue, accessedSymbol, accessedBodyType);
                         }
                     }
                     else
                     {
-                        this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                        FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
                     }
                 }
                 else
                 {
                     // Flag it as dtc constant violation if we cannot resolve the expression to string literals.
-                    this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                    FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
                 }
             }
 
@@ -54,9 +54,9 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
-                this.FlagIfPropertyNotReadableAtDeployTime(syntax, syntax.PropertyName.IdentifierName, accessedSymbol, accessedBodyType);
+                FlagIfPropertyNotReadableAtDeployTime(syntax, syntax.PropertyName.IdentifierName, accessedSymbol, accessedBodyType);
             }
 
             base.VisitPropertyAccessSyntax(syntax);
@@ -64,52 +64,52 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            this.FlagIfAccessingEntireResourceOrModule(syntax);
+            FlagIfAccessingEntireResourceOrModule(syntax);
         }
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {
-            this.FlagIfAccessingEntireResourceOrModule(syntax);
+            FlagIfAccessingEntireResourceOrModule(syntax);
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            this.FlagIfFunctionRequiresInlining(syntax);
+            FlagIfFunctionRequiresInlining(syntax);
 
             base.VisitFunctionCallSyntax(syntax);
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            this.FlagIfFunctionRequiresInlining(syntax);
+            FlagIfFunctionRequiresInlining(syntax);
 
             base.VisitInstanceFunctionCallSyntax(syntax);
         }
 
         private void FlagIfAccessingEntireResourceOrModule(SyntaxBase syntax)
         {
-            if (this.DeployTimeConstantContainer is ObjectPropertySyntax property &&
-                property.TryGetTypeProperty(this.SemanticModel) is { } typeProperty &&
+            if (DeployTimeConstantContainer is ObjectPropertySyntax property &&
+                property.TryGetTypeProperty(SemanticModel) is { } typeProperty &&
                 typeProperty.TypeReference is ResourceParentType or ResourceScopeType)
             {
-                switch (this.SemanticModel.Binder.GetParent(syntax))
+                switch (SemanticModel.Binder.GetParent(syntax))
                 {
                     case not PropertyAccessSyntax and not ArrayAccessSyntax when
-                        this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax) is ({ } resourceSymbol, { } resourceType):
+                        ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(syntax) is ({ } resourceSymbol, { } resourceType):
                         {
-                            this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
+                            FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
 
                             return;
                         }
                     case ArrayAccessSyntax arrayAccessSyntax when
                         arrayAccessSyntax.BaseExpression == syntax &&
-                        this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
-                        this.ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
+                        SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
+                        ResourceTypeResolver.TryResolveRuntimeExistingResourceSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
                         {
-                            var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
+                            var arrayIndexExprType = SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
                             if (arrayIndexExprType.IsIntegerOrIntegerLiteral())
                             {
-                                this.FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
+                                FlagDeployTimeConstantViolation(syntax, resourceSymbol, resourceType);
                             }
                             return;
                         }
@@ -119,15 +119,15 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            switch (this.SemanticModel.Binder.GetParent(syntax))
+            switch (SemanticModel.Binder.GetParent(syntax))
             {
                 // var foo = [for x in [...]: {
                 //   bar: myVM <-- accessing an entire resource/module.
                 // }]
                 case not PropertyAccessSyntax and not ArrayAccessSyntax when
-                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
+                    ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
                     {
-                        this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                        FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
 
                         return;
                     }
@@ -136,15 +136,15 @@ namespace Bicep.Core.TypeSystem
                 // }]
                 case ArrayAccessSyntax arrayAccessSyntax when
                     arrayAccessSyntax.BaseExpression == syntax && // need this condition because this case is hit both when syntax is myVNets (variable access) or the index expression
-                    this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
-                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } accessedSymbol, { } accessedBodyType):
+                    SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
+                    ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } accessedSymbol, { } accessedBodyType):
                     {
-                        var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
+                        var arrayIndexExprType = SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
                         if (arrayIndexExprType.IsIntegerOrIntegerLiteral()
                             || arrayIndexExprType.TypeKind == TypeKind.Any
-                            || (arrayIndexExprType is UnionType indexUnionType && indexUnionType.Members.All(m => m.Type.IsIntegerOrIntegerLiteral())))
+                            || arrayIndexExprType is UnionType indexUnionType && indexUnionType.Members.All(m => m.Type.IsIntegerOrIntegerLiteral()))
                         {
-                            this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
+                            FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
                         }
                         return;
                     }
@@ -159,13 +159,13 @@ namespace Bicep.Core.TypeSystem
             if (accessedBodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
                 !propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
             {
-                this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType, violatingPropertyName: propertyName);
+                FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType, violatingPropertyName: propertyName);
             }
         }
 
         protected void FlagIfFunctionRequiresInlining(FunctionCallSyntaxBase syntax)
         {
-            if (this.SemanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
+            if (SemanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
                 functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
                 FlagDeployTimeConstantViolation(syntax);

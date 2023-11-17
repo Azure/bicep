@@ -9,6 +9,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Visitors;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics

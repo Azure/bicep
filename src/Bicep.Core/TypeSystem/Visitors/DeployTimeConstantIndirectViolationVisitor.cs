@@ -10,7 +10,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Visitors
 {
     public class DeployTimeConstantIndirectViolationVisitor : DeployTimeConstantViolationVisitor
     {
@@ -30,26 +30,26 @@ namespace Bicep.Core.TypeSystem
         {
             var variableName = syntax.Name.IdentifierName;
 
-            this.visitedVariableNameStack.Push(variableName);
+            visitedVariableNameStack.Push(variableName);
 
             base.VisitVariableDeclarationSyntax(syntax);
 
             // This variable declaration was deployment time constant
-            if (this.visitedVariableNameStack.Pop() is var popped && popped != variableName)
+            if (visitedVariableNameStack.Pop() is var popped && popped != variableName)
             {
-                throw new InvalidOperationException($"{this.GetType().Name} performed an invalid Stack push/pop: expected popped element to be {variableName} but got {popped}");
+                throw new InvalidOperationException($"{GetType().Name} performed an invalid Stack push/pop: expected popped element to be {variableName} but got {popped}");
             }
         }
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 var indexExprTypeInfo = SemanticModel.GetTypeInfo(syntax.IndexExpression);
                 if (indexExprTypeInfo is StringLiteralType { RawStringValue: var propertyName })
                 {
                     // Validate property access via string literal index (myResource['sku']).
-                    this.FlagIfPropertyNotReadableAtDeployTime(propertyName, accessedSymbol, accessedBodyType);
+                    FlagIfPropertyNotReadableAtDeployTime(propertyName, accessedSymbol, accessedBodyType);
                 }
                 else if (indexExprTypeInfo is UnionType { Members: var indexUnionMembers })
                 {
@@ -58,18 +58,18 @@ namespace Bicep.Core.TypeSystem
                     {
                         foreach (var unionMemberType in unionMemberTypes.Cast<StringLiteralType>().OrderBy(l => l.RawStringValue))
                         {
-                            this.FlagIfPropertyNotReadableAtDeployTime(unionMemberType.RawStringValue, accessedSymbol, accessedBodyType);
+                            FlagIfPropertyNotReadableAtDeployTime(unionMemberType.RawStringValue, accessedSymbol, accessedBodyType);
                         }
                     }
                     else
                     {
-                        this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
+                        FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
                     }
                 }
                 else
                 {
                     // Flag it as dtc constant violation if we cannot resolve the expression to string literals.
-                    this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
+                    FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
                 }
             }
 
@@ -78,9 +78,9 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
+            if (ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
-                this.FlagIfPropertyNotReadableAtDeployTime(syntax.PropertyName.IdentifierName, accessedSymbol, accessedBodyType);
+                FlagIfPropertyNotReadableAtDeployTime(syntax.PropertyName.IdentifierName, accessedSymbol, accessedBodyType);
             }
 
             base.VisitPropertyAccessSyntax(syntax);
@@ -88,32 +88,32 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            if (this.SemanticModel.GetSymbolInfo(syntax) is VariableSymbol variableSymbol &&
-                this.SemanticModel.Binder.TryGetCycle(variableSymbol) is null)
+            if (SemanticModel.GetSymbolInfo(syntax) is VariableSymbol variableSymbol &&
+                SemanticModel.Binder.TryGetCycle(variableSymbol) is null)
             {
-                this.Visit(variableSymbol.DeclaringSyntax);
+                Visit(variableSymbol.DeclaringSyntax);
             }
             else
             {
-                this.FlagIfAccessingEntireResourceOrModule(syntax);
+                FlagIfAccessingEntireResourceOrModule(syntax);
             }
         }
 
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {
-            this.FlagIfAccessingEntireResourceOrModule(syntax);
+            FlagIfAccessingEntireResourceOrModule(syntax);
         }
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            this.FlagIfFunctionRequiresInlining(syntax);
+            FlagIfFunctionRequiresInlining(syntax);
 
             base.VisitFunctionCallSyntax(syntax);
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            this.FlagIfFunctionRequiresInlining(syntax);
+            FlagIfFunctionRequiresInlining(syntax);
 
             base.VisitInstanceFunctionCallSyntax(syntax);
         }
@@ -132,22 +132,22 @@ namespace Bicep.Core.TypeSystem
         private void FlagDeployTimeConstantViolation(DeclaredSymbol? accessedSymbol = null, ObjectType? accessedObjectType = null, IEnumerable<string>? variableDependencyChain = null, string? violatingPropertyName = null)
         {
             // For indirect violations, errorSyntax is always variableDependency.
-            this.FlagDeployTimeConstantViolation(this.variableDependency, accessedSymbol, accessedObjectType, variableDependencyChain, violatingPropertyName);
+            FlagDeployTimeConstantViolation(variableDependency, accessedSymbol, accessedObjectType, variableDependencyChain, violatingPropertyName);
 
-            this.hasError = true;
+            hasError = true;
         }
 
         private void FlagIfAccessingEntireResourceOrModule(SyntaxBase syntax)
         {
-            switch (this.SemanticModel.Binder.GetParent(syntax))
+            switch (SemanticModel.Binder.GetParent(syntax))
             {
                 // var foo = [for x in [...]: {
                 //   bar: myVM <-- accessing an entire resource/module.
                 // }]
                 case not PropertyAccessSyntax and not ArrayAccessSyntax when
-                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
+                    ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
                     {
-                        this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
+                        FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType);
                         break;
                     }
                 // var foo = [for x in [...]: {
@@ -155,15 +155,15 @@ namespace Bicep.Core.TypeSystem
                 // }]
                 case ArrayAccessSyntax arrayAccessSyntax when
                     arrayAccessSyntax.BaseExpression == syntax &&
-                    this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
-                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
+                    SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
+                    ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } resourceSymbol, { } resourceType):
                     {
-                        var arrayIndexExprType = this.SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
+                        var arrayIndexExprType = SemanticModel.GetTypeInfo(arrayAccessSyntax.IndexExpression);
                         if (arrayIndexExprType.IsIntegerOrIntegerLiteral()
                             || arrayIndexExprType.TypeKind == TypeKind.Any
-                            || (arrayIndexExprType is UnionType indexUnionType && indexUnionType.Members.All(m => m.Type.IsIntegerOrIntegerLiteral())))
+                            || arrayIndexExprType is UnionType indexUnionType && indexUnionType.Members.All(m => m.Type.IsIntegerOrIntegerLiteral()))
                         {
-                            this.FlagDeployTimeConstantViolationWithVariableDependencies(resourceSymbol, resourceType);
+                            FlagDeployTimeConstantViolationWithVariableDependencies(resourceSymbol, resourceType);
                         }
                         return;
                     }
@@ -175,8 +175,8 @@ namespace Bicep.Core.TypeSystem
 
         private void FlagDeployTimeConstantViolationWithVariableDependencies(DeclaredSymbol accessedSymbol, ObjectType accessedBodyType, string? violatingPropertyName = null)
         {
-            var variableDependencyChain = this.BuildVariableDependencyChain(accessedSymbol.Name);
-            this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain, violatingPropertyName);
+            var variableDependencyChain = BuildVariableDependencyChain(accessedSymbol.Name);
+            FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain, violatingPropertyName);
         }
 
         private void FlagIfPropertyNotReadableAtDeployTime(string propertyName, DeclaredSymbol accessedSymbol, ObjectType accessedBodyType)
@@ -184,20 +184,20 @@ namespace Bicep.Core.TypeSystem
             if (accessedBodyType.Properties.TryGetValue(propertyName, out var propertyType) &&
                 !propertyType.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
             {
-                this.FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType, propertyName);
+                FlagDeployTimeConstantViolationWithVariableDependencies(accessedSymbol, accessedBodyType, propertyName);
             }
         }
 
         protected void FlagIfFunctionRequiresInlining(FunctionCallSyntaxBase syntax)
         {
-            if (this.SemanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
+            if (SemanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
                 functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
-                var variableDependencyChain = this.BuildVariableDependencyChain(functionSymbol.Name);
+                var variableDependencyChain = BuildVariableDependencyChain(functionSymbol.Name);
                 FlagDeployTimeConstantViolation(variableDependencyChain: variableDependencyChain);
             }
         }
 
-        private IEnumerable<string> BuildVariableDependencyChain(string tail) => this.visitedVariableNameStack.ToArray().Reverse().Append(tail);
+        private IEnumerable<string> BuildVariableDependencyChain(string tail) => visitedVariableNameStack.ToArray().Reverse().Append(tail);
     }
 }

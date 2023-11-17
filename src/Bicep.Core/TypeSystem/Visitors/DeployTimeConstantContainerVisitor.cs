@@ -6,7 +6,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Visitors
 {
     /// <summary>
     /// Collects syntaxes that only accept deploy-time constant values (deploy-time constant containers).
@@ -33,7 +33,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
         {
-            this.deployTimeConstantContainers.Add(syntax);
+            deployTimeConstantContainers.Add(syntax);
 
             base.VisitFunctionDeclarationSyntax(syntax);
         }
@@ -50,7 +50,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     foreach (var nestedResource in body.Resources)
                     {
-                        this.Visit(nestedResource);
+                        Visit(nestedResource);
                     }
                 }
             }
@@ -62,11 +62,11 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            if (syntax.TryGetTypeProperty(this.semanticModel) is { } typeProperty &&
+            if (syntax.TryGetTypeProperty(semanticModel) is { } typeProperty &&
                 typeProperty.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
             {
                 // The property type exists and and has the DTC flag.
-                this.deployTimeConstantContainers.Add(syntax);
+                deployTimeConstantContainers.Add(syntax);
             }
 
             base.VisitObjectPropertySyntax(syntax);
@@ -88,24 +88,24 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
         {
-            this.CollectIfFunctionRequiresInlining(syntax);
+            CollectIfFunctionRequiresInlining(syntax);
 
             base.VisitFunctionCallSyntax(syntax);
         }
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            this.CollectIfFunctionRequiresInlining(syntax);
+            CollectIfFunctionRequiresInlining(syntax);
 
             base.VisitInstanceFunctionCallSyntax(syntax);
         }
 
         private void CollectIfFunctionRequiresInlining(FunctionCallSyntaxBase syntax)
         {
-            if (this.semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
+            if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol &&
                 functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
             {
-                this.deployTimeConstantContainers.Add(syntax);
+                deployTimeConstantContainers.Add(syntax);
             }
         }
     }
