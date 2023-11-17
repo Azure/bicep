@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Moq;
 

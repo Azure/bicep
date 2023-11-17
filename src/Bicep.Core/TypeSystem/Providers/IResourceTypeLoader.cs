@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Providers
 {
     public interface IResourceTypeLoader
     {

@@ -7,7 +7,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 using Microsoft.Graph.Bicep.Types;
 
-namespace Bicep.Core.TypeSystem.MicrosoftGraph
+namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
 {
     public class MicrosoftGraphResourceTypeLoader : IResourceTypeLoader
     {
@@ -17,10 +17,10 @@ namespace Bicep.Core.TypeSystem.MicrosoftGraph
 
         public MicrosoftGraphResourceTypeLoader()
         {
-            this.typeLoader = new MicrosoftGraphTypeLoader();
-            this.resourceTypeFactory = new MicrosoftGraphResourceTypeFactory();
+            typeLoader = new MicrosoftGraphTypeLoader();
+            resourceTypeFactory = new MicrosoftGraphResourceTypeFactory();
             var indexedTypes = typeLoader.LoadTypeIndex();
-            this.availableTypes = indexedTypes.Resources.ToImmutableDictionary(
+            availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);
         }

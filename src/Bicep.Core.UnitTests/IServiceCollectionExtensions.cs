@@ -16,8 +16,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
@@ -32,6 +31,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Core.UnitTests;
 

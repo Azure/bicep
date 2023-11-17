@@ -16,7 +16,7 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;

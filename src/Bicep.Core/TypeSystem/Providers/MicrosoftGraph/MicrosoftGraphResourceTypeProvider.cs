@@ -8,7 +8,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem.MicrosoftGraph
+namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
 {
     public class MicrosoftGraphResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
@@ -39,8 +39,8 @@ namespace Bicep.Core.TypeSystem.MicrosoftGraph
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
             this.resourceTypeLoader = resourceTypeLoader;
-            this.definedTypeCache = new ResourceTypeCache();
-            this.generatedTypeCache = new ResourceTypeCache();
+            definedTypeCache = new ResourceTypeCache();
+            generatedTypeCache = new ResourceTypeCache();
         }
 
         private static ResourceTypeComponents SetBicepResourceProperties(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
@@ -150,7 +150,7 @@ namespace Bicep.Core.TypeSystem.MicrosoftGraph
             // It's important to cache this result because generating the resource type is an expensive operation
             var resourceType = definedTypeCache.GetOrAdd(flags, typeReference, () =>
             {
-                var resourceType = this.resourceTypeLoader.LoadType(typeReference);
+                var resourceType = resourceTypeLoader.LoadType(typeReference);
 
                 return SetBicepResourceProperties(resourceType, flags);
             });

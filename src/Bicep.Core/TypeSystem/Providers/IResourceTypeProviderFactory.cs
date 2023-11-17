@@ -6,7 +6,7 @@ using Azure.Bicep.Types;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Providers
 {
     public interface IResourceTypeProviderFactory
     {

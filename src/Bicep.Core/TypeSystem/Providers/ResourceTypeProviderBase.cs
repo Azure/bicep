@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Resources;
 
-namespace Bicep.Core.TypeSystem;
+namespace Bicep.Core.TypeSystem.Providers;
 
 public abstract class ResourceTypeProviderBase
 {

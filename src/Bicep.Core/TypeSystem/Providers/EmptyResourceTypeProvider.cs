@@ -6,7 +6,7 @@ using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem
+namespace Bicep.Core.TypeSystem.Providers
 {
     public class EmptyResourceTypeProvider : IResourceTypeProvider
     {

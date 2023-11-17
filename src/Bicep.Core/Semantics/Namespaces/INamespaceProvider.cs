@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Bicep.Core.Features;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
 

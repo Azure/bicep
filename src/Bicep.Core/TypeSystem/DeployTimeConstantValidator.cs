@@ -8,7 +8,8 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Core.TypeSystem
 {
