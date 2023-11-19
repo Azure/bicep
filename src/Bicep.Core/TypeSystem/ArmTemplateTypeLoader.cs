@@ -196,7 +196,7 @@ public static class ArmTemplateTypeLoader
             return TryGetLiteralUnionType(jArray, t => t.Type == JTokenType.Object, b => b.InvalidUnionTypeMember(LanguageConstants.ObjectType));
         }
 
-        if (schemaNode.Discriminator is {} discriminator)
+        if (schemaNode.Discriminator is { } discriminator)
         {
             var variants = ImmutableArray.CreateRange(discriminator.Mapping.Values
                 .Select(unresolvedVariant => TemplateEngine.ResolveSchemaReferences(context, unresolvedVariant))
@@ -239,8 +239,8 @@ public static class ArmTemplateTypeLoader
                     : null;
 
             var (type, typeName) = GetDeferrableTypeInfo(context, schema);
-                propertyList.Add(new(propertyName, type, propertyFlags, description));
-                nameBuilder.AppendProperty(propertyName, typeName);
+            propertyList.Add(new(propertyName, type, propertyFlags, description));
+            nameBuilder.AppendProperty(propertyName, typeName);
         }
 
         if (additionalProperties is not null)
