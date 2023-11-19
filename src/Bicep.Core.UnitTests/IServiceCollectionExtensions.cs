@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.Linq;
-using Azure.Bicep.Types.Az;
 using System.Reflection;
+using Azure.Bicep.Types.Az;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
@@ -16,7 +16,9 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
@@ -30,8 +32,6 @@ using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
-using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Core.UnitTests;
 
@@ -109,7 +109,7 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IResourceTypeLoader loader)
     {
-       
+
         var factory = StrictMock.Of<IResourceTypeProviderFactory>();
         var provider = new AzResourceTypeProvider(loader, AzNamespaceType.Settings.ArmTemplateProviderVersion);
         factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<ResourceTypesProviderDescriptor>(), It.IsAny<IFeatureProvider>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
