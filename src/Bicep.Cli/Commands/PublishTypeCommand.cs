@@ -2,21 +2,47 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions;
+using System.Numerics;
+using System.Security.Cryptography;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Azure.Bicep.Types;
+using Azure.Bicep.Types.Index;
+using Azure.Bicep.Types.Serialization;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Resources;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.SourceCode;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Features;
+using Bicep.Core.Workspaces;
+using FluentAssertions.Equivalency.Tracing;
 using Microsoft.Extensions.Logging;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using JsonSerializer = System.Text.Json.JsonSerializer;
+using Bicep.Core.UnitTests.TypeSystem.Az;
 
 namespace Bicep.Cli.Commands
 {
@@ -51,6 +77,7 @@ namespace Bicep.Cli.Commands
             this.logger = logger;
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
         public async Task<int> RunAsync(PublishTypeArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
@@ -59,6 +86,34 @@ namespace Bicep.Cli.Commands
             var documentationUri = args.DocumentationUri;
             var typeReference = ValidateReference(args.TargetTypeReference, inputUri);
             var overwriteIfExists = args.Force;
+
+            //attempt to validate types here, move to better location later
+
+            var typePath = "C:\\bicep\\bicep\\src\\Bicep.Core.Samples\\Files\\baselines\\Publish_Types\\types.json";
+            var indexJsonString = ProcessJsonFile(inputPath);
+
+            AzResourceTypeLoader azTypeLoader = new(FileAzTypeLoader.FromFile(indexJsonString, typePath));
+
+            AzResourceTypeLoaderFactory azFactory = new(BicepTestConstants.FeatureProviderFactory, azTypeLoader);
+            var nsProvider = new DefaultNamespaceProvider(azFactory);
+            var azNamespaceType = nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile, null)!;
+            var resourceTypeProvider = azNamespaceType.ResourceTypeProvider;
+
+            var availableTypes = azTypeLoader.GetAvailableTypes();
+
+            foreach (var type in availableTypes)
+            {
+                azTypeLoader.LoadType(type);
+            }
+
+            foreach (var availableType in availableTypes)
+            {
+                var reference = ResourceTypeReference.Parse(availableType.Name);
+
+                var resourceType = resourceTypeProvider.TryGetDefinedType(azNamespaceType, reference, ResourceTypeGenerationFlags.None)!;
+
+            }
+
 
             if (PathHelper.HasArmTemplateLikeExtension(inputUri))
             {
@@ -117,6 +172,44 @@ namespace Bicep.Cli.Commands
             }
 
             return typeReference;
+        }
+
+        /*private static NamespaceType GetAzNamespaceType(AzResourceTypeLoaderFactory azTypeLoaderFactory)
+        {
+            IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BicepTestConstants.BuiltInConfiguration), BicepTestConstants.FeatureOverrides);
+            var nsProvider = new DefaultNamespaceProvider(azTypeLoaderFactory);
+
+            return nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile, null)!;
+        }*/
+
+        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
+        private static string ProcessJsonFile(string typesPath){
+
+            FileStream typeStream = new(typesPath, FileMode.Open, FileAccess.Read);
+            Dictionary<string, TypeLocation> resources = new();
+            Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<TypeLocation>>> functions = new();
+
+
+            var types = TypeSerializer.Deserialize(typeStream);
+
+            for (int i = 0; i <= types.Length-1; i++)
+            {
+                if (types[i] is Azure.Bicep.Types.Concrete.ResourceType)
+                {
+                    var resourceType = (Azure.Bicep.Types.Concrete.ResourceType)types[i];
+
+                    var typeLocation = new TypeLocation("types.json", i);
+                    resources.Add(resourceType.Name, typeLocation);
+                }
+            }
+
+            // Perform any processing on the data if needed
+
+            TypeIndex typeIndex = new(resources, functions);
+
+            string indexJson = JsonSerializer.Serialize(typeIndex);
+
+            return indexJson;
         }
     }
 }

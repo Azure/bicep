@@ -27,6 +27,7 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using DataSet = Bicep.Core.Samples.DataSet;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -52,8 +53,8 @@ namespace Bicep.Cli.IntegrationTests
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             //Why are we publishing something?
 /*            await dataSet.PublishTypesToRegistryAsync(clientFactory);*/
-            var typesPath = Path.Combine(outputDirectory, DataSet.TestTypesFolder);
-            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestTypesFolder);
+            var typesPath = Path.Combine(outputDirectory, DataSet.TestTypes);
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestTypes);
 
             // mock client factory caches the clients
             var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
