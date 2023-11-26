@@ -741,7 +741,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/jest": "^27.5.1",
     "@types/mocha": "^10.0.2",
-    "@types/node": "^20.9.2",
+    "@types/node": "^20.10.0",
     "@types/react": "^18.2.25",
     "@types/react-dom": "^18.2.7",
     "@types/react-test-renderer": "^18.0.5",
