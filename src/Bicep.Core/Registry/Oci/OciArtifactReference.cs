@@ -18,7 +18,7 @@ namespace Bicep.Core.Registry.Oci
         public OciArtifactReference(ArtifactType type, IArtifactAddressComponents artifactIdParts, Uri parentModuleUri) :
             base(OciArtifactReferenceFacts.Scheme, parentModuleUri)
         {
-            ArtifactIdParts = artifactIdParts;
+            AddressComponents = artifactIdParts;
         }
 
         public OciArtifactReference(ArtifactType type, string registry, string repository, string? tag, string? digest, Uri parentModuleUri) :
@@ -33,10 +33,10 @@ namespace Bicep.Core.Registry.Oci
             }
 
             Type = type;
-            ArtifactIdParts = new ArtifactAddressComponents(registry, repository, tag, digest);
+            AddressComponents = new ArtifactAddressComponents(registry, repository, tag, digest);
         }
 
-        public IArtifactAddressComponents ArtifactIdParts { get; }
+        public IArtifactAddressComponents AddressComponents { get; }
 
         /// <summary>
         /// Gets the type of artifact reference. Either module or provider.
@@ -46,27 +46,27 @@ namespace Bicep.Core.Registry.Oci
         /// <summary>
         /// Gets the registry URI.
         /// </summary>
-        public string Registry => ArtifactIdParts.Registry;
+        public string Registry => AddressComponents.Registry;
 
         /// <summary>
         /// Gets the repository name. The repository name is the path to an artifact in the registry without the tag.
         /// </summary>
-        public string Repository => ArtifactIdParts.Repository;
+        public string Repository => AddressComponents.Repository;
 
         /// <summary>
         /// Gets the tag. Either tag or digest is set but not both.
         /// </summary>
-        public string? Tag => ArtifactIdParts.Tag;
+        public string? Tag => AddressComponents.Tag;
 
         /// <summary>
         /// Gets the digest. Either tag or digest is set but not both.
         /// </summary>
-        public string? Digest => ArtifactIdParts.Digest;
+        public string? Digest => AddressComponents.Digest;
 
         /// <summary>
         /// Gets the artifact ID.
         /// </summary>
-        public string ArtifactId => ArtifactIdParts.ArtifactId;
+        public string ArtifactId => AddressComponents.ArtifactId;
 
         public override string UnqualifiedReference => ArtifactId;
 
@@ -254,14 +254,14 @@ namespace Bicep.Core.Registry.Oci
 
             return
                 Type == other.Type &&
-                ArtifactIdParts.Equals(other.ArtifactIdParts);
+                AddressComponents.Equals(other.AddressComponents);
         }
 
         public override int GetHashCode()
         {
             var hash = new HashCode();
             hash.Add(Type);
-            hash.Add(ArtifactIdParts);
+            hash.Add(AddressComponents);
 
             return hash.ToHashCode();
         }
