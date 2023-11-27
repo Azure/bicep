@@ -72,7 +72,7 @@ namespace Bicep.Core.Registry.Oci
 
         public override bool IsExternal => true;
 
-        // unqualifiedRawValue is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
+        // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
         public static ResultWithDiagnostic<OciArtifactReference> TryParseModule(string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
             => TryParse(ArtifactType.Module, aliasName, unqualifiedReference, configuration, parentModuleUri);
 

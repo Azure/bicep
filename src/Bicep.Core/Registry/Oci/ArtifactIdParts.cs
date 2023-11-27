@@ -58,7 +58,6 @@ namespace Bicep.Core.Registry.Oci
             }
 
             return
-                // TODO: Are all of these case-sensitive?
                 OciArtifactReferenceFacts.RegistryComparer.Equals(this.Registry, other.Registry) &&
                 OciArtifactReferenceFacts.RepositoryComparer.Equals(this.Repository, other.Repository) &&
                 OciArtifactReferenceFacts.TagComparer.Equals(this.Tag, other.Tag) &&
