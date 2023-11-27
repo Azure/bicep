@@ -16,7 +16,7 @@ namespace Bicep.RegistryModuleTool.Extensions
     {
         public static string GetPrimitiveTypeName(this ITypeReference typeReference) => typeReference.Type switch
         {
-            // Widening concret types is just a workaround. The ultimate goal would be
+            // Widening concrete types is just a workaround. The ultimate goal would be
             // to update BRM in the future to correctly show custom defined types in README.
             NullType => LanguageConstants.NullKeyword,
             IntegerType or IntegerLiteralType => LanguageConstants.Int.Name,
