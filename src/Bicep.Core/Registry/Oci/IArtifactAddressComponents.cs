@@ -11,7 +11,7 @@ namespace Bicep.Core.Registry.Oci
     /// Represents a module/provider reference without the scheme ("br:") and without any aliases
     /// </summary>
     /// <example>test.azurecr.io/foo/bar:latest</example>
-    public interface IArtifactIdParts
+    public interface IArtifactAddressComponents
     {
         /// <summary>
         /// Gets the registry URI.

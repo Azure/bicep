@@ -15,7 +15,7 @@ namespace Bicep.Core.Registry.Oci
     // Currently this can be a module or a provider.
     public class OciArtifactReference : ArtifactReference, IOciArtifactReference
     {
-        public OciArtifactReference(ArtifactType type, IArtifactIdParts artifactIdParts, Uri parentModuleUri) :
+        public OciArtifactReference(ArtifactType type, IArtifactAddressComponents artifactIdParts, Uri parentModuleUri) :
             base(OciArtifactReferenceFacts.Scheme, parentModuleUri)
         {
             ArtifactIdParts = artifactIdParts;
@@ -33,10 +33,10 @@ namespace Bicep.Core.Registry.Oci
             }
 
             Type = type;
-            ArtifactIdParts = new ArtifactIdParts(registry, repository, tag, digest);
+            ArtifactIdParts = new ArtifactAddressComponents(registry, repository, tag, digest);
         }
 
-        public IArtifactIdParts ArtifactIdParts { get; }
+        public IArtifactAddressComponents ArtifactIdParts { get; }
 
         /// <summary>
         /// Gets the type of artifact reference. Either module or provider.
@@ -89,13 +89,13 @@ namespace Bicep.Core.Registry.Oci
         }
 
         // Doesn't handle aliases
-        public static ResultWithDiagnostic<IArtifactIdParts> TryParseFullyQualifiedParts(string rawValue)
+        public static ResultWithDiagnostic<IArtifactAddressComponents> TryParseFullyQualifiedParts(string rawValue)
         {
             return TryParseParts(ArtifactType.Module, aliasName: null, rawValue, configuration: null);
         }
 
-        // TODO: Completely remove aliasName and configuration dependencies and move the non-dependent portion to a static method on ArtifactIdParts
-        private static ResultWithDiagnostic<IArtifactIdParts> TryParseParts(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration)
+        // TODO: Completely remove aliasName and configuration dependencies and move the non-dependent portion to a static method on ArtifactAddressComponents
+        private static ResultWithDiagnostic<IArtifactAddressComponents> TryParseParts(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration)
         {
             static string GetBadReference(string referenceValue) => $"{OciArtifactReferenceFacts.Scheme}:{referenceValue}";
 
@@ -228,7 +228,7 @@ namespace Bicep.Core.Registry.Oci
                             tag));
                     }
 
-                    return new(new ArtifactIdParts(registry, repository, tag, digest: null));
+                    return new(new ArtifactAddressComponents(registry, repository, tag, digest: null));
 
                 case '@':
                     var digest = tagOrDigest;
@@ -237,7 +237,7 @@ namespace Bicep.Core.Registry.Oci
                         return new(x => x.InvalidOciArtifactReferenceInvalidDigest(aliasName, GetBadReference(unqualifiedReference), digest));
                     }
 
-                    return new(new ArtifactIdParts(registry, repository, tag: null, digest: digest));
+                    return new(new ArtifactAddressComponents(registry, repository, tag: null, digest: digest));
 
                 default:
                     throw new NotImplementedException($"Unexpected last segment delimiter character '{delimiter.Value}'.");

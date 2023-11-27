@@ -32,7 +32,7 @@ namespace Bicep.LanguageServer.Handlers
         public string Title { get; init; }
 
         // Fully qualified module reference, e.g. "myregistry.azurecr.io/myrepo/module:v1"
-        public IArtifactIdParts ModuleParts { get; init; }
+        public IArtifactAddressComponents ModuleParts { get; init; }
 
         // File being requested from the source, relative to the module root.
         //   e.g. main.bicep or mypath/module.bicep
@@ -41,7 +41,7 @@ namespace Bicep.LanguageServer.Handlers
         //   be different from the compiled JSON file).
         public string? RequestedFile { get; init; }
 
-        public ExternalSourceReference(string title, IArtifactIdParts module, string? requestedFile)
+        public ExternalSourceReference(string title, IArtifactAddressComponents module, string? requestedFile)
         {
             ModuleParts = module;
             RequestedFile = requestedFile;

@@ -5,9 +5,9 @@ using System;
 
 namespace Bicep.Core.Registry.Oci
 {
-    public class ArtifactIdParts : IArtifactIdParts
+    public class ArtifactAddressComponents : IArtifactAddressComponents
     {
-        public ArtifactIdParts(string registry, string repository, string? tag, string? digest)
+        public ArtifactAddressComponents(string registry, string repository, string? tag, string? digest)
         {
             switch (tag, digest)
             {
@@ -52,7 +52,7 @@ namespace Bicep.Core.Registry.Oci
 
         public override bool Equals(object? obj)
         {
-            if (obj is not ArtifactIdParts other)
+            if (obj is not ArtifactAddressComponents other)
             {
                 return false;
             }
