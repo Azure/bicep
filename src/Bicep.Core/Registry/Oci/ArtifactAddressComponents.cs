@@ -31,7 +31,7 @@ namespace Bicep.Core.Registry.Oci
         /// <summary>
         /// Gets the repository name. The repository name is the path to an artifact in the registry without the tag.
         /// </summary>
-        public string Repository  { get; init; }
+        public string Repository { get; init; }
 
         /// <summary>
         /// Gets the tag. Either tag or digest is set but not both.
@@ -41,7 +41,7 @@ namespace Bicep.Core.Registry.Oci
         /// <summary>
         /// Gets the digest. Either tag or digest is set but not both.
         /// </summary>
-        public string? Digest  { get; init; }
+        public string? Digest { get; init; }
 
         /// <summary>
         /// Gets the artifact ID.
@@ -49,6 +49,7 @@ namespace Bicep.Core.Registry.Oci
         public string ArtifactId => this.Digest is null
             ? $"{this.Registry}/{this.Repository}:{this.Tag}"
             : $"{this.Registry}/{this.Repository}@{this.Digest}";
+
 
         public override bool Equals(object? obj)
         {
@@ -76,3 +77,4 @@ namespace Bicep.Core.Registry.Oci
         }
     }
 }
+
