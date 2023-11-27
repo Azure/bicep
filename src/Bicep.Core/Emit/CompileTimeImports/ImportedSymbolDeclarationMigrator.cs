@@ -84,7 +84,8 @@ internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
     public override Expression ReplaceUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
     {
         var (namespaceName, name) = GetFunctionName(declaredSymbolNames[expression.Symbol]);
-        return new SynthesizedUserDefinedFunctionCallExpression(sourceSyntax, namespaceName, name, expression.Parameters);
+        return new SynthesizedUserDefinedFunctionCallExpression(sourceSyntax, namespaceName, name,
+            expression.Parameters.Select(Replace).ToImmutableArray());
     }
 
     public override Expression ReplaceSynthesizedVariableReferenceExpression(SynthesizedVariableReferenceExpression expression)
