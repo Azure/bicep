@@ -693,9 +693,6 @@
         "sourceMapping": {
           "type": "boolean"
         },
-        "userDefinedTypes": {
-          "type": "boolean"
-        },
         "userDefinedFunctions": {
           "type": "boolean"
         },
