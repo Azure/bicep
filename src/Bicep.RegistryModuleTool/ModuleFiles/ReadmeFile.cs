@@ -120,7 +120,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 .Select(x => new
                 {
                     Name = $"`{x.Name}`",
-                    Type = $"`{ConvertToPrimitiveTypeName(x.TypeReference)}`",
+                    Type = $"`{x.TypeReference.GetPrimitiveTypeName()}`",
                     Required = x.IsRequired ? "Yes" : "No",
                     Description = x.Description?.TrimStart().TrimEnd().ReplaceLineEndings("<br />"),
                 })
@@ -141,7 +141,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 .Select(x => new
                 {
                     Name = $"`{x.Name}`",
-                    Type = $"`{ConvertToPrimitiveTypeName(x.TypeReference)}`",
+                    Type = $"`{x.TypeReference.GetPrimitiveTypeName()}`",
                     Description = x.Description?.TrimStart().TrimEnd().ReplaceLineEndings("<br />"),
                 })
                 .ToMarkdownTable(columnName => columnName switch
@@ -151,8 +151,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 }));
             builder.AppendLine();
         }
-
-        private static bool IsSecure(ITypeReference typeReference) => typeReference.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure);
 
         private static string? TryReadSection(string markdownText, string title)
         {
@@ -192,22 +190,5 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             return null;
         }
-
-        private static string ConvertToPrimitiveTypeName(ITypeReference typeReference) => typeReference.Type switch
-        {
-            NullType => "null",
-            IntegerType or IntegerLiteralType => "int",
-            BooleanType or BooleanLiteralType => "bool",
-
-            StringType or StringLiteralType when IsSecure(typeReference) => "securestring",
-            StringType or StringLiteralType => "string",
-
-            ObjectType when IsSecure(typeReference) => "secureObject",
-            ObjectType => "object",
-
-            ArrayType => "array",
-            UnionType union => string.Join(" | ", union.Members.Select(ConvertToPrimitiveTypeName).Distinct()),
-            TypeSymbol otherwise => throw new InvalidOperationException($"Unable to determine primitive type of {otherwise.Name}"),
-        };
     }
 }
