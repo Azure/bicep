@@ -773,16 +773,12 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 type bar = baz
 type baz = quux
 type quux = (1|2|3|4|5)[]
-param test foo", ParameterType.Array, @"{""experimentalFeaturesEnabled"":{""userDefinedTypes"":true}}")]
+param test foo", ParameterType.Array)]
         [DataRow("param test ", null)]
-        public void VerifyParameterType(string bicepFileContents, ParameterType? expected, string? configFileContents = null)
+        public void VerifyParameterType(string bicepFileContents, ParameterType? expected)
         {
             var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, outputPath);
-            if (configFileContents is not null)
-            {
-                FileHelper.SaveResultFile(TestContext, "bicepconfig.json", configFileContents, outputPath);
-            }
             var service = new ServiceBuilder().Build();
             var parameterSymbol = service.BuildCompilation(service.BuildSourceFileGrouping(new(bicepFilePath))).GetEntrypointSemanticModel().Binder.FileSymbol.ParameterDeclarations.Single();
 

@@ -1,6 +1,5 @@
 {
     "experimentalFeaturesEnabled": {
-        "userDefinedFunctions": true,
-        "userDefinedTypes": true
+        "userDefinedFunctions": true
     }
 }

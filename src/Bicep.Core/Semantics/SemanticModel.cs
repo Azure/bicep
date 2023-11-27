@@ -189,10 +189,6 @@ namespace Bicep.Core.Semantics
                 {
                     yield return nameof(features.SourceMapping);
                 }
-                if (features.UserDefinedTypes)
-                {
-                    yield return nameof(features.UserDefinedTypes);
-                }
                 if (features.PrettyPrinting)
                 {
                     yield return nameof(features.PrettyPrinting);
