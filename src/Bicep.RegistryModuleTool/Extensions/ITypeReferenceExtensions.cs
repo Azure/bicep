@@ -22,7 +22,7 @@ namespace Bicep.RegistryModuleTool.Extensions
             IntegerType or IntegerLiteralType => LanguageConstants.Int.Name,
             BooleanType or BooleanLiteralType => LanguageConstants.TypeNameBool,
 
-            StringType or StringLiteralType when IsSecure(typeReference) => "secureString",
+            StringType or StringLiteralType when IsSecure(typeReference) => "securestring",
             StringType or StringLiteralType => LanguageConstants.TypeNameString,
 
             ObjectType when IsSecure(typeReference) => "secureObject",
