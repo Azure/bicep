@@ -1891,4 +1891,47 @@ public class CompileTimeImportTests
             }
             """));
     }
+
+    // https://github.com/Azure/bicep/issues/12542
+    [TestMethod]
+    public void User_defined_function_calls_parameters_to_other_user_defined_function_calls_are_migrated_during_import()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+            ("main.bicep", """
+                import {getSubnetNumber, isWindows} from 'types.bicep'
+
+                param plan_name string = 'plan-name-999'
+
+                var subnet_number = getSubnetNumber(plan_name)
+
+                var formatted_subnet_name = '${isWindows(plan_name)}${subnet_number}'
+
+                output out string = formatted_subnet_name
+                """),
+            ("types.bicep", """
+                @export()
+                func getPlanNumber(hostingPlanName string) string => substring(hostingPlanName, length(hostingPlanName) - 3)
+
+                @export()
+                func isFirstPlan(planNumber string) bool => planNumber == '001'
+
+                @export()
+                func isOneLeadingZero(planNumber string) bool => substring(planNumber, 0, 1) == '0'
+
+                @export()
+                func isTwoLeadingZeroes(planNumber string) bool => substring(planNumber, 0, 2) == '00'
+
+                @export()
+                func getSubnetNumber(plan_name string) string => isFirstPlan(getPlanNumber(plan_name)) ? '' : (isTwoLeadingZeroes(getPlanNumber(plan_name)) ? substring(getPlanNumber(plan_name), 2, 1) : (isOneLeadingZero(getPlanNumber(plan_name)) ? substring(getPlanNumber(plan_name), 1, 2) : getPlanNumber(plan_name)) )
+
+                @export()
+                func isWindows(hostingPlanName string) string => contains('-windows-', hostingPlanName) ? 'ASPWindows' : 'ASP'
+                """));
+
+        result.Diagnostics.Should().BeEmpty();
+        result.Template.Should().NotBeNull();
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        evaluated.Should().HaveValueAtPath("outputs.out.value", "ASP999");
+    }
 }
