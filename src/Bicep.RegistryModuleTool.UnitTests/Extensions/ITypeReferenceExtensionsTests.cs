@@ -33,7 +33,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.Extensions
             yield return CreateTestCase(LanguageConstants.Int, LanguageConstants.Int.Name);
             yield return CreateTestCase(LanguageConstants.Bool, LanguageConstants.Bool.Name);
             yield return CreateTestCase(LanguageConstants.String, LanguageConstants.String.Name);
-            yield return CreateTestCase(LanguageConstants.SecureString, "secureString");
+            yield return CreateTestCase(LanguageConstants.SecureString, "securestring");
             yield return CreateTestCase(LanguageConstants.Array, LanguageConstants.ArrayType);
             yield return CreateTestCase(LanguageConstants.Object, LanguageConstants.ObjectType);
             yield return CreateTestCase(LanguageConstants.SecureObject, "secureObject");
