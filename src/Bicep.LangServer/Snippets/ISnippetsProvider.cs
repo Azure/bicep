@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.LanguageServer.Snippets
 {

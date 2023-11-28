@@ -81,7 +81,7 @@ namespace Bicep.LangServer.IntegrationTests
                     Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
                 });
 
-                var link = ValidateDefinitionResponse(response);
+                var link = ValidateDefinitionResponse(response!);
 
                 if (symbol is not ImportedSymbol and not WildcardImportSymbol)
                 {
@@ -839,7 +839,7 @@ param |foo| string
                     Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
                 });
 
-                results.Add(result);
+                results.Add(result!);
             }
 
             return results;

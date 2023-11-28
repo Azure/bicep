@@ -10,20 +10,21 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
 
-internal class ImportedSymbolDeclarationMigrator : ImportReferenceExpressionRewriter
+internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
 {
     private readonly SemanticModel sourceModel;
     private readonly ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames;
+    private readonly ImmutableDictionary<string, string> synthesizedVariableNames;
     private readonly SyntaxBase? sourceSyntax;
 
     public ImportedSymbolDeclarationMigrator(SemanticModel sourceModel,
         ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames,
-        ImmutableDictionary<ImportedSymbol, string> importedSymbolNames,
-        ImmutableDictionary<WildcardImportPropertyReference, string> wildcardImportPropertyNames,
-        SyntaxBase sourceSyntax) : base(importedSymbolNames, wildcardImportPropertyNames, sourceSyntax)
+        ImmutableDictionary<string, string> synthesizedVariableNames,
+        SyntaxBase sourceSyntax)
     {
         this.sourceModel = sourceModel;
         this.declaredSymbolNames = declaredSymbolNames;
+        this.synthesizedVariableNames = synthesizedVariableNames;
         this.sourceSyntax = sourceSyntax;
     }
 
@@ -83,8 +84,12 @@ internal class ImportedSymbolDeclarationMigrator : ImportReferenceExpressionRewr
     public override Expression ReplaceUserDefinedFunctionCallExpression(UserDefinedFunctionCallExpression expression)
     {
         var (namespaceName, name) = GetFunctionName(declaredSymbolNames[expression.Symbol]);
-        return new SynthesizedUserDefinedFunctionCallExpression(sourceSyntax, namespaceName, name, expression.Parameters);
+        return new SynthesizedUserDefinedFunctionCallExpression(sourceSyntax, namespaceName, name,
+            expression.Parameters.Select(Replace).ToImmutableArray());
     }
+
+    public override Expression ReplaceSynthesizedVariableReferenceExpression(SynthesizedVariableReferenceExpression expression)
+        => new SynthesizedVariableReferenceExpression(sourceSyntax, synthesizedVariableNames[expression.Name]);
 
     private TypeAliasSymbol LookupTypeAliasByName(string name) => sourceModel.Root.TypeDeclarations
         .Where(NameEquals<TypeAliasSymbol>(name))
@@ -100,4 +105,10 @@ internal class ImportedSymbolDeclarationMigrator : ImportReferenceExpressionRewr
 
     private static Func<S, bool> NameEquals<S>(string name) where S : DeclaredSymbol
         => s => LanguageConstants.IdentifierComparer.Equals(s.Name, name);
+
+    private static (string namespaceName, string functionName) GetFunctionName(string potentiallyQualifiedName) => potentiallyQualifiedName.IndexOf('.') switch
+    {
+        int separatorLocation when separatorLocation > -1 => (potentiallyQualifiedName[..separatorLocation], potentiallyQualifiedName[(separatorLocation + 1)..]),
+        _ => (EmitConstants.UserDefinedFunctionsNamespace, potentiallyQualifiedName),
+    };
 }

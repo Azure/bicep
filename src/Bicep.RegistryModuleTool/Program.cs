@@ -18,7 +18,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.RegistryModuleTool.Commands;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.Options;

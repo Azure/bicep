@@ -4,6 +4,8 @@
 using System.Collections.Generic;
 using Bicep.Core.Features;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces;
@@ -11,13 +13,10 @@ namespace Bicep.Core.Semantics.Namespaces;
 public interface INamespaceProvider
 {
     NamespaceType? TryGetNamespace(
-        string providerName,
-        string aliasName,
+        ResourceTypesProviderDescriptor providerDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
-        BicepSourceFileKind sourceFileKind,
-        string? providerVersion = null
-    );
+        BicepSourceFileKind sourceFileKind);
 
     IEnumerable<string> AvailableNamespaces { get; }
 }

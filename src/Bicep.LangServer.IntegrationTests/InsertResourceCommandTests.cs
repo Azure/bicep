@@ -15,6 +15,8 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -123,7 +125,7 @@ namespace Bicep.LangServer.IntegrationTests
                 new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly),
                 new TypeProperty("floatProp", LanguageConstants.Int, TypePropertyFlags.None),
                 new TypeProperty("bigIntProp", LanguageConstants.Int, TypePropertyFlags.None));
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
@@ -198,7 +200,7 @@ output myOutput string = 'myOutput'
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/myTypes", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch);
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
@@ -237,7 +239,7 @@ resource myName 'My.Rp/myTypes@2020-01-01' = {
                 new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                 new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
                 new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
@@ -314,7 +316,7 @@ output myOutput string = 'myOutput'
                 new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                 new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
                 new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
@@ -386,7 +388,7 @@ output myOutput string = 'myOutput'
                 new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                 new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
                 new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
@@ -421,7 +423,7 @@ output myOutput string = 'myOutput'
             var listeners = CreateListeners();
             var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
 
-            var typeLoader = TestTypeHelper.CreateEmptyAzResourceTypeLoader();
+            var typeLoader = TestTypeHelper.CreateEmptyResourceTypeLoader();
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
@@ -462,7 +464,7 @@ output myOutput string = 'myOutput'
                 new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                 new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
                 new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;
@@ -538,7 +540,7 @@ output myOutput string = 'myOutput'
                 new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                 new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
                 new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
             var client = helper.Client;

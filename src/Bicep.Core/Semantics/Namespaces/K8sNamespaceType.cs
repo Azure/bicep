@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.K8s;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.K8s;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics.Namespaces
 {

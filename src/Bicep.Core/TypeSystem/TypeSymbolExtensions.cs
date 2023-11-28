@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem
 {

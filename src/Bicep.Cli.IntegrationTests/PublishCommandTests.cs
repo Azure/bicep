@@ -108,11 +108,11 @@ namespace Bicep.Cli.IntegrationTests
         {
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
-            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentationUri");
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentation-uri");
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The --documentationUri parameter expects an argument.");
+            error.Should().MatchRegex(@"The --documentation-uri parameter expects an argument.");
         }
 
         [TestMethod]
@@ -120,11 +120,11 @@ namespace Bicep.Cli.IntegrationTests
         {
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
-            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentationUri", "https://example.com", "--documentationUri", "https://example.com");
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentation-uri", "https://example.com", "--documentation-uri", "https://example.com");
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The --documentationUri parameter cannot be specified more than once.");
+            error.Should().MatchRegex(@"The --documentation-uri parameter cannot be specified more than once.");
         }
 
         [TestMethod]
@@ -132,12 +132,26 @@ namespace Bicep.Cli.IntegrationTests
         {
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
-            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentationUri", "invalid_uri");
+            var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentation-uri", "invalid_uri");
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The --documentationUri should be a well formed uri string.");
+            error.Should().MatchRegex(@"The --documentation-uri should be a well formed uri string.");
         }
+
+        // TODO: Enable this once Azure CLI is updated to support the new parameters.
+        //[TestMethod]
+        //public async Task Publish_WithDeprecatedParameter_PrintsDeprecationMessage()
+        //{
+        //    var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+        //    var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"output myOutput string = 'hello!'");
+        //    var (output, error, result) = await Bicep(settings, "publish", bicepPath, "--target", "br:example.azurecr.io/hello/there:v1", "--documentationUri", "invalid_uri");
+
+        //    result.Should().Be(1);
+        //    output.Should().BeEmpty();
+        //    error.Should().MatchRegex(@"The --documentationUri should be a well formed uri string.");
+        //    error.Should().MatchRegex(@"DEPRECATED: The parameter --documentationUri is deprecated and will be removed in a future version of Bicpe CLI. Use --documentation-uri instead.");
+        //}
 
         [DataTestMethod]
         [DynamicData(nameof(OnlyRegistryDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
@@ -151,7 +165,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource, (registryUri, repository)).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(publishSource, (registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
@@ -166,7 +180,7 @@ namespace Bicep.Cli.IntegrationTests
 
             if (!string.IsNullOrWhiteSpace(documentationUri))
             {
-                requiredArgs.AddRange(new List<string> { "--documentationUri", documentationUri });
+                requiredArgs.AddRange(new List<string> { "--documentation-uri", documentationUri });
             }
             if (publishSource)
             {
@@ -249,7 +263,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: false, (registryUri, repository)).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: false, (registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -303,7 +317,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: true, (registryUri, repository)).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: true, (registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -448,7 +462,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var blobClient = blobClients[(registryUri, repository)];
 
-            await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory.Object, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
+            await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
 
             var manifest = blobClient.Manifests.Single().Value.Text;
 

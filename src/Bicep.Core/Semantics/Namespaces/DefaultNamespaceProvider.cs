@@ -3,10 +3,14 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics.Namespaces;
@@ -14,60 +18,53 @@ namespace Bicep.Core.Semantics.Namespaces;
 public class DefaultNamespaceProvider : INamespaceProvider
 {
     private delegate NamespaceType? GetNamespaceDelegate(
-        string aliasName,
+        ResourceTypesProviderDescriptor typesProviderDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
-        BicepSourceFileKind sourceFileKind,
-        string? version = null);
+        BicepSourceFileKind sourceFileKind);
+
     private readonly ImmutableDictionary<string, GetNamespaceDelegate> providerLookup;
+    private readonly IResourceTypeProviderFactory resourceTypeLoaderFactory;
 
-    private readonly IResourceTypeLoaderFactory azResourceTypeLoaderFactory;
-
-    public DefaultNamespaceProvider(IResourceTypeLoaderFactory azResourceTypeLoaderFactory)
+    public DefaultNamespaceProvider(IResourceTypeProviderFactory resourceTypeLoaderFactory)
     {
-        var builtInAzResourceTypeLoaderVersion = "1.0.0";
-        var builtInAzResourceTypeProvider = new AzResourceTypeProvider(azResourceTypeLoaderFactory.GetBuiltInTypeLoader(), builtInAzResourceTypeLoaderVersion);
-
-        this.azResourceTypeLoaderFactory = azResourceTypeLoaderFactory;
+        this.resourceTypeLoaderFactory = resourceTypeLoaderFactory;
         this.providerLookup = new Dictionary<string, GetNamespaceDelegate>
         {
-            [SystemNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind, version) => SystemNamespaceType.Create(alias, features, sourceFileKind),
-            [AzNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind, version) =>
-            {
-                AzResourceTypeProvider? provider = builtInAzResourceTypeProvider;
-                if (features.DynamicTypeLoadingEnabled && version is not null)
-                {
-                    // TODO(asilverman): Current implementation of dynamic type loading needs to be refactored to handle caching of the provider to optimize 
-                    // performance hit as a result of recreating the provider for each call to TryGetNamespace.
-                    // Tracked by - https://msazure.visualstudio.com/One/_sprints/taskboard/Azure-ARM-Deployments/One/Custom/Azure-ARM/Gallium/Jul-2023?workitem=24563440
-                    var loader = azResourceTypeLoaderFactory.GetResourceTypeLoader(version, features);
-                    if (loader is null)
-                    {
-                        return null;
-                    }
-                    var overriddenProviderVersion = builtInAzResourceTypeLoaderVersion;
-                    if (features.DynamicTypeLoadingEnabled)
-                    {
-                        overriddenProviderVersion = version ?? overriddenProviderVersion;
-                    }
-                    provider = new AzResourceTypeProvider(loader, overriddenProviderVersion);
-                }
-                return AzNamespaceType.Create(alias, scope, provider, sourceFileKind);
-            },
-            [K8sNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind, version) => K8sNamespaceType.Create(alias),
-            [MicrosoftGraphNamespaceType.BuiltInName] = (alias, scope, features, sourceFileKind, version) => MicrosoftGraphNamespaceType.Create(alias),
+            [AzNamespaceType.BuiltInName] = TryCreateAzNamespace,
+            [SystemNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => SystemNamespaceType.Create(providerDescriptor.Alias, features, sourceFileKind),
+            [K8sNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => K8sNamespaceType.Create(providerDescriptor.Alias),
+            [MicrosoftGraphNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => MicrosoftGraphNamespaceType.Create(providerDescriptor.Alias),
         }.ToImmutableDictionary();
     }
 
+    private NamespaceType? TryCreateAzNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
+    {
+        if (!features.DynamicTypeLoadingEnabled)
+        {
+            providerDescriptor = new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion);
+        }
+
+        if (resourceTypeLoaderFactory.GetResourceTypeProvider(providerDescriptor, features).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+        {
+            return AzNamespaceType.Create(providerDescriptor.Alias, scope, dynamicallyLoadedProvider, sourceFileKind);
+        }
+
+        Trace.WriteLine($"Failed to load types from {providerDescriptor.Path}: {errorBuilder(DiagnosticBuilder.ForPosition(providerDescriptor.Span))}");
+        return null;
+    }
+
     public NamespaceType? TryGetNamespace(
-        string providerName,
-        string aliasName,
+        ResourceTypesProviderDescriptor typesProviderDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
-        BicepSourceFileKind sourceFileKind,
-        string? version = null)
-    //TODO(asilverman): This is the location where we would like to add support for extensibility providers, we want to add a new key and a new loader for the ext. provider
-        => providerLookup.TryGetValue(providerName)?.Invoke(aliasName, resourceScope, features, sourceFileKind, version);
+        BicepSourceFileKind sourceFileKind)
+        => providerLookup.TryGetValue(typesProviderDescriptor.Name)?
+        .Invoke(
+            typesProviderDescriptor,
+            resourceScope,
+            features,
+            sourceFileKind);
 
     public IEnumerable<string> AvailableNamespaces
         => providerLookup.Keys;

@@ -9,16 +9,15 @@ using System.IO;
 using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
-using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Types;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
@@ -69,13 +68,11 @@ namespace Bicep.Core.Emit
 
         private EmitterContext Context => ExpressionBuilder.Context;
         private ExpressionBuilder ExpressionBuilder { get; }
-        private ImportClosureInfo ImportClosureInfo { get; }
         private ImmutableDictionary<string, DeclaredTypeExpression> declaredTypesByName;
 
         public TemplateWriter(SemanticModel semanticModel)
         {
             ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
-            ImportClosureInfo = ImportClosureInfo.Calculate(semanticModel);
             declaredTypesByName = ImmutableDictionary<string, DeclaredTypeExpression>.Empty;
         }
 
@@ -102,14 +99,10 @@ namespace Bicep.Core.Emit
         private (Template, JToken) GenerateTemplateWithoutHash(PositionTrackingJsonTextWriter jsonWriter)
         {
             var emitter = new ExpressionEmitter(jsonWriter, this.Context);
-            var importReferenceRewriter = new ImportReferenceExpressionRewriter(
-                Context.SemanticModel.Root.ImportedSymbols.ToImmutableDictionary(i => i, i => i.Name),
-                ImportClosureInfo.WildcardPropertyReferenceToImportedSymbolName,
-                sourceSyntax: null);
 
-            var program = (ProgramExpression)importReferenceRewriter.ReplaceProgramExpression((ProgramExpression)ExpressionBuilder.Convert(Context.SemanticModel.Root.Syntax));
+            var program = (ProgramExpression)ExpressionBuilder.Convert(Context.SemanticModel.Root.Syntax);
 
-            var programTypes = program.Types.Concat(ImportClosureInfo.ImportedTypesInClosure);
+            var programTypes = program.Types.Concat(Context.ImportClosureInfo.ImportedTypesInClosure);
             declaredTypesByName = programTypes.ToImmutableDictionary(t => t.Name);
 
             jsonWriter.WriteStartObject();
@@ -131,11 +124,11 @@ namespace Bicep.Core.Emit
 
             this.EmitTypeDefinitionsIfPresent(emitter, programTypes);
 
-            this.EmitUserDefinedFunctions(emitter, program.Functions.Concat(ImportClosureInfo.ImportedFunctionsInClosure));
+            this.EmitUserDefinedFunctions(emitter, program.Functions.Concat(Context.ImportClosureInfo.ImportedFunctionsInClosure));
 
             this.EmitParametersIfPresent(emitter, program.Parameters);
 
-            this.EmitVariablesIfPresent(emitter, program.Variables.Concat(ImportClosureInfo.ImportedVariablesInClosure));
+            this.EmitVariablesIfPresent(emitter, program.Variables.Concat(Context.ImportClosureInfo.ImportedVariablesInClosure));
 
             this.EmitProviders(emitter, program.Providers);
 
@@ -318,7 +311,7 @@ namespace Bicep.Core.Emit
                     ? function.Name
                     : $"{function.Namespace}.{function.Name}";
 
-                if (function.Description is not null || function.Exported is not null || ImportClosureInfo.ImportedSymbolOriginMetadata.ContainsKey(originMetadataLookupKey))
+                if (function.Description is not null || function.Exported is not null || Context.ImportClosureInfo.ImportedSymbolOriginMetadata.ContainsKey(originMetadataLookupKey))
                 {
                     emitter.EmitObjectProperty(LanguageConstants.ParameterMetadataPropertyName, () =>
                     {
@@ -332,7 +325,7 @@ namespace Bicep.Core.Emit
                             emitter.EmitProperty(LanguageConstants.MetadataExportedPropertyName, ExpressionFactory.CreateBooleanLiteral(true, function.Exported.SourceSyntax));
                         }
 
-                        if (ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(originMetadataLookupKey, out var originMetadata))
+                        if (Context.ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(originMetadataLookupKey, out var originMetadata))
                         {
                             emitter.EmitObjectProperty(LanguageConstants.MetadataImportedFromPropertyName, () =>
                             {
@@ -366,7 +359,7 @@ namespace Bicep.Core.Emit
                 () =>
                 {
                     var declaredTypeObject = ApplyTypeModifiers(declaredType, TypePropertiesForTypeExpression(declaredType.Value));
-                    if (ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(declaredType.Name, out var originMetadata))
+                    if (Context.ImportClosureInfo.ImportedSymbolOriginMetadata.TryGetValue(declaredType.Name, out var originMetadata))
                     {
                         var importedFromProperties = ExpressionFactory.CreateObjectProperty(LanguageConstants.ImportMetadataSourceTemplatePropertyName,
                             ExpressionFactory.CreateStringLiteral(originMetadata.SourceTemplateIdentifier)).AsEnumerable();
@@ -392,6 +385,12 @@ namespace Bicep.Core.Emit
                 => TypePropertiesForQualifiedReference(fullyQualifiedAmbientTypeReference),
             TypeAliasReferenceExpression typeAliasReference => CreateRefSchemaNode(typeAliasReference.Symbol.Name, typeAliasReference.SourceSyntax),
             SynthesizedTypeAliasReferenceExpression typeAliasReference => CreateRefSchemaNode(typeAliasReference.Name, typeAliasReference.SourceSyntax),
+            ImportedTypeReferenceExpression importedTypeReference => CreateRefSchemaNode(
+                Context.ImportClosureInfo.ImportedSymbolNames[importedTypeReference.Symbol],
+                importedTypeReference.SourceSyntax),
+            WildcardImportTypePropertyReferenceExpression importedTypeReference => CreateRefSchemaNode(
+                Context.ImportClosureInfo.WildcardImportPropertyNames[new(importedTypeReference.ImportSymbol, importedTypeReference.PropertyName)],
+                importedTypeReference.SourceSyntax),
 
             // literals
             StringLiteralTypeExpression @string => ExpressionFactory.CreateObject(

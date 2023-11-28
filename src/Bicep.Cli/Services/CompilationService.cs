@@ -60,7 +60,7 @@ namespace Bicep.Cli.Services
             var configuration = this.configurationManager.GetConfiguration(inputUri);
 
             var compilation = await bicepCompiler.CreateCompilation(inputUri, workspace, skipRestore: true, forceModulesRestore: forceModulesRestore);
-            var originalModulesToRestore = compilation.SourceFileGrouping.GetModulesToRestore().ToImmutableHashSet();
+            var originalModulesToRestore = compilation.SourceFileGrouping.GetArtifactsToRestore().ToImmutableHashSet();
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in processing and logging
             var modulesToRestoreReferences = this.moduleDispatcher.GetValidModuleReferences(originalModulesToRestore)

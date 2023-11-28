@@ -12,9 +12,11 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
@@ -31,6 +33,8 @@ namespace Bicep.Core.UnitTests
     {
         public const string DevAssemblyFileVersion = "dev";
 
+        public const string BicepRegistryFolderName = "br";
+
         public const string GeneratorTemplateHashPath = "metadata._generator.templateHash";
 
         public static readonly FileResolver FileResolver = new(new IOFileSystem());
@@ -41,18 +45,17 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager), FeatureOverrides);
 
-        public static readonly IResourceTypeLoaderFactory AzResourceTypeLoaderFactory = new AzResourceTypeLoaderFactory(FeatureProviderFactory, new AzResourceTypeLoader());
+        public static readonly IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory();
 
-        public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(AzResourceTypeLoaderFactory);
+        public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(ResourceTypeProviderFactory);
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
         // Linter rules added to this list will be automtically disabled for most tests.
-        public static readonly string[] AnalyzerRulesToDisableInTests = new string[] {
-            // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
-        };
+        // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
+        public static readonly string[] AnalyzerRulesToDisableInTests = Array.Empty<string>();
 
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = IConfigurationManager.GetBuiltInConfiguration();
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
@@ -65,9 +68,8 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration), FeatureOverrides);
 
-        public static readonly IResourceTypeLoader BuiltinAzResourceTypeLoader = BicepTestConstants.AzResourceTypeLoaderFactory.GetResourceTypeLoader(null, BicepTestConstants.Features)!;
-
         public static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
+
         public static readonly IArtifactRegistryProvider RegistryProvider = new DefaultArtifactRegistryProvider(EmptyServiceProvider, FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
 
         public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
@@ -133,5 +135,31 @@ namespace Bicep.Core.UnitTests
 
             return telemetryProvider;
         }
+
+        public static BinaryData BicepProviderManifestWithEmptyTypesLayer = BinaryData.FromString($$"""
+        {
+            "schemaVersion": 2,
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "artifactType": "{{BicepMediaTypes.BicepProviderArtifactType}}",
+            "config": {
+            "mediaType": "{{BicepMediaTypes.BicepProviderConfigV1}}",
+            "digest": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "size": 2
+            },
+            "layers": [
+            {
+                "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
+                "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "size": 0
+            }
+            ],
+            "annotations": {
+            "bicep.serialization.format": "v1",
+            "org.opencontainers.image.created": "2023-05-04T16:40:05Z"
+            }
+        }
+        """);
+
+        public static string BuiltinAzProviderVersion = AzNamespaceType.Settings.ArmTemplateProviderVersion;
     }
 }

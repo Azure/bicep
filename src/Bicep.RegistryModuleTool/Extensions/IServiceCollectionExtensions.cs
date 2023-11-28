@@ -11,8 +11,8 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,8 +23,7 @@ namespace Bicep.RegistryModuleTool.Extensions
         public static IServiceCollection AddBicepCompiler(this IServiceCollection services) => services
             .AddSingleton<IFileSystem, FileSystem>()
             .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-            .AddSingleton<IResourceTypeLoader, AzResourceTypeLoader>()
-            .AddSingleton<IResourceTypeLoaderFactory, AzResourceTypeLoaderFactory>()
+            .AddSingleton<IResourceTypeProviderFactory, ResourceTypeProviderFactory>()
             .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
             .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
             .AddSingleton<IModuleDispatcher, ModuleDispatcher>()

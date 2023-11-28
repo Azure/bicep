@@ -14,7 +14,9 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
@@ -518,8 +520,7 @@ namespace Bicep.Core.Emit
                     {
                         referencedValueHasError = true;
                     }
-
-                    if (referenced.Key is ParameterAssignmentSymbol parameterAssignment)
+                    else if (referenced.Key is ParameterAssignmentSymbol parameterAssignment)
                     {
                         if (generated[parameterAssignment].KeyVaultReferenceExpression is not null)
                         {

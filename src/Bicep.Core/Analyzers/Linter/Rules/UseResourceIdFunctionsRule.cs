@@ -10,7 +10,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -239,7 +238,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private static Failure? AnalyzeIdProperty(SemanticModel model, ObjectPropertySyntax propertySyntax)
             {
                 var type = model.GetTypeInfo(propertySyntax.Value);
-                if (type.IsString())
+                if (type.IsString() || type.IsNullableString())
                 {
                     return AnalyzeIdPropertyValue(model, propertySyntax, propertySyntax.Value, Array.Empty<DeclaredSymbol>());
                 }
@@ -288,6 +287,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             }
                         }
                         break;
+                    case AccessExpressionSyntax accessExpression when IsParameterPropertyAccess(model, accessExpression):
+                        // parameter properties are always okay
+                        return null;
                     case TernaryOperationSyntax:
                         // "if"/ternary is acceptable
                         return null;
@@ -305,10 +307,30 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     case ParenthesizedExpressionSyntax parenthesizedExpressionSyntax:
                         // Analyze inside parentheses
                         return AnalyzeIdPropertyValue(model, propertySyntax, parenthesizedExpressionSyntax.Expression, currentPaths);
+                    case NonNullAssertionSyntax nonNullAssertionSyntax:
+                        // Analyze base expression
+                        return AnalyzeIdPropertyValue(model, propertySyntax, nonNullAssertionSyntax.BaseExpression, currentPaths);
                 }
 
                 return new Failure(propertySyntax, currentPaths);
             }
+
+            private static bool IsParameterPropertyAccess(SemanticModel model, AccessExpressionSyntax accessExpression)
+                => model.GetSymbolInfo(accessExpression.BaseExpression) switch
+                {
+                    ParameterSymbol => true,
+                    PropertySymbol or null when TryGetAsAccessExpression(accessExpression.BaseExpression) is AccessExpressionSyntax baseAccessExpression
+                        => IsParameterPropertyAccess(model, baseAccessExpression),
+                    _ => false,
+                };
+
+            private static AccessExpressionSyntax? TryGetAsAccessExpression(SyntaxBase? syntax) => syntax switch
+            {
+                AccessExpressionSyntax accessExpression => accessExpression,
+                ParenthesizedExpressionSyntax parenthesizedExpression => TryGetAsAccessExpression(parenthesizedExpression.Expression),
+                NonNullAssertionSyntax nonNullAssertion => TryGetAsAccessExpression(nonNullAssertion.BaseExpression),
+                _ => null,
+            };
         }
     }
 }

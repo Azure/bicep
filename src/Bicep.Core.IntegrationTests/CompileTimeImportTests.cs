@@ -1745,4 +1745,193 @@ public class CompileTimeImportTests
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Template.Should().HaveValueAtPath("parameters.foo.items.$ref", "#/definitions/Foo");
     }
+
+    // https://github.com/Azure/bicep/issues/12396
+    [TestMethod]
+    public void Test_Issue12396()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import { _helloWorld } from 'types.bicep'
+
+                resource st_account 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+                    name: last(split(_helloWorld, ''))
+                    location: resourceGroup().location
+                    sku: {
+                        name: 'Standard_LRS'
+                    }
+                    kind: 'BlobStorage'
+                }
+                """),
+            ("types.bicep", """
+                @export()
+                var _helloWorld = 'hello world'
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/12401
+    [TestMethod]
+    public void Symbolic_name_target_is_used_when_function_import_closure_includes_a_user_defined_type()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+            ("main.bicep", """
+                import { capitalizer } from 'function.bicep'
+                """),
+            ("function.bicep", """
+                type myString = string
+
+                @export()
+                func capitalizer(in myString) string => toUpper(in)
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
+        result.Template.Should().HaveValueAtPath("functions[0].members.capitalizer.parameters[0].$ref", "#/definitions/_1.myString");
+    }
+
+    // https://github.com/Azure/bicep/issues/12464
+    [TestMethod]
+    public void Test_12464()
+    {
+        var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,
+            ("bicepconfig.json", """
+                {
+                    "experimentalFeaturesEnabled": {
+                        "compileTimeImports": true
+                    }
+                }
+                """),
+            ("bicepconfig.bicep", """
+                @export()
+                var compileTimeImportsEnabled = loadJsonContent('bicepconfig.json').experimentalFeaturesEnabled.compileTimeImports
+                @export()
+                var literalTrue = true
+                @export()
+                var loadJsonContentTrue = compileTimeImportsEnabled
+                """),
+            ("test.bicep", """
+                param boolParamOne bool
+                param boolParamTwo bool
+                output bothTrue bool = boolParamOne && boolParamTwo
+                """),
+            ("parameters.bicepparam", """
+                using 'test.bicep'
+                import * as bicepconfig from 'bicepconfig.bicep'
+                // no error
+                param boolParamOne = bicepconfig.literalTrue
+                // Failed to evaluate parameter "boolParamTwo":
+                // Unhandled exception during evaluating template language function 'variables' is not handled.bicep(BCP338)
+                param boolParamTwo = bicepconfig.loadJsonContentTrue
+                """));
+
+        result.Diagnostics.Should().BeEmpty();
+        result.Parameters.Should().HaveValueAtPath("parameters.boolParamTwo.value", true);
+    }
+
+    [TestMethod]
+    public void Imported_variable_symbols_that_use_compile_time_functions_should_have_synthesized_variable_declarations_injected_into_compiled_template()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {fizzBuzz} from 'mod.bicep'
+                """),
+            ("mod.bicep", """
+                var precalculatedFizzBuzz = loadJsonContent('fizz.json').values
+                @export()
+                var fizzBuzz = map(range(0, 100), i => precalculatedFizzBuzz[i % length(precalculatedFizzBuzz)])
+                """),
+            ("fizz.json", """
+                {
+                    "values": [
+                        "",
+                        "",
+                        "fizz",
+                        "",
+                        "buzz",
+                        "",
+                        "",
+                        "fizz",
+                        "",
+                        "buzz",
+                        "",
+                        "",
+                        "fizz",
+                        "",
+                        "fizzbuzz"
+                    ]
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
+            {
+                "_1._2": {
+                    "values": [
+                        "",
+                        "",
+                        "fizz",
+                        "",
+                        "buzz",
+                        "",
+                        "",
+                        "fizz",
+                        "",
+                        "buzz",
+                        "",
+                        "",
+                        "fizz",
+                        "",
+                        "fizzbuzz"
+                    ]
+                },
+                "_1.precalculatedFizzBuzz": "[variables('_1._2').values]",
+                "fizzBuzz": "[map(range(0, 100), lambda('i', variables('_1.precalculatedFizzBuzz')[mod(lambdaVariables('i'), length(variables('_1.precalculatedFizzBuzz')))]))]"
+            }
+            """));
+    }
+
+    // https://github.com/Azure/bicep/issues/12542
+    [TestMethod]
+    public void User_defined_function_calls_parameters_to_other_user_defined_function_calls_are_migrated_during_import()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+            ("main.bicep", """
+                import {getSubnetNumber, isWindows} from 'types.bicep'
+
+                param plan_name string = 'plan-name-999'
+
+                var subnet_number = getSubnetNumber(plan_name)
+
+                var formatted_subnet_name = '${isWindows(plan_name)}${subnet_number}'
+
+                output out string = formatted_subnet_name
+                """),
+            ("types.bicep", """
+                @export()
+                func getPlanNumber(hostingPlanName string) string => substring(hostingPlanName, length(hostingPlanName) - 3)
+
+                @export()
+                func isFirstPlan(planNumber string) bool => planNumber == '001'
+
+                @export()
+                func isOneLeadingZero(planNumber string) bool => substring(planNumber, 0, 1) == '0'
+
+                @export()
+                func isTwoLeadingZeroes(planNumber string) bool => substring(planNumber, 0, 2) == '00'
+
+                @export()
+                func getSubnetNumber(plan_name string) string => isFirstPlan(getPlanNumber(plan_name)) ? '' : (isTwoLeadingZeroes(getPlanNumber(plan_name)) ? substring(getPlanNumber(plan_name), 2, 1) : (isOneLeadingZero(getPlanNumber(plan_name)) ? substring(getPlanNumber(plan_name), 1, 2) : getPlanNumber(plan_name)) )
+
+                @export()
+                func isWindows(hostingPlanName string) string => contains('-windows-', hostingPlanName) ? 'ASPWindows' : 'ASP'
+                """));
+
+        result.Diagnostics.Should().BeEmpty();
+        result.Template.Should().NotBeNull();
+
+        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        evaluated.Should().HaveValueAtPath("outputs.out.value", "ASP999");
+    }
 }

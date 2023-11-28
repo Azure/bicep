@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Workspaces;
@@ -24,7 +26,11 @@ namespace Bicep.LangServer.UnitTests.Snippets
         private ISnippetsProvider CreateSnippetsProvider()
             => ServiceBuilder.Create(s => s.AddSingleton<SnippetsProvider>()).Construct<SnippetsProvider>();
 
-        private readonly NamespaceType azNamespaceType = BicepTestConstants.NamespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
+        private readonly NamespaceType azNamespaceType = BicepTestConstants.NamespaceProvider.TryGetNamespace(
+            new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion),
+            ResourceScope.ResourceGroup,
+            BicepTestConstants.Features,
+            BicepSourceFileKind.BicepFile)!;
 
         [TestMethod]
         public void CompletionPriorityOfResourceSnippets_ShouldBeHigh()

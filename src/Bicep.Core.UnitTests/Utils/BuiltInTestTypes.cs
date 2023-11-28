@@ -6,7 +6,8 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -256,7 +257,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static INamespaceProvider Create()
             => new DefaultNamespaceProvider(
-                TestTypeHelper.CreateAzResourceTypeLoaderFactory(
-                    TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(Types)));
+                   TestTypeHelper.CreateResourceTypeLoaderFactory(
+                    TestTypeHelper.CreateAzResourceTypeProviderWithTypes(Types)));
     }
 }

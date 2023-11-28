@@ -21,6 +21,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
@@ -65,7 +66,7 @@ namespace Bicep.Core.Semantics
             // This allows the binder to create the right kind of symbol for compile-time imports.
             var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(compilation, sourceFile);
             this.SymbolContext = symbolContext;
-            this.Binder = new Binder(compilation.NamespaceProvider, features, compilation.SourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext);
+            this.Binder = new Binder(compilation.NamespaceProvider, features, compilation.SourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext, compilation.ArtifactReferenceFactory);
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
             this.TypeManager = new TypeManager(features, Binder, environment, fileResolver, this.ParsingErrorLookup, Compilation.SourceFileGrouping, Compilation);
 
@@ -187,10 +188,6 @@ namespace Bicep.Core.Semantics
                 if (features.SourceMapping)
                 {
                     yield return nameof(features.SourceMapping);
-                }
-                if (features.UserDefinedTypes)
-                {
-                    yield return nameof(features.UserDefinedTypes);
                 }
                 if (features.PrettyPrinting)
                 {

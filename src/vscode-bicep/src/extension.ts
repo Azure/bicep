@@ -18,7 +18,7 @@ import { DecompileCommand } from "./commands/decompile";
 import { ImportKubernetesManifestCommand } from "./commands/importKubernetesManifest";
 import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
 import {
-  BicepCacheContentProvider,
+  BicepExternalSourceContentProvider,
   createLanguageService,
   ensureDotnetRuntimeInstalled,
 } from "./language";
@@ -59,6 +59,7 @@ import * as surveys from "./feedback/surveys";
 import { DecompileParamsCommand } from "./commands/decompileParams";
 import { DeployPaneViewManager } from "./panes/deploy";
 import { AzureUiManager } from "./azure/AzureUiManager";
+import { BicepExternalSourceScheme } from "./language/decodeExternalSourceUri";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -114,13 +115,13 @@ export async function activate(
         );
 
         progress.report({ message: "Registering commands" });
-        // go2def links that point to the bicep cache will have the bicep-cache scheme in their document URIs
+        // go2def links that point to the bicep cache will have the bicep-extsrc scheme in their document URIs
         // this content provider will allow VS code to understand that scheme
         // and surface the content as a read-only file
         extension.register(
           workspace.registerTextDocumentContentProvider(
-            "bicep-cache",
-            new BicepCacheContentProvider(languageClient),
+            BicepExternalSourceScheme,
+            new BicepExternalSourceContentProvider(languageClient),
           ),
         );
 

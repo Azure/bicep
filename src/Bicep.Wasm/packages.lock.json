@@ -71,8 +71,8 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.604",
-        "contentHash": "psGiC04OZUEUVv/suzx+Ci0epvenVWdSy5D7cyxYwjs6uwtbOofC8vidii91+EDccMQJpYggy9d7UMwd4qR9Vg==",
+        "resolved": "0.2.642",
+        "contentHash": "irMCaKR/BHAdasEaX4fjcYuR61+0zrjA6JlqFFdb/vZrwU9qVO4BNWn57cfubgpXzRZn5+OBUPIvYJSbbEk3hw==",
         "dependencies": {
           "Azure.Bicep.Types": "0.4.1"
         }
@@ -402,10 +402,10 @@
       },
       "Microsoft.Graph.Bicep.Types": {
         "type": "Transitive",
-        "resolved": "0.1.0-preview.5",
-        "contentHash": "BTMQ+sVKr0Z9GCYHI5ddfTR/O4B2Z0FRNvt8zemBCfic6kB4VQT4va/7gSEcefuhPjqCTdGEhR7gU/86K9m0Pg==",
+        "resolved": "0.1.1-preview",
+        "contentHash": "PBUH2KmCkJdFYD7DgcDuAUZ/iOMzBZRe8uKG/V8v6mmc1kBr5c9+5cQ0Zd559DQzkT+41OuNZNoFS7uzxpW/4w==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.3.181"
+          "Azure.Bicep.Types": "0.4.1"
         }
       },
       "Microsoft.Identity.Client": {
@@ -1866,7 +1866,7 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "[0.4.1, )",
-          "Azure.Bicep.Types.Az": "[0.2.604, )",
+          "Azure.Bicep.Types.Az": "[0.2.642, )",
           "Azure.Bicep.Types.K8s": "[0.1.504, )",
           "Azure.Containers.ContainerRegistry": "[1.1.0, )",
           "Azure.Deployments.Core": "[1.0.1103, )",
@@ -1880,7 +1880,7 @@
           "Microsoft.Extensions.Configuration.Binder": "[7.0.4, )",
           "Microsoft.Extensions.Configuration.Json": "[7.0.0, )",
           "Microsoft.Extensions.DependencyInjection": "[7.0.0, )",
-          "Microsoft.Graph.Bicep.Types": "[0.1.0-preview.5, )",
+          "Microsoft.Graph.Bicep.Types": "[0.1.1-preview, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "SharpYaml": "[2.1.0, )",
           "System.Collections.Immutable": "[7.0.0, )",

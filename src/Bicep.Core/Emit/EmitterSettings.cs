@@ -25,6 +25,8 @@ namespace Bicep.Core.Emit
                 model.Root.TypeDeclarations.Any() ||
                 // there are any user-defined types imported
                 model.Root.ImportedTypes.Any() ||
+                // there are any functions imported (it's impossible to tell here if the functions use user-defined types for their parameter or output declarations)
+                model.Root.ImportedFunctions.Any() ||
                 // any user-defined type declaration syntax is used (e.g., in a `param` or `output` statement)
                 SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
                     seed: false,

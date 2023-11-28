@@ -19,9 +19,9 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Direct",
-        "requested": "[0.2.604, )",
-        "resolved": "0.2.604",
-        "contentHash": "psGiC04OZUEUVv/suzx+Ci0epvenVWdSy5D7cyxYwjs6uwtbOofC8vidii91+EDccMQJpYggy9d7UMwd4qR9Vg==",
+        "requested": "[0.2.642, )",
+        "resolved": "0.2.642",
+        "contentHash": "irMCaKR/BHAdasEaX4fjcYuR61+0zrjA6JlqFFdb/vZrwU9qVO4BNWn57cfubgpXzRZn5+OBUPIvYJSbbEk3hw==",
         "dependencies": {
           "Azure.Bicep.Types": "0.4.1"
         }
@@ -186,11 +186,11 @@
       },
       "Microsoft.Graph.Bicep.Types": {
         "type": "Direct",
-        "requested": "[0.1.0-preview.5, )",
-        "resolved": "0.1.0-preview.5",
-        "contentHash": "BTMQ+sVKr0Z9GCYHI5ddfTR/O4B2Z0FRNvt8zemBCfic6kB4VQT4va/7gSEcefuhPjqCTdGEhR7gU/86K9m0Pg==",
+        "requested": "[0.1.1-preview, )",
+        "resolved": "0.1.1-preview",
+        "contentHash": "PBUH2KmCkJdFYD7DgcDuAUZ/iOMzBZRe8uKG/V8v6mmc1kBr5c9+5cQ0Zd559DQzkT+41OuNZNoFS7uzxpW/4w==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.3.181"
+          "Azure.Bicep.Types": "0.4.1"
         }
       },
       "Microsoft.SourceLink.GitHub": {

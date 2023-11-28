@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18401759451862217726"
+      "templateHash": "15976479214051515526"
     }
   },
   "parameters": {
@@ -2009,13 +2009,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8139539847401806108"
+              "templateHash": "11965068276447022779"
             }
           },
           "imports": {
             "az": {
               "provider": "AzureResourceManager",
-              "version": "1.0.0"
+              "version": "0.2.642"
             }
           },
           "resources": {},

@@ -11,6 +11,8 @@ using Azure.Deployments.Expression.Extensions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.TypeSystem.Types;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem;
@@ -194,54 +196,74 @@ public static class ArmTemplateTypeLoader
             return TryGetLiteralUnionType(jArray, t => t.Type == JTokenType.Object, b => b.InvalidUnionTypeMember(LanguageConstants.ObjectType));
         }
 
+        if (schemaNode.Discriminator is { } discriminator)
+        {
+            var variants = ImmutableArray.CreateRange(discriminator.Mapping.Values
+                .Select(unresolvedVariant => TemplateEngine.ResolveSchemaReferences(context, unresolvedVariant))
+                .Select(variant => GetObjectType(
+                    context: context,
+                    properties: schemaNode.Properties.CoalesceEnumerable().Concat(variant.Properties.CoalesceEnumerable()),
+                    requiredProperties: (schemaNode.Required?.Value ?? Array.Empty<string>()).Concat(variant.Required?.Value ?? Array.Empty<string>()),
+                    additionalProperties: variant.AdditionalProperties ?? schemaNode.AdditionalProperties,
+                    flags)));
+            return new DiscriminatedObjectType(string.Join(" | ", TypeHelper.GetOrderedTypeNames(variants)), flags, discriminator.PropertyName.Value, variants);
+        }
+
+        return GetObjectType(context, schemaNode.Properties.CoalesceEnumerable(), schemaNode.Required?.Value, schemaNode.AdditionalProperties, flags);
+    }
+
+    private static TypeSymbol GetObjectType(SchemaValidationContext context,
+        IEnumerable<KeyValuePair<string, TemplateTypeDefinition>> properties,
+        IEnumerable<string>? requiredProperties,
+        TemplateBooleanOrSchemaNode? additionalProperties,
+        TypeSymbolValidationFlags flags)
+    {
+        var requiredProps = requiredProperties is not null ? ImmutableHashSet.CreateRange(requiredProperties) : null;
+
         ObjectTypeNameBuilder nameBuilder = new();
-        List<TypeProperty> properties = new();
+        List<TypeProperty> propertyList = new();
         ITypeReference? additionalPropertiesType = LanguageConstants.Any;
         TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.FallbackProperty;
 
-        if (schemaNode.Properties is { } propertySchemata)
+        foreach (var (propertyName, schema) in properties)
         {
-            foreach (var (propertyName, schema) in propertySchemata)
-            {
-                // depending on the language version, either only properties included in schemaNode.Required are required,
-                // or all of them are (but some may be nullable)
-                var required = context.TemplateLanguageVersion?.HasFeature(TemplateLanguageFeature.NullableParameters) == true
-                    || (schemaNode.Required?.Value.Contains(propertyName) ?? false);
-                var propertyFlags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
-                var description = schema.Metadata?.Value is JObject metadataObject &&
-                    metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
-                    descriptionToken is JValue { Value: string descriptionString }
-                        ? descriptionString
-                        : null;
+            // depending on the language version, either only properties included in schemaNode.Required are required,
+            // or all of them are (but some may be nullable)
+            var required = context.TemplateLanguageVersion?.HasFeature(TemplateLanguageFeature.NullableParameters) == true
+                || (requiredProps?.Contains(propertyName) ?? false);
+            var propertyFlags = required ? TypePropertyFlags.Required : TypePropertyFlags.None;
+            var description = schema.Metadata?.Value is JObject metadataObject &&
+                metadataObject.TryGetValue(LanguageConstants.MetadataDescriptionPropertyName, out var descriptionToken) &&
+                descriptionToken is JValue { Value: string descriptionString }
+                    ? descriptionString
+                    : null;
 
-                var (type, typeName) = GetDeferrableTypeInfo(context, schema);
-
-                properties.Add(new(propertyName, type, propertyFlags, description));
-                nameBuilder.AppendProperty(propertyName, typeName);
-            }
+            var (type, typeName) = GetDeferrableTypeInfo(context, schema);
+            propertyList.Add(new(propertyName, type, propertyFlags, description));
+            nameBuilder.AppendProperty(propertyName, typeName);
         }
 
-        if (schemaNode.AdditionalProperties is { } addlProps)
+        if (additionalProperties is not null)
         {
             additionalPropertiesFlags = TypePropertyFlags.None;
 
-            if (addlProps.SchemaNode is { } additionalPropertiesSchema)
+            if (additionalProperties.SchemaNode is { } additionalPropertiesSchema)
             {
-                var typeInfo = GetDeferrableTypeInfo(context, additionalPropertiesSchema);
-                additionalPropertiesType = typeInfo.type;
-                nameBuilder.AppendPropertyMatcher("*", typeInfo.typeName);
+                var (type, typeName) = GetDeferrableTypeInfo(context, additionalPropertiesSchema);
+                additionalPropertiesType = type;
+                nameBuilder.AppendPropertyMatcher("*", typeName);
             }
-            else if (addlProps.BooleanValue == false)
+            else if (additionalProperties.BooleanValue == false)
             {
                 additionalPropertiesType = null;
             }
         }
 
-        if (properties.Count == 0 && schemaNode.AdditionalProperties is null)
+        if (propertyList.Count == 0 && additionalProperties is null)
         {
             return flags.HasFlag(TypeSymbolValidationFlags.IsSecure) ? LanguageConstants.SecureObject : LanguageConstants.Object;
         }
 
-        return new ObjectType(nameBuilder.ToString(), flags, properties, additionalPropertiesType, additionalPropertiesFlags);
+        return new ObjectType(nameBuilder.ToString(), flags, propertyList, additionalPropertiesType, additionalPropertiesFlags);
     }
 }

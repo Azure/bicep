@@ -12,6 +12,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -1034,11 +1035,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             out List<ArgumentCountMismatch> argumentCountMismatches,
             out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
-            var namespaceProvider = new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory);
-
+            var namespaceProvider = BicepTestConstants.NamespaceProvider;
             var namespaces = new[] {
-                namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
-                namespaceProvider.TryGetNamespace("sys", "sys", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
+                namespaceProvider.TryGetNamespace(new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion), ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
+                namespaceProvider.TryGetNamespace(new(SystemNamespaceType.BuiltInName, SystemNamespaceType.Settings.ArmTemplateProviderVersion), ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
             };
 
             var matches = new List<FunctionOverload>();

@@ -1595,31 +1595,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP279",
                 $"Expected a type at this location. Please specify a valid type expression or one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
 
-            public ErrorDiagnostic TypeDeclarationStatementsUnsupported() => new(
-                TextSpan,
-                "BCP280",
-                $@"Using a type declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
-
-            public ErrorDiagnostic TypedArrayDeclarationsUnsupported() => new(
-                TextSpan,
-                "BCP281",
-                $@"Using a typed array type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
-
-            public ErrorDiagnostic TypedObjectDeclarationsUnsupported() => new(
-                TextSpan,
-                "BCP282",
-                $@"Using a strongly-typed object type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
-
-            public ErrorDiagnostic TypeLiteralDeclarationsUnsupported() => new(
-                TextSpan,
-                "BCP283",
-                $@"Using a literal value as a type requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
-
-            public ErrorDiagnostic TypeUnionDeclarationsUnsupported() => new(
-                TextSpan,
-                "BCP284",
-                $@"Using a type union declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
-
             public ErrorDiagnostic TypeExpressionLiteralConversionFailed() => new(
                 TextSpan,
                 "BCP285",
@@ -1752,11 +1727,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP309",
                 $@"Values of type ""{flattenInputType.Name}"" cannot be flattened because ""{incompatibleType.Name}"" is not an array type.");
 
-            public ErrorDiagnostic TypedTupleDeclarationsUnsupported() => new(
-                TextSpan,
-                "BCP310",
-                $@"Using a strongly-typed tuple type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
-
             public ErrorDiagnostic IndexOutOfBounds(string typeName, long tupleLength, long indexSought)
             {
                 var message = new StringBuilder("The provided index value of \"").Append(indexSought).Append("\" is not valid for type \"").Append(typeName).Append("\".");
@@ -1831,11 +1801,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP323",
                 "The `[?]` (safe dereference) operator may not be used on resource or module collections.");
-
-            public ErrorDiagnostic NullableTypesUnsupported() => new(
-                TextSpan,
-                "BCP324",
-                $@"Using nullable types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
 
             public ErrorDiagnostic ExpectedTypeIdentifier() => new(
                 TextSpan,
@@ -2128,6 +2093,12 @@ namespace Bicep.Core.Diagnostics
                     DiagnosticStyling.Default,
                     codeFix);
             }
+
+            public ErrorDiagnostic MalformedProviderPackage(string ociManifestPath) => new(
+                TextSpan,
+                "BCP382",
+                $"The provider package is malformed and could not be loaded from \"{ociManifestPath}\"."
+            );
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

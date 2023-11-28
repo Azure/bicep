@@ -9,6 +9,7 @@ using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.TypeSystem.Types;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem;

@@ -693,9 +693,6 @@
         "sourceMapping": {
           "type": "boolean"
         },
-        "userDefinedTypes": {
-          "type": "boolean"
-        },
         "userDefinedFunctions": {
           "type": "boolean"
         },
@@ -720,7 +717,8 @@
         "publishSource": {
           "type": "boolean"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "formatting": {
       "type": "object",

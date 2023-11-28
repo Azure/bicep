@@ -18,6 +18,8 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
@@ -31,13 +33,13 @@ namespace Bicep.Core.TypeSystem
         private readonly IEnvironment environment;
         private readonly IFileResolver fileResolver;
         private readonly IDiagnosticLookup parsingErrorLookup;
-        private readonly ISourceFileLookup sourceFileLookup;
+        private readonly IArtifactFileLookup sourceFileLookup;
         private readonly ISemanticModelLookup semanticModelLookup;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
 
-        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, ISourceFileLookup sourceFileLookup, ISemanticModelLookup semanticModelLookup)
+        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup semanticModelLookup)
         {
             this.typeManager = typeManager;
             this.features = features;

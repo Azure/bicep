@@ -132,7 +132,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             // go to def should produce single result in all cases
             response.Should().HaveCount(1);
-            var single = response.Single();
+            var single = response!.Single();
 
             single.IsLocation.Should().BeFalse();
             single.IsLocationLink.Should().BeTrue();

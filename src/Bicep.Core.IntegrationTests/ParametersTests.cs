@@ -5,7 +5,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -25,7 +25,7 @@ namespace Bicep.Core.IntegrationTests
 
         private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
             .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
-            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoaderFactory));
+            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
 
         [TestMethod]
         public void Parameter_can_have_resource_type()

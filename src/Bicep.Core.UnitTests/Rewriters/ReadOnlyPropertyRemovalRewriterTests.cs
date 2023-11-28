@@ -3,6 +3,7 @@
 using Bicep.Core.Extensions;
 using Bicep.Core.Rewriters;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -52,7 +53,7 @@ output myObj object = {
                 new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                 new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
                 new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
+            var typeLoader = TestTypeHelper.CreateResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
             var (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", bicepFile));
             var rewriter = new ReadOnlyPropertyRemovalRewriter(compilation.GetEntrypointSemanticModel());

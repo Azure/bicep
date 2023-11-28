@@ -134,16 +134,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_OutputReferencesSecureParamProperty_ShouldFail(string text, params string[] expectedMessages)
         {
-            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages, config => new(
-                config.Cloud,
-                config.ModuleAliases,
-                config.ProviderAliases,
-                config.Analyzers,
-                config.CacheRootDirectory,
-                config.ExperimentalFeaturesEnabled with { UserDefinedTypes = true },
-                config.Formatting,
-                config.ConfigurationPath,
-                config.DiagnosticBuilders));
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
         }
 
         [DataRow(@"
@@ -226,16 +217,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_OutputReferencesParamWithSecureProperty_ShouldFail(string text, params string[] expectedMessages)
         {
-            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages, config => new(
-                config.Cloud,
-                config.ModuleAliases,
-                config.ProviderAliases,
-                config.Analyzers,
-                config.CacheRootDirectory,
-                config.ExperimentalFeaturesEnabled with { UserDefinedTypes = true },
-                config.Formatting,
-                config.ConfigurationPath,
-                config.DiagnosticBuilders));
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
         }
 
         [DataRow(@"
@@ -278,16 +260,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_OutputReferencesNonSecureParamProperty_ShouldPass(string text, params string[] expectedMessages)
         {
-            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages, config => new(
-                config.Cloud,
-                config.ModuleAliases,
-                config.ProviderAliases,
-                config.Analyzers,
-                config.CacheRootDirectory,
-                config.ExperimentalFeaturesEnabled with { UserDefinedTypes = true },
-                config.Formatting,
-                config.ConfigurationPath,
-                config.DiagnosticBuilders));
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
         }
 
         [DataRow(@"

@@ -1,0 +1,72 @@
+id: issueMgmt.recentActivity
+name: GitOps.PullRequestIssueManagement
+description: Manages recent activity on issues - closes stale issues, adds updated issues to triage
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    scheduledSearches:
+      - description: "Close issues with 'Status: No Recent Activity'"
+        frequencies:
+          - hourly:
+              hour: 12
+        filters:
+          - isIssue
+          - isOpen
+          - hasLabel:
+              label: "Needs: Author Feedback"
+          - hasLabel:
+              label: "Status: No Recent Activity"
+          - noActivitySince:
+              days: 3
+        actions:
+          - closeIssue
+
+      - description: "Add 'Status: No Recent Activity' label to issues with 'Needs: Author Feedback' and inactive"
+        frequencies:
+          - hourly:
+              hour: 12
+        filters:
+          - isIssue
+          - isOpen
+          - hasLabel:
+              label: "Needs: Author Feedback"
+          - noActivitySince:
+              days: 7
+          - isNotLabeledWith:
+              label: "Status: No Recent Activity"
+        actions:
+          - addLabel:
+              label: "Status: No Recent Activity"
+          - addReply:
+              reply: "Hi @${issueAuthor}, this issue has been marked as stale because it was labeled as requiring author feedback but has not had any activity for **7 days**. It will be closed if no further activity occurs **within 3 days of this comment**. Thanks for contributing to bicep! :smile: :mechanical_arm:"
+
+    eventResponderTasks:
+      - description: "Replace 'Needs: Author Feedback' with 'Needs: Triage' label when author comments"
+        if:
+          - payloadType: Issue_Comment
+          - isAction:
+              action: Created
+          - isActivitySender:
+              issueAuthor: True
+          - hasLabel:
+              label: "Needs: Author Feedback"
+          - isOpen
+        then:
+          - addLabel:
+              label: "Needs: Triage :mag:"
+          - removeLabel:
+              label: "Needs: Author Feedback"
+
+      - description: "Remove 'Status: No Recent Activity' label when an issue is commented on"
+        if:
+          - payloadType: Issue_Comment
+          - hasLabel:
+              label: "Status: No Recent Activity"
+        then:
+          - removeLabel:
+              label: "Status: No Recent Activity"
+onFailure:
+onSuccess:

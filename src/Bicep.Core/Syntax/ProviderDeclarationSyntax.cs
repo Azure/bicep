@@ -51,6 +51,6 @@ namespace Bicep.Core.Syntax
 
         public ArtifactType GetArtifactType() => ArtifactType.Provider;
 
-        public SyntaxBase Path => this.Specification.ToPath();
+        public SyntaxBase Path => SyntaxFactory.CreateStringLiteral(this.Specification.BicepRegistryAddress);
     }
 }
