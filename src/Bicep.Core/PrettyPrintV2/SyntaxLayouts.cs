@@ -152,10 +152,8 @@ namespace Bicep.Core.PrettyPrintV2
                 // or there are dangling comments after =>.
                 return this.Spread(
                     syntax.VariableSection,
-                    this.IndentTail(
-                        syntax.NewlinesBeforeBody
-                            .Prepend(syntax.Arrow)
-                            .Append(syntax.Body)));
+                    syntax.Arrow,
+                    this.IndentGroup(syntax.NewlinesBeforeBody.Append(syntax.Body)));
             }
 
             return this.Spread(
@@ -326,11 +324,11 @@ namespace Bicep.Core.PrettyPrintV2
         {
             if (value is IfConditionSyntax)
             {
-                var valueAssignmentClause = this.IndentTail(newlines.Prepend(assignment).Append(value));
+                var valueGroup = this.IndentGroup(newlines.Append(value));
 
                 return this.LayoutLeadingNodes(leadingNodes).Concat(existingKeyword is not null
-                    ? this.Spread(keyword, name, typeOrPath, existingKeyword, valueAssignmentClause)
-                    : this.Spread(keyword, name, typeOrPath, valueAssignmentClause));
+                    ? this.Spread(keyword, name, typeOrPath, existingKeyword, assignment, valueGroup)
+                    : this.Spread(keyword, name, typeOrPath, assignment, valueGroup));
             }
 
             return this.LayoutLeadingNodes(leadingNodes)
@@ -388,7 +386,8 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Value);
 
         private IEnumerable<Document> LayoutTernaryOperationSyntax(TernaryOperationSyntax syntax) =>
-            this.IndentTail(() => this.LayoutSingle(syntax.ConditionExpression)
+            this.IndentTail(() => this
+                .LayoutSingle(syntax.ConditionExpression)
                 .Concat(this.LayoutMany(syntax.NewlinesBeforeQuestion))
                 .Append(this.Spread(
                     syntax.Question,
@@ -425,9 +424,35 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.OperatorToken,
                 syntax.Expression);
 
+        //private IEnumerable<Document> LayoutUnionTypeSyntax(UnionTypeSyntax syntax) =>
+        //    this.LayoutMany(syntax.Children)
+        //        .Spread();
+
         private IEnumerable<Document> LayoutUnionTypeSyntax(UnionTypeSyntax syntax) =>
-            this.LayoutMany(syntax.Children)
-                .Spread();
+            this.IndentGroup(() =>
+            {
+                var firstMember = true;
+
+                return syntax.Children.SelectMany(x =>
+                {
+                    if (x is UnionTypeMemberSyntax memberSyntax)
+                    {
+                        var member = this.LayoutSingle(memberSyntax);
+
+                        if (firstMember)
+                        {
+                            firstMember = false;
+
+                            // Leading | is only added if break union members.
+                            return Glue(new ConditionalTextDocument("| ", ""), member);
+                        }
+
+                        return Glue(TextDocument.From("| "), member);
+                    }
+
+                    return this.Layout(x);
+                });
+            });
 
         private IEnumerable<Document> LayoutUsingDeclarationSyntax(UsingDeclarationSyntax syntax) =>
             this.Spread(
@@ -570,7 +595,7 @@ namespace Bicep.Core.PrettyPrintV2
         {
             var hasLeadingTrivia = leadingTrivia.Any();
 
-            if (token.IsOf(TokenType.EndOfFile))
+            if (token.IsOf(TokenType.Pipe) || token.IsOf(TokenType.EndOfFile))
             {
                 return hasLeadingTrivia ? leadingTrivia.Spread() : Empty;
             }

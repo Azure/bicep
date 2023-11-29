@@ -74,10 +74,17 @@ namespace Bicep.Core.Syntax
         {
             // Any token that can have leading comments attached
             // to it has leading comment stickiness.
+            //
             // The NewLine token is included because there may
             // exists dangling comments that are not attached
             // to a statement or an expression.
+            //
+            // The Pipe token is included because union types can have
+            // a optional leading pipe , for example:
+            //
+            // type MyString = /* leading comment */ | 'foo' | 'bar'
             TokenType.NewLine or
+            TokenType.Pipe or
             TokenType.At or
             TokenType.Minus or
             TokenType.EndOfFile or

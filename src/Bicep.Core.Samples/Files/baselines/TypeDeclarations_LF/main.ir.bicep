@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4954) ProgramExpression
+//@[000:4990) ProgramExpression
 //@[000:0299) ├─DeclaredTypeExpression { Name = foo }
 //@[013:0027) | ├─StringLiteralExpression { Value = The foo type }
 @sealed()
@@ -87,6 +87,11 @@ type aUnion = 'snap'|'crackle'|'pop'
 //@[014:0020) |   ├─StringLiteralTypeExpression { Name = 'snap' }
 //@[021:0030) |   ├─StringLiteralTypeExpression { Name = 'crackle' }
 //@[031:0036) |   └─StringLiteralTypeExpression { Name = 'pop' }
+
+type singleMemberUnion = | 'alone'
+//@[000:0034) ├─DeclaredTypeExpression { Name = singleMemberUnion }
+//@[025:0034) | └─UnionTypeExpression { Name =  }
+//@[027:0034) |   └─StringLiteralTypeExpression { Name = 'alone' }
 
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@[000:0047) ├─DeclaredTypeExpression { Name = expandedUnion }

@@ -1335,35 +1335,42 @@ namespace Bicep.Core.Parsing
 
         protected SyntaxBase TypeExpression()
         {
+            // Parse optional leading '|' for union types.
+            List<SyntaxBase>? unionTypeNodes = HasUnionMemberSeparator()
+                ? new(NewLines()) { reader.Read() }
+                : null;
+
             var candidate = this.UnaryTypeExpression();
 
-            if (HasTrailingUnionMember())
+            if (unionTypeNodes is not null || HasUnionMemberSeparator())
             {
-                var elementAndSeparators = new List<SyntaxBase> { new UnionTypeMemberSyntax(candidate) };
-                while (HasTrailingUnionMember())
+                unionTypeNodes ??= new();
+                unionTypeNodes.Add(new UnionTypeMemberSyntax(candidate));
+
+                while (HasUnionMemberSeparator())
                 {
                     // consume the pipe and newline
-                    elementAndSeparators.AddRange(NewLines());
-                    elementAndSeparators.Add(reader.Read());
+                    unionTypeNodes.AddRange(NewLines());
+                    unionTypeNodes.Add(reader.Read());
 
                     // error reporting gets really wonky if users can have newlines after the pipe. `type foo = 'foo'|` causes the start of the next declaration (i.e., a language keyword) to be reported as a non-existent symbol
                     if (Check(TokenType.NewLine))
                     {
-                        elementAndSeparators.Add(SkipEmpty(b => b.ExpectedTypeLiteral()));
+                        unionTypeNodes.Add(SkipEmpty(b => b.ExpectedTypeLiteral()));
                     }
                     else
                     {
-                        elementAndSeparators.Add(WithRecovery(() => new UnionTypeMemberSyntax(UnaryTypeExpression()), RecoveryFlags.None));
+                        unionTypeNodes.Add(WithRecovery(() => new UnionTypeMemberSyntax(UnaryTypeExpression()), RecoveryFlags.None));
                     }
                 }
 
-                return new UnionTypeSyntax(elementAndSeparators);
+                return new UnionTypeSyntax(unionTypeNodes);
             }
 
             return candidate;
         }
 
-        private bool HasTrailingUnionMember() => Check(TokenType.Pipe) || (Check(TokenType.NewLine) && Check(reader.PeekAhead(), TokenType.Pipe));
+        private bool HasUnionMemberSeparator() => Check(TokenType.Pipe) || (Check(TokenType.NewLine) && Check(reader.PeekAhead(), TokenType.Pipe));
 
         private ObjectTypeSyntax ObjectType()
         {

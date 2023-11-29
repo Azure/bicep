@@ -111,6 +111,8 @@ type typeG = {
   value: string
 }
 
+type primitiveUnion = | bool | bool
+
 type objectUnion = typeA | typeB
 
 @discriminator()

@@ -183,6 +183,14 @@ type aUnion = 'snap'|'crackle'|'pop'
 //@[031:036) StringComplete |'pop'|
 //@[036:038) NewLine |\n\n|
 
+type singleMemberUnion = | 'alone'
+//@[000:004) Identifier |type|
+//@[005:022) Identifier |singleMemberUnion|
+//@[023:024) Assignment |=|
+//@[025:026) Pipe |||
+//@[027:034) StringComplete |'alone'|
+//@[034:036) NewLine |\n\n|
+
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@[000:004) Identifier |type|
 //@[005:018) Identifier |expandedUnion|

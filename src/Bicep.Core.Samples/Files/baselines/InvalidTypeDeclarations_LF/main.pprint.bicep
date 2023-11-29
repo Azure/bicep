@@ -111,6 +111,8 @@ type typeG = {
   value: string
 }
 
+type primitiveUnion = bool | bool
+
 type objectUnion = typeA | typeB
 
 @discriminator()
@@ -164,10 +166,12 @@ type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB
 type discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA
 
 @discriminator('type')
-type discriminatorInnerSelfCycle1 = typeA | {
-  type: 'b'
-  value: discriminatorInnerSelfCycle1
-}
+type discriminatorInnerSelfCycle1 =
+  | typeA
+  | {
+    type: 'b'
+    value: discriminatorInnerSelfCycle1
+  }
 
 type discriminatorInnerSelfCycle2Helper = {
   type: 'b'
@@ -201,16 +205,14 @@ type discriminatorInlineAdditionalPropsBadType3 = {
 }
 
 @discriminator('type')
-type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | {
-  type: 'A'
-  value: int
-}
+type discriminatedUnionDuplicateMemberInsensitive =
+  | { type: 'a', value: string }
+  | { type: 'A', value: int }
 
 @discriminator('TYPE')
-type discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string } | {
-  type: 'b'
-  value: int
-}
+type discriminatedUnionCaseSensitiveDiscriminator =
+  | { type: 'a', value: string }
+  | { type: 'b', value: int }
 
 @discriminator('type')
 param discriminatorParamBadType1 typeA

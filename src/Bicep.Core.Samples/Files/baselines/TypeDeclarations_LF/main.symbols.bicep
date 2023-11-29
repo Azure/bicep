@@ -34,6 +34,9 @@ type bar = int[][][][]
 type aUnion = 'snap'|'crackle'|'pop'
 //@[5:11) TypeAlias aUnion. Type: Type<'crackle' | 'pop' | 'snap'>. Declaration start char: 0, length: 36
 
+type singleMemberUnion = | 'alone'
+//@[5:22) TypeAlias singleMemberUnion. Type: Type<'alone'>. Declaration start char: 0, length: 34
+
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@[5:18) TypeAlias expandedUnion. Type: Type<'buzz' | 'crackle' | 'fizz' | 'pop' | 'snap'>. Declaration start char: 0, length: 47
 
