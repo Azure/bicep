@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10900403552106448310"
+      "templateHash": "7984505348806476539"
     }
   },
   "definitions": {
@@ -109,6 +109,12 @@
         "crackle",
         "pop",
         "snap"
+      ]
+    },
+    "singleMemberUnion": {
+      "type": "string",
+      "allowedValues": [
+        "alone"
       ]
     },
     "expandedUnion": {

@@ -165,7 +165,11 @@ objectProperty -> ( IDENTIFIER(name) | interpString ) ":" expression
 array -> "[" ( NL+ arrayItem* )? "]"
 arrayItem -> expression NL+
 
-typeExpression -> singularTypeExpression ("|" singularTypeExpression)*
+typeExpression ->
+  singularTypeExpression |
+  unionTypeExpression
+
+unionTypeExpression -> "|"? singularTypeExpression ("|" singularTypeExpression)*
 
 singularTypeExpression ->
   primaryTypeExpression |

@@ -31,13 +31,24 @@ type bar = int[][][][]
 
 type aUnion = 'snap' | 'crackle' | 'pop'
 
+type singleMemberUnion = 'alone'
+
 type expandedUnion = aUnion | 'fizz' | 'buzz' | 'pop'
 
-type tupleUnion = ['foo', 'bar', 'baz']
- | ['fizz', 'buzz']
- | ['snap', 'crackle', 'pop']
+type tupleUnion =
+  | ['foo', 'bar', 'baz']
+  | ['fizz', 'buzz']
+  | ['snap', 'crackle', 'pop']
 
-type mixedArray = ('heffalump' | 'woozle' | { shape: '*', size: '*' } | 10 | -10 | true | !true | null)[]
+type mixedArray = (
+  | 'heffalump'
+  | 'woozle'
+  | { shape: '*', size: '*' }
+  | 10
+  | -10
+  | true
+  | !true
+  | null)[]
 
 type bool = string
 
@@ -126,16 +137,15 @@ type typeF = {
 type discriminatedUnion1 = typeA | typeB
 
 @discriminator('type')
-type discriminatedUnion2 = { type: 'c', value: string } | {
-  type: 'd'
-  value: bool
-}
+type discriminatedUnion2 =
+  | { type: 'c', value: string }
+  | { type: 'd', value: bool }
 
 @discriminator('type')
-type discriminatedUnion3 = discriminatedUnion1 | discriminatedUnion2 | {
-  type: 'e'
-  value: string
-}
+type discriminatedUnion3 =
+  | discriminatedUnion1
+  | discriminatedUnion2
+  | { type: 'e', value: string }
 
 @discriminator('type')
 type discriminatedUnion4 = discriminatedUnion1 | (discriminatedUnion2 | typeE)
@@ -157,15 +167,17 @@ type inlineDiscriminatedUnion2 = {
 }
 
 @discriminator('type')
-type inlineDiscriminatedUnion3 = {
-  type: 'a'
-  @discriminator('type')
-  prop: { type: 'a', value: bool } | typeB
-} | {
-  type: 'b'
-  @discriminator('type')
-  prop: discriminatedUnion1 | discriminatedUnion2
-}
+type inlineDiscriminatedUnion3 =
+  | {
+    type: 'a'
+    @discriminator('type')
+    prop: { type: 'a', value: bool } | typeB
+  }
+  | {
+    type: 'b'
+    @discriminator('type')
+    prop: discriminatedUnion1 | discriminatedUnion2
+  }
 
 type inlineDiscriminatedUnion4 = {
   @discriminator('type')
@@ -188,16 +200,18 @@ type discriminatedUnionInlineAdditionalProps2 = {
 }
 
 @discriminator('type')
-type discriminatorMemberHasAdditionalProperties1 = typeA | typeF | {
-  type: 'g'
-  *: int
-}
+type discriminatorMemberHasAdditionalProperties1 =
+  | typeA
+  | typeF
+  | { type: 'g', *: int }
 
 @discriminator('type')
-type discriminatorInnerSelfOptionalCycle1 = typeA | {
-  type: 'b'
-  value: discriminatorInnerSelfOptionalCycle1?
-}
+type discriminatorInnerSelfOptionalCycle1 =
+  | typeA
+  | {
+    type: 'b'
+    value: discriminatorInnerSelfOptionalCycle1?
+  }
 
 type discriminatedUnionMemberOptionalCycle1 = {
   type: 'b'
@@ -249,10 +263,10 @@ output outputInlineDiscriminatedUnion1 typeA | typeB | { type: 'c', value: int }
 }
 
 @discriminator('type')
-output outputInlineDiscriminatedUnion2 typeA | typeB | ({
-  type: 'c'
-  value: int
-}) = { type: 'c', value: 1 }
+output outputInlineDiscriminatedUnion2
+  | typeA
+  | typeB
+  | ({ type: 'c', value: int }) = { type: 'c', value: 1 }
 
 @discriminator('type')
 output outputInlineDiscriminatedUnion3 (typeA | typeB)? = null

@@ -1,5 +1,5 @@
 type 44
-//@[000:4542) ProgramSyntax
+//@[000:4579) ProgramSyntax
 //@[000:0007) ├─TypeDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |type|
 //@[005:0007) | ├─IdentifierSyntax
@@ -744,6 +744,25 @@ type typeG = {
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
+
+type primitiveUnion = | bool | bool
+//@[000:0035) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0019) | ├─IdentifierSyntax
+//@[005:0019) | | └─Token(Identifier) |primitiveUnion|
+//@[020:0021) | ├─Token(Assignment) |=|
+//@[022:0035) | └─UnionTypeSyntax
+//@[022:0023) |   ├─Token(Pipe) |||
+//@[024:0028) |   ├─UnionTypeMemberSyntax
+//@[024:0028) |   | └─VariableAccessSyntax
+//@[024:0028) |   |   └─IdentifierSyntax
+//@[024:0028) |   |     └─Token(Identifier) |bool|
+//@[029:0030) |   ├─Token(Pipe) |||
+//@[031:0035) |   └─UnionTypeMemberSyntax
+//@[031:0035) |     └─VariableAccessSyntax
+//@[031:0035) |       └─IdentifierSyntax
+//@[031:0035) |         └─Token(Identifier) |bool|
+//@[035:0037) ├─Token(NewLine) |\n\n|
 
 type objectUnion = typeA | typeB
 //@[000:0032) ├─TypeDeclarationSyntax

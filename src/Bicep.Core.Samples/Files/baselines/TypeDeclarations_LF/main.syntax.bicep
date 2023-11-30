@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4954) ProgramSyntax
+//@[000:4990) ProgramSyntax
 //@[000:0299) ├─TypeDeclarationSyntax
 //@[000:0028) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
@@ -311,6 +311,19 @@ type aUnion = 'snap'|'crackle'|'pop'
 //@[031:0036) |     └─StringSyntax
 //@[031:0036) |       └─Token(StringComplete) |'pop'|
 //@[036:0038) ├─Token(NewLine) |\n\n|
+
+type singleMemberUnion = | 'alone'
+//@[000:0034) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0022) | ├─IdentifierSyntax
+//@[005:0022) | | └─Token(Identifier) |singleMemberUnion|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0034) | └─UnionTypeSyntax
+//@[025:0026) |   ├─Token(Pipe) |||
+//@[027:0034) |   └─UnionTypeMemberSyntax
+//@[027:0034) |     └─StringSyntax
+//@[027:0034) |       └─Token(StringComplete) |'alone'|
+//@[034:0036) ├─Token(NewLine) |\n\n|
 
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@[000:0047) ├─TypeDeclarationSyntax
