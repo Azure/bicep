@@ -249,6 +249,24 @@
         }
       }
     },
+    "providerAliases": {
+      "title": "Module Aliases",
+      "type": "object",
+      "additionalProperties": false,
+      "default": {
+        "ts": {},
+        "br": {}
+      },
+      "properties": {
+        "br": {
+          "title": "Bicep Registry Provider Aliases",
+          "description": "Bicep Registry provider alias definitions",
+          "additionalProperties": {
+            "$ref": "#/definitions/bicepRegistryProviderAlias"
+          }
+        }
+      }
+    },
     "analyzers": {
       "title": "Analyzers",
       "type": "object",
