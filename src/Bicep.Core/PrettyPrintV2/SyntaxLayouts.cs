@@ -424,10 +424,6 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.OperatorToken,
                 syntax.Expression);
 
-        //private IEnumerable<Document> LayoutUnionTypeSyntax(UnionTypeSyntax syntax) =>
-        //    this.LayoutMany(syntax.Children)
-        //        .Spread();
-
         private IEnumerable<Document> LayoutUnionTypeSyntax(UnionTypeSyntax syntax) =>
             this.IndentGroup(() =>
             {
