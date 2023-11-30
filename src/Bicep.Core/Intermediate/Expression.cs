@@ -901,3 +901,13 @@ public record ParameterKeyVaultReferenceExpression(
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitParameterKeyVaultReferenceExpression(this);
 }
+
+public record ResourceDerivedTypeExpression(
+    SyntaxBase? SourceSyntax,
+    ResourceType RootResourceType,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitResourceDerivedTypeExpression(this);
+}

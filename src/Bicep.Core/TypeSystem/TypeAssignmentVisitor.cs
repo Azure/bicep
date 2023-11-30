@@ -726,6 +726,9 @@ namespace Bicep.Core.TypeSystem
                 return declaredType;
             });
 
+        public override void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax)
+            => AssignType(syntax, () => typeManager.GetTypeInfo(syntax.Expression));
+
         private TypeSymbol GetDeclaredTypeAndValidateDecorators(DecorableSyntax targetSyntax, SyntaxBase typeSyntax, IDiagnosticWriter diagnostics)
         {
             var declaredType = typeManager.GetDeclaredType(targetSyntax);
@@ -970,6 +973,7 @@ namespace Bicep.Core.TypeSystem
 
                 List<TypeProperty> nsProperties = new();
                 List<FunctionOverload> nsFunctions = new();
+                ResourceDerivedTypeBinder resourceDerivedTypeBinder = new(binder, diagnostics, syntax);
                 foreach (var export in importedModel.Exports.Values)
                 {
                     if (export is ExportedFunctionMetadata exportedFunction)
@@ -978,7 +982,10 @@ namespace Bicep.Core.TypeSystem
                     }
                     else
                     {
-                        nsProperties.Add(new(export.Name, export.TypeReference, TypePropertyFlags.ReadOnly | TypePropertyFlags.Required, export.Description));
+                        nsProperties.Add(new(export.Name,
+                            resourceDerivedTypeBinder.BindResourceDerivedTypes(export.TypeReference.Type),
+                            TypePropertyFlags.ReadOnly | TypePropertyFlags.Required,
+                            export.Description));
                     }
                 }
 
@@ -1019,7 +1026,9 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                return exported.TypeReference;
+                ResourceDerivedTypeBinder resourceDerivedTypeBinder = new(binder, diagnostics, syntax);
+
+                return resourceDerivedTypeBinder.BindResourceDerivedTypes(exported.TypeReference.Type);
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)

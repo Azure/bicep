@@ -1934,4 +1934,58 @@ public class CompileTimeImportTests
         var evaluated = TemplateEvaluator.Evaluate(result.Template);
         evaluated.Should().HaveValueAtPath("outputs.out.value", "ASP999");
     }
+
+    [TestMethod]
+    public void Resource_derived_types_are_bound_when_imported_from_ARM_JSON_models()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {foo} from 'mod.json'
+
+                param location string = resourceGroup().location
+                param fooParam foo = {
+                    bar: {
+                        name: 'acct'
+                        location: location
+                        kind: 'StorageV2'
+                        sku: {
+                            name: 'Standard_LRS'
+                        }
+                        properties: {
+                            unknownProperty: false
+                        }
+                    }
+                }
+
+                output fooOutput foo = fooParam
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "languageVersion": "2.0",
+                    "contentVersion": "1.0.0.0",
+                    "definitions": {
+                        "foo": {
+                            "metadata": {
+                                "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                            },
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "object",
+                                "metadata": {
+                                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01"
+                                }
+                            }
+                        }
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP037", DiagnosticLevel.Warning, """The property "unknownProperty" is not allowed on objects of type "StorageAccountPropertiesCreateParametersOrStorageAccountProperties". Permissible properties include "accessTier", "allowBlobPublicAccess", "allowCrossTenantReplication", "allowedCopyScope", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "customDomain", "defaultToOAuthAuthentication", "dnsEndpointType", "encryption", "immutableStorageWithVersioning", "isHnsEnabled", "isLocalUserEnabled", "isNfsV3Enabled", "isSftpEnabled", "keyPolicy", "largeFileSharesState", "minimumTlsVersion", "networkAcls", "publicNetworkAccess", "routingPreference", "sasPolicy", "supportsHttpsTrafficOnly"."""),
+        });
+    }
 }

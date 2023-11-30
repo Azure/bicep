@@ -93,5 +93,10 @@ namespace Bicep.Core.TypeSystem
         /// A reference to a type symbol
         /// </summary>
         TypeReference,
+
+        /// <summary>
+        /// A kind that is not yet known because the resource type from which it is derived has not yet been resolved.
+        /// </summary>
+        UnboundResourceDerivedType,
     }
 }

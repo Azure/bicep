@@ -862,4 +862,115 @@ param myParam string
 
         result.Template.Should().BeNull();
     }
+
+    [TestMethod]
+    public void Resource_derived_type_should_compile_successfully()
+    {
+        var result = CompilationHelper.Compile("""
+            type myType = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
+            """);
+
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
+            {
+                "myType": {
+                    "type": "object",
+                    "metadata": {
+                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01"
+                    }
+                }
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Param_with_resource_derived_type_can_be_loaded()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                param location string = resourceGroup().location
+
+                module mod 'mod.json' = {
+                    name: 'mod'
+                    params: {
+                        foo: {
+                            bar: {
+                                name: 'acct'
+                                location: location
+                                kind: 'StorageV2'
+                                sku: {
+                                    name: 'Standard_LRS'
+                                }
+                                properties: {
+                                    unknownProperty: false
+                                }
+                            }
+                        }
+                    }
+                }
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "languageVersion": "2.0",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "foo": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "object",
+                                "metadata": {
+                                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01"
+                                }
+                            }
+                        }
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP037", DiagnosticLevel.Warning, """The property "unknownProperty" is not allowed on objects of type "StorageAccountPropertiesCreateParametersOrStorageAccountProperties". Permissible properties include "accessTier", "allowBlobPublicAccess", "allowCrossTenantReplication", "allowedCopyScope", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "customDomain", "defaultToOAuthAuthentication", "dnsEndpointType", "encryption", "immutableStorageWithVersioning", "isHnsEnabled", "isLocalUserEnabled", "isNfsV3Enabled", "isSftpEnabled", "keyPolicy", "largeFileSharesState", "minimumTlsVersion", "networkAcls", "publicNetworkAccess", "routingPreference", "sasPolicy", "supportsHttpsTrafficOnly"."""),
+        });
+    }
+
+    [TestMethod]
+    public void Output_with_resource_derived_type_can_be_loaded()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                module mod 'mod.json' = {
+                    name: 'mod'
+                }
+
+                output out string = mod.outputs.foo.bar.properties.unknownProperty
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "languageVersion": "2.0",
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {
+                        "foo": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "object",
+                                "metadata": {
+                                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01"
+                                }
+                            },
+                            "value": {}
+                        }
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP053", DiagnosticLevel.Warning, """The type "StorageAccountPropertiesCreateParametersOrStorageAccountProperties" does not contain property "unknownProperty". Available properties include "accessTier", "allowBlobPublicAccess", "allowCrossTenantReplication", "allowedCopyScope", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "blobRestoreStatus", "creationTime", "customDomain", "defaultToOAuthAuthentication", "dnsEndpointType", "encryption", "failoverInProgress", "geoReplicationStats", "immutableStorageWithVersioning", "isHnsEnabled", "isLocalUserEnabled", "isNfsV3Enabled", "isSftpEnabled", "keyCreationTime", "keyPolicy", "largeFileSharesState", "lastGeoFailoverTime", "minimumTlsVersion", "networkAcls", "primaryEndpoints", "primaryLocation", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "routingPreference", "sasPolicy", "secondaryEndpoints", "secondaryLocation", "statusOfPrimary", "statusOfSecondary", "storageAccountSkuConversionStatus", "supportsHttpsTrafficOnly"."""),
+        });
+    }
 }

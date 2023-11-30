@@ -141,6 +141,7 @@ namespace Bicep.Core
         public const string ParameterSealedPropertyName = "sealed";
         public const string MetadataDescriptionPropertyName = "description";
         public const string MetadataResourceTypePropertyName = "resourceType";
+        public const string MetadataResourceDerivedTypePropertyName = "__bicep_resource_derived_type!";
         public const string MetadataExportedPropertyName = "__bicep_export!";
         public const string MetadataImportedFromPropertyName = "__bicep_imported_from!";
         public const string TemplateMetadataExportedVariablesName = "__bicep_exported_variables!";

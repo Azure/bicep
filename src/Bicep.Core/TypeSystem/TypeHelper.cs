@@ -11,6 +11,8 @@ using System.Numerics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
 using Newtonsoft.Json.Linq;
@@ -391,6 +393,57 @@ namespace Bicep.Core.TypeSystem
             _ => (0, null),
         };
 
+        public static ResultWithDiagnostic<ResourceType> GetResourceTypeFromString(IBinder binder, string stringContent, ResourceTypeGenerationFlags typeGenerationFlags, ResourceType? parentResourceType)
+        {
+            var colonIndex = stringContent.IndexOf(':');
+            if (colonIndex > 0)
+            {
+                var scheme = stringContent[..colonIndex];
+                var typeString = stringContent[(colonIndex + 1)..];
+
+                if (binder.NamespaceResolver.TryGetNamespace(scheme) is not { } namespaceType)
+                {
+                    return new(span => span.UnknownResourceReferenceScheme(scheme, binder.NamespaceResolver.GetNamespaceNames().OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
+                }
+
+                if (parentResourceType is not null &&
+                    parentResourceType.DeclaringNamespace != namespaceType)
+                {
+                    return new(span => span.ParentResourceInDifferentNamespace(namespaceType.Name, parentResourceType.DeclaringNamespace.Name));
+                }
+
+                if (!GetCombinedTypeReference(typeGenerationFlags, parentResourceType, typeString).IsSuccess(out var typeReference, out var builder))
+                {
+                    return new(builder);
+                }
+
+                if (namespaceType.ResourceTypeProvider.TryGetDefinedType(namespaceType, typeReference, typeGenerationFlags) is { } definedResource)
+                {
+                    return new(definedResource);
+                }
+
+                if (namespaceType.ResourceTypeProvider.TryGenerateFallbackType(namespaceType, typeReference, typeGenerationFlags) is { } defaultResource)
+                {
+                    return new(defaultResource);
+                }
+
+                return new(span => span.FailedToFindResourceTypeInNamespace(namespaceType.ProviderName, typeReference.FormatName()));
+            }
+
+            if (!GetCombinedTypeReference(typeGenerationFlags, parentResourceType, stringContent).IsSuccess(out var typeRef, out var errorBuilder))
+            {
+                return new(errorBuilder);
+            }
+
+            var resourceTypes = binder.NamespaceResolver.GetMatchingResourceTypes(typeRef, typeGenerationFlags);
+            return resourceTypes.Length switch
+            {
+                0 => new(span => span.InvalidResourceType()),
+                1 => new(resourceTypes[0]),
+                _ => new(span => span.AmbiguousResourceTypeBetweenImports(typeRef.FormatName(), resourceTypes.Select(x => x.DeclaringNamespace.Name))),
+            };
+        }
+
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
         {
             HashSet<TypeSymbol> distinctMembers = new();
@@ -434,5 +487,33 @@ namespace Bicep.Core.TypeSystem
                 UnionType unionType => unionType.Members.All(t => conditionFunc(t.Type)),
                 _ => conditionFunc(typeSymbol),
             };
+
+        private static ResultWithDiagnostic<ResourceTypeReference> GetCombinedTypeReference(ResourceTypeGenerationFlags flags, ResourceType? parentResourceType, string typeString)
+        {
+            if (ResourceTypeReference.TryParse(typeString) is not { } typeReference)
+            {
+                return new(span => span.InvalidResourceType());
+            }
+
+            if (!flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
+            {
+                // this is not a syntactically nested resource - return the type reference as-is
+                return new(typeReference);
+            }
+
+            // we're dealing with a syntactically nested resource here
+            if (parentResourceType is null)
+            {
+                return new(span => span.InvalidAncestorResourceType());
+            }
+
+            if (typeReference.TypeSegments.Length > 1)
+            {
+                // OK this resource is the one that's wrong.
+                return new(span => span.InvalidResourceTypeSegment(typeString));
+            }
+
+            return new(ResourceTypeReference.Combine(parentResourceType.TypeReference, typeReference));
+        }
     }
 }

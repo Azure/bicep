@@ -12,13 +12,14 @@ using System.Runtime.CompilerServices;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
-using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -28,21 +29,27 @@ namespace Bicep.Core.TypeSystem
         // processed nodes found not to have a declared type will have a null value
         private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
         private readonly ConcurrentDictionary<TypeAliasSymbol, TypeSymbol> userDefinedTypeReferences = new();
+        private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntax, Result<TypeExpression, ErrorDiagnostic>> reifiedTypes = new();
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IFeatureProvider features;
+        private readonly ResourceDerivedTypeBinder resourceDerivedTypeBinder;
 
         public DeclaredTypeManager(TypeManager typeManager, IBinder binder, IFeatureProvider features)
         {
             this.typeManager = typeManager;
             this.binder = binder;
             this.features = features;
+            this.resourceDerivedTypeBinder = new(binder, new SimpleDiagnosticWriter(), TextSpan.TextDocumentStart);
         }
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) =>
             this.declaredTypes.GetOrAdd(syntax, key => GetTypeAssignment(key));
 
         public TypeSymbol? GetDeclaredType(SyntaxBase syntax) => this.GetDeclaredTypeAssignment(syntax)?.Reference.Type;
+
+        public TypeExpression? TryGetReifiedType(ParameterizedTypeInstantiationSyntax syntax)
+            => GetReifiedTypeResult(syntax).TryUnwrap();
 
         private DeclaredTypeAssignment? GetTypeAssignment(SyntaxBase syntax)
         {
@@ -454,6 +461,7 @@ namespace Bicep.Core.TypeSystem
                 SkippedTriviaSyntax => LanguageConstants.Any,
                 ResourceTypeSyntax resource => GetDeclaredType(resource),
                 VariableAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef, allowNamespaceReferences),
+                ParameterizedTypeInstantiationSyntax parameterizedTypeInvocation => ConvertTypeExpressionToType(parameterizedTypeInvocation),
                 ArrayTypeSyntax array => GetDeclaredTypeAssignment(array)?.Reference,
                 ObjectTypeSyntax @object => GetDeclaredType(@object),
                 TupleTypeSyntax tuple => GetDeclaredType(tuple),
@@ -512,8 +520,8 @@ namespace Bicep.Core.TypeSystem
                 WildcardImportSymbol wildcardImport when allowNamespaceReferences => wildcardImport.Type,
                 BuiltInNamespaceSymbol or ProviderNamespaceSymbol or WildcardImportSymbol
                     => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NamespaceSymbolUsedAsType(syntax.Name.IdentifierName)),
-                AmbientTypeSymbol ambientType => UnwrapType(ambientType.Type),
-                ImportedTypeSymbol importedType => UnwrapType(importedType.Type),
+                AmbientTypeSymbol ambientType => UnwrapType(syntax, ambientType.Type),
+                ImportedTypeSymbol importedType => UnwrapType(syntax, importedType.Type),
                 TypeAliasSymbol declaredType => TypeRefToType(syntax, declaredType),
                 DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
@@ -523,6 +531,30 @@ namespace Bicep.Core.TypeSystem
             .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name))
             .Concat(binder.FileSymbol.ImportedTypes.Select(i => i.Name))
             .Distinct();
+
+        private ITypeReference ConvertTypeExpressionToType(ParameterizedTypeInstantiationSyntax syntax)
+            => GetReifiedTypeResult(syntax).IsSuccess(out var typeExpression, out var error)
+                ? typeExpression.ExpressedType
+                : ErrorType.Create(error);
+
+        private Result<TypeExpression, ErrorDiagnostic> GetReifiedTypeResult(ParameterizedTypeInstantiationSyntax syntax)
+            => reifiedTypes.GetOrAdd(syntax, InstantiateType);
+
+        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntax syntax) => binder.GetSymbolInfo(syntax) switch
+        {
+            AmbientTypeSymbol ambientType => InstantiateType(syntax, ambientType, ambientType.Type),
+            ImportedTypeSymbol importedType => InstantiateType(syntax, importedType, importedType.Type),
+            TypeAliasSymbol typeAlias => InstantiateType(syntax, typeAlias, typeAlias.Type),
+            DeclaredSymbol declaredSymbol => new(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
+            _ => new(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
+        };
+
+        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntax syntax, Symbol symbol, TypeSymbol symbolType)
+            => symbolType switch
+            {
+                TypeTemplate tt => tt.Instantiate(binder, syntax, syntax.Arguments.Select(typeManager.GetTypeInfo)),
+                _ => new(DiagnosticBuilder.ForPosition(syntax).TypeIsNotParameterizable(symbol.Name)),
+            };
 
         private ITypeReference TypeRefToType(VariableAccessSyntax signifier, TypeAliasSymbol signified) => new DeferredTypeReference(() =>
         {
@@ -840,9 +872,10 @@ namespace Bicep.Core.TypeSystem
                 : ErrorType.Empty();
         }
 
-        private TypeSymbol UnwrapType(TypeSymbol type) => type switch
+        private TypeSymbol UnwrapType(VariableAccessSyntax syntax, TypeSymbol type) => type switch
         {
             TypeType tt => tt.Unwrapped,
+            TypeTemplate template => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeRequiresParameterization(template.Name, template.Parameters.Length)),
             _ => type,
         };
 
@@ -1729,6 +1762,8 @@ namespace Bicep.Core.TypeSystem
                     type = TypeHelper.CreateTypeUnion(type, LanguageConstants.Null);
                 }
 
+                type = resourceDerivedTypeBinder.BindResourceDerivedTypes(type);
+
                 parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
             }
 
@@ -1741,6 +1776,8 @@ namespace Bicep.Core.TypeSystem
                     type = GetResourceTypeFromString(module.Span, unboundType.TypeReference.FormatName(), ResourceTypeGenerationFlags.ExistingResource, parentResourceType: null);
                 }
 
+                type = resourceDerivedTypeBinder.BindResourceDerivedTypes(type);
+
                 outputs.Add(new TypeProperty(output.Name, type, TypePropertyFlags.ReadOnly, output.Description));
             }
 
@@ -1751,6 +1788,7 @@ namespace Bicep.Core.TypeSystem
                 binder.TargetScope,
                 LanguageConstants.TypeNameModule);
         }
+        
         private TypeSymbol GetDeclaredTestType(TestDeclarationSyntax test)
         {
             if (binder.GetSymbolInfo(test) is not TestSymbol testSymbol)
@@ -1798,73 +1836,9 @@ namespace Bicep.Core.TypeSystem
         }
 
         private TypeSymbol GetResourceTypeFromString(TextSpan span, string stringContent, ResourceTypeGenerationFlags typeGenerationFlags, ResourceType? parentResourceType)
-        {
-            var colonIndex = stringContent.IndexOf(':');
-            if (colonIndex > 0)
-            {
-                var scheme = stringContent.Substring(0, colonIndex);
-                var typeString = stringContent.Substring(colonIndex + 1);
-
-                if (binder.NamespaceResolver.TryGetNamespace(scheme) is not { } namespaceType)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(span).UnknownResourceReferenceScheme(scheme, binder.NamespaceResolver.GetNamespaceNames().OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
-                }
-
-                if (parentResourceType is not null &&
-                    parentResourceType.DeclaringNamespace != namespaceType)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(span).ParentResourceInDifferentNamespace(namespaceType.Name, parentResourceType.DeclaringNamespace.Name));
-                }
-
-                var (errorType, typeReference) = GetCombinedTypeReference(span, typeGenerationFlags, parentResourceType, typeString);
-                if (errorType is not null)
-                {
-                    return errorType;
-                }
-
-                if (typeReference is null)
-                {
-                    // this won't happen, because GetCombinedTypeReference will either return non-null errorType, or non-null typeReference.
-                    // there's no great way to enforce this in the type system sadly - https://github.com/dotnet/roslyn/discussions/56962
-                    throw new InvalidOperationException($"typeReference is null");
-                }
-
-                if (namespaceType.ResourceTypeProvider.TryGetDefinedType(namespaceType, typeReference, typeGenerationFlags) is { } definedResource)
-                {
-                    return definedResource;
-                }
-
-                if (namespaceType.ResourceTypeProvider.TryGenerateFallbackType(namespaceType, typeReference, typeGenerationFlags) is { } defaultResource)
-                {
-                    return defaultResource;
-                }
-
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(span).FailedToFindResourceTypeInNamespace(namespaceType.ProviderName, typeReference.FormatName()));
-            }
-            else
-            {
-                var (errorType, typeReference) = GetCombinedTypeReference(span, typeGenerationFlags, parentResourceType, stringContent);
-                if (errorType is not null)
-                {
-                    return errorType;
-                }
-
-                if (typeReference is null)
-                {
-                    // this won't happen, because GetCombinedTypeReference will either return non-null errorType, or non-null typeReference.
-                    // there's no great way to enforce this in the type system sadly - https://github.com/dotnet/roslyn/discussions/56962
-                    throw new InvalidOperationException($"qualifiedTypeReference is null");
-                }
-
-                var resourceTypes = binder.NamespaceResolver.GetMatchingResourceTypes(typeReference, typeGenerationFlags);
-                return resourceTypes.Length switch
-                {
-                    0 => ErrorType.Create(DiagnosticBuilder.ForPosition(span).InvalidResourceType()),
-                    1 => resourceTypes[0],
-                    _ => ErrorType.Create(DiagnosticBuilder.ForPosition(span).AmbiguousResourceTypeBetweenImports(typeReference.FormatName(), resourceTypes.Select(x => x.DeclaringNamespace.Name))),
-                };
-            }
-        }
+            => TypeHelper.GetResourceTypeFromString(binder, stringContent, typeGenerationFlags, parentResourceType).IsSuccess(out var resourceType, out var errorBuilder)
+                ? resourceType
+                : ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(span)));
 
         private (ResourceTypeGenerationFlags flags, ResourceType? parentResourceType) GetResourceTypeGenerationFlags(ResourceDeclarationSyntax resource)
         {
@@ -1904,36 +1878,6 @@ namespace Bicep.Core.TypeSystem
             }
 
             return (flags, parentType as ResourceType);
-        }
-
-        private static (ErrorType? error, ResourceTypeReference? typeReference) GetCombinedTypeReference(TextSpan span, ResourceTypeGenerationFlags flags, ResourceType? parentResourceType, string typeString)
-        {
-            if (ResourceTypeReference.TryParse(typeString) is not { } typeReference)
-            {
-                return (ErrorType.Create(DiagnosticBuilder.ForPosition(span).InvalidResourceType()), null);
-            }
-
-            if (!flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
-            {
-                // this is not a syntactically nested resource - return the type reference as-is
-                return (null, typeReference);
-            }
-
-            // we're dealing with a syntactically nested resource here
-            if (parentResourceType is null)
-            {
-                return (ErrorType.Create(DiagnosticBuilder.ForPosition(span).InvalidAncestorResourceType()), null);
-            }
-
-            if (typeReference.TypeSegments.Length > 1)
-            {
-                // OK this resource is the one that's wrong.
-                return (ErrorType.Create(DiagnosticBuilder.ForPosition(span).InvalidResourceTypeSegment(typeString)), null);
-            }
-
-            return (null, ResourceTypeReference.Combine(
-                parentResourceType.TypeReference,
-                typeReference));
         }
     }
 }

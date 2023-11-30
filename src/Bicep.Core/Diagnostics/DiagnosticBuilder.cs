@@ -2097,8 +2097,17 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic MalformedProviderPackage(string ociManifestPath) => new(
                 TextSpan,
                 "BCP382",
-                $"The provider package is malformed and could not be loaded from \"{ociManifestPath}\"."
-            );
+                $"The provider package is malformed and could not be loaded from \"{ociManifestPath}\".");
+
+            public ErrorDiagnostic TypeIsNotParameterizable(string typeName) => new(
+                TextSpan,
+                "BCP383",
+                $"The \"{typeName}\" type is not parameterizable.");
+
+            public ErrorDiagnostic TypeRequiresParameterization(string typeName, int requiredArgumentCount) => new(
+                TextSpan,
+                "BCP383",
+                $"The \"{typeName}\" type requires {requiredArgumentCount} argument(s).");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
