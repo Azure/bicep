@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
@@ -53,7 +54,7 @@ namespace Bicep.Cli.IntegrationTests
                         .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
                         .AddSingleton(settings.ClientFactory)
                         .AddSingleton(settings.TemplateSpecRepositoryFactory))
-                    .RunAsync(args.ToArrayExcludingNull()));
+                    .RunAsync(args.ToArrayExcludingNull(), CancellationToken.None));
 
         protected static void AssertNoErrors(string error)
         {
