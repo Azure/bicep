@@ -245,7 +245,7 @@
           "title": "Bicep Registry Module Aliases",
           "description": "Bicep Registry module alias definitions",
           "additionalProperties": {
-            "$ref": "#/definitions/bicepRegistryProviderAlias",
+            "$ref": "#/definitions/bicepRegistryModuleAlias",
             "additionalProperties": false
           }
         }
