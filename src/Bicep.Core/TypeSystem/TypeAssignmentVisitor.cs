@@ -991,7 +991,7 @@ namespace Bicep.Core.TypeSystem
 
                     if (export is ExportedFunctionMetadata exportedFunction)
                     {
-                        nsFunctions.Add(exportedFunction.Overload);
+                        nsFunctions.Add(TypeHelper.OverloadWithBoundTypes(resourceDerivedTypeBinder, exportedFunction));
                     }
                     else
                     {

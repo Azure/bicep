@@ -13,6 +13,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
 using Newtonsoft.Json.Linq;
@@ -444,6 +445,31 @@ namespace Bicep.Core.TypeSystem
             };
         }
 
+        public static bool SatisfiesCondition(TypeSymbol typeSymbol, Func<TypeSymbol, bool> conditionFunc)
+            => typeSymbol switch
+            {
+                UnionType unionType => unionType.Members.All(t => conditionFunc(t.Type)),
+                _ => conditionFunc(typeSymbol),
+            };
+
+        public static FunctionOverload OverloadWithBoundTypes(ResourceDerivedTypeBinder binder, ExportedFunctionMetadata exportedFunction)
+        {
+            FunctionOverloadBuilder builder = new(exportedFunction.Name);
+            if (exportedFunction.Description is string description)
+            {
+                builder = builder.WithGenericDescription(description).WithDescription(description);
+            }
+
+            foreach (var param in exportedFunction.Parameters)
+            {
+                builder = builder.WithRequiredParameter(param.Name,
+                    binder.BindResourceDerivedTypes(param.TypeReference.Type),
+                    param.Description ?? string.Empty);
+            }
+
+            return builder.WithReturnType(binder.BindResourceDerivedTypes(exportedFunction.Return.TypeReference.Type)).Build();
+        }
+
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
         {
             HashSet<TypeSymbol> distinctMembers = new();
@@ -480,13 +506,6 @@ namespace Bicep.Core.TypeSystem
 
         private static string FormatName(IEnumerable<ITypeReference> unionMembers) =>
             unionMembers.Select(m => m.Type.FormatNameForCompoundTypes()).ConcatString(" | ");
-
-        public static bool SatisfiesCondition(TypeSymbol typeSymbol, Func<TypeSymbol, bool> conditionFunc)
-            => typeSymbol switch
-            {
-                UnionType unionType => unionType.Members.All(t => conditionFunc(t.Type)),
-                _ => conditionFunc(typeSymbol),
-            };
 
         private static ResultWithDiagnostic<ResourceTypeReference> GetCombinedTypeReference(ResourceTypeGenerationFlags flags, ResourceType? parentResourceType, string typeString)
         {
