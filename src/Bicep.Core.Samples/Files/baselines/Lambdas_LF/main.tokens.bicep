@@ -373,7 +373,7 @@ var sortNumeric = sort([8, 3, 10, -13, 5], (x, y) => x < y)
 //@[048:049) RightParen |)|
 //@[050:052) Arrow |=>|
 //@[053:054) Identifier |x|
-//@[055:056) LessThan |<|
+//@[055:056) LeftChevron |<|
 //@[057:058) Identifier |y|
 //@[058:059) RightParen |)|
 //@[059:060) NewLine |\n|
@@ -398,7 +398,7 @@ var sortAlpha = sort(['ghi', 'abc', 'def'], (x, y) => x < y)
 //@[049:050) RightParen |)|
 //@[051:053) Arrow |=>|
 //@[054:055) Identifier |x|
-//@[056:057) LessThan |<|
+//@[056:057) LeftChevron |<|
 //@[058:059) Identifier |y|
 //@[059:060) RightParen |)|
 //@[060:061) NewLine |\n|
@@ -423,7 +423,7 @@ var sortAlphaReverse = sort(['ghi', 'abc', 'def'], (x, y) => x > y)
 //@[056:057) RightParen |)|
 //@[058:060) Arrow |=>|
 //@[061:062) Identifier |x|
-//@[063:064) GreaterThan |>|
+//@[063:064) RightChevron |>|
 //@[065:066) Identifier |y|
 //@[066:067) RightParen |)|
 //@[067:068) NewLine |\n|
@@ -494,7 +494,7 @@ var sortByObjectKey = sort([
 //@[018:019) Dot |.|
 //@[019:022) Identifier |key|
 //@[022:023) RightParen |)|
-//@[024:025) LessThan |<|
+//@[024:025) LeftChevron |<|
 //@[026:029) Identifier |int|
 //@[029:030) LeftParen |(|
 //@[030:031) Identifier |y|
@@ -522,7 +522,7 @@ var sortEmpty = sort([], (x, y) => int(x) < int(y))
 //@[038:039) LeftParen |(|
 //@[039:040) Identifier |x|
 //@[040:041) RightParen |)|
-//@[042:043) LessThan |<|
+//@[042:043) LeftChevron |<|
 //@[044:047) Identifier |int|
 //@[047:048) LeftParen |(|
 //@[048:049) Identifier |y|
@@ -685,7 +685,7 @@ var filteredLoop = filter(itemForLoop, i => i > 5)
 //@[039:040) Identifier |i|
 //@[041:043) Arrow |=>|
 //@[044:045) Identifier |i|
-//@[046:047) GreaterThan |>|
+//@[046:047) RightChevron |>|
 //@[048:049) Integer |5|
 //@[049:050) RightParen |)|
 //@[050:052) NewLine |\n\n|
@@ -885,7 +885,7 @@ var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
 //@[016:017) Colon |:|
 //@[018:019) LeftParen |(|
 //@[019:020) Identifier |i|
-//@[021:022) GreaterThan |>|
+//@[021:022) RightChevron |>|
 //@[023:024) Integer |4|
 //@[024:025) RightParen |)|
 //@[025:026) NewLine |\n|
@@ -983,7 +983,7 @@ var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
 //@[016:017) Colon |:|
 //@[018:019) LeftParen |(|
 //@[019:020) Identifier |i|
-//@[021:022) GreaterThan |>|
+//@[021:022) RightChevron |>|
 //@[023:024) Integer |4|
 //@[024:025) RightParen |)|
 //@[025:026) NewLine |\n|

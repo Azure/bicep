@@ -150,7 +150,7 @@ param myObject = {
 //@[25:26) Identifier |i|
 //@[27:29) Arrow |=>|
 //@[30:31) Identifier |i|
-//@[32:33) LessThan |<|
+//@[32:33) LeftChevron |<|
 //@[34:35) Integer |2|
 //@[35:36) RightParen |)|
 //@[36:37) NewLine |\n|
@@ -471,7 +471,7 @@ param myObject = {
 //@[35:36) RightParen |)|
 //@[37:39) Arrow |=>|
 //@[40:41) Identifier |a|
-//@[42:43) LessThan |<|
+//@[42:43) LeftChevron |<|
 //@[44:45) Identifier |b|
 //@[45:46) RightParen |)|
 //@[46:47) NewLine |\n|
@@ -700,12 +700,12 @@ param myArray = [
 //@[08:09) NewLine |\n|
   1 < 2
 //@[02:03) Integer |1|
-//@[04:05) LessThan |<|
+//@[04:05) LeftChevron |<|
 //@[06:07) Integer |2|
 //@[07:08) NewLine |\n|
   1 > 2
 //@[02:03) Integer |1|
-//@[04:05) GreaterThan |>|
+//@[04:05) RightChevron |>|
 //@[06:07) Integer |2|
 //@[07:08) NewLine |\n|
   1 >= 2

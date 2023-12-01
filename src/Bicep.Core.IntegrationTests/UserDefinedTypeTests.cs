@@ -866,7 +866,8 @@ param myParam string
     [TestMethod]
     public void Resource_derived_type_should_compile_successfully()
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            """
             type myType = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
             """);
 
@@ -885,7 +886,7 @@ param myParam string
     [TestMethod]
     public void Param_with_resource_derived_type_can_be_loaded()
     {
-        var result = CompilationHelper.Compile(
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("main.bicep", """
                 param location string = resourceGroup().location
 
@@ -938,7 +939,7 @@ param myParam string
     [TestMethod]
     public void Output_with_resource_derived_type_can_be_loaded()
     {
-        var result = CompilationHelper.Compile(
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("main.bicep", """
                 module mod 'mod.json' = {
                     name: 'mod'
