@@ -333,17 +333,12 @@
           "System.Runtime.CompilerServices.Unsafe": "5.0.0"
         }
       },
-      "Microsoft.Diagnostics.Tracing.EventRegister": {
-        "type": "Transitive",
-        "resolved": "1.1.28",
-        "contentHash": "VXTPYySeOmpMFejW2t4uau3t5h92LYKT9zM3kR06qeUNM9vQxG3S5nB6EhuKyf+F7Ze92Y6614MvjkxH14NJkQ=="
-      },
       "Microsoft.Diagnostics.Tracing.TraceEvent": {
         "type": "Transitive",
-        "resolved": "3.1.3",
-        "contentHash": "0i45LzMkHfWKcDZxzyGbE0TiRVRNvr8k+Snrgf1OT/8txwBi6opm3G8rCB7OAM6G4m61Jzd+ZaJ6YAyRGlE9TQ==",
+        "resolved": "3.0.2",
+        "contentHash": "Pr7t+Z/qBe6DxCow4BmYmDycHe2MrGESaflWXRcSUI4XNGyznx1ttS+9JNOxLuBZSoBSPTKw9Dyheo01Yi6anQ==",
         "dependencies": {
-          "System.Runtime.CompilerServices.Unsafe": "5.0.0"
+          "System.Runtime.CompilerServices.Unsafe": "4.5.3"
         }
       },
       "Microsoft.DotNet.PlatformAbstractions": {
@@ -999,17 +994,6 @@
         "type": "Transitive",
         "resolved": "4.4.0",
         "contentHash": "YhEdSQUsTx+C8m8Bw7ar5/VesXvCFMItyZF7G1AUY+OM0VPZUOeAVpJ4Wl6fydBGUYZxojTDR3I6Bj/+BPkJNA=="
-      },
-      "Sarif.Sdk": {
-        "type": "Transitive",
-        "resolved": "4.3.7",
-        "contentHash": "TTDEZ7EmYTzkqk3ee9R8xXPpZWtzIGljY/A2SJRkhhv37cs0Gdkn419DyIi7LzhbLM7ldOpa0N16qPCZg5IJag==",
-        "dependencies": {
-          "Microsoft.Diagnostics.Tracing.EventRegister": "1.1.28",
-          "Microsoft.Diagnostics.Tracing.TraceEvent": "3.1.3",
-          "Newtonsoft.Json": "9.0.1",
-          "System.Collections.Immutable": "1.5.0"
-        }
       },
       "SharpYaml": {
         "type": "Transitive",
@@ -2159,15 +2143,6 @@
           "Azure.Bicep.Core": "[1.0.0, )"
         }
       },
-      "bicep": {
-        "type": "Project",
-        "dependencies": {
-          "Azure.Bicep.Core": "[1.0.0, )",
-          "Azure.Bicep.Decompiler": "[1.0.0, )",
-          "Microsoft.Extensions.Logging": "[7.0.0, )",
-          "Sarif.Sdk": "[4.3.7, )"
-        }
-      },
       "bicep.core.samples": {
         "type": "Project",
         "dependencies": {
@@ -2176,8 +2151,7 @@
           "FluentAssertions": "[6.12.0, )",
           "MSTest.TestAdapter": "[3.1.1, )",
           "MSTest.TestFramework": "[3.1.1, )",
-          "Microsoft.NET.Test.Sdk": "[17.8.0, )",
-          "bicep": "[1.0.0, )"
+          "Microsoft.NET.Test.Sdk": "[17.8.0, )"
         }
       },
       "bicep.core.unittests": {
