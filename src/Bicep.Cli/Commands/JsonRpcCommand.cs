@@ -19,15 +19,19 @@ public class JsonRpcCommand : ICommand
 {
     private readonly BicepCompiler compiler;
     private readonly ITokenCredentialFactory credentialFactory;
+    private readonly IOContext io;
 
-    public JsonRpcCommand(BicepCompiler compiler, ITokenCredentialFactory credentialFactory)
+    public JsonRpcCommand(BicepCompiler compiler, ITokenCredentialFactory credentialFactory, IOContext io)
     {
         this.compiler = compiler;
         this.credentialFactory = credentialFactory;
+        this.io = io;
     }
 
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
     {
+        await io.Error.WriteLineAsync("The 'jsonrpc' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+
         if (args.Pipe is { } pipeName)
         {
             if (pipeName.StartsWith(@"\\.\pipe\"))
