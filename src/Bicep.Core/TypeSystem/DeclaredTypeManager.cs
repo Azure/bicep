@@ -40,7 +40,7 @@ namespace Bicep.Core.TypeSystem
             this.typeManager = typeManager;
             this.binder = binder;
             this.features = features;
-            this.resourceDerivedTypeBinder = new(binder, new SimpleDiagnosticWriter(), TextSpan.TextDocumentStart);
+            this.resourceDerivedTypeBinder = new(binder);
         }
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) =>

@@ -20,7 +20,8 @@ public record ExperimentalFeaturesEnabled(
     bool ProviderRegistry,
     bool MicrosoftGraphPreview,
     bool CompileTimeImports,
-    bool PublishSource)
+    bool PublishSource,
+    bool ResourceDerivedTypes)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();

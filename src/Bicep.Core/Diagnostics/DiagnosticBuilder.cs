@@ -2106,8 +2106,13 @@ namespace Bicep.Core.Diagnostics
 
             public ErrorDiagnostic TypeRequiresParameterization(string typeName, int requiredArgumentCount) => new(
                 TextSpan,
-                "BCP383",
+                "BCP384",
                 $"The \"{typeName}\" type requires {requiredArgumentCount} argument(s).");
+
+            public ErrorDiagnostic ResourceDerivedTypesUnsupported() => new(
+                TextSpan,
+                "BCP385",
+                $@"Using resource-derived types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceDerivedTypes)}"".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

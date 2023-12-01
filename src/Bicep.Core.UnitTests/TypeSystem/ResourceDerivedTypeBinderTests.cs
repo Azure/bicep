@@ -30,7 +30,7 @@ public class ResourceDerivedTypeBinderTests
     [DynamicData(nameof(GetTypesNotInNeedOfBinding), DynamicDataSourceType.Method)]
     public void Returns_input_if_no_unbound_types_are_enclosed(TypeSymbol type)
     {
-        ResourceDerivedTypeBinder sut = new(StrictMock.Of<IBinder>().Object, new SimpleDiagnosticWriter(), TextSpan.TextDocumentStart);
+        ResourceDerivedTypeBinder sut = new(StrictMock.Of<IBinder>().Object);
         sut.BindResourceDerivedTypes(type).Should().BeSameAs(type);
     }
 
@@ -209,7 +209,7 @@ public class ResourceDerivedTypeBinderTests
         var binderMock = StrictMock.Of<IBinder>();
         binderMock.Setup(x => x.NamespaceResolver).Returns(resolver);
 
-        return (new(binderMock.Object, new SimpleDiagnosticWriter(), TextSpan.TextDocumentStart), unhydratedTypeRef);
+        return (new(binderMock.Object), unhydratedTypeRef);
     }
 
     [TestMethod]
@@ -256,13 +256,10 @@ public class ResourceDerivedTypeBinderTests
         var binderMock = StrictMock.Of<IBinder>();
         binderMock.Setup(x => x.NamespaceResolver).Returns(resolver);
 
-        var diagnostics = ToListDiagnosticWriter.Create();
-        ResourceDerivedTypeBinder sut = new(binderMock.Object, diagnostics, TextSpan.TextDocumentStart);
+        ResourceDerivedTypeBinder sut = new(binderMock.Object);
         var fallbackType = LanguageConstants.SecureString;
 
         sut.BindResourceDerivedTypes(new UnboundResourceDerivedType(unhydratedTypeRef, fallbackType)).Should().BeSameAs(fallbackType);
-        diagnostics.GetDiagnostics().Should()
-            .ContainSingleDiagnostic("BCP081", DiagnosticLevel.Warning, """Resource type "type@version" does not have types available.""");
 
         resourceTypeProviderMock.Verify(x => x.TryGetDefinedType(stubbedNamespaceType, unhydratedTypeRef, ResourceTypeGenerationFlags.None), Times.Once());
         resourceTypeProviderMock.Verify(x => x.TryGenerateFallbackType(stubbedNamespaceType, unhydratedTypeRef, ResourceTypeGenerationFlags.None), Times.Once());

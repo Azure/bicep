@@ -1,25 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.Linq;
-using System.Numerics;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
-using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Utils;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.TypeSystem;
 
@@ -30,14 +21,10 @@ public class ResourceDerivedTypeBinder
     private readonly Stack<TypeSymbol> currentlySearchingForUnboundTypes = new();
     private readonly ConcurrentDictionary<TypeSymbol, bool> containsUnboundTypesCache = new();
     private readonly IBinder binder;
-    private readonly IDiagnosticWriter diagnostics;
-    private readonly IPositionable diagnosticTarget;
 
-    public ResourceDerivedTypeBinder(IBinder binder, IDiagnosticWriter diagnostics, IPositionable diagnosticTarget)
+    public ResourceDerivedTypeBinder(IBinder binder)
     {
         this.binder = binder;
-        this.diagnostics = diagnostics;
-        this.diagnosticTarget = diagnosticTarget;
     }
 
     public TypeSymbol BindResourceDerivedTypes(TypeSymbol unbound) => boundTypes.GetOrAdd(unbound, CalculateTypeBinding);
@@ -77,13 +64,7 @@ public class ResourceDerivedTypeBinder
             .Where(resourceType => LanguageConstants.IdentifierComparer.Equals(resourceType.DeclaringNamespace.ProviderName, AzNamespaceType.BuiltInName))
             .FirstOrDefault();
 
-        if (bound is null)
-        {
-            diagnostics.Write(DiagnosticBuilder.ForPosition(diagnosticTarget).ResourceTypesUnavailable(unbound.TypeReference));
-            return unbound.FallbackType;
-        }
-
-        return bound.Body.Type;
+        return bound?.Body.Type ?? unbound.FallbackType;
     }
 
     private TupleType CalculateTypeBinding(TupleType unbound)

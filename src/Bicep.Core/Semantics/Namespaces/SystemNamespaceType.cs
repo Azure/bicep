@@ -1728,35 +1728,38 @@ namespace Bicep.Core.Semantics.Namespaces
             _ => false,
         };
 
-        private static IEnumerable<TypeProperty> GetSystemAmbientSymbols(BicepSourceFileKind sourceFileKind)
+        private static IEnumerable<TypeProperty> GetSystemAmbientSymbols(IFeatureProvider features, BicepSourceFileKind sourceFileKind)
             => sourceFileKind switch
             {
                 BicepSourceFileKind.ParamsFile => ImmutableArray<TypeProperty>.Empty,
-                _ => GetArmPrimitiveTypes().Concat(GetBuiltInUtilityTypes()),
+                _ => GetArmPrimitiveTypes().Concat(GetBuiltInUtilityTypes(features)),
             };
 
         private static IEnumerable<TypeProperty> GetArmPrimitiveTypes()
             => LanguageConstants.DeclarationTypes.Select(t => new TypeProperty(t.Key, new TypeType(t.Value)));
 
-        private static IEnumerable<TypeProperty> GetBuiltInUtilityTypes()
+        private static IEnumerable<TypeProperty> GetBuiltInUtilityTypes(IFeatureProvider features)
         {
-            yield return new("resource", new TypeTemplate("resource",
-                ImmutableArray.Create(new TypeParameter("T")),
-                (binder, syntax, argumentTypes) =>
-                {
-                    if (argumentTypes.FirstOrDefault() is not StringLiteralType stringLiteral)
+            if (features.ResourceDerivedTypesEnabled)
+            {
+                yield return new("resource", new TypeTemplate("resource",
+                    ImmutableArray.Create(new TypeParameter("T")),
+                    (binder, syntax, argumentTypes) =>
                     {
-                        return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
-                    }
+                        if (argumentTypes.FirstOrDefault() is not StringLiteralType stringLiteral)
+                        {
+                            return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
+                        }
 
-                    if (!TypeHelper.GetResourceTypeFromString(binder, stringLiteral.RawStringValue, ResourceTypeGenerationFlags.None, parentResourceType: null)
-                        .IsSuccess(out var resourceType, out var errorBuilder))
-                    {
-                        return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
-                    }
+                        if (!TypeHelper.GetResourceTypeFromString(binder, stringLiteral.RawStringValue, ResourceTypeGenerationFlags.None, parentResourceType: null)
+                            .IsSuccess(out var resourceType, out var errorBuilder))
+                        {
+                            return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
+                        }
 
-                    return new(new ResourceDerivedTypeExpression(syntax, resourceType, resourceType.Body.Type));
-                }));
+                        return new(new ResourceDerivedTypeExpression(syntax, resourceType, resourceType.Body.Type));
+                    }));
+            }
         }
 
         public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
@@ -1764,7 +1767,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new NamespaceType(
                 aliasName,
                 Settings,
-                GetSystemAmbientSymbols(sourceFileKind),
+                GetSystemAmbientSymbols(featureProvider, sourceFileKind),
                 GetSystemOverloads(featureProvider, sourceFileKind),
                 BannedFunctions,
                 GetSystemDecorators(featureProvider, sourceFileKind),
