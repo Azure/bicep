@@ -1753,6 +1753,10 @@ namespace Bicep.Core.TypeSystem
                         type = new ResourceParameterType(resourceType.DeclaringNamespace, unboundType.TypeReference);
                     }
                 }
+                else
+                {
+                    type = resourceDerivedTypeBinder.BindResourceDerivedTypes(type);
+                }
 
                 var flags = parameter.IsRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly;
 
@@ -1761,8 +1765,6 @@ namespace Bicep.Core.TypeSystem
                 {
                     type = TypeHelper.CreateTypeUnion(type, LanguageConstants.Null);
                 }
-
-                type = resourceDerivedTypeBinder.BindResourceDerivedTypes(type);
 
                 parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
             }
@@ -1775,8 +1777,10 @@ namespace Bicep.Core.TypeSystem
                 {
                     type = GetResourceTypeFromString(module.Span, unboundType.TypeReference.FormatName(), ResourceTypeGenerationFlags.ExistingResource, parentResourceType: null);
                 }
-
-                type = resourceDerivedTypeBinder.BindResourceDerivedTypes(type);
+                else
+                {
+                    type = resourceDerivedTypeBinder.BindResourceDerivedTypes(type);
+                }
 
                 outputs.Add(new TypeProperty(output.Name, type, TypePropertyFlags.ReadOnly, output.Description));
             }
@@ -1788,7 +1792,7 @@ namespace Bicep.Core.TypeSystem
                 binder.TargetScope,
                 LanguageConstants.TypeNameModule);
         }
-        
+
         private TypeSymbol GetDeclaredTestType(TestDeclarationSyntax test)
         {
             if (binder.GetSymbolInfo(test) is not TestSymbol testSymbol)

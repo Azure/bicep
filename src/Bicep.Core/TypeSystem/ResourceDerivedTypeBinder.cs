@@ -60,6 +60,7 @@ public class ResourceDerivedTypeBinder
             ObjectType @object => CalculateTypeBinding(@object),
             UnionType union => CalculateTypeBinding(union),
             TypeType typeType => CalculateTypeBinding(typeType),
+            LambdaType lambda => CalculateTypeBinding(lambda),
             _ when IsPrimitiveType(unbound) => unbound,
             _ => throw new UnreachableException($"Unexpected type ({unbound.GetType().FullName}) encountered"),
         };
@@ -220,6 +221,34 @@ public class ResourceDerivedTypeBinder
             : new(boundUnwrapped);
     }
 
+    private LambdaType CalculateTypeBinding(LambdaType unbound)
+    {
+        var boundParameterTypes = ImmutableArray.CreateBuilder<ITypeReference>(unbound.ArgumentTypes.Length);
+        var hasChanges = false;
+
+        for (int i = 0; i < unbound.ArgumentTypes.Length; i++)
+        {
+            var unboundParameterType = unbound.ArgumentTypes[i].Type;
+            if (currentlyBinding.Contains(unboundParameterType))
+            {
+                boundParameterTypes.Add(new DeferredTypeReference(() => boundTypes[unboundParameterType]));
+                hasChanges = hasChanges || ContainsUnboundTypes(unboundParameterType);
+            }
+            else
+            {
+                boundParameterTypes.Add(BindResourceDerivedTypes(unboundParameterType));
+                hasChanges = hasChanges || !ReferenceEquals(boundParameterTypes[i].Type, unboundParameterType);
+            }
+        }
+
+        var boundReturnType = BindResourceDerivedTypes(unbound.ReturnType.Type);
+        hasChanges = hasChanges || !ReferenceEquals(boundReturnType, unbound.ReturnType.Type);
+
+        return hasChanges
+            ? new(boundParameterTypes.ToImmutable(), boundReturnType)
+            : unbound;
+    }
+
     private bool ContainsUnboundTypes(TypeSymbol type)
     {
         if (currentlySearchingForUnboundTypes.Contains(type))
@@ -241,6 +270,7 @@ public class ResourceDerivedTypeBinder
                 ObjectType @object => ContainsUnboundTypes(@object),
                 UnionType union => ContainsUnboundTypes(union),
                 TypeType typeType => ContainsUnboundTypes(typeType),
+                LambdaType lambda => ContainsUnboundTypes(lambda),
                 _ when IsPrimitiveType(type) => false,
                 _ => throw new UnreachableException($"Unexpected type ({type.GetType().FullName}) encountered"),
             };
@@ -269,6 +299,10 @@ public class ResourceDerivedTypeBinder
 
     private bool ContainsUnboundTypes(TypeType typeType)
         => ContainsUnboundTypes(typeType.Unwrapped);
+
+    private bool ContainsUnboundTypes(LambdaType lambda)
+        => lambda.ArgumentTypes.Any(argType => ContainsUnboundTypes(argType.Type)) ||
+            ContainsUnboundTypes(lambda.ReturnType.Type);
 
     private static bool IsPrimitiveType(TypeSymbol type) => type is AnyType or
         BooleanLiteralType or
