@@ -45,4 +45,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool MicrosoftGraphPreviewEnabled => overrides.MicrosoftGraphPreviewEnabled ?? features.MicrosoftGraphPreviewEnabled;
 
     public bool PublishSourceEnabled => overrides.PublishSourceEnabled ?? features.PublishSourceEnabled;
+
+    public bool OptionalModuleNamesEnabled => overrides.OptionalModuleNamesEnabled ?? features.OptionalModuleNamesEnabled;
 }

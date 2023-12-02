@@ -50,6 +50,8 @@ namespace Bicep.Core.Features
 
         public bool PublishSourceEnabled => configuration.ExperimentalFeaturesEnabled.PublishSource;
 
+        public bool OptionalModuleNamesEnabled => configuration.ExperimentalFeaturesEnabled.OptionalModuleNames;
+
         private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
             => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 
