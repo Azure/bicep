@@ -735,6 +735,9 @@
         },
         "publishSource": {
           "type": "boolean"
+        },
+        "optionalModuleNames": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false
