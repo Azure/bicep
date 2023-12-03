@@ -19,7 +19,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
     <PackageReference Include="Sarif.Sdk" Version="4.3.7" />
-    <PackageReference Include="StreamJsonRpc" Version="2.16.36" />
+    <PackageReference Include="StreamJsonRpc" Version="2.17.8" />
   </ItemGroup>
 
   <ItemGroup>
