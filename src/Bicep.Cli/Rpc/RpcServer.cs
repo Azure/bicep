@@ -163,12 +163,12 @@ public class RpcServer
 
             return new(null);
         }
-        catch (RequestFailedException ex) when (ex.GetRawResponse() is {} rawResponse)
+        catch (RequestFailedException ex) when (ex.GetRawResponse() is { } rawResponse)
         {
             var error = rawResponse.Content.ToString()
                 .FromJson<JToken>()
                 .TryGetProperty<JObject>("error");
-                
+
             return new(GetErrorRecursive(error));
         }
     }
