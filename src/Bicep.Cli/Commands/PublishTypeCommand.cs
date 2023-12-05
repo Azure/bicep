@@ -2,25 +2,17 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions;
-using System.Numerics;
-using System.Security.Cryptography;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Index;
 using Azure.Bicep.Types.Serialization;
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
@@ -28,22 +20,13 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.SourceCode;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
+using Microsoft.Extensions.Logging;
+using JsonSerializer = System.Text.Json.JsonSerializer;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Features;
-using Bicep.Core.Workspaces;
-using FluentAssertions.Equivalency.Tracing;
-using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using JsonSerializer = System.Text.Json.JsonSerializer;
-using Bicep.Core.UnitTests.TypeSystem.Az;
-using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Cli.Commands

@@ -27,7 +27,7 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using DataSet = Bicep.Core.Samples.DataSet;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.UnitTests.TypeSystem.Az;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -49,7 +49,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClientsForTypes((registryUri, repository)).Object;
+            var clientFactory = dataSet.CreateMockRegistryClientsForTypes((registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             //Why are we publishing something?
 /*            await dataSet.PublishTypesToRegistryAsync(clientFactory);*/
@@ -114,7 +114,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: false, (registryUri, repository)).Object;
+            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: false, (registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -200,7 +200,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var blobClient = blobClients[(registryUri, repository)];
 
-            await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory.Object, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
+            await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
 
             var manifest = blobClient.Manifests.Single().Value.Text;
 
