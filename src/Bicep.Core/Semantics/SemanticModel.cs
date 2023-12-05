@@ -371,6 +371,9 @@ namespace Bicep.Core.Semantics
         public bool HasErrors()
             => allDiagnostics.Value.Any(x => x.Level == DiagnosticLevel.Error);
 
+        public bool HasParsingErrors()
+            => this.ParsingErrorLookup.Any(x => x.Level == DiagnosticLevel.Error);
+
         public bool HasParsingError(SyntaxBase syntax) => this.ParsingErrorLookup.Contains(syntax);
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax) => this.TypeManager.GetTypeInfo(syntax);
