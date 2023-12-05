@@ -43,6 +43,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using Bicep.Core.UnitTests.TypeSystem.Az;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Cli.Commands
 {
@@ -93,10 +95,13 @@ namespace Bicep.Cli.Commands
             var indexJsonString = ProcessJsonFile(inputPath);
 
             AzResourceTypeLoader azTypeLoader = new(FileAzTypeLoader.FromFile(indexJsonString, typePath));
+            AzResourceTypeProvider azProvider = new(azTypeLoader, "dummyVersion");
 
-            AzResourceTypeLoaderFactory azFactory = new(BicepTestConstants.FeatureProviderFactory, azTypeLoader);
-            var nsProvider = new DefaultNamespaceProvider(azFactory);
-            var azNamespaceType = nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile, null)!;
+            IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory();
+            //call factory function
+
+            INamespaceProvider nsProvider = new DefaultNamespaceProvider(ResourceTypeProviderFactory);
+            var azNamespaceType = nsProvider.TryGetNamespace(new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion), ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
             var resourceTypeProvider = azNamespaceType.ResourceTypeProvider;
 
             var availableTypes = azTypeLoader.GetAvailableTypes();
