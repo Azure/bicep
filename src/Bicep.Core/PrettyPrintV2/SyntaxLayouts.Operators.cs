@@ -29,6 +29,28 @@ namespace Bicep.Core.PrettyPrintV2
 
         private Document Spread(params object[] syntaxesOrDocuments) => syntaxesOrDocuments.Select(this.ConvertToDocument).Spread();
 
+        private Document IndentGroup(IEnumerable<SyntaxBase> syntaxes) =>
+            this.IndentGroup(() => this.LayoutMany(syntaxes));
+
+        private Document IndentGroup(Func<IEnumerable<Document>> layoutSpecifier)
+        {
+            var lineBreakerCountBefore = this.lineBreakerCount;
+            var indented = layoutSpecifier()
+                .Where(x => x is not LineDocument)
+                .SeparateBy(DocumentOperators.LineOrSpace)
+                .Prepend(DocumentOperators.LineOrEmpty)
+                .Indent();
+
+            if (indented.HasSuffix())
+            {
+                this.lineBreakerCount--;
+            }
+
+            return this.lineBreakerCount > lineBreakerCountBefore
+                ? DocumentOperators.Glue(indented)
+                : DocumentOperators.Group(indented);
+        }
+
         private Document IndentTail(Func<IEnumerable<Document>> layoutSpecifier)
         {
             var lineBreakerCountBefore = this.lineBreakerCount;

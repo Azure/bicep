@@ -1745,6 +1745,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             return LanguageConstants.CreateModuleType(
+                this.features,
                 parameters,
                 outputs,
                 moduleSemanticModel.TargetScope,

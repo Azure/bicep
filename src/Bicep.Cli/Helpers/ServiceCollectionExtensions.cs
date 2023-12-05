@@ -52,6 +52,7 @@ public static class ServiceCollectionExtensions
             .AddSingleton<PublishTypeCommand>()
             .AddSingleton<RestoreCommand>()
             .AddSingleton<LintCommand>()
+            .AddSingleton<JsonRpcCommand>()
             .AddSingleton<RootCommand>();
 
     public static IServiceCollection AddBicepCore(this IServiceCollection services) => services

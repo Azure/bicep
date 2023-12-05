@@ -5366,4 +5366,57 @@ param azureEnvironments AzureEnvironmentType
             ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"azureEnvironments\" is not valid."),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/12640
+    [TestMethod]
+    public void Test_Issue12640()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param rgs = {
+  '0': {
+    name: 'rg-test-1'
+    location:'westeurope' 
+  }
+  '1': {
+    name: 'rg-test-2'
+    location:'westeurope' 
+  }
+}
+
+param vnets = {
+  0: {
+    resourceGroupName: rgs['0'].name
+  }
+  1: {
+    resourceGroupName: rgs['1'].name
+  }
+}
+"""),
+            ("main.bicep", """
+param rgs  { *: rg }
+
+param vnets {*: vnet}
+
+type rg = {
+  name: string
+  location: string
+  tags: {}?
+}
+
+type vnet = {
+  name: string
+  resourceGroupName: string
+  tags: {}?
+}
+"""));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP022", DiagnosticLevel.Error, """Expected a property name at this location."""),
+            ("BCP022", DiagnosticLevel.Error, """Expected a property name at this location."""),
+        });
+    }
 }

@@ -132,6 +132,14 @@ type aUnion = 'snap'|'crackle'|'pop'
 //@      ]
 //@    },
 
+type singleMemberUnion = | 'alone'
+//@    "singleMemberUnion": {
+//@      "type": "string",
+//@      "allowedValues": [
+//@        "alone"
+//@      ]
+//@    },
+
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@    "expandedUnion": {
 //@      "type": "string",

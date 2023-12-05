@@ -31,6 +31,8 @@ type bar = int[][][][]
 
 type aUnion = 'snap' | 'crackle' | 'pop'
 
+type singleMemberUnion = | 'alone'
+
 type expandedUnion = aUnion | 'fizz' | 'buzz' | 'pop'
 
 type tupleUnion = [ 'foo', 'bar', 'baz' ]

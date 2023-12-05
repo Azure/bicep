@@ -462,6 +462,16 @@ type typeG = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
+type primitiveUnion = | bool | bool
+//@[000:004) Identifier |type|
+//@[005:019) Identifier |primitiveUnion|
+//@[020:021) Assignment |=|
+//@[022:023) Pipe |||
+//@[024:028) Identifier |bool|
+//@[029:030) Pipe |||
+//@[031:035) Identifier |bool|
+//@[035:037) NewLine |\n\n|
+
 type objectUnion = typeA | typeB
 //@[000:004) Identifier |type|
 //@[005:016) Identifier |objectUnion|

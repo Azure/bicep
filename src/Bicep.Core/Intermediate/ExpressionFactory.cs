@@ -41,4 +41,10 @@ public static class ExpressionFactory
             propertyName,
             sourceSyntax,
             flags);
+
+    public static FunctionCallExpression CreateFunctionCall(string functionName, SyntaxBase? sourceSyntax = null, params Expression[] parameters)
+        => CreateFunctionCall(functionName, parameters, sourceSyntax);
+
+    public static FunctionCallExpression CreateFunctionCall(string functionName, IEnumerable<Expression> parameters, SyntaxBase? sourceSyntax = null)
+        => new(sourceSyntax, functionName, parameters.ToImmutableArray());
 }

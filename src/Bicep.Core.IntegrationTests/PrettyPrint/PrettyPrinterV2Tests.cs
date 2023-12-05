@@ -7,7 +7,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Bicep.Cli.Logging;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;

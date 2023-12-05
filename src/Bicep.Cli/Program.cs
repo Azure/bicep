@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime;
+using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
@@ -41,29 +42,30 @@ namespace Bicep.Cli
         }
 
         public static async Task<int> Main(string[] args)
-        {
-            string profilePath = DirHelper.GetTempPath();
-            ProfileOptimization.SetProfileRoot(profilePath);
-            ProfileOptimization.StartProfile("bicep.profile");
-            Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
-
-            if (FeatureProvider.TracingEnabled)
+            => await RunWithCancellationAsync(async cancellationToken =>
             {
-                Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
-            }
+                string profilePath = DirHelper.GetTempPath();
+                ProfileOptimization.SetProfileRoot(profilePath);
+                ProfileOptimization.StartProfile("bicep.profile");
+                Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
 
-            // this event listener picks up SDK events and writes them to Trace.WriteLine()
-            using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
-            {
-                var program = new Program(new(Output: Console.Out, Error: Console.Error));
+                if (FeatureProvider.TracingEnabled)
+                {
+                    Trace.Listeners.Add(new TextWriterTraceListener(Console.Error));
+                }
 
-                // this must be awaited so dispose of the listener occurs in the continuation
-                // rather than the sync part at the beginning of RunAsync()
-                return await program.RunAsync(args);
-            }
-        }
+                // this event listener picks up SDK events and writes them to Trace.WriteLine()
+                using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
+                {
+                    var program = new Program(new(Output: Console.Out, Error: Console.Error));
 
-        public async Task<int> RunAsync(string[] args)
+                    // this must be awaited so dispose of the listener occurs in the continuation
+                    // rather than the sync part at the beginning of RunAsync()
+                    return await program.RunAsync(args, cancellationToken);
+                }
+            });
+
+        public async Task<int> RunAsync(string[] args, CancellationToken cancellationToken)
         {
             Trace.WriteLine($"Bicep version: {ThisAssembly.AssemblyInformationalVersion}, CLI arguments: \"{string.Join(' ', args)}\"");
 
@@ -104,6 +106,9 @@ namespace Bicep.Cli
                     case LintArguments lintArguments when lintArguments.CommandName == Constants.Command.Lint: // bicep lint [options]
                         return await services.GetRequiredService<LintCommand>().RunAsync(lintArguments);
 
+                    case JsonRpcArguments jsonRpcArguments when jsonRpcArguments.CommandName == Constants.Command.JsonRpc: // bicep jsonrpc [options]
+                        return await services.GetRequiredService<JsonRpcCommand>().RunAsync(jsonRpcArguments, cancellationToken);
+
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 
@@ -126,6 +131,32 @@ namespace Bicep.Cli
             {
                 builder.AddProvider(new BicepLoggerProvider(new BicepLoggerOptions(true, ConsoleColor.Red, ConsoleColor.DarkYellow, io.Error)));
             });
+        }
+
+        private static async Task<int> RunWithCancellationAsync(Func<CancellationToken, Task<int>> runFunc)
+        {
+            var cancellationTokenSource = new CancellationTokenSource();
+
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                cancellationTokenSource.Cancel();
+                e.Cancel = true;
+            };
+
+            AppDomain.CurrentDomain.ProcessExit += (sender, e) =>
+            {
+                cancellationTokenSource.Cancel();
+            };
+
+            try
+            {
+                return await runFunc(cancellationTokenSource.Token);
+            }
+            catch (OperationCanceledException exception) when (exception.CancellationToken == cancellationTokenSource.Token)
+            {
+                // this is expected - no need to rethrow
+                return 1;
+            }
         }
 
         private static IServiceCollection ConfigureServices(IOContext io)

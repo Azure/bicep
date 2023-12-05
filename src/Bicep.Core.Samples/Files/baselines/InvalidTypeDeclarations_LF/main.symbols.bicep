@@ -147,6 +147,9 @@ type typeG = {
   value: string
 }
 
+type primitiveUnion = | bool | bool
+//@[5:19) TypeAlias primitiveUnion. Type: Type<bool>. Declaration start char: 0, length: 35
+
 type objectUnion = typeA | typeB
 //@[5:16) TypeAlias objectUnion. Type: Type<{ type: 'a', value: string } | { type: 'b', value: int }>. Declaration start char: 0, length: 32
 
