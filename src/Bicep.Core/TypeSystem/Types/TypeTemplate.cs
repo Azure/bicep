@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
@@ -30,10 +31,16 @@ public class TypeTemplate : TypeSymbol
         Debug.Assert(!parameters.IsEmpty, "Parameterized types must accept at least one argument.");
 
         Parameters = parameters;
+        MinimumArgumentCount = Parameters.TakeWhile(p => p.Required).Count();
+        MaximumArgumentCount = Parameters.Length;
         this.instantiator = instantiator;
     }
 
     public ImmutableArray<TypeParameter> Parameters { get; }
+
+    public int MinimumArgumentCount { get; }
+
+    public int MaximumArgumentCount { get; }
 
     public override TypeSymbolValidationFlags ValidationFlags => TypeSymbolValidationFlags.PreventAssignment;
 
@@ -41,14 +48,27 @@ public class TypeTemplate : TypeSymbol
 
     public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => ImmutableArray<ErrorDiagnostic>.Empty;
 
-    public Result<TypeExpression, ErrorDiagnostic> Instantiate(IBinder binder, ParameterizedTypeInstantiationSyntax syntax, IEnumerable<TypeSymbol> argumentTypes)
-    {
-        var argTypesArray = argumentTypes.ToImmutableArray();
+    public TypeParameter? TryGetParameterByIndex(int index) => index < Parameters.Length
+        ? Parameters[index]
+        : null;
 
-        if (argTypesArray.Length != Parameters.Length)
+    public Result<TypeExpression, ErrorDiagnostic> Instantiate(IBinder binder, ParameterizedTypeInstantiationSyntaxBase syntax, IEnumerable<TypeSymbol> arguments)
+    {
+        var argTypesArray = arguments.ToImmutableArray();
+
+        if (argTypesArray.Length < MinimumArgumentCount || argTypesArray.Length > MaximumArgumentCount)
         {
             return new(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenChevron, syntax.CloseChevron))
-                .ArgumentCountMismatch(argTypesArray.Length, Parameters.Length, Parameters.Length));
+                .ArgumentCountMismatch(argTypesArray.Length, MinimumArgumentCount, MaximumArgumentCount));
+        }
+
+        for (int i = 0; i < argTypesArray.Length; i++)
+        {
+            if (Parameters[i].Type is TypeSymbol argumentBound && !TypeValidator.AreTypesAssignable(argTypesArray[i], argumentBound))
+            {
+                return new(DiagnosticBuilder.ForPosition(syntax.Arguments[i])
+                    .ArgumentTypeMismatch(argTypesArray[i], argumentBound));
+            }
         }
 
         return instantiator.Invoke(binder, syntax, argTypesArray);

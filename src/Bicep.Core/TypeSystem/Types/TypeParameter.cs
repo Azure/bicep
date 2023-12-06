@@ -5,14 +5,7 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.TypeSystem.Types;
 
-public class TypeParameter
+public record TypeParameter(string Name, string? Description, TypeSymbol? Type = null, bool Required = true)
 {
-    public TypeParameter(string name)
-    {
-        Name = name;
-    }
-
-    public string Name { get; }
-
     public override string ToString() => Name;
 }

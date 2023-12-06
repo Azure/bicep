@@ -49,5 +49,10 @@ namespace Bicep.Core.TypeSystem
         /// Indicates that this type will be a String file path to a YAML file and we should offer completions for it where files wih .yaml and .yml extension are prioritised
         /// </summary>
         IsStringYamlFilePath = 1 << 6,
+
+        /// <summary>
+        /// Indicates that this type will be a string that contains a fully qualified resource type (e.g., 'Microsoft.Resource/deployments@2022-09-01').
+        /// </summary>
+        IsResourceTypeIdentifier = 1 << 7,
     }
 }

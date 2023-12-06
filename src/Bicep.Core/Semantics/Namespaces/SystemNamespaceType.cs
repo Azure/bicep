@@ -1743,7 +1743,9 @@ namespace Bicep.Core.Semantics.Namespaces
             if (features.ResourceDerivedTypesEnabled)
             {
                 yield return new("resource", new TypeTemplate("resource",
-                    ImmutableArray.Create(new TypeParameter("T")),
+                    ImmutableArray.Create(new TypeParameter("ResourceTypeIdentifier",
+                        "A string of the format '<type-name>@<api-version>' that identifies the kind of resource whose type definition is to be loaded.",
+                        LanguageConstants.StringResourceIdentifier)),
                     (binder, syntax, argumentTypes) =>
                     {
                         if (argumentTypes.FirstOrDefault() is not StringLiteralType stringLiteral)
