@@ -37,6 +37,8 @@ public interface IFeatureProvider
 
     bool PublishSourceEnabled { get; }
 
+    bool OptionalModuleNamesEnabled { get; }
+
     bool ResourceDerivedTypesEnabled { get; }
 
     IEnumerable<(string name, bool impactsCompilation, bool usesExperimentalArmEngineFeature)> EnabledFeatureMetadata
@@ -60,7 +62,8 @@ public interface IFeatureProvider
                 (CompileTimeImportsEnabled, CoreResources.ExperimentalFeatureNames_CompileTimeImports, true, false),
                 (MicrosoftGraphPreviewEnabled, CoreResources.ExperimentalFeatureNames_MicrosoftGraphPreview, true, true),
                 (PublishSourceEnabled, CoreResources.ExperimentalFeatureNames_PublishSource, false, false),
-                (ResourceDerivedTypesEnabled, "foo", true, false),
+                (OptionalModuleNamesEnabled, CoreResources.ExperimentalFeatureNames_OptionalModuleNames, true, false),
+                (ResourceDerivedTypesEnabled, CoreResources.ExperimentalFeatureNames_ResourceDerivedTypes, true, false),
             })
             {
                 if (enabled)

@@ -9,6 +9,7 @@ using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
@@ -36,10 +37,13 @@ public class ExpressionBuilder
     }.ToImmutableHashSet();
 
     private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = new[] {
+        AzResourceTypeProvider.ResourceNamePropertyName,
         LanguageConstants.ModuleParamsPropertyName,
         LanguageConstants.ResourceScopePropertyName,
         LanguageConstants.ResourceDependsOnPropertyName,
     }.ToImmutableHashSet();
+
+    private static readonly int MaxCopyIndexStringLength = LanguageConstants.MaxResourceCopyIndexValue.ToString().Length;
 
     private readonly ImmutableDictionary<LocalVariableSymbol, Expression> localReplacements;
 
@@ -457,6 +461,62 @@ public class ExpressionBuilder
 
     private record LoopExpressionContext(string Name, SyntaxBase SourceSyntax, Expression LoopExpression);
 
+    private ObjectPropertyExpression CreateModuleNameExpression(ModuleSymbol symbol, ObjectSyntax objectBody)
+    {
+        if (objectBody.TryGetPropertyByName(AzResourceTypeProvider.ResourceNamePropertyName) is { } namePropertySyntax)
+        {
+            // the user has specified an explicit name for the module - use it
+            return ConvertObjectProperty(namePropertySyntax);
+        }
+
+        var isEnclosedInLoop = symbol.IsCollection;
+
+        var formatParameters = new List<Expression>();
+
+        int formatParametersLength = 0;
+        if (isEnclosedInLoop)
+        {
+            formatParameters.Add(new CopyIndexExpression(SourceSyntax: null, Name: null));
+            formatParametersLength += MaxCopyIndexStringLength;
+        }
+
+        formatParameters.Add(
+            ExpressionFactory.CreateFunctionCall(
+                "uniqueString",
+                null,
+                ExpressionFactory.CreateStringLiteral(symbol.Name, sourceSyntax: null),
+                ExpressionFactory.CreatePropertyAccess(
+                    ExpressionFactory.CreateFunctionCall("deployment", sourceSyntax: null),
+                    "name",
+                    null,
+                    AccessExpressionFlags.None)));
+        formatParametersLength += (int)SystemNamespaceType.UniqueStringHashLength;
+
+        // the format string will use a single dash delimiter per parameter
+        formatParametersLength += formatParameters.Count;
+
+        var maxSymbolicNamePrefixLength = LanguageConstants.MaxDeploymentNameLength - formatParametersLength;
+        var actualSymbolicNamePrefixLength = Math.Min(maxSymbolicNamePrefixLength, symbol.Name.Length);
+        var symbolicNamePrefix = symbol.Name[..actualSymbolicNamePrefixLength];
+
+        var formatStringExpression = ExpressionFactory.CreateStringLiteral(isEnclosedInLoop
+            ? $"{symbolicNamePrefix}-{{0}}-{{1}}"
+            : $"{symbolicNamePrefix}-{{0}}");
+
+        Debug.Assert(actualSymbolicNamePrefixLength <= maxSymbolicNamePrefixLength, "The symbolic name prefix should not exceed the maximum length.");
+        Debug.Assert(formatParametersLength + maxSymbolicNamePrefixLength == LanguageConstants.MaxDeploymentNameLength, "The sum of the format parameters length and the symbolic name prefix length should equal the maximum deployment name length.");
+
+        // in loops, the generated name expression should be:
+        //   '<symbolicNamePrefix>-${copyIndex()}-${uniqueString('<symbolicName>', deployment().name)}'
+        // outside of loops, the name expression should be:
+        //   '<symbolicNamePrefix>-uniqueString('<symbolicName>', deployment().name)'
+
+        return new ObjectPropertyExpression(
+            SourceSyntax: null,
+            Key: new StringLiteralExpression(SourceSyntax: null, Value: AzResourceTypeProvider.ResourceNamePropertyName),
+            Value: ExpressionFactory.CreateFunctionCall("format", formatStringExpression.AsEnumerable().Concat(formatParameters)));
+    }
+
     private DeclaredModuleExpression ConvertModule(ModuleDeclarationSyntax syntax)
     {
         var symbol = GetDeclaredSymbol<ModuleSymbol>(syntax);
@@ -478,9 +538,11 @@ public class ExpressionBuilder
         }
 
         var objectBody = (ObjectSyntax)body;
+
         var properties = objectBody.Properties
             .Where(x => x.TryGetKeyText() is not { } key || !ModulePropertiesToOmit.Contains(key))
-            .Select(ConvertObjectProperty);
+            .Select(ConvertObjectProperty)
+            .Append(CreateModuleNameExpression(symbol, objectBody));
         Expression bodyExpression = new ObjectExpression(body, properties.ToImmutableArray());
         var parameters = objectBody.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName);
 

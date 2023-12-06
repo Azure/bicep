@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Bicep.Core.Features;
 using Bicep.Core.Parsing;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
@@ -47,6 +48,15 @@ namespace Bicep.Core
                                                               // even though loading files near this limit will make user eventually hit the 4MB limit
                                                               // but it will not be hard to exceed the limit just by loading a single file.
 
+        /// <summary>
+        /// This is the maximum value that the copyIndex() function may return at run time for a resource copy loop.
+        /// </summary>
+        public const int MaxResourceCopyIndexValue = 800;
+
+        /// <summary>
+        /// Maximum length of a deployment (aka module) name.
+        /// </summary>
+        public const int MaxDeploymentNameLength = 64;
 
         public const string ErrorName = "<error>";
         public const string MissingName = "<missing>";
@@ -290,7 +300,7 @@ namespace Bicep.Core
             return new ResourceScopeType(scopeDescriptions, resourceScope);
         }
 
-        public static TypeSymbol CreateModuleType(IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, ResourceScope moduleScope, ResourceScope containingScope, string typeName)
+        public static TypeSymbol CreateModuleType(IFeatureProvider features, IEnumerable<TypeProperty> paramsProperties, IEnumerable<TypeProperty> outputProperties, ResourceScope moduleScope, ResourceScope containingScope, string typeName)
         {
             var paramsType = new ObjectType(ModuleParamsPropertyName, TypeSymbolValidationFlags.Default, paramsProperties, null);
             // If none of the params are reqired, we can allow the 'params' declaration to be omitted entirely
@@ -305,12 +315,14 @@ namespace Bicep.Core
                 scopePropertyFlags |= TypePropertyFlags.Required;
             }
 
+            var nameRequirednessFlags = features.OptionalModuleNamesEnabled ? TypePropertyFlags.None : TypePropertyFlags.Required;
+
             var moduleBody = new ObjectType(
                 typeName,
                 TypeSymbolValidationFlags.Default,
                 new[]
                 {
-                    new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
+                    new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, nameRequirednessFlags | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
                     new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),

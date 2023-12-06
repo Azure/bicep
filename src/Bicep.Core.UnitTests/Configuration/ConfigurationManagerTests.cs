@@ -117,6 +117,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false,
+                    "optionalModuleNames": false,
                     "resourceDerivedTypes": false
                   },
                   "formatting": {
@@ -200,6 +201,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false,
+                    "optionalModuleNames": false,
                     "resourceDerivedTypes": false
                   },
                   "formatting": {
@@ -308,6 +310,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false,
+                    "optionalModuleNames": false,
                     "resourceDerivedTypes": false
                   },
                   "formatting": {
@@ -744,6 +747,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false,
+                    "optionalModuleNames": false,
                     "resourceDerivedTypes": false
                   },
                   "formatting": {

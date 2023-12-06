@@ -23,6 +23,7 @@ public record FeatureProviderOverrides(
     bool? CompileTimeImportsEnabled = default,
     bool? MicrosoftGraphPreviewEnabled = default,
     bool? PublishSourceEnabled = default,
+    bool? OptionalModuleNamesEnabled = default,
     bool? ResourceDerivedTypesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
@@ -43,6 +44,7 @@ public record FeatureProviderOverrides(
         bool? CompileTimeImportsEnabled = default,
         bool? MicrosoftGraphPreviewEnabled = default,
         bool? PublishSourceEnabled = default,
+        bool? OptionalModuleNamesEnabled = default,
         bool? ResourceDerivedTypesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
     ) : this(
@@ -62,6 +64,7 @@ public record FeatureProviderOverrides(
         CompileTimeImportsEnabled,
         MicrosoftGraphPreviewEnabled,
         PublishSourceEnabled,
+        OptionalModuleNamesEnabled,
         ResourceDerivedTypesEnabled,
         AssemblyVersion)
     { }

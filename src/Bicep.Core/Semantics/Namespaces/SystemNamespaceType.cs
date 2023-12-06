@@ -32,6 +32,8 @@ namespace Bicep.Core.Semantics.Namespaces
     public static class SystemNamespaceType
     {
         public const string BuiltInName = "sys";
+        public const long UniqueStringHashLength = 13;
+
         private const string ConcatDescription = "Combines multiple arrays and returns the concatenated array, or combines multiple string values and returns the concatenated string.";
         private const string TakeDescription = "Returns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.";
         private const string SkipDescription = "Returns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.";
@@ -43,7 +45,6 @@ namespace Bicep.Core.Semantics.Namespaces
         private const string MinDescription = "Returns the minimum value from an array of integers or a comma-separated list of integers.";
         private const string MaxDescription = "Returns the maximum value from an array of integers or a comma-separated list of integers.";
         private const long GuidLength = 36;
-        private const long UniqueStringHashLength = 13;
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,

@@ -66,7 +66,7 @@ namespace Bicep.Core.Registry
 
                     if (parts[0].Contains('/'))
                     {
-                        // The sheme contains an alias.
+                        // The scheme contains an alias.
                         var schemeParts = parts[0].Split('/', 2, StringSplitOptions.None);
                         scheme = schemeParts[0];
                         aliasName = schemeParts[1];
