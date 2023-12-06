@@ -12,9 +12,12 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Assertions;
+using CommandLine;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using static Bicep.Core.UnitTests.Modules.ArtifactAddressComponentsTests;
 
 namespace Bicep.Core.UnitTests.Modules
 {
@@ -31,19 +34,37 @@ namespace Bicep.Core.UnitTests.Modules
 
         public const string ExamplePathSegment2 = "a.b-0_1";
 
-        public record ValidCase(string Value, string ExpectedRegistry, string ExpectedRepository, string? ExpectedTag, string? ExpectedDigest);
-
-        [TestMethod]
-        public void ExamplesShouldMatchExpectedConstraints()
+        private static void VerifyEqual(OciArtifactReference first, OciArtifactReference second)
         {
-            ExampleTagOfMaxLength.Should().HaveLength(128);
-            ExampleRepositoryOfMaxLength.Should().HaveLength(255);
-            ExampleRegistryOfMaxLength.Should().HaveLength(255);
+            first.Equals(second).Should().BeTrue();
+            second.Equals(first).Should().BeTrue();
+
+            // It's technically possible for the hash codes to be equal, but it's unlikely.
+            first.GetHashCode().Should().Be(second.GetHashCode());
+            second.GetHashCode().Should().Be(first.GetHashCode());
+
+            object secondAsObject = second;
+            first.Equals(secondAsObject).Should().BeTrue();
+            first.GetHashCode().Should().Be(secondAsObject.GetHashCode());
         }
 
-        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        private static void VerifyNotEqual(OciArtifactReference first, OciArtifactReference second)
+        {
+            first.Equals(second).Should().BeFalse();
+            second.Equals(first).Should().BeFalse();
+
+            // It's technically possible for the hash codes to be equal, but it's unlikely.
+            first.GetHashCode().Should().NotBe(second.GetHashCode());
+            second.GetHashCode().Should().NotBe(first.GetHashCode());
+
+            object secondAsObject = second;
+            first.Equals(secondAsObject).Should().BeFalse();
+            first.GetHashCode().Should().NotBe(secondAsObject.GetHashCode());
+        }
+
+        [DynamicData(nameof(ArtifactAddressComponentsTests.GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         [DataTestMethod]
-        public void ValidReferencesShouldParseCorrectly(ValidCase @case)
+        public void ValidReferencesShouldParseCorrectly(ArtifactAddressComponentsTests.ValidCase @case)
         {
             var parsed = Parse(@case.Value);
 
@@ -60,18 +81,51 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         [DataTestMethod]
-        public void ValidReferenceShouldBeEqualToItself(ValidCase @case)
+        public void ValidReferenceShouldBeEqualToItself(ArtifactAddressComponentsTests.ValidCase @case)
         {
-            var first = Parse(@case.Value);
-            var second = Parse(@case.Value);
-
-            first.Equals(second).Should().Be(true);
-            first.GetHashCode().Should().Be(second.GetHashCode());
+            OciArtifactReference first = Parse(@case.Value);
+            OciArtifactReference second = Parse(@case.Value);
+            VerifyEqual(first, second);
         }
 
         [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         [DataTestMethod]
-        public void ValidReferenceShouldBeUriParseable(ValidCase @case)
+        public void ValidReferenceShouldBeEqualWithCaseChanged(ArtifactAddressComponentsTests.ValidCase @case)
+        {
+            OciArtifactReference first = Parse(@case.Value);
+            OciArtifactReference firstLower = Parse((@case with { ExpectedDigest = @case.Value.ToLower() }).Value);
+            OciArtifactReference firstUpper = Parse((@case with { ExpectedDigest = @case.Value.ToUpper() }).Value);
+
+            VerifyEqual(first, firstLower);
+            VerifyEqual(first, firstUpper);
+            VerifyEqual(firstLower, firstUpper);
+        }
+
+        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [DataTestMethod]
+        public void CharacterChanged_ShouldNotBeEqual(ArtifactAddressComponentsTests.ValidCase @case)
+        {
+            string ModifyCharAt(string a, int index)
+            {
+                char newChar = a[index] == 'q' ? 'z' : 'q';
+                return a.Substring(0, index) + newChar + a.Substring(index + 1);
+            }
+
+            for (int i = 0; i < @case.Value.Length - 1; ++i)
+            {
+                OciArtifactReference first = Parse(@case.Value);
+                var modified = ModifyCharAt(@case.Value, i);
+                if (IsValid(modified))
+                {
+                    OciArtifactReference second = Parse(modified);
+                    VerifyNotEqual(first, second);
+                }
+            }
+        }
+
+        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [DataTestMethod]
+        public void ValidReferenceShouldBeUriParseable(ArtifactAddressComponentsTests.ValidCase @case)
         {
             var parsed = Parse(@case.Value);
 
@@ -192,7 +246,12 @@ namespace Bicep.Core.UnitTests.Modules
         }
 
 
-        private static OciArtifactReference Parse(string package)
+        public static bool IsValid(string package)
+        {
+            return OciArtifactReference.TryParse(ArtifactType.Module, null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var _, out var _);
+        }
+
+        public static OciArtifactReference Parse(string package)
         {
             OciArtifactReference.TryParse(ArtifactType.Module, null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var parsed, out var failureBuilder).Should().BeTrue();
             failureBuilder!.Should().BeNull();
@@ -204,18 +263,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static IEnumerable<object[]> GetValidCases()
         {
-            static object[] CreateRow(string value, string expectedRegistry, string expectedRepository, string? expectedTag, string? expectedDigest) =>
-                new object[] { new ValidCase(value, expectedRegistry, expectedRepository, expectedTag, expectedDigest) };
-
-            yield return CreateRow("a/b:C", "a", "b", "C", null);
-            yield return CreateRow("localhost/hello:V1", "localhost", "hello", "V1", null);
-            yield return CreateRow("localhost:123/hello:V1", "localhost:123", "hello", "V1", null);
-            yield return CreateRow("test.azurecr.io/foo/bar:latest", "test.azurecr.io", "foo/bar", "latest", null);
-            yield return CreateRow("test.azurecr.io/foo/bar:" + ExampleTagOfMaxLength, "test.azurecr.io", "foo/bar", ExampleTagOfMaxLength, null);
-            yield return CreateRow("example.com/" + ExamplePathSegment1 + "/" + ExamplePathSegment2 + ":1", "example.com", ExamplePathSegment1 + "/" + ExamplePathSegment2, "1", null);
-            yield return CreateRow("example.com/" + ExampleRepositoryOfMaxLength + ":v3", "example.com", ExampleRepositoryOfMaxLength, "v3", null);
-            yield return CreateRow(ExampleRegistryOfMaxLength + "/hello/there:1.0", ExampleRegistryOfMaxLength, "hello/there", "1.0", null);
-            yield return CreateRow("hello-there.azurecr.io/general/kenobi@sha256:b131a80d6764593360293a4a0a55e6850356c16754c4b5eb9a2286293fddcdfb", "hello-there.azurecr.io", "general/kenobi", null, "sha256:b131a80d6764593360293a4a0a55e6850356c16754c4b5eb9a2286293fddcdfb");
+            return ArtifactAddressComponentsTests.GetValidCases();
         }
 
         private static IEnumerable<object[]> GetInvalidAliasData()
@@ -279,6 +327,6 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
 
-        public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((ValidCase)data[0]).Value}";
+        public static string GetDisplayName(MethodInfo info, object[] data) => ArtifactAddressComponentsTests.GetDisplayName(info, data);
     }
 }
