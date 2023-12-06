@@ -18,6 +18,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
@@ -717,6 +718,49 @@ module mod './foo.bicepparam' = {
 "),
 ("foo.bicepparam", @""));
             result.Should().OnlyContainDiagnostic("BCP277", DiagnosticLevel.Error, "A module declaration can only reference a Bicep File, an ARM template, a registry reference or a template spec reference.");
+        }
+
+        [DataRow("a", "a")]
+        [DataRow("hello", "hello")]
+        [DataRow("this______has_________fifty_____________characters", "this______has_________fifty_____________characters")]
+        [DataRow("this______has_________fifty_one__________characters", "this______has_________fifty_one__________character")]
+        [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_that_h")]
+        [DataTestMethod]
+        public void Module_name_is_generated_correctly_when_optional_module_names_enabled(string symbolicName, string symbolicNamePrefix)
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var result = CompilationHelper.Compile(
+                services,
+("main.bicep", $@"
+module {symbolicName} 'mod.bicep' = {{}}
+"),
+("mod.bicep", string.Empty));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.resources[0].name", $"[format('{symbolicNamePrefix}-{{0}}', uniqueString('{symbolicName}', deployment().name))]");
+        }
+
+        [DataRow("a", "a")]
+        [DataRow("hello", "hello")]
+        [DataRow("this______has_______forty_six_______characters", "this______has_______forty_six_______characters")]
+        [DataRow("this______has_______forty_seven______characters", "this______has_______forty_seven______character")]
+        [DataRow("module_symbolic_name_with_a_super_long_name_that_has_seventy_seven_characters", "module_symbolic_name_with_a_super_long_name_th")]
+        [DataTestMethod]
+        public void Module_collection_name_is_generated_correctly_when_optional_module_names_enabled(string symbolicName, string symbolicNamePrefix)
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var result = CompilationHelper.Compile(
+                services,
+("main.bicep", $@"
+module {symbolicName} 'mod.bicep' = [for x in []: {{
+}}]
+"),
+("mod.bicep", string.Empty));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.resources[0].name", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', copyIndex(), uniqueString('{symbolicName}', deployment().name))]");
         }
 
         private static string GetTemplate(Compilation compilation)

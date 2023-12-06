@@ -144,6 +144,10 @@ type typeG = {
   value: string
 }
 
+type primitiveUnion = | bool | bool
+//@[24:028) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |bool|
+//@[31:035) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |bool|
+
 type objectUnion = typeA | typeB
 //@[19:024) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeA|
 //@[27:032) [BCP293 (Error)] All members of a union type declaration must be literal values. (CodeDescription: none) |typeB|
