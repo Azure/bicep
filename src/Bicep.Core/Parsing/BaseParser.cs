@@ -430,7 +430,7 @@ namespace Bicep.Core.Parsing
             return new ParameterizedTypeArgumentSyntax(expression);
         }
 
-        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, Token CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax utilityTypeName)
+        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, Token CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
         {
             var openChevron = this.Expect(TokenType.LeftChevron, b => b.ExpectedCharacter("<"));
 
@@ -440,23 +440,23 @@ namespace Bicep.Core.Parsing
 
             var closeChevron = this.Expect(TokenType.RightChevron, b => b.ExpectedCharacter(">"));
 
-            return (utilityTypeName, openChevron, itemsOrTokens, closeChevron);
+            return (parameterizedTypeName, openChevron, itemsOrTokens, closeChevron);
         }
 
-        private SyntaxBase UtilityTypeOrTypeVariableAccess()
+        private SyntaxBase ParameterizedTypeOrTypeVariableAccess()
         {
             var identifierToken = Expect(TokenType.Identifier, b => b.ExpectedTypeIdentifier());
             var identifier = new IdentifierSyntax(identifierToken);
 
             if (Check(TokenType.LeftChevron))
             {
-                var utilityType = ParameterizedTypeInstantiation(identifier);
+                var parameterizedType = ParameterizedTypeInstantiation(identifier);
 
                 return new ParameterizedTypeInstantiationSyntax(
-                    utilityType.Identifier,
-                    utilityType.OpenChevron,
-                    utilityType.ParameterNodes,
-                    utilityType.CloseChevron);
+                    parameterizedType.Identifier,
+                    parameterizedType.OpenChevron,
+                    parameterizedType.ParameterNodes,
+                    parameterizedType.CloseChevron);
             }
 
             return new VariableAccessSyntax(identifier);
@@ -963,7 +963,22 @@ namespace Bicep.Core.Parsing
 
                     IdentifierSyntax identifier = this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName());
 
-                    current = new PropertyAccessSyntax(current, dot, null, identifier);
+                    if (Check(TokenType.LeftChevron))
+                    {
+                        var parameterizedType = ParameterizedTypeInstantiation(identifier);
+
+                        current = new InstanceParameterizedTypeInstantiationSyntax(
+                            current,
+                            dot,
+                            parameterizedType.Identifier,
+                            parameterizedType.OpenChevron,
+                            parameterizedType.ParameterNodes,
+                            parameterizedType.CloseChevron);
+                    }
+                    else
+                    {
+                        current = new PropertyAccessSyntax(current, dot, null, identifier);
+                    }
 
                     continue;
                 }
@@ -1249,7 +1264,7 @@ namespace Bicep.Core.Parsing
                     return this.ParenthesizedTypeExpression();
 
                 case TokenType.Identifier:
-                    return this.UtilityTypeOrTypeVariableAccess();
+                    return this.ParameterizedTypeOrTypeVariableAccess();
 
                 default:
                     throw new ExpectedTokenException(nextToken, b => b.UnrecognizedTypeExpression());

@@ -884,6 +884,27 @@ param myParam string
     }
 
     [TestMethod]
+    public void Resource_derived_type_should_compile_successfully_with_namespace_qualified_syntax()
+    {
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            """
+            var resource = 'foo'
+            type myType = sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
+            """);
+
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
+            {
+                "myType": {
+                    "type": "object",
+                    "metadata": {
+                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01"
+                    }
+                }
+            }
+            """));
+    }
+
+    [TestMethod]
     public void Param_with_resource_derived_type_can_be_loaded()
     {
         var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),

@@ -144,6 +144,8 @@ namespace Bicep.Core.Syntax
 
         void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax);
 
+        void VisitInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax);
+
         void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax);
     }
 }

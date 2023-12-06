@@ -296,7 +296,7 @@ public class ExpressionBuilder
             NonNullAssertionSyntax nonNullAssertion => new NonNullableTypeExpression(nonNullAssertion, ConvertTypeWithoutLowering(nonNullAssertion.BaseExpression)),
             PropertyAccessSyntax propertyAccess => ConvertPropertyAccessInTypeExpression(propertyAccess),
             ArrayAccessSyntax arrayAccess => ConvertPropertyAccessInTypeExpression(arrayAccess),
-            ParameterizedTypeInstantiationSyntax parameterizedTypeInstantiation
+            ParameterizedTypeInstantiationSyntaxBase parameterizedTypeInstantiation
                 => Context.SemanticModel.TypeManager.TryGetReifiedType(parameterizedTypeInstantiation) is TypeExpression reified
                     ? reified
                     : throw new ArgumentException($"Failed to reify parameterized type invocation."),

@@ -19,7 +19,7 @@ public class TypeTemplate : TypeSymbol
 {
     public delegate Result<TypeExpression, ErrorDiagnostic> InstantiatorDelegate(
         IBinder binder,
-        ParameterizedTypeInstantiationSyntax instantiationSyntax,
+        ParameterizedTypeInstantiationSyntaxBase instantiationSyntax,
         ImmutableArray<TypeSymbol> argumentTypes);
 
     private readonly InstantiatorDelegate instantiator;

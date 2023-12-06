@@ -537,7 +537,7 @@ type multilineUnion = 'a'
         }
 
         [TestMethod]
-        public void Utility_type_should_parse_successfully()
+        public void Parameterized_type_should_parse_successfully()
         {
             var typeStatement = "type saType = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>";
 
@@ -546,6 +546,22 @@ type multilineUnion = 'a'
 
             var imported = statement.Value.Should().BeOfType<ParameterizedTypeInstantiationSyntax>().Subject;
             imported.Name.IdentifierName.Should().Be("resource");
+            imported.Arguments.Should().HaveCount(1);
+
+            var singleParam = imported.Arguments.Single().Expression.Should().BeOfType<StringSyntax>().Subject;
+            singleParam.TryGetLiteralValue().Should().Be("Microsoft.Storage/storageAccounts@2022-09-01");
+        }
+
+        [TestMethod]
+        public void Qualified_parameterized_type_should_parse_successfully()
+        {
+            var typeStatement = "type saType = sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>";
+
+            var parsed = ParserHelper.Parse(typeStatement);
+            var statement = parsed.Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>().Subject;
+
+            var imported = statement.Value.Should().BeOfType<InstanceParameterizedTypeInstantiationSyntax>().Subject;
+            imported.PropertyName.IdentifierName.Should().Be("resource");
             imported.Arguments.Should().HaveCount(1);
 
             var singleParam = imported.Arguments.Single().Expression.Should().BeOfType<StringSyntax>().Subject;

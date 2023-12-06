@@ -561,6 +561,19 @@ namespace Bicep.Core.PrettyPrintV2
                 padding: LineOrEmpty,
                 forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any()));
 
+        private IEnumerable<Document> LayoutInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax) =>
+            this.Glue(
+                syntax.BaseExpression,
+                syntax.Dot,
+                syntax.PropertyName,
+                this.Bracket(
+                    syntax.OpenChevron,
+                    syntax.Children,
+                    syntax.CloseChevron,
+                    separator: CommaLineOrCommaSpace,
+                    padding: LineOrEmpty,
+                    forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any()));
+
         private IEnumerable<Document> LayoutLeadingNodes(IEnumerable<SyntaxBase> leadingNodes) =>
             this.LayoutMany(leadingNodes)
                 .Where(x => x != HardLine); // Remove empty lines between decorators.

@@ -45,7 +45,7 @@ namespace Bicep.Core.TypeSystem
         public Expression? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax)
             => typeAssignmentVisitor.GetMatchedFunctionResultValue(syntax);
 
-        public TypeExpression? TryGetReifiedType(ParameterizedTypeInstantiationSyntax syntax)
+        public TypeExpression? TryGetReifiedType(ParameterizedTypeInstantiationSyntaxBase syntax)
             => declaredTypeManager.TryGetReifiedType(syntax);
     }
 }

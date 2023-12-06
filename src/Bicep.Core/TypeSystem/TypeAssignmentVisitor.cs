@@ -737,9 +737,6 @@ namespace Bicep.Core.TypeSystem
                 return declaredType;
             });
 
-        public override void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax)
-            => AssignType(syntax, () => typeManager.GetTypeInfo(syntax.Expression));
-
         private TypeSymbol GetDeclaredTypeAndValidateDecorators(DecorableSyntax targetSyntax, SyntaxBase typeSyntax, IDiagnosticWriter diagnostics)
         {
             var declaredType = typeManager.GetDeclaredType(targetSyntax);

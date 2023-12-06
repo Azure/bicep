@@ -526,6 +526,16 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.CloseChevron);
         }
 
+        public override void VisitInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.Dot);
+            this.Visit(syntax.PropertyName);
+            this.Visit(syntax.OpenChevron);
+            this.VisitNodes(syntax.Children);
+            this.Visit(syntax.CloseChevron);
+        }
+
         public override void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax)
         {
             this.Visit(syntax.Expression);

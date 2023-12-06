@@ -22,6 +22,6 @@ namespace Bicep.Core.Semantics
 
         Expression? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax);
 
-        TypeExpression? TryGetReifiedType(ParameterizedTypeInstantiationSyntax syntax);
+        TypeExpression? TryGetReifiedType(ParameterizedTypeInstantiationSyntaxBase syntax);
     }
 }

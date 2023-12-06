@@ -29,7 +29,7 @@ namespace Bicep.Core.TypeSystem
         // processed nodes found not to have a declared type will have a null value
         private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
         private readonly ConcurrentDictionary<TypeAliasSymbol, TypeSymbol> userDefinedTypeReferences = new();
-        private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntax, Result<TypeExpression, ErrorDiagnostic>> reifiedTypes = new();
+        private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntaxBase, Result<TypeExpression, ErrorDiagnostic>> reifiedTypes = new();
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IFeatureProvider features;
@@ -48,7 +48,7 @@ namespace Bicep.Core.TypeSystem
 
         public TypeSymbol? GetDeclaredType(SyntaxBase syntax) => this.GetDeclaredTypeAssignment(syntax)?.Reference.Type;
 
-        public TypeExpression? TryGetReifiedType(ParameterizedTypeInstantiationSyntax syntax)
+        public TypeExpression? TryGetReifiedType(ParameterizedTypeInstantiationSyntaxBase syntax)
             => GetReifiedTypeResult(syntax).TryUnwrap();
 
         private DeclaredTypeAssignment? GetTypeAssignment(SyntaxBase syntax)
@@ -461,7 +461,7 @@ namespace Bicep.Core.TypeSystem
                 SkippedTriviaSyntax => LanguageConstants.Any,
                 ResourceTypeSyntax resource => GetDeclaredType(resource),
                 VariableAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef, allowNamespaceReferences),
-                ParameterizedTypeInstantiationSyntax parameterizedTypeInvocation => ConvertTypeExpressionToType(parameterizedTypeInvocation),
+                ParameterizedTypeInstantiationSyntaxBase parameterizedTypeInvocation => ConvertTypeExpressionToType(parameterizedTypeInvocation),
                 ArrayTypeSyntax array => GetDeclaredTypeAssignment(array)?.Reference,
                 ObjectTypeSyntax @object => GetDeclaredType(@object),
                 TupleTypeSyntax tuple => GetDeclaredType(tuple),
@@ -532,28 +532,60 @@ namespace Bicep.Core.TypeSystem
             .Concat(binder.FileSymbol.ImportedTypes.Select(i => i.Name))
             .Distinct();
 
-        private ITypeReference ConvertTypeExpressionToType(ParameterizedTypeInstantiationSyntax syntax)
+        private ITypeReference ConvertTypeExpressionToType(ParameterizedTypeInstantiationSyntaxBase syntax)
             => GetReifiedTypeResult(syntax).IsSuccess(out var typeExpression, out var error)
                 ? typeExpression.ExpressedType
                 : ErrorType.Create(error);
 
-        private Result<TypeExpression, ErrorDiagnostic> GetReifiedTypeResult(ParameterizedTypeInstantiationSyntax syntax)
+        private Result<TypeExpression, ErrorDiagnostic> GetReifiedTypeResult(ParameterizedTypeInstantiationSyntaxBase syntax)
             => reifiedTypes.GetOrAdd(syntax, InstantiateType);
+
+        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax) => syntax switch
+        {
+            ParameterizedTypeInstantiationSyntax unqualified => InstantiateType(unqualified),
+            InstanceParameterizedTypeInstantiationSyntax qualified => InstantiateType(qualified),
+            _ => throw new UnreachableException($"Unrecognized subtype of {nameof(ParameterizedTypeInstantiationSyntaxBase)}: {syntax.GetType().FullName}"),
+        };
 
         private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntax syntax) => binder.GetSymbolInfo(syntax) switch
         {
-            AmbientTypeSymbol ambientType => InstantiateType(syntax, ambientType, ambientType.Type),
-            ImportedTypeSymbol importedType => InstantiateType(syntax, importedType, importedType.Type),
-            TypeAliasSymbol typeAlias => InstantiateType(syntax, typeAlias, typeAlias.Type),
+            AmbientTypeSymbol ambientType => InstantiateType(syntax, ambientType.Name, ambientType.Type),
+            ImportedTypeSymbol importedType => InstantiateType(syntax, importedType.Name, importedType.Type),
+            TypeAliasSymbol typeAlias => InstantiateType(syntax, typeAlias.Name, typeAlias.Type),
             DeclaredSymbol declaredSymbol => new(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
             _ => new(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
         };
 
-        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntax syntax, Symbol symbol, TypeSymbol symbolType)
+        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(InstanceParameterizedTypeInstantiationSyntax syntax)
+        {
+            var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: true).Type;
+
+            if (baseType is ErrorType error && error.GetDiagnostics().FirstOrDefault() is { } baseTypeDiagnostic)
+            {
+                return new(baseTypeDiagnostic);
+            }
+
+            if (baseType is not ObjectType objectType)
+            {
+                return new(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
+            }
+
+            var diagnostics = ToListDiagnosticWriter.Create();
+            var propertyType = TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, diagnostics);
+
+            if (diagnostics.GetDiagnostics().OfType<ErrorDiagnostic>().FirstOrDefault() is { } propertyAccessDiagnostic)
+            {
+                return new(propertyAccessDiagnostic);
+            }
+
+            return InstantiateType(syntax, $"{baseType.Name}.{syntax.PropertyName.IdentifierName}", propertyType);
+        }
+
+        private Result<TypeExpression, ErrorDiagnostic> InstantiateType(ParameterizedTypeInstantiationSyntaxBase syntax, string typeName, TypeSymbol symbolType)
             => symbolType switch
             {
-                TypeTemplate tt => tt.Instantiate(binder, syntax, syntax.Arguments.Select(typeManager.GetTypeInfo)),
-                _ => new(DiagnosticBuilder.ForPosition(syntax).TypeIsNotParameterizable(symbol.Name)),
+                TypeTemplate tt => tt.Instantiate(binder, syntax, syntax.Arguments.Select(arg => GetTypeFromTypeSyntax(arg.Expression, allowNamespaceReferences: false).Type)),
+                _ => new(DiagnosticBuilder.ForPosition(syntax).TypeIsNotParameterizable(typeName)),
             };
 
         private ITypeReference TypeRefToType(VariableAccessSyntax signifier, TypeAliasSymbol signified) => new DeferredTypeReference(() =>
