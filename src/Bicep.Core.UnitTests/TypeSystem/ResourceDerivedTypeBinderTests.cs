@@ -4,10 +4,8 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -160,6 +158,25 @@ public class ResourceDerivedTypeBinderTests
 
         sut.BindResourceDerivedTypes(containsUnbound).Should().BeOfType<TypeType>()
             .Subject.Unwrapped.Should().BeSameAs(hydrated);
+    }
+
+    [TestMethod]
+    public void Hydrates_lambda_types()
+    {
+        var hydrated = TypeFactory.CreateBooleanLiteralType(false);
+        var (sut, unhydratedTypeRef) = SetupBinder(hydrated);
+
+        var containsUnbound = new LambdaType(
+            ImmutableArray.Create<ITypeReference>(
+                TypeFactory.CreateArrayType(new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any)),
+                new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any)),
+            new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any));
+
+        var bound = sut.BindResourceDerivedTypes(containsUnbound).Should().BeOfType<LambdaType>().Subject;
+        bound.ArgumentTypes.Should().SatisfyRespectively(
+            arg => arg.Type.Should().BeOfType<TypedArrayType>().Subject.Item.Type.Should().BeSameAs(hydrated),
+            arg => arg.Type.Should().BeSameAs(hydrated));
+        bound.ReturnType.Should().BeSameAs(hydrated);
     }
 
     private static (ResourceDerivedTypeBinder sut, ResourceTypeReference unhydratedTypeRef) SetupBinder(TypeSymbol hydratedType)
