@@ -75,7 +75,7 @@ namespace Bicep.Core.Registry
         /// <param name="reference">The module reference</param>
         /// <param name="compiled">The compiled module</param>
         /// <param name="bicepSources">The source archive (binary stream of SourceArchive)</param>
-        Task PublishArtifact(ArtifactReference reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description);
+        Task PublishModule(ArtifactReference reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description);
 
         /// <summary>
         /// Returns documentationUri for the module.

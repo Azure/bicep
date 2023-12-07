@@ -21,7 +21,9 @@ namespace Bicep.Core.Registry
 
         public abstract Task<bool> CheckArtifactExists(T reference);
 
-        public abstract Task PublishArtifact(T reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description);
+        public abstract Task PublishModule(T reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description);
+
+        public abstract Task PublishProvider(T reference, Stream typesTgz);
 
         public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<T> references);
 
@@ -41,7 +43,8 @@ namespace Bicep.Core.Registry
 
         public Task<bool> CheckArtifactExists(ArtifactReference reference) => this.CheckArtifactExists(ConvertReference(reference));
 
-        public Task PublishArtifact(ArtifactReference artifactReference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description) => this.PublishArtifact(ConvertReference(artifactReference), compiled, bicepSources, documentationUri, description);
+        public Task PublishModule(ArtifactReference artifactReference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description)
+            => this.PublishModule(ConvertReference(artifactReference), compiled, bicepSources, documentationUri, description);
 
         public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references) =>
             this.RestoreArtifacts(references.Select(ConvertReference));

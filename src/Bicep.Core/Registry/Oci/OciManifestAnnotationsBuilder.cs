@@ -8,47 +8,52 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.WindowsAzure.ResourceStack.Common.Services.ADAuthentication;
 
 
-namespace Bicep.Core.Registry.Oci
+namespace Bicep.Core.Registry.Oci;
+
+public class OciManifestAnnotationsBuilder
 {
-    public class OciManifestAnnotationsBuilder
+    private Dictionary<string, string> annotations = new();
+
+    public ImmutableDictionary<string, string> Build()
     {
-        private Dictionary<string, string> annotations = new();
+        return annotations.ToImmutableDictionary();
+    }
 
-        public ImmutableDictionary<string, string> Build()
+    public OciManifestAnnotationsBuilder WithDescription(string? description)
+    {
+        if (string.IsNullOrWhiteSpace(description))
         {
-            return annotations.ToImmutableDictionary();
-        }
-
-        public OciManifestAnnotationsBuilder WithDescription(string? description)
-        {
-            if (!string.IsNullOrWhiteSpace(description))
-            {
-                annotations[OciAnnotationKeys.OciOpenContainerImageDescriptionAnnotation] = description;
-            }
             return this;
         }
 
-        public OciManifestAnnotationsBuilder WithDocumentationUri(string? documentationUri)
+        return AddAnnotation(OciAnnotationKeys.OciOpenContainerImageDescriptionAnnotation, description);
+    }
+
+    public OciManifestAnnotationsBuilder WithDocumentationUri(string? documentationUri)
+    {
+        if (string.IsNullOrWhiteSpace(documentationUri))
         {
-            if (!string.IsNullOrWhiteSpace(documentationUri))
-            {
-                annotations[OciAnnotationKeys.OciOpenContainerImageDocumentationAnnotation] = documentationUri;
-            }
             return this;
         }
 
-        public OciManifestAnnotationsBuilder WithCreatedTime(DateTime dateTime)
-        {
-            annotations[OciAnnotationKeys.OciOpenContainerImageCreatedAnnotation] = dateTime.ToRfc3339Format();
-            return this;
-        }
+        return AddAnnotation(OciAnnotationKeys.OciOpenContainerImageDocumentationAnnotation, documentationUri);
+    }
 
-        public OciManifestAnnotationsBuilder WithTitle(string title)
-        {
-            annotations[OciAnnotationKeys.OciOpenContainerImageTitleAnnotation] = title;
-            return this;
-        }
+    public OciManifestAnnotationsBuilder WithCreatedTime(DateTime dateTime)
+        => AddAnnotation(OciAnnotationKeys.OciOpenContainerImageCreatedAnnotation, dateTime.ToRfc3339Format());
+
+    public OciManifestAnnotationsBuilder WithTitle(string title)
+        => AddAnnotation(OciAnnotationKeys.OciOpenContainerImageTitleAnnotation, title);
+
+    public OciManifestAnnotationsBuilder WithBicepSerializationFormatV1()
+        => AddAnnotation(OciAnnotationKeys.BicepSerializationFormatAnnotation, "v1");
+
+    private OciManifestAnnotationsBuilder AddAnnotation(string key, string value)
+    {
+        annotations[key] = value;
+        return this;
     }
 }

@@ -192,7 +192,7 @@ namespace Bicep.Core.Registry
             var registry = this.GetRegistry(reference);
 
             var description = DescriptionHelper.TryGetFromArmTemplate(compiledArmTemplate);
-            await registry.PublishArtifact(reference, compiledArmTemplate, bicepSources, documentationUri, description);
+            await registry.PublishModule(reference, compiledArmTemplate, bicepSources, documentationUri, description);
         }
 
         public async Task<bool> CheckModuleExists(ArtifactReference reference)
