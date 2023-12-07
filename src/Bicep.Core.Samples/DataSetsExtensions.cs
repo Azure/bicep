@@ -222,18 +222,18 @@ namespace Bicep.Core.Samples
             await dispatcher.PublishModule(targetReference, stream, sourcesStream, documentationUri);
         }
 
-        public static async Task PublishTypesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory)
+        public static async Task PublishProvidersToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory)
             => await PublishProvidersToRegistryAsync(dataSet.RegistryProviders, clientFactory);
 
-        public static async Task PublishProvidersToRegistryAsync(ImmutableDictionary<string, DataSet.ExternalProviderInfo> registryType, IContainerRegistryClientFactory clientFactory)
+        public static async Task PublishProvidersToRegistryAsync(ImmutableDictionary<string, DataSet.ExternalProviderInfo> registryProvider, IContainerRegistryClientFactory clientFactory)
         {
-            foreach (var (fileName, publishInfo) in registryType)
+            foreach (var (fileName, publishInfo) in registryProvider)
             {
                 await PublishProvidersToRegistryAsync(clientFactory, fileName, publishInfo.Metadata.Target, publishInfo.ProviderSource);
             }
         }
 
-        public static async Task PublishProvidersToRegistryAsync(IContainerRegistryClientFactory clientFactory, string typeName, string target, string typeSource)
+        public static async Task PublishProvidersToRegistryAsync(IContainerRegistryClientFactory clientFactory, string providerName, string target, string providerSource)
         {
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(clientFactory)
@@ -241,9 +241,9 @@ namespace Bicep.Core.Samples
                 ).Construct<IModuleDispatcher>();
 
             var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
-                : throw new InvalidOperationException($"Type '{typeName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
+                : throw new InvalidOperationException($"Provider '{providerName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
 
-            byte[] byteArray = Encoding.UTF8.GetBytes(typeSource);
+            byte[] byteArray = Encoding.UTF8.GetBytes(providerSource);
             var stream = new MemoryStream(byteArray);
 
             await dispatcher.PublishProvider(targetReference, stream);
