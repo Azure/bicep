@@ -179,6 +179,77 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Build_params_with_default_value_override_succeeds()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicepparam", """
+using 'main.bicep'
+""");
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep", """
+param foo string = 'default'
+
+output foo string = foo
+""",
+                Path.GetDirectoryName(bicepparamsPath));
+
+            var environment = TestEnvironment.Create(("BICEP_PARAMETERS_OVERRIDES", new {
+                foo = "bar"
+            }.ToJson()));
+
+            var settings = Settings with { Environment = environment };
+            var result = await Bicep(settings, "build-params", bicepparamsPath, "--stdout");
+
+            result.Should().NotHaveStderr();
+            result.Should().Succeed();
+            var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            var paramsObject = parametersStdout.parametersJson.FromJson<JToken>();
+
+            paramsObject.Should().DeepEqual(JToken.Parse("""
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "foo": {
+      "value": "bar"
+    }
+  }
+}
+"""));
+        }
+
+        [TestMethod]
+        public async Task Build_params_with_incorrect_default_value_override_fails()
+        {
+            var bicepparamsPath = FileHelper.SaveResultFile(
+                TestContext,
+                "input.bicepparam", """
+using 'main.bicep'
+""");
+
+            FileHelper.SaveResultFile(
+                TestContext,
+                "main.bicep", """
+param foo string = 'default'
+
+output foo string = foo
+""",
+                Path.GetDirectoryName(bicepparamsPath));
+
+            var environment = TestEnvironment.Create(("BICEP_PARAMETERS_OVERRIDES", new {
+                wrongName = "bar"
+            }.ToJson()));
+
+            var settings = Settings with { Environment = environment };
+            var result = await Bicep(settings, "build-params", bicepparamsPath, "--stdout");
+
+            result.Should().Fail().And.HaveStderrMatch($"*Error BCP259: The parameter \"wrongName\" is assigned in the params file without being declared in the Bicep file.*");
+        }
+
+        [TestMethod]
         public async Task Build_params_with_overrides_with_mismatch_type_fails_with_error()
         {
             var bicepparamsPath = FileHelper.SaveResultFile(
