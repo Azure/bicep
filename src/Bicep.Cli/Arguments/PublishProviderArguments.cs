@@ -4,9 +4,9 @@ using System;
 
 namespace Bicep.Cli.Arguments
 {
-    public class PublishTypeArguments : ArgumentsBase
+    public class PublishProviderArguments : ArgumentsBase
     {
-        public PublishTypeArguments(string[] args) : base(Constants.Command.PublishType)
+        public PublishProviderArguments(string[] args) : base(Constants.Command.PublishProvider)
         {
             for (int i = 0; i < args.Length; i++)
             {
@@ -23,12 +23,12 @@ namespace Bicep.Cli.Arguments
                             throw new CommandLineException("The --target parameter expects an argument.");
                         }
 
-                        if (this.TargetTypeReference is not null)
+                        if (this.TargetProviderReference is not null)
                         {
                             throw new CommandLineException("The --target parameter cannot be specified twice.");
                         }
 
-                        TargetTypeReference = args[i + 1];
+                        TargetProviderReference = args[i + 1];
                         i++;
                         break;
 
@@ -78,7 +78,7 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException($"The input file path was not specified.");
             }
 
-            if (TargetTypeReference is null)
+            if (TargetProviderReference is null)
             {
                 throw new CommandLineException("The target module was not specified.");
             }
@@ -88,7 +88,7 @@ namespace Bicep.Cli.Arguments
 
         public string IndexFile { get; }
 
-        public string TargetTypeReference { get; }
+        public string TargetProviderReference { get; }
 
         public bool NoRestore { get; }
 

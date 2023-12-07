@@ -59,8 +59,8 @@ namespace Bicep.Core.Samples
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
             => CreateMockRegistryClients(dataSet.RegistryModules, enablePublishSource, additionalClients);
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClientsForTypes(this DataSet dataSet, params (Uri registryUri, string repository)[] additionalClients)
-            => CreateMockRegistryClientsForTypes(dataSet.RegistryTypes, additionalClients);
+        public static IContainerRegistryClientFactory CreateMockRegistryClientsForProviders(this DataSet dataSet, params (Uri registryUri, string repository)[] additionalClients)
+            => CreateMockRegistryClientsForProviders(dataSet.RegistryProviders, additionalClients);
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
         {
@@ -89,7 +89,7 @@ namespace Bicep.Core.Samples
             return CreateMockRegistryClients(enablePublishSource, clients.Concat(additionalClients).ToArray()).factoryMock;
         }
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClientsForTypes(ImmutableDictionary<string, DataSet.ExternalTypeInfo> registryModules, params (Uri registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClientsForProviders(ImmutableDictionary<string, DataSet.ExternalProviderInfo> registryModules, params (Uri registryUri, string repository)[] additionalClients)
         {
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
@@ -111,7 +111,7 @@ namespace Bicep.Core.Samples
                 clients.Add((registryUri, targetReference.Repository));
             }*/
 
-            return CreateMockRegistryClientsForTypes(clients.Concat(additionalClients).ToArray()).factoryMock;
+            return CreateMockRegistryClientsForProviders(clients.Concat(additionalClients).ToArray()).factoryMock;
         }
 
         public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(bool? publishSource, params (Uri registryUri, string repository)[] clients)
@@ -127,7 +127,7 @@ namespace Bicep.Core.Samples
             return containerRegistryFactoryBuilder.Build();
         }
 
-        public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClientsForTypes(params (Uri registryUri, string repository)[] clients)
+        public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClientsForProviders(params (Uri registryUri, string repository)[] clients)
         {
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
 
@@ -223,30 +223,30 @@ namespace Bicep.Core.Samples
         }
 
         public static async Task PublishTypesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory)
-            => await PublishTypesToRegistryAsync(dataSet.RegistryTypes, clientFactory);
+            => await PublishProvidersToRegistryAsync(dataSet.RegistryProviders, clientFactory);
 
-        public static async Task PublishTypesToRegistryAsync(ImmutableDictionary<string, DataSet.ExternalTypeInfo> registryType, IContainerRegistryClientFactory clientFactory)
+        public static async Task PublishProvidersToRegistryAsync(ImmutableDictionary<string, DataSet.ExternalProviderInfo> registryType, IContainerRegistryClientFactory clientFactory)
         {
             foreach (var (fileName, publishInfo) in registryType)
             {
-                await PublishTypesToRegistryAsync(clientFactory, fileName, publishInfo.Metadata.Target, publishInfo.TypeSource);
+                await PublishProvidersToRegistryAsync(clientFactory, fileName, publishInfo.Metadata.Target, publishInfo.ProviderSource);
             }
         }
 
-        public static async Task PublishTypesToRegistryAsync(IContainerRegistryClientFactory clientFactory, string typeName, string target, string typeSource)
+        public static async Task PublishProvidersToRegistryAsync(IContainerRegistryClientFactory clientFactory, string typeName, string target, string typeSource)
         {
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(clientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
                 ).Construct<IModuleDispatcher>();
 
-            var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Type, target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
+            var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
                 : throw new InvalidOperationException($"Type '{typeName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
 
             byte[] byteArray = Encoding.UTF8.GetBytes(typeSource);
             var stream = new MemoryStream(byteArray);
 
-            await dispatcher.PublishType(targetReference, stream);
+            await dispatcher.PublishProvider(targetReference, stream);
         }
 
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());

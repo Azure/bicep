@@ -49,22 +49,6 @@ namespace Bicep.Core.TypeSystem.Az
             return new FileAzTypeLoader(typesCache);
         }
 
-        public static FileAzTypeLoader ToResourceTypes(string pathToIndex, string pathToType)
-        {
-            var typesCacheBuilder = ImmutableDictionary.CreateBuilder<string, byte[]>();
-
-            var indexByteArray = File.ReadAllBytes(pathToIndex);
-            var typeByteArray = File.ReadAllBytes(pathToIndex);
-
-            typesCacheBuilder.Add(Path.GetFileName(pathToIndex), indexByteArray);
-            typesCacheBuilder.Add(Path.GetFileName(pathToType), typeByteArray);
-
-            var typesCache = typesCacheBuilder.ToImmutableDictionary();
-
-            return new FileAzTypeLoader(typesCache);
-        }
-
-
         protected override Stream GetContentStreamAtPath(string path)
         {
             if (this.typesCache.TryGetValue($"{path}", out var bytes))
@@ -76,7 +60,6 @@ namespace Bicep.Core.TypeSystem.Az
                 throw new ArgumentException($"Failed to restore {path} from OCI provider data", nameof(path));
             }
         }
-
         private static HashSet<string> getAllUniqueTypesRelativePaths(string pathToIndex)
         {
             FileStream indexStream = new(pathToIndex, FileMode.Open, FileAccess.Read);

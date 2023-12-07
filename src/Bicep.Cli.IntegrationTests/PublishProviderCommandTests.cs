@@ -28,17 +28,18 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using DataSet = Bicep.Core.Samples.DataSet;
 using Bicep.Core.UnitTests.TypeSystem.Az;
+using CommandLine.Text;
 
 namespace Bicep.Cli.IntegrationTests
 {
     [TestClass]
-    public class PublishTypeCommandTests : TestBase
+    public class PublishProviderCommandTests : TestBase
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        [DynamicData(nameof(OnlyPublishTypeDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        [DynamicData(nameof(OnlyPublishProviderDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
         public async Task Publish_AllValidDataSets_ShouldSucceed(string testName, DataSet dataSet)
         {
             TestContext.WriteLine(testName);
@@ -49,10 +50,10 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClientsForTypes((registryUri, repository));
+            var clientFactory = dataSet.CreateMockRegistryClientsForProviders((registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             //Why are we publishing something?
-/*            await dataSet.PublishTypesToRegistryAsync(clientFactory);*/
+/*            await dataSet.PublishProvidersToRegistryAsync(clientFactory);*/
 
             var indexPath = Path.Combine(outputDirectory, DataSet.TestIndex);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestIndex);
@@ -62,7 +63,8 @@ namespace Bicep.Cli.IntegrationTests
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
-            List<string> requiredArgs = new() { "publish-type", indexPath, "--target", $"br:{registryStr}/{repository}:v1" };
+            List<string> requiredArgs = new() { "publish-provider", indexPath, "--target", $"br:{registryStr}/{repository}:v1" };
+            //publish-provider "C:\bicep\bicep\src\Bicep.Core.Samples\Files\baselines\Publish_Providers\index.json" --target "br:example.azurecr.io/hello/world:v1"
 
             string[] args = requiredArgs.ToArray();
 
@@ -247,11 +249,11 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        private static IEnumerable<object[]> OnlyPublishTypeDataSets()
+        private static IEnumerable<object[]> OnlyPublishProviderDataSets()
         {
-            foreach (var ds in DataSets.AllDataSets.Where(ds => ds.Name == "Publish_Types"))
+            foreach (var ds in DataSets.AllDataSets.Where(ds => ds.Name == "Publish_Providers"))
             {
-                yield return new object[] { $"{ds.Name}, publishing types", ds };
+                yield return new object[] { $"{ds.Name}, publishing providers", ds };
                 break;
             }
         }

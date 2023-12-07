@@ -26,12 +26,11 @@ using Microsoft.Extensions.Logging;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Az;
-using Bicep.Core.UnitTests;
 using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Cli.Commands
 {
-    public class PublishTypeCommand : ICommand
+    public class PublishProviderCommand : ICommand
     {
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly CompilationService compilationService;
@@ -42,7 +41,7 @@ namespace Bicep.Cli.Commands
         private readonly IOContext ioContext;
         private readonly ILogger logger;
 
-        public PublishTypeCommand(
+        public PublishProviderCommand(
             IDiagnosticLogger diagnosticLogger,
             CompilationService compilationService,
             IOContext ioContext,
@@ -62,33 +61,22 @@ namespace Bicep.Cli.Commands
             this.logger = logger;
         }
 
-        [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
-        public async Task<int> RunAsync(PublishTypeArguments args)
+        public async Task<int> RunAsync(PublishProviderArguments args)
         {
             var indexPath = PathHelper.ResolvePath(args.IndexFile);
             var inputUri = PathHelper.FilePathToFileUrl(indexPath);
             var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(indexPath));
             var documentationUri = args.DocumentationUri;
-            var typeReference = ValidateReference(args.TargetTypeReference, inputUri);
+            var providerReference = ValidateReference(args.TargetProviderReference, inputUri);
             var overwriteIfExists = args.Force;
 
-            //attempt to validate types here, move to better location later
-
-            AzResourceTypeLoader azTypeLoader = new(FileAzTypeLoader.FromFile(indexPath));
-
-            var availableTypes = azTypeLoader.GetAvailableTypes();
-
-            //Going to assume that this is enough validation, if it is not, we'll have to create the namespace, factory etc. similar to what happens in the AzResourceTypeProvider_can_deserialize_all_types_without_throwing function
-            foreach (var type in availableTypes)
-            {
-                azTypeLoader.LoadType(type);
-            }
+            //TODO: attempt to validate types here
 
             if (PathHelper.HasArmTemplateLikeExtension(inputUri))
             {
                 // Publishing an ARM template file.
                 using var armTemplateStream = this.fileSystem.FileStream.New(indexPath, FileMode.Open, FileAccess.Read);
-                await this.PublishTypeAsync(typeReference, armTemplateStream, overwriteIfExists);
+                await this.PublishProviderAsync(providerReference, armTemplateStream, overwriteIfExists);
 
                 return 0;
             }
@@ -108,26 +96,26 @@ namespace Bicep.Cli.Commands
             return 0;
         }
 
-        private async Task PublishTypeAsync(ArtifactReference target, Stream compiledArmTemplate, bool overwriteIfExists)
+        private async Task PublishProviderAsync(ArtifactReference target, Stream compiledArmTemplate, bool overwriteIfExists)
         {
             try
             {
                 // If we don't want to overwrite, ensure module doesn't exist
-                if (!overwriteIfExists && await this.moduleDispatcher.CheckTypeExists(target))
+                if (!overwriteIfExists && await this.moduleDispatcher.CheckProviderExists(target))
                 {
-                    throw new BicepException($"The Type \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing type.");
+                    throw new BicepException($"The Provider \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing provider.");
                 }
-                await this.moduleDispatcher.PublishType(target, compiledArmTemplate);
+                await this.moduleDispatcher.PublishProvider(target, compiledArmTemplate);
             }
             catch (ExternalArtifactException exception)
             {
-                throw new BicepException($"Unable to publish type \"{target.FullyQualifiedReference}\": {exception.Message}");
+                throw new BicepException($"Unable to publish provider \"{target.FullyQualifiedReference}\": {exception.Message}");
             }
         }
 
-        private ArtifactReference ValidateReference(string targetTypeReference, Uri targetTypeUri)
+        private ArtifactReference ValidateReference(string targetProviderReference, Uri targetProviderUri)
         {
-            if (!this.moduleDispatcher.TryGetArtifactReference(ArtifactType.Type, targetTypeReference, targetTypeUri).IsSuccess(out var typeReference, out var failureBuilder))
+            if (!this.moduleDispatcher.TryGetArtifactReference(ArtifactType.Provider, targetProviderReference, targetProviderUri).IsSuccess(out var providerReference, out var failureBuilder))
             {
                 // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
@@ -135,12 +123,12 @@ namespace Bicep.Cli.Commands
                 throw new BicepException(message);
             }
 
-            if (!this.moduleDispatcher.GetRegistryCapabilities(typeReference).HasFlag(RegistryCapabilities.Publish))
+            if (!this.moduleDispatcher.GetRegistryCapabilities(providerReference).HasFlag(RegistryCapabilities.Publish))
             {
-                throw new BicepException($"The specified type target \"{targetTypeReference}\" is not supported.");
+                throw new BicepException($"The specified provider target \"{targetProviderReference}\" is not supported.");
             }
 
-            return typeReference;
+            return providerReference;
         }
     }
 }
