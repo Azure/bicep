@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
+using Bicep.Core.Registry.Providers;
 using Bicep.Core.SourceCode;
 
 namespace Bicep.Core.Registry
@@ -76,6 +77,13 @@ namespace Bicep.Core.Registry
         /// <param name="compiled">The compiled module</param>
         /// <param name="bicepSources">The source archive (binary stream of SourceArchive)</param>
         Task PublishModule(ArtifactReference reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description);
+
+        /// <summary>
+        /// Publishes a provider types package to the registry.
+        /// </summary>
+        /// <param name="reference">The provider reference</param>
+        /// <param name="typesTgz">The types.tgz file stream (binary stream of <see cref="TypesV1Archive"/>)</param>
+        Task PublishProvider(ArtifactReference reference, Stream typesTgz);
 
         /// <summary>
         /// Returns documentationUri for the module.

@@ -7,7 +7,6 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Formats.Tar;
 using System.IO;
-using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;

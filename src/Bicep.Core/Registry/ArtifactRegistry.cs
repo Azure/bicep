@@ -46,6 +46,9 @@ namespace Bicep.Core.Registry
         public Task PublishModule(ArtifactReference artifactReference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description)
             => this.PublishModule(ConvertReference(artifactReference), compiled, bicepSources, documentationUri, description);
 
+        public Task PublishProvider(ArtifactReference reference, Stream typesTgz)
+            => this.PublishProvider(ConvertReference(reference), typesTgz);
+
         public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references) =>
             this.RestoreArtifacts(references.Select(ConvertReference));
 
