@@ -14,14 +14,14 @@ namespace Bicep.Cli.Commands
     public class DecompileParamsCommand : ICommand
     {
         private readonly ILogger logger;
-        private readonly IDiagnosticLogger diagnosticLogger;
+        private readonly DiagnosticLogger diagnosticLogger;
         private readonly IOContext io;
         private readonly CompilationService compilationService;
         private readonly DecompilationWriter writer;
 
         public DecompileParamsCommand(
             ILogger logger,
-            IDiagnosticLogger diagnosticLogger,
+            DiagnosticLogger diagnosticLogger,
             IOContext io,
             CompilationService compilationService,
             DecompilationWriter writer)
@@ -63,7 +63,7 @@ namespace Bicep.Cli.Commands
             }
 
             // return non-zero exit code on errors
-            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+            return 0;
         }
     }
 }

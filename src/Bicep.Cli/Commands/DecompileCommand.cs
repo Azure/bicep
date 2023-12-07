@@ -14,14 +14,14 @@ namespace Bicep.Cli.Commands
     public class DecompileCommand : ICommand
     {
         private readonly ILogger logger;
-        private readonly IDiagnosticLogger diagnosticLogger;
+        private readonly DiagnosticLogger diagnosticLogger;
         private readonly IOContext io;
         private readonly CompilationService compilationService;
         private readonly DecompilationWriter writer;
 
         public DecompileCommand(
             ILogger logger,
-            IDiagnosticLogger diagnosticLogger,
+            DiagnosticLogger diagnosticLogger,
             IOContext io,
             CompilationService compilationService,
             DecompilationWriter writer)
@@ -45,7 +45,9 @@ namespace Bicep.Cli.Commands
 
             try
             {
-                var decompilation = await compilationService.DecompileAsync(inputPath, outputPath);
+                var (compilation, decompilation) = await compilationService.DecompileAsync(inputPath, outputPath);
+
+                var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
 
                 if (args.OutputToStdOut)
                 {
@@ -55,15 +57,15 @@ namespace Bicep.Cli.Commands
                 {
                     writer.ToFile(decompilation);
                 }
+
+                // return non-zero exit code on errors
+                return summary.HasErrors ? 1 : 0;
             }
             catch (Exception exception)
             {
                 await io.Error.WriteLineAsync(string.Format(CliResources.DecompilationFailedFormat, PathHelper.ResolvePath(args.InputFile), exception.Message));
                 return 1;
             }
-
-            // return non-zero exit code on errors
-            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
         }
     }
 }
