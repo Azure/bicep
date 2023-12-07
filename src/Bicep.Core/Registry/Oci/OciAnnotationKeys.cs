@@ -16,6 +16,7 @@ namespace Bicep.Core.Registry.Oci
         // Human-readable title of the image (string)
         public const string OciOpenContainerImageTitleAnnotation = "org.opencontainers.image.title";
 
+        public const string BicepSerializationFormatAnnotation = "bicep.serialization.format";
     }
 }
 

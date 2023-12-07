@@ -585,7 +585,7 @@ namespace Bicep.Core.UnitTests.Registry
             var template = new TextByteArray(jsonContentsV1);
             var sources = publishSource ? new TextByteArray("This is a test. This is only a test. If this were a real source archive, it would have been binary.") : null;
 
-            await ociRegistry.PublishArtifact(moduleReference, template.ToStream(), sources?.ToStream(), "http://documentation", "description");
+            await ociRegistry.PublishModule(moduleReference, template.ToStream(), sources?.ToStream(), "http://documentation", "description");
 
             if (publishSource)
             {
@@ -620,11 +620,11 @@ namespace Bicep.Core.UnitTests.Registry
 
             var templateV1 = new TextByteArray(jsonContentsV1);
             var sourcesV1 = sourceContentsV1 == null ? null : new TextByteArray(sourceContentsV1);
-            await ociRegistry.PublishArtifact(moduleReferenceV1, templateV1.ToStream(), sourcesV1?.ToStream(), "http://documentation", "description");
+            await ociRegistry.PublishModule(moduleReferenceV1, templateV1.ToStream(), sourcesV1?.ToStream(), "http://documentation", "description");
 
             var templateV2 = new TextByteArray(jsonContentsV2);
             var sourcesV2 = sourceContentsV2 == null ? null : new TextByteArray(sourceContentsV2);
-            await ociRegistry.PublishArtifact(moduleReferenceV2, templateV2.ToStream(), sourcesV2?.ToStream(), "http://documentation", "description");
+            await ociRegistry.PublishModule(moduleReferenceV2, templateV2.ToStream(), sourcesV2?.ToStream(), "http://documentation", "description");
 
             if (sourcesV1 != null)
             {
@@ -664,7 +664,7 @@ namespace Bicep.Core.UnitTests.Registry
             var template = new TextByteArray(jsonContentsV1);
             var sourceStream = publishSource ? CreateSourceStream("This is a test. This is only a test. If this were a real source archive, it would have been binary.") : null;
 
-            await ociRegistry.PublishArtifact(moduleReference, template.ToStream(), sourceStream, "http://documentation", "description");
+            await ociRegistry.PublishModule(moduleReference, template.ToStream(), sourceStream, "http://documentation", "description");
 
             if (publishSource)
             {

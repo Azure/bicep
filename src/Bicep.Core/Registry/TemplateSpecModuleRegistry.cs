@@ -58,7 +58,11 @@ namespace Bicep.Core.Registry
         public override bool IsArtifactRestoreRequired(TemplateSpecModuleReference reference) =>
             !this.FileResolver.FileExists(this.GetModuleEntryPointUri(reference));
 
-        public override Task PublishArtifact(TemplateSpecModuleReference reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description) => throw new NotSupportedException("Template Spec modules cannot be published.");
+        public override Task PublishModule(TemplateSpecModuleReference reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description)
+            => throw new NotSupportedException("Template Spec modules cannot be published.");
+
+        public override Task PublishProvider(TemplateSpecModuleReference reference, Stream typesTgz)
+            => throw new NotSupportedException("Template Spec providers cannot be published.");
 
         public override Task<bool> CheckArtifactExists(TemplateSpecModuleReference reference) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
