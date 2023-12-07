@@ -53,15 +53,16 @@ namespace Bicep.Cli.IntegrationTests
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             //Why are we publishing something?
 /*            await dataSet.PublishTypesToRegistryAsync(clientFactory);*/
-            var typesPath = Path.Combine(outputDirectory, DataSet.TestTypes);
-            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestTypes);
+
+            var indexPath = Path.Combine(outputDirectory, DataSet.TestIndex);
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestIndex);
 
             // mock client factory caches the clients
             var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
-            List<string> requiredArgs = new() { "publish-type", typesPath, "--target", $"br:{registryStr}/{repository}:v1" };
+            List<string> requiredArgs = new() { "publish-type", indexPath, "--target", $"br:{registryStr}/{repository}:v1" };
 
             string[] args = requiredArgs.ToArray();
 
@@ -75,7 +76,7 @@ namespace Bicep.Cli.IntegrationTests
             testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);
 
             // Modify the source
-            File.AppendAllText(typesPath, "\noutput newoutput string = 'hello'");
+            File.AppendAllText(indexPath, "\noutput newoutput string = 'hello'");
 
             // publish the same content again without --force
             var (output2, error2, result2) = await Bicep(settings, args);
@@ -92,7 +93,7 @@ namespace Bicep.Cli.IntegrationTests
             AssertNoErrors(error3);
 
             // compile to get what the new expected main.json should be
-            List<string> buildArgs = new() { "build", typesPath, "--outfile", $"{compiledFilePath}.modified" };
+            List<string> buildArgs = new() { "build", indexPath, "--outfile", $"{compiledFilePath}.modified" };
             var (output4, error4, result4) = await Bicep(settings, buildArgs.ToArray());
             result4.Should().Be(0);
             output4.Should().BeEmpty();

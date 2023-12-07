@@ -65,54 +65,35 @@ namespace Bicep.Cli.Commands
         [UnconditionalSuppressMessage("Trimming", "IL2026:Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code", Justification = "<Pending>")]
         public async Task<int> RunAsync(PublishTypeArguments args)
         {
-            var inputPath = PathHelper.ResolvePath(args.InputFile);
-            var inputUri = PathHelper.FilePathToFileUrl(inputPath);
-            var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
+            var indexPath = PathHelper.ResolvePath(args.IndexFile);
+            var inputUri = PathHelper.FilePathToFileUrl(indexPath);
+            var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(indexPath));
             var documentationUri = args.DocumentationUri;
             var typeReference = ValidateReference(args.TargetTypeReference, inputUri);
             var overwriteIfExists = args.Force;
 
             //attempt to validate types here, move to better location later
 
-            var typePath = "C:\\bicep\\bicep\\src\\Bicep.Core.Samples\\Files\\baselines\\Publish_Types\\types.json";
-            var indexJsonString = ProcessJsonFile(inputPath);
-
-            AzResourceTypeLoader azTypeLoader = new(FileAzTypeLoader.FromFile(indexJsonString, typePath));
-            AzResourceTypeProvider azProvider = new(azTypeLoader, "dummyVersion");
-
-            IResourceTypeProviderFactory ResourceTypeProviderFactory = new ResourceTypeProviderFactory();
-            //call factory function
-
-            INamespaceProvider nsProvider = new DefaultNamespaceProvider(ResourceTypeProviderFactory);
-            var azNamespaceType = nsProvider.TryGetNamespace(new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion), ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
-            var resourceTypeProvider = azNamespaceType.ResourceTypeProvider;
+            AzResourceTypeLoader azTypeLoader = new(FileAzTypeLoader.FromFile(indexPath));
 
             var availableTypes = azTypeLoader.GetAvailableTypes();
 
+            //Going to assume that this is enough validation, if it is not, we'll have to create the namespace, factory etc. similar to what happens in the AzResourceTypeProvider_can_deserialize_all_types_without_throwing function
             foreach (var type in availableTypes)
             {
                 azTypeLoader.LoadType(type);
             }
 
-            foreach (var availableType in availableTypes)
-            {
-                var reference = ResourceTypeReference.Parse(availableType.Name);
-
-                var resourceType = resourceTypeProvider.TryGetDefinedType(azNamespaceType, reference, ResourceTypeGenerationFlags.None)!;
-
-            }
-
-
             if (PathHelper.HasArmTemplateLikeExtension(inputUri))
             {
                 // Publishing an ARM template file.
-                using var armTemplateStream = this.fileSystem.FileStream.New(inputPath, FileMode.Open, FileAccess.Read);
+                using var armTemplateStream = this.fileSystem.FileStream.New(indexPath, FileMode.Open, FileAccess.Read);
                 await this.PublishTypeAsync(typeReference, armTemplateStream, overwriteIfExists);
 
                 return 0;
             }
 
-            var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
+            var compilation = await compilationService.CompileAsync(indexPath, args.NoRestore);
 
             if (diagnosticLogger.ErrorCount > 0)
             {
@@ -160,44 +141,6 @@ namespace Bicep.Cli.Commands
             }
 
             return typeReference;
-        }
-
-        /*private static NamespaceType GetAzNamespaceType(AzResourceTypeLoaderFactory azTypeLoaderFactory)
-        {
-            IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BicepTestConstants.BuiltInConfiguration), BicepTestConstants.FeatureOverrides);
-            var nsProvider = new DefaultNamespaceProvider(azTypeLoaderFactory);
-
-            return nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile, null)!;
-        }*/
-
-        [RequiresUnreferencedCode("Calls System.Text.Json.JsonSerializer.Serialize<TValue>(TValue, JsonSerializerOptions)")]
-        private static string ProcessJsonFile(string typesPath){
-
-            FileStream typeStream = new(typesPath, FileMode.Open, FileAccess.Read);
-            Dictionary<string, TypeLocation> resources = new();
-            Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<TypeLocation>>> functions = new();
-
-
-            var types = TypeSerializer.Deserialize(typeStream);
-
-            for (int i = 0; i <= types.Length-1; i++)
-            {
-                if (types[i] is Azure.Bicep.Types.Concrete.ResourceType)
-                {
-                    var resourceType = (Azure.Bicep.Types.Concrete.ResourceType)types[i];
-
-                    var typeLocation = new TypeLocation("types.json", i);
-                    resources.Add(resourceType.Name, typeLocation);
-                }
-            }
-
-            // Perform any processing on the data if needed
-
-            TypeIndex typeIndex = new(resources, functions);
-
-            string indexJson = JsonSerializer.Serialize(typeIndex);
-
-            return indexJson;
         }
     }
 }

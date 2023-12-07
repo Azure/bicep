@@ -20,7 +20,7 @@ namespace Bicep.Core.Samples
     public class DataSet
     {
         public const string TestFileMain = "main.bicep";
-        public const string TestTypes = "types.json";
+        public const string TestIndex = "index.json";
         public const string TestFileMainDiagnostics = "main.diagnostics.bicep";
         public const string TestFileMainIr = "main.ir.bicep";
         public const string TestFileMainTokens = "main.tokens.bicep";

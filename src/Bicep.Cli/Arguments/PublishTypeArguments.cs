@@ -63,17 +63,17 @@ namespace Bicep.Cli.Arguments
                             throw new CommandLineException($"Unrecognized parameter \"{args[i]}\"");
                         }
 
-                        if (InputFile is not null)
+                        if (IndexFile is not null)
                         {
                             throw new CommandLineException($"The input file path cannot be specified multiple times.");
                         }
 
-                        InputFile = args[i];
+                        IndexFile = args[i];
                         break;
                 }
             }
 
-            if (InputFile is null)
+            if (IndexFile is null)
             {
                 throw new CommandLineException($"The input file path was not specified.");
             }
@@ -86,7 +86,7 @@ namespace Bicep.Cli.Arguments
 
         public string? DocumentationUri { get; }
 
-        public string InputFile { get; }
+        public string IndexFile { get; }
 
         public string TargetTypeReference { get; }
 
