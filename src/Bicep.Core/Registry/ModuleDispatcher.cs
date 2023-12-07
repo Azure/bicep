@@ -66,7 +66,7 @@ namespace Bicep.Core.Registry
 
                     if (parts[0].Contains('/'))
                     {
-                        // The sheme contains an alias.
+                        // The scheme contains an alias.
                         var schemeParts = parts[0].Split('/', 2, StringSplitOptions.None);
                         scheme = schemeParts[0];
                         aliasName = schemeParts[1];
@@ -192,7 +192,14 @@ namespace Bicep.Core.Registry
             var registry = this.GetRegistry(reference);
 
             var description = DescriptionHelper.TryGetFromArmTemplate(compiledArmTemplate);
-            await registry.PublishArtifact(reference, compiledArmTemplate, bicepSources, documentationUri, description);
+            await registry.PublishModule(reference, compiledArmTemplate, bicepSources, documentationUri, description);
+        }
+
+        public async Task PublishProvider(ArtifactReference reference, Stream typesTgz)
+        {
+            var registry = this.GetRegistry(reference);
+
+            await registry.PublishProvider(reference, typesTgz);
         }
 
         public async Task PublishProvider(ArtifactReference reference, Stream compiledArmTemplate)

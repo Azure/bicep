@@ -13,6 +13,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -96,45 +97,7 @@ namespace Bicep.LanguageServer.Handlers
         /// <returns>A bicep-extsrc: URI</returns>
         public static Uri GetExternalSourceLinkUri(OciArtifactReference reference, SourceArchive? sourceArchive)
         {
-            string entrypoint;
-            string? requestedSourceFile;
-
-            if (sourceArchive is { })
-            {
-                // We have Bicep source code available.
-                entrypoint = sourceArchive.EntrypointRelativePath;
-                requestedSourceFile = entrypoint;
-            }
-            else
-            {
-                // Just showing the main.json
-                entrypoint = "main.json";
-                requestedSourceFile = null;
-            }
-
-            var fullyQualifiedReference = reference.FullyQualifiedReference;
-            var version = reference.Tag is string ? $":{reference.Tag}" : $"@{reference.Digest}";
-
-            var shortDocumentTitle = $"{entrypoint} ({Path.GetFileName(reference.Repository)}{version})";
-            var fullDocumentTitle = $"{reference.Scheme}:{reference.Registry}/{reference.Repository}{version}/{shortDocumentTitle}";
-
-            // Encode the module reference as a query and the file to retrieve as a fragment.
-            // Vs Code will strip the fragment and query and use the main part of the uri as the document title.
-            // The Bicep extension will use the fragment to make a call to use via textDocument/bicepExternalSource request (see BicepExternalSourceHandler)
-            //   to get the actual source code contents to display.
-            //
-            // Example:
-            //
-            //   source available (will be encoded):
-            //     bicep-extsrc:br:myregistry.azurecr.io/myrepo:main.bicep (v1)?br:myregistry.azurecr.io/myrepo:v1#main.bicep
-            //
-            //   source not available, showing just JSON (will be encoded)
-            //     bicep-extsrc:br:myregistry.azurecr.io/myrepo:main.json (v1)?br:myregistry.azurecr.io/myrepo:v1
-            //
-            var uri = new UriBuilder($"bicep-extsrc:{Uri.EscapeDataString(fullDocumentTitle)}");
-            uri.Query = Uri.EscapeDataString(fullyQualifiedReference);
-            uri.Fragment = requestedSourceFile is null ? null : Uri.EscapeDataString(requestedSourceFile);
-            return uri.Uri;
+            return new ExternalSourceReference(reference, sourceArchive).ToUri();
         }
     }
 }
