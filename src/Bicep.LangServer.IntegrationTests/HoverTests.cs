@@ -932,6 +932,36 @@ param foo|bar = true
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nfoo: Type<string>\n```\nThe foo type\n"));
         }
 
+        [TestMethod]
+        public async Task Description_markdown_is_correctly_formatted()
+        {
+            // https://github.com/Azure/bicep/issues/12412
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+type foo = {
+  @description('''Source port ranges.
+    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
+    When a wildcard is used, that needs to be the only value.''')
+  sourcePortRanges: string[]
+}
+
+param foo1 foo = {
+  sourceP|ortRanges:
+}
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var hover = await file.RequestHover(cursor);
+            hover!.Contents!.MarkupContent!.Value
+                .Should().BeEquivalentToIgnoringNewlines(
+                    "```bicep\n" +
+                    "sourcePortRanges: string[]\n" +
+                    "```  \n" +
+                    "Source port ranges.\n" +
+                    "    Can be a single valid port number, a range in the form of \\<start\\>-\\<end\\>, or a * for any ports.\n" +
+                    "    When a wildcard is used, that needs to be the only value.  \n");
+        }
+
 
         private string GetManifestFileContents(string? documentationUri, string? description)
         {

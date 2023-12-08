@@ -30,9 +30,6 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IArtifactRegistryProvider moduleRegistryProvider;
         private readonly ISymbolResolver symbolResolver;
 
-        private const int MaxHoverMarkdownCodeBlockLength = 90000;
-        //actual limit for hover in VS code is 100,000 characters.
-
         public BicepHoverHandler(
             IModuleDispatcher moduleDispatcher,
             IArtifactRegistryProvider moduleRegistryProvider,
@@ -64,20 +61,17 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        private static string? TryGetDescriptionMarkdown(SymbolResolutionResult result, DeclaredSymbol symbol)
+        private static string? TryGetDescription(SymbolResolutionResult result, DeclaredSymbol symbol)
         {
-            if (symbol.DeclaringSyntax is DecorableSyntax decorableSyntax &&
-                DescriptionHelper.TryGetFromDecorator(
-                    result.Context.Compilation.GetEntrypointSemanticModel(),
-                    decorableSyntax) is { } description)
+            if (symbol.DeclaringSyntax is DecorableSyntax decorableSyntax)
             {
-                return description;
+                return DescriptionHelper.TryGetFromDecorator(result.Context.Compilation.GetEntrypointSemanticModel(), decorableSyntax);
             }
 
             return null;
         }
 
-        private static string? TryGetDescriptionMarkdown(SymbolResolutionResult result, WildcardImportSymbol symbol)
+        private static string? TryGetDescription(SymbolResolutionResult result, WildcardImportSymbol symbol)
             => DescriptionHelper.TryGetFromDecorator(result.Context.Compilation.GetEntrypointSemanticModel(), symbol.EnclosingDeclaration);
 
         private static async Task<MarkedStringsOrMarkupContent?> GetMarkdown(
@@ -91,57 +85,57 @@ namespace Bicep.LanguageServer.Handlers
             switch (result.Symbol)
             {
                 case ProviderNamespaceSymbol provider:
-                    return AsMarkdown(CodeBlockWithDescription(
-                        $"import {provider.Name}", TryGetDescriptionMarkdown(result, provider)));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
+                        $"import {provider.Name}", TryGetDescription(result, provider)));
 
                 case MetadataSymbol metadata:
-                    return AsMarkdown(CodeBlockWithDescription(
-                        $"metadata {metadata.Name}: {metadata.Type}", TryGetDescriptionMarkdown(result, metadata)));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
+                        $"metadata {metadata.Name}: {metadata.Type}", TryGetDescription(result, metadata)));
 
                 case ParameterSymbol parameter:
-                    return AsMarkdown(CodeBlockWithDescription(
-                        WithTypeModifiers($"param {parameter.Name}: {parameter.Type}", parameter.Type), TryGetDescriptionMarkdown(result, parameter)));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
+                        WithTypeModifiers($"param {parameter.Name}: {parameter.Type}", parameter.Type), TryGetDescription(result, parameter)));
 
                 case TypeAliasSymbol declaredType:
-                    return AsMarkdown(CodeBlockWithDescription(
-                        WithTypeModifiers($"type {declaredType.Name}: {declaredType.Type}", declaredType.Type), TryGetDescriptionMarkdown(result, declaredType)));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
+                        WithTypeModifiers($"type {declaredType.Name}: {declaredType.Type}", declaredType.Type), TryGetDescription(result, declaredType)));
 
                 case ImportedTypeSymbol importedType:
-                    return AsMarkdown(CodeBlockWithDescription(
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
                         WithTypeModifiers($"type {importedType.Name}: {importedType.Type}", importedType.Type),
                         importedType.Description));
 
                 case ImportedVariableSymbol importedVariable:
-                    return AsMarkdown(CodeBlockWithDescription($"var {importedVariable.Name}: {importedVariable.Type}", importedVariable.Description));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"var {importedVariable.Name}: {importedVariable.Type}", importedVariable.Description));
 
                 case AmbientTypeSymbol ambientType:
-                    return AsMarkdown(CodeBlock(WithTypeModifiers($"type {ambientType.Name}: {ambientType.Type}", ambientType.Type)));
+                    return AsMarkdown(MarkdownHelper.CodeBlock(WithTypeModifiers($"type {ambientType.Name}: {ambientType.Type}", ambientType.Type)));
 
                 case VariableSymbol variable:
-                    return AsMarkdown(CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable)));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescription(result, variable)));
 
                 case ResourceSymbol resource:
                     var docsSuffix = TryGetTypeDocumentationLink(resource) is { } typeDocsLink ? MarkdownHelper.GetDocumentationLink(typeDocsLink) : "";
-                    var description = TryGetDescriptionMarkdown(result, resource);
+                    var description = TryGetDescription(result, resource);
 
-                    return AsMarkdown(CodeBlockWithDescription(
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
                         $"resource {resource.Name} {(resource.Type is ResourceType ? $"'{resource.Type}'" : resource.Type)}",
-                        description is { } ? $"{description}\n{docsSuffix}" : docsSuffix));
+                        $"{MarkdownHelper.AppendNewline(description)}{docsSuffix}"));
 
                 case ModuleSymbol module:
                     return await GetModuleMarkdown(request, result, moduleDispatcher, moduleRegistryProvider, module);
 
                 case TestSymbol test:
-                    return AsMarkdown(CodeBlockWithDescription($"test {test.Name}", TryGetDescriptionMarkdown(result, test)));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"test {test.Name}", TryGetDescription(result, test)));
                 case OutputSymbol output:
-                    return AsMarkdown(CodeBlockWithDescription(
-                        WithTypeModifiers($"output {output.Name}: {output.Type}", output.Type), TryGetDescriptionMarkdown(result, output)));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
+                        WithTypeModifiers($"output {output.Name}: {output.Type}", output.Type), TryGetDescription(result, output)));
 
                 case BuiltInNamespaceSymbol builtInNamespace:
-                    return AsMarkdown(CodeBlock($"{builtInNamespace.Name} namespace"));
+                    return AsMarkdown(MarkdownHelper.CodeBlock($"{builtInNamespace.Name} namespace"));
 
                 case WildcardImportSymbol wildcardImport:
-                    return AsMarkdown(CodeBlockWithDescription($"{wildcardImport.Name} namespace", TryGetDescriptionMarkdown(result, wildcardImport)));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"{wildcardImport.Name} namespace", TryGetDescription(result, wildcardImport)));
 
                 case IFunctionSymbol function when result.Origin is FunctionCallSyntaxBase functionCall:
                     // it's not possible for a non-function call syntax to resolve to a function symbol
@@ -155,10 +149,10 @@ namespace Bicep.LanguageServer.Handlers
                     return AsMarkdown(GetFunctionOverloadMarkdown(importedFunction.Overload));
 
                 case PropertySymbol property:
-                    return AsMarkdown(CodeBlockWithDescription(WithTypeModifiers($"{property.Name}: {property.Type}", property.Type), property.Description));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(WithTypeModifiers($"{property.Name}: {property.Type}", property.Type), property.Description));
 
                 case LocalVariableSymbol local:
-                    return AsMarkdown(CodeBlock($"{local.Name}: {local.Type}"));
+                    return AsMarkdown(MarkdownHelper.CodeBlock($"{local.Name}: {local.Type}"));
 
                 case ParameterAssignmentSymbol parameterAssignment:
                     if (GetDeclaredParameterMetadata(parameterAssignment) is not ParameterMetadata declaredParamMetadata)
@@ -166,11 +160,11 @@ namespace Bicep.LanguageServer.Handlers
                         return null;
                     }
 
-                    return AsMarkdown(CodeBlockWithDescription(
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription(
                         WithTypeModifiers($"param {parameterAssignment.Name}: {declaredParamMetadata.TypeReference.Type}", declaredParamMetadata.TypeReference.Type), declaredParamMetadata.Description));
 
                 case AssertSymbol assert:
-                    return AsMarkdown(CodeBlockWithDescription($"assert {assert.Name}: {assert.Type}", TryGetDescriptionMarkdown(result, assert)));
+                    return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"assert {assert.Name}: {assert.Type}", TryGetDescription(result, assert)));
 
                 default:
                     return null;
@@ -189,7 +183,7 @@ namespace Bicep.LanguageServer.Handlers
                 filePath = string.Empty;
             }
             var descriptionLines = new List<string?>();
-            descriptionLines.Add(TryGetDescriptionMarkdown(result, module));
+            descriptionLines.Add(TryGetDescription(result, module));
 
             var uri = request.TextDocument.Uri.ToUriEncoded();
             var registries = moduleRegistryProvider.Registries(uri);
@@ -225,8 +219,8 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            var descriptions = string.Join("\n\n", descriptionLines.WhereNotNull());
-            return AsMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", descriptions));
+            var descriptions = descriptionLines.Select(MarkdownHelper.AppendNewline).ConcatString("");
+            return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"module {module.Name} '{filePath}'", descriptions));
         }
 
         private static ParameterMetadata? GetDeclaredParameterMetadata(ParameterAssignmentSymbol symbol)
@@ -302,16 +296,6 @@ namespace Bicep.LanguageServer.Handlers
             _ => type,
         };
 
-        //we need to check for overflow due to using code blocks.
-        //if we reach limit in a code block vscode will truncate it automatically, the block will not be terminated so the hover will not be properly formatted
-        //therefore we need to check for the limit ourselves and truncate text inside code block, making sure it's terminated properly.
-        private static string CodeBlock(string content) =>
-        $"```bicep\n{(content.Length > MaxHoverMarkdownCodeBlockLength ? content.Substring(0, MaxHoverMarkdownCodeBlockLength) : content)}\n```\n";
-
-        // Markdown needs two leading whitespaces before newline to insert a line break
-        private static string CodeBlockWithDescription(string content, string? description) =>
-            CodeBlock(content) + (!string.IsNullOrEmpty(description) ? $"{description.Replace("\n", "  \n")}\n" : string.Empty);
-
         private static MarkedStringsOrMarkupContent GetFunctionMarkdown(IFunctionSymbol function, FunctionCallSyntaxBase functionCall, SemanticModel model)
         {
             if (model.TypeManager.GetMatchedFunctionOverload(functionCall) is { } matchedOverload)
@@ -334,7 +318,7 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         private static string GetFunctionOverloadMarkdown(FunctionOverload overload)
-            => CodeBlockWithDescription($"function {overload.Name}{overload.TypeSignature}", overload.Description);
+            => MarkdownHelper.CodeBlockWithDescription($"function {overload.Name}{overload.TypeSignature}", overload.Description);
 
         private static string? TryGetTypeDocumentationLink(ResourceSymbol resource)
         {

@@ -4544,5 +4544,33 @@ var arr6 = [
             completions.Should().NotContain(c => c.Label == "bar");
             completions.Should().NotContain(c => c.Label == "baz");
         }
+
+        [TestMethod]
+        public async Task Description_markdown_is_correctly_formatted()
+        {
+            // https://github.com/Azure/bicep/issues/12412
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+type foo = {
+  @description('''Source port ranges.
+    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
+    When a wildcard is used, that needs to be the only value.''')
+  sourcePortRanges: string[]
+}
+
+param foo1 foo = {
+  so|
+}
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Single(x => x.Label == "sourcePortRanges").Documentation!.MarkupContent!.Value
+                .Should().BeEquivalentToIgnoringNewlines(
+                    "Type: `string[]`  \n" +
+                    "Source port ranges.\n" +
+                    "    Can be a single valid port number, a range in the form of \\<start\\>-\\<end\\>, or a * for any ports.\n" +
+                    "    When a wildcard is used, that needs to be the only value.  \n");
+        }
     }
 }
