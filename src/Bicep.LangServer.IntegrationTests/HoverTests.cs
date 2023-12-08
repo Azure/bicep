@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -224,13 +225,13 @@ output string test = testRes.prop|erties.rea|donly
             var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nThe resource name\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```\nThis is a property which supports reading AND writing!\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```\nThis is a property which only supports writing.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```\nThis is a property which is required.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```  \nThe resource name  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```  \nproperties property  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```  \nThis is a property which supports reading AND writing!  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```  \nThis is a property which only supports writing.  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```  \nThis is a property which is required.  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```  \nproperties property  \n"  ),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```  \nThis is a property which only supports reading.  \n"));
         }
 
 
@@ -259,13 +260,13 @@ output string test = testRes[3].prop|erties.rea|donly
             var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nThe resource name\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```\nThis is a property which supports reading AND writing!\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```\nThis is a property which only supports writing.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```\nThis is a property which is required.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```  \nThe resource name  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```  \nproperties property  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```  \nThis is a property which supports reading AND writing!  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```  \nThis is a property which only supports writing.  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```  \nThis is a property which is required.  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```  \nproperties property  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```  \nThis is a property which only supports reading.  \n"));
         }
 
         [TestMethod]
@@ -293,13 +294,13 @@ output string test = testRes.prop|erties.rea|donly
             var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nThe resource name\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```\nThis is a property which supports reading AND writing!\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```\nThis is a property which only supports writing.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```\nThis is a property which is required.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```\nproperties property\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```  \nThe resource name  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```  \nproperties property  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```  \nThis is a property which supports reading AND writing!  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```  \nThis is a property which only supports writing.  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```  \nThis is a property which is required.  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```  \nproperties property  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```  \nThis is a property which only supports reading.  \n"));
         }
 
         [TestMethod]
@@ -335,11 +336,11 @@ resource test|Output string = 'str'
             var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my module\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my param\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my var\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \nresource  \n[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/discriminatortests?pivots=deployment-language-bicep)\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my output  \n\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is my module  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is my param  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is my var  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is my\nmultiline\nresource  \n[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/discriminatortests?pivots=deployment-language-bicep)  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is my output  \n  \n"));
         }
 
         [TestMethod]
@@ -361,7 +362,7 @@ param constrainedSe|cureString string
             var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n@minLength(1)\n@maxLength(128)\n@secure()\nparam constrainedSecureString: string\n```\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\n@minLength(1)\n@maxLength(128)\n@secure()\nparam constrainedSecureString: string\n```  \n"));
         }
 
         [TestMethod]
@@ -410,11 +411,11 @@ output moduleOutput string = '${var|1}-${mod1.outputs.o|ut2}'
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is mod1\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is param1\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is out1\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is var1\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis  \nis  \nout2\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is mod1  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is param1  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is out1  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is var1  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis\nis\nout2  \n"));
         }
 
         [TestMethod]
@@ -452,7 +453,7 @@ output o1 string = mod|1.name
 
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
-            var expectedHover = "```bicep\nmodule mod1 './mod.bicep'\n```\nthis is mod1  \n  \nthis  \nis  \na description\n";
+            var expectedHover = "```bicep\nmodule mod1 './mod.bicep'\n```  \nthis is mod1  \nthis\nis\na description  \n";
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover),
                 h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover)
@@ -500,7 +501,7 @@ output o1 string = mod|1.name
 
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
-            var expectedHover = $"```bicep\nmodule mod1 './mod.{extension}'\n```\nthis is mod1  \n  \nthis  \nis  \na description\n";
+            var expectedHover = $"```bicep\nmodule mod1 './mod.{extension}'\n```  \nthis is mod1  \nthis\nis\na description  \n";
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover),
                 h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHover)
@@ -520,10 +521,10 @@ var nsConcatFunc = sys.c|oncat('abc', 'def')
                 '|');
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```  \nReturns the current resource group scope.  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```  \nReturns the current resource group scope.  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(... : bool | int | string): string\n```  \nCombines multiple string, integer, or boolean values and returns them as a concatenated string.  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(... : bool | int | string): string\n```  \nCombines multiple string, integer, or boolean values and returns them as a concatenated string.  \n"));
         }
 
         [TestMethod]
@@ -542,18 +543,19 @@ resource m|adeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01' = {}
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource foo 'Test.Rp/basicTests@2020-01-01'
-```
-[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)
+```  " + @"
+[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)  " + @"
 "),
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource bar 'Test.Rp/basicTests@2020-01-01'
-```
+```  " + @"
 This resource also has a description!  " + @"
-[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)
+[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)  " +@"
 "),
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource madeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01'
-```
+```  " + @"
+  " + @"
 "));
         }
 
@@ -570,11 +572,11 @@ var nsConcatFunc = sys.conc|at(any('hello'))
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkedStrings.Should().ContainInOrder(
-                    "```bicep\nfunction concat(... : array): array\n```\nCombines multiple arrays and returns the concatenated array.\n",
-                    "```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
+                    "```bicep\nfunction concat(... : array): array\n```  \nCombines multiple arrays and returns the concatenated array.  \n",
+                    "```bicep\nfunction concat(... : bool | int | string): string\n```  \nCombines multiple string, integer, or boolean values and returns them as a concatenated string.  \n"),
                 h => h!.Contents.MarkedStrings.Should().ContainInOrder(
-                    "```bicep\nfunction concat(... : array): array\n```\nCombines multiple arrays and returns the concatenated array.\n",
-                    "```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
+                    "```bicep\nfunction concat(... : array): array\n```  \nCombines multiple arrays and returns the concatenated array.  \n",
+                    "```bicep\nfunction concat(... : bool | int | string): string\n```  \nCombines multiple string, integer, or boolean values and returns them as a concatenated string.  \n"));
         }
 
         [TestMethod]
@@ -633,12 +635,12 @@ output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is mod1\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is param1\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is param2\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is out1\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is var1\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis  \nis  \nout2\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is mod1  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is param1  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is param2  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is out1  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis is var1  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```  \nthis\nis\nout2  \n"));
         }
 
         [TestMethod]
@@ -698,7 +700,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```  \n"));
         }
 
         [DataTestMethod]
@@ -715,7 +717,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             null, // description
 
              // documentationUri passed in, use it
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\n[View Documentation](http://test.com)\n")]
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \n[View Documentation](http://test.com)  \n")]
         [DataRow(
             "http://test.com",
             "br:mcr.microsoft.com/bicep/modules/storage:1.0.1",
@@ -726,7 +728,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             null, // description
 
             // documentationUri was passed in (overrides MCR location)
-            "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/modules/storage:1.0.1'\n```\n[View Documentation](http://test.com)\n")]
+            "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/modules/storage:1.0.1'\n```  \n[View Documentation](http://test.com)  \n")]
         [DataRow(
             null,
             "br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.1",
@@ -737,7 +739,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             null, // description
 
              // documentationUri calculated from MCR location
-             "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.1'\n```\n[View Documentation](https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/1.0.1/modules/app/dapr-containerapps-environment/README.md)\n")]
+             "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.1'\n```  \n[View Documentation](https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/1.0.1/modules/app/dapr-containerapps-environment/README.md)  \n")]
         [DataRow(
             null,
             "br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.2",
@@ -748,7 +750,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             null, // description
 
              // documentationUri calculated from MCR location
-             "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.2'\n```\n[View Documentation](https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/1.0.2/modules/app/dapr-containerapps-environment/README.md)\n")]
+             "```bicep\nmodule test 'br:mcr.microsoft.com/bicep/app/dapr-containerapps-environment:1.0.2'\n```  \n[View Documentation](https://github.com/Azure/bicep-registry-modules/tree/app/dapr-containerapps-environment/1.0.2/modules/app/dapr-containerapps-environment/README.md)  \n")]
         //
         // Description only, no documentationUri
         //
@@ -761,7 +763,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             null,
             "my description", // description
 
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\nmy description\n")]
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \nmy description  \n")]
         [DataRow(
             null,
             "br:test.azurecr.io/bicep/modules/storage:sha:12345",
@@ -771,7 +773,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             null,
             "my \\\"description\\\"", // description
 
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\nmy \"description\"\n")]
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \nmy \"description\"  \n")]
         [DataRow(
             null,
             "br:test.azurecr.io/bicep/modules/storage:sha:12345",
@@ -781,7 +783,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             null,
             "my [description", // description
 
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\nmy [description\n")]
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \nmy [description  \n")]
         //
         // Neither documentationUri nor description
         [DataRow(
@@ -793,7 +795,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             null,
             null, // description
 
-            "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\n")]
+            "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \n  \n")]
         //
         // Both documentationUri and description
         //
@@ -805,7 +807,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             "sha:12345",
             null,
             "my description", // description
-             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```\nmy description  \n  \n[View Documentation](http://test.com)\n")]
+             "```bicep\nmodule test 'br:test.azurecr.io/bicep/modules/storage:sha:12345'\n```  \nmy description  \n[View Documentation](http://test.com)  \n")]
         public async Task Verify_Hover_ContainerRegistry(string? documentationUri, string repositoryAndTag, string registry, string repository, string? digest, string? tag, string? description, string expectedHoverContent)
         {
             string manifestFileContents = GetManifestFileContents(documentationUri, description);
@@ -831,7 +833,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             var bicepFile = SourceFileFactory.CreateBicepFile(parentModuleUri, bicepFileContents);
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
-            hovers.Should().SatisfyRespectively(h => h!.Contents.MarkupContent!.Value.Should().Be(expectedHoverContent));
+            hovers.Single()!.Contents.MarkupContent!.Value.Should().Be(expectedHoverContent);
         }
 
         [TestMethod]
@@ -886,9 +888,9 @@ param foo|bar = true
             var hovers = await RequestHovers(client, paramsFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam foo: 'value1' | 'value2'\n```\nthis is a string value\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam bar: 0 | 1\n```\nthis is an int value\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam foobar: bool\n```\nthis is a bool value\n")
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam foo: 'value1' | 'value2'\n```  \nthis is a string value  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam bar: 0 | 1\n```  \nthis is an int value  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nparam foobar: bool\n```  \nthis is a bool value  \n")
             );
         }
 
@@ -927,9 +929,9 @@ param foo|bar = true
             var hovers = await RequestHovers(client, mainFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\ntype foo: Type<string>\n```\nThe foo type\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nmod namespace\n```\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nfoo: Type<string>\n```\nThe foo type\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\ntype foo: Type<string>\n```  \nThe foo type  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nmod namespace\n```  \n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```bicep\nfoo: Type<string>\n```  \nThe foo type  \n"));
         }
 
         [TestMethod]
@@ -954,12 +956,13 @@ param foo1 foo = {
             var hover = await file.RequestHover(cursor);
             hover!.Contents!.MarkupContent!.Value
                 .Should().BeEquivalentToIgnoringNewlines(
-                    "```bicep\n" +
-                    "sourcePortRanges: string[]\n" +
-                    "```  \n" +
-                    "Source port ranges.\n" +
-                    "    Can be a single valid port number, a range in the form of \\<start\\>-\\<end\\>, or a * for any ports.\n" +
-                    "    When a wildcard is used, that needs to be the only value.  \n");
+                    @"```bicep
+sourcePortRanges: string[]
+```  " + @"
+Source port ranges.
+    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
+    When a wildcard is used, that needs to be the only value.  " + @"
+");
         }
 
 

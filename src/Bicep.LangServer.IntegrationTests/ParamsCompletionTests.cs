@@ -344,25 +344,25 @@ param myArray array
                 x =>
                 {
                     x.Label.Should().Be("myArray");
-                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: array");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: `array`  \n");
                     x.Kind.Should().Be(CompletionItemKind.Field);
                 },
                 x =>
                 {
                     x.Label.Should().Be("myBool");
-                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: bool  \nthis is a bool value");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: `bool`  \nthis is a bool value  \n");
                     x.Kind.Should().Be(CompletionItemKind.Field);
                 },
                 x =>
                 {
                     x.Label.Should().Be("myInt");
-                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: 0 | 1  \nthis is an int value");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: `0 | 1`  \nthis is an int value  \n");
                     x.Kind.Should().Be(CompletionItemKind.Field);
                 },
                 x =>
                 {
                     x.Label.Should().Be("myStr");
-                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: 'value1' | 'value2'  \nthis is a string value");
+                    x.Documentation!.MarkupContent!.Value.Should().Be("Type: `'value1' | 'value2'`  \nthis is a string value  \n");
                     x.Kind.Should().Be(CompletionItemKind.Field);
                 }
                 );

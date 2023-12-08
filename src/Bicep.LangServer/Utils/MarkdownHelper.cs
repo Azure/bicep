@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Bicep.LanguageServer.Utils;
 
@@ -24,6 +26,9 @@ public static class MarkdownHelper
 
     public static string AppendNewline(string? input)
         => input is null ? string.Empty : $"{input}{MarkdownNewLine}";
+
+    public static string JoinWithNewlines(IEnumerable<string> inputs)
+        => string.Join(MarkdownNewLine, inputs);
 
     public static string? GetDocumentationLink(string? documentationUri)
         => documentationUri is null ? null : $"[View Documentation]({documentationUri})";

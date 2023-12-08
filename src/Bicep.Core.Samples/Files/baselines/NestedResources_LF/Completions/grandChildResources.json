@@ -3,6 +3,10 @@
     "label": "basicGrandchild",
     "kind": "interface",
     "detail": "basicGrandchild",
+    "documentation": {
+      "kind": "markdown",
+      "value": ""
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_basicGrandchild",

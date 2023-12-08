@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -219,7 +220,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            var descriptions = descriptionLines.Select(MarkdownHelper.AppendNewline).ConcatString("");
+            var descriptions = MarkdownHelper.JoinWithNewlines(descriptionLines.WhereNotNull());
             return AsMarkdown(MarkdownHelper.CodeBlockWithDescription($"module {module.Name} '{filePath}'", descriptions));
         }
 

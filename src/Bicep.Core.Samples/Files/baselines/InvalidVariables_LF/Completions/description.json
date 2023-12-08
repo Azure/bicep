@@ -4,7 +4,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\ndescription(text: string): any\n\n```\n\n"
+      "value": "```bicep\ndescription(text: string): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
