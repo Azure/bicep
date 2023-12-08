@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Formats.Tar;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Text;
 using System.Threading.Tasks;
+using Azure.Bicep.Types.Serialization;
 
 namespace Bicep.Core.Registry.Providers;
 
@@ -24,11 +26,13 @@ public static class TypesV1Archive
             var indexJson = await fileSystem.File.ReadAllTextAsync(indexJsonPath);
             await AddFileToTar(tarWriter, "index.json", indexJson);
 
-            /* TODO:
-               * read index.json
-               * figure out paths to other .json files that need to be included
-               * read other .json files, add them to tgz
-            */
+            HashSet<string> uniqueTypePaths = getAllUniqueTypePaths(indexJsonPath);
+
+            foreach (string path in uniqueTypePaths)
+            {
+                var typesJson = await fileSystem.File.ReadAllTextAsync(path);
+                await AddFileToTar(tarWriter, "types.json", typesJson);
+            }
         }
 
         stream.Seek(0, SeekOrigin.Begin);
@@ -43,5 +47,21 @@ public static class TypesV1Archive
         };
 
         await tarWriter.WriteEntryAsync(tarEntry);
+    }
+
+    private static HashSet<string> getAllUniqueTypePaths(string pathToIndex)
+    {
+        FileStream indexStream = new(pathToIndex, FileMode.Open, FileAccess.Read);
+
+        var index = TypeSerializer.DeserializeIndex(indexStream);
+
+        HashSet<string> uniqueTypePaths = new();
+
+        foreach (var typeInformation in index.Resources)
+        {
+            uniqueTypePaths.Add(typeInformation.Value.RelativePath);
+        }
+
+        return uniqueTypePaths;
     }
 }

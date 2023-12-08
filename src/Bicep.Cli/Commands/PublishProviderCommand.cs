@@ -27,6 +27,8 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.TypeSystem.Providers;
+using System.IO.Compression;
+using Bicep.Core.Registry.Providers;
 
 namespace Bicep.Cli.Commands
 {
@@ -72,27 +74,10 @@ namespace Bicep.Cli.Commands
 
             //TODO: attempt to validate types here
 
-            if (PathHelper.HasArmTemplateLikeExtension(inputUri))
-            {
-                // Publishing an ARM template file.
-                using var armTemplateStream = this.fileSystem.FileStream.New(indexPath, FileMode.Open, FileAccess.Read);
-                await this.PublishProviderAsync(providerReference, armTemplateStream, overwriteIfExists);
+            IFileSystem fileSystem = new FileSystem();
+            Stream tarStream = await TypesV1Archive.GenerateProviderTarStream(fileSystem, indexPath);
 
-                return 0;
-            }
-
-            var compilation = await compilationService.CompileAsync(indexPath, args.NoRestore);
-
-            if (diagnosticLogger.ErrorCount > 0)
-            {
-                // can't publish if we can't compile
-                return 1;
-            }
-
-            var compiledArmTemplateStream = new MemoryStream();
-            compilationWriter.ToStream(compilation, compiledArmTemplateStream);
-            compiledArmTemplateStream.Position = 0;
-
+            await this.PublishProviderAsync(providerReference, tarStream, overwriteIfExists);
             return 0;
         }
 
