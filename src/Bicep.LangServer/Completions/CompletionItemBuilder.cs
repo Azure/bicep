@@ -96,7 +96,7 @@ namespace Bicep.LanguageServer.Completions
         //                                          +--------------------+
         public CompletionItemBuilder WithDocumentation(string? markdown)
         {
-            if (markdown is not null)
+            if (!string.IsNullOrEmpty(markdown))
             {
                 this.documentation = new StringOrMarkupContent(new MarkupContent
                 {

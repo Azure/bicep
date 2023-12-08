@@ -45,10 +45,6 @@
     "label": "attemptToReferenceAnOutput",
     "kind": "variable",
     "detail": "attemptToReferenceAnOutput",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_attemptToReferenceAnOutput",
@@ -710,10 +706,6 @@
     "label": "kv",
     "kind": "interface",
     "detail": "kv",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_kv",
@@ -1438,10 +1430,6 @@
     "label": "testSymbol",
     "kind": "variable",
     "detail": "testSymbol",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_testSymbol",

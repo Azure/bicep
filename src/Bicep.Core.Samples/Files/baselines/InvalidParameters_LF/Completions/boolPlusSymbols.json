@@ -1891,10 +1891,6 @@
     "label": "sampleResource",
     "kind": "interface",
     "detail": "sampleResource",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_sampleResource",
@@ -1912,10 +1908,6 @@
     "label": "sampleVar",
     "kind": "variable",
     "detail": "sampleVar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_sampleVar",

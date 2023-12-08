@@ -3,10 +3,6 @@
     "label": "basicChild",
     "kind": "interface",
     "detail": "basicChild",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_basicChild",
@@ -24,10 +20,6 @@
     "label": "basicSibling",
     "kind": "interface",
     "detail": "basicSibling",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_basicSibling",

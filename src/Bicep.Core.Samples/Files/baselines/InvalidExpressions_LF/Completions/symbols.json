@@ -3,10 +3,6 @@
     "label": "add",
     "kind": "variable",
     "detail": "add",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_add",
@@ -21,10 +17,6 @@
     "label": "and",
     "kind": "variable",
     "detail": "and",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_and",
@@ -99,10 +91,6 @@
     "label": "azFunctions",
     "kind": "variable",
     "detail": "azFunctions",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_azFunctions",
@@ -117,10 +105,6 @@
     "label": "bad",
     "kind": "variable",
     "detail": "bad",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_bad",
@@ -135,10 +119,6 @@
     "label": "badArrayIndexer",
     "kind": "variable",
     "detail": "badArrayIndexer",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badArrayIndexer",
@@ -153,10 +133,6 @@
     "label": "badExpressionInPropertyAccess",
     "kind": "variable",
     "detail": "badExpressionInPropertyAccess",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badExpressionInPropertyAccess",
@@ -171,10 +147,6 @@
     "label": "badExpressionIndexer",
     "kind": "variable",
     "detail": "badExpressionIndexer",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badExpressionIndexer",
@@ -189,10 +161,6 @@
     "label": "badIndexOverArray",
     "kind": "variable",
     "detail": "badIndexOverArray",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badIndexOverArray",
@@ -207,10 +175,6 @@
     "label": "badIndexOverArray2",
     "kind": "variable",
     "detail": "badIndexOverArray2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badIndexOverArray2",
@@ -225,10 +189,6 @@
     "label": "badIndexOverObj",
     "kind": "variable",
     "detail": "badIndexOverObj",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badIndexOverObj",
@@ -243,10 +203,6 @@
     "label": "badIndexOverObj2",
     "kind": "variable",
     "detail": "badIndexOverObj2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badIndexOverObj2",
@@ -261,10 +217,6 @@
     "label": "badIndexer",
     "kind": "variable",
     "detail": "badIndexer",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badIndexer",
@@ -279,10 +231,6 @@
     "label": "badInnerArray",
     "kind": "variable",
     "detail": "badInnerArray",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badInnerArray",
@@ -297,10 +245,6 @@
     "label": "badInnerArrayIndexer",
     "kind": "variable",
     "detail": "badInnerArrayIndexer",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badInnerArrayIndexer",
@@ -315,10 +259,6 @@
     "label": "badInnerProperty",
     "kind": "variable",
     "detail": "badInnerProperty",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badInnerProperty",
@@ -333,10 +273,6 @@
     "label": "badInnerType",
     "kind": "variable",
     "detail": "badInnerType",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badInnerType",
@@ -351,10 +287,6 @@
     "label": "badProperty",
     "kind": "variable",
     "detail": "badProperty",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badProperty",
@@ -369,10 +301,6 @@
     "label": "badPropertyIndexer",
     "kind": "variable",
     "detail": "badPropertyIndexer",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badPropertyIndexer",
@@ -387,10 +315,6 @@
     "label": "badSpelling",
     "kind": "variable",
     "detail": "badSpelling",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badSpelling",
@@ -405,10 +329,6 @@
     "label": "badType",
     "kind": "variable",
     "detail": "badType",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badType",
@@ -423,10 +343,6 @@
     "label": "bannedFunctions",
     "kind": "variable",
     "detail": "bannedFunctions",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_bannedFunctions",
@@ -567,10 +483,6 @@
     "label": "complex",
     "kind": "variable",
     "detail": "complex",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_complex",
@@ -606,10 +518,6 @@
     "label": "concatNotEnough",
     "kind": "variable",
     "detail": "concatNotEnough",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_concatNotEnough",
@@ -624,10 +532,6 @@
     "label": "concatWrongTypes",
     "kind": "variable",
     "detail": "concatWrongTypes",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_concatWrongTypes",
@@ -642,10 +546,6 @@
     "label": "concatWrongTypesContradiction",
     "kind": "variable",
     "detail": "concatWrongTypesContradiction",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_concatWrongTypesContradiction",
@@ -803,10 +703,6 @@
     "label": "div",
     "kind": "variable",
     "detail": "div",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_div",
@@ -821,10 +717,6 @@
     "label": "dotAccessOnNonObject",
     "kind": "variable",
     "detail": "dotAccessOnNonObject",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_dotAccessOnNonObject",
@@ -860,10 +752,6 @@
     "label": "emptyArgInBetween",
     "kind": "variable",
     "detail": "emptyArgInBetween",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_emptyArgInBetween",
@@ -878,10 +766,6 @@
     "label": "emptyParens",
     "kind": "variable",
     "detail": "emptyParens",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_emptyParens",
@@ -934,10 +818,6 @@
     "label": "eq",
     "kind": "variable",
     "detail": "eq",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_eq",
@@ -952,10 +832,6 @@
     "label": "errorInsideArrayAccess",
     "kind": "variable",
     "detail": "errorInsideArrayAccess",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_errorInsideArrayAccess",
@@ -991,10 +867,6 @@
     "label": "fakeFunc",
     "kind": "variable",
     "detail": "fakeFunc",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_fakeFunc",
@@ -1027,10 +899,6 @@
     "label": "fakeVar",
     "kind": "variable",
     "detail": "fakeVar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_fakeVar",
@@ -1045,10 +913,6 @@
     "label": "falsehood",
     "kind": "variable",
     "detail": "falsehood",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_falsehood",
@@ -1165,10 +1029,6 @@
     "label": "funcvarvar",
     "kind": "variable",
     "detail": "funcvarvar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_funcvarvar",
@@ -1183,10 +1043,6 @@
     "label": "gt",
     "kind": "variable",
     "detail": "gt",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_gt",
@@ -1201,10 +1057,6 @@
     "label": "gteq",
     "kind": "variable",
     "detail": "gteq",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_gteq",
@@ -1275,10 +1127,6 @@
     "label": "indexOfWrongTypes",
     "kind": "variable",
     "detail": "indexOfWrongTypes",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_indexOfWrongTypes",
@@ -1314,10 +1162,6 @@
     "label": "integerIndexOnNonArray",
     "kind": "variable",
     "detail": "integerIndexOnNonArray",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_integerIndexOnNonArray",
@@ -1353,10 +1197,6 @@
     "label": "invalidIndexTypeOverAny",
     "kind": "variable",
     "detail": "invalidIndexTypeOverAny",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidIndexTypeOverAny",
@@ -1371,10 +1211,6 @@
     "label": "invalidInstanceFunctionAccess",
     "kind": "variable",
     "detail": "invalidInstanceFunctionAccess",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidInstanceFunctionAccess",
@@ -1389,10 +1225,6 @@
     "label": "invalidInstanceFunctionCall",
     "kind": "variable",
     "detail": "invalidInstanceFunctionCall",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidInstanceFunctionCall",
@@ -1407,10 +1239,6 @@
     "label": "invalidOperands",
     "kind": "variable",
     "detail": "invalidOperands",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidOperands",
@@ -1425,10 +1253,6 @@
     "label": "invalidPropertyAccessOnAzNamespace",
     "kind": "variable",
     "detail": "invalidPropertyAccessOnAzNamespace",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidPropertyAccessOnAzNamespace",
@@ -1443,10 +1267,6 @@
     "label": "invalidPropertyAccessOnSysNamespace",
     "kind": "variable",
     "detail": "invalidPropertyAccessOnSysNamespace",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidPropertyAccessOnSysNamespace",
@@ -1461,10 +1281,6 @@
     "label": "invalidPropertyCallOnInstanceFunctionAccess",
     "kind": "variable",
     "detail": "invalidPropertyCallOnInstanceFunctionAccess",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidPropertyCallOnInstanceFunctionAccess",
@@ -1479,10 +1295,6 @@
     "label": "invalidStringAddition",
     "kind": "variable",
     "detail": "invalidStringAddition",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidStringAddition",
@@ -1560,10 +1372,6 @@
     "label": "justAComma",
     "kind": "variable",
     "detail": "justAComma",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_justAComma",
@@ -1620,10 +1428,6 @@
     "label": "leadingAndTrailingEmptyArg",
     "kind": "variable",
     "detail": "leadingAndTrailingEmptyArg",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_leadingAndTrailingEmptyArg",
@@ -1638,10 +1442,6 @@
     "label": "leadingEmptyArg",
     "kind": "variable",
     "detail": "leadingEmptyArg",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_leadingEmptyArg",
@@ -1761,10 +1561,6 @@
     "label": "lt",
     "kind": "variable",
     "detail": "lt",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_lt",
@@ -1779,10 +1575,6 @@
     "label": "lteq",
     "kind": "variable",
     "detail": "lteq",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_lteq",
@@ -1797,10 +1589,6 @@
     "label": "malformedStringIndex",
     "kind": "variable",
     "detail": "malformedStringIndex",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_malformedStringIndex",
@@ -1920,10 +1708,6 @@
     "label": "minus",
     "kind": "variable",
     "detail": "minus",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_minus",
@@ -1938,10 +1722,6 @@
     "label": "missingIndexerOnIdentifier",
     "kind": "variable",
     "detail": "missingIndexerOnIdentifier",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_missingIndexerOnIdentifier",
@@ -1956,10 +1736,6 @@
     "label": "missingIndexerOnLiteralArray",
     "kind": "variable",
     "detail": "missingIndexerOnLiteralArray",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_missingIndexerOnLiteralArray",
@@ -1974,10 +1750,6 @@
     "label": "missingMethodName",
     "kind": "variable",
     "detail": "missingMethodName",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_missingMethodName",
@@ -1992,10 +1764,6 @@
     "label": "missingPropertyInsideAnExpression",
     "kind": "variable",
     "detail": "missingPropertyInsideAnExpression",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_missingPropertyInsideAnExpression",
@@ -2010,10 +1778,6 @@
     "label": "missingPropertyName",
     "kind": "variable",
     "detail": "missingPropertyName",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_missingPropertyName",
@@ -2028,10 +1792,6 @@
     "label": "mod",
     "kind": "variable",
     "detail": "mod",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_mod",
@@ -2046,10 +1806,6 @@
     "label": "mul",
     "kind": "variable",
     "detail": "mul",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_mul",
@@ -2064,10 +1820,6 @@
     "label": "multipleArgumentCommas",
     "kind": "variable",
     "detail": "multipleArgumentCommas",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_multipleArgumentCommas",
@@ -2082,10 +1834,6 @@
     "label": "ne",
     "kind": "variable",
     "detail": "ne",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_ne",
@@ -2100,10 +1848,6 @@
     "label": "nestedTernary",
     "kind": "variable",
     "detail": "nestedTernary",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_nestedTernary",
@@ -2118,10 +1862,6 @@
     "label": "noElements",
     "kind": "variable",
     "detail": "noElements",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_noElements",
@@ -2136,10 +1876,6 @@
     "label": "not",
     "kind": "variable",
     "detail": "not",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_not",
@@ -2154,10 +1890,6 @@
     "label": "nullness",
     "kind": "variable",
     "detail": "nullness",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_nullness",
@@ -2172,10 +1904,6 @@
     "label": "oneValidDeclaration",
     "kind": "variable",
     "detail": "oneValidDeclaration",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_oneValidDeclaration",
@@ -2190,10 +1918,6 @@
     "label": "onlyArgumentComma",
     "kind": "variable",
     "detail": "onlyArgumentComma",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_onlyArgumentComma",
@@ -2208,10 +1932,6 @@
     "label": "or",
     "kind": "variable",
     "detail": "or",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_or",
@@ -2247,10 +1967,6 @@
     "label": "padLeftNotEnough",
     "kind": "variable",
     "detail": "padLeftNotEnough",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_padLeftNotEnough",
@@ -2286,10 +2002,6 @@
     "label": "partialObject",
     "kind": "variable",
     "detail": "partialObject",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_partialObject",
@@ -2325,10 +2037,6 @@
     "label": "propertyAccessOnVariable",
     "kind": "variable",
     "detail": "propertyAccessOnVariable",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_propertyAccessOnVariable",
@@ -2490,10 +2198,6 @@
     "label": "sampleObject",
     "kind": "variable",
     "detail": "sampleObject",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_sampleObject",
@@ -2613,10 +2317,6 @@
     "label": "stringIndexOnNonObject",
     "kind": "variable",
     "detail": "stringIndexOnNonObject",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_stringIndexOnNonObject",
@@ -2631,10 +2331,6 @@
     "label": "sub",
     "kind": "variable",
     "detail": "sub",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_sub",
@@ -2730,10 +2426,6 @@
     "label": "sysFunctions",
     "kind": "variable",
     "detail": "sysFunctions",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_sysFunctions",
@@ -2748,10 +2440,6 @@
     "label": "sysFunctionsInParens",
     "kind": "variable",
     "detail": "sysFunctionsInParens",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_sysFunctionsInParens",
@@ -2787,10 +2475,6 @@
     "label": "takeTooMany",
     "kind": "variable",
     "detail": "takeTooMany",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_takeTooMany",
@@ -2843,10 +2527,6 @@
     "label": "ternary",
     "kind": "variable",
     "detail": "ternary",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_ternary",
@@ -2861,10 +2541,6 @@
     "label": "test1",
     "kind": "variable",
     "detail": "test1",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_test1",
@@ -2879,10 +2555,6 @@
     "label": "test2",
     "kind": "variable",
     "detail": "test2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_test2",
@@ -2897,10 +2569,6 @@
     "label": "test3",
     "kind": "variable",
     "detail": "test3",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_test3",
@@ -2915,10 +2583,6 @@
     "label": "threeElements",
     "kind": "variable",
     "detail": "threeElements",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_threeElements",
@@ -2996,10 +2660,6 @@
     "label": "trailingArgumentComma",
     "kind": "variable",
     "detail": "trailingArgumentComma",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_trailingArgumentComma",
@@ -3035,10 +2695,6 @@
     "label": "truth",
     "kind": "variable",
     "detail": "truth",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_truth",
@@ -3053,10 +2709,6 @@
     "label": "twoElements",
     "kind": "variable",
     "detail": "twoElements",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_twoElements",
@@ -3113,10 +2765,6 @@
     "label": "unterminated1",
     "kind": "variable",
     "detail": "unterminated1",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_unterminated1",
@@ -3131,10 +2779,6 @@
     "label": "unterminated2",
     "kind": "variable",
     "detail": "unterminated2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_unterminated2",
@@ -3212,10 +2856,6 @@
     "label": "x",
     "kind": "variable",
     "detail": "x",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_x",

@@ -21,10 +21,6 @@
     "label": "a",
     "kind": "variable",
     "detail": "a",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_a",
@@ -39,10 +35,6 @@
     "label": "anotherThing",
     "kind": "variable",
     "detail": "anotherThing",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_anotherThing",
@@ -159,10 +151,6 @@
     "label": "badEquals",
     "kind": "variable",
     "detail": "badEquals",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badEquals",
@@ -177,10 +165,6 @@
     "label": "badEquals2",
     "kind": "variable",
     "detail": "badEquals2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_badEquals2",
@@ -195,10 +179,6 @@
     "label": "bar",
     "kind": "variable",
     "detail": "bar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_bar",
@@ -276,10 +256,6 @@
     "label": "batchSizeMakesNoSenseHere",
     "kind": "variable",
     "detail": "batchSizeMakesNoSenseHere",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_batchSizeMakesNoSenseHere",
@@ -399,10 +375,6 @@
     "label": "copy",
     "kind": "variable",
     "detail": "copy",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_copy",
@@ -539,10 +511,6 @@
     "label": "doubleString",
     "kind": "variable",
     "detail": "doubleString",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_doubleString",
@@ -616,10 +584,6 @@
     "label": "evenMoreIndirection",
     "kind": "variable",
     "detail": "evenMoreIndirection",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_evenMoreIndirection",
@@ -718,10 +682,6 @@
     "label": "foo",
     "kind": "variable",
     "detail": "foo",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_foo",
@@ -813,10 +773,6 @@
     "label": "indirection",
     "kind": "variable",
     "detail": "indirection",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_indirection",
@@ -831,10 +787,6 @@
     "label": "inlinedVariable",
     "kind": "variable",
     "detail": "inlinedVariable",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_inlinedVariable",
@@ -849,10 +801,6 @@
     "label": "innerPropertyLoop",
     "kind": "variable",
     "detail": "innerPropertyLoop",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_innerPropertyLoop",
@@ -867,10 +815,6 @@
     "label": "innerPropertyLoop2",
     "kind": "variable",
     "detail": "innerPropertyLoop2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_innerPropertyLoop2",
@@ -927,10 +871,6 @@
     "label": "invalidEnvAuthVar",
     "kind": "variable",
     "detail": "invalidEnvAuthVar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidEnvAuthVar",
@@ -945,10 +885,6 @@
     "label": "invalidEnvironmentVar",
     "kind": "variable",
     "detail": "invalidEnvironmentVar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidEnvironmentVar",
@@ -963,10 +899,6 @@
     "label": "invalidLocationVar",
     "kind": "variable",
     "detail": "invalidLocationVar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidLocationVar",
@@ -981,10 +913,6 @@
     "label": "invalidNamespaceAssignment",
     "kind": "variable",
     "detail": "invalidNamespaceAssignment",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_invalidNamespaceAssignment",
@@ -1062,10 +990,6 @@
     "label": "keyVaultSecretArrayInterpolatedVar",
     "kind": "variable",
     "detail": "keyVaultSecretArrayInterpolatedVar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_keyVaultSecretArrayInterpolatedVar",
@@ -1080,10 +1004,6 @@
     "label": "keyVaultSecretArrayVar",
     "kind": "variable",
     "detail": "keyVaultSecretArrayVar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_keyVaultSecretArrayVar",
@@ -1098,10 +1018,6 @@
     "label": "keyVaultSecretInterpolatedVar",
     "kind": "variable",
     "detail": "keyVaultSecretInterpolatedVar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_keyVaultSecretInterpolatedVar",
@@ -1116,10 +1032,6 @@
     "label": "keyVaultSecretObjectVar",
     "kind": "variable",
     "detail": "keyVaultSecretObjectVar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_keyVaultSecretObjectVar",
@@ -1134,10 +1046,6 @@
     "label": "keyVaultSecretVar",
     "kind": "variable",
     "detail": "keyVaultSecretVar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_keyVaultSecretVar",
@@ -1152,10 +1060,6 @@
     "label": "keys",
     "kind": "variable",
     "detail": "keys",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_keys",
@@ -1170,10 +1074,6 @@
     "label": "kv",
     "kind": "interface",
     "detail": "kv",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_kv",
@@ -1254,10 +1154,6 @@
     "label": "listSecrets",
     "kind": "variable",
     "detail": "listSecrets",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_listSecrets",
@@ -1272,10 +1168,6 @@
     "label": "listSecretsVar",
     "kind": "variable",
     "detail": "listSecretsVar",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_listSecretsVar",
@@ -1374,10 +1266,6 @@
     "label": "loopExpression",
     "kind": "variable",
     "detail": "loopExpression",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_loopExpression",
@@ -1497,10 +1385,6 @@
     "label": "missingArrayVariable",
     "kind": "variable",
     "detail": "missingArrayVariable",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_missingArrayVariable",
@@ -1515,10 +1399,6 @@
     "label": "missingValue",
     "kind": "variable",
     "detail": "missingValue",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_missingValue",
@@ -1533,10 +1413,6 @@
     "label": "mixedArrayTypeCompletions",
     "kind": "variable",
     "detail": "mixedArrayTypeCompletions",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_mixedArrayTypeCompletions",
@@ -1551,10 +1427,6 @@
     "label": "mixedArrayTypeCompletions2",
     "kind": "variable",
     "detail": "mixedArrayTypeCompletions2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_mixedArrayTypeCompletions2",
@@ -1569,10 +1441,6 @@
     "label": "moreIndirection",
     "kind": "variable",
     "detail": "moreIndirection",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_moreIndirection",
@@ -1587,10 +1455,6 @@
     "label": "myConcat",
     "kind": "variable",
     "detail": "myConcat",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myConcat",
@@ -1605,10 +1469,6 @@
     "label": "myFloat",
     "kind": "variable",
     "detail": "myFloat",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myFloat",
@@ -1623,10 +1483,6 @@
     "label": "myRef",
     "kind": "variable",
     "detail": "myRef",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_myRef",
@@ -1641,10 +1497,6 @@
     "label": "mySum",
     "kind": "variable",
     "detail": "mySum",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_mySum",
@@ -1659,10 +1511,6 @@
     "label": "noFilteredLoopsInVariables",
     "kind": "variable",
     "detail": "noFilteredLoopsInVariables",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_noFilteredLoopsInVariables",
@@ -1677,10 +1525,6 @@
     "label": "noNestedVariableLoopsEither",
     "kind": "variable",
     "detail": "noNestedVariableLoopsEither",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_noNestedVariableLoopsEither",
@@ -1695,10 +1539,6 @@
     "label": "nonExistentIndex1",
     "kind": "variable",
     "detail": "nonExistentIndex1",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_nonExistentIndex1",
@@ -1713,10 +1553,6 @@
     "label": "nonExistentIndex2",
     "kind": "variable",
     "detail": "nonExistentIndex2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_nonExistentIndex2",
@@ -1731,10 +1567,6 @@
     "label": "nonExistentIndex3",
     "kind": "variable",
     "detail": "nonExistentIndex3",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_nonExistentIndex3",
@@ -1749,10 +1581,6 @@
     "label": "nonTopLevelLoop",
     "kind": "variable",
     "detail": "nonTopLevelLoop",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_nonTopLevelLoop",
@@ -1767,10 +1595,6 @@
     "label": "notRuntime",
     "kind": "variable",
     "detail": "notRuntime",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_notRuntime",
@@ -1785,10 +1609,6 @@
     "label": "objWithInterp",
     "kind": "variable",
     "detail": "objWithInterp",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_objWithInterp",
@@ -1803,10 +1623,6 @@
     "label": "objectLiteralType",
     "kind": "variable",
     "detail": "objectLiteralType",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_objectLiteralType",
@@ -1821,10 +1637,6 @@
     "label": "objectVarTopLevelArrayIndexCompletions",
     "kind": "variable",
     "detail": "objectVarTopLevelArrayIndexCompletions",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_objectVarTopLevelArrayIndexCompletions",
@@ -1839,10 +1651,6 @@
     "label": "objectVarTopLevelCompletions",
     "kind": "variable",
     "detail": "objectVarTopLevelCompletions",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_objectVarTopLevelCompletions",
@@ -1857,10 +1665,6 @@
     "label": "objectVarTopLevelCompletions2",
     "kind": "variable",
     "detail": "objectVarTopLevelCompletions2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_objectVarTopLevelCompletions2",
@@ -1875,10 +1679,6 @@
     "label": "oneArrayItemCompletions",
     "kind": "variable",
     "detail": "oneArrayItemCompletions",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_oneArrayItemCompletions",
@@ -1893,10 +1693,6 @@
     "label": "oneArrayItemCompletions2",
     "kind": "variable",
     "detail": "oneArrayItemCompletions2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_oneArrayItemCompletions2",
@@ -2079,10 +1875,6 @@
     "label": "resourceGroup",
     "kind": "variable",
     "detail": "resourceGroup",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_resourceGroup",
@@ -2118,10 +1910,6 @@
     "label": "rgName",
     "kind": "variable",
     "detail": "rgName",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_rgName",
@@ -2136,10 +1924,6 @@
     "label": "runtimeLoop",
     "kind": "variable",
     "detail": "runtimeLoop",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_runtimeLoop",
@@ -2154,10 +1938,6 @@
     "label": "runtimeLoop2",
     "kind": "variable",
     "detail": "runtimeLoop2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_runtimeLoop2",
@@ -2172,10 +1952,6 @@
     "label": "runtimeLoop3",
     "kind": "variable",
     "detail": "runtimeLoop3",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_runtimeLoop3",
@@ -2190,10 +1966,6 @@
     "label": "runtimeLoop4",
     "kind": "variable",
     "detail": "runtimeLoop4",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_runtimeLoop4",
@@ -2208,10 +1980,6 @@
     "label": "runtimeLoop5",
     "kind": "variable",
     "detail": "runtimeLoop5",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_runtimeLoop5",
@@ -2247,10 +2015,6 @@
     "label": "something",
     "kind": "variable",
     "detail": "something",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_something",
@@ -2349,10 +2113,6 @@
     "label": "subName",
     "kind": "variable",
     "detail": "subName",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_subName",
@@ -2367,10 +2127,6 @@
     "label": "subscription",
     "kind": "variable",
     "detail": "subscription",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_subscription",
@@ -2504,10 +2260,6 @@
     "label": "test",
     "kind": "variable",
     "detail": "test",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_test",
@@ -2522,10 +2274,6 @@
     "label": "test2",
     "kind": "variable",
     "detail": "test2",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_test2",
@@ -2540,10 +2288,6 @@
     "label": "test3",
     "kind": "variable",
     "detail": "test3",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_test3",
@@ -2558,10 +2302,6 @@
     "label": "testDupe",
     "kind": "variable",
     "detail": "testDupe",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_testDupe",
@@ -2765,10 +2505,6 @@
     "label": "x",
     "kind": "variable",
     "detail": "x",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_x",
@@ -2783,10 +2519,6 @@
     "label": "y",
     "kind": "variable",
     "detail": "y",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_y",
@@ -2801,10 +2533,6 @@
     "label": "zoneInput",
     "kind": "variable",
     "detail": "zoneInput",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_zoneInput",
@@ -2819,10 +2547,6 @@
     "label": "zones",
     "kind": "interface",
     "detail": "zones",
-    "documentation": {
-      "kind": "markdown",
-      "value": ""
-    },
     "deprecated": false,
     "preselect": false,
     "sortText": "2_zones",
