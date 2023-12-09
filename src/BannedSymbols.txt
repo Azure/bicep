@@ -39,3 +39,4 @@ M:Moq.Mock`1.#ctor();Don't use the default Mock constructor. Set Strict mode exp
 M:Moq.Mock`1.#ctor(System.Object[]);Don't use the default Mock constructor. Set Strict mode explicitly or use a MockRepository set to strict mode.
 
 M:OmniSharp.Extensions.LanguageServer.Protocol.DocumentUri.ToUri();Use DocumentUri.ToUriEncoded() instead.
+M:OmniSharp.Extensions.LanguageServer.Protocol.DocumentUri.GetFileSystemPath();Use DocumentUri.ToLocalFilePath() instead.

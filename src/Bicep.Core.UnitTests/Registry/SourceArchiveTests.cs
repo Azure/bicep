@@ -9,6 +9,7 @@ using System.IO.Compression;
 using System.IO.Pipes;
 using System.Linq;
 using System.Text;
+using Bicep.Core.FileSystem;
 using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -199,7 +200,7 @@ public class SourceArchiveTests
         string mainBicepPath = MockUnixSupport.Path("c:/my root/my project/my main.bicep");
         expecteArchivePath ??= expecteArchivedUri;
 
-        Uri entrypointUri = DocumentUri.FromFileSystemPath(mainBicepPath).ToUriEncoded();
+        Uri entrypointUri = PathHelper.FilePathToFileUrl(mainBicepPath);
         var fs = new MockFileSystem();
 
         var mainBicepFolder = new Uri(Path.GetDirectoryName(mainBicepPath)! + "/", UriKind.Absolute);

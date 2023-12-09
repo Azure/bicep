@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Features;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
@@ -730,7 +731,7 @@ namespace Bicep.Core.UnitTests.Registry
         )
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", parentBicepFileContents ?? "", TestOutputPath);
-            var parentModuleUri = DocumentUri.FromFileSystemPath(bicepPath).ToUriEncoded();
+            var parentModuleUri = PathHelper.FilePathToFileUrl(bicepPath);
 
             var (registry, blobClient) = CreateModuleRegistry(parentModuleUri, TestOutputPath, publishSourceFeatureEnabled);
             return (registry, blobClient, parentModuleUri);

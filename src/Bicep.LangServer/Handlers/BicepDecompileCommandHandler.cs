@@ -100,7 +100,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             return telemetryHelper.ExecuteWithTelemetryAndErrorHandling(() =>
             {
-                return Decompile(parameters.jsonUri.GetFileSystemPath());
+                return Decompile(parameters.jsonUri.ToLocalFilePath());
             });
         }
 

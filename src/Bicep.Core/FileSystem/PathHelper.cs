@@ -136,12 +136,14 @@ namespace Bicep.Core.FileSystem
 
         public static Uri FilePathToFileUrl(string filePath)
         {
-            filePath = filePath.Replace(Path.DirectorySeparatorChar, '/');
+            filePath = filePath
+                .Replace(Path.DirectorySeparatorChar, '/')
+                .Replace("%", "%25");
+
             if (!filePath.StartsWith('/'))
             {
                 filePath = "/" + filePath;
             }
-            filePath = filePath.Replace("%", "%25");
 
             var uriBuilder = new UriBuilder
             {

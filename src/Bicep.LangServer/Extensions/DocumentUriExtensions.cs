@@ -15,5 +15,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 .ToUri();
 #pragma warning restore RS0030 // Do not use banned APIs
         }
-    }
+
+        public static string ToLocalFilePath(this DocumentUri documentUri) =>
+            documentUri.ToUriEncoded().LocalPath;
+    } 
 }

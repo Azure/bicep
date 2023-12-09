@@ -162,7 +162,7 @@ param requiredIpnut string
 
             // delete the module file with a background process
             {
-                fileResolver.MockFileSystem.File.Delete(moduleUri.GetFileSystemPath());
+                fileResolver.MockFileSystem.File.Delete(moduleUri.ToLocalFilePath());
                 SendDidChangeWatchedFiles(client, (moduleUri, FileChangeType.Deleted));
 
                 var nextDiags = await diagsListener.WaitNext();
@@ -172,7 +172,7 @@ param requiredIpnut string
 
             // delete the main file with a background process. this should be ignored, as the close document event should clean it up
             {
-                fileResolver.MockFileSystem.File.Delete(moduleUri.GetFileSystemPath());
+                fileResolver.MockFileSystem.File.Delete(moduleUri.ToLocalFilePath());
                 SendDidChangeWatchedFiles(client, (mainUri, FileChangeType.Deleted));
 
                 await diagsListener.EnsureNoMessageSent();
@@ -229,7 +229,7 @@ param requiredIpnut string
 
             // delete the module folder with a background process
             {
-                fileResolver.MockFileSystem.File.Delete(moduleUri.GetFileSystemPath());
+                fileResolver.MockFileSystem.File.Delete(moduleUri.ToLocalFilePath());
                 SendDidChangeWatchedFiles(client, (DocumentUri.FromFileSystemPath("/path/toOther"), FileChangeType.Deleted));
 
                 var nextDiags = await diagsListener.WaitNext();

@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Deployments.Templates.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -125,7 +126,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             // Delete bicepconfig.json and verify diagnostics are based off of default bicepconfig.json
             {
-                File.Delete(bicepConfigUri.GetFileSystemPath());
+                File.Delete(bicepConfigUri.ToLocalFilePath());
 
                 client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
                 {
@@ -423,6 +424,7 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
 
+#pragma warning disable RS0030 // Do not use banned APIs
                 await VerifyDiagnosticsAsync(diagsListener,
                     mainUri,
                     ($"Failed to parse the contents of the Bicep configuration file \"{bicepConfigUri.GetFileSystemPath()}\" as valid JSON",
@@ -435,11 +437,12 @@ namespace Bicep.LangServer.IntegrationTests
                         new Position(0, 6),
                         new Position(0, 24),
                         "https://aka.ms/bicep/linter/no-unused-params"));
+#pragma warning restore RS0030 // Do not use banned APIs
             }
 
             // update bicepconfig.json and verify diagnostics
             {
-                File.WriteAllText(bicepConfigUri.GetFileSystemPath(), @"{
+                File.WriteAllText(bicepConfigUri.ToLocalFilePath(), @"{
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Bicep.LanguageServer.Providers;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
@@ -58,7 +59,7 @@ namespace Bicep.LanguageServer.Handlers
             if (clientCapabilitiesProvider.DoesClientSupportWorkspaceFolders())
             {
                 var workspaceFolders = await server.Workspace.RequestWorkspaceFolders(new());
-                workspaceFolderPaths = workspaceFolders?.Select(wf => wf.Uri.GetFileSystemPath()).ToArray();
+                workspaceFolderPaths = workspaceFolders?.Select(wf => wf.Uri.ToLocalFilePath()).ToArray();
             }
 
             return GetRecommendedConfigFileLocation(workspaceFolderPaths, bicepFilePath);

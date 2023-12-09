@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Handlers
                 if (string.IsNullOrEmpty(bicepConfigFilePath))
                 {
                     // There is no configuration file currently - create one in the default location
-                    var targetFolder = await BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(this.server, this.clientCapabilitiesProvider, documentUri.GetFileSystemPath());
+                    var targetFolder = await BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(this.server, this.clientCapabilitiesProvider, documentUri.ToLocalFilePath());
                     bicepConfigFilePath = Path.Combine(targetFolder, LanguageConstants.BicepConfigurationFileName);
                 }
 

@@ -19,6 +19,7 @@ using Bicep.LanguageServer.Extensions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
@@ -55,7 +56,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult<BicepDeploymentGraph?>(null);
             }
 
-            var graph = CreateDeploymentGraph(context, Path.GetFullPath(request.TextDocument.Uri.GetFileSystemPath()));
+            var graph = CreateDeploymentGraph(context, Path.GetFullPath(request.TextDocument.Uri.ToLocalFilePath()));
 
             return Task.FromResult<BicepDeploymentGraph?>(graph);
         }

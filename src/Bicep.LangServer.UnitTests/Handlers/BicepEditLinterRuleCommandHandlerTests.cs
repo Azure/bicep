@@ -64,7 +64,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 return null;
             }
 
-            var contents = File.ReadAllText(uri.GetFileSystemPath());
+            var contents = File.ReadAllText(uri.ToLocalFilePath());
             var lineStarts = TextCoordinateConverter.GetLineStarts(contents);
             var offset = TextCoordinateConverter.GetOffset(lineStarts, position.Line, position.Character);
             if (offset > 0 && contents[offset - 1] == '"')
@@ -87,7 +87,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             }
 
             range.End.Character.Should().BeGreaterThanOrEqualTo(0);
-            var contents = File.ReadAllText(uri.GetFileSystemPath());
+            var contents = File.ReadAllText(uri.ToLocalFilePath());
             var lineStarts = TextCoordinateConverter.GetLineStarts(contents);
             var start = TextCoordinateConverter.GetOffset(lineStarts, range.Start.Line, range.Start.Character);
             var end = TextCoordinateConverter.GetOffset(lineStarts, range.End.Line, range.End.Character);
@@ -174,7 +174,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
             showDocumentParams.Should().NotBeNull();
-            showDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
+            showDocumentParams!.Uri.ToLocalFilePath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
             stringTriggeredForCompletion.Should().Be("no-unused-params-current-level", "rule's current level value should be selected and completion triggered when the config file is opened");
             ev.Should().NotBeNull();
             ev!.EventName.Should().Be(TelemetryConstants.EventNames.EditLinterRule);
@@ -277,7 +277,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
             showDocumentParams.Should().NotBeNull();
-            showDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
+            showDocumentParams!.Uri.ToLocalFilePath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
             stringTriggeredForCompletion.Should().Be("warning", "rule's current level value should be selected when the config file is opened");
         }
 
@@ -334,7 +334,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None);
 
             showDocumentParams.Should().NotBeNull();
-            showDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
+            showDocumentParams!.Uri.ToLocalFilePath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
             stringTriggeredForCompletion.Should().Be("warning", "new rule's level value should be selected and completion triggered when the config file is opened");
             File.ReadAllText(configPath).Should().BeEquivalentToIgnoringNewlines(expectedConfig);
             ev.Should().NotBeNull();
@@ -436,7 +436,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", "", CancellationToken.None);
 
             showDocumentParams.Should().NotBeNull();
-            showDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(expectedConfigPath.ToLowerInvariant());
+            showDocumentParams!.Uri.ToLocalFilePath().ToLowerInvariant().Should().Be(expectedConfigPath.ToLowerInvariant());
             stringTriggeredForCompletion.Should().Be("warning", "new rule's level value should be selected and completion triggered when the config file is opened");
             File.ReadAllText(expectedConfigPath).Should().BeEquivalentToIgnoringNewlines(expectedConfig);
             ev.Should().NotBeNull();
@@ -481,7 +481,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
             showDocumentParams.Should().NotBeNull();
-            showDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
+            showDocumentParams!.Uri.ToLocalFilePath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
 
             stringTriggeredForCompletion.Should().Be("warning", "rule's current level value should be selected and completion triggered when the config file is opened");
         }
