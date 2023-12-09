@@ -35,8 +35,9 @@ public static class TypesV1Archive
             }
         }
 
-        stream.Seek(0, SeekOrigin.Begin);
-        return stream;
+        //stream.Seek(0, SeekOrigin.Begin);
+
+        return new MemoryStream(stream.ToArray(), 0, stream.ToArray().Length, true);
     }
 
     private static async Task AddFileToTar(TarWriter tarWriter, string archivePath, string contents)
@@ -59,7 +60,7 @@ public static class TypesV1Archive
 
         foreach (var typeInformation in index.Resources)
         {
-            uniqueTypePaths.Add(typeInformation.Value.RelativePath);
+            uniqueTypePaths.Add(Path.GetDirectoryName(pathToIndex) + "\\" + typeInformation.Value.RelativePath);
         }
 
         return uniqueTypePaths;
