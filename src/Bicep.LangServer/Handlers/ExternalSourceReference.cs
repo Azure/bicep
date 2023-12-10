@@ -55,10 +55,10 @@ namespace Bicep.LanguageServer.Handlers
                 !OciArtifactReference.TryParseFullyQualifiedParts(fullyQualifiedModuleReference.Substring(OciArtifactReferenceFacts.Scheme.Length + 1)).IsSuccess(out var parts, out error))
             {
                 string? innerMessage = null;
-                if (error is {})
-                 {
+                if (error is { })
+                {
                     innerMessage = error(DiagnosticBuilder.ForDocumentStart()).Message;
-                 }
+                }
                 throw new ArgumentException($"Invalid module reference '{fullyQualifiedModuleReference}'. {innerMessage}", nameof(fullyQualifiedModuleReference));
             }
 
