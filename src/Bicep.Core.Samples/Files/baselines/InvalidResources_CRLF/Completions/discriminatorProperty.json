@@ -37,7 +37,7 @@
     "detail": "Nested resource with defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Type' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
+      "value": "```bicep\nresource Identifier 'Type' = {\n  name: \n  properties: {\n    \n  }\n}\n```  \n"
     },
     "deprecated": false,
     "preselect": true,
@@ -67,7 +67,7 @@
     "detail": "Nested resource without defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Type' = {\n  name: \n  \n}\n```"
+      "value": "```bicep\nresource Identifier 'Type' = {\n  name: \n  \n}\n```  \n"
     },
     "deprecated": false,
     "preselect": true,

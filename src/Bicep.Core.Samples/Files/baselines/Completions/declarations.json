@@ -33,7 +33,7 @@
     "detail": "Module declaration",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nmodule Identifier Path = {\n  name: \n  \n}\n```"
+      "value": "```bicep\nmodule Identifier Path = {\n  name: \n  \n}\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -77,7 +77,7 @@
     "detail": "Output declaration",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\noutput Identifier Type = \n```"
+      "value": "```bicep\noutput Identifier Type = \n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -121,7 +121,7 @@
     "detail": "Parameter declaration",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nparam Identifier Type\n```"
+      "value": "```bicep\nparam Identifier Type\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -151,7 +151,7 @@
     "detail": "Parameter declaration with default value",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nparam Identifier Type = DefaultValue\n```"
+      "value": "```bicep\nparam Identifier Type = DefaultValue\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -181,7 +181,7 @@
     "detail": "Parameter declaration with default and allowed values",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n@allowed([\n  \n])\nparam Identifier Type = \n```"
+      "value": "```bicep\n@allowed([\n  \n])\nparam Identifier Type = \n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -211,7 +211,7 @@
     "detail": "Secure string parameter",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n@secure()\nparam Identifier string\n```"
+      "value": "```bicep\n@secure()\nparam Identifier string\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -241,7 +241,7 @@
     "detail": "Kubernetes Service Cluster",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {\n  name: 'name'\n  location: location\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    kubernetesVersion: '1.19.7'\n    dnsPrefix: 'dnsprefix'\n    enableRBAC: true\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: 3\n        vmSize: 'Standard_DS2_v2'\n        osType: 'Linux'\n        mode: 'System'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: 'adminUserName'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: 'REQUIRED'\n          }\n        ]\n      }\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {\n  name: 'name'\n  location: location\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    kubernetesVersion: '1.19.7'\n    dnsPrefix: 'dnsprefix'\n    enableRBAC: true\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: 3\n        vmSize: 'Standard_DS2_v2'\n        osType: 'Linux'\n        mode: 'System'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: 'adminUserName'\n      ssh: {\n        publicKeys: [\n          {\n            keyData: 'REQUIRED'\n          }\n        ]\n      }\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -271,7 +271,7 @@
     "detail": "Api Management Instance",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource apiManagementInstance 'Microsoft.ApiManagement/service@2020-12-01' = {\n  name: 'name'\n  location: location\n  sku:{\n    capacity: 0\n    name: 'Developer'\n  }\n  properties:{\n    virtualNetworkType: 'None'\n    publisherEmail: 'publisherEmail@contoso.com'\n    publisherName: 'publisherName'\n  }\n}\n\n```"
+      "value": "```bicep\nresource apiManagementInstance 'Microsoft.ApiManagement/service@2020-12-01' = {\n  name: 'name'\n  location: location\n  sku:{\n    capacity: 0\n    name: 'Developer'\n  }\n  properties:{\n    virtualNetworkType: 'None'\n    publisherEmail: 'publisherEmail@contoso.com'\n    publisherName: 'publisherName'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -301,7 +301,7 @@
     "detail": "Application Gateway",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource applicationGateway 'Microsoft.Network/applicationGateways@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'Standard_Small'\n      tier: 'Standard'\n      capacity: 'capacity'\n    }\n    gatewayIPConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          subnet: {\n            id: 'id'\n          }\n        }\n      }\n    ]\n    frontendIPConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          publicIPAddress: {\n            id: 'id'\n          }\n        }\n      }\n    ]\n    frontendPorts: [\n      {\n        name: 'name'\n        properties: {\n          port: 'port'\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: 'name'\n      }\n    ]\n    backendHttpSettingsCollection: [\n      {\n        name: 'name'\n        properties: {\n          port: 'port'\n          protocol: 'Http'\n          cookieBasedAffinity: 'Disabled'\n        }\n      }\n    ]\n    httpListeners: [\n      {\n        name: 'name'\n        properties: {\n          frontendIPConfiguration: {\n            id: 'id'\n          }\n          frontendPort: {\n            id: 'id'\n          }\n          protocol: 'Http'\n          sslCertificate: null\n        }\n      }\n    ]\n    requestRoutingRules: [\n      {\n        name: 'name'\n        properties: {\n          ruleType: 'Basic'\n          httpListener: {\n            id: 'id'\n          }\n          backendAddressPool: {\n            id: 'id'\n          }\n          backendHttpSettings: {\n            id: 'id'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource applicationGateway 'Microsoft.Network/applicationGateways@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'Standard_Small'\n      tier: 'Standard'\n      capacity: 'capacity'\n    }\n    gatewayIPConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          subnet: {\n            id: 'id'\n          }\n        }\n      }\n    ]\n    frontendIPConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          publicIPAddress: {\n            id: 'id'\n          }\n        }\n      }\n    ]\n    frontendPorts: [\n      {\n        name: 'name'\n        properties: {\n          port: 'port'\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: 'name'\n      }\n    ]\n    backendHttpSettingsCollection: [\n      {\n        name: 'name'\n        properties: {\n          port: 'port'\n          protocol: 'Http'\n          cookieBasedAffinity: 'Disabled'\n        }\n      }\n    ]\n    httpListeners: [\n      {\n        name: 'name'\n        properties: {\n          frontendIPConfiguration: {\n            id: 'id'\n          }\n          frontendPort: {\n            id: 'id'\n          }\n          protocol: 'Http'\n          sslCertificate: null\n        }\n      }\n    ]\n    requestRoutingRules: [\n      {\n        name: 'name'\n        properties: {\n          ruleType: 'Basic'\n          httpListener: {\n            id: 'id'\n          }\n          backendAddressPool: {\n            id: 'id'\n          }\n          backendHttpSettings: {\n            id: 'id'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -331,7 +331,7 @@
     "detail": "Application Gateway with Web Application Firewall",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource applicationGatewayFirewall 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    policySettings: {\n      requestBodyCheck: true\n      maxRequestBodySizeInKb: 'maxRequestBodySizeInKb'\n      fileUploadLimitInMb: 'fileUploadLimitInMb'\n      state: 'Enabled'\n      mode: 'Detection'\n    }\n    managedRules: {\n      managedRuleSets: [\n        {\n          ruleSetType: 'ruleSetType'\n          ruleSetVersion: 'ruleSetVersion'\n        }\n      ]\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource applicationGatewayFirewall 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    policySettings: {\n      requestBodyCheck: true\n      maxRequestBodySizeInKb: 'maxRequestBodySizeInKb'\n      fileUploadLimitInMb: 'fileUploadLimitInMb'\n      state: 'Enabled'\n      mode: 'Detection'\n    }\n    managedRules: {\n      managedRuleSets: [\n        {\n          ruleSetType: 'ruleSetType'\n          ruleSetVersion: 'ruleSetVersion'\n        }\n      ]\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -361,7 +361,7 @@
     "detail": "Application Insights for Web Apps",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource appInsightsComponents 'Microsoft.Insights/components@2020-02-02' = {\n  name: 'name'\n  location: location\n  kind: 'web'\n  properties: {\n    Application_Type: 'web'\n  }\n}\n\n```"
+      "value": "```bicep\nresource appInsightsComponents 'Microsoft.Insights/components@2020-02-02' = {\n  name: 'name'\n  location: location\n  kind: 'web'\n  properties: {\n    Application_Type: 'web'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -391,7 +391,7 @@
     "detail": "Application Insights Alert Rules",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource appInsightsAlertRules 'Microsoft.Insights/alertrules@2016-03-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    name: 'name'\n    description: 'description'\n    isEnabled: false\n    condition: {\n      failedLocationCount: 'failedLocationCount'\n      'odata.type': 'Microsoft.Azure.Management.Insights.Models.LocationThresholdRuleCondition'\n      dataSource: {\n        'odata.type': 'Microsoft.Azure.Management.Insights.Models.RuleManagementEventDataSource'\n        resourceUri: 'resourceUri'\n      }\n      windowSize: 'windowSize'\n    }\n    action: {\n      'odata.type': 'Microsoft.Azure.Management.Insights.Models.RuleEmailAction'\n      sendToServiceOwners: true\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource appInsightsAlertRules 'Microsoft.Insights/alertrules@2016-03-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    name: 'name'\n    description: 'description'\n    isEnabled: false\n    condition: {\n      failedLocationCount: 'failedLocationCount'\n      'odata.type': 'Microsoft.Azure.Management.Insights.Models.LocationThresholdRuleCondition'\n      dataSource: {\n        'odata.type': 'Microsoft.Azure.Management.Insights.Models.RuleManagementEventDataSource'\n        resourceUri: 'resourceUri'\n      }\n      windowSize: 'windowSize'\n    }\n    action: {\n      'odata.type': 'Microsoft.Azure.Management.Insights.Models.RuleEmailAction'\n      sendToServiceOwners: true\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -421,7 +421,7 @@
     "detail": "Application Insights Auto Scale Settings",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015-04-01' = {\n  name: 'name'\n  location: location\n  tags: {\n    Application_Type: 'web'\n    'hidden-link:appServiceId': 'Resource'\n  }\n  properties: {\n    name: 'name'\n    profiles: [\n      {\n        name: 'name'\n        capacity: {\n          minimum: 'minimum'\n          maximum: 'maximum'\n          default: 'default'\n        }\n        rules: [\n          {\n            metricTrigger: {\n              metricName: 'name'\n              metricResourceUri: 'metricResourceUri'\n              timeGrain: 'PT1M'\n              statistic: 'Average'\n              timeWindow: 'PT10M'\n              timeAggregation: 'Average'\n              operator: 'GreaterThan'\n              threshold: 80\n            }\n            scaleAction: {\n              direction: 'Increase'\n              type: 'ChangeCount'\n              value:  'value'\n              cooldown: 'PT10M'\n            }\n          }\n          {\n            metricTrigger: {\n              metricName: 'metricName'\n              metricResourceUri: 'metricResourceUri'\n              timeGrain: 'PT1M'\n              statistic: 'Average'\n              timeWindow: 'PT1H'\n              timeAggregation: 'Average'\n              operator: 'LessThan'\n              threshold: 60\n            }\n            scaleAction: {\n              direction: 'Decrease'\n              type: 'ChangeCount'\n              value: 'value'\n              cooldown: 'PT1H'\n            }\n          }\n        ]\n      }\n    ]\n    enabled: false\n    targetResourceUri: 'targetResourceUri'\n  }\n}\n\n```"
+      "value": "```bicep\nresource appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015-04-01' = {\n  name: 'name'\n  location: location\n  tags: {\n    Application_Type: 'web'\n    'hidden-link:appServiceId': 'Resource'\n  }\n  properties: {\n    name: 'name'\n    profiles: [\n      {\n        name: 'name'\n        capacity: {\n          minimum: 'minimum'\n          maximum: 'maximum'\n          default: 'default'\n        }\n        rules: [\n          {\n            metricTrigger: {\n              metricName: 'name'\n              metricResourceUri: 'metricResourceUri'\n              timeGrain: 'PT1M'\n              statistic: 'Average'\n              timeWindow: 'PT10M'\n              timeAggregation: 'Average'\n              operator: 'GreaterThan'\n              threshold: 80\n            }\n            scaleAction: {\n              direction: 'Increase'\n              type: 'ChangeCount'\n              value:  'value'\n              cooldown: 'PT10M'\n            }\n          }\n          {\n            metricTrigger: {\n              metricName: 'metricName'\n              metricResourceUri: 'metricResourceUri'\n              timeGrain: 'PT1M'\n              statistic: 'Average'\n              timeWindow: 'PT1H'\n              timeAggregation: 'Average'\n              operator: 'LessThan'\n              threshold: 60\n            }\n            scaleAction: {\n              direction: 'Decrease'\n              type: 'ChangeCount'\n              value: 'value'\n              cooldown: 'PT1H'\n            }\n          }\n        ]\n      }\n    ]\n    enabled: false\n    targetResourceUri: 'targetResourceUri'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -451,7 +451,7 @@
     "detail": "Application Service Plan (Server Farm)",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'F1'\n    capacity: 1\n  }\n}\n\n```"
+      "value": "```bicep\nresource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'F1'\n    capacity: 1\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -481,7 +481,7 @@
     "detail": "Application Security Group",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource applicationSecurityGroup 'Microsoft.Network/applicationSecurityGroups@2020-11-01' = {\n  name: 'name'\n  location: location\n}\n\n```"
+      "value": "```bicep\nresource applicationSecurityGroup 'Microsoft.Network/applicationSecurityGroups@2020-11-01' = {\n  name: 'name'\n  location: location\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -511,7 +511,7 @@
     "detail": "Automation Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'Free'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'Free'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -541,7 +541,7 @@
     "detail": "Automation Certificate",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationCertificate 'Microsoft.Automation/automationAccounts/certificates@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    base64Value: 'base64Value'\n    description: 'description'\n    thumbprint: 'thumbprint'\n    isExportable: true\n  }\n}\n\n```"
+      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationCertificate 'Microsoft.Automation/automationAccounts/certificates@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    base64Value: 'base64Value'\n    description: 'description'\n    thumbprint: 'thumbprint'\n    isExportable: true\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -571,7 +571,7 @@
     "detail": "Automation Credential",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationCredential 'Microsoft.Automation/automationAccounts/credentials@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    userName: 'userName'\n    password: 'password'\n    description: 'description'\n  }\n}\n\n```"
+      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationCredential 'Microsoft.Automation/automationAccounts/credentials@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    userName: 'userName'\n    password: 'password'\n    description: 'description'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -601,7 +601,7 @@
     "detail": "Automation Job Schedule",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationJobSchedule 'Microsoft.Automation/automationAccounts/jobSchedules@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    schedule: {\n      name: 'name'\n    }\n    runbook: {\n      name: 'name'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationJobSchedule 'Microsoft.Automation/automationAccounts/jobSchedules@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    schedule: {\n      name: 'name'\n    }\n    runbook: {\n      name: 'name'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -631,7 +631,7 @@
     "detail": "Automation Module",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationAccountVariable 'Microsoft.Automation/automationAccounts/modules@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    contentLink: {\n      uri: 'https://content-url.nupkg'\n    }\n  }\n}\n```"
+      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationAccountVariable 'Microsoft.Automation/automationAccounts/modules@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    contentLink: {\n      uri: 'https://content-url.nupkg'\n    }\n  }\n}\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -661,7 +661,7 @@
     "detail": "Automation Runbook",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationRunbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  location: location\n  properties: {\n    logVerbose: true\n    logProgress: true\n    runbookType: 'Script'\n    publishContentLink: {\n      uri: 'uri'\n      version: '1.0.0.0'\n    }\n    description: 'description'\n  }\n}\n\n```"
+      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationRunbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  location: location\n  properties: {\n    logVerbose: true\n    logProgress: true\n    runbookType: 'Script'\n    publishContentLink: {\n      uri: 'uri'\n      version: '1.0.0.0'\n    }\n    description: 'description'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -691,7 +691,7 @@
     "detail": "Automation Schedule",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationSchedule 'Microsoft.Automation/automationAccounts/schedules@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    description: 'description'\n    startTime: 'startTime'\n    interval: 'interval'\n    frequency: 'OneTime'\n  }\n}\n\n```"
+      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationSchedule 'Microsoft.Automation/automationAccounts/schedules@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    description: 'description'\n    startTime: 'startTime'\n    interval: 'interval'\n    frequency: 'OneTime'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -721,7 +721,7 @@
     "detail": "Automation Variable",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationVariable 'Microsoft.Automation/automationAccounts/variables@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    value: 'value'\n    description: 'description'\n    isEncrypted: true\n  }\n}\n\n```"
+      "value": "```bicep\nresource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: 'name'\n}\n\nresource automationVariable 'Microsoft.Automation/automationAccounts/variables@2019-06-01' = {\n  parent: automationAccount\n  name: 'name'\n  properties: {\n    value: 'value'\n    description: 'description'\n    isEncrypted: true\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -751,7 +751,7 @@
     "detail": "Availability Set",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource availabilitySet 'Microsoft.Compute/availabilitySets@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\n```"
+      "value": "```bicep\nresource availabilitySet 'Microsoft.Compute/availabilitySets@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -781,7 +781,7 @@
     "detail": "Container Group",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    containers: [\n      {\n        name: 'containername'\n        properties: {\n          image: 'mcr.microsoft.com/azuredocs/aci-helloworld:latest'\n          ports: [\n            {\n              port: 80\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: 1\n              memoryInGB: 4\n            }\n          }\n        }\n      }\n    ]\n    restartPolicy: 'OnFailure'\n    osType: 'Linux'\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: 'TCP'\n          port: 80\n        }\n      ]\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    containers: [\n      {\n        name: 'containername'\n        properties: {\n          image: 'mcr.microsoft.com/azuredocs/aci-helloworld:latest'\n          ports: [\n            {\n              port: 80\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: 1\n              memoryInGB: 4\n            }\n          }\n        }\n      }\n    ]\n    restartPolicy: 'OnFailure'\n    osType: 'Linux'\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: 'TCP'\n          port: 80\n        }\n      ]\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -811,7 +811,7 @@
     "detail": "Container Registry",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'Basic'\n  }\n  properties: {\n    adminUserEnabled: true\n  }\n}\n\n```"
+      "value": "```bicep\nresource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'Basic'\n  }\n  properties: {\n    adminUserEnabled: true\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -841,7 +841,7 @@
     "detail": "Cosmos DB Database Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {\n  name: 'name'\n  location: location\n  kind: 'GlobalDocumentDB'\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: 'Eventual'\n      maxStalenessPrefix: 1\n      maxIntervalInSeconds: 5\n    }\n    locations: [\n      {\n        locationName: location\n        failoverPriority: 0\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    enableAutomaticFailover: true\n    capabilities: [\n      {\n        name: 'EnableTable'\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {\n  name: 'name'\n  location: location\n  kind: 'GlobalDocumentDB'\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: 'Eventual'\n      maxStalenessPrefix: 1\n      maxIntervalInSeconds: 5\n    }\n    locations: [\n      {\n        locationName: location\n        failoverPriority: 0\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    enableAutomaticFailover: true\n    capabilities: [\n      {\n        name: 'EnableTable'\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -871,7 +871,7 @@
     "detail": "Cosmos DB Cassandra Namespace",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -901,7 +901,7 @@
     "detail": "Cosmos DB Cassandra Table",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource cassandraKeyspaceTable 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/tables@2021-06-15' = {\n  parent: cassandraKeyspace\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource cassandraKeyspaceTable 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/tables@2021-06-15' = {\n  parent: cassandraKeyspace\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -931,7 +931,7 @@
     "detail": "Cosmos DB Gremlin Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -961,7 +961,7 @@
     "detail": "Cosmos DB Gremlin Graph",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\nresource cosmosDbGremlinGraph 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2021-06-15' = {\n  parent: gremlinDb\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: -1\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\nresource cosmosDbGremlinGraph 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2021-06-15' = {\n  parent: gremlinDb\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: -1\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -991,7 +991,7 @@
     "detail": "Cosmos DB Mongo Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource mongoDb 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource mongoDb 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1021,7 +1021,7 @@
     "detail": "Cosmos DB SQL Container",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource sqlContainerName 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-06-15' = {\n  parent: sqlDb \n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: 'precision'\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource sqlContainerName 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-06-15' = {\n  parent: sqlDb \n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: 'precision'\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1051,7 +1051,7 @@
     "detail": "Cosmos DB SQL Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1081,7 +1081,7 @@
     "detail": "Cosmos Table Storage",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource cosmosTable 'Microsoft.DocumentDB/databaseAccounts/tables@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource cosmosTable 'Microsoft.DocumentDB/databaseAccounts/tables@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1111,7 +1111,7 @@
     "detail": "Data Lake Store Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    newTier: 'Consumption'\n    encryptionState: 'Enabled'\n  }\n}\n\n```"
+      "value": "```bicep\nresource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    newTier: 'Consumption'\n    encryptionState: 'Enabled'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1141,7 +1141,7 @@
     "detail": "DNS Record",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: 'name'\n  location: location\n}\n\nresource dnsRecord 'Microsoft.Network/dnsZones/A@2018-05-01' = {\n  parent: dnsZone\n  name: 'name'\n  properties: {\n    TTL: 3600\n    ARecords: []\n  }\n}\n\n```"
+      "value": "```bicep\nresource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: 'name'\n  location: location\n}\n\nresource dnsRecord 'Microsoft.Network/dnsZones/A@2018-05-01' = {\n  parent: dnsZone\n  name: 'name'\n  properties: {\n    TTL: 3600\n    ARecords: []\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1171,7 +1171,7 @@
     "detail": "",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource dnsResolvers 'Microsoft.Network/dnsResolvers@2022-07-01' = {\n  name: 'name'\n  location: location\n  properties: {\n     virtualNetwork: {\n      id: 'virtualNetworkId'\n     }\n  }\n\n  resource inboundEndpoints 'inboundEndpoints' = {\n    name: 'name'\n    location: location\n    properties: {\n      ipConfigurations: [\n        {\n          privateIpAllocationMethod: 'Static'\n          subnet: {\n            id: 'subnetId'\n          }\n        }\n      ]\n    }\n  }\n\n  resource outboundEndpoints 'outboundEndpoints' = {\n    name: 'name'\n    location: location\n    properties: {\n      subnet: {\n        id: 'subnetId'\n      }\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource dnsResolvers 'Microsoft.Network/dnsResolvers@2022-07-01' = {\n  name: 'name'\n  location: location\n  properties: {\n     virtualNetwork: {\n      id: 'virtualNetworkId'\n     }\n  }\n\n  resource inboundEndpoints 'inboundEndpoints' = {\n    name: 'name'\n    location: location\n    properties: {\n      ipConfigurations: [\n        {\n          privateIpAllocationMethod: 'Static'\n          subnet: {\n            id: 'subnetId'\n          }\n        }\n      ]\n    }\n  }\n\n  resource outboundEndpoints 'outboundEndpoints' = {\n    name: 'name'\n    location: location\n    properties: {\n      subnet: {\n        id: 'subnetId'\n      }\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1201,7 +1201,7 @@
     "detail": "DNS Zone",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: 'name'\n  location: 'global'\n}\n\n```"
+      "value": "```bicep\nresource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: 'name'\n  location: 'global'\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1231,7 +1231,7 @@
     "detail": "ExpressRoute Circuit",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2020-11-01' = {\n  name: 'name'\n  location: location\n  sku:{\n    family: 'MeteredData'\n    tier: 'Local'\n    name: 'Local_MeteredData'\n  }\n  properties:{\n    serviceProviderProperties:{\n      bandwidthInMbps: 50\n        peeringLocation: 'Amsterdam'\n      serviceProviderName: 'Telia Carrier'\n    }\n    allowClassicOperations:true\n  }\n}\n\n```"
+      "value": "```bicep\nresource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2020-11-01' = {\n  name: 'name'\n  location: location\n  sku:{\n    family: 'MeteredData'\n    tier: 'Local'\n    name: 'Local_MeteredData'\n  }\n  properties:{\n    serviceProviderProperties:{\n      bandwidthInMbps: 50\n        peeringLocation: 'Amsterdam'\n      serviceProviderName: 'Telia Carrier'\n    }\n    allowClassicOperations:true\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1261,7 +1261,7 @@
     "detail": "ExpressRoute Gateway",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource expressRouteGateways 'Microsoft.Network/expressRouteGateways@2021-02-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    virtualHub: {\n      id: 'virtualHub.id'\n    }\n    autoScaleConfiguration: {\n      bounds: {\n        min: 1\n        max: 1\n      }\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource expressRouteGateways 'Microsoft.Network/expressRouteGateways@2021-02-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    virtualHub: {\n      id: 'virtualHub.id'\n    }\n    autoScaleConfiguration: {\n      bounds: {\n        min: 1\n        max: 1\n      }\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1291,7 +1291,7 @@
     "detail": "Azure Firewall using classic rules",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    applicationRuleCollections: [\n      {\n        name: 'name'\n        properties: {\n          priority: 'priority'\n          action: {\n            type: 'Allow'\n          }\n          rules: [\n            {\n              name: 'name'\n              description: 'description'\n              sourceAddresses: [\n                'sourceAddress'\n              ]\n              protocols: [\n                {\n                  protocolType: 'Http'\n                  port: 80\n                }\n              ]\n              targetFqdns: [\n                'www.microsoft.com'\n              ]\n            }\n          ]\n        }\n      }\n    ]\n    natRuleCollections: [\n      {\n        name: 'name'\n        properties: {\n          priority: 'priority'\n          action: {\n            type: 'Dnat'\n          }\n          rules: [\n            {\n              name: 'name'\n              description: 'description'\n              sourceAddresses: [\n                'sourceAddress'\n              ]\n              destinationAddresses: [\n                'destinationAddress'\n              ]\n              destinationPorts: [\n                'port'\n              ]\n              protocols: [\n                'TCP'\n              ]\n              translatedAddress: 'translatedAddress'\n              translatedPort: 'translatedPort'\n            }\n          ]\n        }\n      }\n    ]\n    networkRuleCollections: [\n      {\n        name: 'name'\n        properties: {\n          priority: 'priority'\n          action: {\n            type: 'Deny'\n          }\n          rules: [\n            {\n              name: 'name'\n              description: 'description'\n              sourceAddresses: [\n                'sourceAddress'\n              ]\n              destinationAddresses: [\n                'destinationAddress'\n              ]\n              destinationPorts: [\n                'destinationPort'\n              ]\n              protocols: [\n                'TCP'\n              ]\n            }\n          ]\n        }\n      }\n    ]\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          subnet: {\n            id: 'id'\n          }\n          publicIPAddress: {\n            id: 'id'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    applicationRuleCollections: [\n      {\n        name: 'name'\n        properties: {\n          priority: 'priority'\n          action: {\n            type: 'Allow'\n          }\n          rules: [\n            {\n              name: 'name'\n              description: 'description'\n              sourceAddresses: [\n                'sourceAddress'\n              ]\n              protocols: [\n                {\n                  protocolType: 'Http'\n                  port: 80\n                }\n              ]\n              targetFqdns: [\n                'www.microsoft.com'\n              ]\n            }\n          ]\n        }\n      }\n    ]\n    natRuleCollections: [\n      {\n        name: 'name'\n        properties: {\n          priority: 'priority'\n          action: {\n            type: 'Dnat'\n          }\n          rules: [\n            {\n              name: 'name'\n              description: 'description'\n              sourceAddresses: [\n                'sourceAddress'\n              ]\n              destinationAddresses: [\n                'destinationAddress'\n              ]\n              destinationPorts: [\n                'port'\n              ]\n              protocols: [\n                'TCP'\n              ]\n              translatedAddress: 'translatedAddress'\n              translatedPort: 'translatedPort'\n            }\n          ]\n        }\n      }\n    ]\n    networkRuleCollections: [\n      {\n        name: 'name'\n        properties: {\n          priority: 'priority'\n          action: {\n            type: 'Deny'\n          }\n          rules: [\n            {\n              name: 'name'\n              description: 'description'\n              sourceAddresses: [\n                'sourceAddress'\n              ]\n              destinationAddresses: [\n                'destinationAddress'\n              ]\n              destinationPorts: [\n                'destinationPort'\n              ]\n              protocols: [\n                'TCP'\n              ]\n            }\n          ]\n        }\n      }\n    ]\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          subnet: {\n            id: 'id'\n          }\n          publicIPAddress: {\n            id: 'id'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1321,7 +1321,7 @@
     "detail": "Azure Firewall Policy Standard SKU",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      tier: 'Standard'\n    }\n    dnsSettings: {\n      enableProxy: true\n    }\n    threatIntelMode: 'Alert'\n  }\n}\n\n```"
+      "value": "```bicep\nresource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      tier: 'Standard'\n    }\n    dnsSettings: {\n      enableProxy: true\n    }\n    threatIntelMode: 'Alert'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1351,7 +1351,7 @@
     "detail": "Azure Firewall Standard SKU",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'AZFW_VNet'\n      tier: 'Standard'\n    }    \n    firewallPolicy: {\n      id: 'firewallPolicy.id'\n    }\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          subnet: {\n            id: 'subnet.id'\n          }\n          publicIPAddress: {\n            id: 'publicIPAddress.id'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'AZFW_VNet'\n      tier: 'Standard'\n    }    \n    firewallPolicy: {\n      id: 'firewallPolicy.id'\n    }\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          subnet: {\n            id: 'subnet.id'\n          }\n          publicIPAddress: {\n            id: 'publicIPAddress.id'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1381,7 +1381,7 @@
     "detail": "Azure Firewall Standard SKU for Virtual WAN Hub",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'AZFW_Hub'\n      tier: 'Standard'\n    }    \n    firewallPolicy: {\n      id: 'firewallPolicy.id'\n    }\n    virtualHub: {\n      id: 'virtualHub.id'\n    }\n    hubIPAddresses: {\n       publicIPs: {\n         count: 2\n       }\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'AZFW_Hub'\n      tier: 'Standard'\n    }    \n    firewallPolicy: {\n      id: 'firewallPolicy.id'\n    }\n    virtualHub: {\n      id: 'virtualHub.id'\n    }\n    hubIPAddresses: {\n       publicIPs: {\n         count: 2\n       }\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1411,7 +1411,7 @@
     "detail": "Azure Functions (v2)",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource azureFunction 'Microsoft.Web/sites@2020-12-01' = {\n  name: 'name'\n  location: location\n  kind: 'functionapp'\n  properties: {\n    serverFarmId: 'serverfarms.id'\n    siteConfig: {\n      appSettings: [\n        {\n          name: 'AzureWebJobsDashboard'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName1;AccountKey=${listKeys('storageAccountID1', '2019-06-01').key1}'\n        }\n        {\n          name: 'AzureWebJobsStorage'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName2;AccountKey=${listKeys('storageAccountID2', '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName3;AccountKey=${listKeys('storageAccountID3', '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTSHARE'\n          value: toLower('name')\n        }\n        {\n          name: 'FUNCTIONS_EXTENSION_VERSION'\n          value: '~2'\n        }\n        {\n          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'\n          value: reference('insightsComponents.id', '2015-05-01').InstrumentationKey\n        }\n        {\n          name: 'FUNCTIONS_WORKER_RUNTIME'\n          value: 'dotnet'\n        }\n      ]\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource azureFunction 'Microsoft.Web/sites@2020-12-01' = {\n  name: 'name'\n  location: location\n  kind: 'functionapp'\n  properties: {\n    serverFarmId: 'serverfarms.id'\n    siteConfig: {\n      appSettings: [\n        {\n          name: 'AzureWebJobsDashboard'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName1;AccountKey=${listKeys('storageAccountID1', '2019-06-01').key1}'\n        }\n        {\n          name: 'AzureWebJobsStorage'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName2;AccountKey=${listKeys('storageAccountID2', '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'\n          value: 'DefaultEndpointsProtocol=https;AccountName=storageAccountName3;AccountKey=${listKeys('storageAccountID3', '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTSHARE'\n          value: toLower('name')\n        }\n        {\n          name: 'FUNCTIONS_EXTENSION_VERSION'\n          value: '~2'\n        }\n        {\n          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'\n          value: reference('insightsComponents.id', '2015-05-01').InstrumentationKey\n        }\n        {\n          name: 'FUNCTIONS_WORKER_RUNTIME'\n          value: 'dotnet'\n        }\n      ]\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1441,7 +1441,7 @@
     "detail": "Public IP Address",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    publicIPAllocationMethod: 'Dynamic'\n    dnsSettings: {\n      domainNameLabel: 'dnsname'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    publicIPAllocationMethod: 'Dynamic'\n    dnsSettings: {\n      domainNameLabel: 'dnsname'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1471,7 +1471,7 @@
     "detail": "Public IP Prefix",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource publicIPPrefix 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'Standard'\n  }\n  properties: {\n    publicIPAddressVersion: 'IPv4'\n    prefixLength: 28\n  }\n}\n\n```"
+      "value": "```bicep\nresource publicIPPrefix 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'Standard'\n  }\n  properties: {\n    publicIPAddressVersion: 'IPv4'\n    prefixLength: 28\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1501,7 +1501,7 @@
     "detail": "KeyVault",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    enabledForDeployment: true\n    enabledForTemplateDeployment: true\n    enabledForDiskEncryption: true\n    tenantId: 'tenantId'\n    accessPolicies: [\n      {\n        tenantId: 'tenantId'\n        objectId: 'objectId'\n        permissions: {\n          keys: [\n            'get'\n          ]\n          secrets: [\n            'list'\n            'get'\n          ]\n        }\n      }\n    ]\n    sku: {\n      name: 'standard'\n      family: 'A'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    enabledForDeployment: true\n    enabledForTemplateDeployment: true\n    enabledForDiskEncryption: true\n    tenantId: 'tenantId'\n    accessPolicies: [\n      {\n        tenantId: 'tenantId'\n        objectId: 'objectId'\n        permissions: {\n          keys: [\n            'get'\n          ]\n          secrets: [\n            'list'\n            'get'\n          ]\n        }\n      }\n    ]\n    sku: {\n      name: 'standard'\n      family: 'A'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1531,7 +1531,7 @@
     "detail": "Key Vault Secret",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: 'keyVaultName/name'\n  properties: {\n    value: 'value'\n  }\n}\n\n```"
+      "value": "```bicep\nresource keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: 'keyVaultName/name'\n  properties: {\n    value: 'value'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1561,7 +1561,7 @@
     "detail": "External Load Balancer",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource loadBalancerExternal 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          publicIPAddress: {\n            id: 'publicIPAddresses.id'\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: 'name'\n      }\n    ]\n    inboundNatRules: [\n      {\n        name: 'name'\n        properties: {\n          frontendIPConfiguration: {\n            id: 'frontendIPConfiguration.id'\n          }\n          protocol: 'Tcp'\n          frontendPort: 50001\n          backendPort: 3389\n          enableFloatingIP: false\n        }\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: 'name'\n        properties: {\n          frontendIPConfiguration: {\n             id: 'frontendIPConfiguration.id'\n          }\n          backendAddressPool: {\n            id: 'backendAddressPool.id'\n          }\n          protocol: 'Tcp'\n          frontendPort: 80\n          backendPort: 80\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: 'probe.id'\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: 'name'\n        properties: {\n          protocol: 'Tcp'\n          port: 80\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource loadBalancerExternal 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          publicIPAddress: {\n            id: 'publicIPAddresses.id'\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: 'name'\n      }\n    ]\n    inboundNatRules: [\n      {\n        name: 'name'\n        properties: {\n          frontendIPConfiguration: {\n            id: 'frontendIPConfiguration.id'\n          }\n          protocol: 'Tcp'\n          frontendPort: 50001\n          backendPort: 3389\n          enableFloatingIP: false\n        }\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: 'name'\n        properties: {\n          frontendIPConfiguration: {\n             id: 'frontendIPConfiguration.id'\n          }\n          backendAddressPool: {\n            id: 'backendAddressPool.id'\n          }\n          protocol: 'Tcp'\n          frontendPort: 80\n          backendPort: 80\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: 'probe.id'\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: 'name'\n        properties: {\n          protocol: 'Tcp'\n          port: 80\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1591,7 +1591,7 @@
     "detail": "Internal Load Balancer",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAddress: '0.0.0.0'\n          privateIPAllocationMethod: 'Static'\n          subnet: {\n            id: 'subnet.id'\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: 'name'\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: 'name'\n        properties: {\n          frontendIPConfiguration: {\n            id: 'frontendIPConfiguration.id'\n          }\n          backendAddressPool: {\n            id: 'backendAddressPool.id'\n          }\n          protocol: 'Tcp'\n          frontendPort: 80\n          backendPort: 80\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: 'probe.id'\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: 'name'\n        properties: {\n          protocol: 'Tcp'\n          port: 80\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAddress: '0.0.0.0'\n          privateIPAllocationMethod: 'Static'\n          subnet: {\n            id: 'subnet.id'\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: 'name'\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: 'name'\n        properties: {\n          frontendIPConfiguration: {\n            id: 'frontendIPConfiguration.id'\n          }\n          backendAddressPool: {\n            id: 'backendAddressPool.id'\n          }\n          protocol: 'Tcp'\n          frontendPort: 80\n          backendPort: 80\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: 'probe.id'\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: 'name'\n        properties: {\n          protocol: 'Tcp'\n          port: 80\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1621,7 +1621,7 @@
     "detail": "",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource lock 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: 'name'\n  properties: {\n    level: 'NotSpecified'\n  }\n}\n\n```"
+      "value": "```bicep\nresource lock 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: 'name'\n  properties: {\n    level: 'NotSpecified'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1651,7 +1651,7 @@
     "detail": "Log Analytics Solution",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource logAnalyticsSolution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {\n  name: 'name'\n  location: location\n  properties: {\n    workspaceResourceId: 'operationalInsightsWorkspace.id'\n    containedResources: [\n      'view.id'\n    ]\n  }\n  plan: {\n    name: 'name'\n    product: 'product'\n    publisher: 'publisher'\n    promotionCode: 'promotionCode'\n  }\n}\n\n```"
+      "value": "```bicep\nresource logAnalyticsSolution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {\n  name: 'name'\n  location: location\n  properties: {\n    workspaceResourceId: 'operationalInsightsWorkspace.id'\n    containedResources: [\n      'view.id'\n    ]\n  }\n  plan: {\n    name: 'name'\n    product: 'product'\n    publisher: 'publisher'\n    promotionCode: 'promotionCode'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1681,7 +1681,7 @@
     "detail": "Log Analytics Workspace",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'Free'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'Free'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1711,7 +1711,7 @@
     "detail": "Logic App",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    definition: {\n      '$schema': 'https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json'\n      contentVersion: '1.0.0.0'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    definition: {\n      '$schema': 'https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json'\n      contentVersion: '1.0.0.0'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1741,7 +1741,7 @@
     "detail": "Logic App Connector",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource logicAppConnector 'Microsoft.Web/connections@2016-06-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    api: any({\n      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'logicAppConnectorApi')\n    })\n  }\n}\n\n```"
+      "value": "```bicep\nresource logicAppConnector 'Microsoft.Web/connections@2016-06-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    api: any({\n      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'logicAppConnectorApi')\n    })\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1771,7 +1771,7 @@
     "detail": "Logic App",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    definition: json(loadTextContent('REQUIRED')).definition\n  }\n}\n\n```"
+      "value": "```bicep\nresource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    definition: json(loadTextContent('REQUIRED')).definition\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1801,7 +1801,7 @@
     "detail": "Logic App Integration Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource logicAppIntegrationAccount 'Microsoft.Logic/integrationAccounts@2019-05-01' = {\n  name: 'name'\n  location: location\n}\n\n```"
+      "value": "```bicep\nresource logicAppIntegrationAccount 'Microsoft.Logic/integrationAccounts@2019-05-01' = {\n  name: 'name'\n  location: location\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1831,7 +1831,7 @@
     "detail": "Managed Identity (User Assigned)",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {\n  name: 'name'\n  location: location\n}\n\n```"
+      "value": "```bicep\nresource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {\n  name: 'name'\n  location: location\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1861,7 +1861,7 @@
     "detail": "Media Services account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    storageAccounts: [\n      {\n        id: 'storageAccount.id'\n        type: 'Primary'\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    storageAccounts: [\n      {\n        id: 'storageAccount.id'\n        type: 'Primary'\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1891,7 +1891,7 @@
     "detail": "Management Group(for tenant scope)",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource 'managementGroup' 'Microsoft.Management/managementGroups@2021-04-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    details: {\n      parent: {\n        id: 'id'\n      }\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource 'managementGroup' 'Microsoft.Management/managementGroups@2021-04-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    details: {\n      parent: {\n        id: 'id'\n      }\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1921,7 +1921,7 @@
     "detail": "MySQL Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource mySQLdb 'Microsoft.DBforMySQL/servers@2017-12-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n    createMode: 'Default'\n  }\n}\n\n```"
+      "value": "```bicep\nresource mySQLdb 'Microsoft.DBforMySQL/servers@2017-12-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n    createMode: 'Default'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1951,7 +1951,7 @@
     "detail": "Network Interface",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource networkInterface 'Microsoft.Network/networkInterfaces@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: 'subnet.id'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource networkInterface 'Microsoft.Network/networkInterfaces@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: 'subnet.id'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1981,7 +1981,7 @@
     "detail": "Network Security Group",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    securityRules: [\n      {\n        name: 'nsgRule'\n        properties: {\n          description: 'description'\n          protocol: 'Tcp'\n          sourcePortRange: '*'\n          destinationPortRange: '*'\n          sourceAddressPrefix: '*'\n          destinationAddressPrefix: '*'\n          access: 'Allow'\n          priority: 100\n          direction: 'Inbound'\n        }\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    securityRules: [\n      {\n        name: 'nsgRule'\n        properties: {\n          description: 'description'\n          protocol: 'Tcp'\n          sourcePortRange: '*'\n          destinationPortRange: '*'\n          sourceAddressPrefix: '*'\n          destinationAddressPrefix: '*'\n          access: 'Allow'\n          priority: 100\n          direction: 'Inbound'\n        }\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2011,7 +2011,7 @@
     "detail": "Network Security Group Rule",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: 'networkSecurityGroup/name'\n  properties: {\n    description: 'description'\n    protocol: '*'\n    sourcePortRange: 'sourcePortRange'\n    destinationPortRange: 'destinationPortRange'\n    sourceAddressPrefix: 'sourceAddressPrefix'\n    destinationAddressPrefix: 'destinationAddressPrefix'\n    access: 'Allow'\n    priority: 100\n    direction: 'Inbound'\n  }\n}\n\n```"
+      "value": "```bicep\nresource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: 'networkSecurityGroup/name'\n  properties: {\n    description: 'description'\n    protocol: '*'\n    sourcePortRange: 'sourcePortRange'\n    destinationPortRange: 'destinationPortRange'\n    sourceAddressPrefix: 'sourceAddressPrefix'\n    destinationAddressPrefix: 'destinationAddressPrefix'\n    access: 'Allow'\n    priority: 100\n    direction: 'Inbound'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2041,7 +2041,7 @@
     "detail": "Application Service Plan (Server Farm)",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'name'\n    capacity: capacity\n  }\n}\n\n```"
+      "value": "```bicep\nresource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'name'\n    capacity: capacity\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2071,7 +2071,7 @@
     "detail": "Policy Assignment",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource policyAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {\n  name: 'name'\n  location: location\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    displayName: 'displayName'\n    description: 'description'\n    enforcementMode: 'Default'\n    metadata: {\n      source: 'source'\n      version: '0.1.0'\n    }\n    policyDefinitionId: 'policyDefinitionId'\n    parameters: {\n      parameterName: {\n        value: 'value'\n      }\n    }\n    nonComplianceMessages: [\n      {\n        message: 'message'\n      }\n      {\n        message: 'message'\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource policyAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {\n  name: 'name'\n  location: location\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    displayName: 'displayName'\n    description: 'description'\n    enforcementMode: 'Default'\n    metadata: {\n      source: 'source'\n      version: '0.1.0'\n    }\n    policyDefinitionId: 'policyDefinitionId'\n    parameters: {\n      parameterName: {\n        value: 'value'\n      }\n    }\n    nonComplianceMessages: [\n      {\n        message: 'message'\n      }\n      {\n        message: 'message'\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2101,7 +2101,7 @@
     "detail": "Policy Definition",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    mode: 'All'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        defaultValue: 'defaultValue'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        allOf: [\n          {\n            field: 'field'\n            equals: 'conditionValue'\n          }\n        ]\n      }\n      then: {\n        effect: 'Audit'\n      }\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    mode: 'All'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        defaultValue: 'defaultValue'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        allOf: [\n          {\n            field: 'field'\n            equals: 'conditionValue'\n          }\n        ]\n      }\n      then: {\n        effect: 'Audit'\n      }\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2131,7 +2131,7 @@
     "detail": "Policy Definition",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    mode: 'All'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        defaultValue: 'defaultValue'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        allOf: [\n          {\n            field: 'field'\n            equals: 'conditionValue'\n          }\n        ]\n      }\n      then: {\n        effect: 'Audit'\n        details: {\n          roleDefinitionIds: [\n            'roleDefinitionIds'\n          ]\n          type: 'type'\n          existenceCondition: {\n            allOf: [\n              {\n                field: 'field'\n                equals: 'conditionValue'\n              }\n            ]\n          }\n          deployment: {\n            properties: {\n              mode: 'incremental'\n              template: {\n                '$schema': 'schema'\n                contentVersion: '1.0.0.0'\n                parameters: {\n                  parameterName: {\n                    type: 'String'\n                    metadata: {\n                      displayName: 'displayName'\n                      description: 'description'\n                    }\n                  }\n                }\n                variables: {}\n                resources: [\n                  {\n                    name: 'name'\n                    type: 'type'\n                    apiVersion: 'apiVersion'\n                    location: location\n                    properties: {}\n                  }\n                ]\n              }\n              parameters: {\n                parameterName: {\n                  value: 'value'\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    mode: 'All'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        defaultValue: 'defaultValue'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        allOf: [\n          {\n            field: 'field'\n            equals: 'conditionValue'\n          }\n        ]\n      }\n      then: {\n        effect: 'Audit'\n        details: {\n          roleDefinitionIds: [\n            'roleDefinitionIds'\n          ]\n          type: 'type'\n          existenceCondition: {\n            allOf: [\n              {\n                field: 'field'\n                equals: 'conditionValue'\n              }\n            ]\n          }\n          deployment: {\n            properties: {\n              mode: 'incremental'\n              template: {\n                '$schema': 'schema'\n                contentVersion: '1.0.0.0'\n                parameters: {\n                  parameterName: {\n                    type: 'String'\n                    metadata: {\n                      displayName: 'displayName'\n                      description: 'description'\n                    }\n                  }\n                }\n                variables: {}\n                resources: [\n                  {\n                    name: 'name'\n                    type: 'type'\n                    apiVersion: 'apiVersion'\n                    location: location\n                    properties: {}\n                  }\n                ]\n              }\n              parameters: {\n                parameterName: {\n                  value: 'value'\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2161,7 +2161,7 @@
     "detail": "Policy Definition",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    mode: 'All'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        defaultValue: 'defaultValue'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        allOf: [\n          {\n            field: 'field'\n            equals: 'conditionValue'\n          }\n        ]\n      }\n      then: {\n        effect: 'Audit'\n        details: {\n          roleDefinitionIds: [\n            'roleDefinitionIds'\n          ]\n          operations: [\n            {\n              operation: 'add'\n              field: 'field'\n              value: 'value'\n            }\n          ]\n        }\n      }\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    mode: 'All'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        defaultValue: 'defaultValue'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        allOf: [\n          {\n            field: 'field'\n            equals: 'conditionValue'\n          }\n        ]\n      }\n      then: {\n        effect: 'Audit'\n        details: {\n          roleDefinitionIds: [\n            'roleDefinitionIds'\n          ]\n          operations: [\n            {\n              operation: 'add'\n              field: 'field'\n              value: 'value'\n            }\n          ]\n        }\n      }\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2191,7 +2191,7 @@
     "detail": "Policy Exemption",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource policyExemption 'Microsoft.Authorization/policyExemptions@2020-07-01-preview' = {\n  name: 'name'\n  properties: {\n    policyAssignmentId: 'policyAssignmentId'\n    policyDefinitionReferenceIds: [\n      'policyDefinitionReferenceIds'\n    ]\n    exemptionCategory: 'Mitigated'\n    expiresOn: 'expiresOn'\n    displayName: 'displayName'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      source: 'source'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource policyExemption 'Microsoft.Authorization/policyExemptions@2020-07-01-preview' = {\n  name: 'name'\n  properties: {\n    policyAssignmentId: 'policyAssignmentId'\n    policyDefinitionReferenceIds: [\n      'policyDefinitionReferenceIds'\n    ]\n    exemptionCategory: 'Mitigated'\n    expiresOn: 'expiresOn'\n    displayName: 'displayName'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      source: 'source'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2221,7 +2221,7 @@
     "detail": "Guest configuration assignment for virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2251,7 +2251,7 @@
     "detail": "Guest configuration assignment for virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: 'name'\n  scope: arcEnabledMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: 'name'\n  scope: arcEnabledMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2281,7 +2281,7 @@
     "detail": "Guest configuration assignment with parameters, for virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n      configurationParameter: [\n        {\n          name: 'parameter1[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter1Value'\n        }\n        {\n          name: 'parameter2[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter2Value'\n        }\n      ]\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n      configurationParameter: [\n        {\n          name: 'parameter1[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter1Value'\n        }\n        {\n          name: 'parameter2[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter2Value'\n        }\n      ]\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2311,7 +2311,7 @@
     "detail": "Policy Remediation",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource policyRemediation 'Microsoft.PolicyInsights/remediations@2019-07-01' = {\n  name: 'name'\n  properties: {\n    policyAssignmentId: 'policyAssignmentId'\n    policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n    resourceDiscoveryMode: 'ExistingNonCompliant'\n    filters: {\n      locations: [\n        location\n      ]\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource policyRemediation 'Microsoft.PolicyInsights/remediations@2019-07-01' = {\n  name: 'name'\n  properties: {\n    policyAssignmentId: 'policyAssignmentId'\n    policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n    resourceDiscoveryMode: 'ExistingNonCompliant'\n    filters: {\n      locations: [\n        location\n      ]\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2341,7 +2341,7 @@
     "detail": "PolicySet Definition",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource policySetDefinition 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyDefinitions: [\n      {\n        policyDefinitionId: 'policyDefinitionId'\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n        parameters: {\n          parameterName: {\n            value: 'value'\n          }\n        }\n      }\n      {\n        policyDefinitionId: 'policyDefinitionId'\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n        parameters: {\n          parameterName: {\n            value: 'value'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource policySetDefinition 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    policyType: 'Custom'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      category: 'category'\n      source: 'source'\n    }\n    parameters: {\n      parameterName: {\n        type: 'String'\n        metadata: {\n          displayName: 'displayName'\n          description: 'description'\n        }\n      }\n    }\n    policyDefinitions: [\n      {\n        policyDefinitionId: 'policyDefinitionId'\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n        parameters: {\n          parameterName: {\n            value: 'value'\n          }\n        }\n      }\n      {\n        policyDefinitionId: 'policyDefinitionId'\n        policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n        parameters: {\n          parameterName: {\n            value: 'value'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2371,7 +2371,7 @@
     "detail": "",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {\n  name: name\n  location: location\n  properties: {\n    privateLinkServiceConnections: [\n      {\n        name: name\n        properties: {\n          privateLinkServiceId: privateLinkServiceId\n          groupIds: [\n            groupId\n          ]\n        }\n      }\n    ]\n    subnet: {\n      id: subnetId\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {\n  name: name\n  location: location\n  properties: {\n    privateLinkServiceConnections: [\n      {\n        name: name\n        properties: {\n          privateLinkServiceId: privateLinkServiceId\n          groupIds: [\n            groupId\n          ]\n        }\n      }\n    ]\n    subnet: {\n      id: subnetId\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2401,7 +2401,7 @@
     "detail": "Recovery Service Vault",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'RS0'\n    tier: 'Standard'\n  }\n}\n\n```"
+      "value": "```bicep\nresource recoveryServiceVault 'Microsoft.RecoveryServices/vaults@2021-01-01' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'RS0'\n    tier: 'Standard'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2431,7 +2431,7 @@
     "detail": "Redis Cache",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource redisCache 'Microsoft.Cache/Redis@2019-07-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'Basic'\n      family: 'C'\n      capacity: 0\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource redisCache 'Microsoft.Cache/Redis@2019-07-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'Basic'\n      family: 'C'\n      capacity: 0\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2461,7 +2461,7 @@
     "detail": "Resource Group",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {\n  name: 'name'\n  location: location\n}\n\n```"
+      "value": "```bicep\nresource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {\n  name: 'name'\n  location: location\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2491,7 +2491,7 @@
     "detail": "",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {\n  name: 'name'\n  properties: {\n    roleDefinitionId: 'roleDefinitionId'\n    principalId: 'principalId'\n    principalType: 'ServicePrincipal'\n  }\n}\n\n```"
+      "value": "```bicep\nresource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {\n  name: 'name'\n  properties: {\n    roleDefinitionId: 'roleDefinitionId'\n    principalId: 'principalId'\n    principalType: 'ServicePrincipal'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2521,7 +2521,7 @@
     "detail": "Route Server",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualHub 'Microsoft.Network/virtualHubs@2021-02-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: 'Standard'\n  }\n}\n\nresource ipConfiguration 'Microsoft.Network/virtualHubs/ipConfigurations@2021-02-01' = {\n  name: 'name'\n  parent: virtualHub\n  properties: {\n    subnet: {\n      id: 'subnet.id'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualHub 'Microsoft.Network/virtualHubs@2021-02-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: 'Standard'\n  }\n}\n\nresource ipConfiguration 'Microsoft.Network/virtualHubs/ipConfigurations@2021-02-01' = {\n  name: 'name'\n  parent: virtualHub\n  properties: {\n    subnet: {\n      id: 'subnet.id'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2551,7 +2551,7 @@
     "detail": "Route Table",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource routeTable 'Microsoft.Network/routeTables@2019-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    routes: [\n      {\n        name: 'name'\n        properties: {\n          addressPrefix: 'destinationCIDR'\n          nextHopType: 'VirtualNetworkGateway'\n          nextHopIpAddress: 'nextHopIp'\n        }\n      }\n    ]\n    disableBgpRoutePropagation: true\n  }\n}\n\n```"
+      "value": "```bicep\nresource routeTable 'Microsoft.Network/routeTables@2019-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    routes: [\n      {\n        name: 'name'\n        properties: {\n          addressPrefix: 'destinationCIDR'\n          nextHopType: 'VirtualNetworkGateway'\n          nextHopIpAddress: 'nextHopIp'\n        }\n      }\n    ]\n    disableBgpRoutePropagation: true\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2581,7 +2581,7 @@
     "detail": "Azure Route Table Route",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource routeTableRoute 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: 'routeTableName/name'\n  properties: {\n    addressPrefix: 'addressPrefix'\n    nextHopType: 'VirtualNetworkGateway'\n    nextHopIpAddress: 'nextHopIp'\n  }\n}\n\n```"
+      "value": "```bicep\nresource routeTableRoute 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: 'routeTableName/name'\n  properties: {\n    addressPrefix: 'addressPrefix'\n    nextHopType: 'VirtualNetworkGateway'\n    nextHopIpAddress: 'nextHopIp'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2611,7 +2611,7 @@
     "detail": "",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource lock 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: 'name'\n  scope: scopeResource\n  properties: {\n    level: 'NotSpecified'\n  }\n}\n\n```"
+      "value": "```bicep\nresource lock 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: 'name'\n  scope: scopeResource\n  properties: {\n    level: 'NotSpecified'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2641,7 +2641,7 @@
     "detail": "Service Bus Namespace",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2021-06-01-preview' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'Basic'\n    capacity: 1\n    tier: 'Basic'\n  }\n}\n\n```"
+      "value": "```bicep\nresource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2021-06-01-preview' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'Basic'\n    capacity: 1\n    tier: 'Basic'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2671,7 +2671,7 @@
     "detail": "Create Image Gallery",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource sharedImageGallery 'Microsoft.Compute/galleries@2020-09-30' = {\n  name: 'name'\n  location: location\n  properties: {\n    description: 'description'\n  }\n}\n\n```"
+      "value": "```bicep\nresource sharedImageGallery 'Microsoft.Compute/galleries@2020-09-30' = {\n  name: 'name'\n  location: location\n  properties: {\n    description: 'description'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2701,7 +2701,7 @@
     "detail": "SQL Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource sqlServer 'Microsoft.Sql/servers@2014-04-01' ={\n  name: 'name'\n  location: location\n}\n\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: 'name'\n  location: location\n  properties: {\n    collation: 'collation'\n    edition: 'Basic'\n    maxSizeBytes: 'maxSizeBytes'\n    requestedServiceObjectiveName: 'Basic'\n  }\n}\n\n```"
+      "value": "```bicep\nresource sqlServer 'Microsoft.Sql/servers@2014-04-01' ={\n  name: 'name'\n  location: location\n}\n\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: 'name'\n  location: location\n  properties: {\n    collation: 'collation'\n    edition: 'Basic'\n    maxSizeBytes: 'maxSizeBytes'\n    requestedServiceObjectiveName: 'Basic'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2731,7 +2731,7 @@
     "detail": "SQL Database Import",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  name: 'name'\n  location: location\n}\n\nresource sqlDatabaseImport 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: 'import'\n  properties: {\n    storageKeyType: 'StorageAccessKey'\n    storageKey: 'storageKey'\n    storageUri: 'storageUri'\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n    operationMode: 'Import'\n  }\n}\n\n```"
+      "value": "```bicep\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  name: 'name'\n  location: location\n}\n\nresource sqlDatabaseImport 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: 'import'\n  properties: {\n    storageKeyType: 'StorageAccessKey'\n    storageKey: 'storageKey'\n    storageUri: 'storageUri'\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n    operationMode: 'Import'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2761,7 +2761,7 @@
     "detail": "SQL Server Firewall Rules",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {\n  name: 'name'\n  location: location\n  properties: {\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n  }\n}\n\nresource sqlServerFirewallRules 'Microsoft.Sql/servers/firewallRules@2021-02-01-preview' = {\n  parent: sqlServer\n  name: 'name'\n  properties: {\n    startIpAddress: 'startIpAddress'\n    endIpAddress: 'endIpAddress'\n  }\n}\n\n```"
+      "value": "```bicep\nresource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {\n  name: 'name'\n  location: location\n  properties: {\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n  }\n}\n\nresource sqlServerFirewallRules 'Microsoft.Sql/servers/firewallRules@2021-02-01-preview' = {\n  parent: sqlServer\n  name: 'name'\n  properties: {\n    startIpAddress: 'startIpAddress'\n    endIpAddress: 'endIpAddress'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2791,7 +2791,7 @@
     "detail": "Storage Account",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {\n  name: 'name'\n  location: location\n  kind: 'StorageV2'\n  sku: {\n    name: 'Premium_LRS'\n  }\n}\n\n```"
+      "value": "```bicep\nresource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {\n  name: 'name'\n  location: location\n  kind: 'StorageV2'\n  sku: {\n    name: 'Premium_LRS'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2821,7 +2821,7 @@
     "detail": "Template spec",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource templateSpec 'Microsoft.Resources/templateSpecs@2021-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    description: 'description'\n    displayName: 'displayName'\n  }\n}\n\n```"
+      "value": "```bicep\nresource templateSpec 'Microsoft.Resources/templateSpecs@2021-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    description: 'description'\n    displayName: 'displayName'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2851,7 +2851,7 @@
     "detail": "Traffic Manager Profile",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-08-01' = {\n  name: 'name'\n  location: 'global'\n  properties: {\n    profileStatus: 'Enabled'\n    trafficRoutingMethod: 'Performance'\n    dnsConfig: {\n      relativeName: 'dnsConfigRelativeName'\n      ttl: 30\n    }\n    monitorConfig: {\n      protocol: 'HTTP'\n      port: 80\n      path: 'path'\n      intervalInSeconds: 30\n      timeoutInSeconds: 5\n      toleratedNumberOfFailures: 3\n    }\n    endpoints: [\n      {\n        properties: {\n          targetResourceId: 'targetResourceId'\n          endpointStatus: 'Enabled'\n          weight: 100\n          priority: 1\n        }\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-08-01' = {\n  name: 'name'\n  location: 'global'\n  properties: {\n    profileStatus: 'Enabled'\n    trafficRoutingMethod: 'Performance'\n    dnsConfig: {\n      relativeName: 'dnsConfigRelativeName'\n      ttl: 30\n    }\n    monitorConfig: {\n      protocol: 'HTTP'\n      port: 80\n      path: 'path'\n      intervalInSeconds: 30\n      timeoutInSeconds: 5\n      toleratedNumberOfFailures: 3\n    }\n    endpoints: [\n      {\n        properties: {\n          targetResourceId: 'targetResourceId'\n          endpointStatus: 'Enabled'\n          weight: 100\n          priority: 1\n        }\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2881,7 +2881,7 @@
     "detail": "Virtual WAN",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualWan 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: 'name'\n  location: location\n  properties: any({\n    type: 'Standard'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: 'Optimize'\n  })\n}\n\n```"
+      "value": "```bicep\nresource virtualWan 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: 'name'\n  location: location\n  properties: any({\n    type: 'Standard'\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: 'Optimize'\n  })\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2911,7 +2911,7 @@
     "detail": "Desired State Configuration PowerShell script for a Windows Virtual Machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource windowsVMDsc 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'name'\n  location: location\n  properties: {\n    publisher: 'Microsoft.Powershell'\n    type: 'DSC'\n    typeHandlerVersion: '2.9'\n    autoUpgradeMinorVersion: true\n    settings: {\n      modulesUrl: 'modulesUrl'\n      sasToken: 'sasToken'\n      configurationFunction: 'configurationFunction'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource windowsVMDsc 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'name'\n  location: location\n  properties: {\n    publisher: 'Microsoft.Powershell'\n    type: 'DSC'\n    typeHandlerVersion: '2.9'\n    autoUpgradeMinorVersion: true\n    settings: {\n      modulesUrl: 'modulesUrl'\n      sasToken: 'sasToken'\n      configurationFunction: 'configurationFunction'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2941,7 +2941,7 @@
     "detail": "Guest configuration extension for Linux virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforLinux'\n  location: location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforLinux'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    enableAutomaticUpgrade: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforLinux'\n  location: location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforLinux'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    enableAutomaticUpgrade: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2971,7 +2971,7 @@
     "detail": "Custom script extension for Linux Virtual Machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource linuxVMExtensions 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {\n  parent: virtualMachine\n  name: 'name'\n  location: location\n  properties: {\n    publisher: 'Microsoft.Azure.Extensions'\n    type: 'CustomScript'\n    typeHandlerVersion: '2.1'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        'fileUris'\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'sh customScript.sh'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource linuxVMExtensions 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {\n  parent: virtualMachine\n  name: 'name'\n  location: location\n  properties: {\n    publisher: 'Microsoft.Azure.Extensions'\n    type: 'CustomScript'\n    typeHandlerVersion: '2.1'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        'fileUris'\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'sh customScript.sh'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3001,7 +3001,7 @@
     "detail": "Custom script extension for a Windows Virtual Machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource windowsVMExtensions 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'name'\n  location: location\n  properties: {\n    publisher: 'Microsoft.Compute'\n    type: 'CustomScriptExtension'\n    typeHandlerVersion: '1.10'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        'fileUris'\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'powershell -ExecutionPolicy Bypass -file customScript.ps1'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource windowsVMExtensions 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'name'\n  location: location\n  properties: {\n    publisher: 'Microsoft.Compute'\n    type: 'CustomScriptExtension'\n    typeHandlerVersion: '1.10'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        'fileUris'\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'powershell -ExecutionPolicy Bypass -file customScript.ps1'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3031,7 +3031,7 @@
     "detail": "Ubuntu Virtual Machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    hardwareProfile: {\n      vmSize: 'Standard_A2_v2'\n    }\n    osProfile: {\n      computerName: 'computerName'\n      adminUsername: 'adminUsername'\n      adminPassword: 'adminPassword'\n    }\n    storageProfile: {\n      imageReference: {\n        publisher: 'Canonical'\n        offer: 'UbuntuServer'\n        sku: '16.04-LTS'\n        version: 'latest'\n      }\n      osDisk: {\n        name: 'name'\n        caching: 'ReadWrite'\n        createOption: 'FromImage'\n      }\n    }\n    networkProfile: {\n      networkInterfaces: [\n        {\n          id: 'id'\n        }\n      ]\n    }\n    diagnosticsProfile: {\n      bootDiagnostics: {\n        enabled: true\n        storageUri: 'storageUri'\n      }\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    hardwareProfile: {\n      vmSize: 'Standard_A2_v2'\n    }\n    osProfile: {\n      computerName: 'computerName'\n      adminUsername: 'adminUsername'\n      adminPassword: 'adminPassword'\n    }\n    storageProfile: {\n      imageReference: {\n        publisher: 'Canonical'\n        offer: 'UbuntuServer'\n        sku: '16.04-LTS'\n        version: 'latest'\n      }\n      osDisk: {\n        name: 'name'\n        caching: 'ReadWrite'\n        createOption: 'FromImage'\n      }\n    }\n    networkProfile: {\n      networkInterfaces: [\n        {\n          id: 'id'\n        }\n      ]\n    }\n    diagnosticsProfile: {\n      bootDiagnostics: {\n        enabled: true\n        storageUri: 'storageUri'\n      }\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3061,7 +3061,7 @@
     "detail": "Windows Virtual Machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource windowsVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    hardwareProfile: {\n      vmSize: 'Standard_A2_v2'\n    }\n    osProfile: {\n      computerName: 'computerName'\n      adminUsername: 'adminUsername'\n      adminPassword: 'adminPassword'\n    }\n    storageProfile: {\n      imageReference: {\n        publisher: 'MicrosoftWindowsServer'\n        offer: 'WindowsServer'\n        sku: '2012-R2-Datacenter'\n        version: 'latest'\n      }\n      osDisk: {\n        name: 'name'\n        caching: 'ReadWrite'\n        createOption: 'FromImage'\n      }\n    }\n    networkProfile: {\n      networkInterfaces: [\n        {\n          id: 'id'\n        }\n      ]\n    }\n    diagnosticsProfile: {\n      bootDiagnostics: {\n        enabled: true\n        storageUri:  'storageUri'\n      }\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource windowsVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    hardwareProfile: {\n      vmSize: 'Standard_A2_v2'\n    }\n    osProfile: {\n      computerName: 'computerName'\n      adminUsername: 'adminUsername'\n      adminPassword: 'adminPassword'\n    }\n    storageProfile: {\n      imageReference: {\n        publisher: 'MicrosoftWindowsServer'\n        offer: 'WindowsServer'\n        sku: '2012-R2-Datacenter'\n        version: 'latest'\n      }\n      osDisk: {\n        name: 'name'\n        caching: 'ReadWrite'\n        createOption: 'FromImage'\n      }\n    }\n    networkProfile: {\n      networkInterfaces: [\n        {\n          id: 'id'\n        }\n      ]\n    }\n    diagnosticsProfile: {\n      bootDiagnostics: {\n        enabled: true\n        storageUri:  'storageUri'\n      }\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3091,7 +3091,7 @@
     "detail": "Diagnostics Extension for a Windows Virtual Machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource windowsVMDiagnostics 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    publisher: 'Microsoft.Azure.Diagnostics'\n    type: 'IaaSDiagnostics'\n    typeHandlerVersion: '1.5'\n    autoUpgradeMinorVersion: true\n    settings: {\n      xmlCfg: base64('<WadCfg> <DiagnosticMonitorConfiguration overallQuotaInMB=\"4096\" xmlns=\"http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration\"> <DiagnosticInfrastructureLogs scheduledTransferLogLevelFilter=\"Error\"/> <Logs scheduledTransferPeriod=\"PT1M\" scheduledTransferLogLevelFilter=\"Error\" /> <Directories scheduledTransferPeriod=\"PT1M\"> <IISLogs containerName =\"wad-iis-logfiles\" /> <FailedRequestLogs containerName =\"wad-failedrequestlogs\" /> </Directories> <WindowsEventLog scheduledTransferPeriod=\"PT1M\" > <DataSource name=\"Application!*\" /> </WindowsEventLog> <CrashDumps containerName=\"wad-crashdumps\" dumpType=\"Mini\"> <CrashDumpConfiguration processName=\"WaIISHost.exe\"/> <CrashDumpConfiguration processName=\"WaWorkerHost.exe\"/> <CrashDumpConfiguration processName=\"w3wp.exe\"/> </CrashDumps> <PerformanceCounters scheduledTransferPeriod=\"PT1M\"> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Memory\\\\\\\\\\\\\\\\Available MBytes\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Web Service(_Total)\\\\\\\\\\\\\\\\ISAPI Extension Requests/sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Web Service(_Total)\\\\\\\\\\\\\\\\Bytes Total/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET Applications(__Total__)\\\\\\\\\\\\\\\\Requests/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET Applications(__Total__)\\\\\\\\\\\\\\\\Errors Total/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET\\\\\\\\\\\\\\\\Requests Queued\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET\\\\\\\\\\\\\\\\Requests Rejected\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Processor(_Total)\\\\\\\\\\\\\\\\% Processor Time\" sampleRate=\"PT3M\" /> </PerformanceCounters> </DiagnosticMonitorConfiguration> </WadCfg>')\n      storageAccount: 'storageAccount'\n    }\n    protectedSettings: {\n      storageAccountName: 'storageAccountName'\n      storageAccountKey: 'storageAccountKey'\n      storageAccountEndPoint: 'storageAccountEndPoint'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource windowsVMDiagnostics 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    publisher: 'Microsoft.Azure.Diagnostics'\n    type: 'IaaSDiagnostics'\n    typeHandlerVersion: '1.5'\n    autoUpgradeMinorVersion: true\n    settings: {\n      xmlCfg: base64('<WadCfg> <DiagnosticMonitorConfiguration overallQuotaInMB=\"4096\" xmlns=\"http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration\"> <DiagnosticInfrastructureLogs scheduledTransferLogLevelFilter=\"Error\"/> <Logs scheduledTransferPeriod=\"PT1M\" scheduledTransferLogLevelFilter=\"Error\" /> <Directories scheduledTransferPeriod=\"PT1M\"> <IISLogs containerName =\"wad-iis-logfiles\" /> <FailedRequestLogs containerName =\"wad-failedrequestlogs\" /> </Directories> <WindowsEventLog scheduledTransferPeriod=\"PT1M\" > <DataSource name=\"Application!*\" /> </WindowsEventLog> <CrashDumps containerName=\"wad-crashdumps\" dumpType=\"Mini\"> <CrashDumpConfiguration processName=\"WaIISHost.exe\"/> <CrashDumpConfiguration processName=\"WaWorkerHost.exe\"/> <CrashDumpConfiguration processName=\"w3wp.exe\"/> </CrashDumps> <PerformanceCounters scheduledTransferPeriod=\"PT1M\"> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Memory\\\\\\\\\\\\\\\\Available MBytes\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Web Service(_Total)\\\\\\\\\\\\\\\\ISAPI Extension Requests/sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Web Service(_Total)\\\\\\\\\\\\\\\\Bytes Total/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET Applications(__Total__)\\\\\\\\\\\\\\\\Requests/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET Applications(__Total__)\\\\\\\\\\\\\\\\Errors Total/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET\\\\\\\\\\\\\\\\Requests Queued\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET\\\\\\\\\\\\\\\\Requests Rejected\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Processor(_Total)\\\\\\\\\\\\\\\\% Processor Time\" sampleRate=\"PT3M\" /> </PerformanceCounters> </DiagnosticMonitorConfiguration> </WadCfg>')\n      storageAccount: 'storageAccount'\n    }\n    protectedSettings: {\n      storageAccountName: 'storageAccountName'\n      storageAccountKey: 'storageAccountKey'\n      storageAccountEndPoint: 'storageAccountEndPoint'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3121,7 +3121,7 @@
     "detail": "Guest configuration assignment for Windows virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforWindows'\n  location: location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforWindows'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    enableAutomaticUpgrade: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforWindows'\n  location: location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforWindows'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    enableAutomaticUpgrade: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3151,7 +3151,7 @@
     "detail": "Virtual Network",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    addressSpace: {\n      addressPrefixes: [\n        '10.0.0.0/16'\n      ]\n    }\n    subnets: [\n      {\n        name: 'Subnet-1'\n        properties: {\n          addressPrefix: '10.0.0.0/24'\n        }\n      }\n      {\n        name: 'Subnet-2'\n        properties: {\n          addressPrefix: '10.0.1.0/24'\n        }\n      }\n    ]\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    addressSpace: {\n      addressPrefixes: [\n        '10.0.0.0/16'\n      ]\n    }\n    subnets: [\n      {\n        name: 'Subnet-1'\n        properties: {\n          addressPrefix: '10.0.0.0/24'\n        }\n      }\n      {\n        name: 'Subnet-2'\n        properties: {\n          addressPrefix: '10.0.1.0/24'\n        }\n      }\n    ]\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3181,7 +3181,7 @@
     "detail": "Virtual Network Peering",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: 'virtualNetwork/name'\n  properties: {\n    allowVirtualNetworkAccess: true\n    allowForwardedTraffic: true\n    allowGatewayTransit: true\n    useRemoteGateways: true\n    remoteVirtualNetwork: {\n      id: 'virtualNetworks.id'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: 'virtualNetwork/name'\n  properties: {\n    allowVirtualNetworkAccess: true\n    allowForwardedTraffic: true\n    allowGatewayTransit: true\n    useRemoteGateways: true\n    remoteVirtualNetwork: {\n      id: 'virtualNetworks.id'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3211,7 +3211,7 @@
     "detail": "VPN Local Network Gateway",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2019-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    localNetworkAddressSpace: {\n      addressPrefixes: [\n        'REQUIRED'\n      ]\n    }\n    gatewayIpAddress: 'gatewayIpAddress'\n  }\n}\n\n```"
+      "value": "```bicep\nresource localNetworkGateway 'Microsoft.Network/localNetworkGateways@2019-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    localNetworkAddressSpace: {\n      addressPrefixes: [\n        'REQUIRED'\n      ]\n    }\n    gatewayIpAddress: 'gatewayIpAddress'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3241,7 +3241,7 @@
     "detail": "VPN Virtual Network Connection",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource vpnVnetConnection 'Microsoft.Network/connections@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    virtualNetworkGateway1: {\n      id: 'virtualNetworkGateways.id'\n      properties:{}\n    }\n    localNetworkGateway2: {\n      id: 'localNetworkGateways.id'\n      properties:{}\n    }\n    connectionType: 'IPsec'\n    routingWeight: 0\n    sharedKey: 'sharedkey'\n  }\n}\n\n```"
+      "value": "```bicep\nresource vpnVnetConnection 'Microsoft.Network/connections@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    virtualNetworkGateway1: {\n      id: 'virtualNetworkGateways.id'\n      properties:{}\n    }\n    localNetworkGateway2: {\n      id: 'localNetworkGateways.id'\n      properties:{}\n    }\n    connectionType: 'IPsec'\n    routingWeight: 0\n    sharedKey: 'sharedkey'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3271,7 +3271,7 @@
     "detail": "VPN Virtual Network Gateway",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: 'subnet.id'\n          }\n          publicIPAddress: {\n            id: 'publicIPAdresses.id'\n          }\n        }\n      }\n    ]\n    sku: {\n      name: 'Basic'\n      tier: 'Basic'\n    }\n    gatewayType: 'Vpn'\n    vpnType: 'PolicyBased'\n    enableBgp: true\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: 'subnet.id'\n          }\n          publicIPAddress: {\n            id: 'publicIPAdresses.id'\n          }\n        }\n      }\n    ]\n    sku: {\n      name: 'Basic'\n      tier: 'Basic'\n    }\n    gatewayType: 'Vpn'\n    vpnType: 'PolicyBased'\n    enableBgp: true\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3301,7 +3301,7 @@
     "detail": "Web Application",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource webApplication 'Microsoft.Web/sites@2021-01-15' = {\n  name: 'name'\n  location: location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan': 'Resource'\n  }\n  properties: {\n    serverFarmId: 'webServerFarms.id'\n  }\n}\n\n```"
+      "value": "```bicep\nresource webApplication 'Microsoft.Web/sites@2021-01-15' = {\n  name: 'name'\n  location: location\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan': 'Resource'\n  }\n  properties: {\n    serverFarmId: 'webServerFarms.id'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3331,7 +3331,7 @@
     "detail": "Web Deploy for a Web Application",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource webApplication 'Microsoft.Web/sites@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource webApplicationExtension 'Microsoft.Web/sites/extensions@2020-12-01' = {\n  parent: webApplication\n  name: 'MSDeploy'\n  properties: {\n    packageUri: 'packageUri'\n    dbType: 'None'\n    connectionString: 'connectionString'\n    setParameters: {\n      'IIS Web Application Name': 'name'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource webApplication 'Microsoft.Web/sites@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource webApplicationExtension 'Microsoft.Web/sites/extensions@2020-12-01' = {\n  parent: webApplication\n  name: 'MSDeploy'\n  properties: {\n    packageUri: 'packageUri'\n    dbType: 'None'\n    connectionString: 'connectionString'\n    setParameters: {\n      'IIS Web Application Name': 'name'\n    }\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3361,7 +3361,7 @@
     "detail": "WVD AppGroup",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2021-07-12' = {\n  name: 'name'\n  location: location\n  properties: {\n    friendlyName: 'friendlyName'\n    applicationGroupType: 'Desktop'\n    hostPoolArmPath: 'desktopVirtualizationHostPools.id'\n  }\n}\n\n```"
+      "value": "```bicep\nresource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2021-07-12' = {\n  name: 'name'\n  location: location\n  properties: {\n    friendlyName: 'friendlyName'\n    applicationGroupType: 'Desktop'\n    hostPoolArmPath: 'desktopVirtualizationHostPools.id'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3391,7 +3391,7 @@
     "detail": "WVD Host Pool",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource hostPool 'Microsoft.DesktopVirtualization/hostpools@2021-07-12' = {\n  name: 'name'\n  location: location\n  properties: {\n    friendlyName: 'hostpoolFriendlyName'\n    hostPoolType: 'Personal'\n    loadBalancerType: 'BreadthFirst'\n    preferredAppGroupType: 'Desktop'\n  }\n}\n\n```"
+      "value": "```bicep\nresource hostPool 'Microsoft.DesktopVirtualization/hostpools@2021-07-12' = {\n  name: 'name'\n  location: location\n  properties: {\n    friendlyName: 'hostpoolFriendlyName'\n    hostPoolType: 'Personal'\n    loadBalancerType: 'BreadthFirst'\n    preferredAppGroupType: 'Desktop'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3421,7 +3421,7 @@
     "detail": "WVD Workspace",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource workSpace 'Microsoft.DesktopVirtualization/workspaces@2021-07-12' = {\n  name: 'name'\n  location: location\n  properties: {\n    friendlyName: 'friendlyName'\n  }\n}\n\n```"
+      "value": "```bicep\nresource workSpace 'Microsoft.DesktopVirtualization/workspaces@2021-07-12' = {\n  name: 'name'\n  location: location\n  properties: {\n    friendlyName: 'friendlyName'\n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3465,7 +3465,7 @@
     "detail": "Child Resource with defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Provider/ParentType/ChildType@Version' = {\n  name: \n  properties: {\n    \n  }\n}\n```"
+      "value": "```bicep\nresource Identifier 'Provider/ParentType/ChildType@Version' = {\n  name: \n  properties: {\n    \n  }\n}\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3495,7 +3495,7 @@
     "detail": "Child Resource without defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Provider/ParentType/ChildType@Version' = {\n  name: \n  \n}\n```"
+      "value": "```bicep\nresource Identifier 'Provider/ParentType/ChildType@Version' = {\n  name: \n  \n}\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3525,7 +3525,7 @@
     "detail": "Resource with defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Provider/Type@Version' = {\n  name: \n  location: location\n  properties: {\n    \n  }\n}\n\n```"
+      "value": "```bicep\nresource Identifier 'Provider/Type@Version' = {\n  name: \n  location: location\n  properties: {\n    \n  }\n}\n\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3555,7 +3555,7 @@
     "detail": "Resource without defaults",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource Identifier 'Provider/Type@Version' = {\n  name: \n  \n}\n```"
+      "value": "```bicep\nresource Identifier 'Provider/Type@Version' = {\n  name: \n  \n}\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3627,7 +3627,7 @@
     "detail": "Variable declaration",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nvar Identifier = \n```"
+      "value": "```bicep\nvar Identifier = \n```  \n"
     },
     "deprecated": false,
     "preselect": false,

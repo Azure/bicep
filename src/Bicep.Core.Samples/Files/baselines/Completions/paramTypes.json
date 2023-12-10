@@ -61,7 +61,7 @@
     "detail": "Secure object",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nobject\n```"
+      "value": "```bicep\nobject\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -85,7 +85,7 @@
     "detail": "Secure string",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nstring\n```"
+      "value": "```bicep\nstring\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
