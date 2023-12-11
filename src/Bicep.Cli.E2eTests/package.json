@@ -8,7 +8,7 @@
     "@types/rimraf": "^4.0.5",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.13.1",
-    "@typescript-eslint/parser": "^6.13.1",
+    "@typescript-eslint/parser": "^6.13.2",
     "cross-env": "^7.0.3",
     "cross-spawn": "^7.0.3",
     "eslint": "^8.55.0",
