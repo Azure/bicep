@@ -1740,11 +1740,16 @@ namespace Bicep.LanguageServer.Completions
                 .WithDetail(type.Description ?? type.Name)
                 .WithSortText(GetSortText(typeName, priority));
 
-            builder = type.Type switch
+            if (type.Type is TypeTemplate)
             {
-                TypeTemplate => builder.WithSnippetEdit(replacementRange, $"{typeName}<$0>"),
-                _ => builder.WithPlainTextEdit(replacementRange, typeName),
-            };
+                builder = builder.WithSnippetEdit(replacementRange, $"{typeName}<$0>")
+                    // parameterized types always require at least one argument, so automatically request signature help
+                    .WithCommand(new Command { Name = EditorCommands.SignatureHelp, Title = "signature help" });
+            }
+            else
+            {
+                builder = builder.WithPlainTextEdit(replacementRange, typeName);
+            }
 
             return builder.Build();
         }

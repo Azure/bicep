@@ -163,6 +163,25 @@ var test = isTrue(|)
             signature.Documentation!.MarkupContent!.Value.Should().Be("Checks whether the input is true in a roundabout way");
         }
 
+        [TestMethod]
+        public async Task Signature_help_works_with_parameterized_types()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"type resourceDerived = resource<|>");
+
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(new(ResourceDerivedTypesEnabled: true)));
+            var file = await new ServerRequestHelper(TestContext, server).OpenFile(text);
+
+            var signatureHelp = await file.RequestSignatureHelp(cursor);
+            var signature = signatureHelp!.Signatures.Single();
+
+            signature.Label.Should().Be("resource<ResourceTypeIdentifier: string>");
+            signature.Documentation!.MarkupContent!.Value.Should().Be("""
+                Use the type definition of the body of a specific resource rather than a user-defined type.
+
+                NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.
+                """);
+        }
+
         private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, BicepSourceFile bicepFile, int offset, IFunctionSymbol? symbol, bool expectDecorator)
         {
             var position = PositionHelper.GetPosition(bicepFile.LineStarts, offset);

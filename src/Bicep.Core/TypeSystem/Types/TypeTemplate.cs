@@ -26,15 +26,18 @@ public class TypeTemplate : TypeSymbol
     private readonly InstantiatorDelegate instantiator;
 
     public TypeTemplate(string name, ImmutableArray<TypeParameter> parameters, InstantiatorDelegate instantiator)
-        : base($"Type<{name}<{string.Join(", ", parameters)}>>")
+        : base($"{name}<{string.Join(", ", parameters)}>")
     {
         Debug.Assert(!parameters.IsEmpty, "Parameterized types must accept at least one argument.");
 
+        UnparameterizedName = name;
         Parameters = parameters;
         MinimumArgumentCount = Parameters.TakeWhile(p => p.Required).Count();
         MaximumArgumentCount = Parameters.Length;
         this.instantiator = instantiator;
     }
+
+    public string UnparameterizedName { get; }
 
     public ImmutableArray<TypeParameter> Parameters { get; }
 

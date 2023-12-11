@@ -1743,25 +1743,31 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             if (features.ResourceDerivedTypesEnabled)
             {
-                yield return new("resource", new TypeTemplate("resource",
-                    ImmutableArray.Create(new TypeParameter("ResourceTypeIdentifier",
-                        "A string of the format '<type-name>@<api-version>' that identifies the kind of resource whose type definition is to be loaded.",
-                        LanguageConstants.StringResourceIdentifier)),
-                    (binder, syntax, argumentTypes) =>
-                    {
-                        if (argumentTypes.FirstOrDefault() is not StringLiteralType stringLiteral)
+                yield return new("resource",
+                    new TypeTemplate("resource",
+                        ImmutableArray.Create(new TypeParameter("ResourceTypeIdentifier",
+                            "A string of the format '<type-name>@<api-version>' that identifies the kind of resource whose body type definition is to be used.",
+                            LanguageConstants.StringResourceIdentifier)),
+                        (binder, syntax, argumentTypes) =>
                         {
-                            return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
-                        }
+                            if (argumentTypes.FirstOrDefault() is not StringLiteralType stringLiteral)
+                            {
+                                return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
+                            }
 
-                        if (!TypeHelper.GetResourceTypeFromString(binder, stringLiteral.RawStringValue, ResourceTypeGenerationFlags.None, parentResourceType: null)
-                            .IsSuccess(out var resourceType, out var errorBuilder))
-                        {
-                            return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
-                        }
+                            if (!TypeHelper.GetResourceTypeFromString(binder, stringLiteral.RawStringValue, ResourceTypeGenerationFlags.None, parentResourceType: null)
+                                .IsSuccess(out var resourceType, out var errorBuilder))
+                            {
+                                return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
+                            }
 
-                        return new(new ResourceDerivedTypeExpression(syntax, resourceType, resourceType.Body.Type));
-                    }));
+                            return new(new ResourceDerivedTypeExpression(syntax, resourceType, resourceType.Body.Type));
+                        }),
+                    description: """
+                        Use the type definition of the body of a specific resource rather than a user-defined type.
+
+                        NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.
+                        """);
             }
         }
 
