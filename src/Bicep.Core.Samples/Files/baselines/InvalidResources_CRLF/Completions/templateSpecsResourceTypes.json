@@ -4,7 +4,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2019-06-01-preview`"
+      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2019-06-01-preview`  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -22,7 +22,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2021-03-01-preview`"
+      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2021-03-01-preview`  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -40,7 +40,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2021-05-01`"
+      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2021-05-01`  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -58,7 +58,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2022-02-01`"
+      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2022-02-01`  \n"
     },
     "deprecated": false,
     "preselect": false,

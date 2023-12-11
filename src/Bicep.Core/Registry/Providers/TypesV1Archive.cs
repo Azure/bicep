@@ -66,3 +66,4 @@ public static class TypesV1Archive
         return uniqueTypePaths;
     }
 }
+

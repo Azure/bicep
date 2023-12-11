@@ -5,7 +5,7 @@
     "detail": "for",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n[for item in list: {\n\t\n}]\n```"
+      "value": "```bicep\n[for item in list: {\n\t\n}]\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -23,7 +23,7 @@
     "detail": "for-filtered",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n[for (item, index) in list: if (condition) {\n\t\n}]\n```"
+      "value": "```bicep\n[for (item, index) in list: if (condition) {\n\t\n}]\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -41,7 +41,7 @@
     "detail": "for-indexed",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n[for (item, index) in list: {\n\t\n}]\n```"
+      "value": "```bicep\n[for (item, index) in list: {\n\t\n}]\n```  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -73,7 +73,7 @@
     "detail": "Required properties",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n{\n\tname: \n\tparams: {\n\t\tarrayParam: \n\t\tobjParam: {\n\t\t}\n\t\tstringParamB: \n\t}\n}\n```"
+      "value": "```bicep\n{\n\tname: \n\tparams: {\n\t\tarrayParam: \n\t\tobjParam: {\n\t\t}\n\t\tstringParamB: \n\t}\n}\n```  \n"
     },
     "deprecated": false,
     "preselect": true,
@@ -103,7 +103,7 @@
     "detail": "{}",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n{\n\t\n}\n```"
+      "value": "```bicep\n{\n\t\n}\n```  \n"
     },
     "deprecated": false,
     "preselect": true,

@@ -40,8 +40,6 @@ namespace Bicep.LanguageServer.Completions
 {
     public class BicepCompletionProvider : ICompletionProvider
     {
-        private const string MarkdownNewLine = "  \n";
-
         private static readonly Container<string> ResourceSymbolCommitChars = new(":");
 
         private static readonly Container<string> PropertyAccessCommitChars = new(".");
@@ -111,8 +109,8 @@ namespace Bicep.LanguageServer.Completions
                                 GetCompletionItemKind(SymbolKind.ParameterAssignment),
                                 metadata.Name)
                             .WithDocumentation(
-                                $"Type: {metadata.TypeReference.Type}" +
-                                (metadata.Description is null ? "" : $"{MarkdownNewLine}{metadata.Description}"))
+                                MarkdownHelper.AppendNewline($"Type: `{metadata.TypeReference.Type}`") +
+                                MarkdownHelper.AppendNewline(metadata.Description))
                             .WithDetail(metadata.Name)
                             .WithPlainTextEdit(paramsCompletionContext.ReplacementRange, metadata.Name)
                             .Build();
@@ -1793,7 +1791,9 @@ namespace Bicep.LanguageServer.Completions
                     // Lower-case all resource types in filter text otherwise editor may prefer those with casing that match what the user has already typed (#9168)
                     .WithFilterText(insertText.ToLowerInvariant())
                     .WithPlainTextEdit(replacementRange, insertText)
-                    .WithDocumentation($"Type: `{resourceType.Type}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
+                    .WithDocumentation(
+                        MarkdownHelper.AppendNewline($"Type: `{resourceType.Type}`") +
+                        MarkdownHelper.AppendNewline($"API Version: `{resourceType.ApiVersion}`"))
                     .WithSortText(index.ToString("x8"))
                     .Build();
             }
@@ -1802,7 +1802,8 @@ namespace Bicep.LanguageServer.Completions
                 var insertText = StringUtils.EscapeBicepString(resourceType.Type);
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                     .WithSnippetEdit(replacementRange, $"{insertText[..^1]}@$0'")
-                    .WithDocumentation($"Type: `{resourceType.Type}`{MarkdownNewLine}`")
+                    .WithDocumentation(
+                        MarkdownHelper.AppendNewline($"Type: `{resourceType.Type}`"))
                     .WithFollowupCompletion("resource type completion")
                     .WithSortText(index.ToString("x8"))
                     .Build();
@@ -1816,11 +1817,11 @@ namespace Bicep.LanguageServer.Completions
                 StringUtils.EscapeBicepString($"{resourceType.TypeSegments[^1]}@{resourceType.ApiVersion}") :
                 StringUtils.EscapeBicepString($"{resourceType.TypeSegments[^1]}");
 
-            var apiVersionMarkdown = displayApiVersion is not null ? $"{MarkdownNewLine}API Version: `{displayApiVersion}`" : "";
-
             return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                 .WithPlainTextEdit(replacementRange, insertText)
-                .WithDocumentation($"Type: `{resourceType.FormatType()}`{apiVersionMarkdown}")
+                .WithDocumentation(
+                    MarkdownHelper.AppendNewline($"Type: `{resourceType.Type}`") +
+                    MarkdownHelper.AppendNewline(displayApiVersion is not null ? $"API Version: `{displayApiVersion}`" : null))
                 // 8 hex digits is probably overkill :)
                 .WithSortText(index.ToString("x8"))
                 .Build();
@@ -1853,7 +1854,7 @@ namespace Bicep.LanguageServer.Completions
             CompletionItemBuilder.Create(CompletionItemKind.Snippet, label)
                 .WithSnippetEdit(replacementRange, snippet)
                 .WithDetail(detail)
-                .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
+                .WithDocumentation(MarkdownHelper.CodeBlock(new Snippet(snippet).FormatDocumentation()))
                 .WithSortText(GetSortText(label, priority))
                 .Preselect(preselect)
                 .Build();
@@ -1866,7 +1867,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithSnippetEdit(replacementRange, snippet)
                 .WithCommand(command)
                 .WithDetail(detail)
-                .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
+                .WithDocumentation(MarkdownHelper.CodeBlock(new Snippet(snippet).FormatDocumentation()))
                 .WithSortText(GetSortText(label, priority))
                 .Preselect(preselect)
                 .Build();
@@ -1879,7 +1880,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithSnippetEdit(replacementRange, snippet)
                 .WithAdditionalEdits(additionalTextEdits)
                 .WithDetail(detail)
-                .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
+                .WithDocumentation(MarkdownHelper.CodeBlock(new Snippet(snippet).FormatDocumentation()))
                 .WithSortText(GetSortText(label, priority))
                 .Build();
 
@@ -2109,29 +2110,26 @@ namespace Bicep.LanguageServer.Completions
         {
             var buffer = new StringBuilder();
 
-            buffer.Append($"Type: `{property.TypeReference.Type}`{MarkdownNewLine}");
+            buffer.Append(MarkdownHelper.AppendNewline($"Type: `{property.TypeReference.Type}`"));
 
             if (property.Flags.HasFlag(TypePropertyFlags.ReadOnly))
             {
                 // this case will be used for dot property access completions
                 // this flag is not possible in property name completions
-                buffer.Append($"Read-only property{MarkdownNewLine}");
+                buffer.Append(MarkdownHelper.AppendNewline($"Read-only property"));
             }
 
             if (property.Flags.HasFlag(TypePropertyFlags.WriteOnly))
             {
-                buffer.Append($"Write-only property{MarkdownNewLine}");
+                buffer.Append(MarkdownHelper.AppendNewline($"Write-only property"));
             }
 
             if (property.Flags.HasFlag(TypePropertyFlags.Constant))
             {
-                buffer.Append($"Requires a compile-time constant value.{MarkdownNewLine}");
+                buffer.Append(MarkdownHelper.AppendNewline($"Requires a compile-time constant value."));
             }
 
-            if (property.Description is not null)
-            {
-                buffer.Append($"{property.Description}{MarkdownNewLine}");
-            }
+            buffer.Append(MarkdownHelper.AppendNewline(property.Description));
 
             return buffer.ToString();
         }
@@ -2140,13 +2138,19 @@ namespace Bicep.LanguageServer.Completions
         {
             if (symbol is DeclaredSymbol declaredSymbol && declaredSymbol.DeclaringSyntax is DecorableSyntax decorableSyntax)
             {
-                var documentation = DescriptionHelper.TryGetFromDecorator(model, decorableSyntax);
+                var buffer = new StringBuilder();
+
                 if (declaredSymbol is ParameterSymbol)
                 {
-                    documentation = $"Type: {declaredSymbol.Type}" + (documentation is null ? "" : $"{MarkdownNewLine}{documentation}");
+                    buffer.Append(MarkdownHelper.AppendNewline($"Type: `{declaredSymbol.Type}`"));
                 }
-                return documentation;
+
+                var documentation = DescriptionHelper.TryGetFromDecorator(model, decorableSyntax);
+                buffer.Append(MarkdownHelper.AppendNewline(documentation));
+                
+                return buffer.ToString();
             }
+
             return null;
         }
     }

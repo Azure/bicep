@@ -162,13 +162,13 @@ describe("hover", (): void => {
   }
 
   function codeblock(rawString: string): string {
-    return "```bicep\n" + rawString + "\n```\n";
+    return "```bicep\n" + rawString + "\n```  \n";
   }
 
   function codeblockWithDescription(
     rawString: string,
     description: string,
   ): string {
-    return `${codeblock(rawString)}${description}\n`;
+    return `${codeblock(rawString)}${description}  \n`;
   }
 });

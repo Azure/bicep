@@ -14,6 +14,7 @@ namespace Bicep.LanguageServer.Completions
         private readonly CompletionItemKind kind;
         private readonly string label;
 
+        private CompletionItemLabelDetails? labelDetails;
         private TextEditContainer? additionalTextEdits;
         private Container<string>? commitCharacters;
         private string? detail;
@@ -41,6 +42,7 @@ namespace Bicep.LanguageServer.Completions
             return new()
             {
                 Label = this.label,
+                LabelDetails = this.labelDetails,
                 Kind = kind,
 
                 AdditionalTextEdits = this.additionalTextEdits,
@@ -94,7 +96,7 @@ namespace Bicep.LanguageServer.Completions
         //                                          +--------------------+
         public CompletionItemBuilder WithDocumentation(string? markdown)
         {
-            if (markdown is not null)
+            if (!string.IsNullOrEmpty(markdown))
             {
                 this.documentation = new StringOrMarkupContent(new MarkupContent
                 {
@@ -137,6 +139,17 @@ namespace Bicep.LanguageServer.Completions
             this.insertText = snippet;
             this.insertTextFormat = InsertTextFormat.Snippet;
             this.insertTextMode = InsertTextMode.AdjustIndentation;
+
+            return this;
+        }
+
+        public CompletionItemBuilder WithLabelDetails(string detail, string description)
+        {
+            this.labelDetails = new CompletionItemLabelDetails
+            {
+                Detail = detail,
+                Description = description,
+            };
 
             return this;
         }
