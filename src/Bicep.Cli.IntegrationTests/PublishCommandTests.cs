@@ -154,7 +154,7 @@ namespace Bicep.Cli.IntegrationTests
         //}
 
         [DataTestMethod]
-        [DynamicData(nameof(OnlyRegistryDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        [DynamicData(nameof(GetValidDataSetsWithDocUriAndPublishSource), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
         public async Task Publish_AllValidDataSets_ShouldSucceed(string testName, DataSet dataSet, string documentationUri, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -496,15 +496,6 @@ namespace Bicep.Cli.IntegrationTests
             {
                 yield return new object[] { $"{ds.Name}, not publishing source", ds, false };
                 yield return new object[] { $"{ds.Name}, publishing source", ds, true };
-            }
-        }
-
-        private static IEnumerable<object[]> OnlyRegistryDataSets()
-        {
-            foreach (var ds in DataSets.AllDataSets.Where(ds => ds.Name == "Registry_LF"))
-            {
-                yield return new object[] { $"{ds.Name}, registry", ds, "", false };
-                break;
             }
         }
 

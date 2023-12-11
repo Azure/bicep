@@ -72,6 +72,8 @@ namespace Bicep.Cli.Commands
             var providerReference = ValidateReference(args.TargetProviderReference, inputUri);
             var overwriteIfExists = args.Force;
 
+            await ioContext.Error.WriteLineAsync("The 'publish-provider' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+
             //TODO: attempt to validate types here
 
             IFileSystem fileSystem = new FileSystem();
