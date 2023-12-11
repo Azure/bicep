@@ -403,43 +403,43 @@ resource service 'Microsoft.Storage/storageAccounts/fileServices@2021-02-01' = {
               {
                   x.Label.Should().Be("myInt");
                   x.Kind.Should().Be(CompletionItemKind.Field);
-                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: 0 | 1  \nthis is an int value");
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: `0 | 1`  \nthis is an int value  \n");
               },
               x =>
               {
                   x.Label.Should().Be("myStr");
                   x.Kind.Should().Be(CompletionItemKind.Field);
-                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: 'value1' | 'value2'  \nthis is a string value");
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: `'value1' | 'value2'`  \nthis is a string value  \n");
               },
               x =>
               {
                   x.Label.Should().Be("myBool");
                   x.Kind.Should().Be(CompletionItemKind.Field);
-                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: bool  \nthis is a bool value");
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: `bool`  \nthis is a bool value  \n");
               },
               x =>
               {
                   x.Label.Should().Be("myArray");
                   x.Kind.Should().Be(CompletionItemKind.Field);
-                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: array");
+                  x.Documentation!.MarkupContent!.Value.Should().Be("Type: `array`  \n");
               },
               x =>
               {
                   x.Label.Should().Be("myVar");
                   x.Kind.Should().Be(CompletionItemKind.Variable);
-                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a variable");
+                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a variable  \n");
               },
               x =>
               {
                   x.Label.Should().Be("storageAct");
                   x.Kind.Should().Be(CompletionItemKind.Interface);
-                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a storage account resource");
+                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a storage account resource  \n");
               },
               x =>
               {
                   x.Label.Should().Be("myMod");
                   x.Kind.Should().Be(CompletionItemKind.Module);
-                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a bicep module");
+                  x.Documentation!.MarkupContent!.Value.Should().Be("this is a bicep module  \n");
               }
             );
         }
@@ -3083,16 +3083,16 @@ var foo = resourceI|
                 ServerWithBuiltInTypes,
                 fileWithCursors,
                 completionLists => completionLists.Should().SatisfyRespectively(
-                    completions => completions!.Where(x => x.Label == "resourceId").First().Documentation!.MarkupContent!.Value.Should().EqualIgnoringNewlines(@"```bicep
+                    completions => completions!.Where(x => x.Label == "resourceId").First().Documentation!.MarkupContent!.Value.Should().EqualIgnoringNewlines(
+                      @"```bicep
 resourceId(resourceType: string, ... : string): string
 resourceId(subscriptionId: string, resourceType: string, ... : string): string
 resourceId(resourceGroupName: string, resourceType: string, ... : string): string
 resourceId(subscriptionId: string, resourceGroupName: string, resourceType: string, ... : string): string
 
-```
-Returns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.
-")),
-                '|');
+```  " + @"
+Returns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.  " + @"
+")));
         }
 
         [TestMethod]
@@ -3494,7 +3494,7 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
             return await file.RequestCompletion(offset);
         }
 
-        private static async Task RunCompletionScenarioTest(TestContext testContext, SharedLanguageHelperManager server, string fileWithCursors, Action<IEnumerable<CompletionList>> assertAction, char cursor)
+        private static async Task RunCompletionScenarioTest(TestContext testContext, SharedLanguageHelperManager server, string fileWithCursors, Action<IEnumerable<CompletionList>> assertAction, char cursor = '|')
         {
             var (fileText, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, cursor);
             var file = await new ServerRequestHelper(testContext, server).OpenFile(fileText);
@@ -4543,6 +4543,35 @@ var arr6 = [
             completions.Should().Contain(c => c.Label == "pop");
             completions.Should().NotContain(c => c.Label == "bar");
             completions.Should().NotContain(c => c.Label == "baz");
+        }
+
+        [TestMethod]
+        public async Task Description_markdown_is_correctly_formatted()
+        {
+            // https://github.com/Azure/bicep/issues/12412
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor("""
+type foo = {
+  @description('''Source port ranges.
+    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
+    When a wildcard is used, that needs to be the only value.''')
+  sourcePortRanges: string[]
+}
+
+param foo1 foo = {
+  so|
+}
+""");
+
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Single(x => x.Label == "sourcePortRanges").Documentation!.MarkupContent!.Value
+                .Should().BeEquivalentToIgnoringNewlines(
+                    @"Type: `string[]`  " + @"
+Source port ranges.
+    Can be a single valid port number, a range in the form of \<start\>-\<end\>, or a * for any ports.
+    When a wildcard is used, that needs to be the only value.  " + @"
+");
         }
 
         [TestMethod]
