@@ -163,37 +163,62 @@ namespace Bicep.Cli.Commands
                     DateParseHandling = DateParseHandling.None,
                 });
 
-            if (parameters is { })
+            var replacedParameters = new HashSet<string>();
+
+            if (parameters is not { })
             {
-                var fileContents = await File.ReadAllTextAsync(paramsInputPath);
-                var sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
-
-                var newProgramSyntax = CallbackRewriter.Rewrite(sourceFile.ProgramSyntax, syntax =>
-                {
-                    if (syntax is not ParameterAssignmentSyntax paramSyntax)
-                    {
-                        return syntax;
-                    }
-
-                    if (parameters.TryGetValue(paramSyntax.Name.IdentifierName, out var overrideValue))
-                    {
-                        var replacementValue = ConvertJsonToBicepSyntax(overrideValue);
-
-                        return new ParameterAssignmentSyntax(
-                            paramSyntax.Keyword,
-                            paramSyntax.Name,
-                            paramSyntax.Assignment,
-                            replacementValue
-                        );
-                    }
-
-                    return syntax;
-                });
-
-                fileContents = newProgramSyntax.ToTextPreserveFormatting();
-                sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
-                workspace.UpsertSourceFile(sourceFile);
+                return workspace;
             }
+
+            var fileContents = await File.ReadAllTextAsync(paramsInputPath);
+            var sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
+
+            var newProgramSyntax = CallbackRewriter.Rewrite(sourceFile.ProgramSyntax, syntax =>
+            {
+                if (syntax is not ParameterAssignmentSyntax paramSyntax)
+                {
+                    return syntax;
+                }
+
+                if (parameters.TryGetValue(paramSyntax.Name.IdentifierName, out var overrideValue))
+                {
+                    replacedParameters.Add(paramSyntax.Name.IdentifierName);
+                    var replacementValue = ConvertJsonToBicepSyntax(overrideValue);
+
+                    return new ParameterAssignmentSyntax(
+                        paramSyntax.Keyword,
+                        paramSyntax.Name,
+                        paramSyntax.Assignment,
+                        replacementValue
+                    );
+                }
+
+                return syntax;
+            });
+
+            // parameters that aren't explicitly in the .bicepparam file (e.g. parameters with default values)
+            var additionalParams = parameters.Keys.Where(x => !replacedParameters.Contains(x));
+            if (additionalParams.Any())
+            {
+                var children = newProgramSyntax.Children.ToList();
+                foreach (var paramName in additionalParams)
+                {
+                    var overrideValue = parameters[paramName];
+                    var replacementValue = ConvertJsonToBicepSyntax(overrideValue);
+
+                    children.Add(SyntaxFactory.DoubleNewlineToken);
+                    children.Add(SyntaxFactory.CreateParameterAssignmentSyntax(paramName, replacementValue));
+                    replacedParameters.Add(paramName);
+                }
+
+                newProgramSyntax = new ProgramSyntax(
+                    children,
+                    newProgramSyntax.EndOfFile);
+            }
+
+            fileContents = newProgramSyntax.ToText();
+            sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
+            workspace.UpsertSourceFile(sourceFile);
 
             return workspace;
         }
