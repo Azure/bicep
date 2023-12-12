@@ -18,7 +18,7 @@ namespace Bicep.Cli.Commands
         private readonly ILogger logger;
         private readonly TextWriter outputWriter;
         private readonly TextWriter errorWriter;
-        private readonly IDiagnosticLogger diagnosticLogger;
+        private readonly DiagnosticLogger diagnosticLogger;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
         private readonly IFeatureProviderFactory featureProviderFactory;
@@ -29,7 +29,7 @@ namespace Bicep.Cli.Commands
         public TestCommand(
             IOContext io,
             ILogger logger,
-            IDiagnosticLogger diagnosticLogger,
+            DiagnosticLogger diagnosticLogger,
             CompilationService compilationService,
             CompilationWriter writer,
             IFeatureProviderFactory featureProviderFactory)
@@ -59,10 +59,16 @@ namespace Bicep.Cli.Commands
 
             if (IsBicepFile(inputPath))
             {
-                diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
-                var testResults = await compilationService.TestAsync(inputPath, args.NoRestore);
+                var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
+
+                var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), compilation);
+
+                var semanticModel = compilation.GetEntrypointSemanticModel();
+
+                var declarations = semanticModel.Root.TestDeclarations;
+                var testResults = TestRunner.Run(declarations);
+
                 LogResults(testResults);
-                diagnosticLogger.FlushLog();
 
                 // return non-zero exit code on errors
                 return testResults.Success ? 0 : 1;
@@ -105,5 +111,10 @@ namespace Bicep.Cli.Commands
                 errorWriter.WriteLine($"Total: {testResults.TotalEvaluations} - Success: {testResults.SuccessfullEvaluations} - Skipped: {testResults.SkippedEvaluations} - Failed: {testResults.FailedEvaluations}");
             }
         }
+
+        private DiagnosticOptions GetDiagnosticOptions(TestArguments args)
+            => new(
+                Format: args.DiagnosticsFormat ?? DiagnosticsFormat.Default,
+                SarifToStdout: false);
     }
 }

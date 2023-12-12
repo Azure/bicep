@@ -35,7 +35,7 @@ namespace Bicep.Cli.Commands
     {
         private readonly ILogger logger;
         private readonly IEnvironment environment;
-        private readonly IDiagnosticLogger diagnosticLogger;
+        private readonly DiagnosticLogger diagnosticLogger;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
         private readonly IFeatureProviderFactory featureProviderFactory;
@@ -43,7 +43,7 @@ namespace Bicep.Cli.Commands
         public BuildParamsCommand(
             ILogger logger,
             IEnvironment environment,
-            IDiagnosticLogger diagnosticLogger,
+            DiagnosticLogger diagnosticLogger,
             CompilationService compilationService,
             CompilationWriter writer,
             IFeatureProviderFactory featureProviderFactory)
@@ -72,7 +72,6 @@ namespace Bicep.Cli.Commands
                 return 1;
             }
 
-            diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
             var workspace = await CreateWorkspaceWithParamOverrides(paramsInputPath);
             var paramsCompilation = await compilationService.CompileAsync(
                 paramsInputPath,
@@ -100,12 +99,14 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(message);
             }
 
+            var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), paramsCompilation);
+
             var paramsModel = paramsCompilation.GetEntrypointSemanticModel();
 
             //Failure scenario is ignored since a diagnostic for it would be emitted during semantic analysis
             if (paramsModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
             {
-                if (diagnosticLogger.ErrorCount < 1)
+                if (!summary.HasErrors)
                 {
                     if (args.OutputToStdOut)
                     {
@@ -121,10 +122,8 @@ namespace Bicep.Cli.Commands
                 }
             }
 
-            diagnosticLogger.FlushLog();
-
             // return non-zero exit code on errors
-            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+            return summary.HasErrors ? 1 : 0;
         }
 
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
@@ -222,5 +221,10 @@ namespace Bicep.Cli.Commands
 
             return workspace;
         }
+
+        private DiagnosticOptions GetDiagnosticOptions(BuildParamsArguments args)
+            => new(
+                Format: args.DiagnosticsFormat ?? DiagnosticsFormat.Default,
+                SarifToStdout: false);
     }
 }

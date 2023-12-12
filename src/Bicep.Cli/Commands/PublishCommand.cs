@@ -22,7 +22,7 @@ namespace Bicep.Cli.Commands
 {
     public class PublishCommand : ICommand
     {
-        private readonly IDiagnosticLogger diagnosticLogger;
+        private readonly DiagnosticLogger diagnosticLogger;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter compilationWriter;
         private readonly IModuleDispatcher moduleDispatcher;
@@ -32,7 +32,7 @@ namespace Bicep.Cli.Commands
         private readonly ILogger logger;
 
         public PublishCommand(
-            IDiagnosticLogger diagnosticLogger,
+            DiagnosticLogger diagnosticLogger,
             CompilationService compilationService,
             IOContext ioContext,
             ILogger logger,
@@ -79,7 +79,9 @@ namespace Bicep.Cli.Commands
 
             var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
-            if (diagnosticLogger.ErrorCount > 0)
+            var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
+
+            if (summary.HasErrors)
             {
                 // can't publish if we can't compile
                 return 1;
