@@ -260,10 +260,10 @@ param notUsedParm = 'string'
         var (output, error, result) = await Bicep("lint", inputFile, "--diagnostics-format", "sarif");
 
         result.Should().Be(0);
-        output.Should().BeEmpty();
-        var errorLog = error.FromJson<SarifLog>();
-        errorLog.Runs[0].Results[0].RuleId.Should().Be("no-unused-params");
-        errorLog.Runs[0].Results[0].Message.Text.Should().Contain("is declared but never used");
+        error.Should().BeEmpty();
+        var sarifLog = output.FromJson<SarifLog>();
+        sarifLog.Runs[0].Results[0].RuleId.Should().Be("no-unused-params");
+        sarifLog.Runs[0].Results[0].Message.Text.Should().Contain("is declared but never used");
     }
 
     private static IEnumerable<object[]> GetValidDataSetsWithoutWarnings() => DataSets

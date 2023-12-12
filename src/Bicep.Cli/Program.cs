@@ -166,7 +166,7 @@ namespace Bicep.Cli
                 .AddBicepparamDecompiler()
                 .AddCommands()
                 .AddSingleton(CreateLoggerFactory(io).CreateLogger("bicep"))
-                .AddSingleton<IDiagnosticLogger, BicepDiagnosticLogger>()
+                .AddSingleton<DiagnosticLogger>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()
                 .AddSingleton<PlaceholderParametersWriter>()

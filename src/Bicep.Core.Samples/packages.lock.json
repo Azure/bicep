@@ -2071,7 +2071,6 @@
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
           "Azure.Bicep.Decompiler": "[1.0.0, )",
-          "Bicep.Core.UnitTests": "[1.0.0, )",
           "Microsoft.Extensions.Logging": "[7.0.0, )",
           "Sarif.Sdk": "[4.3.7, )"
         }

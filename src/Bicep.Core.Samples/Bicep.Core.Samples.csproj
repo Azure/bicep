@@ -28,8 +28,4 @@
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
     <ProjectReference Include="..\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Files\baselines\Publish_Providers\" />
-  </ItemGroup>
 </Project>

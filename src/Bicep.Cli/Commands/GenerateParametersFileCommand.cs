@@ -9,13 +9,14 @@ using Bicep.Cli.Services;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Cli.Commands
 {
     public class GenerateParametersFileCommand : ICommand
     {
         private readonly ILogger logger;
-        private readonly IDiagnosticLogger diagnosticLogger;
+        private readonly DiagnosticLogger diagnosticLogger;
         private readonly IOContext io;
         private readonly CompilationService compilationService;
         private readonly PlaceholderParametersWriter writer;
@@ -23,7 +24,7 @@ namespace Bicep.Cli.Commands
 
         public GenerateParametersFileCommand(
             ILogger logger,
-            IDiagnosticLogger diagnosticLogger,
+            DiagnosticLogger diagnosticLogger,
             IOContext io,
             CompilationService compilationService,
             PlaceholderParametersWriter writer,
@@ -54,7 +55,9 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(warningMessage);
             }
 
-            if (diagnosticLogger.ErrorCount < 1)
+            var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
+
+            if (!summary.HasErrors)
             {
                 if (args.OutputToStdOut)
                 {
@@ -83,7 +86,7 @@ namespace Bicep.Cli.Commands
             }
 
             // return non-zero exit code on errors
-            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+            return summary.HasErrors ? 1 : 0;
         }
 
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
