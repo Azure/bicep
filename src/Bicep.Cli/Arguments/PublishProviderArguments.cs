@@ -80,7 +80,7 @@ namespace Bicep.Cli.Arguments
 
             if (TargetProviderReference is null)
             {
-                throw new CommandLineException("The target module was not specified.");
+                throw new CommandLineException("The target provider was not specified.");
             }
         }
 

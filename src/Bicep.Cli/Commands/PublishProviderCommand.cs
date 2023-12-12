@@ -64,8 +64,6 @@ namespace Bicep.Cli.Commands
 
             await ioContext.Error.WriteLineAsync("The 'publish-provider' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
 
-            //TODO: attempt to validate types here
-
             Stream tarStream = await TypesV1Archive.GenerateProviderTarStream(this.fileSystem, indexPath);
 
             await this.PublishProviderAsync(providerReference, tarStream, overwriteIfExists);
@@ -76,7 +74,7 @@ namespace Bicep.Cli.Commands
         {
             try
             {
-                // If we don't want to overwrite, ensure module doesn't exist
+                // If we don't want to overwrite, ensure provider doesn't exist
                 if (!overwriteIfExists && await this.moduleDispatcher.CheckProviderExists(target))
                 {
                     throw new BicepException($"The Provider \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing provider.");

@@ -59,9 +59,6 @@ namespace Bicep.Core.Samples
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
             => CreateMockRegistryClients(dataSet.RegistryModules, enablePublishSource, additionalClients);
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClientsForProviders(this DataSet dataSet, params (Uri registryUri, string repository)[] additionalClients)
-            => CreateMockRegistryClientsForProviders(dataSet.RegistryProviders, additionalClients);
-
         public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
         {
             var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: enablePublishSource));
@@ -87,31 +84,6 @@ namespace Bicep.Core.Samples
             }
 
             return CreateMockRegistryClients(enablePublishSource, clients.Concat(additionalClients).ToArray()).factoryMock;
-        }
-
-        public static IContainerRegistryClientFactory CreateMockRegistryClientsForProviders(ImmutableDictionary<string, DataSet.ExternalProviderInfo> registryModules, params (Uri registryUri, string repository)[] additionalClients)
-        {
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
-                .AddSingleton(BicepTestConstants.ClientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                ).Construct<IModuleDispatcher>();
-
-            var clients = new List<(Uri registryUri, string repository)>();
-
-            /*foreach (var (moduleName, publishInfo) in registryModules)
-            {
-                var target = publishInfo.Metadata.Target;
-
-                if (!dispatcher.TryGetArtifactReference(ArtifactType.Module, target, RandomFileUri()).IsSuccess(out var @ref) || @ref is not OciArtifactReference targetReference)
-                {
-                    throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
-                }
-
-                Uri registryUri = new($"https://{targetReference.Registry}");
-                clients.Add((registryUri, targetReference.Repository));
-            }*/
-
-            return CreateMockRegistryClientsForProviders(clients.Concat(additionalClients).ToArray()).factoryMock;
         }
 
         public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(bool? publishSource, params (Uri registryUri, string repository)[] clients)

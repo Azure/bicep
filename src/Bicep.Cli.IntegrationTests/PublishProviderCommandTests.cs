@@ -63,7 +63,6 @@ public class PublishProviderCommandTests : TestBase
         var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
         List<string> requiredArgs = new() { "publish-provider", indexPath, "--target", $"br:{registryStr}/{repository}:{version}" };
-        //publish-provider "C:\bicep\bicep\src\Bicep.Core.Samples\Files\baselines\Publish_Providers\index.json" --target "br:example.azurecr.io/hello/world:v1"
 
         string[] args = requiredArgs.ToArray();
 
@@ -84,6 +83,24 @@ public class PublishProviderCommandTests : TestBase
         var saBodyType = (ObjectType)saType.Body.Type;
         saBodyType.Properties.Keys.Should().Contain("name", "location", "properties", "sku", "tags");
 
-        // TODO: add tests for --force
+        // test with force
+        requiredArgs.Add("--force");
+
+        var result2 = await Bicep(settings, requiredArgs.ToArray());
+        result2.Should().Succeed().And.NotHaveStdout();
+
+        // verify the provider was published
+        mockBlobClient.Should().HaveProvider(version, out var tgzStream2);
+
+        var typeLoader2 = OciTypeLoader.FromTgz(tgzStream2);
+        var azTypeLoader2 = new AzResourceTypeLoader(typeLoader2);
+
+        // verify the index works
+        var saTypeReference2 = azTypeLoader2.GetAvailableTypes().Should().Contain(x => x.Name == "Microsoft.Storage/storageAccounts@2022-05-01").Subject;
+        var saType2 = azTypeLoader2.LoadType(saTypeReference2);
+
+        // verify we can load a type
+        var saBodyType2 = (ObjectType)saType2.Body.Type;
+        saBodyType2.Properties.Keys.Should().Contain("name", "location", "properties", "sku", "tags");
     }
 }
