@@ -7,6 +7,7 @@ using System.Formats.Tar;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Azure.Bicep.Types.Serialization;
@@ -26,12 +27,14 @@ public static class TypesV1Archive
             var indexJson = await fileSystem.File.ReadAllTextAsync(indexJsonPath);
             await AddFileToTar(tarWriter, "index.json", indexJson);
 
-            HashSet<string> uniqueTypePaths = getAllUniqueTypePaths(indexJsonPath);
+            var indexJsonParentPath = Path.GetDirectoryName(indexJsonPath);
+            var uniqueTypePaths = getAllUniqueTypePaths(indexJsonPath, fileSystem);
 
-            foreach (string path in uniqueTypePaths)
+            foreach (var relativePath in uniqueTypePaths)
             {
-                var typesJson = await fileSystem.File.ReadAllTextAsync(path);
-                await AddFileToTar(tarWriter, "types.json", typesJson);
+                var absolutePath = Path.Combine(indexJsonParentPath!, relativePath);
+                var typesJson = await fileSystem.File.ReadAllTextAsync(absolutePath);
+                await AddFileToTar(tarWriter, relativePath, typesJson);
             }
         }
 
@@ -50,20 +53,13 @@ public static class TypesV1Archive
         await tarWriter.WriteEntryAsync(tarEntry);
     }
 
-    private static HashSet<string> getAllUniqueTypePaths(string pathToIndex)
+    private static IEnumerable<string> getAllUniqueTypePaths(string pathToIndex, IFileSystem fileSystem)
     {
-        FileStream indexStream = new(pathToIndex, FileMode.Open, FileAccess.Read);
+        using var indexStream = fileSystem.FileStream.New(pathToIndex, FileMode.Open, FileAccess.Read);
 
         var index = TypeSerializer.DeserializeIndex(indexStream);
 
-        HashSet<string> uniqueTypePaths = new();
-
-        foreach (var typeInformation in index.Resources)
-        {
-            uniqueTypePaths.Add(Path.GetDirectoryName(pathToIndex) + "\\" + typeInformation.Value.RelativePath);
-        }
-
-        return uniqueTypePaths;
+        return index.Resources.Values.Select(x => x.RelativePath).Distinct();
     }
 }
 

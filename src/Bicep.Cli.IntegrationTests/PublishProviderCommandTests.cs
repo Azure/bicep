@@ -52,8 +52,6 @@ namespace Bicep.Cli.IntegrationTests
 
             var clientFactory = dataSet.CreateMockRegistryClientsForProviders((registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            //Why are we publishing something?
-/*            await dataSet.PublishProvidersToRegistryAsync(clientFactory);*/
 
             var indexPath = Path.Combine(outputDirectory, DataSet.TestIndex);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestIndex);

@@ -25,7 +25,6 @@ using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using Bicep.Core.TypeSystem.Providers.Az;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.TypeSystem.Providers;
 using System.IO.Compression;
 using Bicep.Core.Registry.Providers;
@@ -76,8 +75,7 @@ namespace Bicep.Cli.Commands
 
             //TODO: attempt to validate types here
 
-            IFileSystem fileSystem = new FileSystem();
-            Stream tarStream = await TypesV1Archive.GenerateProviderTarStream(fileSystem, indexPath);
+            Stream tarStream = await TypesV1Archive.GenerateProviderTarStream(this.fileSystem, indexPath);
 
             await this.PublishProviderAsync(providerReference, tarStream, overwriteIfExists);
             return 0;

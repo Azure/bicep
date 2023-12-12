@@ -77,18 +77,5 @@ namespace Bicep.Core.TypeSystem.Providers
         {
             return cachedResourceTypeLoaders[BuiltInAzResourceTypeLoaderKey];
         }
-
-        public ResultWithDiagnostic<IResourceTypeProvider> TestProviderFromFile(ResourceTypesProviderDescriptor providerDescriptor, IFeatureProvider features, AzResourceTypeLoader azTypeLoader)
-        {
-            var key = new ResourceTypeLoaderKey(providerDescriptor.Alias, providerDescriptor.Version);
-
-            IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Alias switch
-            {
-                AzNamespaceType.BuiltInName => new AzResourceTypeProvider(azTypeLoader, providerDescriptor.Version),
-                _ => throw new NotImplementedException($"The provider {providerDescriptor.Alias} is not supported."),
-            };
-
-            return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);
-        }
     }
 }
