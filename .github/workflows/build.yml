@@ -491,8 +491,8 @@ jobs:
           npm test
         working-directory: ./src/monarch
 
-  test-bicep:
-    name: 'Run: ${{matrix.config.name}} (${{ matrix.runtime.rid }})'
+  test-cli-e2e:
+    name: 'Test CLI (e2e) (${{ matrix.runtime.rid }})'
     runs-on: ${{ matrix.runtime.os }}
     needs: build-cli
     strategy:
@@ -500,12 +500,66 @@ jobs:
       fail-fast: false
       # should be the full list of supported RIDs with customizations expressed via the parameters under each item
       matrix:
+        runtime:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: ubuntu-latest
+            rid: linux-musl-x64
+          - os: macos-latest
+            rid: osx-x64
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-release-${{ matrix.runtime.rid }}
+          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
+
+      - name: Make Bicep CLI executable
+        if: runner.os != 'Windows'
+        run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+
+      - name: Run Bicep E2E Tests
+        if: matrix.runtime.rid != 'linux-musl-x64'
+        run: npm ci && npm test
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+      - name: Run Bicep E2E Tests (linux-musl-x64)
+        if: matrix.runtime.rid == 'linux-musl-x64'
+        uses: docker://mcr.microsoft.com/azure-cli:latest
+        with:
+          entrypoint: sh
+          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+
+  test-dotnet:
+    name: 'Test Dotnet (${{ matrix.runtime.rid }}) (${{matrix.config.name}})'
+    runs-on: ${{ matrix.runtime.os }}
+    strategy:
+      # let us get failures from other jobs even if one fails
+      fail-fast: false
+      # should be the full list of supported RIDs with customizations expressed via the parameters under each item
+      matrix:
         config:
-          - name: Bicep.Core.IntegrationTests
+          - name: Core
             filter: FullyQualifiedName~Bicep.Core.IntegrationTests
-          - name: Bicep.LangServer.IntegrationTests
+          - name: LangServer
             filter: FullyQualifiedName~Bicep.LangServer.IntegrationTests
-          - name: All tests except Bicep.Core.IntegrationTests and Bicep.LangServer.IntegrationTests
+          - name: Others
             filter: FullyQualifiedName!~Bicep.Core.IntegrationTests&FullyQualifiedName!~Bicep.LangServer.IntegrationTests
         runtime:
           - os: windows-latest
@@ -537,32 +591,6 @@ jobs:
           path: ./TestResults/*.trx
           if-no-files-found: error
 
-      - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-release-${{ matrix.runtime.rid }}
-          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
-
-      - name: Make Bicep CLI executable
-        if: runner.os != 'Windows'
-        run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
-
-      - name: Run Bicep E2E Tests
-        if: matrix.runtime.rid != 'linux-musl-x64'
-        run: npm ci && npm test
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
-        working-directory: ./src/Bicep.Cli.E2eTests
-
-      - name: Run Bicep E2E Tests (linux-musl-x64)
-        if: matrix.runtime.rid == 'linux-musl-x64'
-        uses: docker://mcr.microsoft.com/azure-cli:latest
-        with:
-          entrypoint: sh
-          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
-
       - name: Upload Code Coverage
         uses: codecov/codecov-action@v3
         with:
@@ -570,7 +598,7 @@ jobs:
 
   comment-test-summary:
     name: "PR Comment: Tests Summary"
-    needs: test-bicep
+    needs: test-dotnet
     runs-on: ubuntu-latest
     permissions:
       checks: write
