@@ -136,6 +136,43 @@ namespace Bicep.Core.UnitTests.Assertions
             return new(this);
         }
 
+        public AndConstraint<MockRegistryAssertions> HaveProvider(string tag, out Stream tgzStream)
+        {
+            this.Subject.ManifestTags.Should().ContainKey(tag, $"tag '{tag}' should exist");
+            string digest = this.Subject.ManifestTags[tag];
+            this.Subject.Manifests.Should().ContainKey(digest, $"tag '{tag}' resolves to digest '{digest}' that should exist");
+
+            var manifest = this.Subject.ManifestObjects[digest];
+            manifest.Should().NotBeNull();
+            manifest.MediaType.Should().Be("application/vnd.oci.image.manifest.v1+json", "media type should be explicit for new versions of Bicep, and not null");
+            manifest.ArtifactType.Should().Be(BicepMediaTypes.BicepProviderArtifactType, "artifact type should be correct");
+
+            var config = manifest.Config;
+            config.MediaType.Should().Be(BicepMediaTypes.BicepProviderConfigV1, "config media type should be correct");
+
+            this.Subject.Blobs.Should().ContainKey(config.Digest, "config digest should exist");
+            var configBytes = this.Subject.Blobs[config.Digest];
+            config.Size.Should().Be(configBytes.ToArray().Length, "Config size field should match config size");
+            JsonElement? configJson = null;
+            var convertToJson = () => configJson = JsonElementFactory.CreateElement(configBytes.Text);
+            convertToJson.Should().NotThrow("Config should be a valid JSON object");
+            configJson!.Value.ValueKind.Should().Be(JsonValueKind.Object, "Config should be a JSON object");
+
+            manifest.Layers.Should().HaveCount(1);
+
+            // types.tgz
+            var tgzLayer = manifest.Layers.First();
+
+            tgzLayer.MediaType.Should().Be(BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, "layer media type should be correct");
+            this.Subject.Blobs.Should().ContainKey(tgzLayer.Digest, "layer blob should exist");
+
+            var layerBytes = this.Subject.Blobs[tgzLayer.Digest];
+            ((long)layerBytes.Bytes.Length).Should().Be(tgzLayer.Size, "layer blob should match size");
+
+            tgzStream = layerBytes.ToStream();
+            return new(this);
+        }
+
         public AndConstraint<MockRegistryAssertions> OnlyHaveModule(string tag, Stream expectedMainJsonContent)
         {
             using (new AssertionScope())

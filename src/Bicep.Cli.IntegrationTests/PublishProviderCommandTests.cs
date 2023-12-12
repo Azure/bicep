@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
+using Bicep.Cli.UnitTests.Assertions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
@@ -29,241 +30,60 @@ using Moq;
 using DataSet = Bicep.Core.Samples.DataSet;
 using Bicep.Core.UnitTests.TypeSystem.Az;
 using CommandLine.Text;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers.Az;
+using MessagePack.Resolvers;
+using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Cli.IntegrationTests
+namespace Bicep.Cli.IntegrationTests;
+
+[TestClass]
+public class PublishProviderCommandTests : TestBase
 {
-    [TestClass]
-    public class PublishProviderCommandTests : TestBase
+    [NotNull]
+    public TestContext? TestContext { get; set; }
+
+    [TestMethod]
+    public async Task Publish_provider_should_succeed()
     {
-        [NotNull]
-        public TestContext? TestContext { get; set; }
+        var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
+            TestContext,
+            typeof(PublishProviderCommandTests).Assembly,
+            "Files/PublishProviderCommandTests/TestProvider");
 
-        [TestMethod]
-        [DynamicData(nameof(OnlyPublishProviderDataSets), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
-        public async Task Publish_AllValidDataSets_ShouldSucceed(string testName, DataSet dataSet)
-        {
-            TestContext.WriteLine(testName);
+        var registryStr = "example.com";
+        var registryUri = new Uri($"https://{registryStr}");
+        var repository = $"test/provider";
+        var version = "0.0.1";
 
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+        var (clientFactory, blobClientMocks) = DataSetsExtensions.CreateMockRegistryClients(false, (registryUri, repository));
+        var mockBlobClient = blobClientMocks[(registryUri, repository)];
 
-            var registryStr = "example.com";
-            var registryUri = new Uri($"https://{registryStr}");
-            var repository = $"test/{dataSet.Name}".ToLowerInvariant();
+        var indexPath = Path.Combine(outputDirectory, DataSet.TestIndex);
+        var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
-            var clientFactory = dataSet.CreateMockRegistryClientsForProviders((registryUri, repository));
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
+        List<string> requiredArgs = new() { "publish-provider", indexPath, "--target", $"br:{registryStr}/{repository}:{version}" };
+        //publish-provider "C:\bicep\bicep\src\Bicep.Core.Samples\Files\baselines\Publish_Providers\index.json" --target "br:example.azurecr.io/hello/world:v1"
 
-            var indexPath = Path.Combine(outputDirectory, DataSet.TestIndex);
-            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestIndex);
+        string[] args = requiredArgs.ToArray();
 
-            // mock client factory caches the clients
-            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
+        var result = await Bicep(settings, args);
+        result.Should().Succeed().And.NotHaveStdout();
 
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, templateSpecRepositoryFactory);
+        // verify the provider was published
+        mockBlobClient.Should().HaveProvider(version, out var tgzStream);        
 
-            List<string> requiredArgs = new() { "publish-provider", indexPath, "--target", $"br:{registryStr}/{repository}:v1" };
-            //publish-provider "C:\bicep\bicep\src\Bicep.Core.Samples\Files\baselines\Publish_Providers\index.json" --target "br:example.azurecr.io/hello/world:v1"
+        var typeLoader = OciTypeLoader.FromTgz(tgzStream);
+        var azTypeLoader = new AzResourceTypeLoader(typeLoader);
 
-            string[] args = requiredArgs.ToArray();
+        // verify the index works
+        var saTypeReference = azTypeLoader.GetAvailableTypes().Should().Contain(x => x.Name == "Microsoft.Storage/storageAccounts@2022-05-01").Subject;
+        var saType = azTypeLoader.LoadType(saTypeReference);
 
-            var (output, error, result) = await Bicep(settings, args);
-            result.Should().Be(0);
-            AssertNoErrors(error);
+        // verify we can load a type
+        var saBodyType = (ObjectType)saType.Body.Type;
+        saBodyType.Properties.Keys.Should().Contain("name", "location", "properties", "sku", "tags");
 
-            using var expectedCompiledStream = new FileStream(compiledFilePath, FileMode.Open, FileAccess.Read);
-
-            // verify the module was published
-            testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);
-
-            // Modify the source
-            File.AppendAllText(indexPath, "\noutput newoutput string = 'hello'");
-
-            // publish the same content again without --force
-            var (output2, error2, result2) = await Bicep(settings, args);
-            result2.Should().Be(1);
-            error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
-
-            testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
-            testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);
-
-            // publish the same content again with --force
-            requiredArgs.Add("--force");
-            var (output3, error3, result3) = await Bicep(settings, requiredArgs.ToArray());
-            result3.Should().Be(0);
-            AssertNoErrors(error3);
-
-            // compile to get what the new expected main.json should be
-            List<string> buildArgs = new() { "build", indexPath, "--outfile", $"{compiledFilePath}.modified" };
-            var (output4, error4, result4) = await Bicep(settings, buildArgs.ToArray());
-            result4.Should().Be(0);
-            output4.Should().BeEmpty();
-            AssertNoErrors(error4);
-            using var expectedModifiedCompiledStream = new FileStream($"{compiledFilePath}.modified", FileMode.Open, FileAccess.Read);
-
-            // we should still only have 1 module
-            testClient.Should().OnlyHaveReachableModule("v1", expectedModifiedCompiledStream);
-            testClient.Should().HaveModuleWithNoSource("v1", expectedModifiedCompiledStream);
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Publish_ValidArmTemplateFile_AllValidDataSets_ShouldSucceed(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-
-            var registryStr = "example.com";
-            var registryUri = new Uri($"https://{registryStr}");
-            var repository = $"test/{dataSet.Name}".ToLowerInvariant();
-
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: false, (registryUri, repository));
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
-            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
-
-            // mock client factory caches the clients
-            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
-
-            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true, PublishSourceEnabled: true), clientFactory, templateSpecRepositoryFactory);
-
-            var (output, error, result) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
-            result.Should().Be(0);
-            output.Should().BeEmpty();
-            AssertNoErrors(error);
-
-            using var expectedCompiledStream = new FileStream(compiledFilePath, FileMode.Open, FileAccess.Read);
-
-            // verify the module was published
-            testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
-
-            // There are no Bicep sources, it's only an ARM template being published, so even if published with sources, there should be no sources
-            testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);
-
-            // publish the same content again without --force
-            var (output2, error2, result2) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
-            result2.Should().Be(1);
-            output2.Should().BeEmpty();
-            error2.Should().MatchRegex($"The module \"br:{registryStr}/{repository}:v1\" already exists in registry\\. Use --force to overwrite the existing module\\.");
-
-            // publish the same content again with --force
-            var (output3, error3, result3) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1", "--force");
-            result3.Should().Be(0);
-            output3.Should().BeEmpty();
-            AssertNoErrors(error3);
-
-            // we should still only have 1 reachable module. (The old module will still exist because it has a timestamp and therefore a
-            // different digest, but is not in the tags list. It could still be reached via digest until cleaned up.)
-            expectedCompiledStream.Position = 0;
-            testClient.Should().OnlyHaveReachableModule("v1", expectedCompiledStream);
-
-            // There are no Bicep sources, it's only an ARM template being published, so even if published with sources, there should be no sources
-            testClient.Should().HaveModuleWithNoSource("v1", expectedCompiledStream);
-        }
-
-        [DataTestMethod]
-        [DataRow(
-            null,
-            "param description string",
-            null,
-            DisplayName = "manifest: neither description nor uri"
-            )]
-        [DataRow(
-            "mydocs.org/abc",
-            "metadata description = 'my description'",
-            "my description",
-            DisplayName = "manifest: description and uri"
-            )]
-        [DataRow(
-            null,
-            "metadata description = 'my description'",
-            "my description",
-            DisplayName = "manifest: just description"
-            )]
-        [DataRow(
-            "mydocs.org/abc",
-            "",
-            null,
-            DisplayName = "manifest: just uri"
-            )]
-        [DataRow(
-            "mydocs.org/abc",
-            "metadata description2 = 'my description'",
-            null,
-            DisplayName = "manifest: just uri 2"
-            )]
-        public async Task Publish_BicepModule_WithDescriptionAndDocUri_ShouldPlaceDescriptionInManifest(string? documentationUri, string bicepModuleContents, string? expectedDescription)
-        {
-            var moduleName = "module1";
-            var registryStr = "example.com";
-            var registryUri = new Uri($"https://{registryStr}");
-            var repository = $"test/{moduleName}".ToLowerInvariant();
-
-            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients(false, (registryUri, repository));
-
-            var blobClient = blobClients[(registryUri, repository)];
-
-            await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
-
-            var manifest = blobClient.Manifests.Single().Value.Text;
-
-            if (expectedDescription is null)
-            {
-                manifest.Should().NotMatchRegex($@"org.opencontainers.image.description");
-            }
-            else
-            {
-                manifest.Should().MatchRegex($@"""org.opencontainers.image.description"": ""{expectedDescription}""");
-            }
-
-            if (documentationUri is null)
-            {
-                manifest.Should().NotMatchRegex($@"org.opencontainers.image.documentation");
-            }
-            else
-            {
-                manifest.Should().MatchRegex($@"""org.opencontainers.image.documentation"": ""{documentationUri}""");
-            }
-        }
-
-        private static IEnumerable<object[]> GetValidDataSets() => DataSets
-            .AllDataSets
-            .Where(ds => ds.IsValid == true)
-            .ToDynamicTestData();
-
-        private static IEnumerable<object[]> GetValidDataSetsWithPublishSources()
-        {
-            foreach (var ds in DataSets.AllDataSets.Where(ds => ds.IsValid))
-            {
-                yield return new object[] { $"{ds.Name}, not publishing source", ds, false };
-                yield return new object[] { $"{ds.Name}, publishing source", ds, true };
-            }
-        }
-
-        private static IEnumerable<object[]> GetValidDataSetsWithDocUriAndPublishSource()
-        {
-            foreach (var ds in DataSets.AllDataSets.Where(ds => ds.IsValid))
-            {
-                yield return new object[] { $"{ds.Name}, without docUri, not publishing source", ds, "", false };
-                yield return new object[] { $"{ds.Name}, with docUri, publishing source", ds, "https://example.com", true };
-            }
-        }
-
-        private static IEnumerable<object[]> OnlyPublishProviderDataSets()
-        {
-            foreach (var ds in DataSets.AllDataSets.Where(ds => ds.Name == "Publish_Providers"))
-            {
-                yield return new object[] { $"{ds.Name}, publishing providers", ds };
-                break;
-            }
-        }
-
-        public static string GetTestDisplayName(MethodInfo _, object[] objects)
-        {
-            return (string)objects[0];
-        }
-
-        private static IEnumerable<object[]> GetInvalidDataSets() => DataSets
-            .AllDataSets
-            .Where(ds => ds.IsValid == false)
-            .ToDynamicTestData();
+        // TODO: add tests for --force
     }
 }
