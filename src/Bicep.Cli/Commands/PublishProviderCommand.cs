@@ -33,9 +33,6 @@ namespace Bicep.Cli.Commands
 {
     public class PublishProviderCommand : ICommand
     {
-        private readonly IDiagnosticLogger diagnosticLogger;
-        private readonly CompilationService compilationService;
-        private readonly CompilationWriter compilationWriter;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFileSystem fileSystem;
         private readonly IFeatureProviderFactory featureProviderFactory;
@@ -43,18 +40,12 @@ namespace Bicep.Cli.Commands
         private readonly ILogger logger;
 
         public PublishProviderCommand(
-            IDiagnosticLogger diagnosticLogger,
-            CompilationService compilationService,
             IOContext ioContext,
             ILogger logger,
-            CompilationWriter compilationWriter,
             IModuleDispatcher moduleDispatcher,
             IFileSystem fileSystem,
             IFeatureProviderFactory featureProviderFactory)
         {
-            this.diagnosticLogger = diagnosticLogger;
-            this.compilationService = compilationService;
-            this.compilationWriter = compilationWriter;
             this.moduleDispatcher = moduleDispatcher;
             this.fileSystem = fileSystem;
             this.featureProviderFactory = featureProviderFactory;
