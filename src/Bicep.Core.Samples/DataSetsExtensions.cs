@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.Providers;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests;
@@ -178,6 +180,22 @@ namespace Bicep.Core.Samples
             using Stream? sourcesStream = publishSource ? SourceArchive.PackSourcesIntoStream(result.Compilation.SourceFileGrouping) : null;
 
             await dispatcher.PublishModule(targetReference, stream, sourcesStream, documentationUri);
+        }
+
+        public static async Task PublishProviderToRegistryAsync(IFileSystem fileSystem, IContainerRegistryClientFactory clientFactory, string pathToIndexJson, string target)
+        {
+            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
+                .AddSingleton(clientFactory)
+                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
+                .AddSingleton(BicepTestConstants.FeatureProviderFactory)
+                ).Construct<IModuleDispatcher>();
+
+            var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, PathHelper.FilePathToFileUrl(pathToIndexJson)).IsSuccess(out var @ref) ? @ref
+                : throw new InvalidOperationException($"Invalid target reference '{target}'. Specify a reference to an OCI artifact.");
+
+            var tgzStream = await TypesV1Archive.GenerateProviderTarStream(fileSystem, pathToIndexJson);
+
+            await dispatcher.PublishProvider(targetReference, tgzStream);
         }
 
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
