@@ -59,7 +59,7 @@ public class PublishProviderCommandTests : TestBase
         var (clientFactory, blobClientMocks) = DataSetsExtensions.CreateMockRegistryClients(false, (registryUri, repository));
         var mockBlobClient = blobClientMocks[(registryUri, repository)];
 
-        var indexPath = Path.Combine(outputDirectory, DataSet.TestIndex);
+        var indexPath = Path.Combine(outputDirectory, "index.json");
         var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
         List<string> requiredArgs = new() { "publish-provider", indexPath, "--target", $"br:{registryStr}/{repository}:{version}" };

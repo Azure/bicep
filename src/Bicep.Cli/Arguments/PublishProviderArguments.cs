@@ -13,10 +13,6 @@ namespace Bicep.Cli.Arguments
                 var isLast = args.Length == i + 1;
                 switch (args[i].ToLowerInvariant())
                 {
-                    case "--no-restore":
-                        NoRestore = true;
-                        break;
-
                     case "--target":
                         if (isLast)
                         {
@@ -29,27 +25,6 @@ namespace Bicep.Cli.Arguments
                         }
 
                         TargetProviderReference = args[i + 1];
-                        i++;
-                        break;
-
-                    case "--documentationuri":
-                        if (isLast)
-                        {
-                            throw new CommandLineException("The --documentationUri parameter expects an argument.");
-                        }
-
-                        if (this.DocumentationUri is not null)
-                        {
-                            throw new CommandLineException("The --documentationUri parameter cannot be specified more than once.");
-                        }
-
-                        DocumentationUri = args[i + 1];
-
-                        if (!Uri.IsWellFormedUriString(DocumentationUri, UriKind.Absolute))
-                        {
-                            throw new CommandLineException("The --documentationUri should be a well formed uri string.");
-                        }
-
                         i++;
                         break;
 
@@ -84,13 +59,9 @@ namespace Bicep.Cli.Arguments
             }
         }
 
-        public string? DocumentationUri { get; }
-
         public string IndexFile { get; }
 
         public string TargetProviderReference { get; }
-
-        public bool NoRestore { get; }
 
         public bool Force { get; }
     }

@@ -57,8 +57,6 @@ namespace Bicep.Cli.Commands
         {
             var indexPath = PathHelper.ResolvePath(args.IndexFile);
             var inputUri = PathHelper.FilePathToFileUrl(indexPath);
-            var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(indexPath));
-            var documentationUri = args.DocumentationUri;
             var providerReference = ValidateReference(args.TargetProviderReference, inputUri);
             var overwriteIfExists = args.Force;
 

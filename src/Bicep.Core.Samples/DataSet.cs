@@ -13,7 +13,6 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using static Bicep.Core.Samples.DataSet;
 
 namespace Bicep.Core.Samples
 {
@@ -21,7 +20,6 @@ namespace Bicep.Core.Samples
     public class DataSet
     {
         public const string TestFileMain = "main.bicep";
-        public const string TestIndex = "index.json";
         public const string TestFileMainDiagnostics = "main.diagnostics.bicep";
         public const string TestFileMainIr = "main.ir.bicep";
         public const string TestFileMainTokens = "main.tokens.bicep";
@@ -37,18 +35,12 @@ namespace Bicep.Core.Samples
         public const string TestFunctionsPrefix = TestFunctionsDirectory + "/";
         public const string TestPublishDirectory = "Publish";
         public const string TestPublishPrefix = TestPublishDirectory + "/";
-        public const string TestPublishProviderDirectory = "Publish";
-        public const string TestPublishProviderPrefix = TestPublishDirectory + "/";
         public const string TestTemplateSpecsDirectory = "TemplateSpecs";
         public const string TestTemplateSpecsPrefix = TestTemplateSpecsDirectory + "/";
 
         public record ExternalModuleInfo(string ModuleSource, ExternalModuleMetadata Metadata);
 
-        public record ExternalProviderInfo(string ProviderSource, ExternalProviderMetadata Metadata);
-
         public record ExternalModuleMetadata(string Target);
-
-        public record ExternalProviderMetadata(string Target);
 
         public static readonly string Prefix = "Files/baselines/";
 
@@ -76,8 +68,6 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyModulesToPublish;
 
-        private readonly Lazy<ImmutableDictionary<string, ExternalProviderInfo>> lazyProvidersToPublish;
-
         private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyTemplateSpecs;
 
         public DataSet(string name)
@@ -96,7 +86,6 @@ namespace Bicep.Core.Samples
             this.lazySourceMap = this.CreateIffValid(TestFileMainSourceMap);
             this.lazyCompletions = new(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyModulesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishPrefix)), LazyThreadSafetyMode.PublicationOnly);
-            this.lazyProvidersToPublish = new(() => ReadPublishProviderData(GetStreamName(TestPublishProviderPrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyTemplateSpecs = new(() => ReadTemplateSpecsData(GetStreamName(TestTemplateSpecsPrefix)), LazyThreadSafetyMode.PublicationOnly);
         }
 
@@ -127,8 +116,6 @@ namespace Bicep.Core.Samples
         public ImmutableDictionary<string, string> Completions => this.lazyCompletions.Value;
 
         public ImmutableDictionary<string, ExternalModuleInfo> RegistryModules => this.lazyModulesToPublish.Value;
-
-        public ImmutableDictionary<string, ExternalProviderInfo> RegistryProviders => this.lazyProvidersToPublish.Value;
 
         public ImmutableDictionary<string, ExternalModuleInfo> TemplateSpecs => this.lazyTemplateSpecs.Value;
 
@@ -184,9 +171,6 @@ namespace Bicep.Core.Samples
         private static ImmutableDictionary<string, ExternalModuleInfo> ReadTemplateSpecsData(string streamNamePrefix) =>
             ReadExternalModuleData(streamNamePrefix, LanguageConstants.JsonFileExtension);
 
-        private static ImmutableDictionary<string, ExternalProviderInfo> ReadPublishProviderData(string streamNamePrefix) =>
-            ReadExternalProviderData(streamNamePrefix, LanguageConstants.JsonLanguageId);
-
         private static ImmutableDictionary<string, ExternalModuleInfo> ReadExternalModuleData(string streamNamePrefix, string moduleExtension)
         {
             static string GetModuleName(string fileName)
@@ -222,46 +206,6 @@ namespace Bicep.Core.Samples
                 var metadata = JsonConvert.DeserializeObject<ExternalModuleMetadata>(moduleMetadataText) ?? throw new AssertFailedException($"Module metadata file '{moduleMetadataName}' deserialized into a null object.");
 
                 builder.Add(moduleName, new ExternalModuleInfo(moduleSource, metadata));
-            }
-
-            return builder.ToImmutable();
-        }
-
-        private static ImmutableDictionary<string, ExternalProviderInfo> ReadExternalProviderData(string streamNamePrefix, string providerExtension)
-        {
-            static string GetProviderName(string fileName)
-            {
-                var parts = fileName.Split('.', StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length < 2 && parts[0].Equals("type"))
-                {
-                    throw new InvalidOperationException($"File '{fileName}' doesn't match the expected naming convention.");
-                }
-
-                return parts[0];
-            }
-
-            var rawFiles = ReadDataSetDictionary(streamNamePrefix);
-            var providerFilesToPublish = rawFiles.Keys.Select(GetProviderName).Distinct();
-
-            var builder = ImmutableDictionary.CreateBuilder<string, ExternalProviderInfo>();
-            foreach (var fileName in providerFilesToPublish)
-            {
-                var providerSourceName = $"{fileName}.{providerExtension}";
-                var providerMetadataName = $"{fileName}.metadata.json";
-
-                if (!rawFiles.TryGetValue(providerSourceName, out var providerSource))
-                {
-                    throw new AssertFailedException($"The source file '{providerSourceName}' is missing.");
-                }
-
-                if (!rawFiles.TryGetValue(providerMetadataName, out var providerMetadataText))
-                {
-                    throw new AssertFailedException($"The metadata file '{providerMetadataName}' is missing.");
-                }
-
-                var metadata = JsonConvert.DeserializeObject<ExternalProviderMetadata>(providerMetadataText) ?? throw new AssertFailedException($"Metadata file '{providerMetadataName}' deserialized into a null object.");
-
-                builder.Add(fileName, new ExternalProviderInfo(providerSource, metadata));
             }
 
             return builder.ToImmutable();

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
@@ -99,19 +98,6 @@ namespace Bicep.Core.Samples
             return containerRegistryFactoryBuilder.Build();
         }
 
-        public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClientsForProviders(params (Uri registryUri, string repository)[] clients)
-        {
-            var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
-
-            foreach (var (registryUri, repository) in clients)
-            {
-                containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryUri, repository);
-
-            }
-
-            return containerRegistryFactoryBuilder.Build();
-        }
-
         public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory(bool enablePublishSource = false)
             => CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo>.Empty, enablePublishSource);
 
@@ -192,33 +178,6 @@ namespace Bicep.Core.Samples
             using Stream? sourcesStream = publishSource ? SourceArchive.PackSourcesIntoStream(result.Compilation.SourceFileGrouping) : null;
 
             await dispatcher.PublishModule(targetReference, stream, sourcesStream, documentationUri);
-        }
-
-        public static async Task PublishProvidersToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory)
-            => await PublishProvidersToRegistryAsync(dataSet.RegistryProviders, clientFactory);
-
-        public static async Task PublishProvidersToRegistryAsync(ImmutableDictionary<string, DataSet.ExternalProviderInfo> registryProvider, IContainerRegistryClientFactory clientFactory)
-        {
-            foreach (var (fileName, publishInfo) in registryProvider)
-            {
-                await PublishProvidersToRegistryAsync(clientFactory, fileName, publishInfo.Metadata.Target, publishInfo.ProviderSource);
-            }
-        }
-
-        public static async Task PublishProvidersToRegistryAsync(IContainerRegistryClientFactory clientFactory, string providerName, string target, string providerSource)
-        {
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
-                .AddSingleton(clientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                ).Construct<IModuleDispatcher>();
-
-            var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, RandomFileUri()).IsSuccess(out var @ref) ? @ref
-                : throw new InvalidOperationException($"Provider '{providerName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
-
-            byte[] byteArray = Encoding.UTF8.GetBytes(providerSource);
-            var stream = new MemoryStream(byteArray);
-
-            await dispatcher.PublishProvider(targetReference, stream);
         }
 
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());

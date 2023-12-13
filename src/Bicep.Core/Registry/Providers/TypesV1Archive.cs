@@ -18,7 +18,7 @@ public static class TypesV1Archive
 {
     public static async Task<Stream> GenerateProviderTarStream(IFileSystem fileSystem, string indexJsonPath)
     {
-        using var stream = new MemoryStream();
+        var stream = new MemoryStream();
 
         using (var gzStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
         {
@@ -28,7 +28,7 @@ public static class TypesV1Archive
             await AddFileToTar(tarWriter, "index.json", indexJson);
 
             var indexJsonParentPath = Path.GetDirectoryName(indexJsonPath);
-            var uniqueTypePaths = getAllUniqueTypePaths(indexJsonPath, fileSystem);
+            var uniqueTypePaths = GetAllUniqueTypePaths(indexJsonPath, fileSystem);
 
             foreach (var relativePath in uniqueTypePaths)
             {
@@ -38,9 +38,9 @@ public static class TypesV1Archive
             }
         }
 
-        //stream.Seek(0, SeekOrigin.Begin);
+        stream.Seek(0, SeekOrigin.Begin);
 
-        return new MemoryStream(stream.ToArray(), 0, stream.ToArray().Length, true);
+        return stream;
     }
 
     private static async Task AddFileToTar(TarWriter tarWriter, string archivePath, string contents)
@@ -53,7 +53,7 @@ public static class TypesV1Archive
         await tarWriter.WriteEntryAsync(tarEntry);
     }
 
-    private static IEnumerable<string> getAllUniqueTypePaths(string pathToIndex, IFileSystem fileSystem)
+    private static IEnumerable<string> GetAllUniqueTypePaths(string pathToIndex, IFileSystem fileSystem)
     {
         using var indexStream = fileSystem.FileStream.New(pathToIndex, FileMode.Open, FileAccess.Read);
 
