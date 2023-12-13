@@ -18,11 +18,15 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      - dependency-name: "Moq"
   - package-ecosystem: "nuget"
     directory: "/src/vs-bicep"
     schedule:
       interval: "weekly"
       day: "sunday"
+    ignore:
+      - dependency-name: "Moq"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
