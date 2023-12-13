@@ -761,8 +761,8 @@
       },
       "Moq": {
         "type": "Transitive",
-        "resolved": "4.20.69",
-        "contentHash": "8P/oAUOL8ZVyXnzBBcgdhTsOD1kQbAWfOcMI7KDQO3HqQtzB/0WYLdnMa4Jefv8nu/MQYiiG0IuoJdvG0v0Nig==",
+        "resolved": "4.18.4",
+        "contentHash": "IOo+W51+7Afnb0noltJrKxPBSfsgMzTKCw+Re5AMx8l/vBbAbMDOynLik4+lBYIWDJSO0uV7Zdqt7cNb6RZZ+A==",
         "dependencies": {
           "Castle.Core": "5.1.1"
         }
@@ -2328,7 +2328,7 @@
           "Bicep.Core.UnitTests": "[1.0.0, )",
           "FluentAssertions": "[6.12.0, )",
           "JsonPatch.Net": "[2.1.0, )",
-          "Moq": "[4.20.69, )",
+          "Moq": "[4.18.4, )",
           "System.IO.Abstractions.TestingHelpers": "[19.2.69, )"
         }
       }
