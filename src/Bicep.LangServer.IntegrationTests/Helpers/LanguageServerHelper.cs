@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.Tracing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
@@ -37,6 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
         /// </summary>
         public static async Task<LanguageServerHelper> StartServer(TestContext testContext, Action<LanguageClientOptions>? onClientOptions = null, Action<IServiceCollection>? onRegisterServices = null)
         {
+            using var timer = new ExecutionTimer($"Starting language server", logInitial: false);
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
 
@@ -53,17 +55,12 @@ namespace Bicep.LangServer.IntegrationTests
                 options
                     .WithInput(clientPipe.Reader)
                     .WithOutput(serverPipe.Writer)
-                    .OnInitialize((client, request, cancellationToken) => { testContext.WriteLine("Language client initializing."); return Task.CompletedTask; })
-                    .OnInitialized((client, request, response, cancellationToken) => { testContext.WriteLine("Language client initialized."); return Task.CompletedTask; })
-                    .OnStarted((client, cancellationToken) => { testContext.WriteLine("Language client started."); return Task.CompletedTask; })
                     .OnLogTrace(@params => testContext.WriteLine($"TRACE: {@params.Message} VERBOSE: {@params.Verbose}"))
                     .OnLogMessage(@params => testContext.WriteLine($"{@params.Type}: {@params.Message}"));
 
                 onClientOptions?.Invoke(options);
             });
             await client.Initialize(CancellationToken.None);
-
-            testContext.WriteLine("LanguageClient initialize finished.");
 
             return new(server, client);
         }
