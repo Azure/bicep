@@ -145,6 +145,13 @@ jobs:
           - windows-latest
           - ubuntu-latest
           - macos-latest
+        # OSX runner performance is slow (https://github.com/actions/runner-images/issues/1336).
+        # We can get away with skipping it for PRs, and instead triggering on merges to main.
+        skipOsx:
+          - ${{ github.event_name == 'pull_request' }}
+        exclude:
+          - skipOsx: true
+            os: macos-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -491,8 +498,8 @@ jobs:
           npm test
         working-directory: ./src/monarch
 
-  test-bicep:
-    name: 'Run: ${{matrix.config.name}} (${{ matrix.runtime.rid }})'
+  test-cli-e2e:
+    name: 'Test CLI (e2e) (${{ matrix.runtime.rid }})'
     runs-on: ${{ matrix.runtime.os }}
     needs: build-cli
     strategy:
@@ -500,13 +507,6 @@ jobs:
       fail-fast: false
       # should be the full list of supported RIDs with customizations expressed via the parameters under each item
       matrix:
-        config:
-          - name: Bicep.Core.IntegrationTests
-            filter: FullyQualifiedName~Bicep.Core.IntegrationTests
-          - name: Bicep.LangServer.IntegrationTests
-            filter: FullyQualifiedName~Bicep.LangServer.IntegrationTests
-          - name: All tests except Bicep.Core.IntegrationTests and Bicep.LangServer.IntegrationTests
-            filter: FullyQualifiedName!~Bicep.Core.IntegrationTests&FullyQualifiedName!~Bicep.LangServer.IntegrationTests
         runtime:
           - os: windows-latest
             rid: win-x64
@@ -516,26 +516,16 @@ jobs:
             rid: linux-musl-x64
           - os: macos-latest
             rid: osx-x64
-
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
-
-      - name: Run Tests
-        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v3
-        if: always()
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          name: Bicep.TestResults.${{ matrix.runtime.rid }}
-          path: ./TestResults/*.trx
-          if-no-files-found: error
+          node-version: 18
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@v3
@@ -563,6 +553,52 @@ jobs:
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
+  test-dotnet:
+    name: 'Test Dotnet (${{ matrix.os }}) (${{matrix.config.name}})'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # let us get failures from other jobs even if one fails
+      fail-fast: false
+      matrix:
+        config:
+          - name: Core
+            filter: FullyQualifiedName~Bicep.Core.IntegrationTests
+          - name: LangServer
+            filter: FullyQualifiedName~Bicep.LangServer.IntegrationTests
+          - name: Others
+            filter: FullyQualifiedName!~Bicep.Core.IntegrationTests&FullyQualifiedName!~Bicep.LangServer.IntegrationTests
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+        # OSX runner performance is slow (https://github.com/actions/runner-images/issues/1336).
+        # We can get away with skipping it for PRs, and instead triggering on merges to main.
+        skipOsx:
+          - ${{ github.event_name == 'pull_request' }}
+        exclude:
+          - skipOsx: true
+            os: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+
+      - name: Run Tests
+        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: Bicep.TestResults
+          path: ./TestResults/*.trx
+          if-no-files-found: error
+
       - name: Upload Code Coverage
         uses: codecov/codecov-action@v3
         with:
@@ -570,7 +606,7 @@ jobs:
 
   comment-test-summary:
     name: "PR Comment: Tests Summary"
-    needs: test-bicep
+    needs: test-dotnet
     runs-on: ubuntu-latest
     permissions:
       checks: write
@@ -581,26 +617,8 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: Bicep.TestResults.win-x64
-          path: TestResults/win-x64
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.TestResults.linux-x64
-          path: TestResults/linux-x64
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.TestResults.linux-musl-x64
-          path: TestResults/linux-musl-x64
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.TestResults.osx-x64
-          path: TestResults/osx-x64
+          name: Bicep.TestResults
+          path: TestResults
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
