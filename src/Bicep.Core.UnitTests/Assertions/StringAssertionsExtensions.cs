@@ -97,6 +97,16 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<StringAssertions>(instance);
         }
 
+        public static AndConstraint<StringAssertions> EqualIgnoringTrailingWhitespace(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
+        {
+            var normalizedActual = string.Join("\n", instance.Subject.ReplaceLineEndings("\n").Split("\n").Select(x => x.TrimEnd()));
+            var normalizedExpected = string.Join("\n", expected.ReplaceLineEndings("\n").Split("\n").Select(x => x.TrimEnd()));
+
+            normalizedActual.Should().Be(normalizedExpected, because, becauseArgs);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
         /// <summary>
         /// Compares two strings after normalizing by unindenting lines until the least indented line is flushed left, similar to
         /// YAML blocks of text.
