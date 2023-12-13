@@ -19,13 +19,13 @@ namespace Bicep.Cli.Commands;
 public class LintCommand : ICommand
 {
     private readonly ILogger logger;
-    private readonly IDiagnosticLogger diagnosticLogger;
+    private readonly DiagnosticLogger diagnosticLogger;
     private readonly CompilationService compilationService;
     private readonly IFeatureProviderFactory featureProviderFactory;
 
     public LintCommand(
         ILogger logger,
-        IDiagnosticLogger diagnosticLogger,
+        DiagnosticLogger diagnosticLogger,
         CompilationService compilationService,
         IFeatureProviderFactory featureProviderFactory)
     {
@@ -47,7 +47,6 @@ public class LintCommand : ICommand
             return 1;
         }
 
-        diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
         var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
         if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is { } warningMessage)
@@ -55,9 +54,14 @@ public class LintCommand : ICommand
             logger.LogWarning(warningMessage);
         }
 
-        diagnosticLogger.FlushLog();
+        var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), compilation);
 
         // return non-zero exit code on errors
-        return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+        return summary.HasErrors ? 1 : 0;
     }
+
+    private DiagnosticOptions GetDiagnosticOptions(LintArguments args)
+        => new(
+            Format: args.DiagnosticsFormat ?? DiagnosticsFormat.Default,
+            SarifToStdout: true);
 }

@@ -18,6 +18,7 @@ using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
 using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Utils;
 using Microsoft.Win32;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -226,7 +227,7 @@ namespace Bicep.LanguageServer.Completions
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(version, i))
                     .WithDetail(description)
-                    .WithDocumentation(GetDocumentationLink(documentationUri))
+                    .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))
                     .Build();
 
                 completions.Add(completionItem);
@@ -374,7 +375,7 @@ namespace Bicep.LanguageServer.Completions
                                         .WithFilterText(insertText)
                                         .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
                                         .WithDetail(description)
-                                        .WithDocumentation(GetDocumentationLink(documentationUri))
+                                        .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))
                                         .WithFollowupCompletion("module version completion")
                                         .Build();
 
@@ -423,7 +424,7 @@ namespace Bicep.LanguageServer.Completions
                                     .WithFilterText(insertText)
                                     .WithSortText(GetSortText(label, ModuleCompletionPriority.Alias))
                                     .WithDetail(module.Description)
-                                    .WithDocumentation(GetDocumentationLink(module.DocumentationUri))
+                                    .WithDocumentation(MarkdownHelper.GetDocumentationLink(module.DocumentationUri))
                                     .WithFollowupCompletion("module version completion")
                                     .Build();
                                 completions.Add(completionItem);
@@ -520,7 +521,7 @@ namespace Bicep.LanguageServer.Completions
                     .WithFilterText(insertText)
                     .WithSortText(GetSortText(moduleName))
                     .WithDetail(description)
-                    .WithDocumentation(GetDocumentationLink(documentationUri))
+                    .WithDocumentation(MarkdownHelper.GetDocumentationLink(documentationUri))
                     .WithFollowupCompletion("module version completion")
                     .Build();
 
@@ -660,11 +661,6 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return completions;
-        }
-
-        private static string? GetDocumentationLink(string? documentationUri)
-        {
-            return Bicep.LanguageServer.Utils.MarkdownHelper.GetDocumentationLink(documentationUri);
         }
 
         private static string GetSortText(string label, int priority) => $"{priority}_{label}";

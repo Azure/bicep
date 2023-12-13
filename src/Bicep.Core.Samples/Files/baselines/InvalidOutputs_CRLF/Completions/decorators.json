@@ -4,7 +4,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nallowed(values: array): any\n\n```\n\n"
+      "value": "```bicep\nallowed(values: array): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -25,7 +25,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nbatchSize(batchSize: int): any\n\n```\n\n"
+      "value": "```bicep\nbatchSize(batchSize: int): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -46,7 +46,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\ndescription(text: string): any\n\n```\n\n"
+      "value": "```bicep\ndescription(text: string): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -67,7 +67,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\ndiscriminator(value: string): any\n\n```\n\n"
+      "value": "```bicep\ndiscriminator(value: string): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -88,7 +88,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nmaxLength(length: int): any\n\n```\n\n"
+      "value": "```bicep\nmaxLength(length: int): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -109,7 +109,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nmaxValue(value: int): any\n\n```\n\n"
+      "value": "```bicep\nmaxValue(value: int): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -130,7 +130,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nmetadata(object: object): any\n\n```\n\n"
+      "value": "```bicep\nmetadata(object: object): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -151,7 +151,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nminLength(length: int): any\n\n```\n\n"
+      "value": "```bicep\nminLength(length: int): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -172,7 +172,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nminValue(value: int): any\n\n```\n\n"
+      "value": "```bicep\nminValue(value: int): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -193,7 +193,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nsealed(): any\n\n```\n\n"
+      "value": "```bicep\nsealed(): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -210,7 +210,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nsecure(): any\n\n```\n\n"
+      "value": "```bicep\nsecure(): any\n\n```  \n  \n"
     },
     "deprecated": false,
     "preselect": false,

@@ -177,10 +177,11 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public bool IsArtifactRestoreRequired(ArtifactReference reference) => true;
 
-            public Task PublishArtifact(ArtifactReference reference, Stream compiledArmTemplates, Stream? bicepSources, string? documentationUri, string? description)
-            {
-                throw new NotImplementedException();
-            }
+            public Task PublishModule(ArtifactReference reference, Stream compiledArmTemplates, Stream? bicepSources, string? documentationUri, string? description)
+                => throw new NotImplementedException();
+
+            public Task PublishProvider(ArtifactReference reference, Stream typesTgz)
+                => throw new NotImplementedException();
 
             public Task<bool> CheckArtifactExists(ArtifactReference reference) => throw new NotImplementedException();
 

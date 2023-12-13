@@ -245,7 +245,7 @@ namespace Bicep.Core.Registry
             return await base.InvalidateArtifactsCacheInternal(references);
         }
 
-        public override async Task PublishArtifact(OciArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description)
+        public override async Task PublishModule(OciArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description)
         {
             // This needs to be valid JSON, otherwise there may be compatibility issues.
             // NOTE: Bicep v0.20 and earlier will throw on this, so it's a breaking change.
@@ -281,6 +281,47 @@ namespace Bicep.Core.Registry
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
                     BicepModuleMediaTypes.BicepModuleArtifactType,
+                    config,
+                    layers,
+                    annotations);
+            }
+            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+            {
+                // will include several retry messages, but likely the best we can do
+                throw new ExternalArtifactException(exception.Message, exception);
+            }
+            catch (RequestFailedException exception)
+            {
+                // can only happen if client retries are disabled
+                throw new ExternalArtifactException(exception.Message, exception);
+            }
+        }
+
+        public override async Task PublishProvider(OciArtifactReference reference, Stream typesTgz)
+        {
+            // This needs to be valid JSON, otherwise there may be compatibility issues.
+            var config = new StreamDescriptor(new MemoryStream(Encoding.UTF8.GetBytes("{}")), BicepMediaTypes.BicepProviderConfigV1);
+
+            List<StreamDescriptor> layers = new()
+            {
+                new (
+                    typesTgz,
+                    BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip,
+                    new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
+            };
+
+            var annotations = new OciManifestAnnotationsBuilder()
+                .WithBicepSerializationFormatV1()
+                .WithCreatedTime(DateTime.Now);
+
+            try
+            {
+                await this.client.PushArtifactAsync(
+                    configuration,
+                    reference,
+                    // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
+                    ManifestMediaType.OciImageManifest.ToString(),
+                    BicepMediaTypes.BicepProviderArtifactType,
                     config,
                     layers,
                     annotations);

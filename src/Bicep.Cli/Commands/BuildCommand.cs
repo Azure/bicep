@@ -16,14 +16,14 @@ namespace Bicep.Cli.Commands
     public class BuildCommand : ICommand
     {
         private readonly ILogger logger;
-        private readonly IDiagnosticLogger diagnosticLogger;
+        private readonly DiagnosticLogger diagnosticLogger;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
         private readonly IFeatureProviderFactory featureProviderFactory;
 
         public BuildCommand(
             ILogger logger,
-            IDiagnosticLogger diagnosticLogger,
+            DiagnosticLogger diagnosticLogger,
             CompilationService compilationService,
             CompilationWriter writer,
             IFeatureProviderFactory featureProviderFactory)
@@ -41,7 +41,6 @@ namespace Bicep.Cli.Commands
 
             if (IsBicepFile(inputPath))
             {
-                diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
                 var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
                 if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is { } warningMessage)
@@ -49,7 +48,9 @@ namespace Bicep.Cli.Commands
                     logger.LogWarning(warningMessage);
                 }
 
-                if (diagnosticLogger.ErrorCount < 1)
+                var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), compilation);
+
+                if (!summary.HasErrors)
                 {
                     if (args.OutputToStdOut)
                     {
@@ -64,10 +65,8 @@ namespace Bicep.Cli.Commands
                     }
                 }
 
-                diagnosticLogger.FlushLog();
-
                 // return non-zero exit code on errors
-                return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+                return summary.HasErrors ? 1 : 0;
             }
 
             logger.LogError(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath);
@@ -75,5 +74,10 @@ namespace Bicep.Cli.Commands
         }
 
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
+
+        private DiagnosticOptions GetDiagnosticOptions(BuildArguments args)
+            => new(
+                Format: args.DiagnosticsFormat ?? DiagnosticsFormat.Default,
+                SarifToStdout: false);
     }
 }

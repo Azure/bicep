@@ -500,7 +500,8 @@ namespace Bicep.Core.Emit
 
         private static ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue> CalculateParameterAssignments(SemanticModel model, IDiagnosticWriter diagnostics)
         {
-            if (model.Root.ParameterAssignments.IsEmpty)
+            if (model.Root.ParameterAssignments.IsEmpty ||
+                model.HasParsingErrors())
             {
                 return ImmutableDictionary<ParameterAssignmentSymbol, ParameterAssignmentValue>.Empty;
             }

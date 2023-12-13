@@ -12,9 +12,9 @@ namespace Bicep.Cli.Commands
     public class RestoreCommand : ICommand
     {
         private readonly CompilationService compilationService;
-        private readonly IDiagnosticLogger diagnosticLogger;
+        private readonly DiagnosticLogger diagnosticLogger;
 
-        public RestoreCommand(CompilationService compilationService, IDiagnosticLogger diagnosticLogger)
+        public RestoreCommand(CompilationService compilationService, DiagnosticLogger diagnosticLogger)
         {
             this.compilationService = compilationService;
             this.diagnosticLogger = diagnosticLogger;
@@ -23,10 +23,12 @@ namespace Bicep.Cli.Commands
         public async Task<int> RunAsync(RestoreArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
-            await this.compilationService.RestoreAsync(inputPath, args.ForceModulesRestore);
+            var diagnostics = await this.compilationService.RestoreAsync(inputPath, args.ForceModulesRestore);
+
+            var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, diagnostics);
 
             // return non-zero exit code on errors
-            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+            return summary.HasErrors ? 1 : 0;
         }
     }
 }
