@@ -116,9 +116,9 @@
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Direct",
-        "requested": "[17.7.30, )",
-        "resolved": "17.7.30",
-        "contentHash": "7s/ERY/7eEuyuZE9fzQZZq5FolzckFyoITlkod8butB0ioB8ulW8qzVUAx6E4utMvQn8XAZzbadEUZccZYq+Ng=="
+        "requested": "[17.7.35, )",
+        "resolved": "17.7.35",
+        "contentHash": "4NneyXOKgSVAq6H5CaOXrjq+/MaREl1nVr1O1o2XXSrhWejSmkK7GhzDmoXxL493sOSqYichYii4+AArYEfhww=="
       },
       "MSTest.TestAdapter": {
         "type": "Direct",

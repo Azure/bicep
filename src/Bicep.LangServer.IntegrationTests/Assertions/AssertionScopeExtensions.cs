@@ -22,7 +22,7 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
                 contextName,
                 (data ?? Enumerable.Empty<T>()).Select(x => new PrintHelper.Annotation(FromRange(bicepFile, rangeFunc(x)), messageFunc(x))));
 
-        private static TextSpan FromRange(BicepSourceFile bicepFile, Range range)
+        public static TextSpan FromRange(BicepSourceFile bicepFile, Range range)
         {
             var position = TextCoordinateConverter.GetOffset(bicepFile.LineStarts, range.Start.Line, range.Start.Character);
             var length = TextCoordinateConverter.GetOffset(bicepFile.LineStarts, range.End.Line, range.End.Character) - position;
