@@ -1,6 +1,6 @@
 {
   "msbuild-sdks": {
-    "Microsoft.Build.NoTargets": "3.7.0"
+    "Microsoft.Build.NoTargets": "3.7.56"
   },
   "sdk": {
     "allowPrerelease": false,
