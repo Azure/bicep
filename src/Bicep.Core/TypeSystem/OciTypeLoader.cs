@@ -12,18 +12,17 @@ namespace Bicep.Core.TypeSystem
     public class OciTypeLoader : TypeLoader
     {
         private readonly ImmutableDictionary<string, byte[]> typesCache;
-        private const string typesArtifactFilename = "types.tgz";
+        public const string TypesArtifactFilename = "types.tgz";
         private OciTypeLoader(ImmutableDictionary<string, byte[]> typesCache)
         {
             this.typesCache = typesCache;
         }
 
-        public static OciTypeLoader FromTgz(string typesFileDir)
+        public static OciTypeLoader FromTgz(Stream stream)
         {
             var typesCacheBuilder = ImmutableDictionary.CreateBuilder<string, byte[]>();
 
-            using var fileStream = File.OpenRead(Path.Combine(typesFileDir, typesArtifactFilename));
-            using var gzipStream = new GZipStream(fileStream, CompressionMode.Decompress);
+            using var gzipStream = new GZipStream(stream, CompressionMode.Decompress);
             using var tarReader = new TarReader(gzipStream);
 
             var buffer = new byte[4096]; // Use a larger buffer size for improved I/O performance

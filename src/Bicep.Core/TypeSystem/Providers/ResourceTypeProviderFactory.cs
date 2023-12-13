@@ -62,10 +62,11 @@ namespace Bicep.Core.TypeSystem.Providers
                 return new(x => x.ErrorOccurredReadingFile(ociManifestPath)); ;
             }
 
+            using var fileStream = File.OpenRead(Path.Combine(providerDirectory, OciTypeLoader.TypesArtifactFilename));
             // Register a new types loader
             IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Alias switch
             {
-                AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(providerDirectory)), providerDescriptor.Version),
+                AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version),
                 _ => throw new NotImplementedException($"The provider {providerDescriptor.Alias} is not supported."),
             };
 
