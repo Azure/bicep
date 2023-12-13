@@ -22,7 +22,7 @@ describe("bicep publish-provider", () => {
 
   it("should publish provider", () => {
     const exampleFilePath = pathToExampleFile(
-      "providers",
+      "providers" + environment.suffix,
       "index.json"
     );
     const target = builder.getBicepReference("providers", "v1");
