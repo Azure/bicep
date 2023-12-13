@@ -145,6 +145,13 @@ jobs:
           - windows-latest
           - ubuntu-latest
           - macos-latest
+        # OSX runner performance is slow (https://github.com/actions/runner-images/issues/1336).
+        # We can get away with skipping it for PRs, and instead triggering on merges to main.
+        skipOsx:
+          - ${{ github.event_name == 'pull_request' }}
+        exclude:
+          - skipOsx: true
+            os: macos-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -547,12 +554,11 @@ jobs:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
   test-dotnet:
-    name: 'Test Dotnet (${{ matrix.runtime.rid }}) (${{matrix.config.name}})'
-    runs-on: ${{ matrix.runtime.os }}
+    name: 'Test Dotnet (${{ matrix.os }}) (${{matrix.config.name}})'
+    runs-on: ${{ matrix.os }}
     strategy:
       # let us get failures from other jobs even if one fails
       fail-fast: false
-      # should be the full list of supported RIDs with customizations expressed via the parameters under each item
       matrix:
         config:
           - name: Core
@@ -561,15 +567,17 @@ jobs:
             filter: FullyQualifiedName~Bicep.LangServer.IntegrationTests
           - name: Others
             filter: FullyQualifiedName!~Bicep.Core.IntegrationTests&FullyQualifiedName!~Bicep.LangServer.IntegrationTests
-        runtime:
-          - os: windows-latest
-            rid: win-x64
-          - os: ubuntu-latest
-            rid: linux-x64
-          - os: ubuntu-latest
-            rid: linux-musl-x64
-          - os: macos-latest
-            rid: osx-x64
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+        # OSX runner performance is slow (https://github.com/actions/runner-images/issues/1336).
+        # We can get away with skipping it for PRs, and instead triggering on merges to main.
+        skipOsx:
+          - ${{ github.event_name == 'pull_request' }}
+        exclude:
+          - skipOsx: true
+            os: macos-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -587,7 +595,7 @@ jobs:
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: Bicep.TestResults.${{ matrix.runtime.rid }}
+          name: Bicep.TestResults
           path: ./TestResults/*.trx
           if-no-files-found: error
 
@@ -609,26 +617,8 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: Bicep.TestResults.win-x64
-          path: TestResults/win-x64
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.TestResults.linux-x64
-          path: TestResults/linux-x64
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.TestResults.linux-musl-x64
-          path: TestResults/linux-musl-x64
-
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: Bicep.TestResults.osx-x64
-          path: TestResults/osx-x64
+          name: Bicep.TestResults
+          path: TestResults
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
