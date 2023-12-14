@@ -26,14 +26,15 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public const string BuiltInName = "az";
         public const string GetSecretFunctionName = "getSecret";
-        private static string embeddedAzProviderVersion = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version ?? throw new UnreachableException("The 'Azure.Bicep.Types.Az' assembly should always have a file version attribute.");
+        private static string EmbeddedAzProviderVersion = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
+            ?? throw new UnreachableException("The 'Azure.Bicep.Types.Az' assembly should always have a file version attribute.");
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
             BicepProviderName: BuiltInName,
             ConfigurationType: null,
             ArmTemplateProviderName: "AzureResourceManager",
-            ArmTemplateProviderVersion: new Version(embeddedAzProviderVersion).ToString(3));
+            ArmTemplateProviderVersion: new Version(EmbeddedAzProviderVersion).ToString(3));
 
         private static FunctionOverload.ResultBuilderDelegate AddDiagnosticsAndReturnResult(TypeSymbol returnType, DiagnosticBuilder.DiagnosticBuilderDelegate writeDiagnostic)
         {

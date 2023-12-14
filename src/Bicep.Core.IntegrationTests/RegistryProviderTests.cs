@@ -3,30 +3,34 @@
 
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Threading.Tasks;
 using System.Web.Services.Description;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using FileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.IntegrationTests;
 
 [TestClass]
 public class RegistryProviderTests : TestBase
 {
-    private static ServiceBuilder GetServiceBuilder(IContainerRegistryClientFactory clientFactory)
+    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, IContainerRegistryClientFactory clientFactory)
         => new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true))
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true))
+            .WithFileSystem(fileSystem)
             .WithContainerRegistryClientFactory(clientFactory);
 
     [TestMethod]
-    [Ignore("In true TDD fashion, the functionality to fix this test is yet to be implemented")]
     public async Task Providers_published_to_a_registry_can_be_compiled()
     {
+        System.IO.Abstractions.FileSystem fileSystem = new();
         var registry = "example.azurecr.io";
         var registryUri = new Uri($"https://{registry}");
         var repository = $"test/provider/http";
@@ -40,9 +44,9 @@ public class RegistryProviderTests : TestBase
         var indexJson = Path.Combine(outputDirectory, "types/index.json");
 
         var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients(false, (registryUri, repository));
-        await DataSetsExtensions.PublishProviderToRegistryAsync(new IOFileSystem(), clientFactory, indexJson, $"br:{registry}/{repository}:1.2.3");
+        await DataSetsExtensions.PublishProviderToRegistryAsync(fileSystem, clientFactory, indexJson, $"br:{registry}/{repository}:1.2.3");
 
-        var result = CompilationHelper.Compile(GetServiceBuilder(clientFactory), """
+        var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", """
 provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 
 resource dadJoke 'request@v1' = {
@@ -54,8 +58,17 @@ resource dadJoke 'request@v1' = {
 output joke string = dadJoke.body.joke
 """);
 
-        // TODO fix the below and assert that the template contents are correctly formatted
-        result.Should().NotHaveAnyDiagnostics();
-        result.Template.Should().NotBeNull();
+        var bicepUri = PathHelper.FilePathToFileUrl(bicepPath);
+
+        var compiler = GetServiceBuilder(fileSystem, clientFactory).Build().Construct<BicepCompiler>();
+        var result = CompilationHelper.Compile(await compiler.CreateCompilation(bicepUri));
+
+        // TODO uncomment the below once the 3rd party logic has been implemented
+        // result.Should().NotHaveAnyDiagnostics();
+        // result.Template.Should().NotBeNull();
+
+        // TODO remove this once the above is uncommented
+        result.Should().ContainDiagnostic("BCP204", DiagnosticLevel.Error, "Provider namespace \"http\" is not recognized");
+        result.Should().NotGenerateATemplate();
     }
 }

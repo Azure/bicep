@@ -67,6 +67,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithFileResolver(this IServiceCollection services, IFileResolver fileResolver)
         => Register(services, fileResolver);
 
+    public static IServiceCollection WithFileSystem(this IServiceCollection services, IFileSystem fileSystem)
+        => Register(services, fileSystem);
+
     public static IServiceCollection WithContainerRegistryClientFactory(this IServiceCollection services, IContainerRegistryClientFactory containerRegistryClientFactory)
         => Register(services, containerRegistryClientFactory);
 

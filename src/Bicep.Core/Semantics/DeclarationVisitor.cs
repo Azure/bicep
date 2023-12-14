@@ -183,7 +183,7 @@ namespace Bicep.Core.Semantics
             if (!syntax.Specification.IsValid)
             {
                 return (syntax.SpecificationString is StringSyntax)
-                    ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification())
+                    ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.SpecificationString).InvalidProviderSpecification())
                     : ErrorType.Empty();
             }
 
@@ -193,12 +193,15 @@ namespace Bicep.Core.Semantics
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
             }
 
-            Uri? providerUri = null;
-            if (syntax.Specification.Name == AzNamespaceType.BuiltInName &&
-                features.DynamicTypeLoadingEnabled &&
-                !this.artifactFileLookup.TryGetResourceTypesFileUri(syntax).IsSuccess(out providerUri, out var providerUriLookupErrorBuilder))
+            // Check if the Az provider is recognized and enabled
+            if (syntax.Specification.Name == AzNamespaceType.BuiltInName && !features.DynamicTypeLoadingEnabled)
             {
-                return ErrorType.Create(providerUriLookupErrorBuilder(DiagnosticBuilder.ForPosition(syntax)));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
+            }
+
+            if (!this.artifactFileLookup.TryGetResourceTypesFileUri(syntax).IsSuccess(out var providerUri, out var errorBuilder))
+            {
+                return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
             }
 
             ResourceTypesProviderDescriptor providerDescriptor = new(

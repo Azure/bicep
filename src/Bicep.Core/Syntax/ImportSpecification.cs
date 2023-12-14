@@ -41,7 +41,7 @@ namespace Bicep.Core.Syntax
             RegexOptions.ECMAScript | RegexOptions.Compiled);
 
         private static readonly Regex RepositoryNamePattern = new(
-            @"^\S*[:\/](?<name>az)$",
+            @"^\S*[:\/](?<name>\S+)$",
             RegexOptions.ECMAScript | RegexOptions.Compiled);
 
         private ImportSpecification(string bicepRegistryAddress, string name, string version, bool isValid, TextSpan span)
@@ -65,9 +65,11 @@ namespace Bicep.Core.Syntax
 
         public static ImportSpecification From(SyntaxBase specificationSyntax)
         {
-            if (specificationSyntax is StringSyntax stringSyntax && stringSyntax.TryGetLiteralValue() is { } value)
+            if (specificationSyntax is StringSyntax stringSyntax &&
+                stringSyntax.TryGetLiteralValue() is { } value &&
+                TryCreateFromStringSyntax(stringSyntax, value) is { } specification)
             {
-                return CreateFromStringSyntax(stringSyntax, value);
+                return specification;
             }
 
             return new ImportSpecification(
@@ -78,7 +80,7 @@ namespace Bicep.Core.Syntax
                 specificationSyntax.Span);
         }
 
-        private static ImportSpecification CreateFromStringSyntax(StringSyntax stringSyntax, string value)
+        private static ImportSpecification? TryCreateFromStringSyntax(StringSyntax stringSyntax, string value)
         {
             if (BuiltInSpecificationPattern.Match(value) is { } builtInMatch && builtInMatch.Success)
             {
@@ -99,15 +101,11 @@ namespace Bicep.Core.Syntax
                 // NOTE(asilverman): I normalize the artifact address to the way we represent module addresses, see https://github.com/Azure/bicep/issues/12202
                 var unexpandedArtifactAddress = $"{address}:{version}";
                 var name = RepositoryNamePattern.Match(address).Groups["name"].Value;
-                // NOTE(asilverman): Only a repo name of az is allowed for now. This shall be relaxed once we generalize dynamic type loading for other provider packages.
-                return new(unexpandedArtifactAddress, name, version, name == AzNamespaceType.BuiltInName, span);
+
+                return new(unexpandedArtifactAddress, name, version, true, span);
             }
-            return new(
-                 LanguageConstants.ErrorName,
-                 LanguageConstants.ErrorName,
-                 LanguageConstants.ErrorName,
-                 false,
-                 stringSyntax.Span);
+
+            return null;
         }
     }
 }

@@ -31,20 +31,11 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
         IFeatureProvider featureProvider,
         BicepSourceFileKind sourceFileKind)
     {
-        var namespaceType = defaultNamespaceProvider.TryGetNamespace(
-           providerDescriptor,
-           resourceScope,
-           featureProvider,
-           sourceFileKind);
-
         return providerDescriptor.Name switch
         {
-            FooNamespaceType.BuiltInName
-                => FooNamespaceType.Create(providerDescriptor.Alias),
-            BarNamespaceType.BuiltInName
-                => BarNamespaceType.Create(providerDescriptor.Alias),
-            _
-                => namespaceType,
+            FooNamespaceType.BuiltInName => FooNamespaceType.Create(providerDescriptor.Alias),
+            BarNamespaceType.BuiltInName => BarNamespaceType.Create(providerDescriptor.Alias),
+            _ => defaultNamespaceProvider.TryGetNamespace(providerDescriptor, resourceScope, featureProvider, sourceFileKind),
         };
     }
 }

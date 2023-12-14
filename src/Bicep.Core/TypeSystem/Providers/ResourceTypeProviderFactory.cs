@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.Reflection;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
@@ -23,12 +24,14 @@ namespace Bicep.Core.TypeSystem.Providers
         private record ResourceTypeLoaderKey(string Name, string Version);
         private readonly ResourceTypeLoaderKey BuiltInAzResourceTypeLoaderKey = new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion);
         private readonly Dictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders;
+        private readonly IFileSystem fileSystem;
 
-        public ResourceTypeProviderFactory()
+        public ResourceTypeProviderFactory(IFileSystem fileSystem)
         {
             cachedResourceTypeLoaders = new() {
                 {BuiltInAzResourceTypeLoaderKey, new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()),AzNamespaceType.Settings.ArmTemplateProviderVersion)},
             };
+            this.fileSystem = fileSystem;
         }
 
         public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ResourceTypesProviderDescriptor providerDescriptor, IFeatureProvider features)
@@ -43,18 +46,18 @@ namespace Bicep.Core.TypeSystem.Providers
             {
                 return new(cachedResourceTypeLoaders[key]);
             }
-            // should neverbe null since provider restore success is validated prior.
+            // should never be null since provider restore success is validated prior.
             string providerDirectory = Path.GetDirectoryName(providerDescriptor.Path) ?? throw new UnreachableException("the provider directory doesn't exist");
 
             // compose the path to the OCI manifest based on the cache root directory and provider version
             var ociManifestPath = Path.Combine(providerDirectory, "manifest");
-            if (!File.Exists(ociManifestPath))
+            if (!fileSystem.File.Exists(ociManifestPath))
             {
                 return new(x => x.MalformedProviderPackage(ociManifestPath));
             }
 
             // Read the OCI manifest
-            var manifestFileContents = File.ReadAllText(ociManifestPath);
+            var manifestFileContents = fileSystem.File.ReadAllText(ociManifestPath);
             OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
 
             if (ociManifest is null)
@@ -62,7 +65,7 @@ namespace Bicep.Core.TypeSystem.Providers
                 return new(x => x.ErrorOccurredReadingFile(ociManifestPath)); ;
             }
 
-            using var fileStream = File.OpenRead(Path.Combine(providerDirectory, OciTypeLoader.TypesArtifactFilename));
+            using var fileStream = fileSystem.File.OpenRead(Path.Combine(providerDirectory, OciTypeLoader.TypesArtifactFilename));
             // Register a new types loader
             IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Alias switch
             {
