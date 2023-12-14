@@ -112,11 +112,8 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithAzResourceTypeLoaderFactory(this IServiceCollection services, IResourceTypeLoader loader)
     {
-
-        var factory = StrictMock.Of<IResourceTypeProviderFactory>();
         var provider = new AzResourceTypeProvider(loader, AzNamespaceType.Settings.ArmTemplateProviderVersion);
-        factory.Setup(m => m.GetResourceTypeProvider(It.IsAny<ResourceTypesProviderDescriptor>(), It.IsAny<IFeatureProvider>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
-        return Register(services, factory.Object);
+        return Register(services, TestTypeHelper.CreateResourceTypeLoaderFactory(provider));
     }
 
     public static IServiceCollection WithAzResourceProvider(this IServiceCollection services, IAzResourceProvider azResourceProvider)

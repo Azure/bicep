@@ -198,6 +198,19 @@ namespace Bicep.Core.Samples
             await dispatcher.PublishProvider(targetReference, tgzStream);
         }
 
+        public static async Task<IContainerRegistryClientFactory> GetClientFactoryWithAzModulePublished(IFileSystem fileSystem, string pathToIndexJson)
+        {
+            var registry = LanguageConstants.BicepPublicMcrRegistry;
+            var registryUri = new Uri($"https://{registry}");
+            var repository = $"bicep/providers/az";
+            var version = BicepTestConstants.BuiltinAzProviderVersion;
+
+            var (clientFactory, _) = CreateMockRegistryClients(false, (registryUri, repository));
+            await PublishProviderToRegistryAsync(fileSystem, clientFactory, pathToIndexJson, $"br:{registry}/{repository}:{version}");
+
+            return clientFactory;
+        }
+
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
     }
 }

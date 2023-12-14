@@ -53,6 +53,12 @@ namespace Bicep.Core.UnitTests
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
+        public static ResourceTypesProviderDescriptor BuiltInAzProviderDescriptor { get; } = new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion);
+
+        public static ResourceTypesProviderDescriptor BuiltInSysProviderDescriptor { get; } = new(SystemNamespaceType.BuiltInName, SystemNamespaceType.Settings.ArmTemplateProviderVersion);
+
+        public static ResourceTypesProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = new(MicrosoftGraphNamespaceType.BuiltInName, MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion);
+
         // Linter rules added to this list will be automtically disabled for most tests.
         // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
         public static readonly string[] AnalyzerRulesToDisableInTests = Array.Empty<string>();

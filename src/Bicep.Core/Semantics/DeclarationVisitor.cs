@@ -199,7 +199,9 @@ namespace Bicep.Core.Semantics
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
             }
 
-            if (!this.artifactFileLookup.TryGetResourceTypesFileUri(syntax).IsSuccess(out var providerUri, out var errorBuilder))
+            Uri? typesBaseUri = null;
+            if (syntax.Path is not null &&
+                !this.artifactFileLookup.TryGetResourceTypesFileUri(syntax).IsSuccess(out typesBaseUri, out var errorBuilder))
             {
                 return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
             }
@@ -208,7 +210,7 @@ namespace Bicep.Core.Semantics
                 syntax.Specification.Name,
                 syntax.Specification.Version,
                 syntax.Alias?.IdentifierName,
-                providerUri);
+                typesBaseUri);
 
             if (namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind) is not { } namespaceType)
             {

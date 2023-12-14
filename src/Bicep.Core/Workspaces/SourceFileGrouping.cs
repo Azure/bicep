@@ -35,7 +35,6 @@ public class SourceFileGrouping : IArtifactFileLookup
         FileResultByUri = fileResultByUri;
         FileUriResultByArtifactReference = fileUriResultByArtifactReference;
         SourceFileParentLookup = sourceFileParentLookup;
-        UriResults = fileUriResultByArtifactReference.Values.SelectMany(kvp => kvp).ToImmutableDictionary();
     }
 
     public IFileResolver FileResolver { get; }
@@ -45,8 +44,6 @@ public class SourceFileGrouping : IArtifactFileLookup
     public ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> FileResultByUri { get; }
 
     public ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> FileUriResultByArtifactReference { get; }
-
-    public ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>> UriResults { get; }
 
     public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; }
 
@@ -70,6 +67,9 @@ public class SourceFileGrouping : IArtifactFileLookup
     public IEnumerable<ISourceFile> SourceFiles => FileResultByUri.Values.Select(x => x.IsSuccess(out var success) ? success : null).WhereNotNull();
 
     public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference)
+        => TryGetResourceTypesFileUri(foreignTemplateReference).IsSuccess(out var fileUri, out var errorBuilder) ? FileResultByUri[fileUri] : new(errorBuilder);
+
+    public ResultWithDiagnostic<Uri> TryGetResourceTypesFileUri(IArtifactReferenceSyntax foreignTemplateReference)
     {
         var uriResult = FileUriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
         if (!uriResult.IsSuccess(out var fileUri, out var error))
@@ -77,16 +77,6 @@ public class SourceFileGrouping : IArtifactFileLookup
             return new(error.ErrorBuilder);
         }
 
-        return FileResultByUri[fileUri];
-    }
-
-    public ResultWithDiagnostic<Uri> TryGetResourceTypesFileUri(ProviderDeclarationSyntax foreignTemplateReference)
-    {
-        var uriResult = FileUriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
-        if (!uriResult.IsSuccess(out var fileUri, out var error))
-        {
-            return new(error.ErrorBuilder);
-        }
         return new(fileUri);
     }
 

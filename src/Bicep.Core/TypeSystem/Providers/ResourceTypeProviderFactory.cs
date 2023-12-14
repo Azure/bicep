@@ -21,36 +21,33 @@ namespace Bicep.Core.TypeSystem.Providers
 {
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
+        private static readonly Lazy<IResourceTypeProvider> azResourceTypeProviderLazy 
+            = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()),AzNamespaceType.Settings.ArmTemplateProviderVersion));
+
         private record ResourceTypeLoaderKey(string Name, string Version);
-        private readonly ResourceTypeLoaderKey BuiltInAzResourceTypeLoaderKey = new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion);
-        private readonly Dictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders;
+        private readonly Dictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders = new();
         private readonly IFileSystem fileSystem;
 
         public ResourceTypeProviderFactory(IFileSystem fileSystem)
         {
-            cachedResourceTypeLoaders = new() {
-                {BuiltInAzResourceTypeLoaderKey, new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()),AzNamespaceType.Settings.ArmTemplateProviderVersion)},
-            };
             this.fileSystem = fileSystem;
         }
 
-        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ResourceTypesProviderDescriptor providerDescriptor, IFeatureProvider features)
+        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProviderFromFilePath(ResourceTypesProviderDescriptor providerDescriptor)
         {
-            if (!features.DynamicTypeLoadingEnabled)
-            {
-                return new(cachedResourceTypeLoaders[BuiltInAzResourceTypeLoaderKey]);
-            }
             var key = new ResourceTypeLoaderKey(providerDescriptor.Alias, providerDescriptor.Version);
 
             if (cachedResourceTypeLoaders.ContainsKey(key))
             {
                 return new(cachedResourceTypeLoaders[key]);
             }
+
             // should never be null since provider restore success is validated prior.
-            string providerDirectory = Path.GetDirectoryName(providerDescriptor.Path) ?? throw new UnreachableException("the provider directory doesn't exist");
+            var typesTgzPath = providerDescriptor.TypesBaseUri?.AbsolutePath ?? throw new UnreachableException("the provider directory doesn't exist");
+            var typesParentPath =  Path.GetDirectoryName(typesTgzPath) ?? throw new UnreachableException("the provider directory doesn't exist");
 
             // compose the path to the OCI manifest based on the cache root directory and provider version
-            var ociManifestPath = Path.Combine(providerDirectory, "manifest");
+            var ociManifestPath = Path.Combine(typesParentPath, "manifest");
             if (!fileSystem.File.Exists(ociManifestPath))
             {
                 return new(x => x.MalformedProviderPackage(ociManifestPath));
@@ -65,7 +62,7 @@ namespace Bicep.Core.TypeSystem.Providers
                 return new(x => x.ErrorOccurredReadingFile(ociManifestPath)); ;
             }
 
-            using var fileStream = fileSystem.File.OpenRead(Path.Combine(providerDirectory, OciTypeLoader.TypesArtifactFilename));
+            using var fileStream = fileSystem.File.OpenRead(Path.Combine(typesParentPath, OciTypeLoader.TypesArtifactFilename));
             // Register a new types loader
             IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Alias switch
             {
@@ -78,8 +75,6 @@ namespace Bicep.Core.TypeSystem.Providers
         }
 
         public IResourceTypeProvider GetBuiltInAzResourceTypesProvider()
-        {
-            return cachedResourceTypeLoaders[BuiltInAzResourceTypeLoaderKey];
-        }
+            => azResourceTypeProviderLazy.Value;
     }
 }

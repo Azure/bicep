@@ -48,10 +48,8 @@ namespace Bicep.Core.UnitTests.Utils
         public static IResourceTypeProviderFactory CreateResourceTypeLoaderFactory(IResourceTypeProvider provider)
         {
             var factory = StrictMock.Of<IResourceTypeProviderFactory>();
-            factory.Setup(m => m.GetResourceTypeProvider(
-                It.IsAny<ResourceTypesProviderDescriptor>(),
-                It.IsAny<IFeatureProvider>()))
-                .Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
+            factory.Setup(m => m.GetResourceTypeProviderFromFilePath(It.IsAny<ResourceTypesProviderDescriptor>())).Returns(new ResultWithDiagnostic<IResourceTypeProvider>(provider));
+            factory.Setup(m => m.GetBuiltInAzResourceTypesProvider()).Returns(provider);
             return factory.Object;
         }
 

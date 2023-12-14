@@ -20,11 +20,6 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
         defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeProviderFactory);
     }
 
-    public IEnumerable<string> AvailableNamespaces => defaultNamespaceProvider.AvailableNamespaces.Concat(new[] {
-        FooNamespaceType.BuiltInName,
-        BarNamespaceType.BuiltInName,
-    });
-
     public NamespaceType? TryGetNamespace(
         ResourceTypesProviderDescriptor providerDescriptor,
         ResourceScope resourceScope,

@@ -44,20 +44,20 @@ namespace Bicep.Core.Syntax
             @"^\S*[:\/](?<name>\S+)$",
             RegexOptions.ECMAScript | RegexOptions.Compiled);
 
-        private ImportSpecification(string bicepRegistryAddress, string name, string version, bool isValid, TextSpan span)
+        private ImportSpecification(string name, string version, string? bicepRegistryAddress, TextSpan span, bool isValid)
         {
-            BicepRegistryAddress = bicepRegistryAddress;
             Name = name;
             Version = version;
+            BicepRegistryAddress = bicepRegistryAddress;
             IsValid = isValid;
             Span = span;
         }
 
-        public string BicepRegistryAddress { get; }
-
         public string Name { get; }
 
         public string Version { get; }
+
+        public string? BicepRegistryAddress { get; }
 
         public bool IsValid { get; }
 
@@ -72,12 +72,12 @@ namespace Bicep.Core.Syntax
                 return specification;
             }
 
-            return new ImportSpecification(
+            return new(
                 LanguageConstants.ErrorName,
                 LanguageConstants.ErrorName,
-                LanguageConstants.ErrorName,
-                false,
-                specificationSyntax.Span);
+                null,
+                specificationSyntax.Span,
+                isValid: false);
         }
 
         private static ImportSpecification? TryCreateFromStringSyntax(StringSyntax stringSyntax, string value)
@@ -88,7 +88,7 @@ namespace Bicep.Core.Syntax
                 var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
                 var version = builtInMatch.Groups["version"].Value;
                 // built-in providers (e.g. kubernetes@1.0.0 or sys@1.0.0) are allowed as long as the name is not 'az'
-                return new(name, name, version, name != AzNamespaceType.BuiltInName, span);
+                return new(name, version, null, span, isValid: name != AzNamespaceType.BuiltInName);
             }
 
             if (FromRegistrySpecificationPattern.Match(value) is { } registryMatch && registryMatch.Success)
@@ -102,7 +102,7 @@ namespace Bicep.Core.Syntax
                 var unexpandedArtifactAddress = $"{address}:{version}";
                 var name = RepositoryNamePattern.Match(address).Groups["name"].Value;
 
-                return new(unexpandedArtifactAddress, name, version, true, span);
+                return new(name, version, unexpandedArtifactAddress, span, isValid: true);
             }
 
             return null;

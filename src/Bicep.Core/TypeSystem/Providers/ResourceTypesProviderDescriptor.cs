@@ -12,23 +12,19 @@ public record ResourceTypesProviderDescriptor
         string name,
         string version,
         string? alias = null,
-        Uri? path = null,
-        TextSpan? span = null)
+        Uri? typesBaseUri = null)
     {
-        Span = span ?? TextSpan.TextDocumentStart;
         Name = name;
         Alias = alias ?? name;
         Version = version;
-        Path = path?.AbsolutePath;
+        TypesBaseUri = typesBaseUri;
     }
 
     public string Name { get; }
 
     public string Alias { get; }
 
-    public string? Path { get; }
+    public Uri? TypesBaseUri { get; }
 
     public string Version { get; }
-
-    public TextSpan Span { get; }
 }

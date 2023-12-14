@@ -7,12 +7,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text;
+using System.Threading.Tasks;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
+using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -31,25 +33,23 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
-
-    public class ImportTests
+    public class ImportTests : TestBase
     {
-        private ServiceBuilder ServicesWithImports => new ServiceBuilder()
-           .WithFeatureOverrides(new(
-               CacheRootDirectory: InMemoryFileResolver.GetFileUri("/test/.bicep").LocalPath,
-               ExtensibilityEnabled: true,
-               DynamicTypeLoadingEnabled: true))
-            .WithNamespaceProvider(
-            new TestNamespaceProvider(new()
-            {
-                [AzNamespaceType.BuiltInName] = aliasName => AzNamespaceType.Create(
-                    aliasName,
-                    ResourceScope.ResourceGroup,
-                     new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), AzNamespaceType.Settings.ArmTemplateProviderVersion),
-                     BicepSourceFileKind.BicepFile),
-                [K8sNamespaceType.BuiltInName] = K8sNamespaceType.Create
-            })
-            );
+        private static readonly Lazy<IResourceTypeLoader> azTypeLoaderLazy = new(() => new AzResourceTypeLoader(new AzTypeLoader()));
+
+        private async Task<ServiceBuilder> GetServices()
+        {
+            var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"Resources": {}, "Functions": {}}""");
+            var clientFactory = await DataSetsExtensions.GetClientFactoryWithAzModulePublished(new System.IO.Abstractions.FileSystem(), indexJson);
+
+            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(cacheRoot);
+
+            return new ServiceBuilder()
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: cacheRoot))
+                .WithContainerRegistryClientFactory(clientFactory)
+                .WithAzResourceTypeLoader(azTypeLoaderLazy.Value);
+        }
 
         private class TestNamespaceProvider : INamespaceProvider
         {
@@ -61,8 +61,6 @@ namespace Bicep.Core.IntegrationTests
             }
 
             public static bool AllowImportStatements => true;
-
-            public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new[] { SystemNamespaceType.BuiltInName });
 
             public NamespaceType? TryGetNamespace(
                 ResourceTypesProviderDescriptor typesProviderDescriptor,
@@ -77,14 +75,12 @@ namespace Bicep.Core.IntegrationTests
                     };
         }
 
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
         [TestMethod]
-        public void Imports_are_disabled_unless_feature_is_enabled()
+        public async Task Imports_are_disabled_unless_feature_is_enabled()
         {
-            var result = CompilationHelper.Compile(@"
-provider 'br/public:az@0.0.0'
+            var services = new ServiceBuilder();
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
@@ -94,30 +90,31 @@ provider 'br/public:az@0.0.0'
         }
 
         [TestMethod]
-        public void Import_statement_parse_diagnostics_are_guiding()
+        public async Task Import_statement_parse_diagnostics_are_guiding()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @"
+            var services = await GetServices();
+            var result = await CompilationHelper.RestoreAndCompile(services, @"
 provider
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location."),
             });
 
-            result = CompilationHelper.Compile(ServicesWithImports, @"
+            result = await CompilationHelper.RestoreAndCompile(services, @"
 provider 'sys@1.0.0' blahblah
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
             });
 
-            result = CompilationHelper.Compile(ServicesWithImports, @"
+            result = await CompilationHelper.RestoreAndCompile(services, @"
 provider 'kubernetes@1.0.0' with
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
             });
 
-            result = CompilationHelper.Compile(ServicesWithImports, @"
+            result = await CompilationHelper.RestoreAndCompile(services, @"
 provider 'kubernetes@1.0.0' with {
   kubeConfig: 'foo'
   namespace: 'bar'
@@ -127,7 +124,7 @@ provider 'kubernetes@1.0.0' with {
                 ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
             });
 
-            result = CompilationHelper.Compile(ServicesWithImports, @"
+            result = await CompilationHelper.RestoreAndCompile(services, @"
 provider 'kubernetes@1.0.0' with {
   kubeConfig: 'foo'
   namespace: 'bar'
@@ -137,7 +134,7 @@ provider 'kubernetes@1.0.0' with {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
 
-            result = CompilationHelper.Compile(ServicesWithImports, @"
+            result = await CompilationHelper.RestoreAndCompile(services, @"
 provider 'sys@1.0.0' as
 ");
             result.Should().HaveDiagnostics(new[] {
@@ -146,9 +143,9 @@ provider 'sys@1.0.0' as
         }
 
         [TestMethod]
-        public void Using_import_instead_of_provider_raises_warning()
+        public async Task Using_import_instead_of_provider_raises_warning()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
 import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
 ");
             result.Should().HaveDiagnostics(new[] {
@@ -157,9 +154,9 @@ import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
         }
 
         [TestMethod]
-        public void Imports_return_error_with_unrecognized_namespace()
+        public async Task Imports_return_error_with_unrecognized_namespace()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"
 provider 'madeUpNamespace@1.0.0'
 ");
             result.Should().HaveDiagnostics(new[] {
@@ -168,9 +165,9 @@ provider 'madeUpNamespace@1.0.0'
         }
 
         [TestMethod]
-        public void Import_configuration_is_blocked_by_default()
+        public async Task Import_configuration_is_blocked_by_default()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
             provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' with {{
               foo: 'bar'
             }}
@@ -181,9 +178,9 @@ provider 'madeUpNamespace@1.0.0'
         }
 
         [TestMethod]
-        public void Using_import_statements_frees_up_the_namespace_symbol()
+        public async Task Using_import_statements_frees_up_the_namespace_symbol()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
 provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as newAz
 
 var az = 'Fake AZ!'
@@ -197,9 +194,9 @@ output rgLocation string = myRg.location
         }
 
         [TestMethod]
-        public void You_can_swap_imported_namespaces_if_you_really_really_want_to()
+        public async Task You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
 provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
 provider 'sys@1.0.0' as az
 
@@ -214,9 +211,9 @@ output rgLocation string = myRg.location
         }
 
         [TestMethod]
-        public void Overwriting_single_built_in_namespace_with_import_is_prohibited()
+        public async Task Overwriting_single_built_in_namespace_with_import_is_prohibited()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
 provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
 
 var myRg = sys.resourceGroup()
@@ -228,9 +225,9 @@ output rgLocation string = myRg.location
         }
 
         [TestMethod]
-        public void Singleton_imports_cannot_be_used_multiple_times()
+        public async Task Singleton_imports_cannot_be_used_multiple_times()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
 provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az1
 provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az2
 
@@ -247,9 +244,9 @@ provider 'sys@1.0.0' as sys2
         }
 
         [TestMethod]
-        public void Import_names_must_not_conflict_with_other_symbols()
+        public async Task Import_names_must_not_conflict_with_other_symbols()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
 provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
 provider 'kubernetes@1.0.0' with {{
   kubeConfig: ''
@@ -264,7 +261,7 @@ provider 'kubernetes@1.0.0' with {{
         }
 
         [TestMethod]
-        public void Ambiguous_function_references_must_be_qualified()
+        public async Task Ambiguous_function_references_must_be_qualified()
         {
             var nsProvider = new TestNamespaceProvider(new()
             {
@@ -302,9 +299,9 @@ provider 'kubernetes@1.0.0' with {{
                     new EmptyResourceTypeProvider()),
             });
 
-            var services = ServicesWithImports.WithNamespaceProvider(nsProvider);
+            var services = (await GetServices()).WithNamespaceProvider(nsProvider);
 
-            var result = CompilationHelper.Compile(services, @"
+            var result = await CompilationHelper.RestoreAndCompile(services, @"
 provider 'ns1@1.0.0' as ns1
 provider 'ns2@1.0.0' as ns2
 
@@ -318,7 +315,7 @@ output ns2Result string = ns2Func()
             });
 
             // fix by fully-qualifying
-            result = CompilationHelper.Compile(services, @"
+            result = await CompilationHelper.RestoreAndCompile(services, @"
 provider 'ns1@1.0.0' as ns1
 provider 'ns2@1.0.0' as ns2
 
@@ -331,7 +328,7 @@ output ns2Result string = ns2Func()
         }
 
         [TestMethod]
-        public void Config_with_optional_properties_can_be_skipped()
+        public async Task Config_with_optional_properties_can_be_skipped()
         {
             var nsProvider = new TestNamespaceProvider(new()
             {
@@ -357,9 +354,9 @@ output ns2Result string = ns2Func()
                     new EmptyResourceTypeProvider()),
             });
 
-            var services = ServicesWithImports.WithNamespaceProvider(nsProvider);
+            var services = (await GetServices()).WithNamespaceProvider(nsProvider);
 
-            var result = CompilationHelper.Compile(services, @"
+            var result = await CompilationHelper.RestoreAndCompile(services, @"
 provider 'mockNs@1.0.0' with {
   optionalConfig: 'blah blah'
 } as ns1
@@ -370,9 +367,9 @@ provider 'mockNs@1.0.0' as ns2
         }
 
         [TestMethod]
-        public void MicrosoftGraph_imports_succeed_with_preview_feature_enabled()
+        public async Task MicrosoftGraph_imports_succeed_with_preview_feature_enabled()
         {
-            var result = CompilationHelper.Compile(ServicesWithImports, @"provider 'microsoftGraph@1.0.0' as graph");
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"provider 'microsoftGraph@1.0.0' as graph");
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP204", DiagnosticLevel.Error, "Provider namespace \"microsoftGraph\" is not recognized."),
@@ -381,7 +378,7 @@ provider 'mockNs@1.0.0' as ns2
             var serviceWithPreview = new ServiceBuilder()
                 .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: true));
 
-            result = CompilationHelper.Compile(serviceWithPreview, @"provider 'microsoftGraph@1.0.0' as graph");
+            result = await CompilationHelper.RestoreAndCompile(serviceWithPreview, @"provider 'microsoftGraph@1.0.0' as graph");
 
             result.Should().NotHaveAnyDiagnostics();
         }

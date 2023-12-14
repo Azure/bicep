@@ -68,7 +68,7 @@ output joke string = dadJoke.body.joke
         // result.Template.Should().NotBeNull();
 
         // TODO remove this once the above is uncommented
-        result.Should().ContainDiagnostic("BCP204", DiagnosticLevel.Error, "Provider namespace \"http\" is not recognized");
+        result.Should().ContainDiagnostic("BCP204", DiagnosticLevel.Error, "Provider namespace \"http\" is not recognized.");
         result.Should().NotGenerateATemplate();
     }
 }
