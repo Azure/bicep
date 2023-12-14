@@ -40,14 +40,11 @@ using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    public class HoverTests
+    public class HoverTests : TestBase
     {
         private static readonly SharedLanguageHelperManager DefaultServer = new();
         private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
         private static readonly SharedLanguageHelperManager ServerWithTestNamespaceProvider = new();
-
-        [NotNull]
-        public TestContext? TestContext { get; set; }
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
