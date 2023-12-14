@@ -53,6 +53,7 @@ namespace Bicep.Core.Registry
 
             var lockFileUri = this.GetArtifactLockFileUri(reference);
             var stopwatch = Stopwatch.StartNew();
+            :q
 
             while (stopwatch.Elapsed < ArtifactDirectoryContentionTimeout)
             {
