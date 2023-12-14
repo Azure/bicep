@@ -60,9 +60,9 @@
       },
       "Microsoft.VisualStudio.Threading.Analyzers": {
         "type": "Direct",
-        "requested": "[17.7.35, )",
-        "resolved": "17.7.35",
-        "contentHash": "4NneyXOKgSVAq6H5CaOXrjq+/MaREl1nVr1O1o2XXSrhWejSmkK7GhzDmoXxL493sOSqYichYii4+AArYEfhww=="
+        "requested": "[17.8.14, )",
+        "resolved": "17.8.14",
+        "contentHash": "/j6+pl6ckiOPAWZmhwugA/cXmu7cQ7Hx2xmf70sQcZLVWqKrjgdoE4Gww2dJXN1M3x4NLotnpiwBR2ryG2J+9w=="
       },
       "Moq": {
         "type": "Direct",
