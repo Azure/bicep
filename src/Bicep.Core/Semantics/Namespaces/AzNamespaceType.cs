@@ -26,7 +26,7 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public const string BuiltInName = "az";
         public const string GetSecretFunctionName = "getSecret";
-        private static string EmbeddedAzProviderVersion = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
+        private static readonly string EmbeddedAzProviderVersion = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>()?.Version
             ?? throw new UnreachableException("The 'Azure.Bicep.Types.Az' assembly should always have a file version attribute.");
 
         public static NamespaceSettings Settings { get; } = new(
@@ -47,21 +47,21 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static FunctionResult GetRestrictedResourceGroupReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
-                new ResourceGroupScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()),
+                new ResourceGroupScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
                 new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
         private static FunctionResult GetRestrictedSubscriptionReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
-                new SubscriptionScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()),
+                new SubscriptionScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
                 new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
         private static FunctionResult GetRestrictedManagementGroupReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
-                new ManagementGroupScopeType(functionCall.Arguments.ToImmutableArray(), Enumerable.Empty<TypeProperty>()),
+                new ManagementGroupScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
                 new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
         private static FunctionResult GetTenantReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
-            => new(new TenantScopeType(functionCall.Arguments.ToImmutableArray(), new[]
+            => new(new TenantScopeType(functionCall.Arguments, new[]
             {
                 new TypeProperty("tenantId", LanguageConstants.String),
                 new TypeProperty("country", LanguageConstants.String),
@@ -93,7 +93,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("details", details)
             }, null);
 
-            return new(new ManagementGroupScopeType(functionCall.Arguments.ToImmutableArray(), new[]
+            return new(new ManagementGroupScopeType(functionCall.Arguments, new[]
             {
                 new TypeProperty("id", LanguageConstants.String),
                 new TypeProperty("name", LanguageConstants.String),
@@ -109,7 +109,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("provisioningState", LanguageConstants.String),
             }, null);
 
-            return new(new ResourceGroupScopeType(functionCall.Arguments.ToImmutableArray(), new[]
+            return new(new ResourceGroupScopeType(functionCall.Arguments, new[]
             {
                 new TypeProperty("id", LanguageConstants.String),
                 new TypeProperty("name", LanguageConstants.String),
@@ -123,7 +123,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static FunctionResult GetSubscriptionReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
-            return new(new SubscriptionScopeType(functionCall.Arguments.ToImmutableArray(), new[]
+            return new(new SubscriptionScopeType(functionCall.Arguments, new[]
             {
                 new TypeProperty("id", LanguageConstants.String),
                 new TypeProperty("subscriptionId", LanguageConstants.String),
