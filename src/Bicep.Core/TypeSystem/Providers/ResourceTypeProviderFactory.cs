@@ -67,7 +67,7 @@ namespace Bicep.Core.TypeSystem.Providers
             IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Alias switch
             {
                 AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version),
-                _ => throw new NotImplementedException($"The provider {providerDescriptor.Alias} is not supported."),
+                _ => new new ThirdPartyTypeProvider(new ThirdPartyResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version),
             };
 
             return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);
