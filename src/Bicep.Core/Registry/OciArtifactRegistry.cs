@@ -504,9 +504,9 @@ namespace Bicep.Core.Registry
             return Path.Combine(this.GetArtifactDirectoryPath(reference), fileName);
         }
 
-        public override SourceArchive? TryGetSource(OciArtifactReference reference)
+        public override SourceArchive? TryGetSource(OciArtifactReference reference) //asdfgasdfg
         {
-            var zipPath = GetArtifactFilePath(reference, ArtifactFileType.Source);
+            var zipPath = GetArtifactFilePath(reference, ArtifactFileType.Source); //asdfgasdfg use file provider
             if (File.Exists(zipPath))
             {
                 return SourceArchive.FromStream(File.OpenRead(zipPath));

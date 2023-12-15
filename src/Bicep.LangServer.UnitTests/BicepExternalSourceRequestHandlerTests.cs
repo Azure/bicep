@@ -170,7 +170,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(fileUri, null));
 
             SourceArchive? sourceArchive = null;
-            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
+            dispatcher.Setup(m => m.TryGetModuleSourceArchive(moduleReference!)).Returns(sourceArchive);
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, readFailureBuilder));
@@ -210,7 +210,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(fileUri, null));
 
             SourceArchive? sourceArchive = null;
-            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
+            dispatcher.Setup(m => m.TryGetModuleSourceArchive(moduleReference!)).Returns(sourceArchive);
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, nullBuilder));
@@ -251,7 +251,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepSource = "metadata hi 'mom'";
             var sourceArchive = SourceArchive.FromStream(SourceArchive.PackSourcesIntoStream(fileUri, new Core.Workspaces.ISourceFile[] {
                 SourceFileFactory.CreateBicepFile(fileUri, bicepSource)}));
-            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
+            dispatcher.Setup(m => m.TryGetModuleSourceArchive(moduleReference!)).Returns(sourceArchive);
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, nullBuilder));
@@ -298,7 +298,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public void GetExternalSourceLinkUri_ModuleReferenceShouldBeCorrect(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
-            DecodeExternalSourceUri(result).ModuleParts.ArtifactId.Should().Be($"{testData.registry}/{testData.repository}{testData.tagOrDigest}");
+            DecodeExternalSourceUri(result).ModuleAddressComponents.ArtifactId.Should().Be($"{testData.registry}/{testData.repository}{testData.tagOrDigest}");
         }
 
         [DataTestMethod]

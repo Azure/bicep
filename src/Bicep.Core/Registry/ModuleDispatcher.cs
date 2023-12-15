@@ -35,7 +35,7 @@ namespace Bicep.Core.Registry
             this.configurationManager = configurationManager;
         }
 
-        private ImmutableDictionary<string, IArtifactRegistry> Registries(Uri parentModuleUri)
+        private ImmutableDictionary<string, IArtifactRegistry> Registries(Uri parentModuleUri) //asdfgasdfg
             => registryProvider.Registries(parentModuleUri).ToImmutableDictionary(r => r.Scheme);
 
         public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
@@ -47,7 +47,7 @@ namespace Bicep.Core.Registry
 
         public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri)
         {
-            var registries = Registries(parentModuleUri);
+            var registries = Registries(parentModuleUri); //asdfgasdfg
             var parts = reference.Split(':', 2, StringSplitOptions.None);
             switch (parts.Length)
             {
@@ -232,7 +232,7 @@ namespace Bicep.Core.Registry
         private IArtifactRegistry GetRegistry(ArtifactReference reference) =>
             Registries(reference.ParentModuleUri).TryGetValue(reference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected artifactDeclaration reference scheme '{reference.Scheme}'.");
 
-        public SourceArchive? TryGetModuleSources(ArtifactReference reference)
+        public SourceArchive? TryGetModuleSourceArchive(ArtifactReference reference) //asdfg remove?
         {
             var registry = this.GetRegistry(reference);
             return registry.TryGetSource(reference);

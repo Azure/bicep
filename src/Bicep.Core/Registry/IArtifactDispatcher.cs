@@ -31,7 +31,8 @@ namespace Bicep.Core.Registry
 
         void PruneRestoreStatuses();
 
+        //asdfg refactor: remove from here
         // Retrieves the sources that have been restored along with the module into the cache (if available)
-        SourceArchive? TryGetModuleSources(ArtifactReference reference);
+        SourceArchive? TryGetModuleSourceArchive(ArtifactReference reference);
     }
 }

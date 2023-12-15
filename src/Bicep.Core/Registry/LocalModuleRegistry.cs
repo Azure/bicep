@@ -16,6 +16,8 @@ namespace Bicep.Core.Registry
 {
     public class LocalModuleRegistry : ArtifactRegistry<LocalModuleReference>
     {
+        // CONSIDER: Should parentModuleUri should be passed in when needed, rather than being a field on the registry, which complicates IArtifactRegistryProvider's API?
+
         private readonly IFileResolver fileResolver;
         private readonly Uri parentModuleUri;
         private readonly BicepCompiler? bicepCompiler;

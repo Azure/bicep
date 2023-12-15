@@ -198,7 +198,7 @@ namespace Bicep.LanguageServer.Handlers
                 return sourceFile.FileUri;
             }
 
-            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(ociReference, moduleDispatcher.TryGetModuleSources(reference));
+            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(ociReference, moduleDispatcher.TryGetModuleSourceArchive(reference));
         }
 
         private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, DefinitionParams request, SymbolResolutionResult result, WildcardImportSymbol wildcardImport)

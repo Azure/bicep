@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
+using Bicep.Core.Registry;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
@@ -33,7 +34,7 @@ namespace Bicep.LangServer.IntegrationTests
             this.notificationRouter = notificationRouter;
         }
 
-        public static async Task<MultiFileLanguageServerHelper> StartLanguageServer(TestContext testContext, Action<IServiceCollection>? onRegisterServices = null)
+        public static async Task<MultiFileLanguageServerHelper> StartLanguageServer(TestContext testContext, Action<IServiceCollection>? onRegisterServices = null, IArtifactRegistry[]? artifactRegistries = null/*asdfg*/)
         {
             var notificationRouter = new ConcurrentDictionary<DocumentUri, MultipleMessageListener<PublishDiagnosticsParams>>();
             var helper = await LanguageServerHelper.StartServer(
@@ -53,7 +54,8 @@ namespace Bicep.LangServer.IntegrationTests
                         throw new AssertFailedException($"Task completion source was not registered for document uri '{p.Uri}'.");
                     });
                 },
-                onRegisterServices);
+                onRegisterServices,
+                artifactRegistries);
 
             return new(helper.Server, helper.Client, notificationRouter);
         }

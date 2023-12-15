@@ -4,7 +4,7 @@
 import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { Disposable } from "../utils/disposable";
-import { bicepExternalSourceRequestType } from "./protocol";
+import { BicepExternalSourceParams, bicepExternalSourceRequestType } from "./protocol";
 import * as path from "path";
 import { Uri } from "vscode";
 import {
@@ -14,8 +14,7 @@ import {
 
 export class BicepExternalSourceContentProvider
   extends Disposable
-  implements vscode.TextDocumentContentProvider
-{
+  implements vscode.TextDocumentContentProvider {
   constructor(private readonly languageClient: LanguageClient) {
     super();
     this.register(
@@ -48,10 +47,11 @@ export class BicepExternalSourceContentProvider
     return response.content;
   }
 
-  private bicepExternalSourceRequest(uri: vscode.Uri) {
-    const { moduleReference } = decodeExternalSourceUri(uri);
+  private bicepExternalSourceRequest(uri: vscode.Uri): BicepExternalSourceParams {
+    const { moduleReference, requestedSourceFile } = decodeExternalSourceUri(uri);
     return {
       target: moduleReference,
+      requestedSourceFile,
     };
   }
 

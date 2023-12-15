@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.Handlers
                 return new TextDocumentAttributes(uri, LanguageConstants.ParamsLanguageId);
             }
 
-            return new TextDocumentAttributes(uri, LanguageConstants.LanguageId);
+            return new TextDocumentAttributes(uri, LanguageConstants.LanguageId); //asdfg?
         }
 
         public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token)

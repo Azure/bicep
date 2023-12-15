@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Linq;
 using Bicep.Core;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -11,12 +12,15 @@ namespace Bicep.LanguageServer.Utils
             LanguageConstants.LanguageId,
             LanguageConstants.ParamsLanguageId);
 
-        public static TextDocumentSelector CreateForTextDocumentSync() => TextDocumentSelector.ForLanguage(
-            LanguageConstants.LanguageId,
-            LanguageConstants.ParamsLanguageId,
-            LanguageConstants.JsoncLanguageId,
-            LanguageConstants.JsonLanguageId,
-            LanguageConstants.ArmTemplateLanguageId);
+        public static TextDocumentSelector CreateForTextDocumentSync() =>
+            new(
+                TextDocumentFilter.ForLanguage(LanguageConstants.LanguageId),
+                TextDocumentFilter.ForLanguage(LanguageConstants.ParamsLanguageId),
+                TextDocumentFilter.ForLanguage(LanguageConstants.JsoncLanguageId),
+                TextDocumentFilter.ForLanguage(LanguageConstants.JsonLanguageId), //asdfg
+                TextDocumentFilter.ForLanguage(LanguageConstants.ArmTemplateLanguageId),
+                TextDocumentFilter.ForScheme("bicep-extsrc") //asdfg magic
+            );
     }
 }
 

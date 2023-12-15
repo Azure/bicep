@@ -2,11 +2,16 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Azure.Core.Pipeline;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -14,6 +19,7 @@ using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.SourceCode;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
@@ -79,7 +85,7 @@ namespace Bicep.Core.UnitTests
 
         public static IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
 
-        public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
+        public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler(null/*asdfg?*/).Item2; //asdfg
 
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
         {
@@ -122,11 +128,83 @@ namespace Bicep.Core.UnitTests
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
             => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager()), featureOverrides);
 
-        private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
+        public static (IModuleDispatcher, IModuleRestoreScheduler) CreateMockModuleRestoreScheduler(IArtifactRegistry[]? artifactRegistries /*asdfg= null*/)
         {
-            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            return new ModuleRestoreScheduler(moduleDispatcher.Object);
+            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();//asdfgasdfg
+            moduleDispatcher.Setup(x => x.RestoreModules(It.IsAny<ImmutableArray<ArtifactReference>>(), It.IsAny<bool>())).
+                ReturnsAsync(true); //asdfg
+            moduleDispatcher.Setup(x => x.PruneRestoreStatuses());
+
+            MockRepository repository = new(MockBehavior.Strict);
+            var provider = repository.Create<IArtifactRegistryProvider>(); //ASDFGasdfg
+
+            moduleDispatcher.Setup(m => m.TryGetModuleSourceArchive(It.IsAny<ArtifactReference>())).Returns((ArtifactReference reference) => //asdfgasdfg
+                (artifactRegistries ?? new IArtifactRegistry[] { }).Select(r => r.TryGetSource(reference)).FirstOrDefault(s => s is not null));
+
+            return (moduleDispatcher.Object, new ModuleRestoreScheduler(moduleDispatcher.Object)); //asdfg refactor?
         }
+
+        private class MockRegistry : IArtifactRegistry //asdfg duplicated
+        {
+            public ConcurrentStack<IEnumerable<ArtifactReference>> ModuleRestores { get; } = new();
+
+            public string Scheme => "mock";
+
+            public RegistryCapabilities GetCapabilities(ArtifactReference reference) => throw new NotImplementedException();
+
+            public bool IsArtifactRestoreRequired(ArtifactReference reference) => true;
+
+            public Task PublishModule(ArtifactReference reference, Stream compiledArmTemplates, Stream? bicepSources, string? documentationUri, string? description)
+                => throw new NotImplementedException();
+
+            public Task PublishProvider(ArtifactReference reference, Stream typesTgz)
+                => throw new NotImplementedException();
+
+            public Task<bool> CheckArtifactExists(ArtifactReference reference) => throw new NotImplementedException();
+
+            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> references)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references)
+            {
+                this.ModuleRestores.Push(references);
+                return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>());
+            }
+
+            public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference)
+            {
+                throw new NotImplementedException();
+            }
+
+            public string? GetDocumentationUri(ArtifactReference reference) => null;
+
+            public Task<string?> TryGetDescription(ArtifactReference reference) => Task.FromResult<string?>(null);
+
+            public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? _, string reference)
+            {
+                return new(new MockArtifactRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
+            }
+
+            public SourceArchive? TryGetSource(ArtifactReference artifactReference) => null;
+        }
+
+        private class MockArtifactRef : ArtifactReference //asdfg duplicated
+        {
+            public MockArtifactRef(string value, Uri parentModuleUri)
+                : base("mock", parentModuleUri)
+            {
+                this.Value = value;
+            }
+
+            public string Value { get; }
+
+            public override string UnqualifiedReference => this.Value;
+
+            public override bool IsExternal => true;
+        }
+
 
         public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()
         {

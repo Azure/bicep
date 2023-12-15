@@ -21,6 +21,7 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.LanguageServer.Handlers
 {
+    // TODO: Currently you need to parse this via asdfg
     public class ExternalSourceReference
     {
         public static string Scheme => "bicep-extsrc";
@@ -32,21 +33,19 @@ namespace Bicep.LanguageServer.Handlers
         public string Title { get; init; }
 
         // Fully qualified module reference, e.g. "myregistry.azurecr.io/myrepo/module:v1"
-        public IArtifactAddressComponents ModuleParts { get; init; }
+        public IArtifactAddressComponents ModuleAddressComponents { get; init; }
 
         // File being requested from the source, relative to the module root.
-        //   e.g. main.bicep or mypath/module.bicep
+        //   e.g. main.bicep or myPath/module.bicep
         // This should be undefined to request the compiled JSON file (can't use "main.json" because there
         //   might actually be a source file called "main.json" in the original module sources, and that would
         //   be different from the compiled JSON file).
         public string? RequestedFile { get; init; }
 
-        public ExternalSourceReference(string title, IArtifactAddressComponents module, string? requestedFile)
-        {
-            ModuleParts = module;
-            RequestedFile = requestedFile;
-            Title = title;
-        }
+        public bool IsRequestingCompiledJson => string.IsNullOrWhiteSpace(RequestedFile);
+
+        public ExternalSourceReference(DocumentUri uri)
+        : this(uri.Path, uri.Query, uri.Fragment) { }
 
         public ExternalSourceReference(string title, string fullyQualifiedModuleReference, string? requestedFile)
         {
@@ -62,18 +61,25 @@ namespace Bicep.LanguageServer.Handlers
                 throw new ArgumentException($"Invalid module reference '{fullyQualifiedModuleReference}'. {innerMessage}", nameof(fullyQualifiedModuleReference));
             }
 
-            ModuleParts = parts;
+            ModuleAddressComponents = parts;
             RequestedFile = requestedFile;
             Title = title;
         }
 
-        public ExternalSourceReference(DocumentUri uri)
-        : this(uri.Path, uri.Query, uri.Fragment) { }
+        public ExternalSourceReference WithRequestForCompiledJson()
+        {
+            return this.WithRequestForSourceFile(null);
+        }
+
+        public ExternalSourceReference WithRequestForSourceFile(string? requestedSourceFile) //asdfg test
+        {
+            return new ExternalSourceReference(ModuleAddressComponents, requestedSourceFile); // recalculate title
+        }
 
         public ExternalSourceReference(OciArtifactReference moduleReference, SourceArchive? sourceArchive)
         {
             Debug.Assert(moduleReference.Type == ArtifactType.Module && moduleReference.Scheme == OciArtifactReferenceFacts.Scheme, "Expecting a module reference, not a provider reference");
-            ModuleParts = moduleReference.AddressComponents;
+            ModuleAddressComponents = moduleReference.AddressComponents;
 
             if (sourceArchive is { })
             {
@@ -87,6 +93,13 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             Title = GetTitle();
+        }
+
+        private ExternalSourceReference(IArtifactAddressComponents module, string? requestedFile, string? title = null) // title auto-calculated if not specified
+        {
+            ModuleAddressComponents = module;
+            RequestedFile = requestedFile;
+            Title = title ?? GetTitle();
         }
 
         public Uri ToUri()
@@ -106,21 +119,31 @@ namespace Bicep.LanguageServer.Handlers
             //
             var uri = new UriBuilder($"{Scheme}:{Uri.EscapeDataString(this.Title)}")
             {
-                Query = Uri.EscapeDataString($"{OciArtifactReferenceFacts.Scheme}:{ModuleParts.ArtifactId}"),
+                Query = Uri.EscapeDataString($"{OciArtifactReferenceFacts.Scheme}:{ModuleAddressComponents.ArtifactId}"),
                 Fragment = this.RequestedFile is null ? null : Uri.EscapeDataString(this.RequestedFile),
             };
 
             return uri.Uri;
         }
 
+        public OciArtifactReference? ToArtifactReference() //asdfg error?
+        {
+            if (OciArtifactReference.TryParseFullyQualifiedParts(ModuleAddressComponents.ArtifactId).IsSuccess(out var parts, out var error)) //asdfg error?
+            { //asdfg No parent file template available/needed because these are absolute references
+                return new OciArtifactReference(ArtifactType.Module, parts, new Uri("file:///no-parent-file-is-available.bicep"));
+            }
+
+            return null;
+        }
+
         private string GetTitle()
         {
             string filename = this.RequestedFile ?? "main.json";
 
-            var version = ModuleParts.Tag is string ? $":{ModuleParts.Tag}" : $"@{ModuleParts.Digest}";
+            var version = ModuleAddressComponents.Tag is string ? $":{ModuleAddressComponents.Tag}" : $"@{ModuleAddressComponents.Digest}";
 
-            var shortDocumentTitle = $"{filename} ({Path.GetFileName(ModuleParts.Repository)}{version})";
-            var fullDocumentTitle = $"{OciArtifactReferenceFacts.Scheme}:{ModuleParts.Registry}/{ModuleParts.Repository}{version}/{shortDocumentTitle}";
+            var shortDocumentTitle = $"{filename} ({Path.GetFileName(ModuleAddressComponents.Repository)}{version})";
+            var fullDocumentTitle = $"{OciArtifactReferenceFacts.Scheme}:{ModuleAddressComponents.Registry}/{ModuleAddressComponents.Repository}{version}/{shortDocumentTitle}";
 
             return fullDocumentTitle;
         }

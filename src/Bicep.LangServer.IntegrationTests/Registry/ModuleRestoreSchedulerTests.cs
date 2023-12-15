@@ -83,7 +83,7 @@ namespace Bicep.LangServer.UnitTests.Registry
         {
             var provider = Repository.Create<IArtifactRegistryProvider>();
             var mockRegistry = new MockRegistry();
-            provider.Setup(m => m.Registries(It.IsAny<Uri>())).Returns(((IArtifactRegistry)mockRegistry).AsEnumerable().ToImmutableArray());
+            provider.Setup(m => m.Registries(It.IsAny<Uri>())).Returns(((IArtifactRegistry)mockRegistry).AsEnumerable().ToImmutableArray()); //asdfgasdfg
 
             var dispatcher = new ModuleDispatcher(provider.Object, IConfigurationManager.WithStaticConfiguration(Configuration));
 

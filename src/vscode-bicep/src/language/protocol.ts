@@ -59,10 +59,6 @@ export const getDeploymentDataRequestType = new ProtocolRequestType<
   void
 >("bicep/getDeploymentData");
 
-export interface BicepExternalSourceParams {
-  target: string;
-}
-
 export interface BicepDeploymentScopeParams {
   textDocument: TextDocumentIdentifier;
 }
@@ -146,6 +142,11 @@ export enum ParameterType {
   String = 5,
 }
 
+export interface BicepExternalSourceParams {
+  target: string; // The full module reference to get source for
+  requestedSourceFile: string | undefined; // The relative source path of the file in the module to get source for
+}
+
 export interface BicepExternalSourceResponse {
   content: string;
 }
@@ -222,12 +223,12 @@ export interface BicepDecompileForPasteCommandResult {
   pasteContext?: "none" | "string";
   // undefined if can't be pasted
   pasteType:
-    | undefined
-    | "fullTemplate"
-    | "resource"
-    | "resourceList"
-    | "jsonValue"
-    | "bicepValue";
+  | undefined
+  | "fullTemplate"
+  | "resource"
+  | "resourceList"
+  | "jsonValue"
+  | "bicepValue";
   bicep?: string;
   disclaimer?: string;
 }

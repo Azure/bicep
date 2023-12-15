@@ -5,6 +5,7 @@ import vscode from "vscode";
 import { BicepVisualizerViewManager } from "../visualizer";
 import { Command } from "./types";
 
+// This shows the bicep source from a visualizer window
 export class ShowSourceCommand implements Command {
   public readonly id = "bicep.showSource";
 

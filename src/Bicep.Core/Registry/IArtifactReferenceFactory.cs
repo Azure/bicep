@@ -9,7 +9,7 @@ using Bicep.Core.Navigation;
 
 namespace Bicep.Core.Registry;
 
-public interface IArtifactReferenceFactory
+public interface IArtifactReferenceFactory  //asdfg refactor: combine with IArtifactRegistryProvider
 {
     ImmutableArray<string> AvailableSchemes(Uri parentModuleUri);
 

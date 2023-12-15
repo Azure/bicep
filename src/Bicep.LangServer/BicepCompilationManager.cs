@@ -220,12 +220,16 @@ namespace Bicep.LanguageServer
                 .Where(pair => pair.Value is CompilationContext)
                 .Select(pair => new KeyValuePair<DocumentUri, CompilationContext>(pair.Key, (CompilationContext)pair.Value));
 
-        private bool ShouldUpsertCompilation(DocumentUri documentUri, string? languageId = null)
+        private bool ShouldUpsertCompilation(DocumentUri documentUri, string? languageId = null) //asdfg
         {
+            if (documentUri.Scheme == "bicep-extsrc") { //asdfg
+                return false;
+            }
+
             // We should only upsert compilation when languageId is bicep or the file is already tracked in workspace.
             // When the file is in workspace but languageId is null, the file can be a bicep file or a JSON template
             // being referenced as a bicep module.
-            return LanguageConstants.IsBicepOrParamsLanguage(languageId) || this.workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out var _);
+            return LanguageConstants.IsBicepOrParamsLanguage(languageId) || this.workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out var _);//asdfg
         }
 
         private ImmutableArray<ISourceFile> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)
