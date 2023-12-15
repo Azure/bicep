@@ -1037,8 +1037,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var namespaceProvider = BicepTestConstants.NamespaceProvider;
             var namespaces = new[] {
-                namespaceProvider.TryGetNamespace(new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion), ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
-                namespaceProvider.TryGetNamespace(new(SystemNamespaceType.BuiltInName, SystemNamespaceType.Settings.ArmTemplateProviderVersion), ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
+                namespaceProvider.TryGetNamespace(BicepTestConstants.BuiltInAzProviderDescriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
+                namespaceProvider.TryGetNamespace(BicepTestConstants.BuiltInSysProviderDescriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
             };
 
             var matches = new List<FunctionOverload>();

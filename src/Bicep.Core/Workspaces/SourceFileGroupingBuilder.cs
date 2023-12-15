@@ -151,17 +151,8 @@ namespace Bicep.Core.Workspaces
 
         private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild)
         {
-            var features = featureProviderFactory.GetFeatureProvider(file.FileUri);
             foreach (var restorable in file.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>())
             {
-                // NOTE(asilverman): The below check is ugly but temporary until we have a better way to
-                // handle dynamic type loading in a way that is decoupled from modules.
-                if (restorable is ProviderDeclarationSyntax providerImport &&
-                    (providerImport.Specification.Name != AzNamespaceType.BuiltInName || !features.DynamicTypeLoadingEnabled))
-                {
-                    continue;
-                }
-
                 var (childArtifactReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
                 fileUriResultByArtifactReference.GetOrAdd(file, f => new())[restorable] = uriResult;
 

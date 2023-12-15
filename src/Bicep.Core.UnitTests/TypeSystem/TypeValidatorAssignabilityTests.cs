@@ -941,10 +941,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var typeProvider = TestTypeHelper.CreateEmptyNamespaceProvider();
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
-            ResourceTypesProviderDescriptor builtInAzProviderDescriptor = new(
-                AzNamespaceType.BuiltInName,
-                AzNamespaceType.Settings.ArmTemplateProviderVersion);
-            var azNamespaceType = typeProvider.TryGetNamespace(builtInAzProviderDescriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
+            var azNamespaceType = typeProvider.TryGetNamespace(BicepTestConstants.BuiltInAzProviderDescriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
 
             return azNamespaceType.ResourceTypeProvider.TryGenerateFallbackType(azNamespaceType, typeReference, ResourceTypeGenerationFlags.None)!;
         }
