@@ -279,6 +279,11 @@
         "icon": "$(output)"
       },
       {
+        "command": "bicep.internal.showModuleSourceFile",
+        "title": "(Show a source file from a module)",
+        "category": "Bicep Internal"
+      },
+      {
         "$section": "================== Walkthrough commands (not visible to users) ==================",
         "command": "bicep.gettingStarted.createBicepFile",
         "title": "Create Empty Bicep File (Walkthrough)",
@@ -618,6 +623,10 @@
         {
           "command": "bicep.buildParams",
           "group": "0_bicep"
+        },
+        {
+          "command": "bicep.internal.showModuleSourceFile",
+          "when": "never"
         }
       ]
     },

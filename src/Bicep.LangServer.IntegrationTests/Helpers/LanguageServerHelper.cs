@@ -6,6 +6,7 @@ using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Tracing;
+using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
@@ -36,17 +37,20 @@ namespace Bicep.LangServer.IntegrationTests
         /// <summary>
         /// Creates and initializes a new language server/client pair without loading any files. This is recommended when you need to open multiple files using the language server.
         /// </summary>
-        public static async Task<LanguageServerHelper> StartServer(TestContext testContext, Action<LanguageClientOptions>? onClientOptions = null, Action<IServiceCollection>? onRegisterServices = null)
+        public static async Task<LanguageServerHelper> StartServer(TestContext testContext, Action<LanguageClientOptions>? onClientOptions = null, Action<IServiceCollection>? onRegisterServices = null, IArtifactRegistry[]? artifactRegistries = null)
         {
             using var timer = new ExecutionTimer($"Starting language server", logInitial: false);
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
 
+            var (mockDispatcher, mockRestoreScheduler) = BicepTestConstants.CreateMockModuleDispatcherAndRestoreScheduler(artifactRegistries);
+
             var server = new Server(
                 options => options
                     .WithInput(serverPipe.Reader)
                     .WithOutput(clientPipe.Writer)
-                    .WithServices(services => services.AddSingleton(BicepTestConstants.ModuleRestoreScheduler))
+                    .WithServices(services => services.AddSingleton(mockDispatcher))
+                    .WithServices(services => services.AddSingleton(mockRestoreScheduler))
                     .WithServices(services => onRegisterServices?.Invoke(services)));
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 

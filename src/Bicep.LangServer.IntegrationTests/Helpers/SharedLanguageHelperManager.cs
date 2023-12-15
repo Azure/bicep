@@ -36,13 +36,14 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
 
         public async ValueTask DisposeAsync()
         {
-            if (this.lazy is null)
+            if (this.lazy is null || !this.lazy.IsValueCreated)
             {
                 return;
             }
 
             var helper = await this.lazy.GetValueAsync();
             helper.Dispose();
+            this.lazy = null;
         }
     }
 }

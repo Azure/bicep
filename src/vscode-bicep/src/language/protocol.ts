@@ -59,10 +59,6 @@ export const getDeploymentDataRequestType = new ProtocolRequestType<
   void
 >("bicep/getDeploymentData");
 
-export interface BicepExternalSourceParams {
-  target: string;
-}
-
 export interface BicepDeploymentScopeParams {
   textDocument: TextDocumentIdentifier;
 }
@@ -144,6 +140,11 @@ export enum ParameterType {
   Int = 3,
   Object = 4,
   String = 5,
+}
+
+export interface BicepExternalSourceParams {
+  target: string; // The full module reference to get source for
+  requestedSourceFile: string | undefined; // The relative source path of the file in the module to get source for
 }
 
 export interface BicepExternalSourceResponse {
