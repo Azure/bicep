@@ -2351,52 +2351,8 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@          }
 //@        }
 //@      }
-//@    },
+//@    }
   name: 'childWithSpace'
 //@      "name": "childWithSpace",
-}
-
-module withSeparateConfig './child/folder with separate config/moduleWithAzImport.bicep' = {
-//@    {
-//@      "type": "Microsoft.Resources/deployments",
-//@      "apiVersion": "2022-09-01",
-//@      "properties": {
-//@        "expressionEvaluationOptions": {
-//@          "scope": "inner"
-//@        },
-//@        "mode": "Incremental",
-//@        "template": {
-//@          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-//@          "languageVersion": "2.1-experimental",
-//@          "contentVersion": "1.0.0.0",
-//@          "metadata": {
-//@            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
-//@            "_EXPERIMENTAL_FEATURES_ENABLED": [
-//@              "Extensibility"
-//@            ],
-//@            "_generator": {
-//@              "name": "bicep",
-//@              "version": "dev",
-//@              "templateHash": "11965068276447022779"
-//@            }
-//@          },
-//@          "imports": {
-//@            "az": {
-//@              "provider": "AzureResourceManager",
-//@              "version": "0.2.642"
-//@            }
-//@          },
-//@          "resources": {},
-//@          "outputs": {
-//@            "str": {
-//@              "type": "string",
-//@              "value": "foo"
-//@            }
-//@          }
-//@        }
-//@      }
-//@    }
-  name: 'withSeparateConfig'
-//@      "name": "withSeparateConfig",
 }
 

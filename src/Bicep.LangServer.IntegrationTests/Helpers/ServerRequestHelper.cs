@@ -18,6 +18,7 @@ using Microsoft.VisualStudio.Threading;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using SharpYaml.Model;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -31,6 +32,8 @@ namespace Bicep.LangServer.IntegrationTests
             this.client = client;
             this.bicepFile = bicepFile;
         }
+
+        public BicepSourceFile Source => bicepFile;
 
         public async Task<ImmutableArray<CompletionList>> RequestCompletions(IEnumerable<int> cursors)
         {
@@ -51,6 +54,38 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
                 Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
+            });
+        }
+
+        public async Task<LocationContainer?> RequestReferences(int cursor, bool includeDeclaration)
+        {
+            return await client.RequestReferences(new ReferenceParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Context = new ReferenceContext
+                {
+                    IncludeDeclaration = includeDeclaration
+                },
+                Position = PositionHelper.GetPosition(bicepFile.LineStarts, cursor)
+            });
+        }
+
+        public async Task<DocumentHighlightContainer?> RequestDocumentHighlight(int cursor)
+        {
+            return await client.RequestDocumentHighlight(new DocumentHighlightParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = PositionHelper.GetPosition(bicepFile.LineStarts, cursor)
+            });
+        }
+
+        public async Task<WorkspaceEdit?> RequestRename(int cursor, string expectedNewText)
+        {
+            return await client.RequestRename(new RenameParams
+            {
+                NewName = expectedNewText,
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = PositionHelper.GetPosition(bicepFile.LineStarts, cursor),
             });
         }
 
@@ -107,6 +142,30 @@ namespace Bicep.LangServer.IntegrationTests
 
             var originalFile = bicepFile.ProgramSyntax.ToTextPreserveFormatting();
             var replaced = originalFile.Substring(0, start) + textToInsert + originalFile.Substring(end);
+
+            return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);
+        }
+
+        public BicepFile ApplyWorkspaceEdit(WorkspaceEdit? edit)
+        {
+            // not yet supported by this logic
+            edit!.Changes.Should().NotBeNull();
+            edit.DocumentChanges.Should().BeNull();
+            edit.ChangeAnnotations.Should().BeNull();
+
+            var changes = edit.Changes![bicepFile.FileUri];
+
+            var replaced = bicepFile.ProgramSyntax.ToTextPreserveFormatting();
+            var offset = 0;
+
+            foreach (var change in changes)
+            {
+                var start = PositionHelper.GetOffset(bicepFile.LineStarts, change.Range.Start);
+                var end = PositionHelper.GetOffset(bicepFile.LineStarts, change.Range.End);
+
+                replaced = replaced.Substring(0, start + offset) + change.NewText + replaced.Substring(end + offset);
+                offset += change.NewText.Length - (end - start);
+            }
 
             return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);
         }

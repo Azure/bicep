@@ -10,6 +10,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -23,12 +24,9 @@ namespace Bicep.Core.UnitTests.TypeSystem.MicrosoftGraph
     [TestClass]
     public class MicrosoftGraphResourceTypeProviderTests
     {
-        private static string MicrosoftGraphBuildInName = MicrosoftGraphNamespaceType.BuiltInName;
-        private static string MicrosoftGraphBuildInVersion = MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion;
-
         private static NamespaceType GetMicrosoftGraphNamespaceType()
         {
-            return BicepTestConstants.NamespaceProvider.TryGetNamespace(new(MicrosoftGraphBuildInName, MicrosoftGraphBuildInVersion), ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
+            return BicepTestConstants.NamespaceProvider.TryGetNamespace(BicepTestConstants.MicrosoftGraphProviderDescriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
         }
 
         [TestMethod]

@@ -112,7 +112,7 @@ namespace Bicep.LanguageServer.Completions
                             .WithDocumentation(
                                 MarkdownHelper.AppendNewline($"Type: `{metadata.TypeReference.Type}`") +
                                 MarkdownHelper.AppendNewline(metadata.Description))
-                            .WithDetail(metadata.Name)
+                            .WithDetail(!metadata.IsRequired ? metadata.Name : $"{metadata.Name} (Required)")
                             .WithPlainTextEdit(paramsCompletionContext.ReplacementRange, metadata.Name)
                             .Build();
                     }
@@ -2188,7 +2188,7 @@ namespace Bicep.LanguageServer.Completions
 
                 var documentation = DescriptionHelper.TryGetFromDecorator(model, decorableSyntax);
                 buffer.Append(MarkdownHelper.AppendNewline(documentation));
-                
+
                 return buffer.ToString();
             }
 

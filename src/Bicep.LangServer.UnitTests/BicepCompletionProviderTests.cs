@@ -487,12 +487,12 @@ output length int =
             var namespaceProvider = BicepTestConstants.NamespaceProvider;
             var namespaces = new[] {
                 namespaceProvider.TryGetNamespace(
-                    new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion),
+                    BicepTestConstants.BuiltInAzProviderDescriptor,
                     ResourceScope.ResourceGroup,
                     BicepTestConstants.Features,
                     BicepSourceFileKind.BicepFile)!,
                 namespaceProvider.TryGetNamespace(
-                    new(SystemNamespaceType.BuiltInName, SystemNamespaceType.Settings.ArmTemplateProviderVersion),
+                    BicepTestConstants.BuiltInSysProviderDescriptor,
                     ResourceScope.ResourceGroup,
                     BicepTestConstants.Features,
                     BicepSourceFileKind.BicepFile)!,

@@ -1,5 +1,5 @@
 
-//@[000:8881) ProgramExpression
+//@[000:8752) ProgramExpression
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
 //@[000:0000) | | └─ModuleReferenceExpression [UNPARENTED]
 //@[000:0000) | ├─ResourceDependencyExpression [UNPARENTED]
@@ -1227,14 +1227,5 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@[002:0024) |   └─ObjectPropertyExpression
 //@[002:0006) |     ├─StringLiteralExpression { Value = name }
 //@[008:0024) |     └─StringLiteralExpression { Value = childWithSpace }
-}
-
-module withSeparateConfig './child/folder with separate config/moduleWithAzImport.bicep' = {
-//@[000:0125) ├─DeclaredModuleExpression
-//@[091:0125) | └─ObjectExpression
-  name: 'withSeparateConfig'
-//@[002:0028) |   └─ObjectPropertyExpression
-//@[002:0006) |     ├─StringLiteralExpression { Value = name }
-//@[008:0028) |     └─StringLiteralExpression { Value = withSeparateConfig }
 }
 

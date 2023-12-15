@@ -17,6 +17,4 @@ public interface INamespaceProvider
         ResourceScope resourceScope,
         IFeatureProvider features,
         BicepSourceFileKind sourceFileKind);
-
-    IEnumerable<string> AvailableNamespaces { get; }
 }

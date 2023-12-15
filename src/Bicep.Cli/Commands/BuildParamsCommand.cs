@@ -35,7 +35,7 @@ namespace Bicep.Cli.Commands
     {
         private readonly ILogger logger;
         private readonly IEnvironment environment;
-        private readonly IDiagnosticLogger diagnosticLogger;
+        private readonly DiagnosticLogger diagnosticLogger;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
         private readonly IFeatureProviderFactory featureProviderFactory;
@@ -43,7 +43,7 @@ namespace Bicep.Cli.Commands
         public BuildParamsCommand(
             ILogger logger,
             IEnvironment environment,
-            IDiagnosticLogger diagnosticLogger,
+            DiagnosticLogger diagnosticLogger,
             CompilationService compilationService,
             CompilationWriter writer,
             IFeatureProviderFactory featureProviderFactory)
@@ -72,7 +72,6 @@ namespace Bicep.Cli.Commands
                 return 1;
             }
 
-            diagnosticLogger.SetupFormat(args.DiagnosticsFormat);
             var workspace = await CreateWorkspaceWithParamOverrides(paramsInputPath);
             var paramsCompilation = await compilationService.CompileAsync(
                 paramsInputPath,
@@ -100,12 +99,14 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(message);
             }
 
+            var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), paramsCompilation);
+
             var paramsModel = paramsCompilation.GetEntrypointSemanticModel();
 
             //Failure scenario is ignored since a diagnostic for it would be emitted during semantic analysis
             if (paramsModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
             {
-                if (diagnosticLogger.ErrorCount < 1)
+                if (!summary.HasErrors)
                 {
                     if (args.OutputToStdOut)
                     {
@@ -121,10 +122,8 @@ namespace Bicep.Cli.Commands
                 }
             }
 
-            diagnosticLogger.FlushLog();
-
             // return non-zero exit code on errors
-            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+            return summary.HasErrors ? 1 : 0;
         }
 
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
@@ -163,39 +162,69 @@ namespace Bicep.Cli.Commands
                     DateParseHandling = DateParseHandling.None,
                 });
 
-            if (parameters is { })
+            var replacedParameters = new HashSet<string>();
+
+            if (parameters is not { })
             {
-                var fileContents = await File.ReadAllTextAsync(paramsInputPath);
-                var sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
-
-                var newProgramSyntax = CallbackRewriter.Rewrite(sourceFile.ProgramSyntax, syntax =>
-                {
-                    if (syntax is not ParameterAssignmentSyntax paramSyntax)
-                    {
-                        return syntax;
-                    }
-
-                    if (parameters.TryGetValue(paramSyntax.Name.IdentifierName, out var overrideValue))
-                    {
-                        var replacementValue = ConvertJsonToBicepSyntax(overrideValue);
-
-                        return new ParameterAssignmentSyntax(
-                            paramSyntax.Keyword,
-                            paramSyntax.Name,
-                            paramSyntax.Assignment,
-                            replacementValue
-                        );
-                    }
-
-                    return syntax;
-                });
-
-                fileContents = newProgramSyntax.ToTextPreserveFormatting();
-                sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
-                workspace.UpsertSourceFile(sourceFile);
+                return workspace;
             }
+
+            var fileContents = await File.ReadAllTextAsync(paramsInputPath);
+            var sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
+
+            var newProgramSyntax = CallbackRewriter.Rewrite(sourceFile.ProgramSyntax, syntax =>
+            {
+                if (syntax is not ParameterAssignmentSyntax paramSyntax)
+                {
+                    return syntax;
+                }
+
+                if (parameters.TryGetValue(paramSyntax.Name.IdentifierName, out var overrideValue))
+                {
+                    replacedParameters.Add(paramSyntax.Name.IdentifierName);
+                    var replacementValue = ConvertJsonToBicepSyntax(overrideValue);
+
+                    return new ParameterAssignmentSyntax(
+                        paramSyntax.Keyword,
+                        paramSyntax.Name,
+                        paramSyntax.Assignment,
+                        replacementValue
+                    );
+                }
+
+                return syntax;
+            });
+
+            // parameters that aren't explicitly in the .bicepparam file (e.g. parameters with default values)
+            var additionalParams = parameters.Keys.Where(x => !replacedParameters.Contains(x));
+            if (additionalParams.Any())
+            {
+                var children = newProgramSyntax.Children.ToList();
+                foreach (var paramName in additionalParams)
+                {
+                    var overrideValue = parameters[paramName];
+                    var replacementValue = ConvertJsonToBicepSyntax(overrideValue);
+
+                    children.Add(SyntaxFactory.DoubleNewlineToken);
+                    children.Add(SyntaxFactory.CreateParameterAssignmentSyntax(paramName, replacementValue));
+                    replacedParameters.Add(paramName);
+                }
+
+                newProgramSyntax = new ProgramSyntax(
+                    children,
+                    newProgramSyntax.EndOfFile);
+            }
+
+            fileContents = newProgramSyntax.ToText();
+            sourceFile = SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(paramsInputPath), fileContents);
+            workspace.UpsertSourceFile(sourceFile);
 
             return workspace;
         }
+
+        private DiagnosticOptions GetDiagnosticOptions(BuildParamsArguments args)
+            => new(
+                Format: args.DiagnosticsFormat ?? DiagnosticsFormat.Default,
+                SarifToStdout: false);
     }
 }

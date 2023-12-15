@@ -45,12 +45,12 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(this.SpecificationString, this.WithClause, this.AsClause));
 
-        SyntaxBase IArtifactReferenceSyntax.SourceSyntax => Path;
+        SyntaxBase IArtifactReferenceSyntax.SourceSyntax => SpecificationString;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderDeclarationSyntax(this);
 
         public ArtifactType GetArtifactType() => ArtifactType.Provider;
 
-        public SyntaxBase Path => SyntaxFactory.CreateStringLiteral(this.Specification.BicepRegistryAddress);
+        public SyntaxBase? Path => this.Specification.BicepRegistryAddress is {} registryAddress ? SyntaxFactory.CreateStringLiteral(registryAddress) : null;
     }
 }

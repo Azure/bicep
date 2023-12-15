@@ -11,6 +11,9 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
@@ -23,144 +26,70 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
-namespace Bicep.LangServer.IntegrationTests
+namespace Bicep.LangServer.IntegrationTests;
+
+[TestClass]
+public class HighlightTests : TestBase
 {
-    [TestClass]
-    public class HighlightTests
+    private static readonly SharedLanguageHelperManager DefaultServer = new();
+
+    [ClassInitialize]
+    public static void ClassInitialize(TestContext testContext)
     {
-        private static readonly SharedLanguageHelperManager DefaultServer = new();
-
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext testContext)
-        {
-            DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
-        }
-
-        [ClassCleanup]
-        public static async Task ClassCleanup()
-        {
-            await DefaultServer.DisposeAsync();
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task HighlightsShouldShowAllReferencesOfTheSymbol(DataSet dataSet)
-        {
-            var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
-            var uri = DocumentUri.From(fileUri);
-
-            var helper = await DefaultServer.GetAsync();
-            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
-
-            var symbolTable = compilation.ReconstructSymbolTable();
-            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
-
-            // filter out binding failures and locals with invalid identifiers
-            // (locals are special because their full span is the same as the identifier span,
-            // which makes it impossible to highlight locals with invalid identifiers)
-            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSource.IsValid));
-            // TODO: Implement for PropertySymbol
-            filteredSymbolTable = filteredSymbolTable.Where(pair => pair.Value is not PropertySymbol);
-
-            var symbolToSyntaxLookup = filteredSymbolTable.ToLookup(pair => pair.Value, pair => pair.Key);
-
-            foreach (var (syntax, symbol) in filteredSymbolTable)
-            {
-                var highlights = await helper.Client.RequestDocumentHighlight(new DocumentHighlightParams
-                {
-                    TextDocument = new TextDocumentIdentifier(uri),
-                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
-                });
-
-                // calculate expected highlights
-                var expectedHighlights = symbolToSyntaxLookup[symbol].Select(node => CreateExpectedHighlight(lineStarts, node));
-
-                using (new AssertionScope()
-                    .WithAnnotations(compilation.SourceFileGrouping.EntryPoint, "expected", expectedHighlights, _ => "here", x => x.Range)
-                    .WithAnnotations(compilation.SourceFileGrouping.EntryPoint, "actual", highlights, _ => "here", x => x.Range))
-                {
-                    // ranges should match what we got from our own symbol table
-                    highlights.Should().BeEquivalentTo(expectedHighlights);
-                }
-            }
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task RequestingHighlightsForWrongNodeShouldProduceNoHighlights(DataSet dataSet)
-        {
-            // local function
-            static bool IsWrongNode(SyntaxBase node) =>
-                !(node is PropertyAccessSyntax propertyAccessSyntax && propertyAccessSyntax.BaseExpression is ISymbolReference) &&
-                node is not ISymbolReference &&
-                node is not INamedDeclarationSyntax &&
-                node is not Token;
-
-            var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
-            var uri = DocumentUri.From(fileUri);
-
-            var helper = await DefaultServer.GetAsync();
-            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
-
-            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
-
-            var wrongNodes = SyntaxAggregator.Aggregate(
-                compilation.SourceFileGrouping.EntryPoint.ProgramSyntax,
-                new List<SyntaxBase>(),
-                (accumulated, node) =>
-                {
-                    if (IsWrongNode(node) && !(node is ProgramSyntax))
-                    {
-                        accumulated.Add(node);
-                    }
-
-                    return accumulated;
-                },
-                accumulated => accumulated,
-                (accumulated, node) => IsWrongNode(node));
-
-            foreach (var syntax in wrongNodes)
-            {
-                var highlights = await helper.Client.RequestDocumentHighlight(new DocumentHighlightParams
-                {
-                    TextDocument = new TextDocumentIdentifier(uri),
-                    Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
-                });
-
-                highlights.Should().BeNull();
-            }
-        }
-
-        private static DocumentHighlight CreateExpectedHighlight(ImmutableArray<int> lineStarts, SyntaxBase syntax) =>
-            new()
-            {
-                Range = PositionHelper.GetNameRange(lineStarts, syntax),
-                Kind = GetExpectedHighlightKind(syntax)
-            };
-
-        private static DocumentHighlightKind GetExpectedHighlightKind(SyntaxBase syntax)
-        {
-            switch (syntax)
-            {
-                case ISymbolReference:
-                case PropertyAccessSyntax:
-                    return DocumentHighlightKind.Read;
-
-                case INamedDeclarationSyntax:
-                case ObjectPropertySyntax:
-                    return DocumentHighlightKind.Write;
-
-                default:
-                    throw new AssertFailedException($"Unexpected syntax type '{syntax.GetType().Name}'.");
-            }
-        }
-
-        private static IEnumerable<object[]> GetData()
-        {
-            return DataSets.NonStressDataSets.ToDynamicTestData();
-        }
+        DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
     }
+
+    [ClassCleanup]
+    public static async Task ClassCleanup()
+    {
+        await DefaultServer.DisposeAsync();
+    }
+
+    [TestMethod]
+    [DataRow("""
+var te|st = 'asdf'
+
+var asdf = test
+var blah = '${test}'
+""", """
+1| var test = 'asdf'
+       ~~~~ Write
+2| 
+3| var asdf = test
+              ~~~~ Read
+4| var blah = '${test}'
+                 ~~~~ Read
+
+""")]
+    public async Task HighlightsShouldShowAllReferencesOfTheSymbol(string inputWithCursor, string outputAnnotated)
+    {
+        var (contents, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursor);
+        var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(contents);
+
+        var highlights = await file.RequestDocumentHighlight(cursor);
+
+        AnnotateWithHighlights(file, highlights).Should().EqualIgnoringTrailingWhitespace(outputAnnotated);
+    }
+
+    [TestMethod]
+    [DataRow("""
+var test = 'asdf'
+|
+var asdf = test
+var blah = '${test}'
+""")]
+    public async Task RequestingHighlightsForWrongNodeShouldProduceNoHighlights(string inputWithCursor)
+    {
+        var (contents, cursor) = ParserHelper.GetFileWithSingleCursor(inputWithCursor);
+        var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(contents);
+
+        var highlights = await file.RequestDocumentHighlight(cursor);
+
+        highlights.Should().BeNullOrEmpty();
+    }
+
+    private static string AnnotateWithHighlights(FileRequestHelper file, DocumentHighlightContainer? highlights)
+        => PrintHelper.PrintWithAnnotations(
+            file.Source,
+            highlights!.Select(x => new PrintHelper.Annotation(Assertions.AssertionScopeExtensions.FromRange(file.Source, x.Range), x.Kind.ToString())), 1, true);
 }

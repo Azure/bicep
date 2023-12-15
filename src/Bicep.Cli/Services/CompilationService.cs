@@ -27,7 +27,6 @@ namespace Bicep.Cli.Services
         private readonly BicepCompiler bicepCompiler;
         private readonly BicepDecompiler decompiler;
         private readonly BicepparamDecompiler paramDecompiler;
-        private readonly IDiagnosticLogger diagnosticLogger;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IConfigurationManager configurationManager;
         private readonly IFeatureProviderFactory featureProviderFactory;
@@ -37,7 +36,6 @@ namespace Bicep.Cli.Services
             BicepCompiler bicepCompiler,
             BicepDecompiler decompiler,
             BicepparamDecompiler paramDecompiler,
-            IDiagnosticLogger diagnosticLogger,
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager,
             IFeatureProviderFactory featureProviderFactory,
@@ -46,14 +44,13 @@ namespace Bicep.Cli.Services
             this.bicepCompiler = bicepCompiler;
             this.decompiler = decompiler;
             this.paramDecompiler = paramDecompiler;
-            this.diagnosticLogger = diagnosticLogger;
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
             this.featureProviderFactory = featureProviderFactory;
             this.fileResolver = fileResolver;
         }
 
-        public async Task RestoreAsync(string inputPath, bool forceModulesRestore)
+        public async Task<ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>> RestoreAsync(string inputPath, bool forceModulesRestore)
         {
             var workspace = new Workspace();
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
@@ -73,7 +70,7 @@ namespace Bicep.Cli.Services
             // update the errors based on restore status
             var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, this.moduleDispatcher, workspace, compilation.SourceFileGrouping);
 
-            LogDiagnostics(GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceModulesRestore));
+            return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceModulesRestore);
         }
 
         public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore, Workspace? workspace = null, Action<Compilation>? validateFunc = null)
@@ -85,28 +82,10 @@ namespace Bicep.Cli.Services
 
             validateFunc?.Invoke(compilation);
 
-            LogDiagnostics(compilation);
-
             return compilation;
         }
 
-        public async Task<TestResults> TestAsync(string inputPath, bool skipRestore)
-        {
-            var workspace = new Workspace();
-            var inputUri = PathHelper.FilePathToFileUrl(inputPath);
-
-            var compilation = await bicepCompiler.CreateCompilation(inputUri, workspace, skipRestore, forceModulesRestore: false);
-            var semanticModel = compilation.GetEntrypointSemanticModel();
-
-            var declarations = semanticModel.Root.TestDeclarations;
-            var testResults = TestRunner.Run(declarations);
-
-            LogDiagnostics(compilation);
-
-            return testResults;
-        }
-
-        public async Task<DecompileResult> DecompileAsync(string inputPath, string outputPath)
+        public async Task<(Compilation, DecompileResult)> DecompileAsync(string inputPath, string outputPath)
         {
             var workspace = new Workspace();
             inputPath = PathHelper.ResolvePath(inputPath);
@@ -125,9 +104,9 @@ namespace Bicep.Cli.Services
             }
 
             // to verify success we recompile and check for syntax errors.
-            await CompileAsync(decompilation.EntrypointUri.LocalPath, skipRestore: true, workspace: workspace);
+            var compilation = await CompileAsync(decompilation.EntrypointUri.LocalPath, skipRestore: true, workspace: workspace);
 
-            return decompilation;
+            return (compilation, decompilation);
         }
 
         public DecompileResult DecompileParams(string inputPath, string outputPath, string? bicepPath)
@@ -177,27 +156,6 @@ namespace Bicep.Cli.Services
             return diagnosticsByFile
                 .ToLookup(t => t.Item1, t => t.Item2)
                 .ToImmutableDictionary(g => g.Key, g => g.ToImmutableArray());
-        }
-
-        private void LogDiagnostics(Compilation compilation)
-        {
-            if (compilation is null)
-            {
-                throw new Exception("Compilation is null. A compilation must exist before logging the diagnostics.");
-            }
-
-            LogDiagnostics(compilation.GetAllDiagnosticsByBicepFile());
-        }
-
-        private void LogDiagnostics(ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> diagnosticsByBicepFile)
-        {
-            foreach (var (bicepFile, diagnostics) in diagnosticsByBicepFile)
-            {
-                foreach (var diagnostic in diagnostics)
-                {
-                    diagnosticLogger.LogDiagnostic(bicepFile.FileUri, diagnostic, bicepFile.LineStarts);
-                }
-            }
         }
     }
 }
