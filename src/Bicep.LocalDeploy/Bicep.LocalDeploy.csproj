@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Azure.Bicep.LocalDeploy</AssemblyName>
+    <RootNamespace>Bicep.LocalDeploy</RootNamespace>
+    <EnableNuget>true</EnableNuget>
+    <PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
+    <Description>
+      Bicep compiler local deploy functionality.
+      The Bicep team has made this NuGet package publicly available on nuget.org. While it is public, it is not a supported package. Any dependency you take on this package will be done at your own risk and we reserve the right to push breaking changes to this package at any time.
+    </Description>
+
+    <!-- enable trimmer warnings for Bicep CLI and projects it references -->
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../AzureUX-Deployments/src/Engine/Engine.csproj" />
+    <ProjectReference Include="../../../AzureUX-Deployments/src/Core/Core.csproj" />
+    <ProjectReference Include="../../../AzureUX-Deployments/src/Extensibility/Extensibility.csproj" />
+    <ProjectReference Include="../../../AzureUX-Deployments/src/Templates/Templates.csproj" />
+  </ItemGroup>
+</Project>
