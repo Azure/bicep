@@ -196,7 +196,8 @@ output foo string = foo
 """,
                 Path.GetDirectoryName(bicepparamsPath));
 
-            var environment = TestEnvironment.Create(("BICEP_PARAMETERS_OVERRIDES", new {
+            var environment = TestEnvironment.Create(("BICEP_PARAMETERS_OVERRIDES", new
+            {
                 foo = "bar"
             }.ToJson()));
 
@@ -239,7 +240,8 @@ output foo string = foo
 """,
                 Path.GetDirectoryName(bicepparamsPath));
 
-            var environment = TestEnvironment.Create(("BICEP_PARAMETERS_OVERRIDES", new {
+            var environment = TestEnvironment.Create(("BICEP_PARAMETERS_OVERRIDES", new
+            {
                 wrongName = "bar"
             }.ToJson()));
 

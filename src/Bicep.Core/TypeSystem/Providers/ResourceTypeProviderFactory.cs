@@ -21,8 +21,8 @@ namespace Bicep.Core.TypeSystem.Providers
 {
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
-        private static readonly Lazy<IResourceTypeProvider> azResourceTypeProviderLazy 
-            = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()),AzNamespaceType.Settings.ArmTemplateProviderVersion));
+        private static readonly Lazy<IResourceTypeProvider> azResourceTypeProviderLazy
+            = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), AzNamespaceType.Settings.ArmTemplateProviderVersion));
 
         private record ResourceTypeLoaderKey(string Name, string Version);
         private readonly Dictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders = new();
@@ -44,7 +44,7 @@ namespace Bicep.Core.TypeSystem.Providers
 
             // should never be null since provider restore success is validated prior.
             var typesTgzPath = providerDescriptor.TypesBaseUri?.AbsolutePath ?? throw new UnreachableException("the provider directory doesn't exist");
-            var typesParentPath =  Path.GetDirectoryName(typesTgzPath) ?? throw new UnreachableException("the provider directory doesn't exist");
+            var typesParentPath = Path.GetDirectoryName(typesTgzPath) ?? throw new UnreachableException("the provider directory doesn't exist");
 
             // compose the path to the OCI manifest based on the cache root directory and provider version
             var ociManifestPath = Path.Combine(typesParentPath, "manifest");

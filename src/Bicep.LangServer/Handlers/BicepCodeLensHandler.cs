@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector =new( 
+            DocumentSelector = new(
                 DocumentSelectorFactory.AllSupportedLangIds
                 .Concat(TextDocumentFilter.ForScheme(LangServerConstants.ExternalSourceFileScheme))),
             ResolveProvider = false
