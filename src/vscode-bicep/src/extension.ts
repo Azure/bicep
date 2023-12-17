@@ -60,6 +60,7 @@ import { DecompileParamsCommand } from "./commands/decompileParams";
 import { DeployPaneViewManager } from "./panes/deploy";
 import { AzureUiManager } from "./azure/AzureUiManager";
 import { BicepExternalSourceScheme } from "./language/decodeExternalSourceUri";
+import { ShowModuleSourceFileCommand } from "./commands/ShowModuleSourceFileCommand";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -195,6 +196,7 @@ export async function activate(
             new WalkthroughCreateBicepFileCommand(),
             new WalkthroughOpenBicepFileCommand(),
             new ImportKubernetesManifestCommand(languageClient),
+            new ShowModuleSourceFileCommand(),
           );
 
         // Register events

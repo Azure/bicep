@@ -113,7 +113,7 @@ namespace Bicep.LanguageServer.Handlers
         protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(TextSynchronizationCapability capability, ClientCapabilities clientCapabilities) => new()
         {
             Change = TextDocumentSyncKind.Full,
-            DocumentSelector = DocumentSelectorFactory.CreateForTextDocumentSync()
+            DocumentSelector = DocumentSelectorFactory.CreateForAllSupportedLangIds()
         };
     }
 }

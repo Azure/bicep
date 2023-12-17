@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
+using Bicep.Core.Registry;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;

@@ -25,5 +25,7 @@ namespace Bicep.LanguageServer
 
         // This is under "bicep.completions" in configuration
         public const string GetAllAzureContainerRegistriesForCompletionsSetting = "getAllAccessibleAzureContainerRegistries";
+
+        public const string ExternalSourceFileScheme = "bicep-extsrc";
     }
 }

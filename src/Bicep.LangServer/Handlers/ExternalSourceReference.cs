@@ -14,6 +14,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Utils;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -21,10 +22,11 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.LanguageServer.Handlers
 {
+    /// <summary>
+    /// Represents a URI to request displaying a source file from an external module
+    /// </summary>
     public class ExternalSourceReference
     {
-        public static string Scheme => "bicep-extsrc";
-
         // The title to display for the document,
         //   e.g. "br:myregistry.azurecr.io/myrepo/module/v1/main.json (module:v1)" or something similar.
         // VSCode will display everything after the last slash in the document's tab (interpreting it as
@@ -35,18 +37,16 @@ namespace Bicep.LanguageServer.Handlers
         public IArtifactAddressComponents ModuleParts { get; init; }
 
         // File being requested from the source, relative to the module root.
-        //   e.g. main.bicep or mypath/module.bicep
+        //   e.g. main.bicep or myPath/module.bicep
         // This should be undefined to request the compiled JSON file (can't use "main.json" because there
         //   might actually be a source file called "main.json" in the original module sources, and that would
         //   be different from the compiled JSON file).
         public string? RequestedFile { get; init; }
 
-        public ExternalSourceReference(string title, IArtifactAddressComponents module, string? requestedFile)
-        {
-            ModuleParts = module;
-            RequestedFile = requestedFile;
-            Title = title;
-        }
+        public bool IsRequestingCompiledJson => string.IsNullOrWhiteSpace(RequestedFile);
+
+        public ExternalSourceReference(DocumentUri uri)
+        : this(uri.Path, uri.Query, uri.Fragment) { }
 
         public ExternalSourceReference(string title, string fullyQualifiedModuleReference, string? requestedFile)
         {
@@ -67,8 +67,15 @@ namespace Bicep.LanguageServer.Handlers
             Title = title;
         }
 
-        public ExternalSourceReference(DocumentUri uri)
-        : this(uri.Path, uri.Query, uri.Fragment) { }
+        public ExternalSourceReference WithRequestForCompiledJson()
+        {
+            return this.WithRequestForSourceFile(null);
+        }
+
+        public ExternalSourceReference WithRequestForSourceFile(string? requestedSourceFile)
+        {
+            return new ExternalSourceReference(ModuleParts, requestedSourceFile); // recalculate title
+        }
 
         public ExternalSourceReference(OciArtifactReference moduleReference, SourceArchive? sourceArchive)
         {
@@ -89,6 +96,13 @@ namespace Bicep.LanguageServer.Handlers
             Title = GetTitle();
         }
 
+        private ExternalSourceReference(IArtifactAddressComponents module, string? requestedFile, string? title = null) // title auto-calculated if not specified
+        {
+            ModuleParts = module;
+            RequestedFile = requestedFile;
+            Title = title ?? GetTitle();
+        }
+
         public Uri ToUri()
         {
             // Encode the module reference as a query and the file to retrieve as a fragment.
@@ -104,13 +118,25 @@ namespace Bicep.LanguageServer.Handlers
             //   source not available, showing just JSON (will be encoded)
             //     bicep-extsrc:br:myregistry.azurecr.io/myrepo:main.json (v1)?br:myregistry.azurecr.io/myrepo:v1
             //
-            var uri = new UriBuilder($"{Scheme}:{Uri.EscapeDataString(this.Title)}")
+            var uri = new UriBuilder($"{LangServerConstants.ExternalSourceFileScheme}:{Uri.EscapeDataString(this.Title)}")
             {
                 Query = Uri.EscapeDataString($"{OciArtifactReferenceFacts.Scheme}:{ModuleParts.ArtifactId}"),
                 Fragment = this.RequestedFile is null ? null : Uri.EscapeDataString(this.RequestedFile),
             };
 
             return uri.Uri;
+        }
+
+        public Result<OciArtifactReference, string> ToArtifactReference()
+        {
+            if (OciArtifactReference.TryParseFullyQualifiedParts(ModuleParts.ArtifactId).IsSuccess(out var parts, out var failureBuilder))
+            { // No parent file template is available or needed because these are absolute references
+                return new(new OciArtifactReference(ArtifactType.Module, parts, new Uri("file:///no-parent-file-is-available.bicep")));
+            }
+            else
+            {
+                return new(failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message);
+            }
         }
 
         private string GetTitle()

@@ -89,6 +89,14 @@ namespace Bicep.LangServer.IntegrationTests
             });
         }
 
+        public async Task<CodeLensContainer?> RequestCodeLens(int cursor)
+        {
+            return await client.RequestCodeLens(new CodeLensParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+            });
+        }
+
         public async Task<SignatureHelp?> RequestSignatureHelp(int cursor, SignatureHelpContext? context = null) =>
             await client.RequestSignatureHelp(new SignatureHelpParams
             {

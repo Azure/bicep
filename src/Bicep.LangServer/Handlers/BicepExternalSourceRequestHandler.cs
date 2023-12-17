@@ -19,7 +19,8 @@ namespace Bicep.LanguageServer.Handlers
 {
     [Method(BicepExternalSourceRequestHandler.BicepExternalSourceLspMethodName, Direction.ClientToServer)]
     public record BicepExternalSourceParams(
-        string Target // The module reference to display sources for
+        string Target, // The module reference to display sources for
+        string? requestedSourceFile = null // The relative source path of the file in the module to get source for (main.json if null))
     ) : IRequest<BicepExternalSourceResponse>;
 
     public record BicepExternalSourceResponse(string Content);
@@ -43,11 +44,11 @@ namespace Bicep.LanguageServer.Handlers
 
         public Task<BicepExternalSourceResponse> Handle(BicepExternalSourceParams request, CancellationToken cancellationToken)
         {
-            // If any of the following paths result in an exception being thrown (and surfaced client-side to the user),
+            // If any of the following paths results in an exception being thrown (and surfaced client-side to the user),
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
 
-            if (!moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, request.Target, new Uri("file:///no-parent-file-is-available")).IsSuccess(out var moduleReference))
+            if (!moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, request.Target, new Uri("file:///no-parent-file-is-available.bicep")).IsSuccess(out var moduleReference))
             {
                 throw new InvalidOperationException(
                     $"The client specified an invalid module reference '{request.Target}'.");
@@ -65,24 +66,29 @@ namespace Bicep.LanguageServer.Handlers
                     $"The module '{moduleReference.FullyQualifiedReference}' has not yet been successfully restored.");
             }
 
-            if (!moduleDispatcher.TryGetLocalArtifactEntryPointUri(moduleReference).IsSuccess(out var uri))
+            if (!moduleDispatcher.TryGetLocalArtifactEntryPointUri(moduleReference).IsSuccess(out var compiledJsonUri))
             {
                 throw new InvalidOperationException(
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
             }
 
-            if (moduleDispatcher.TryGetModuleSources(moduleReference) is SourceArchive sourceArchive)
+            if (moduleDispatcher.TryGetModuleSources(moduleReference) is SourceArchive sourceArchive && request.requestedSourceFile is { })
             {
-                // TODO: For now, we just proffer the main source file
-                var entrypointFile = sourceArchive.SourceFiles.Single(f => f.Path == sourceArchive.EntrypointRelativePath);
-                return Task.FromResult(new BicepExternalSourceResponse(entrypointFile.Contents));
+                var requestedFile = sourceArchive.SourceFiles.FirstOrDefault(f => f.Path == request.requestedSourceFile);
+                if (requestedFile is null)
+                {
+                    throw new InvalidOperationException($"Could not find source file \"{request.requestedSourceFile}\" in the sources for module \"{moduleReference.FullyQualifiedReference}\"");
+                }
+
+                return Task.FromResult(new BicepExternalSourceResponse(requestedFile.Contents));
             }
 
-            // No sources available, just retrieve the JSON source
-            if (!this.fileResolver.TryRead(uri).IsSuccess(out var contents, out var failureBuilder))
+            // No sources available, or specifically requesting the compiled main.json.
+            // Retrieve the JSON source
+            if (!this.fileResolver.TryRead(compiledJsonUri).IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
-                throw new InvalidOperationException($"Unable to read file '{uri}'. {message}");
+                throw new InvalidOperationException($"Unable to read file '{compiledJsonUri}'. {message}");
             }
 
             return Task.FromResult(new BicepExternalSourceResponse(contents));
