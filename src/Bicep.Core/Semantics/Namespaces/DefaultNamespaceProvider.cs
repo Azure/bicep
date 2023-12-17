@@ -35,6 +35,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
             [SystemNamespaceType.BuiltInName] = (descriptor, _, features, sourceFileKind) => SystemNamespaceType.Create(descriptor.Alias, features, sourceFileKind),
             [K8sNamespaceType.BuiltInName] = (descriptor, _, _, _) => K8sNamespaceType.Create(descriptor.Alias),
             [MicrosoftGraphNamespaceType.BuiltInName] = (descriptor, _, _, _) => MicrosoftGraphNamespaceType.Create(descriptor.Alias),
+            [UtilsNamespaceType.BuiltInName] = (descriptor, _, _, _) => UtilsNamespaceType.Create(descriptor.Alias),
         }.ToImmutableDictionary();
     }
 

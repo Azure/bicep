@@ -109,6 +109,9 @@ namespace Bicep.Cli
                     case JsonRpcArguments jsonRpcArguments when jsonRpcArguments.CommandName == Constants.Command.JsonRpc: // bicep jsonrpc [options]
                         return await services.GetRequiredService<JsonRpcCommand>().RunAsync(jsonRpcArguments, cancellationToken);
 
+                    case LocalDeployArguments localDeployArguments when localDeployArguments.CommandName == Constants.Command.LocalDeploy: // bicep local-deploy [options]
+                        return await services.GetRequiredService<LocalDeployCommand>().RunAsync(localDeployArguments, cancellationToken);
+
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return services.GetRequiredService<RootCommand>().Run(rootArguments);
 

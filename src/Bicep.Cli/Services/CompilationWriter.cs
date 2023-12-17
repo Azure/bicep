@@ -80,7 +80,7 @@ namespace Bicep.Cli.Services
             return new EmitResult(EmitStatus.Succeeded, combinedDiagnostics, templateResult.SourceMap);
         }
 
-        private static (EmitResult result, string output) EmitTemplate(SemanticModel paramsModel, ISemanticModel usingModel)
+        public static (EmitResult result, string output) EmitTemplate(SemanticModel paramsModel, ISemanticModel usingModel)
         {
             var stringBuilder = new StringBuilder();
             using var stringWriter = new StringWriter(stringBuilder) { NewLine = "\n" };
@@ -91,7 +91,7 @@ namespace Bicep.Cli.Services
             return (result, stringBuilder.ToString());
         }
 
-        private static (EmitResult result, string output) EmitParameters(SemanticModel paramsModel)
+        public static (EmitResult result, string output) EmitParameters(SemanticModel paramsModel)
         {
             var stringBuilder = new StringBuilder();
             using var stringWriter = new StringWriter(stringBuilder) { NewLine = "\n" };

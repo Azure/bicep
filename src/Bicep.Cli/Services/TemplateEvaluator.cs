@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions.Schema;
+using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
@@ -169,9 +170,8 @@ namespace Bicep.Cli.Services
                 var parameters = ParseParametersFile(parametersJToken);
 
                 TemplateEngine.ValidateTemplate(template, "2020-10-01", deploymentScope);
-                TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(parameters), metadata, null, new InsensitiveDictionary<JToken>());
 
-                TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-10-01", null);
+                TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-10-01", new InsensitiveDictionary<JToken>(parameters), metadata, TemplateDiagnosticsWriter.Create());
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
 
