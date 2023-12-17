@@ -18,22 +18,22 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Samples;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
+using Bicep.Core.UnitTests.TypeSystem.Az;
 using Bicep.Core.UnitTests.Utils;
+using CommandLine.Text;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using MessagePack.Resolvers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using DataSet = Bicep.Core.Samples.DataSet;
-using Bicep.Core.UnitTests.TypeSystem.Az;
-using CommandLine.Text;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Providers.Az;
-using MessagePack.Resolvers;
-using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Cli.IntegrationTests;
 
@@ -70,7 +70,7 @@ public class PublishProviderCommandTests : TestBase
         result.Should().Succeed().And.NotHaveStdout();
 
         // verify the provider was published
-        mockBlobClient.Should().HaveProvider(version, out var tgzStream);        
+        mockBlobClient.Should().HaveProvider(version, out var tgzStream);
 
         var typeLoader = OciTypeLoader.FromTgz(tgzStream);
         var azTypeLoader = new AzResourceTypeLoader(typeLoader);

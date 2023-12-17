@@ -46,7 +46,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
     {
         // If we don't have a types path, we're loading a 'built-in' type
         if (descriptor.TypesBaseUri is null &&
-            builtInNamespaceLookup.TryGetValue(descriptor.Name) is {} getProvider)
+            builtInNamespaceLookup.TryGetValue(descriptor.Name) is { } getProvider)
         {
             return getProvider(descriptor, resourceScope, features, sourceFileKind);
         }

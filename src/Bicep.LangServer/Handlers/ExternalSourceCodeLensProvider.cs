@@ -71,7 +71,8 @@ namespace Bicep.LanguageServer.Handlers
                                     "Show compiled JSON",
                                     "bicep.internal.showModuleSourceFile",
                                     new ExternalSourceReference(request.TextDocument.Uri).WithRequestForCompiledJson().ToUri().ToString());
-                            }else
+                            }
+                            else
                             {
                                 // This can happen if the user has a source file open in the editor and then restores to a version of the module that doesn't have source code available.
                                 error = "Could not find the expected source archive in the module registry";

@@ -12,8 +12,8 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LangServer.IntegrationTests.Helpers;
@@ -64,7 +64,7 @@ var blah = '${NewIdentifier}'
         var edit = await file.RequestRename(cursor, "NewIdentifier");
 
         var appliedEdit = file.ApplyWorkspaceEdit(edit).ProgramSyntax.ToTextPreserveFormatting();
-        
+
         appliedEdit.Should().EqualIgnoringTrailingWhitespace(expectedOutput);
     }
 
