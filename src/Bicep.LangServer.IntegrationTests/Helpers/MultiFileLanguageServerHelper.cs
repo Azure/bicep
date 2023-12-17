@@ -34,7 +34,7 @@ namespace Bicep.LangServer.IntegrationTests
             this.notificationRouter = notificationRouter;
         }
 
-        public static async Task<MultiFileLanguageServerHelper> StartLanguageServer(TestContext testContext, Action<IServiceCollection>? onRegisterServices = null, IArtifactRegistry[]? artifactRegistries = null)
+        public static async Task<MultiFileLanguageServerHelper> StartLanguageServer(TestContext testContext, Action<IServiceCollection>? onRegisterServices = null)
         {
             var notificationRouter = new ConcurrentDictionary<DocumentUri, MultipleMessageListener<PublishDiagnosticsParams>>();
             var helper = await LanguageServerHelper.StartServer(
@@ -54,8 +54,7 @@ namespace Bicep.LangServer.IntegrationTests
                         throw new AssertFailedException($"Task completion source was not registered for document uri '{p.Uri}'.");
                     });
                 },
-                onRegisterServices,
-                artifactRegistries);
+                onRegisterServices);
 
             return new(helper.Server, helper.Client, notificationRouter);
         }

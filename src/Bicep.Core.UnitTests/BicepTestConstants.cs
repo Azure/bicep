@@ -2,15 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+using Azure.Core.Pipeline;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -18,8 +14,9 @@ using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.SourceCode;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
@@ -88,7 +85,7 @@ namespace Bicep.Core.UnitTests
 
         public static IEnvironment EmptyEnvironment = new TestEnvironment(ImmutableDictionary<string, string?>.Empty);
 
-        public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleDispatcherAndRestoreScheduler().moduleRestoreScheduler;
+        public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
 
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
         {
@@ -131,20 +128,10 @@ namespace Bicep.Core.UnitTests
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
             => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager()), featureOverrides);
 
-        public static (IModuleDispatcher moduleDispatcher, IModuleRestoreScheduler moduleRestoreScheduler) CreateMockModuleDispatcherAndRestoreScheduler(IArtifactRegistry[]? artifactRegistries = null)
+        private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
         {
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
-            moduleDispatcher.Setup(x => x.RestoreModules(It.IsAny<ImmutableArray<ArtifactReference>>(), It.IsAny<bool>())).
-                ReturnsAsync(true);
-            moduleDispatcher.Setup(x => x.PruneRestoreStatuses());
-
-            MockRepository repository = new(MockBehavior.Strict);
-            var provider = repository.Create<IArtifactRegistryProvider>();
-
-            moduleDispatcher.Setup(m => m.TryGetModuleSources(It.IsAny<ArtifactReference>())).Returns((ArtifactReference reference) =>
-                (artifactRegistries ?? new IArtifactRegistry[] { }).Select(r => r.TryGetSource(reference)).FirstOrDefault(s => s is not null));
-
-            return (moduleDispatcher.Object, new ModuleRestoreScheduler(moduleDispatcher.Object));
+            return new ModuleRestoreScheduler(moduleDispatcher.Object);
         }
 
         public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()

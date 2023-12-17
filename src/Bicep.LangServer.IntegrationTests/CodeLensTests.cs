@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -19,6 +20,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Registry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -58,12 +60,26 @@ namespace Bicep.LangServer.IntegrationTests
             }
             moduleRegistry.Setup(m => m.TryGetSource(It.IsAny<ArtifactReference>())).Returns(sourceArchive);
 
+            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
+            moduleDispatcher.Setup(x => x.RestoreModules(It.IsAny<ImmutableArray<ArtifactReference>>(), It.IsAny<bool>())).
+                ReturnsAsync(true);
+            moduleDispatcher.Setup(x => x.PruneRestoreStatuses());
+
+            MockRepository repository = new(MockBehavior.Strict);
+            var provider = repository.Create<IArtifactRegistryProvider>();
+
+            var artifactRegistries = moduleRegistry.Object.AsArray();
+
+            moduleDispatcher.Setup(m => m.TryGetModuleSources(It.IsAny<ArtifactReference>())).Returns((ArtifactReference reference) =>
+                artifactRegistries.Select(r => r.TryGetSource(reference)).FirstOrDefault(s => s is not null));
+
             var defaultServer = new SharedLanguageHelperManager();
             defaultServer.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     TestContext,
-                    services => services.WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true)),
-                    moduleRegistry.Object.AsArray()));
+                    services => services
+                        .WithModuleDispatcher(moduleDispatcher.Object)
+                        .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))));
             return defaultServer;
         }
 
