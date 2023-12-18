@@ -207,7 +207,7 @@
         "icon": "$(type-hierarchy-sub)"
       },
       {
-        "command": "bicep.showSource",
+        "command": "bicep.showSourceFromVisualizer",
         "title": "Open Source",
         "category": "Bicep",
         "icon": "$(go-to-file)"
@@ -351,7 +351,7 @@
           "group": "navigation"
         },
         {
-          "command": "bicep.showSource",
+          "command": "bicep.showSourceFromVisualizer",
           "when": "bicepVisualizerFocus",
           "group": "navigation"
         },
@@ -605,7 +605,7 @@
           "command": "bicep.importKubernetesManifest"
         },
         {
-          "command": "bicep.showSource",
+          "command": "bicep.showSourceFromVisualizer",
           "when": "never"
         },
         {
