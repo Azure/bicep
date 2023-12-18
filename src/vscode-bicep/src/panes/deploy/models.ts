@@ -19,6 +19,7 @@ export interface ParamDefinition {
 export interface ParametersMetadata {
   sourceFilePath?: string;
   parameters: Record<string, ParamData>;
+  localDeployEnabled: boolean;
 }
 
 export type ParameterValue = unknown;

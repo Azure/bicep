@@ -738,6 +738,9 @@
         },
         "optionalModuleNames": {
           "type": "boolean"
+        },
+        "localDeploy": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false

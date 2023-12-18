@@ -24,6 +24,7 @@ public record FeatureProviderOverrides(
     bool? MicrosoftGraphPreviewEnabled = default,
     bool? PublishSourceEnabled = default,
     bool? OptionalModuleNamesEnabled = default,
+    bool? LocalDeployEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
     public FeatureProviderOverrides(
@@ -44,6 +45,7 @@ public record FeatureProviderOverrides(
         bool? MicrosoftGraphPreviewEnabled = default,
         bool? PublishSourceEnabled = default,
         bool? OptionalModuleNamesEnabled = default,
+        bool? LocalDeployEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
     ) : this(
         FileHelper.GetCacheRootPath(testContext),
@@ -63,6 +65,7 @@ public record FeatureProviderOverrides(
         MicrosoftGraphPreviewEnabled,
         PublishSourceEnabled,
         OptionalModuleNamesEnabled,
+        LocalDeployEnabled,
         AssemblyVersion)
     { }
 }

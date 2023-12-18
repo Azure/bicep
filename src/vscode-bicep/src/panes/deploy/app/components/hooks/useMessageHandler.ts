@@ -7,6 +7,7 @@ import {
   createGetAccessTokenMessage,
   createGetDeploymentScopeMessage,
   createGetStateMessage,
+  createLocalDeployMessage,
   createPickParamsFileMessage,
   createPublishTelemetryMessage,
   createReadyMessage,
@@ -22,6 +23,7 @@ import {
 } from "../../../models";
 import { AccessToken } from "@azure/identity";
 import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
+import { LocalDeployResponse } from "../../../../../language";
 
 // TODO see if there's a way to use react hooks instead of this hackery
 let accessTokenResolver: {
@@ -31,16 +33,19 @@ let accessTokenResolver: {
 
 export interface UseMessageHandlerProps {
   setErrorMessage: (message?: string) => void;
+  setLocalDeployRunning: (running: boolean) => void;
 }
 
 export function useMessageHandler(props: UseMessageHandlerProps) {
-  const { setErrorMessage } = props;
+  const { setErrorMessage, setLocalDeployRunning } = props;
   const [persistedState, setPersistedState] = useState<DeployPaneState>();
   const [templateMetadata, setTemplateMetadata] = useState<TemplateMetadata>();
   const [paramsMetadata, setParamsMetadata] = useState<ParametersMetadata>({
+    localDeployEnabled: false,
     parameters: {},
   });
   const [scope, setScope] = useState<DeploymentScope>();
+  const [localDeployResult, setLocalDeployResult] = useState<LocalDeployResponse>();
 
   const handleMessageEvent = (e: MessageEvent<VscodeMessage>) => {
     const message = e.data;
@@ -72,6 +77,7 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
               ? undefined
               : message.documentPath,
             parameters: parseParametersJson(message.parametersJson),
+            localDeployEnabled: message.localDeployEnabled,
           });
         }
         setErrorMessage(undefined);
@@ -89,6 +95,7 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
       }
       case "PICK_PARAMS_FILE_RESULT": {
         setParamsMetadata({
+          localDeployEnabled: false,
           sourceFilePath: message.documentPath,
           parameters: parseParametersJson(message.parametersJson),
         });
@@ -107,6 +114,11 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
       case "GET_DEPLOYMENT_SCOPE_RESULT": {
         setScope(message.scope);
         savePersistedState({ ...persistedState, scope: message.scope });
+        return;
+      }
+      case "LOCAL_DEPLOY_RESULT": {
+        setLocalDeployResult(message);
+        setLocalDeployRunning(false);
         return;
       }
     }
@@ -154,6 +166,11 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     return promise;
   }
 
+  function startLocalDeploy() {
+    setLocalDeployRunning(true);
+    vscode.postMessage(createLocalDeployMessage());
+  }
+
   return {
     pickParamsFile,
     paramsMetadata,
@@ -163,5 +180,7 @@ export function useMessageHandler(props: UseMessageHandlerProps) {
     pickScope,
     scope,
     publishTelemetry,
+    startLocalDeploy,
+    localDeployResult,
   };
 }

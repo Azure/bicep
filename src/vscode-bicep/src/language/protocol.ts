@@ -46,6 +46,7 @@ export interface GetDeploymentDataRequest {
 }
 
 export interface GetDeploymentDataResponse {
+  localDeployEnabled: boolean;
   templateJson?: string;
   parametersJson?: string;
   errorMessage?: string;
@@ -58,6 +59,32 @@ export const getDeploymentDataRequestType = new ProtocolRequestType<
   void,
   void
 >("bicep/getDeploymentData");
+
+export interface LocalDeployRequest {
+  textDocument: TextDocumentIdentifier;
+}
+
+interface LocalDeploymentOperationContent {
+  resourceName: string;
+  provisioningState: string;
+};
+
+interface LocalDeploymentContent {
+  provisioningState: string;
+};
+
+export interface LocalDeployResponse {
+  deployment: LocalDeploymentContent;
+  operations: LocalDeploymentOperationContent[];
+}
+
+export const localDeployRequestType = new ProtocolRequestType<
+  LocalDeployRequest,
+  LocalDeployResponse,
+  never,
+  void,
+  void
+>("bicep/localDeploy");
 
 export interface BicepDeploymentScopeParams {
   textDocument: TextDocumentIdentifier;

@@ -10,10 +10,11 @@ import {
   createGetAccessTokenResultMessage,
   createGetDeploymentScopeResultMessage,
   createGetStateResultMessage,
+  createLocalDeployResultMessage,
   createPickParamsFileResultMessage,
   ViewMessage,
 } from "./messages";
-import { getDeploymentDataRequestType } from "../../language";
+import { getDeploymentDataRequestType, localDeployRequestType } from "../../language";
 import { Disposable } from "../../utils/disposable";
 import { debounce } from "../../utils/time";
 import { getLogger } from "../../utils/logger";
@@ -32,6 +33,7 @@ export class DeployPaneView extends Disposable {
   private readonly onDidChangeViewStateEmitter: vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>;
 
   private readyToRender = false;
+  private document?: vscode.TextDocument;
 
   private constructor(
     private readonly extensionContext: ExtensionContext,
@@ -151,9 +153,8 @@ export class DeployPaneView extends Disposable {
       return;
     }
 
-    let document: vscode.TextDocument;
     try {
-      document = await vscode.workspace.openTextDocument(this.documentUri);
+      this.document = await vscode.workspace.openTextDocument(this.documentUri);
     } catch {
       this.webviewPanel.webview.html = this.createDocumentNotFoundHtml();
       return;
@@ -168,7 +169,7 @@ export class DeployPaneView extends Disposable {
       {
         textDocument:
           this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(
-            document,
+            this.document,
           ),
       },
     );
@@ -181,6 +182,7 @@ export class DeployPaneView extends Disposable {
       await this.webviewPanel.webview.postMessage(
         createDeploymentDataMessage(
           this.documentUri.fsPath,
+          deploymentData.localDeployEnabled,
           deploymentData.templateJson,
           deploymentData.parametersJson,
           deploymentData.errorMessage,
@@ -274,6 +276,22 @@ export class DeployPaneView extends Disposable {
             telemetryActionContext.errorHandling.suppressDisplay = true;
             telemetryActionContext.telemetry.properties = message.properties;
           },
+        );
+        return;
+      }
+      case "LOCAL_DEPLOY": {
+        const result = await this.languageClient.sendRequest(
+          localDeployRequestType,
+          {
+            textDocument:
+              this.languageClient.code2ProtocolConverter.asTextDocumentIdentifier(
+                this.document!,
+              ),
+          },
+        );
+
+        await this.webviewPanel.webview.postMessage(
+          createLocalDeployResultMessage(result),
         );
         return;
       }

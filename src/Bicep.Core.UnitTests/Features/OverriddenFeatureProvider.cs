@@ -47,4 +47,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool PublishSourceEnabled => overrides.PublishSourceEnabled ?? features.PublishSourceEnabled;
 
     public bool OptionalModuleNamesEnabled => overrides.OptionalModuleNamesEnabled ?? features.OptionalModuleNamesEnabled;
+
+    public bool LocalDeployEnabled => overrides.LocalDeployEnabled ?? features.LocalDeployEnabled;
 }

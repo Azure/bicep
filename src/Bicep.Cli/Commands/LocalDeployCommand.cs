@@ -63,6 +63,12 @@ public class LocalDeployCommand : ICommand
             return 1;
         }
 
+        if (paramsModel.Features.LocalDeployEnabled)
+        {
+            logger.LogError("Experimental feature 'localDeploy' is not enabled.");
+            return 1;
+        }
+
         var (_, parametersString) = CompilationWriter.EmitParameters(paramsModel);
         var (_, templateString) = CompilationWriter.EmitTemplate(paramsModel, usingModel);
 

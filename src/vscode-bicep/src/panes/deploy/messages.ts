@@ -8,6 +8,7 @@ import {
   UntypedError,
 } from "./models";
 import { TelemetryProperties } from "@microsoft/vscode-azext-utils";
+import { LocalDeployResponse } from "../../language";
 
 interface SimpleMessage<T> {
   kind: T;
@@ -24,6 +25,7 @@ export type DeploymentDataMessage = MessageWithPayload<
   "DEPLOYMENT_DATA",
   {
     documentPath: string;
+    localDeployEnabled: boolean;
     templateJson?: string;
     parametersJson?: string;
     errorMessage?: string;
@@ -31,12 +33,14 @@ export type DeploymentDataMessage = MessageWithPayload<
 >;
 export function createDeploymentDataMessage(
   documentPath: string,
+  localDeployEnabled: boolean,
   templateJson?: string,
   parametersJson?: string,
   errorMessage?: string,
 ): DeploymentDataMessage {
   return createMessageWithPayload("DEPLOYMENT_DATA", {
     documentPath,
+    localDeployEnabled,
     templateJson,
     parametersJson,
     errorMessage,
@@ -174,12 +178,31 @@ export function createPublishTelemetryMessage(
   });
 }
 
+export type LocalDeployMessage = MessageWithPayload<
+  "LOCAL_DEPLOY",
+  {}
+>;
+export function createLocalDeployMessage(): {} {
+  return createMessageWithPayload("LOCAL_DEPLOY", {});
+}
+
+export type LocalDeployResultMessage = MessageWithPayload<
+  "LOCAL_DEPLOY_RESULT",
+  LocalDeployResponse
+>;
+export function createLocalDeployResultMessage(
+  response: LocalDeployResponse,
+): LocalDeployResultMessage {
+  return createMessageWithPayload("LOCAL_DEPLOY_RESULT", response);
+}
+
 export type VscodeMessage =
   | DeploymentDataMessage
   | GetStateResultMessage
   | PickParamsFileResultMessage
   | GetAccessTokenResultMessage
-  | GetDeploymentScopeResultMessage;
+  | GetDeploymentScopeResultMessage
+  | LocalDeployResultMessage;
 
 export type ViewMessage =
   | ReadyMessage
@@ -188,7 +211,8 @@ export type ViewMessage =
   | PickParamsFileMessage
   | GetAccessTokenMessage
   | GetDeploymentScopeMessage
-  | PublishTelemetryMessage;
+  | PublishTelemetryMessage
+  | LocalDeployMessage;
 
 function createSimpleMessage<T>(kind: T): SimpleMessage<T> {
   return { kind };

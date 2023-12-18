@@ -77,6 +77,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepExternalSourceRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
                     .WithHandler<ConfigurationSettingsHandler>()
+                    .WithHandler<LocalDeployHandler>()
                     .WithServices(RegisterServices);
 
                 onOptionsFunc(options);
