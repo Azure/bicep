@@ -222,6 +222,11 @@ namespace Bicep.LanguageServer
 
         private bool ShouldUpsertCompilation(DocumentUri documentUri, string? languageId = null)
         {
+            if (documentUri.Scheme == LangServerConstants.ExternalSourceFileScheme) {
+                // Don't compile source code from external modules (and therefore also don't show compiler/linter warnings etc.)
+                return false;
+            }
+
             // We should only upsert compilation when languageId is bicep or the file is already tracked in workspace.
             // When the file is in workspace but languageId is null, the file can be a bicep file or a JSON template
             // being referenced as a bicep module.
