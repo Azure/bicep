@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Bicep.LocalDeploy.Extensibility;
 using Azure.Deployments.Core.Definitions;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,10 +16,10 @@ public static class LocalDeployment
         DeploymentContent Deployment,
         ImmutableArray<DeploymentOperationDefinition> Operations);
 
-    public static Task<Result> Deploy(string templateString, string parametersString, CancellationToken cancellationToken)
+    public static Task<Result> Deploy(LocalExtensibilityHandler extensibilityHandler, string templateString, string parametersString, CancellationToken cancellationToken)
     {
         var services = new ServiceCollection()
-            .RegisterLocalDeployServices()
+            .RegisterLocalDeployServices(extensibilityHandler)
             .BuildServiceProvider();
         
         var engine = services.GetRequiredService<LocalDeploymentEngine>();

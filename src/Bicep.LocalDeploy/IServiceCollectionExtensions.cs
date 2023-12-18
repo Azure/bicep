@@ -32,7 +32,7 @@ namespace Azure.Bicep.LocalDeploy;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services)
+    public static IServiceCollection RegisterLocalDeployServices(this IServiceCollection services, LocalExtensibilityHandler extensibilityHandler)
     {
         var eventSource = new TraceEventSource();
         services.AddSingleton<IGeneralEventSource>(eventSource);
@@ -67,9 +67,6 @@ public static class IServiceCollectionExtensions
 
         services.AddSingleton<IDeploymentsRequestContext, LocalRequestContext>();
         services.AddSingleton<LocalRequestContext>();
-
-        var extensibilityHandler = new LocalExtensibilityHandler();
-        extensibilityHandler.Register(UtilsExtensibilityProvider.Name, UtilsExtensibilityProvider.Version, () => new UtilsExtensibilityProvider());
         services.AddSingleton(extensibilityHandler);
 
         services.AddSingleton<LocalDeploymentEngine>();

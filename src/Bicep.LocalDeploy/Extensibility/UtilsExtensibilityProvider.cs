@@ -16,10 +16,6 @@ namespace Azure.Bicep.LocalDeploy.Extensibility;
 
 public partial class UtilsExtensibilityProvider : IExtensibilityProvider
 {
-    public const string Name = "Utils";
-    public const string Version = "0.0.1";
-
-
     [JsonSerializable(typeof(WaitRequest))]
     [JsonSerializable(typeof(WaitResponse))]
     [JsonSerializable(typeof(AssertRequest))]

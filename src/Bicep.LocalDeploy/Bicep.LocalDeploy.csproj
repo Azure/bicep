@@ -14,9 +14,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../AzureUX-Deployments/src/Engine/Engine.csproj" />
-    <ProjectReference Include="../../../AzureUX-Deployments/src/Core/Core.csproj" />
-    <ProjectReference Include="../../../AzureUX-Deployments/src/Extensibility/Extensibility.csproj" />
-    <ProjectReference Include="../../../AzureUX-Deployments/src/Templates/Templates.csproj" />
+    <PackageReference Include="Azure.Deployments.Engine" Version="1.0.1158" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Deployments.Extensibility.Providers.Kubernetes" Version="0.1.38" />
   </ItemGroup>
 </Project>
