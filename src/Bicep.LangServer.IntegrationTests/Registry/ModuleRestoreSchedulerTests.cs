@@ -25,7 +25,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 
-namespace Bicep.LangServer.UnitTests.Registry
+namespace Bicep.LangServer.IntegrationTests.Registry
 {
     [TestClass]
     public class ModuleRestoreSchedulerTests
