@@ -18,6 +18,7 @@ namespace Bicep.Core.Registry.Oci
         public OciArtifactReference(ArtifactType type, IArtifactAddressComponents artifactIdParts, Uri parentModuleUri) :
             base(OciArtifactReferenceFacts.Scheme, parentModuleUri)
         {
+            Type = type;
             AddressComponents = artifactIdParts;
         }
 
