@@ -106,7 +106,7 @@ var networkSecurityGroup = {
         sourcePortRange: '*'
         sourceAddressPrefix: '*'
         destinationAddressPrefix: '*'
-        destinationPortRange: 3389
+        destinationPortRange: '3389'
       }
     }
   ]
