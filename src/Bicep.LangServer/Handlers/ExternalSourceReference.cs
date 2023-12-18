@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Handlers
         public string Title { get; init; }
 
         // Fully qualified module reference, e.g. "myregistry.azurecr.io/myrepo/module:v1"
-        public IArtifactAddressComponents ModuleParts { get; init; }
+        public IArtifactAddressComponents Components { get; init; }
 
         // File being requested from the source, relative to the module root.
         //   e.g. main.bicep or myPath/module.bicep
@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             ErrorBuilderDelegate? error = null;
             if (!fullyQualifiedModuleReference.StartsWith($"{OciArtifactReferenceFacts.Scheme}:", StringComparison.Ordinal) ||
-                !OciArtifactReference.TryParseFullyQualifiedParts(fullyQualifiedModuleReference.Substring(OciArtifactReferenceFacts.Scheme.Length + 1)).IsSuccess(out var parts, out error))
+                !OciArtifactReference.TryParseFullyQualifiedComponents(fullyQualifiedModuleReference.Substring(OciArtifactReferenceFacts.Scheme.Length + 1)).IsSuccess(out var components, out error))
             {
                 string? innerMessage = null;
                 if (error is { })
@@ -62,7 +62,7 @@ namespace Bicep.LanguageServer.Handlers
                 throw new ArgumentException($"Invalid module reference '{fullyQualifiedModuleReference}'. {innerMessage}", nameof(fullyQualifiedModuleReference));
             }
 
-            ModuleParts = parts;
+            Components = components;
             RequestedFile = requestedFile;
             Title = title;
         }
@@ -74,13 +74,13 @@ namespace Bicep.LanguageServer.Handlers
 
         public ExternalSourceReference WithRequestForSourceFile(string? requestedSourceFile)
         {
-            return new ExternalSourceReference(ModuleParts, requestedSourceFile); // recalculate title
+            return new ExternalSourceReference(Components, requestedSourceFile); // recalculate title
         }
 
         public ExternalSourceReference(OciArtifactReference moduleReference, SourceArchive? sourceArchive)
         {
             Debug.Assert(moduleReference.Type == ArtifactType.Module && moduleReference.Scheme == OciArtifactReferenceFacts.Scheme, "Expecting a module reference, not a provider reference");
-            ModuleParts = moduleReference.AddressComponents;
+            Components = moduleReference.AddressComponents;
 
             if (sourceArchive is { })
             {
@@ -98,7 +98,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private ExternalSourceReference(IArtifactAddressComponents module, string? requestedFile, string? title = null) // title auto-calculated if not specified
         {
-            ModuleParts = module;
+            Components = module;
             RequestedFile = requestedFile;
             Title = title ?? GetTitle();
         }
@@ -120,7 +120,7 @@ namespace Bicep.LanguageServer.Handlers
             //
             var uri = new UriBuilder($"{LangServerConstants.ExternalSourceFileScheme}:{Uri.EscapeDataString(this.Title)}")
             {
-                Query = Uri.EscapeDataString($"{OciArtifactReferenceFacts.Scheme}:{ModuleParts.ArtifactId}"),
+                Query = Uri.EscapeDataString($"{OciArtifactReferenceFacts.Scheme}:{Components.ArtifactId}"),
                 Fragment = this.RequestedFile is null ? null : Uri.EscapeDataString(this.RequestedFile),
             };
 
@@ -129,9 +129,9 @@ namespace Bicep.LanguageServer.Handlers
 
         public Result<OciArtifactReference, string> ToArtifactReference()
         {
-            if (OciArtifactReference.TryParseFullyQualifiedParts(ModuleParts.ArtifactId).IsSuccess(out var parts, out var failureBuilder))
+            if (OciArtifactReference.TryParseFullyQualifiedComponents(Components.ArtifactId).IsSuccess(out var components, out var failureBuilder))
             { // No parent file template is available or needed because these are absolute references
-                return new(new OciArtifactReference(ArtifactType.Module, parts, new Uri("file:///no-parent-file-is-available.bicep")));
+                return new(new OciArtifactReference(ArtifactType.Module, components, new Uri("file:///no-parent-file-is-available.bicep")));
             }
             else
             {
@@ -143,10 +143,10 @@ namespace Bicep.LanguageServer.Handlers
         {
             string filename = this.RequestedFile ?? "main.json";
 
-            var version = ModuleParts.Tag is string ? $":{ModuleParts.Tag}" : $"@{ModuleParts.Digest}";
+            var version = Components.Tag is string ? $":{Components.Tag}" : $"@{Components.Digest}";
 
-            var shortDocumentTitle = $"{filename} ({Path.GetFileName(ModuleParts.Repository)}{version})";
-            var fullDocumentTitle = $"{OciArtifactReferenceFacts.Scheme}:{ModuleParts.Registry}/{ModuleParts.Repository}{version}/{shortDocumentTitle}";
+            var shortDocumentTitle = $"{filename} ({Path.GetFileName(Components.Repository)}{version})";
+            var fullDocumentTitle = $"{OciArtifactReferenceFacts.Scheme}:{Components.Registry}/{Components.Repository}{version}/{shortDocumentTitle}";
 
             return fullDocumentTitle;
         }

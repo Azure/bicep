@@ -90,7 +90,7 @@ namespace Bicep.Core.Registry.Oci
         }
 
         // Doesn't handle aliases
-        public static ResultWithDiagnostic<IArtifactAddressComponents> TryParseFullyQualifiedParts(string rawValue)
+        public static ResultWithDiagnostic<IArtifactAddressComponents> TryParseFullyQualifiedComponents(string rawValue)
         {
             return TryParseParts(ArtifactType.Module, aliasName: null, rawValue, configuration: null);
         }
