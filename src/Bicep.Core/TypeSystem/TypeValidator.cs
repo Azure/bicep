@@ -333,33 +333,16 @@ namespace Bicep.Core.TypeSystem
             }
 
             // object assignability check
-            if (targetType is ObjectType targetObjectType)
+            if (targetType is ObjectType targetObjectType &&
+                NarrowObjectAssignmentType(config, UnwrapIfConditionBody(expression), expressionType, targetObjectType) is TypeSymbol narrowedObject)
             {
-                var toNarrow = expression switch
-                {
-                    IfConditionSyntax ifCondition => ifCondition.Body,
-                    _ => expression,
-                };
-                return NarrowObjectAssignmentType(config, toNarrow, expressionType, targetObjectType);
+                return narrowedObject;
             }
 
-            if (expression is ObjectSyntax objectValue)
+            if (targetType is DiscriminatedObjectType targetDiscriminatedObjectType &&
+                NarrowDiscriminatedObjectType(config, UnwrapIfConditionBody(expression), expressionType, targetDiscriminatedObjectType) is TypeSymbol narrowedDiscriminatedObject)
             {
-                switch (targetType)
-                {
-                    case DiscriminatedObjectType targetDiscriminated:
-                        return NarrowDiscriminatedObjectType(config, objectValue, targetDiscriminated);
-                }
-            }
-
-            // if-condition assignability check
-            if (expression is IfConditionSyntax { Body: ObjectSyntax body })
-            {
-                switch (targetType)
-                {
-                    case DiscriminatedObjectType targetDiscriminated:
-                        return NarrowDiscriminatedObjectType(config, body, targetDiscriminated);
-                }
+                return narrowedDiscriminatedObject;
             }
 
             // array assignability check
@@ -386,6 +369,12 @@ namespace Bicep.Core.TypeSystem
 
             return expressionType;
         }
+
+        private static SyntaxBase UnwrapIfConditionBody(SyntaxBase expression) => expression switch
+        {
+            IfConditionSyntax ifCondition => ifCondition.Body,
+            _ => expression,
+        };
 
         private static bool AreLambdaTypesAssignable(LambdaType source, LambdaType target)
         {
@@ -919,7 +908,7 @@ namespace Bicep.Core.TypeSystem
 
         private record ViableTypeCandidate(TypeSymbol Type, IEnumerable<IDiagnostic> Diagnostics);
 
-        private TypeSymbol NarrowDiscriminatedObjectType(TypeValidatorConfig config, ObjectSyntax expression, DiscriminatedObjectType targetType)
+        private TypeSymbol? NarrowDiscriminatedObjectType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, DiscriminatedObjectType targetType)
         {
             // if we have parse errors, there's no point to check assignability
             // we should not return the parse errors however because they will get double collected
@@ -928,33 +917,42 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            var discriminatorProperty = expression.Properties.FirstOrDefault(p => targetType.TryGetDiscriminatorProperty(p.TryGetKeyText()) is not null);
-            if (discriminatorProperty == null)
+            if (expressionType is not ObjectType expressionObjectType)
             {
-                // object doesn't contain the discriminator field
-                diagnosticWriter.Write(config.OriginSyntax ?? expression, x => x.MissingRequiredProperty(ShouldWarn(targetType), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
+                // the provided value can be assigned to an discriminated object, but we don't know enough about the value to narrow it any further
+                return null;
+            }
 
-                var propertyKeys = expression.Properties
-                    .Select(x => x.TryGetKeyText())
-                    .Where(key => !string.IsNullOrEmpty(key))
-                    .Select(key => key!);
-
-                // do a reverse lookup to check if there's any misspelled discriminator key
-                var misspelledDiscriminatorKey = SpellChecker.GetSpellingSuggestion(targetType.DiscriminatorKey, propertyKeys);
-
-                if (misspelledDiscriminatorKey is not null)
+            if (expressionObjectType.Properties.TryGetValue(targetType.DiscriminatorKey) is not TypeProperty discriminatorTypeProperty)
+            {
+                // there is no explicit discriminator specified, so we can't determine its value
+                // if the expression type allows additional properties, the provided value may include the discriminator; otherwise, it certainly does not
+                if (!expressionObjectType.HasExplicitAdditionalPropertiesType)
                 {
-                    var misspelledDiscriminatorProperty = expression.Properties.First(x => string.Equals(x.TryGetKeyText(), misspelledDiscriminatorKey));
-                    diagnosticWriter.Write(config.OriginSyntax ?? misspelledDiscriminatorProperty.Key, x => x.DisallowedPropertyWithSuggestion(ShouldWarn(targetType), misspelledDiscriminatorKey, targetType.DiscriminatorKeysUnionType, targetType.DiscriminatorKey));
+                    var shouldWarn = (expressionObjectType.AdditionalPropertiesType?.Type is { } addlPropertiesType && AreTypesAssignable(addlPropertiesType, LanguageConstants.String)) ||
+                        ShouldWarn(targetType);
+                    diagnosticWriter.Write(config.OriginSyntax ?? expression, x => x.MissingRequiredProperty(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
+
+                    // do a reverse lookup to check if there's any misspelled discriminator key
+                    if (SpellChecker.GetSpellingSuggestion(targetType.DiscriminatorKey, expressionObjectType.Properties.Keys) is string misspelledDiscriminatorKey)
+                    {
+                        var misspelledDiscriminatorProperty = (expression as ObjectSyntax)?.Properties.First(x => LanguageConstants.IdentifierComparer.Equals(x.TryGetKeyText(), misspelledDiscriminatorKey));
+                        diagnosticWriter.Write(config.OriginSyntax ?? misspelledDiscriminatorProperty?.Key ?? expression,
+                            x => x.DisallowedPropertyWithSuggestion(ShouldWarn(targetType), misspelledDiscriminatorKey, targetType.DiscriminatorKeysUnionType, targetType.DiscriminatorKey));
+                    }
                 }
 
                 return LanguageConstants.Any;
             }
 
+            var discriminatorDiagnosticTarget = config.OriginSyntax
+                ?? (expression as ObjectSyntax)?.Properties.FirstOrDefault(p => targetType.TryGetDiscriminatorProperty(p.TryGetKeyText()) is not null)?.Value
+                ?? expression;
+
             // At some point in the future we may want to relax the expectation of a string literal key, and allow a generic string.
             // In this case, the best we can do is validate against the union of all the settable properties.
             // Let's not do this just yet, and see if a use-case arises.
-            var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
+            var discriminatorType = discriminatorTypeProperty.TypeReference.Type;
             switch (discriminatorType)
             {
                 case AnyType:
@@ -971,7 +969,7 @@ namespace Bicep.Core.TypeSystem
                         var shouldWarn = config.IsResourceDeclaration || ShouldWarn(targetType);
 
                         diagnosticWriter.Write(
-                            config.OriginSyntax ?? discriminatorProperty.Value,
+                            discriminatorDiagnosticTarget,
                             x =>
                             {
                                 var sourceDeclaration = TryGetSourceDeclaration(config);
@@ -994,13 +992,13 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // we have a match!
-                    return NarrowObjectAssignmentType(config, expression, typeManager.GetTypeInfo(expression), selectedObjectType);
+                    return NarrowObjectAssignmentType(config, expression, expressionType, selectedObjectType);
 
                 // ReSharper disable once ConvertTypeCheckPatternToNullCheck - using null pattern check causes compiler to think that discriminatorType might be null in the default clause.
                 case TypeSymbol when AreTypesAssignable(discriminatorType, targetType.DiscriminatorKeysUnionType):
                     //check if discriminatorType is a subset of targetType.DiscriminatorKeysUnionType.
                     //If match - then warn with message that using property is not recommended and type validation is suspended and return generic object type
-                    diagnosticWriter.Write(discriminatorProperty.Value, x => x.AmbiguousDiscriminatorPropertyValue(targetType.DiscriminatorKey));
+                    diagnosticWriter.Write(discriminatorDiagnosticTarget, x => x.AmbiguousDiscriminatorPropertyValue(targetType.DiscriminatorKey));
                     //TODO: make a deep merge of the discriminator types to return combined object for type checking. Additionally, we need to cover hints.
                     return LanguageConstants.Any;
 
@@ -1008,14 +1006,14 @@ namespace Bicep.Core.TypeSystem
                     {
                         var shouldWarn = (config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType);
                         diagnosticWriter.Write(
-                            config.OriginSyntax ?? discriminatorProperty.Value,
+                            discriminatorDiagnosticTarget,
                             x => x.PropertyTypeMismatch(shouldWarn, TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)));
                         return LanguageConstants.Any;
                     }
             }
         }
 
-        private TypeSymbol NarrowObjectAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, ObjectType targetType)
+        private TypeSymbol? NarrowObjectAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, ObjectType targetType)
         {
             static (TypeSymbol type, bool typeWasPreserved) AddImplicitNull(TypeSymbol propertyType, TypePropertyFlags propertyFlags)
             {
@@ -1230,7 +1228,7 @@ namespace Bicep.Core.TypeSystem
                 return new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver.CopyToObject);
             }
 
-            return targetType;
+            return null;
         }
 
         private (IPositionable positionable, string blockName) GetMissingPropertyContext(SyntaxBase expression)
