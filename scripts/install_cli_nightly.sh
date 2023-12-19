@@ -3,9 +3,11 @@ set -e
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --run-id)   runId="${2}"; shift;;
-    --branch)   branch="${2}"; shift;;
-    *)          echo "Unrecognized argument \"${1}\"."; exit 1;;
+    --run-id)       runId="${2}"; shift;;
+    --branch)       branch="${2}"; shift;;
+    --repo)         repo="${2}"; shift;;
+    --binary-path)  binaryPath="${2}"; shift;;
+    *)              echo "Unrecognized argument \"${1}\"."; exit 1;;
   esac
   shift
 done
@@ -28,15 +30,21 @@ case "$(uname -m)" in
 esac
 
 # Fetch
-REPO="Azure/bicep"
+if [ -z "$binaryPath" ]; then
+  # Default to ~/.azure/bin
+  binaryPath="$HOME/.azure/bin"
+fi
+if [ -z "$repo" ]; then
+  repo="Azure/bicep"
+fi
 if [ -z "$branch" ]; then
   branch=main
 fi
 if [ -z "$runId" ]; then
-  runId=$(gh run list -R $REPO --branch $branch --workflow build --status success -L 1 --json databaseId -q ".[0].databaseId")
+  runId=$(gh run list -R $repo --branch $branch --workflow build --status success -L 1 --json databaseId -q ".[0].databaseId")
 fi
 tmpDir=$(mktemp -d)
-gh run download -R $REPO $runId -n "bicep-release-$platform-$arch" --dir $tmpDir
+gh run download -R $repo $runId -n "bicep-release-$platform-$arch" --dir $tmpDir
 
 # Install
 if [[ $platform == "osx" ]]; then
@@ -44,13 +52,12 @@ if [[ $platform == "osx" ]]; then
   codesign -s - "$tmpDir/bicep"
 fi
 
-AZCLI_BIN_DIR="$HOME/.azure/bin"
-mkdir -p $AZCLI_BIN_DIR
-mv "$tmpDir/bicep" "$AZCLI_BIN_DIR/bicep"
-chmod +x "$AZCLI_BIN_DIR/bicep"
+mkdir -p $binaryPath
+mv "$tmpDir/bicep" "$binaryPath/bicep"
+chmod +x "$binaryPath/bicep"
 
-version=$("$AZCLI_BIN_DIR/bicep" --version | sed 's/^.* \([0-9]*\.[0-9]*\.[0-9]*\) .*/\1/')
-echo "Installed Bicep $version from https://github.com/Azure/bicep/actions/runs/$runId to $AZCLI_BIN_DIR/bicep"
+version=$("$binaryPath/bicep" --version | sed 's/^.* \([0-9]*\.[0-9]*\.[0-9]*\) .*/\1/')
+echo "Installed Bicep $version from https://github.com/$repo/actions/runs/$runId to $binaryPath/bicep"
 
 # Cleanup
 rm -Rf $tmpDir
