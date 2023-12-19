@@ -40,9 +40,6 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class BuildParamsCommandTests : TestBase
     {
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
         private InvocationSettings Settings
             => CreateDefaultSettings() with
             {

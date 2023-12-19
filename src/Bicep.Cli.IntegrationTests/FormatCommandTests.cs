@@ -22,9 +22,6 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class FormatCommandTests : TestBase
     {
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
         [TestMethod]
         public async Task Format_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
         {

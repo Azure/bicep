@@ -17,9 +17,6 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class GenerateParamsCommandTests : TestBase
     {
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
         [TestMethod]
         public async Task GenerateParams_ImplicitOutputFormatJson_ImplicitIncludeParamsRequiredOnly_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
         {
