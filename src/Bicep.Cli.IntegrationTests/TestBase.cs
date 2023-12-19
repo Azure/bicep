@@ -21,7 +21,7 @@ using Moq;
 
 namespace Bicep.Cli.IntegrationTests
 {
-    public abstract class TestBase
+    public abstract class TestBase :  Bicep.Core.UnitTests.TestBase
     {
         private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
             => ServiceBuilder.Create(

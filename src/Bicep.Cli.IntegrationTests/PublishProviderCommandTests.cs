@@ -40,9 +40,6 @@ namespace Bicep.Cli.IntegrationTests;
 [TestClass]
 public class PublishProviderCommandTests : TestBase
 {
-    [NotNull]
-    public TestContext? TestContext { get; set; }
-
     [TestMethod]
     public async Task Publish_provider_should_succeed()
     {
@@ -69,6 +66,9 @@ public class PublishProviderCommandTests : TestBase
         var result = await Bicep(settings, args);
         result.Should().Succeed().And.NotHaveStdout();
 
+        // this command should output an experimental warning
+        result.Stderr.Should().Match("The 'publish-provider' CLI command group is an experimental feature.*");
+
         // verify the provider was published
         mockBlobClient.Should().HaveProvider(version, out var tgzStream);
 
@@ -82,6 +82,10 @@ public class PublishProviderCommandTests : TestBase
         // verify we can load a type
         var saBodyType = (ObjectType)saType.Body.Type;
         saBodyType.Properties.Keys.Should().Contain("name", "location", "properties", "sku", "tags");
+
+        // publishing without --force should fail
+        result = await Bicep(settings, requiredArgs.ToArray());
+        result.Should().Fail().And.HaveStderrMatch("*The Provider \"*\" already exists in registry. Use --force to overwrite the existing provider.*");
 
         // test with force
         requiredArgs.Add("--force");
@@ -102,5 +106,111 @@ public class PublishProviderCommandTests : TestBase
         // verify we can load a type
         var saBodyType2 = (ObjectType)saType2.Body.Type;
         saBodyType2.Properties.Keys.Should().Contain("name", "location", "properties", "sku", "tags");
+    }
+
+    [TestMethod]
+    public async Task Publish_provider_should_fail_for_malformed_target()
+    {
+        var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var indexPath = Path.Combine(outputDirectory, "index.json");
+
+        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"asdf:123");
+        result.Should().Fail().And.HaveStderrMatch("*The specified module reference scheme \"asdf\" is not recognized.*");
+    }
+
+    [TestMethod]
+    public async Task Publish_provider_should_fail_for_missing_index_path()
+    {
+        var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var indexPath = Path.Combine(outputDirectory, "index.json");
+
+        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: Could not find a part of the path '*'.*");
+    }
+
+    [TestMethod]
+    public async Task Publish_provider_should_fail_for_malformed_index()
+    {
+        var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", "malformed", outputDirectory);
+
+        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: 'm' is an invalid start of a value.*");
+    }
+
+    [TestMethod]
+    public async Task Publish_provider_should_fail_for_missing_referenced_types_json()
+    {
+        var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
+{
+  "Resources": {
+    "Microsoft.Storage/storageAccounts@2022-05-01": {
+      "RelativePath": "types.json",
+      "Index": 179
+    }
+  },
+  "Functions": {}
+}
+""", outputDirectory);
+
+        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: Could not find file '*types.json'.*");
+    }
+
+    [TestMethod]
+    public async Task Publish_provider_should_fail_for_malformed_types_json()
+    {
+        var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
+{
+  "Resources": {
+    "Microsoft.Storage/storageAccounts@2022-05-01": {
+      "RelativePath": "types.json",
+      "Index": 179
+    }
+  },
+  "Functions": {}
+}
+""", outputDirectory);
+        FileHelper.SaveResultFile(TestContext, "types.json", "malformed", outputDirectory);
+
+        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: 'm' is an invalid start of a value.*");
+    }
+
+    [TestMethod]
+    public async Task Publish_provider_should_fail_for_bad_type_location()
+    {
+        var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
+{
+  "Resources": {
+    "Microsoft.Storage/storageAccounts@2022-05-01": {
+      "RelativePath": "types.json",
+      "Index": 179
+    }
+  },
+  "Functions": {}
+}
+""", outputDirectory);
+        FileHelper.SaveResultFile(TestContext, "types.json", """
+[
+  {
+    "13": {
+      "MinLength": 3,
+      "MaxLength": 24
+    }
+  },
+  {
+    "6": {
+      "Value": "Microsoft.Storage/storageAccounts"
+    }
+  }
+]
+""", outputDirectory);
+
+        var result = await Bicep(CreateDefaultSettings(), "publish-provider", indexPath, "--target", $"br:example.com/test/provider:0.0.1");
+        result.Should().Fail().And.HaveStderrMatch("*Provider package creation failed: Index was outside the bounds of the array.*");
     }
 }

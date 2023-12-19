@@ -30,9 +30,6 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class BuildCommandTests : TestBase
     {
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
         [TestMethod]
         public async Task Build_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
         {
