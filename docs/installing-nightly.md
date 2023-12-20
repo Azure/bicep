@@ -51,37 +51,55 @@ The CLI (`bicep-release-*-x64`) should replace any current Bicep executable that
 
 ## Advanced Script Options
 ### VSCode Extension
-- (Mac/Linux) Installing from a [GitHub branch](https://github.com/Azure/bicep/branches):
-   ```powershell
+- Mac/Linux
+   ```sh
+   # install from a fork repo
+   bash <(curl -Ls https://aka.ms/bicep/nightly-vsix.sh) --repo anthony-c-martin/bicep
+
+   # install from a custom branch
    bash <(curl -Ls https://aka.ms/bicep/nightly-vsix.sh) --branch jeskew/variable-imports
-   ```
-- (Windows) Installing from a [GitHub branch](https://github.com/Azure/bicep/branches):
-   ```powershell
-   iex "& { $(irm https://aka.ms/bicep/nightly-vsix.ps1) } -Branch jeskew/variable-imports"
-   ```
-- (Mac/Linux) Installing from a [GitHub Action run](https://github.com/Azure/bicep/actions/workflows/build.yml):
-   ```powershell
+
+   # install from a specific github action run
    bash <(curl -Ls https://aka.ms/bicep/nightly-vsix.sh) --run-id 6146657618
    ```
-- (Windows) Installing from a [GitHub Action run](https://github.com/Azure/bicep/actions/workflows/build.yml):
+- Windows
    ```powershell
+   # install from a fork repo
+   iex "& { $(irm https://aka.ms/bicep/nightly-vsix.ps1) } -Repo anthony-c-martin/bicep"
+
+   # install from a custom branch
+   iex "& { $(irm https://aka.ms/bicep/nightly-vsix.ps1) } -Branch jeskew/variable-imports"
+
+   # install from a specific github action run
    iex "& { $(irm https://aka.ms/bicep/nightly-vsix.ps1) } -RunId 6146657618"
    ```
 
-### Azure CLI
-- (Mac/Linux) Installing from a [GitHub branch](https://github.com/Azure/bicep/branches):
-   ```powershell
+### Bicep CLI
+- Mac/Linux
+   ```sh
+   # install to a custom directory
+   bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --binary-path /usr/local/bin
+
+   # install from a fork repo
+   bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --repo anthony-c-martin/bicep
+
+   # install from a custom branch
    bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --branch jeskew/variable-imports
-   ```
-- (Windows) Installing from a [GitHub branch](https://github.com/Azure/bicep/branches):
-   ```powershell
-   iex "& { $(irm https://aka.ms/bicep/nightly-cli.ps1) } -Branch jeskew/variable-imports"
-   ```
-- (Mac/Linux) Installing from a [GitHub Action run](https://github.com/Azure/bicep/actions/workflows/build.yml):
-   ```powershell
+
+   # install from a specific github action run
    bash <(curl -Ls https://aka.ms/bicep/nightly-cli.sh) --run-id 6146657618
    ```
-- (Windows) Installing from a [GitHub Action run](https://github.com/Azure/bicep/actions/workflows/build.yml):
+- Windows
    ```powershell
+   # install to a custom directory
+   iex "& { $(irm https://aka.ms/bicep/nightly-cli.ps1) } -BinaryPath C:\"
+
+   # install from a fork repo
+   iex "& { $(irm https://aka.ms/bicep/nightly-cli.ps1) } -Repo anthony-c-martin/bicep"
+
+   # install from a custom branch
+   iex "& { $(irm https://aka.ms/bicep/nightly-cli.ps1) } -Branch jeskew/variable-imports"
+
+   # install from a specific github action run
    iex "& { $(irm https://aka.ms/bicep/nightly-cli.ps1) } -RunId 6146657618"
    ```
