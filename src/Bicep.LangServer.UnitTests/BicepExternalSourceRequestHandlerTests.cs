@@ -168,8 +168,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(compiledJsonUri, null));
 
-            SourceArchive? sourceArchive = null;
-            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
+            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new SourceArchiveResult());
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create((string?)null, readFailureBuilder));
@@ -208,8 +207,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
             dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(compiledJsonUri, null));
 
-            SourceArchive? sourceArchive = null;
-            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
+            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new SourceArchiveResult());
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
@@ -249,7 +247,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = new Uri("file:///foo/bar/entrypoint.bicep");
-            var sourceArchive = SourceArchive.FromStream(SourceArchive.PackSourcesIntoStream(bicepUri, new Core.Workspaces.ISourceFile[] {
+            var sourceArchive = SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(bicepUri, new Core.Workspaces.ISourceFile[] {
                 SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
 
@@ -291,7 +289,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = new Uri("file:///foo/bar/entrypoint.bicep");
-            var sourceArchive = SourceArchive.FromStream(SourceArchive.PackSourcesIntoStream(bicepUri, new Core.Workspaces.ISourceFile[] {
+            var sourceArchive = SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(bicepUri, new Core.Workspaces.ISourceFile[] {
                 SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
 
@@ -308,6 +306,24 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         #region GetExternalSourceLinkUri tests
+
+        //asdfg
+
+        [TestMethod]
+        public void GetExternalSourceLinkUri_DefaultToBicepIsFalse_WithoutOrWithoutSource_ShouldRequestMainJson()
+        {
+            Uri resultWithSource = GetExternalSourceLinkUri(new ExternalSourceLinkTestData(), defaultToDisplayingBicep: false);
+            DecodeExternalSourceUri(resultWithSource).IsRequestingCompiledJson.Should().BeTrue();
+            DecodeExternalSourceUri(resultWithSource).Title.Should().Contain("main.json");
+
+            Uri resultWithoutSource = GetExternalSourceLinkUri(new ExternalSourceLinkTestData(), defaultToDisplayingBicep: false);
+            DecodeExternalSourceUri(resultWithoutSource).IsRequestingCompiledJson.Should().BeTrue();
+            DecodeExternalSourceUri(resultWithoutSource).Title.Should().Contain("main.json");
+        }
+
+
+        //asdfg end
+
 
         [TestMethod]
         public void GetExternalSourceLinkUri_FullLink_WithSource()
@@ -385,7 +401,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             (decoded.RequestedFile ?? "main.json").Should().MatchRegex(".+\\.(bicep|json)$", "requested source file should end with .json or .bicep");
         }
 
-        private Uri GetExternalSourceLinkUri(ExternalSourceLinkTestData testData)
+        private Uri GetExternalSourceLinkUri(ExternalSourceLinkTestData testData, bool defaultToDisplayingBicep = true)
         {
             Uri? entrypointUri = testData.sourceEntrypoint is { } ? new($"file:///{testData.sourceEntrypoint}") : null;
             OciArtifactReference reference = new(
@@ -396,23 +412,28 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 testData.tagOrDigest[0] == '@' ? testData.tagOrDigest[1..] : null,
                 new Uri("file:///parent.bicep", UriKind.Absolute));
 
-            var sourceArchive = entrypointUri is { } ?
-                SourceArchive.FromStream(SourceArchive.PackSourcesIntoStream(
+            SourceArchive? sourceArchive = entrypointUri is { } ?
+                SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(
                     entrypointUri,
                     new Core.Workspaces.ISourceFile[] {
                         SourceFileFactory.CreateBicepFile(entrypointUri, "metadata description = 'bicep module'")
-                    }))
+                    })).SourceArchive
                 : null;
 
-            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(reference, sourceArchive);
+            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(reference, sourceArchive, defaultToDisplayingBicep);
         }
 
-        public ExternalSourceReference DecodeExternalSourceUri(Uri uri)
+        private string TrimFirstCharacter(string s)
+        {
+            return s.Length > 2 ? s[1..] : s;
+        }
+
+        private ExternalSourceReference DecodeExternalSourceUri(Uri uri)
         {
             // NOTE: This code should match src\vscode-bicep\src\language\bicepExternalSourceContentProvider.ts
             string title = Uri.UnescapeDataString(uri.AbsolutePath);
-            string moduleReference = Uri.UnescapeDataString(uri.Query[1..]); // skip '?'
-            string? requestedSourceFile = Uri.UnescapeDataString(uri.Fragment[1..]); // skip '#'
+            string moduleReference = Uri.UnescapeDataString(TrimFirstCharacter(uri.Query)); // skip '?'
+            string? requestedSourceFile = Uri.UnescapeDataString(TrimFirstCharacter(uri.Fragment)); // skip '#'
 
             return new ExternalSourceReference(title, moduleReference, requestedSourceFile);
         }

@@ -18,27 +18,64 @@ using Bicep.Core.Exceptions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using static Bicep.Core.SourceCode.SourceArchive;
 
 namespace Bicep.Core.SourceCode
 {
-    // Contains the individual source code files for a Bicep file and all of its dependencies.
-    public partial class SourceArchive
+    public record SourceArchiveResult
     {
+        public SourceArchiveResult()
+        {
+            // This is the case when the source code is not available in the registry cache (presumably wasn't published)
+            SourceArchive = null;
+            Message = null;
+        }
+
+        public SourceArchiveResult(SourceArchive sourceArchive)
+        {
+            SourceArchive = sourceArchive;
+            Message = null;
+        }
+
+        public SourceArchiveResult(string message)
+        {
+            SourceArchive = null;
+            Message = message;
+        }
+
+        // If both are null, there is no source code available in the registry cache (presumably wasn't published)
+        public SourceArchive? SourceArchive;
+        public string? Message;
+    }
+
+    // Contains the individual source code files for a Bicep file and all of its dependencies.
+    public partial class SourceArchive // Partial required for serialization
+    {
+
+        // Attributes of this archive instance
+
+        private ArchiveMetadata InstanceMetadata { get; init; }
+
         public ImmutableArray<SourceFileInfo> SourceFiles { get; init; }
-        public string EntrypointRelativePath { get; init; }
+        public string EntrypointRelativePath => InstanceMetadata.EntryPoint;
+        // The version of Bicep which created this deserialized archive instance.
+        public string BicepVersion => InstanceMetadata.BicepVersion;
+        // The version of the metadata file format used by this archive instance.
+        public int MetadataVersion => InstanceMetadata.MetadataVersion;
+
+        // Constants
 
         public const string SourceKind_Bicep = "bicep";
         public const string SourceKind_ArmTemplate = "armTemplate";
         public const string SourceKind_TemplateSpec = "templateSpec";
 
-        private const string MetadataArchivedFileName = "__metadata.json";
+        private const string MetadataFileName = "__metadata.json";
 
-        private bool isDisposed = false;//asfdg remove
-
-        // WARNING: Only change this value if there is a breaking change such that old versions of Bicep should fail on reading this source archive
-        private const int CurrentMetadataVersion = 0; // TODO: Change to 1 when remove experimental flag
+        // NOTE: Only change this value if there is a breaking change such that old versions of Bicep should fail on reading new source archives
+        private const int CurrentMetadataVersion = 0;
+        private static readonly string CurrentBicepVersion = ThisAssembly.AssemblyVersion;
 
         public partial record SourceFileInfo(
             string Path,        // the location, relative to the main.bicep file's folder, for the file that will be shown to the end user (required in all Bicep versions)
@@ -47,15 +84,16 @@ namespace Bicep.Core.SourceCode
             string Contents
         );
 
-        [JsonSerializable(typeof(MetadataEntry))]
+        [JsonSerializable(typeof(ArchiveMetadata))]
         [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
         private partial class MetadataSerializationContext : JsonSerializerContext { }
 
-        [JsonSerializable(typeof(MetadataEntry))]
-        private record MetadataEntry(
-            int MetadataVersion,
+        [JsonSerializable(typeof(ArchiveMetadata))]
+        private record ArchiveMetadata(
+            int MetadataVersion, //asdfg test
             string EntryPoint, // Path of the entrypoint file
-            IEnumerable<SourceFileInfoEntry> SourceFiles
+            IEnumerable<SourceFileInfoEntry> SourceFiles,
+            string BicepVersion = "unknown"
         );
 
         [JsonSerializable(typeof(SourceFileInfoEntry))]
@@ -68,9 +106,32 @@ namespace Bicep.Core.SourceCode
             string Kind         // kind of source
         );
 
-        public static SourceArchive FromStream(Stream stream)
+        private string? GetRequiredBicepVersionMessage()
         {
-            return new SourceArchive(stream);
+            if (MetadataVersion < CurrentMetadataVersion)
+            {
+                return $"This source code was published with an older, incompatible version of Bicep ({BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}.";
+            }
+
+            if (MetadataVersion > CurrentMetadataVersion)
+            {
+                return $"This source code was published with a newer, incompatible version of Bicep ({BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}. You need a newer version in order to view the module source.";
+            }
+
+            return null;
+        }
+
+        public static SourceArchiveResult UnpackFromStream(Stream stream)
+        {
+            var archive = new SourceArchive(stream);
+            if (archive.GetRequiredBicepVersionMessage() is string message)
+            {
+                return new(message);
+            }
+            else
+            {
+                return new(archive);
+            }
         }
 
         /// <summary>
@@ -133,7 +194,7 @@ namespace Bicep.Core.SourceCode
 
                     // Add the metadata file
                     var metadataContents = CreateMetadataFileContents(entryPointPath, filesMetadata);
-                    WriteNewFileEntry(tarWriter, MetadataArchivedFileName, metadataContents);
+                    WriteNewFileEntry(tarWriter, MetadataFileName, metadataContents);
                 }
             }
 
@@ -150,11 +211,6 @@ namespace Bicep.Core.SourceCode
 
         private SourceArchive(Stream stream)
         {
-            if (isDisposed)
-            {
-                throw new ObjectDisposedException(nameof(SourceArchive));
-            }
-
             var filesBuilder = ImmutableDictionary.CreateBuilder<string, string>();
 
             stream.Position = 0;
@@ -169,9 +225,9 @@ namespace Bicep.Core.SourceCode
 
             var dictionary = filesBuilder.ToImmutableDictionary();
 
-            var metadataJson = dictionary[MetadataArchivedFileName]
+            var metadataJson = dictionary[MetadataFileName]
                 ?? throw new BicepException("Incorrectly formatted source file: No {MetadataArchivedFileName} entry");
-            var metadata = JsonSerializer.Deserialize<MetadataEntry>(metadataJson, MetadataSerializationContext.Default.MetadataEntry)
+            var metadata = JsonSerializer.Deserialize<ArchiveMetadata>(metadataJson, MetadataSerializationContext.Default.ArchiveMetadata)
                 ?? throw new BicepException("Source archive has invalid metadata entry");
 
             var infos = new List<SourceFileInfo>();
@@ -182,15 +238,15 @@ namespace Bicep.Core.SourceCode
                 infos.Add(new SourceFileInfo(info.Path, info.ArchivePath, info.Kind, contents));
             }
 
-            this.EntrypointRelativePath = metadata.EntryPoint;
+            this.InstanceMetadata = metadata;
             this.SourceFiles = infos.ToImmutableArray();
         }
 
         private static string CreateMetadataFileContents(string entrypointPath, IEnumerable<SourceFileInfoEntry> files)
         {
             // Add the __metadata.json file
-            var metadata = new MetadataEntry(CurrentMetadataVersion, entrypointPath, files);
-            return JsonSerializer.Serialize(metadata, MetadataSerializationContext.Default.MetadataEntry);
+            var metadata = new ArchiveMetadata(CurrentMetadataVersion, entrypointPath, files, CurrentBicepVersion);
+            return JsonSerializer.Serialize(metadata, MetadataSerializationContext.Default.ArchiveMetadata);
         }
 
         private static void WriteNewFileEntry(TarWriter tarWriter, string archivePath, string contents)

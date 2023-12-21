@@ -232,7 +232,7 @@ namespace Bicep.Core.Registry
         private IArtifactRegistry GetRegistry(ArtifactReference reference) =>
             Registries(reference.ParentModuleUri).TryGetValue(reference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected artifactDeclaration reference scheme '{reference.Scheme}'.");
 
-        public SourceArchive? TryGetModuleSources(ArtifactReference reference)
+        public SourceArchiveResult TryGetModuleSources(ArtifactReference reference)
         {
             var registry = this.GetRegistry(reference);
             return registry.TryGetSource(reference);

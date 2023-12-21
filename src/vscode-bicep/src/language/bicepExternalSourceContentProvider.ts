@@ -48,7 +48,7 @@ export class BicepExternalSourceContentProvider
       token,
     );
 
-    return response.content;
+    return response.error ? `// ${response.error}` : response.content ?? "";
   }
 
   private bicepExternalSourceRequest(

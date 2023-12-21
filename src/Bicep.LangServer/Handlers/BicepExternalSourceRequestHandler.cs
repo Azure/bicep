@@ -23,7 +23,7 @@ namespace Bicep.LanguageServer.Handlers
         string? requestedSourceFile = null // The relative source path of the file in the module to get source for (main.json if null))
     ) : IRequest<BicepExternalSourceResponse>;
 
-    public record BicepExternalSourceResponse(string Content);
+    public record BicepExternalSourceResponse(string? Content, string? Error = null);
 
     /// <summary>
     /// Handles textDocument/bicepExternalSource LSP requests. These are sent by clients that are resolving contents of document URIs using the bicep-extsrc: scheme.
@@ -72,19 +72,27 @@ namespace Bicep.LanguageServer.Handlers
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
             }
 
-            if (moduleDispatcher.TryGetModuleSources(moduleReference) is SourceArchive sourceArchive && request.requestedSourceFile is { })
+            if (request.requestedSourceFile is { })
             {
-                var requestedFile = sourceArchive.SourceFiles.FirstOrDefault(f => f.Path == request.requestedSourceFile);
-                if (requestedFile is null)
+                SourceArchiveResult sourceArchiveResult = moduleDispatcher.TryGetModuleSources(moduleReference);
+                if (sourceArchiveResult.SourceArchive is { })
                 {
-                    throw new InvalidOperationException($"Could not find source file \"{request.requestedSourceFile}\" in the sources for module \"{moduleReference.FullyQualifiedReference}\"");
-                }
+                    var requestedFile = sourceArchiveResult.SourceArchive.SourceFiles.FirstOrDefault(f => f.Path == request.requestedSourceFile);
+                    if (requestedFile is null)
+                    {
+                        throw new InvalidOperationException($"Could not find source file \"{request.requestedSourceFile}\" in the sources for module \"{moduleReference.FullyQualifiedReference}\"");
+                    }
 
-                return Task.FromResult(new BicepExternalSourceResponse(requestedFile.Contents));
+                    return Task.FromResult(new BicepExternalSourceResponse(requestedFile.Contents));
+                }
+                else if (sourceArchiveResult?.Message is { })
+                {
+                    return Task.FromResult(new BicepExternalSourceResponse(null, sourceArchiveResult.Message));
+                }
             }
 
-            // No sources available, or specifically requesting the compiled main.json.
-            // Retrieve the JSON source
+            // No sources available, or specifically requesting the compiled main.json (requestedSourceFile=null), or there was an error retrieving sources.
+            // Just show the compiled JSON
             if (!this.fileResolver.TryRead(compiledJsonUri).IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
@@ -101,9 +109,9 @@ namespace Bicep.LanguageServer.Handlers
         /// <param name="reference">The module reference</param>
         /// <param name="sourceArchive">The source archive for the module, if sources are available</param>
         /// <returns>A bicep-extsrc: URI</returns>
-        public static Uri GetExternalSourceLinkUri(OciArtifactReference reference, SourceArchive? sourceArchive)
+        public static Uri GetExternalSourceLinkUri(OciArtifactReference reference, SourceArchive? sourceArchive, bool defaultToDisplayingBicep = true)
         {
-            return new ExternalSourceReference(reference, sourceArchive).ToUri();
+            return new ExternalSourceReference(reference, sourceArchive, defaultToDisplayingBicep: false).ToUri();
         }
     }
 }

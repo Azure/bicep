@@ -102,6 +102,6 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="reference">The module reference</param>
         /// <returns>A source archive</returns>
-        SourceArchive? TryGetSource(ArtifactReference reference);
+        SourceArchiveResult TryGetSource(ArtifactReference reference);
     }
 }

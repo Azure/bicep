@@ -23,7 +23,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (request.TextDocument.Uri.Scheme == LangServerConstants.ExternalSourceFileScheme)
             {
-                string? error = null;
+                string? message = null;
                 ExternalSourceReference? externalReference = null;
 
                 try
@@ -32,38 +32,44 @@ namespace Bicep.LanguageServer.Handlers
                 }
                 catch (Exception ex)
                 {
-                    error = ex.Message;
+                    message = $"(Experimental) There was an error retrieving source code for this module: {ex.Message}";
                 }
 
                 if (externalReference is not null)
                 {
-                    Debug.Assert(error is null);
+                    Debug.Assert(message is null);
 
-                    var isDisplayingCompiledJson = externalReference.IsRequestingCompiledJson;
-                    if (externalReference.ToArtifactReference().IsSuccess(out var artifactReference, out error))
+                    var isDisplayingCompiledJson = externalReference.IsRequestingCompiledJson; //asdfgasdfg
+                    if (externalReference.ToArtifactReference().IsSuccess(out var artifactReference, out message))
                     {
-                        var sourceArchive = artifactReference is { } ? moduleDispatcher.TryGetModuleSources(artifactReference) : null;
+                        var sourceArchiveResult = moduleDispatcher.TryGetModuleSources(artifactReference);
 
                         if (isDisplayingCompiledJson)
                         {
-                            if (sourceArchive is { })
+                            // Displaying main.json
+
+                            if (sourceArchiveResult.SourceArchive is { })
                             {
                                 yield return CreateCodeLens(
                                     DocumentStart,
-                                    "Show Bicep source",
+                                    "Show Bicep source (experimental)",
                                     "bicep.internal.showModuleSourceFile",
-                                    new ExternalSourceReference(request.TextDocument.Uri).WithRequestForSourceFile(sourceArchive.EntrypointRelativePath).ToUri().ToString());
+                                    new ExternalSourceReference(request.TextDocument.Uri).WithRequestForSourceFile(sourceArchiveResult.SourceArchive.EntrypointRelativePath).ToUri().ToString());
+                            }
+                            else if (sourceArchiveResult.Message is { })
+                            {
+                                message = $"(Experimental) Cannot display source code for this module. {sourceArchiveResult.Message}";
                             }
                             else
                             {
-                                yield return CreateCodeLens(
-                                    DocumentStart,
-                                    "No source code is available for this module");
+                                message = "(Experimental) No source code is available for this module";
                             }
                         }
                         else
                         {
-                            if (sourceArchive is { })
+                            // Displaying a bicep file
+
+                            if (sourceArchiveResult.SourceArchive is { })
                             {
                                 // We're displaying some source file other than the compiled JSON for the module. Allow user to switch to the compiled JSON.
                                 yield return CreateCodeLens(
@@ -74,16 +80,17 @@ namespace Bicep.LanguageServer.Handlers
                             }
                             else
                             {
-                                // This can happen if the user has a source file open in the editor and then restores to a version of the module that doesn't have source code available.
-                                error = "Could not find the expected source archive in the module registry";
+                                message = sourceArchiveResult.Message ??
+                                    // This can happen if the user has a source file open in the editor and then restores to a version of the module that doesn't have source code available.
+                                    "Could not find the expected source archive in the module registry";
                             }
                         }
                     }
                 }
 
-                if (error is not null)
+                if (message is not null)
                 {
-                    yield return CreateErrorLens($"There was an error retrieving source code for this module: {error}");
+                    yield return CreateErrorLens(message);
                 }
             }
 

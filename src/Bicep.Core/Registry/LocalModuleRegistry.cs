@@ -106,9 +106,9 @@ namespace Bicep.Core.Registry
             return null;
         }
 
-        public override SourceArchive? TryGetSource(LocalModuleReference reference)
+        public override SourceArchiveResult TryGetSource(LocalModuleReference reference)
         {
-            return null;
+            return new();
         }
     }
 }

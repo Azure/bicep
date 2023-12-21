@@ -37,7 +37,7 @@ namespace Bicep.Core.Registry
 
         public abstract Task<string?> TryGetDescription(T reference);
 
-        public abstract SourceArchive? TryGetSource(T reference);
+        public abstract SourceArchiveResult TryGetSource(T reference); //asdfg try?
 
         public bool IsArtifactRestoreRequired(ArtifactReference reference) => this.IsArtifactRestoreRequired(ConvertReference(reference));
 
@@ -62,7 +62,7 @@ namespace Bicep.Core.Registry
 
         public async Task<string?> TryGetDescription(ArtifactReference reference) => await this.TryGetDescription(ConvertReference(reference));
 
-        public SourceArchive? TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
+        public SourceArchiveResult TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
 
         public abstract RegistryCapabilities GetCapabilities(T reference);
 
