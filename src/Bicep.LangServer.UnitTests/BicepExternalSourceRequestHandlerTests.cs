@@ -45,7 +45,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             const string ModuleRefStr = "hello";
 
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
-            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(null as ArtifactReference, x => x.ModuleRestoreFailed("blah")));
+            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(null as ArtifactReference, x => x.ArtifactRestoreFailed("blah")));
 
             var resolver = StrictMock.Of<IFileResolver>();
 
@@ -132,7 +132,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ArtifactReference? outRef = moduleReference;
             dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, failureBuilder));
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out failureBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
-            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(null as Uri, x => x.ModuleRestoreFailed("blah")));
+            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(null as Uri, x => x.ArtifactRestoreFailed("blah")));
 
             var resolver = StrictMock.Of<IFileResolver>();
 
@@ -145,6 +145,28 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 .ThrowAsync<InvalidOperationException>())
                 .WithMessage($"Unable to obtain the entry point URI for module '{ModuleRefStr}'.");
         }
+
+        // [TestMethod]
+        // public void ExternalResourceTypeProviderFailedEntryPointShouldThrow()
+        // {
+        //     var dispatcher = StrictMock.Of<IModuleDispatcher>();
+        //     DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
+        //     const string UnqualifiedProviderRefStr = "example.azurecr.invalid/foo/bar:v3";
+        //     const string ProviderRefStr = "br:" + UnqualifiedProviderRefStr;
+
+        //     var configuration = IConfigurationManager.GetBuiltInConfiguration();
+        //     var parentModuleLocalPath = "/main.bicep";
+        //     var parentModuleUri = new Uri($"file://{parentModuleLocalPath}");
+
+        //     OciArtifactReference.TryParse(ArtifactType.Provider, null, UnqualifiedProviderRefStr, configuration, parentModuleUri).IsSuccess(out var artifactRef).Should().BeTrue();
+        //     artifactRef.Should().NotBeNull();
+
+        //     ArtifactReference? outRef = artifactRef;
+        //     dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Provider, ProviderRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, failureBuilder));
+        //     dispatcher.Setup(m => m.GetArtifactRestoreStatus(artifactRef!, out failureBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
+        //     dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(artifactRef!)).Returns(ResultHelper.Create(null as Uri, x => x.ArtifactRestoreFailed("blah")));
+
+        // }
 
         [TestMethod]
         public async Task FailureToReadEntryPointShouldThrow()
