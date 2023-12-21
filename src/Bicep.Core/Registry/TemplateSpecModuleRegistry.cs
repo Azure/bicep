@@ -153,9 +153,9 @@ namespace Bicep.Core.Registry
             return Task.FromResult<string?>(null);
         }
 
-        public override SourceArchive? TryGetSource(TemplateSpecModuleReference reference)
+        public override SourceArchiveResult TryGetSource(TemplateSpecModuleReference reference)
         {
-            return null;
+            return new();
         }
     }
 }

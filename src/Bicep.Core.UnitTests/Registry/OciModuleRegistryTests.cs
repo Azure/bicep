@@ -682,12 +682,12 @@ namespace Bicep.Core.UnitTests.Registry
 
             if (sourceStream is { })
             {
-                actualSource.Should().NotBeNull();
-                actualSource.Should().BeEquivalentTo(SourceArchive.FromStream(sourceStream));
+                actualSource.SourceArchive.Should().NotBeNull();
+                actualSource.SourceArchive.Should().BeEquivalentTo(SourceArchive.UnpackFromStream(sourceStream).SourceArchive!);
             }
             else
             {
-                actualSource.Should().BeNull();
+                actualSource.SourceArchive.Should().BeNull();
             }
         }
 

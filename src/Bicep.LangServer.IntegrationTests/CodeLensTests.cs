@@ -49,16 +49,16 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         // If entrypointSource is not null, then a source archive will be created with the given entrypointSource, otherwise no source archive will be created.
-        private SharedLanguageHelperManager CreateServer(Uri? bicepModuleEntrypoint, string? entrypointSource)
+        private SharedLanguageHelperManager CreateServer(Uri? bicepModuleEntrypoint, string? entrypointSource, SourceArchiveResult? sourceArchiveResult = null)
         {
             var moduleRegistry = StrictMock.Of<IArtifactRegistry>();
-            SourceArchive? sourceArchive = null;
             if (bicepModuleEntrypoint is not null && entrypointSource is not null)
             {
                 BicepFile moduleEntrypointFile = SourceFileFactory.CreateBicepFile(bicepModuleEntrypoint, entrypointSource);
-                sourceArchive = SourceArchive.FromStream(SourceArchive.PackSourcesIntoStream(moduleEntrypointFile.FileUri, moduleEntrypointFile));
+                sourceArchiveResult ??= SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(moduleEntrypointFile.FileUri, moduleEntrypointFile));
             }
-            moduleRegistry.Setup(m => m.TryGetSource(It.IsAny<ArtifactReference>())).Returns(sourceArchive);
+            sourceArchiveResult ??= new();
+            moduleRegistry.Setup(m => m.TryGetSource(It.IsAny<ArtifactReference>())).Returns(sourceArchiveResult);
 
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
             moduleDispatcher.Setup(x => x.RestoreModules(It.IsAny<ImmutableArray<ArtifactReference>>(), It.IsAny<bool>())).
@@ -71,7 +71,7 @@ namespace Bicep.LangServer.IntegrationTests
             var artifactRegistries = moduleRegistry.Object.AsArray();
 
             moduleDispatcher.Setup(m => m.TryGetModuleSources(It.IsAny<ArtifactReference>())).Returns((ArtifactReference reference) =>
-                artifactRegistries.Select(r => r.TryGetSource(reference)).FirstOrDefault(s => s is not null));
+                artifactRegistries.Select(r => r.TryGetSource(reference)).FirstOrDefault(s => s is not null) ?? new());
 
             var defaultServer = new SharedLanguageHelperManager();
             defaultServer.Initialize(
@@ -186,7 +186,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lens = lenses.First();
             lens.Should().HaveRange(new Range(0, 0, 0, 0));
             lens.Should().HaveCommandName("bicep.internal.showModuleSourceFile");
-            lens.Should().HaveCommandTitle("Show Bicep source");
+            lens.Should().HaveCommandTitle("Show Bicep source (experimental)");
             var target = new ExternalSourceReference(lens.CommandArguments().Single());
             target.IsRequestingCompiledJson.Should().BeFalse();
             target.RequestedFile.Should().Be(Path.GetFileName(moduleEntrypointUri.Path));
@@ -209,7 +209,7 @@ namespace Bicep.LangServer.IntegrationTests
             var lens = lenses.First();
             lens.Should().HaveRange(new Range(0, 0, 0, 0));
             lens.Should().HaveCommandName("");
-            lens.Should().HaveCommandTitle("No source code is available for this module");
+            lens.Should().HaveCommandTitle("(Experimental) No source code is available for this module");
             lens.Should().HaveNoCommandArguments();
         }
 
@@ -230,7 +230,29 @@ namespace Bicep.LangServer.IntegrationTests
             var lens = lenses.First();
             lens.Should().HaveRange(new Range(0, 0, 0, 0));
             lens.Should().HaveCommandName("");
-            lens.Should().HaveCommandTitle("There was an error retrieving source code for this module: Invalid module reference 'br:myregistry.azurecr.io/myrepo/bicep/module1:'. The specified OCI artifact reference \"br:myregistry.azurecr.io/myrepo/bicep/module1:\" is not valid. The module tag or digest is missing. (Parameter 'fullyQualifiedModuleReference')");
+            lens.Should().HaveCommandTitle("(Experimental) There was an error retrieving source code for this module: Invalid module reference 'br:myregistry.azurecr.io/myrepo/bicep/module1:'. The specified OCI artifact reference \"br:myregistry.azurecr.io/myrepo/bicep/module1:\" is not valid. The module tag or digest is missing. (Parameter 'fullyQualifiedModuleReference')");
+            lens.Should().HaveNoCommandArguments();
+        }
+
+        [TestMethod]
+        public async Task SourceArchiveHasError_ShouldHaveCodeLensWithError()
+        {
+            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
+            var moduleEntrypointUri = DocumentUri.From($"/module entrypoint.bicep");
+
+            SourceArchiveResult sourceArchiveResult = new("Source archive is incompatible with this version of Bicep.");
+            await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint", sourceArchiveResult);
+            var helper = await server.GetAsync();
+            await helper.OpenFileOnceAsync(this.TestContext, string.Empty, uri);
+
+            var documentUri = new ExternalSourceReference("title", "br:myregistry.azurecr.io/myrepo/bicep/module1:v1", null /* main.json */).ToUri();
+            var lenses = await GetExternalSourceCodeLenses(helper, documentUri);
+
+            lenses.Should().HaveCount(1);
+            var lens = lenses.First();
+            lens.Should().HaveRange(new Range(0, 0, 0, 0));
+            lens.Should().HaveCommandName("");
+            lens.Should().HaveCommandTitle("(Experimental) Cannot display source code for this module. Source archive is incompatible with this version of Bicep.");
             lens.Should().HaveNoCommandArguments();
         }
 

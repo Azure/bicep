@@ -38,12 +38,12 @@ namespace Bicep.Core.UnitTests.Assertions
             if (f)
             {
                 Subject.HasSourceLayer.Should().BeTrue();
-                Subject.TryGetSource().Should().NotBeNull();
+                Subject.TryGetSource().SourceArchive.Should().NotBeNull();
             }
             else
             {
                 Subject.HasSourceLayer.Should().BeFalse();
-                Subject.TryGetSource().Should().BeNull();
+                Subject.TryGetSource().SourceArchive.Should().BeNull();
             }
 
             return new(this);
