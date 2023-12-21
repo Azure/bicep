@@ -119,11 +119,13 @@ namespace Bicep.Core.FileSystem
 
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
                 using var fileStream = fileSystem.File.OpenRead(fileUri.LocalPath);
+                using var reader = new StreamReader(fileStream);
 
                 Span<byte> buffer = stackalloc byte[102400];
                 var sb = new StringBuilder();
                 using var memoryStream = new MemoryStream(102400);
                 var i = 0;
+
                 while ((i = fileStream.Read(buffer)) > 0)
                 {
                     memoryStream.Write(buffer.Slice(0, i));

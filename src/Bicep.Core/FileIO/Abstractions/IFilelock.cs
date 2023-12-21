@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bicep.Core.FileIO;
-
-public interface IFileStore
+namespace Bicep.Core.FileIO.Abstractions
 {
-    IFilelock? TryAquireFileLock(FilePath path);
+    public interface IFilelock : IDisposable
+    {
+    }
 }

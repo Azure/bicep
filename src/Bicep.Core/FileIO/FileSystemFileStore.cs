@@ -4,22 +4,29 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Bicep.Core.Constants;
+using Bicep.Core.FileIO.Abstractions;
+using Bicep.Core.Platform;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.FileIO
 {
     public class FileSystemFileStore : IFileStore
     {
-        private static readonly ImmutableHashSet<string> WindowsReservedFileNames = ImmutableHashSet.Create(
-            StringComparer.OrdinalIgnoreCase,
-            "CON", "PRN", "AUX", "NUL",
-            "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
-            "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9");
+        private const char DirectorySeparator = '/';
+
+        private static readonly bool PathCaseSensitive = OperationSystemInformation.IsLinux;
+
+        private static readonly StringComparison PathComparison = PathCaseSensitive
+            ? StringComparison.Ordinal
+            : StringComparison.OrdinalIgnoreCase;
 
         private readonly IFileSystem fileSystem;
 
@@ -28,10 +35,72 @@ namespace Bicep.Core.FileIO
             this.fileSystem = fileSystem;
         }
 
-        public IFilelock? TryAquireFileLock(FilePath path)
+        public FilePointer Parse(string path)
         {
-            CheckWindowsReservedFileNames(path);
+            // Normalize Windows directory separator.
+            path = path.Replace('\\', DirectorySeparator);
 
+            if (path.IndexOfAny(this.fileSystem.Path.GetInvalidPathChars()) >= 0)
+            {
+                throw new IOException($"The path '{path}' contains invalid path character(s).");
+            }
+
+            var kind = path.StartsWith(DirectorySeparator) ? FilePointerKind.Absolute : FilePointerKind.Relative;
+
+            if (OperationSystemInformation.IsWindows)
+            {
+                if (path.Split(DirectorySeparator).Any(OperationSystemInformation.IsWindowsReservedFileName))
+                {
+                    throw new IOException($"The path '{path}' contains one or more Windows reserved file names.");
+                }
+
+                if (path.Length >= 2 && char.IsAsciiLetter(path[0]) && path[1] == ':')
+                {
+                    // Normalize Windows drive letter
+                    path = char.ToLowerInvariant(path[0]) + path[1..];
+
+                    if (path.Length >= 3 && path[2] == DirectorySeparator)
+                    {
+                        kind = FilePointerKind.Absolute;
+                    }
+                }
+            }
+
+            return new(path, kind);
+        }
+
+        public FilePointer Combine(FilePointer basePointer, FilePointer relativePointer)
+        {
+            if (basePointer.IsRelative)
+            {
+                throw new ArgumentException($"Expected {nameof(basePointer)} to be an absolute path.");
+            }
+
+            if (relativePointer.IsAbsolute)
+            {
+                throw new ArgumentException($"Expected {nameof(relativePointer)} to be a relative path.");
+            }
+
+            return new(this.fileSystem.Path.Combine(basePointer, relativePointer), FilePointerKind.Absolute);
+        }
+
+        public FileKind GetFileKind(FilePointer path)
+        {
+            var extension = this.fileSystem.Path.GetExtension(path);
+
+            return FileKind.FromExtension(extension);
+        }
+
+        public int Compare(FilePointer x, FilePointer y) => string.Compare(x, y, PathComparison);
+
+        public bool Equals(FilePointer x, FilePointer y) => string.Equals(x, y, PathComparison);
+
+        public int GetHashCode([DisallowNull] FilePointer path) => PathCaseSensitive
+            ? path.Value.GetHashCode()
+            : path.Value.ToLowerInvariant().GetHashCode();
+
+        public IFilelock? TryAquireFileLock(FilePointer path)
+        {
             try
             {
                 // FileMode.OpenOrCreate - we don't want Create because it will also execute a truncate operation in some cases, which is unnecessary
@@ -39,7 +108,7 @@ namespace Bicep.Core.FileIO
                 // FileOptions.None - DeleteOnClose is NOT ATOMIC on Linux/Mac and causes race conditions
                 var lockStream = fileSystem.FileStream.New(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.None);
 
-                return new FileSystemFileLock(lockStream);
+                return new StreamFileLock(lockStream);
             }
             catch (IOException exception) when (exception.GetType() == typeof(IOException))
             {
@@ -50,36 +119,14 @@ namespace Bicep.Core.FileIO
             }
         }
 
-        public string ReadAllText(FilePath path)
+        public string ReadAllText(FilePointer path) => this.fileSystem.File.ReadAllText(path);
+
+        public IEnumerable<string> ReadLines(FilePointer path) => this.fileSystem.File.ReadLines(path);
+
+        public void WriteStream(FilePointer path, Stream stream)
         {
-            CheckWindowsReservedFileNames(path);
-        }
-
-        private void CheckWindowsReservedFileNames(FilePath path)
-        {
-            /*
-             * Win10 (and possibly older versions) will block without returning when
-             * reading a file whose name is reserved with or without extension, which breaks the language server.
-             *
-             * As a workaround, we will simulate Win11+ behavior that throws a FileNotFoundException.
-             *
-             * https://github.com/Azure/bicep/issues/6224
-             */
-
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return;
-            }
-
-            var fileName = this.fileSystem.Path.GetFileNameWithoutExtension(path);
-
-            if (!WindowsReservedFileNames.Contains(fileName))
-            {
-                return;
-            }
-
-            // On Win11+ FileNotFoundException is thrown. Simulate similar behavior.
-            throw new FileNotFoundException($"Could not find file '{path}'.");
+            using var fileStream = fileSystem.File.Open(path, FileMode.Create);
+            stream.CopyTo(fileStream);
         }
     }
 }

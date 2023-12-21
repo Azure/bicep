@@ -7,9 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bicep.Core.FileIO
+namespace Bicep.Core.FileIO.Abstractions
 {
-    public class FileSystemOSInfo
+    public enum FilePointerKind
     {
+        Absolute,
+
+        Relative,
     }
 }

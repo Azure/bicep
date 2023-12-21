@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.CodeDom;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Bicep.Core.Diagnostics;
@@ -27,6 +28,20 @@ public class Result<TSuccess, TError>
         Success = null;
         Error = error;
     }
+
+    private Result(TSuccess? success, TError? error)
+    {
+        this.Success = success;
+        this.Error = error;
+    }
+
+    public static implicit operator Result<TSuccess, TError>(TSuccess success) => Result<TSuccess, TError>.FromSuccess(success);
+
+    public static implicit operator Result<TSuccess, TError>(TError error) => Result<TSuccess, TError>.FromError(error);
+
+    public static Result<TSuccess, TError> FromSuccess(TSuccess success) => new(success, null);
+
+    public static Result<TSuccess, TError> FromError(TError error) => new(null, error);
 
     public bool IsSuccess([NotNullWhen(true)] out TSuccess? success, [NotNullWhen(false)] out TError? error)
     {
