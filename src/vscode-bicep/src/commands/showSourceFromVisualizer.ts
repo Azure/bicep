@@ -5,8 +5,9 @@ import vscode from "vscode";
 import { BicepVisualizerViewManager } from "../visualizer";
 import { Command } from "./types";
 
-export class ShowSourceCommand implements Command {
-  public readonly id = "bicep.showSource";
+export class ShowSourceFromVisualizerCommand implements Command {
+  public static readonly CommandId = "bicep.showSourceFromVisualizer";
+  public readonly id = ShowSourceFromVisualizerCommand.CommandId;
 
   public constructor(
     private readonly viewManager: BicepVisualizerViewManager,

@@ -340,7 +340,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public void GetExternalSourceLinkUri_ModuleReferenceShouldBeCorrect(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
-            DecodeExternalSourceUri(result).ModuleParts.ArtifactId.Should().Be($"{testData.registry}/{testData.repository}{testData.tagOrDigest}");
+            DecodeExternalSourceUri(result).Components.ArtifactId.Should().Be($"{testData.registry}/{testData.repository}{testData.tagOrDigest}");
         }
 
         [DataTestMethod]
