@@ -65,7 +65,7 @@ namespace Bicep.Core.TypeSystem.Providers
 
             using var fileStream = fileSystem.File.OpenRead(Path.Combine(typesParentPath, OciTypeLoader.TypesArtifactFilename));
             // Register a new types loader
-            IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Alias switch
+            IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Name switch
             {
                 AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version),
                 _ => throw new NotImplementedException($"The provider {providerDescriptor.Alias} is not supported."),
