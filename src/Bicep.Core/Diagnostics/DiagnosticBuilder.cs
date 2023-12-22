@@ -13,6 +13,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -1183,7 +1184,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidOciArtifactReference(string? aliasName, string badRef) => new(
                 TextSpan,
                 "BCP193",
-                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ModuleReferenceSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ModuleReferenceSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{OciArtifactReferenceFacts.Scheme}:<artifact-uri>:<tag>\", or \"{OciArtifactReferenceFacts.Scheme}/<artifact-alias>:<artifact-name-or-path>:<tag>\".");
 
             public ErrorDiagnostic InvalidTemplateSpecReference(string? aliasName, string badRef) => new(
                 TextSpan,

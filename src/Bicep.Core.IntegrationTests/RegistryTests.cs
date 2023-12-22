@@ -39,7 +39,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task InvalidRootCachePathShouldProduceReasonableErrors()
         {
-            var dataSet = DataSets.Registry_LF;
+            var dataSet = DataSets.ModulesRegistry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(false);
@@ -162,7 +162,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow(true)]
         public async Task ModuleRestoreContentionShouldProduceConsistentState(bool publishSource)
         {
-            var dataSet = DataSets.Registry_LF;
+            var dataSet = DataSets.ModulesRegistry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
@@ -217,7 +217,7 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
         public async Task ModuleRestoreWithStuckFileLockShouldFailAfterTimeout(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount, bool publishSource)
         {
-            var dataSet = DataSets.Registry_LF;
+            var dataSet = DataSets.ModulesRegistry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
@@ -287,7 +287,7 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
         public async Task ForceModuleRestoreWithStuckFileLockShouldFailAfterTimeout(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount, bool publishSource)
         {
-            var dataSet = DataSets.Registry_LF;
+            var dataSet = DataSets.ModulesRegistry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
@@ -363,7 +363,7 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
         public async Task ForceModuleRestoreShouldRestoreAllModules(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount, bool publishSource)
         {
-            var dataSet = DataSets.Registry_LF;
+            var dataSet = DataSets.ModulesRegistry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
@@ -413,10 +413,10 @@ namespace Bicep.Core.IntegrationTests
 
         public static IEnumerable<object[]> GetModuleInfoData()
         {
-            yield return new object[] { DataSets.Registry_LF.RegistryModules.Values, 7, false /* publishSource */ };
-            yield return new object[] { DataSets.Registry_LF.RegistryModules.Values, 7, true };
-            yield return new object[] { DataSets.Registry_LF.TemplateSpecs.Values, 2, false };
-            yield return new object[] { DataSets.Registry_LF.TemplateSpecs.Values, 2, true };
+            yield return new object[] { DataSets.ModulesRegistry_LF.RegistryModules.Values, 7, false /* publishSource */ };
+            yield return new object[] { DataSets.ModulesRegistry_LF.RegistryModules.Values, 7, true };
+            yield return new object[] { DataSets.ModulesRegistry_LF.TemplateSpecs.Values, 2, false };
+            yield return new object[] { DataSets.ModulesRegistry_LF.TemplateSpecs.Values, 2, true };
         }
 
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());

@@ -66,7 +66,7 @@ namespace Bicep.Core.Samples
 
         public static DataSet Parameters_LF => CreateDataSet();
 
-        public static DataSet Registry_LF => CreateDataSet();
+        public static DataSet ModulesRegistry_LF => CreateDataSet();
 
         public static DataSet Resources_CRLF => CreateDataSet();
 

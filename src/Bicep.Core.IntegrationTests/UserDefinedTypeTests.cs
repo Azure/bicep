@@ -14,6 +14,7 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.Core.IntegrationTests;
 
 [TestClass]
+[DoNotParallelize]
 public class UserDefinedTypeTests
 {
     [NotNull]
