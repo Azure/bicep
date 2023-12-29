@@ -82,6 +82,7 @@ provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' with {{}}
             ");
 
             result.Should().GenerateATemplate();
+            result.Compilation.GetEntrypointSemanticModel().Root.ProviderDeclarations.Should().Contain(x => x.Name.Equals("testAlias"));
         }
     }
 }
