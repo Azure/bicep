@@ -88,20 +88,20 @@ namespace Bicep.Core.Registry
                 }
                 catch (ExternalArtifactException templateSpecException)
                 {
-                    statuses.Add(reference, x => x.ModuleRestoreFailedWithMessage(reference.FullyQualifiedReference, templateSpecException.Message));
+                    statuses.Add(reference, x => x.ArtifactRestoreFailedWithMessage(reference.FullyQualifiedReference, templateSpecException.Message));
                     timer.OnFail(templateSpecException.Message);
                 }
                 catch (Exception exception)
                 {
                     if (exception.Message is { } message)
                     {
-                        statuses.Add(reference, x => x.ModuleRestoreFailedWithMessage(reference.FullyQualifiedReference, message));
+                        statuses.Add(reference, x => x.ArtifactRestoreFailedWithMessage(reference.FullyQualifiedReference, message));
                         timer.OnFail($"Unexpected exception {exception}: {message}");
 
                         return statuses;
                     }
 
-                    statuses.Add(reference, x => x.ModuleRestoreFailed(reference.FullyQualifiedReference));
+                    statuses.Add(reference, x => x.ArtifactRestoreFailed(reference.FullyQualifiedReference));
                     timer.OnFail($"Unexpected exception {exception}.");
                 }
             }
