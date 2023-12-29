@@ -84,5 +84,28 @@ provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' with {{}}
             result.Should().GenerateATemplate();
             result.Compilation.GetEntrypointSemanticModel().Root.ProviderDeclarations.Should().Contain(x => x.Name.Equals("testAlias"));
         }
+
+        [TestMethod]
+        public async Task Az_namespace_can_be_used_with_bicepconfig_provider_alias()
+        {
+            var services = await GetServices();
+
+            services = services.WithConfigurationPatch(c => c.WithProviderAlias(@"{
+                    ""br"": {
+                        ""customAlias"": {
+                            ""registry"": ""mcr.microsoft.com"",
+                            ""providerPath"": ""bicep/providers""
+                        }
+                    }
+                }"));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider 'br/customAlias:az@{BicepTestConstants.BuiltinAzProviderVersion}'
+            ");
+
+            result.Should().GenerateATemplate();
+            result.Compilation.GetEntrypointSemanticModel().Root.ProviderDeclarations.Should().Contain(x => x.Name.Equals("az"));
+        }
+
     }
 }
