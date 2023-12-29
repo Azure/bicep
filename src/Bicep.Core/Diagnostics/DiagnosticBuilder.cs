@@ -1694,7 +1694,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidProviderSpecification() => new(
                 TextSpan,
                 "BCP304",
-                "Invalid provider specifier string. Specify a valid provider of format \"br:<providerName>@<providerVersion>\".");
+                "Invalid provider specifier string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
 
             public ErrorDiagnostic ExpectedWithOrAsKeywordOrNewLine() => new(
                 TextSpan,
