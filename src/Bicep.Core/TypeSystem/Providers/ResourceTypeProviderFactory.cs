@@ -42,7 +42,7 @@ namespace Bicep.Core.TypeSystem.Providers
                 return new(cachedResourceTypeLoaders[key]);
             }
 
-            // should never be null since provider restore success is validated prior.
+            // is never null since provider restore success is validated prior.
             var typesTgzPath = providerDescriptor.TypesBaseUri?.AbsolutePath ?? throw new UnreachableException("the provider directory doesn't exist");
             var typesParentPath = Path.GetDirectoryName(typesTgzPath) ?? throw new UnreachableException("the provider directory doesn't exist");
 
@@ -50,7 +50,8 @@ namespace Bicep.Core.TypeSystem.Providers
             var ociManifestPath = Path.Combine(typesParentPath, "manifest");
             if (!fileSystem.File.Exists(ociManifestPath))
             {
-                return new(x => x.MalformedProviderPackage(ociManifestPath));
+                // always exists since provider restore was successful
+                throw new UnreachableException("the provider manifest path doesn't exist");
             }
 
             // Read the OCI manifest

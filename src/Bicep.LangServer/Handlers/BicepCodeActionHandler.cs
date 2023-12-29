@@ -87,9 +87,9 @@ namespace Bicep.LanguageServer.Handlers
                 .Where(diagnostic => !diagnostic.CanBeSuppressed());
             var diagnosticsThatCanBeSuppressed = diagnostics
                 .Where(diagnostic =>
-                      (diagnostic.Span.ContainsInclusive(requestStartOffset) ||
+                      diagnostic.Span.ContainsInclusive(requestStartOffset) ||
                       diagnostic.Span.ContainsInclusive(requestEndOffset) ||
-                      (requestStartOffset <= diagnostic.Span.Position && diagnostic.GetEndPosition() <= requestEndOffset)))
+                      (requestStartOffset <= diagnostic.Span.Position && diagnostic.GetEndPosition() <= requestEndOffset))
                 .Except(coreCompilerErrors);
 
             HashSet<string> diagnosticCodesToSuppressInline = new();

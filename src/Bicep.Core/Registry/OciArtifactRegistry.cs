@@ -226,12 +226,12 @@ namespace Bicep.Core.Registry
                 {
                     if (errorMessage is not null)
                     {
-                        failures.Add(reference, x => x.ModuleRestoreFailedWithMessage(reference.FullyQualifiedReference, errorMessage));
+                        failures.Add(reference, x => x.ArtifactRestoreFailedWithMessage(reference.FullyQualifiedReference, errorMessage));
                         timer.OnFail(errorMessage);
                     }
                     else
                     {
-                        failures.Add(reference, x => x.ModuleRestoreFailed(reference.FullyQualifiedReference));
+                        failures.Add(reference, x => x.ArtifactRestoreFailed(reference.FullyQualifiedReference));
                         timer.OnFail();
                     }
                 }

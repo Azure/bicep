@@ -505,7 +505,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             {
                 exitCode.Should().Be(1);
                 output.Should().BeEmpty();
-                error.Should().ContainAll(": Error BCP192: Unable to restore the module with reference ", "The artifact does not exist in the registry.");
+                error.Should().ContainAll(": Error BCP192: Unable to restore the artifact with reference ", "The artifact does not exist in the registry.");
 
 
             }
@@ -539,7 +539,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             {
                 result.Should().Be(1);
                 output.Should().BeEmpty();
-                error.Should().Contain("main.bicep(1,12) : Error BCP192: Unable to restore the module with reference \"br:fake/fake:v1\": One or more errors occurred. (Mock registry request failure 1.) (Mock registry request failure 2.)");
+                error.Should().Contain("main.bicep(1,12) : Error BCP192: Unable to restore the artifact with reference \"br:fake/fake:v1\": One or more errors occurred. (Mock registry request failure 1.) (Mock registry request failure 2.)");
             }
         }
 
@@ -571,7 +571,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             {
                 result.Should().Be(1);
                 output.Should().BeEmpty();
-                error.Should().Contain("main.bicep(1,12) : Error BCP192: Unable to restore the module with reference \"br:fake/fake:v1\": Mock registry request failure.");
+                error.Should().Contain("main.bicep(1,12) : Error BCP192: Unable to restore the artifact with reference \"br:fake/fake:v1\": Mock registry request failure.");
             }
         }
 
@@ -598,7 +598,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
 
             result.Should().Fail().And.NotHaveStdout();
-            result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the module with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
+            result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
         }
 
         private static IEnumerable<object[]> GetAllDataSetsWithPublishSource()
