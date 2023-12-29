@@ -4,8 +4,10 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Azure.Bicep.Types.Az;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.Registry;
@@ -26,20 +28,23 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class DynamicAzTypesTests : TestBase
     {
-        private static readonly Lazy<IResourceTypeLoader> azTypeLoaderLazy = new(() => new AzResourceTypeLoader(new AzTypeLoader()));
-
         private async Task<ServiceBuilder> GetServices()
         {
             var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"Resources": {}, "Functions": {}}""");
-            var clientFactory = await DataSetsExtensions.GetClientFactoryWithAzModulePublished(new System.IO.Abstractions.FileSystem(), indexJson);
+
+            var clientFactory = DataSetsExtensions.CreateMockRegistryClients(
+                false,
+                (new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}"), $"bicep/providers/az")
+            ).factoryMock;
+
+            clientFactory = await clientFactory.WithPublishedAzProvider(new System.IO.Abstractions.FileSystem(), indexJson);
 
             var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(cacheRoot);
 
             return new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(clientFactory)
-                .WithAzResourceTypeLoader(azTypeLoaderLazy.Value);
+                .WithContainerRegistryClientFactory(clientFactory);
         }
 
         [TestMethod]
@@ -66,6 +71,18 @@ provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' with {{}}
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
             });
+        }
+
+        [TestMethod]
+        public async Task Az_namespace_can_be_used_with_alias()
+        {
+            var services = await GetServices();
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as testAlias
+            ");
+
+            result.Should().GenerateATemplate();
+            result.Compilation.GetEntrypointSemanticModel().Root.ProviderDeclarations.Should().Contain(x => x.Name.Equals("testAlias"));
         }
     }
 }
