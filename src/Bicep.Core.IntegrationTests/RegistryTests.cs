@@ -160,6 +160,7 @@ namespace Bicep.Core.IntegrationTests
         [DataTestMethod]
         [DataRow(false)]
         [DataRow(true)]
+        [DoNotParallelize()]
         public async Task ModuleRestoreContentionShouldProduceConsistentState(bool publishSource)
         {
             var dataSet = DataSets.Registry_LF;
