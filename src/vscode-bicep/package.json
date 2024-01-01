@@ -796,7 +796,7 @@
     "@azure/arm-resources": "^5.2.0",
     "@azure/arm-subscriptions": "^5.1.0",
     "@azure/identity": "^4.0.0",
-    "@microsoft/vscode-azext-azureutils": "^2.0.2",
+    "@microsoft/vscode-azext-azureutils": "^2.0.3",
     "@microsoft/vscode-azext-utils": "^2.1.0",
     "@vscode/codicons": "^0.0.35",
     "@vscode/webview-ui-toolkit": "^1.4.0",
