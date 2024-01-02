@@ -251,8 +251,8 @@
       },
       "Json.More.Net": {
         "type": "Transitive",
-        "resolved": "1.9.0",
-        "contentHash": "MMjd2dOh32hLbcZg9YyA+7aEH9gu2cMTEAWrQY17in4+aEsPg2NtYTcwgWHJS9Tt2WUx+4iN1mNegR2uiEwsVQ==",
+        "resolved": "1.9.2",
+        "contentHash": "JZhi2ZJhoIqTtr9hSlMgmaj0PLq8lLvh9TiO1wOBgEYuGpvV/JUt5t0SD/VookahzptaBkApERpgBZUHMTP+aA==",
         "dependencies": {
           "System.Text.Json": "6.0.2"
         }
@@ -275,10 +275,10 @@
       },
       "JsonPath.Net": {
         "type": "Transitive",
-        "resolved": "0.6.7",
-        "contentHash": "/3E+Ujg55DTSpGoy9DIcA7SqF1m6pLnsCgfgK4v3/E6FT/qabV6k/rLth/l40eg2yjakOnUa95/JY+hXubfZFA==",
+        "resolved": "0.7.0",
+        "contentHash": "yjAz9OeLtO2Ea1EAFOYBBO0IAxBUL782urZPHZhvJuUkr0m0OFTDrqeI9U0fCLnokNP3wA/pWOqAy/kxddGc7w==",
         "dependencies": {
-          "Json.More.Net": "1.9.0"
+          "Json.More.Net": "1.9.2"
         }
       },
       "JsonPointer.Net": {
@@ -2057,7 +2057,7 @@
           "Azure.Identity": "[1.10.4, )",
           "Azure.ResourceManager.Resources": "[1.6.0, )",
           "JsonPatch.Net": "[2.1.0, )",
-          "JsonPath.Net": "[0.6.7, )",
+          "JsonPath.Net": "[0.7.0, )",
           "Microsoft.Extensions.Configuration": "[8.0.0, )",
           "Microsoft.Extensions.Configuration.Binder": "[8.0.0, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
