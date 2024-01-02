@@ -213,7 +213,8 @@ namespace Bicep.Core.Samples
 
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
 
-        public static async Task<IContainerRegistryClientFactory> WithPublishedAzProvider(this IContainerRegistryClientFactory clientFactory, IFileSystem fileSystem, string pathToIndexJson){
+        public static async Task<IContainerRegistryClientFactory> WithPublishedAzProvider(this IContainerRegistryClientFactory clientFactory, IFileSystem fileSystem, string pathToIndexJson)
+        {
             var version = BicepTestConstants.BuiltinAzProviderVersion;
             var repository = "bicep/providers/az";
             await PublishProviderToRegistryAsync(fileSystem, clientFactory, pathToIndexJson, $"br:{LanguageConstants.BicepPublicMcrRegistry}/{repository}:{version}");

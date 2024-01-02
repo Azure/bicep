@@ -81,43 +81,43 @@ namespace Bicep.Core.IntegrationTests
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"br:mock-registry-one.invalid/demo/plan:v2"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-one.invalid/demo/plan:v2"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"br:mock-registry-one.invalid/demo/plan:v2"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-one.invalid/demo/plan:v2"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"br:mock-registry-two.invalid/demo/site:v3"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-two.invalid/demo/site:v3"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"br:mock-registry-two.invalid/demo/site:v3"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:mock-registry-two.invalid/demo/site:v3"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2"));
                 },
                 x =>
                 {
@@ -129,31 +129,31 @@ namespace Bicep.Core.IntegrationTests
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"br:localhost:5000/passthrough/port:v1"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:localhost:5000/passthrough/port:v1"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"br:127.0.0.1/passthrough/ipv4:v1"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:127.0.0.1/passthrough/ipv4:v1"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"br:127.0.0.1:5000/passthrough/ipv4port:v1"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:127.0.0.1:5000/passthrough/ipv4port:v1"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"br:[::1]/passthrough/ipv6:v1"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:[::1]/passthrough/ipv6:v1"));
                 },
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith(string.Format(expectedErrorMessage,"br:[::1]:5000/passthrough/ipv6port:v1"));
+                    x.Message.Should().StartWith(string.Format(expectedErrorMessage, "br:[::1]:5000/passthrough/ipv6port:v1"));
                 });
         }
 
