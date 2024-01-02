@@ -25,11 +25,7 @@
   </DataCollectionRunSettings>
   <LoggerRunSettings>
     <Loggers>
-      <Logger friendlyName="console" enabled="True">
-        <Configuration>
-          <Verbosity>quiet</Verbosity>
-        </Configuration>
-      </Logger>
+      <Logger friendlyName="console" enabled="True" />
       <Logger friendlyName="trx" enabled="True" />
       <!-- Enables blame -->
       <Logger friendlyName="blame" enabled="True" />
