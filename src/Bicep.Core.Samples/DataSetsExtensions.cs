@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Registry.Providers;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests;
@@ -180,6 +182,43 @@ namespace Bicep.Core.Samples
             await dispatcher.PublishModule(targetReference, stream, sourcesStream, documentationUri);
         }
 
+        public static async Task PublishProviderToRegistryAsync(IFileSystem fileSystem, IContainerRegistryClientFactory clientFactory, string pathToIndexJson, string target)
+        {
+            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
+                .AddSingleton(clientFactory)
+                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
+                .AddSingleton(BicepTestConstants.FeatureProviderFactory)
+                ).Construct<IModuleDispatcher>();
+
+            var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, PathHelper.FilePathToFileUrl(pathToIndexJson)).IsSuccess(out var @ref) ? @ref
+                : throw new InvalidOperationException($"Invalid target reference '{target}'. Specify a reference to an OCI artifact.");
+
+            var tgzStream = await TypesV1Archive.GenerateProviderTarStream(fileSystem, pathToIndexJson);
+
+            await dispatcher.PublishProvider(targetReference, tgzStream);
+        }
+
+        public static async Task<IContainerRegistryClientFactory> GetClientFactoryWithAzModulePublished(IFileSystem fileSystem, string pathToIndexJson)
+        {
+            var registry = LanguageConstants.BicepPublicMcrRegistry;
+            var registryUri = new Uri($"https://{registry}");
+            var repository = $"bicep/providers/az";
+            var version = BicepTestConstants.BuiltinAzProviderVersion;
+
+            var (clientFactory, _) = CreateMockRegistryClients(false, (registryUri, repository));
+            await PublishProviderToRegistryAsync(fileSystem, clientFactory, pathToIndexJson, $"br:{registry}/{repository}:{version}");
+
+            return clientFactory;
+        }
+
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
+
+        public static async Task<IContainerRegistryClientFactory> WithPublishedAzProvider(this IContainerRegistryClientFactory clientFactory, IFileSystem fileSystem, string pathToIndexJson)
+        {
+            var version = BicepTestConstants.BuiltinAzProviderVersion;
+            var repository = "bicep/providers/az";
+            await PublishProviderToRegistryAsync(fileSystem, clientFactory, pathToIndexJson, $"br:{LanguageConstants.BicepPublicMcrRegistry}/{repository}:{version}");
+            return clientFactory;
+        }
     }
 }

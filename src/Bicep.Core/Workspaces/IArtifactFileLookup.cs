@@ -12,5 +12,5 @@ public interface IArtifactFileLookup
 {
     public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference);
 
-    public ResultWithDiagnostic<Uri> TryGetResourceTypesFileUri(ProviderDeclarationSyntax providerReference);
+    public ResultWithDiagnostic<Uri> TryGetResourceTypesFileUri(IArtifactReferenceSyntax providerReference);
 }

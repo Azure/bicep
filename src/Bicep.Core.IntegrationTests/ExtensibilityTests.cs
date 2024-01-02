@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
+
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,16 +13,11 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
-    public class ExtensibilityTests
+    public class ExtensibilityTests : TestBase
     {
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
         private ServiceBuilder Services => new ServiceBuilder()
-            //.WithAzResourceTypeLoader()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: InMemoryFileResolver.GetFileUri("/test/.bicep").LocalPath))
-            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory)
-            );
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
+            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
 
         [TestMethod]
         public void Bar_import_bad_config_is_blocked()
@@ -623,30 +615,6 @@ Hello from Bicep!"));
   }
 }
 """));
-        }
-
-        [TestMethod]
-        public void Az_namespace_can_be_used_without_configuration()
-        {
-            var result = CompilationHelper.Compile(Services, @$"
-provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
-");
-
-            result.Should().GenerateATemplate();
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        }
-
-        [TestMethod]
-        public void Az_namespace_errors_with_configuration()
-        {
-            var result = CompilationHelper.Compile(Services, @$"
-provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' with {{}}
-");
-
-            result.Should().NotGenerateATemplate();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
-            });
         }
     }
 }

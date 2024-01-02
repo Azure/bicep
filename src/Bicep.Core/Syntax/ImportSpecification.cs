@@ -20,7 +20,7 @@ using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.Syntax
 {
-    public class ImportSpecification : ISymbolNameSource
+    public partial class ImportSpecification : ISymbolNameSource
     {
         // The setting below adds syntax highlighting for regex.
         // language=regex
@@ -32,32 +32,30 @@ namespace Bicep.Core.Syntax
         // language=regex
         private const string SemanticVersionPattern = @"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?";
 
-        private static readonly Regex BuiltInSpecificationPattern = new(
-            @$"^(?<name>{NamePattern})@(?<version>{SemanticVersionPattern})$",
-            RegexOptions.ECMAScript | RegexOptions.Compiled);
+        [GeneratedRegex(@$"^(?<name>{NamePattern})@(?<version>{SemanticVersionPattern})$", RegexOptions.ECMAScript | RegexOptions.Compiled)]
+        private static partial Regex BuiltInSpecificationPattern();
 
-        private static readonly Regex FromRegistrySpecificationPattern = new(
-            @$"^(?<address>{BicepRegistryAddressPattern})@(?<version>{SemanticVersionPattern})$",
-            RegexOptions.ECMAScript | RegexOptions.Compiled);
+        [GeneratedRegex(@$"^(?<address>{BicepRegistryAddressPattern})@(?<version>{SemanticVersionPattern})$", RegexOptions.ECMAScript | RegexOptions.Compiled)]
+        private static partial Regex FromRegistrySpecificationPattern();
 
-        private static readonly Regex RepositoryNamePattern = new(
-            @"^\S*[:\/](?<name>az)$",
-            RegexOptions.ECMAScript | RegexOptions.Compiled);
 
-        private ImportSpecification(string bicepRegistryAddress, string name, string version, bool isValid, TextSpan span)
+        [GeneratedRegex(@"^\S*[:\/](?<name>\S+)$", RegexOptions.ECMAScript | RegexOptions.Compiled)]
+        private static partial Regex RepositoryNamePattern();
+
+        private ImportSpecification(string name, string version, string? bicepRegistryAddress, TextSpan span, bool isValid)
         {
-            BicepRegistryAddress = bicepRegistryAddress;
             Name = name;
             Version = version;
+            BicepRegistryAddress = bicepRegistryAddress;
             IsValid = isValid;
             Span = span;
         }
 
-        public string BicepRegistryAddress { get; }
-
         public string Name { get; }
 
         public string Version { get; }
+
+        public string? BicepRegistryAddress { get; }
 
         public bool IsValid { get; }
 
@@ -65,31 +63,33 @@ namespace Bicep.Core.Syntax
 
         public static ImportSpecification From(SyntaxBase specificationSyntax)
         {
-            if (specificationSyntax is StringSyntax stringSyntax && stringSyntax.TryGetLiteralValue() is { } value)
+            if (specificationSyntax is StringSyntax stringSyntax &&
+                stringSyntax.TryGetLiteralValue() is { } value &&
+                TryCreateFromStringSyntax(stringSyntax, value) is { } specification)
             {
-                return CreateFromStringSyntax(stringSyntax, value);
+                return specification;
             }
 
-            return new ImportSpecification(
+            return new(
                 LanguageConstants.ErrorName,
                 LanguageConstants.ErrorName,
-                LanguageConstants.ErrorName,
-                false,
-                specificationSyntax.Span);
+                null,
+                specificationSyntax.Span,
+                isValid: false);
         }
 
-        private static ImportSpecification CreateFromStringSyntax(StringSyntax stringSyntax, string value)
+        private static ImportSpecification? TryCreateFromStringSyntax(StringSyntax stringSyntax, string value)
         {
-            if (BuiltInSpecificationPattern.Match(value) is { } builtInMatch && builtInMatch.Success)
+            if (BuiltInSpecificationPattern().Match(value) is { } builtInMatch && builtInMatch.Success)
             {
                 var name = builtInMatch.Groups["name"].Value;
                 var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
                 var version = builtInMatch.Groups["version"].Value;
                 // built-in providers (e.g. kubernetes@1.0.0 or sys@1.0.0) are allowed as long as the name is not 'az'
-                return new(name, name, version, name != AzNamespaceType.BuiltInName, span);
+                return new(name, version, null, span, isValid: name != AzNamespaceType.BuiltInName);
             }
 
-            if (FromRegistrySpecificationPattern.Match(value) is { } registryMatch && registryMatch.Success)
+            if (FromRegistrySpecificationPattern().Match(value) is { } registryMatch && registryMatch.Success)
             {
                 // NOTE(asilverman): The regex for the registry pattern is intentionally loose since it will be validated by the module resolver.
                 var address = registryMatch.Groups["address"].Value;
@@ -98,16 +98,12 @@ namespace Bicep.Core.Syntax
                 var span = new TextSpan(stringSyntax.Span.Position + 1, address.Length);
                 // NOTE(asilverman): I normalize the artifact address to the way we represent module addresses, see https://github.com/Azure/bicep/issues/12202
                 var unexpandedArtifactAddress = $"{address}:{version}";
-                var name = RepositoryNamePattern.Match(address).Groups["name"].Value;
-                // NOTE(asilverman): Only a repo name of az is allowed for now. This shall be relaxed once we generalize dynamic type loading for other provider packages.
-                return new(unexpandedArtifactAddress, name, version, name == AzNamespaceType.BuiltInName, span);
+                var name = RepositoryNamePattern().Match(address).Groups["name"].Value;
+
+                return new(name, version, unexpandedArtifactAddress, span, isValid: true);
             }
-            return new(
-                 LanguageConstants.ErrorName,
-                 LanguageConstants.ErrorName,
-                 LanguageConstants.ErrorName,
-                 false,
-                 stringSyntax.Span);
+
+            return null;
         }
     }
 }

@@ -151,17 +151,8 @@ namespace Bicep.Core.Workspaces
 
         private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild)
         {
-            var features = featureProviderFactory.GetFeatureProvider(file.FileUri);
             foreach (var restorable in file.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>())
             {
-                // NOTE(asilverman): The below check is ugly but temporary until we have a better way to
-                // handle dynamic type loading in a way that is decoupled from modules.
-                if (restorable is ProviderDeclarationSyntax providerImport &&
-                    (providerImport.Specification.Name != AzNamespaceType.BuiltInName || !features.DynamicTypeLoadingEnabled))
-                {
-                    continue;
-                }
-
                 var (childArtifactReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
                 fileUriResultByArtifactReference.GetOrAdd(file, f => new())[restorable] = uriResult;
 
@@ -199,7 +190,7 @@ namespace Bicep.Core.Workspaces
             if (forceRestore)
             {
                 //override the status to force restore
-                return (artifactReference, new(new UriResolutionError(x => x.ModuleRequiresRestore(artifactReference.FullyQualifiedReference), true)));
+                return (artifactReference, new(new UriResolutionError(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference), true)));
             }
 
             var restoreStatus = dispatcher.GetArtifactRestoreStatus(artifactReference, out var restoreErrorBuilder);
@@ -207,11 +198,11 @@ namespace Bicep.Core.Workspaces
             {
                 case ArtifactRestoreStatus.Unknown:
                     // we have not yet attempted to restore the module, so let's do it
-                    return (artifactReference, new(new UriResolutionError(x => x.ModuleRequiresRestore(artifactReference.FullyQualifiedReference), true)));
+                    return (artifactReference, new(new UriResolutionError(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference), true)));
                 case ArtifactRestoreStatus.Failed:
                     // the module has not yet been restored or restore failed
                     // in either case, set the error
-                    return (artifactReference, new(new UriResolutionError(restoreErrorBuilder ?? (x => x.ModuleRestoreFailed(artifactReference.FullyQualifiedReference)), false)));
+                    return (artifactReference, new(new UriResolutionError(restoreErrorBuilder ?? (x => x.ArtifactRestoreFailed(artifactReference.FullyQualifiedReference)), false)));
                 default:
                     break;
             }

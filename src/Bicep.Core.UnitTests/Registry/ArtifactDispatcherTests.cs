@@ -138,14 +138,14 @@ namespace Bicep.Core.UnitTests.Registry
 
             dispatcher.GetArtifactRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ArtifactRestoreStatus.Unknown);
             goodAvailabilityBuilder!.Should().HaveCode("BCP190");
-            goodAvailabilityBuilder!.Should().HaveMessage("The module with reference \"mock:validRef\" has not been restored.");
+            goodAvailabilityBuilder!.Should().HaveMessage("The artifact with reference \"mock:validRef\" has not been restored.");
 
             dispatcher.GetArtifactRestoreStatus(validRef2, out var goodAvailabilityBuilder2).Should().Be(ArtifactRestoreStatus.Succeeded);
             goodAvailabilityBuilder2!.Should().BeNull();
 
             dispatcher.GetArtifactRestoreStatus(validRef3, out var goodAvailabilityBuilder3).Should().Be(ArtifactRestoreStatus.Unknown);
             goodAvailabilityBuilder3!.Should().HaveCode("BCP190");
-            goodAvailabilityBuilder3!.Should().HaveMessage("The module with reference \"mock:validRef3\" has not been restored.");
+            goodAvailabilityBuilder3!.Should().HaveMessage("The artifact with reference \"mock:validRef3\" has not been restored.");
 
             dispatcher.TryGetLocalArtifactEntryPointUri(validRef).IsSuccess(out var @uri, out var entryPointBuilder).Should().BeTrue();
             @uri.Should().Be(new Uri("untitled://validRef"));

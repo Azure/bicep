@@ -122,7 +122,7 @@ namespace Bicep.Core.Registry
             if (registry.IsArtifactRestoreRequired(artifactReference))
             {
                 // module is not present on the local file system
-                failureBuilder = x => x.ModuleRequiresRestore(artifactReference.FullyQualifiedReference);
+                failureBuilder = x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference);
                 return ArtifactRestoreStatus.Unknown;
             }
 
@@ -203,6 +203,12 @@ namespace Bicep.Core.Registry
         }
 
         public async Task<bool> CheckModuleExists(ArtifactReference reference)
+        {
+            var registry = this.GetRegistry(reference);
+            return await registry.CheckArtifactExists(reference);
+        }
+
+        public async Task<bool> CheckProviderExists(ArtifactReference reference)
         {
             var registry = this.GetRegistry(reference);
             return await registry.CheckArtifactExists(reference);

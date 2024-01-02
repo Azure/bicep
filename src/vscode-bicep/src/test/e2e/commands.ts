@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
+import { ShowSourceFromVisualizerCommand } from "../../commands/showSourceFromVisualizer";
 
 // More can be added as needed: https://code.visualstudio.com/api/references/commands.
 
@@ -82,7 +83,7 @@ export async function executeShowDeployPaneToSideCommand(
 export async function executeShowSourceCommand(): Promise<
   vscode.TextEditor | undefined
 > {
-  return await vscode.commands.executeCommand("bicep.showSource");
+  return await vscode.commands.executeCommand(ShowSourceFromVisualizerCommand.CommandId);
 }
 
 export async function executeBuildCommand(

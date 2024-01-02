@@ -14,9 +14,6 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class CliScenarioTests : TestBase
     {
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
         // https://github.com/azure/bicep/issues/3182
         [TestMethod]
         public async Task Test_Issue3182()

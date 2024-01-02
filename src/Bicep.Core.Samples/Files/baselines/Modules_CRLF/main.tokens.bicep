@@ -2061,22 +2061,6 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@[024:026) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:005) NewLine |\r\n\r\n|
-
-module withSeparateConfig './child/folder with separate config/moduleWithAzImport.bicep' = {
-//@[000:006) Identifier |module|
-//@[007:025) Identifier |withSeparateConfig|
-//@[026:088) StringComplete |'./child/folder with separate config/moduleWithAzImport.bicep'|
-//@[089:090) Assignment |=|
-//@[091:092) LeftBrace |{|
-//@[092:094) NewLine |\r\n|
-  name: 'withSeparateConfig'
-//@[002:006) Identifier |name|
-//@[006:007) Colon |:|
-//@[008:028) StringComplete |'withSeparateConfig'|
-//@[028:030) NewLine |\r\n|
-}
-//@[000:001) RightBrace |}|
 //@[001:003) NewLine |\r\n|
 
 //@[000:000) EndOfFile ||

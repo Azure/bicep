@@ -40,14 +40,11 @@ using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    public class HoverTests
+    public class HoverTests : TestBase
     {
         private static readonly SharedLanguageHelperManager DefaultServer = new();
         private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
         private static readonly SharedLanguageHelperManager ServerWithTestNamespaceProvider = new();
-
-        [NotNull]
-        public TestContext? TestContext { get; set; }
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
@@ -230,7 +227,7 @@ output string test = testRes.prop|erties.rea|donly
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadwrite: string\n```  \nThis is a property which supports reading AND writing!  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nwriteonly: string\n```  \nThis is a property which only supports writing.  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nrequired: string\n```  \nThis is a property which is required.  \n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```  \nproperties property  \n"  ),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nproperties: Properties\n```  \nproperties property  \n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```  \nThis is a property which only supports reading.  \n"));
         }
 
@@ -550,7 +547,7 @@ resource foo 'Test.Rp/basicTests@2020-01-01'
 resource bar 'Test.Rp/basicTests@2020-01-01'
 ```  " + @"
 This resource also has a description!  " + @"
-[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)  " +@"
+[View Documentation](https://learn.microsoft.com/azure/templates/test.rp/basictests?pivots=deployment-language-bicep)  " + @"
 "),
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource madeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01'

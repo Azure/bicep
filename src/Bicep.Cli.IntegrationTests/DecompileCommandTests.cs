@@ -92,9 +92,6 @@ namespace Bicep.Cli.IntegrationTests
         };
 
 
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
         [TestMethod]
         public async Task Decompile_EmptyTemplate_ShouldSucceed()
         {

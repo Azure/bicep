@@ -18,54 +18,52 @@ namespace Bicep.Core.Semantics.Namespaces;
 public class DefaultNamespaceProvider : INamespaceProvider
 {
     private delegate NamespaceType? GetNamespaceDelegate(
-        ResourceTypesProviderDescriptor typesProviderDescriptor,
+        ResourceTypesProviderDescriptor descriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
         BicepSourceFileKind sourceFileKind);
 
-    private readonly ImmutableDictionary<string, GetNamespaceDelegate> providerLookup;
+    private readonly ImmutableDictionary<string, GetNamespaceDelegate> builtInNamespaceLookup;
     private readonly IResourceTypeProviderFactory resourceTypeLoaderFactory;
 
     public DefaultNamespaceProvider(IResourceTypeProviderFactory resourceTypeLoaderFactory)
     {
         this.resourceTypeLoaderFactory = resourceTypeLoaderFactory;
-        this.providerLookup = new Dictionary<string, GetNamespaceDelegate>
+        this.builtInNamespaceLookup = new Dictionary<string, GetNamespaceDelegate>
         {
-            [AzNamespaceType.BuiltInName] = TryCreateAzNamespace,
-            [SystemNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => SystemNamespaceType.Create(providerDescriptor.Alias, features, sourceFileKind),
-            [K8sNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => K8sNamespaceType.Create(providerDescriptor.Alias),
-            [MicrosoftGraphNamespaceType.BuiltInName] = (providerDescriptor, resourceScope, features, sourceFileKind) => MicrosoftGraphNamespaceType.Create(providerDescriptor.Alias),
+            [AzNamespaceType.BuiltInName] = (descriptor, resourceScope, _, sourceFileKind) => AzNamespaceType.Create(descriptor.Alias, resourceScope, resourceTypeLoaderFactory.GetBuiltInAzResourceTypesProvider(), sourceFileKind),
+            [SystemNamespaceType.BuiltInName] = (descriptor, _, features, sourceFileKind) => SystemNamespaceType.Create(descriptor.Alias, features, sourceFileKind),
+            [K8sNamespaceType.BuiltInName] = (descriptor, _, _, _) => K8sNamespaceType.Create(descriptor.Alias),
+            [MicrosoftGraphNamespaceType.BuiltInName] = (descriptor, _, _, _) => MicrosoftGraphNamespaceType.Create(descriptor.Alias),
         }.ToImmutableDictionary();
     }
 
-    private NamespaceType? TryCreateAzNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope scope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
-    {
-        if (!features.DynamicTypeLoadingEnabled)
-        {
-            providerDescriptor = new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion);
-        }
-
-        if (resourceTypeLoaderFactory.GetResourceTypeProvider(providerDescriptor, features).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
-        {
-            return AzNamespaceType.Create(providerDescriptor.Alias, scope, dynamicallyLoadedProvider, sourceFileKind);
-        }
-
-        Trace.WriteLine($"Failed to load types from {providerDescriptor.Path}: {errorBuilder(DiagnosticBuilder.ForPosition(providerDescriptor.Span))}");
-        return null;
-    }
-
     public NamespaceType? TryGetNamespace(
-        ResourceTypesProviderDescriptor typesProviderDescriptor,
+        ResourceTypesProviderDescriptor descriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
         BicepSourceFileKind sourceFileKind)
-        => providerLookup.TryGetValue(typesProviderDescriptor.Name)?
-        .Invoke(
-            typesProviderDescriptor,
-            resourceScope,
-            features,
-            sourceFileKind);
+    {
+        // If we don't have a types path, we're loading a 'built-in' type
+        if (descriptor.TypesBaseUri is null &&
+            builtInNamespaceLookup.TryGetValue(descriptor.Name) is { } getProvider)
+        {
+            return getProvider(descriptor, resourceScope, features, sourceFileKind);
+        }
 
-    public IEnumerable<string> AvailableNamespaces
-        => providerLookup.Keys;
+        // Special-case the 'az' provider being loaded from registry - we need add-on functionality delivered via the namespace provider
+        if (descriptor.Name == AzNamespaceType.BuiltInName)
+        {
+            if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+            {
+                return AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind);
+            }
+
+            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
+            return null;
+        }
+
+        // TODO: return the 3rd party provider namespace type here
+        return null;
+    }
 }

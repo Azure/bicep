@@ -45,7 +45,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             const string ModuleRefStr = "hello";
 
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
-            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(null as ArtifactReference, x => x.ModuleRestoreFailed("blah")));
+            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(null as ArtifactReference, x => x.ArtifactRestoreFailed("blah")));
 
             var resolver = StrictMock.Of<IFileResolver>();
 
@@ -132,7 +132,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ArtifactReference? outRef = moduleReference;
             dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, failureBuilder));
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out failureBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
-            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(null as Uri, x => x.ModuleRestoreFailed("blah")));
+            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(null as Uri, x => x.ArtifactRestoreFailed("blah")));
 
             var resolver = StrictMock.Of<IFileResolver>();
 
@@ -154,26 +154,25 @@ namespace Bicep.LangServer.UnitTests.Handlers
             // needed for mocking out parameters
             DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
             DiagnosticBuilder.ErrorBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
-            string? fileContents = null;
+            var compiledJsonUri = new Uri("file:///foo/bar/main.json");
 
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            var fileUri = new Uri("file:///main.bicep");
             var configuration = IConfigurationManager.GetBuiltInConfiguration();
-            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, fileUri).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
             dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, null));
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
-            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(fileUri, null));
+            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(compiledJsonUri, null));
 
             SourceArchive? sourceArchive = null;
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
 
             var resolver = StrictMock.Of<IFileResolver>();
-            resolver.Setup(m => m.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, readFailureBuilder));
+            resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create((string?)null, readFailureBuilder));
 
             var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
 
@@ -182,7 +181,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 .Awaiting(() => handler.Handle(@params, default))
                 .Should()
                 .ThrowAsync<InvalidOperationException>())
-                .WithMessage($"Unable to read file 'file:///main.bicep'. An error occurred reading file. Mock file read failure.");
+                .WithMessage($"Unable to read file 'file:///foo/bar/main.json'. An error occurred reading file. Mock file read failure.");
         }
 
         [TestMethod]
@@ -193,27 +192,27 @@ namespace Bicep.LangServer.UnitTests.Handlers
             // needed for mocking out parameters
             DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
             DiagnosticBuilder.ErrorBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
-            string? fileContents = "mock file contents";
+            string? compiledJsonContents = "mock main.json contents";
+            var compiledJsonUri = new Uri("file:///foo/bar/main.json");
 
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            var fileUri = new Uri("file:///foo/bar/main.bicep");
-            var configuration = ConfigurationManager.GetConfiguration(fileUri);
+            var configuration = ConfigurationManager.GetConfiguration(compiledJsonUri);
 
-            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, fileUri).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
             dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, null));
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
-            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(fileUri, null));
+            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(compiledJsonUri, null));
 
             SourceArchive? sourceArchive = null;
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
 
             var resolver = StrictMock.Of<IFileResolver>();
-            resolver.Setup(m => m.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, nullBuilder));
+            resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
 
             var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
 
@@ -221,40 +220,83 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var response = await handler.Handle(@params, default);
 
             response.Should().NotBeNull();
-            response.Content.Should().Be(fileContents);
+            response.Content.Should().Be(compiledJsonContents);
         }
 
         [TestMethod]
-        public async Task RestoredValidModule_WithSource_ShouldReturnBicepContents()
+        public async Task RestoredValidModule_WithSource_RequestingBicepFile_ShouldReturnBicepContents()
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
 
             // needed for mocking out parameters
             DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
             DiagnosticBuilder.ErrorBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
-            string? fileContents = "mock file contents";
+            string? compiledJsonContents = "mock main.json contents";
+            var compiledJsonUri = new Uri("file:///foo/bar/main.json");
 
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            var fileUri = new Uri("file:///foo/bar/main.bicep");
-            var configuration = ConfigurationManager.GetConfiguration(fileUri);
+            var configuration = ConfigurationManager.GetConfiguration(compiledJsonUri);
 
-            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, fileUri).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
             dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, null));
             dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
-            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(fileUri, null));
+            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(compiledJsonUri, null));
 
-            var bicepSource = "metadata hi 'mom'";
-            var sourceArchive = SourceArchive.FromStream(SourceArchive.PackSourcesIntoStream(fileUri, new Core.Workspaces.ISourceFile[] {
-                SourceFileFactory.CreateBicepFile(fileUri, bicepSource)}));
+            var bicepSource = "metadata hi = 'This is the bicep source file'";
+            var bicepUri = new Uri("file:///foo/bar/entrypoint.bicep");
+            var sourceArchive = SourceArchive.FromStream(SourceArchive.PackSourcesIntoStream(bicepUri, new Core.Workspaces.ISourceFile[] {
+                SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
 
             var resolver = StrictMock.Of<IFileResolver>();
-            resolver.Setup(m => m.TryRead(fileUri)).Returns(ResultHelper.Create(fileContents, nullBuilder));
+            resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
+
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
+
+            var @params = new BicepExternalSourceParams(ModuleRefStr, Path.GetFileName(bicepUri.AbsoluteUri));
+            var response = await handler.Handle(@params, default);
+
+            response.Should().NotBeNull();
+            response.Content.Should().Be(bicepSource);
+        }
+
+        [TestMethod]
+        public async Task RestoredValidModule_WithSource_RequestingCompiledJson_ShouldReturnMainJsonContents()
+        {
+            var dispatcher = StrictMock.Of<IModuleDispatcher>();
+
+            // needed for mocking out parameters
+            DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
+            DiagnosticBuilder.ErrorBuilderDelegate? readFailureBuilder = x => x.ErrorOccurredReadingFile("Mock file read failure.");
+            string? compiledJsonContents = "mock main.json contents";
+            var compiledJsonUri = new Uri("file:///foo/bar/main.json");
+
+            const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
+            const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
+
+            var configuration = ConfigurationManager.GetConfiguration(compiledJsonUri);
+
+            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
+            moduleReference.Should().NotBeNull();
+
+            ArtifactReference? outRef = moduleReference;
+            dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(outRef, null));
+            dispatcher.Setup(m => m.GetArtifactRestoreStatus(moduleReference!, out nullBuilder)).Returns(ArtifactRestoreStatus.Succeeded);
+            dispatcher.Setup(m => m.TryGetLocalArtifactEntryPointUri(moduleReference!)).Returns(ResultHelper.Create(compiledJsonUri, null));
+
+            var bicepSource = "metadata hi = 'This is the bicep source file'";
+            var bicepUri = new Uri("file:///foo/bar/entrypoint.bicep");
+            var sourceArchive = SourceArchive.FromStream(SourceArchive.PackSourcesIntoStream(bicepUri, new Core.Workspaces.ISourceFile[] {
+                SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
+            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
+
+            var resolver = StrictMock.Of<IFileResolver>();
+            resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
 
             var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
 
@@ -262,7 +304,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var response = await handler.Handle(@params, default);
 
             response.Should().NotBeNull();
-            response.Content.Should().Be(bicepSource);
+            response.Content.Should().Be(compiledJsonContents);
         }
 
         #region GetExternalSourceLinkUri tests
@@ -298,7 +340,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public void GetExternalSourceLinkUri_ModuleReferenceShouldBeCorrect(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
-            DecodeExternalSourceUri(result).ModuleParts.ArtifactId.Should().Be($"{testData.registry}/{testData.repository}{testData.tagOrDigest}");
+            DecodeExternalSourceUri(result).Components.ArtifactId.Should().Be($"{testData.registry}/{testData.repository}{testData.tagOrDigest}");
         }
 
         [DataTestMethod]

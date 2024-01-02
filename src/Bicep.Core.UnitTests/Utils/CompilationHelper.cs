@@ -3,7 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -45,15 +47,30 @@ namespace Bicep.Core.UnitTests.Utils
             Symbol Symbol,
             TypeSymbol Type);
 
-        public static CompilationResult Compile(ServiceBuilder services, params (string fileName, string fileContents)[] files)
+        public static Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, string fileContents)
+            => RestoreAndCompile(services, ("main.bicep", fileContents));
+
+        public static async Task<CompilationResult> RestoreAndCompile(ServiceBuilder services, params (string fileName, string fileContents)[] files)
         {
             files.Select(x => x.fileName).Should().Contain("main.bicep");
             var filesToAppend = files.Select(file => ("/path/to", file.fileName, file.fileContents));
 
-            string azProviderPath = $"/test/.bicep/br/mcr.microsoft.com/bicep$providers$az/{BicepTestConstants.BuiltinAzProviderVersion}$";
-            filesToAppend = filesToAppend.Append((azProviderPath, "types.tgz", ""));
-            filesToAppend = filesToAppend.Append((azProviderPath, "manifest", ""));
-            filesToAppend = filesToAppend.Append((azProviderPath, "metadata", ""));
+            var (uriDictionary, entryUri) = CreateFileDictionary(filesToAppend, "main.bicep");
+
+            var workspace = new Workspace();
+            var sourceFiles = uriDictionary.Select(kvp => SourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
+            workspace.UpsertSourceFiles(sourceFiles);
+
+            var compiler = services.Build().Construct<BicepCompiler>();
+            var compilation = await compiler.CreateCompilation(entryUri, workspace);
+
+            return Compile(compilation);
+        }
+
+        public static CompilationResult Compile(ServiceBuilder services, params (string fileName, string fileContents)[] files)
+        {
+            files.Select(x => x.fileName).Should().Contain("main.bicep");
+            var filesToAppend = files.Select(file => ("/path/to", file.fileName, file.fileContents));
 
             var (uriDictionary, entryUri) = CreateFileDictionary(filesToAppend, "main.bicep");
             var fileResolver = new InMemoryFileResolver(uriDictionary);
