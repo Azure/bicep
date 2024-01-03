@@ -25,7 +25,7 @@ namespace Bicep.Core.FileSystem
         public IDisposable? TryAcquireFileLock(Uri fileUri)
         {
             RequireFileUri(fileUri);
-            return FileLock.TryAcquire(fileUri.LocalPath);
+            return FileLock.TryAcquire(fileSystem, fileUri.LocalPath);
         }
 
         public ResultWithDiagnostic<string> TryRead(Uri fileUri)
