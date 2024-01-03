@@ -79,7 +79,7 @@ namespace Bicep.Core.Registry
 
             foreach (var reference in references)
             {
-                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
+                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectoryPath(reference)}");
                 try
                 {
                     var repository = this.repositoryFactory.CreateRepository(configuration, reference.SubscriptionId);

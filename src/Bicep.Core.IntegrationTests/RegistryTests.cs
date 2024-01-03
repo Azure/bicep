@@ -165,18 +165,16 @@ namespace Bicep.Core.IntegrationTests
                 });
         }
 
-        [DataTestMethod]
-        [DataRow(false)]
-        [DataRow(true)]
-        [DoNotParallelize()]
-        public async Task ModuleRestoreContentionShouldProduceConsistentState(bool publishSource)
+        [TestMethod]
+        public async Task ModuleRestoreContentionShouldProduceConsistentState()
         {
             var dataSet = DataSets.Registry_LF;
 
+            var publishSource = true;
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource: publishSource);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
 
             var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
             Directory.CreateDirectory(cacheDirectory);

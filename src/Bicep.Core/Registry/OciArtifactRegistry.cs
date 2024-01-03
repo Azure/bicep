@@ -221,7 +221,7 @@ namespace Bicep.Core.Registry
 
             foreach (var reference in references)
             {
-                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
+                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectoryPath(reference)}");
                 var (result, errorMessage) = await this.TryRestoreArtifactAsync(configuration, reference);
 
                 if (result is null)
