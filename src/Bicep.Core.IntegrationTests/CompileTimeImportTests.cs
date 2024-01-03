@@ -1952,4 +1952,31 @@ public class CompileTimeImportTests
         result.Template.Should().NotBeNull();
         result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
+
+    [TestMethod]
+    public void Bicepparam_imported_variables_from_invalid_bicep_file_cause_errors()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'test.bicep'
+import * as foo from 'test.bicep'
+import { bar } from 'test.bicep'
+"""),
+            ("test.bicep", """
+INVALID FILE
+"""),
+            ("bicepconfig.json", """
+{
+  "experimentalFeaturesEnabled": {
+    "compileTimeImports": true
+  }
+}
+"""));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
+            ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
+        });
+    }
 }
