@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { Context, Reporter, Test } from "@jest/reporters";
+import { TestContext, Reporter, Test } from "@jest/reporters";
 import { AggregatedResult, TestResult } from "@jest/test-result";
 
 export default class TestReporter
@@ -30,7 +30,7 @@ export default class TestReporter
     }
   }
 
-  onRunComplete(contexts: Set<Context>, results: AggregatedResult): void {
+  onRunComplete(contexts: Set<TestContext>, results: AggregatedResult): void {
     console.log("");
     console.log(
       `Test Suites: ${results.numPassedTestSuites} passed, ${results.numTotalTestSuites} total`,

@@ -42,15 +42,16 @@ namespace Bicep.Core.TypeSystem.Providers
                 return new(cachedResourceTypeLoaders[key]);
             }
 
-            // should never be null since provider restore success is validated prior.
-            var typesTgzPath = providerDescriptor.TypesBaseUri?.AbsolutePath ?? throw new UnreachableException("the provider directory doesn't exist");
+            // is never null since provider restore success is validated prior.
+            var typesTgzPath = Uri.UnescapeDataString(providerDescriptor.TypesBaseUri?.AbsolutePath ?? throw new UnreachableException("the provider directory doesn't exist"));
             var typesParentPath = Path.GetDirectoryName(typesTgzPath) ?? throw new UnreachableException("the provider directory doesn't exist");
 
             // compose the path to the OCI manifest based on the cache root directory and provider version
             var ociManifestPath = Path.Combine(typesParentPath, "manifest");
             if (!fileSystem.File.Exists(ociManifestPath))
             {
-                return new(x => x.MalformedProviderPackage(ociManifestPath));
+                // always exists since provider restore was successful
+                throw new UnreachableException("the provider manifest path doesn't exist");
             }
 
             // Read the OCI manifest
@@ -63,15 +64,14 @@ namespace Bicep.Core.TypeSystem.Providers
             }
 
             using var fileStream = fileSystem.File.OpenRead(Path.Combine(typesParentPath, OciTypeLoader.TypesArtifactFilename));
-            // Register a new types loader
-            IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Alias switch
+
+            IResourceTypeProvider? newResourceTypeLoader = providerDescriptor.Name switch
             {
                 AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version),
-                _ => throw new NotImplementedException($"The provider {providerDescriptor.Alias} is not supported."),
+                // Note(asilverman): the line of code below is meant for 3rd party provider resolution logic which is not yet implemented.
+                _ => throw new NotImplementedException($"Provider {providerDescriptor.Name} not supported."),
             };
-
             return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);
-
         }
 
         public IResourceTypeProvider GetBuiltInAzResourceTypesProvider()

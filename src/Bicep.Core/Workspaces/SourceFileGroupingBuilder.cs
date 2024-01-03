@@ -190,7 +190,7 @@ namespace Bicep.Core.Workspaces
             if (forceRestore)
             {
                 //override the status to force restore
-                return (artifactReference, new(new UriResolutionError(x => x.ModuleRequiresRestore(artifactReference.FullyQualifiedReference), true)));
+                return (artifactReference, new(new UriResolutionError(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference), true)));
             }
 
             var restoreStatus = dispatcher.GetArtifactRestoreStatus(artifactReference, out var restoreErrorBuilder);
@@ -198,11 +198,11 @@ namespace Bicep.Core.Workspaces
             {
                 case ArtifactRestoreStatus.Unknown:
                     // we have not yet attempted to restore the module, so let's do it
-                    return (artifactReference, new(new UriResolutionError(x => x.ModuleRequiresRestore(artifactReference.FullyQualifiedReference), true)));
+                    return (artifactReference, new(new UriResolutionError(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference), true)));
                 case ArtifactRestoreStatus.Failed:
                     // the module has not yet been restored or restore failed
                     // in either case, set the error
-                    return (artifactReference, new(new UriResolutionError(restoreErrorBuilder ?? (x => x.ModuleRestoreFailed(artifactReference.FullyQualifiedReference)), false)));
+                    return (artifactReference, new(new UriResolutionError(restoreErrorBuilder ?? (x => x.ArtifactRestoreFailed(artifactReference.FullyQualifiedReference)), false)));
                 default:
                     break;
             }

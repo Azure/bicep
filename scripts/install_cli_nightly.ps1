@@ -1,7 +1,9 @@
 [cmdletbinding()]
 param(
    [string]$RunId,
-   [string]$Branch
+   [string]$Branch,
+   [string]$Repo,
+   [string]$BinaryPath
 )
 
 $ErrorActionPreference="Stop"
@@ -25,25 +27,30 @@ switch ($platform) {
 }
 
 # Fetch
-$repo = "Azure/bicep"
+if (!$BinaryPath) {
+  # Default to ~/.azure/bin
+  $BinaryPath = [System.IO.Path]::combine($HOME, ".azure", "bin")
+}
+if (!$Repo) {
+  $Repo = "Azure/bicep"
+}
 if (!$Branch) {
   $Branch = "main"
 }
 if (!$RunId) {
-    $RunId = & gh run list -R $repo --branch $Branch --workflow build --status success -L 1 --json databaseId -q ".[0].databaseId"; if(!$?) { throw }
+    $RunId = & gh run list -R $Repo --branch $Branch --workflow build --status success -L 1 --json databaseId -q ".[0].databaseId"; if(!$?) { throw }
 }
 $tmpDir = [System.IO.Path]::combine([System.IO.Path]::GetTempPath(), [System.IO.Path]::GetRandomFileName())
-& gh run download -R $repo $RunId -n "bicep-release-$platform-$arch" --dir $tmpDir; if(!$?) { throw }
+& gh run download -R $Repo $RunId -n "bicep-release-$platform-$arch" --dir $tmpDir; if(!$?) { throw }
 
 # Install
-$azCliBinDir = [System.IO.Path]::combine($HOME, ".azure", "bin")
-$bicepPath = [System.IO.Path]::combine($azCliBinDir, "bicep.exe")
-New-Item -ItemType Directory -Force -Path $azCliBinDir | Out-Null
+$bicepPath = [System.IO.Path]::combine($BinaryPath, "bicep.exe")
+New-Item -ItemType Directory -Force -Path $BinaryPath | Out-Null
 Move-Item -Path "$tmpDir/bicep.exe" -Destination $bicepPath -Force
 
 $versionStdout = & $bicepPath --version; if(!$?) { throw }
 $version = $versionStdout -replace '^.* ([0-9]*\.[0-9]*\.[0-9]*) .*$', '$1'
-echo "Installed Bicep $version from https://github.com/Azure/bicep/actions/runs/$RunId to $bicepPath"
+echo "Installed Bicep $version from https://github.com/$Repo/actions/runs/$RunId to $bicepPath"
 
 # Cleanup
 Remove-Item $tmpDir -Recurse
