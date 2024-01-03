@@ -77,6 +77,12 @@ namespace Bicep.LanguageServer.Handlers
                                     "Show compiled JSON",
                                     "bicep.internal.showModuleSourceFile",
                                     new ExternalSourceReference(request.TextDocument.Uri).WithRequestForCompiledJson().ToUri().ToString());
+
+                                yield return CreateCodeLens(
+                                    DocumentStart,
+                                    "Show all source files",
+                                    "bicep.internal.showModuleSourceFile",
+                                    new ExternalSourceReference(request.TextDocument.Uri).WithRequestForSourceFile("allfiles.md"/*asdfg*/).ToUri().ToString());
                             }
                             else
                             {

@@ -4,6 +4,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
@@ -48,13 +49,13 @@ namespace Bicep.LanguageServer.Handlers
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.
 
-            if (!moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, request.Target, new Uri("file:///no-parent-file-is-available.bicep")).IsSuccess(out var moduleReference))
+            if (!moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, request.Target, new Uri("file:///no-parent-file-is-available.bicep")).IsSuccess(out var artifactReference))
             {
                 throw new InvalidOperationException(
                     $"The client specified an invalid module reference '{request.Target}'.");
             }
 
-            if (!moduleReference.IsExternal)
+            if (!artifactReference.IsExternal || artifactReference is not OciArtifactReference moduleReference)
             {
                 throw new InvalidOperationException(
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests.");
@@ -75,8 +76,25 @@ namespace Bicep.LanguageServer.Handlers
             if (request.requestedSourceFile is { })
             {
                 SourceArchiveResult sourceArchiveResult = moduleDispatcher.TryGetModuleSources(moduleReference);
-                if (sourceArchiveResult.SourceArchive is { })
+                if (sourceArchiveResult.SourceArchive is SourceArchive archive)
                 {
+                    if (request.requestedSourceFile == "allfiles.md") //asdfg
+                    {
+                        StringBuilder sb = new();
+
+                        foreach (var source in archive.SourceFiles)
+                        {
+                            //if (string.CompareOrdinal(source.Path, externalReference.RequestedFile) != 0)
+                            //{
+                            var sourceRef = new ExternalSourceReference(moduleReference, archive).WithRequestForSourceFile(source.Path); //asdfg path or archivedPath?
+                            sb.AppendLine($"({source.Path})[{sourceRef.ToUri()}]");
+                            //}
+                        }
+
+                        return Task.FromResult(new BicepExternalSourceResponse(sb.ToString()));
+                    }
+
+
                     var requestedFile = sourceArchiveResult.SourceArchive.SourceFiles.FirstOrDefault(f => f.Path == request.requestedSourceFile);
                     if (requestedFile is null)
                     {
