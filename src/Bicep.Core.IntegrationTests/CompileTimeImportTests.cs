@@ -1934,4 +1934,22 @@ public class CompileTimeImportTests
         var evaluated = TemplateEvaluator.Evaluate(result.Template);
         evaluated.Should().HaveValueAtPath("outputs.out.value", "ASP999");
     }
+
+    // https://github.com/Azure/bicep/issues/12897
+    [TestMethod]
+    public void LanguageVersion_2_should_be_used_if_types_imported_via_wildcard()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+            ("main.bicep", """
+                import * as types from 'types.bicep'
+                """),
+            ("types.bicep", """
+                @export()
+                type str = string
+                """));
+
+        result.Diagnostics.Should().BeEmpty();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
+    }
 }
