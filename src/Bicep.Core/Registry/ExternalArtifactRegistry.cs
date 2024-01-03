@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -21,10 +22,12 @@ namespace Bicep.Core.Registry
 
         // interval at which we will retry acquiring the lock on the artifact directory in the cache
         private static readonly TimeSpan ArtifactDirectoryContentionRetryInterval = TimeSpan.FromMilliseconds(300);
+        protected readonly IFileSystem fileSystem;
 
-        protected ExternalArtifactRegistry(IFileResolver fileResolver)
+        protected ExternalArtifactRegistry(IFileResolver fileResolver, IFileSystem fileSystem)
         {
             this.FileResolver = fileResolver;
+            this.fileSystem = fileSystem;
         }
 
         protected IFileResolver FileResolver { get; }
@@ -84,13 +87,13 @@ namespace Bicep.Core.Registry
             throw new ExternalArtifactException($"Exceeded the timeout of \"{ArtifactDirectoryContentionTimeout}\" to acquire the lock on file \"{lockFileUri}\".");
         }
 
-        private static void CreateArtifactDirectory(string artifactDirectoryPath)
+        private void CreateArtifactDirectory(string artifactDirectoryPath)
         {
             Debug.Assert(Path.IsPathFullyQualified(artifactDirectoryPath), $"Artifact directory must be fully qualified: \"{artifactDirectoryPath}\"");
             try
             {
                 // ensure that the directory exists
-                Directory.CreateDirectory(artifactDirectoryPath);
+                fileSystem.Directory.CreateDirectory(artifactDirectoryPath);
             }
             catch (Exception exception)
             {
@@ -98,12 +101,12 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private static void DeleteArtifactDirectory(string artifactDirectoryPath)
+        private void DeleteArtifactDirectory(string artifactDirectoryPath)
         {
             try
             {
                 // recursively delete the directory
-                Directory.Delete(artifactDirectoryPath, true);
+                fileSystem.Directory.Delete(artifactDirectoryPath, true);
             }
             catch (Exception exception)
             {
@@ -143,7 +146,7 @@ namespace Bicep.Core.Registry
                         // saying there's a race condition on Linux with the DeleteOnClose flag on the FileStream.
                         // We will attempt to delete the file. If it throws, the lock is still open and will continue
                         // to wait until retry interval expires
-                        File.Delete(lockFileUri.LocalPath);
+                        fileSystem.File.Delete(lockFileUri.LocalPath);
                     }
                     catch (IOException) { break; }
                 }
@@ -167,7 +170,7 @@ namespace Bicep.Core.Registry
                 using var timer = new ExecutionTimer($"Delete artifact {reference.FullyQualifiedReference} from cache");
                 try
                 {
-                    if (Directory.Exists(GetArtifactDirectoryPath(reference)))
+                    if (fileSystem.Directory.Exists(GetArtifactDirectoryPath(reference)))
                     {
                         await this.TryDeleteArtifactDirectoryAsync(reference);
                     }

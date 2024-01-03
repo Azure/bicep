@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
@@ -16,6 +18,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -31,7 +34,6 @@ namespace Bicep.Core.IntegrationTests
     public class RegistryTests
     {
         private static ServiceBuilder Services => new();
-        private static readonly IServiceProvider EmptyServiceProvider = new Mock<IServiceProvider>(MockBehavior.Loose).Object;
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -63,7 +65,13 @@ namespace Bicep.Core.IntegrationTests
             };
             var featuresFactory = BicepTestConstants.CreateFeatureProviderFactory(featureOverrides);
 
-            var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(EmptyServiceProvider, BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, featuresFactory, BicepTestConstants.ConfigurationManager), BicepTestConstants.ConfigurationManager);
+            var services = Services
+                .WithFeatureOverrides(new(RegistryEnabled: true, CacheRootDirectory: badCachePath))
+                .WithContainerRegistryClientFactory(clientFactory)
+                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
+                .Build();
+
+            var dispatcher = services.Construct<IModuleDispatcher>();
 
             var workspace = new Workspace();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri, featuresFactory);
@@ -173,17 +181,17 @@ namespace Bicep.Core.IntegrationTests
             var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
             Directory.CreateDirectory(cacheDirectory);
 
-            var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
-            features.Setup(m => m.PublishSourceEnabled).Returns(true);
-
-            var fileResolver = BicepTestConstants.FileResolver;
-            var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
+            var services = Services
+                .WithFeatureOverrides(new(PublishSourceEnabled: true, CacheRootDirectory: cacheDirectory))
+                .WithContainerRegistryClientFactory(clientFactory)
+                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
+                .Build();
+                
+            var dispatcher = services.Construct<IModuleDispatcher>();
 
             var moduleReferences = dataSet.RegistryModules.Values
                 .OrderBy(m => m.Metadata.Target)
-                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, RandomFileUri()).IsSuccess(out var @ref) ? @ref : throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, RandomFileUri()).Unwrap())
                 .ToImmutableList();
 
             moduleReferences.Should().HaveCount(7);
@@ -228,13 +236,15 @@ namespace Bicep.Core.IntegrationTests
             var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
             Directory.CreateDirectory(cacheDirectory);
 
-            var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
-            features.Setup(m => m.PublishSourceEnabled).Returns(true);
-
             var fileResolver = BicepTestConstants.FileResolver;
-            var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
+            var services = Services
+                .WithFeatureOverrides(new(PublishSourceEnabled: true, CacheRootDirectory: cacheDirectory))
+                .WithContainerRegistryClientFactory(clientFactory)
+                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
+                .WithFileResolver(fileResolver)
+                .Build();
+
+            var dispatcher = services.Construct<IModuleDispatcher>();
 
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = moduleInfos
@@ -298,13 +308,15 @@ namespace Bicep.Core.IntegrationTests
             var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
             Directory.CreateDirectory(cacheDirectory);
 
-            var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
-            features.Setup(m => m.PublishSourceEnabled).Returns(true);
-
             var fileResolver = BicepTestConstants.FileResolver;
-            var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
+            var services = Services
+                .WithFeatureOverrides(new(PublishSourceEnabled: true, CacheRootDirectory: cacheDirectory))
+                .WithContainerRegistryClientFactory(clientFactory)
+                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
+                .WithFileResolver(fileResolver)
+                .Build();
+
+            var dispatcher = services.Construct<IModuleDispatcher>();
 
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
@@ -374,13 +386,15 @@ namespace Bicep.Core.IntegrationTests
             var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
             Directory.CreateDirectory(cacheDirectory);
 
-            var features = StrictMock.Of<IFeatureProvider>();
-            features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
-            features.Setup(m => m.PublishSourceEnabled).Returns(true);
-
             var fileResolver = BicepTestConstants.FileResolver;
-            var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(EmptyServiceProvider, fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(features.Object), configManager), configManager);
+            var services = Services
+                .WithFeatureOverrides(new(PublishSourceEnabled: true, CacheRootDirectory: cacheDirectory))
+                .WithContainerRegistryClientFactory(clientFactory)
+                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
+                .WithFileResolver(fileResolver)
+                .Build();
+
+            var dispatcher = services.Construct<IModuleDispatcher>();
 
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = moduleInfos

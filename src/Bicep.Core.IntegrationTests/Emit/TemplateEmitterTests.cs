@@ -50,9 +50,13 @@ namespace Bicep.Core.IntegrationTests.Emit
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var bicepFileUri = PathHelper.FilePathToFileUrl(bicepFilePath);
 
+            var services = new ServiceBuilder()
+                .WithContainerRegistryClientFactory(clientFactory)
+                .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
+                .Build();
+
             // emitting the template should be successful
-            var configManager = BicepTestConstants.CreateFilesystemConfigurationManager();
-            var dispatcher = new ModuleDispatcher(new DefaultArtifactRegistryProvider(BicepTestConstants.EmptyServiceProvider, BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeatureProviderFactory(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), configManager), configManager), configManager);
+            var dispatcher = services.Construct<IModuleDispatcher>();
             Workspace workspace = new();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), BicepTestConstants.FeatureProviderFactory);
             if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.GetArtifactsToRestore())))

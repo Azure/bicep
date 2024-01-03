@@ -73,6 +73,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithContainerRegistryClientFactory(this IServiceCollection services, IContainerRegistryClientFactory containerRegistryClientFactory)
         => Register(services, containerRegistryClientFactory);
 
+    public static IServiceCollection WithTemplateSpecRepositoryFactory(this IServiceCollection services, ITemplateSpecRepositoryFactory factory)
+        => Register(services, factory);
+
     public static IServiceCollection WithWorkspace(this IServiceCollection services, IWorkspace workspace)
         => Register(services, workspace);
 
