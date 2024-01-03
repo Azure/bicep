@@ -43,12 +43,12 @@ namespace Bicep.Core.IntegrationTests.Emit
 
         private async Task<SourceFileGrouping> GetSourceFileGrouping(DataSet dataSet)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(false);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext); 
+            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(false);        
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var bicepFileUri = PathHelper.FilePathToFileUrl(bicepFilePath);
+var bicepFileUri = PathHelper.FilePathToFileUrl(bicepFilePath);
 
             // emitting the template should be successful
             var configManager = BicepTestConstants.CreateFilesystemConfigurationManager();

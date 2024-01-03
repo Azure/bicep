@@ -1,0 +1,9 @@
+{
+  "Resources": {
+    "Microsoft.Storage/storageAccounts@2023-01-01": {
+      "RelativePath": "storage/microsoft.storage/2023-01-01/types.json",
+      "Index": 187
+    }
+  },
+  "Functions": {}
+}

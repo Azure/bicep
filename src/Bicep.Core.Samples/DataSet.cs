@@ -1,17 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Samples
@@ -37,8 +42,20 @@ namespace Bicep.Core.Samples
         public const string TestPublishPrefix = TestPublishDirectory + "/";
         public const string TestTemplateSpecsDirectory = "TemplateSpecs";
         public const string TestTemplateSpecsPrefix = TestTemplateSpecsDirectory + "/";
+        public const string TestResourceTypeProviderDirectory = "ResourceTypeProviders";
+        public const string TestResourceTypeProviderPrefix = TestResourceTypeProviderDirectory + "/";
 
         public record ExternalModuleInfo(string ModuleSource, ExternalModuleMetadata Metadata);
+
+        public record ExternalResourceTypeProviderInfo(
+            IFileSystem TypesData,
+            ExternalResourceTypeProviderMetadata[] Providers);
+
+        public record ExternalResourceTypeProviderMetadata(
+            string Registry,
+            string Repository,
+            string Version,
+            string TypesIndexPath);
 
         public record ExternalModuleMetadata(string Target);
 
@@ -68,6 +85,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyModulesToPublish;
 
+        private readonly Lazy<ExternalResourceTypeProviderInfo> lazyResourceTypeProvidersToPublish;
+
         private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyTemplateSpecs;
 
         public DataSet(string name)
@@ -84,9 +103,18 @@ namespace Bicep.Core.Samples
             this.lazySyntax = this.CreateRequired(TestFileMainSyntax);
             this.lazyFormatted = this.CreateRequired(TestFileMainFormatted);
             this.lazySourceMap = this.CreateIffValid(TestFileMainSourceMap);
-            this.lazyCompletions = new(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
-            this.lazyModulesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishPrefix)), LazyThreadSafetyMode.PublicationOnly);
-            this.lazyTemplateSpecs = new(() => ReadTemplateSpecsData(GetStreamName(TestTemplateSpecsPrefix)), LazyThreadSafetyMode.PublicationOnly);
+            this.lazyCompletions = new(
+                () => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)),
+                LazyThreadSafetyMode.PublicationOnly);
+            this.lazyModulesToPublish = new(
+                () => ReadOciModulesPublishData(GetStreamName(TestPublishPrefix)),
+                LazyThreadSafetyMode.PublicationOnly);
+            this.lazyTemplateSpecs = new(
+                () => ReadTemplateSpecsData(GetStreamName(TestTemplateSpecsPrefix)),
+                LazyThreadSafetyMode.PublicationOnly);
+            this.lazyResourceTypeProvidersToPublish = new(
+                () => ReadResourceTypesProviderData(GetStreamName(TestResourceTypeProviderPrefix)),
+                LazyThreadSafetyMode.PublicationOnly);
         }
 
         public string Name { get; }
@@ -117,6 +145,8 @@ namespace Bicep.Core.Samples
 
         public ImmutableDictionary<string, ExternalModuleInfo> RegistryModules => this.lazyModulesToPublish.Value;
 
+        public ExternalResourceTypeProviderInfo ResourceTypeProviders => this.lazyResourceTypeProvidersToPublish.Value;
+
         public ImmutableDictionary<string, ExternalModuleInfo> TemplateSpecs => this.lazyTemplateSpecs.Value;
 
         public bool HasRegistryModules => this.RegistryModules.Any();
@@ -124,6 +154,8 @@ namespace Bicep.Core.Samples
         public bool HasTemplateSpecs => this.TemplateSpecs.Any();
 
         public bool HasExternalModules => this.HasRegistryModules || this.HasTemplateSpecs;
+
+        public bool HasExternalResourceTypeProviders => this.ResourceTypeProviders?.Providers.Any() ?? false;
 
         // validity is set by naming convention
 
@@ -165,11 +197,30 @@ namespace Bicep.Core.Samples
         public static string GetBaselineUpdatePath(DataSet dataSet, string fileName)
             => GetBaselineUpdatePath(dataSet.Name, fileName);
 
-        private static ImmutableDictionary<string, ExternalModuleInfo> ReadPublishData(string streamNamePrefix) =>
+        private static ImmutableDictionary<string, ExternalModuleInfo> ReadOciModulesPublishData(string streamNamePrefix) =>
             ReadExternalModuleData(streamNamePrefix, LanguageConstants.LanguageFileExtension);
 
         private static ImmutableDictionary<string, ExternalModuleInfo> ReadTemplateSpecsData(string streamNamePrefix) =>
             ReadExternalModuleData(streamNamePrefix, LanguageConstants.JsonFileExtension);
+
+        private static ExternalResourceTypeProviderInfo ReadResourceTypesProviderData(string streamNamePrefix)
+        {
+            var rawFiles = ReadDataSetDictionary(streamNamePrefix);
+            if (rawFiles.IsEmpty)
+            {
+                return new(
+                    new MockFileSystem(),
+                    Array.Empty<ExternalResourceTypeProviderMetadata>());
+            }
+            var index = rawFiles["index.json"].FromJson<Dictionary<string, ExternalResourceTypeProviderMetadata[]>>();
+
+            return new(
+                    new MockFileSystem(
+                        rawFiles.Remove("index.json").ToDictionary(
+                            x => x.Key,
+                            x => new MockFileData(x.Value))),
+                    index["providers"]);
+        }
 
         private static ImmutableDictionary<string, ExternalModuleInfo> ReadExternalModuleData(string streamNamePrefix, string moduleExtension)
         {

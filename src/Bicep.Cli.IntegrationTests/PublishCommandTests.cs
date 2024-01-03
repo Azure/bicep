@@ -162,9 +162,9 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource, (registryUri, repository));
+            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(publishSource, (registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
@@ -260,9 +260,9 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: false, (registryUri, repository));
+            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(enablePublishSource: false, (registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
             // mock client factory caches the clients
@@ -314,9 +314,9 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{dataSet.Name}".ToLowerInvariant();
 
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource: true, (registryUri, repository));
+            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(enablePublishSource: true, (registryUri, repository));
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            await dataSet.PublishModulesToRegistryAsync(clientFactory);
+await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
             // mock client factory caches the clients

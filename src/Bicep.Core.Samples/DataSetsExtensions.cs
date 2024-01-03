@@ -45,7 +45,7 @@ namespace Bicep.Core.Samples
         {
             features ??= new(testContext, RegistryEnabled: dataSet.HasExternalModules);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(enablePublishSource);
+            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(enablePublishSource);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, enablePublishSource);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(testContext, enablePublishSource);
 
@@ -57,10 +57,38 @@ namespace Bicep.Core.Samples
             return (compilation, outputDirectory, fileUri);
         }
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
-            => CreateMockRegistryClients(dataSet.RegistryModules, enablePublishSource, additionalClients);
+        public static async Task<IContainerRegistryClientFactory> CreateMockRegistryClientsAsync(
+            this DataSet dataSet,
+            bool enablePublishSource,
+            params (Uri registryUri, string repository)[] additionalClients)
+        {
+            var resourceTypeProviders = dataSet.ResourceTypeProviders;
+            var clientFactory = await CreateMockRegistryClientsAsync(dataSet.RegistryModules, resourceTypeProviders.Providers, enablePublishSource, additionalClients);
+            await PublishProvidersToRegistryAsync(resourceTypeProviders.Providers, resourceTypeProviders.TypesData, clientFactory);
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
+            return clientFactory;
+        }
+
+        public static async Task PublishProvidersToRegistryAsync(
+            DataSet.ExternalResourceTypeProviderMetadata[] providers,
+            IFileSystem fileSystem,
+            IContainerRegistryClientFactory clientFactory)
+        {
+            foreach (var providerInfo in providers)
+            {
+                await PublishProviderToRegistryAsync(
+                    fileSystem,
+                    clientFactory,
+                    providerInfo.TypesIndexPath,
+                    $"br:{providerInfo.Registry}/{providerInfo.Repository}:{providerInfo.Version}");
+            }
+        }
+
+        public static Task<IContainerRegistryClientFactory> CreateMockRegistryClientsAsync(
+            ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules,
+            DataSet.ExternalResourceTypeProviderMetadata[] registryProviders,
+            bool enablePublishSource,
+            params (Uri registryUri, string repository)[] additionalClients)
         {
             var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: enablePublishSource));
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
@@ -84,7 +112,14 @@ namespace Bicep.Core.Samples
                 clients.Add((registryUri, targetReference.Repository));
             }
 
-            return CreateMockRegistryClients(enablePublishSource, clients.Concat(additionalClients).ToArray()).factoryMock;
+            foreach (var providerInfo in registryProviders)
+            {
+                Uri registryUri = new($"https://{providerInfo.Registry}");
+                clients.Add((registryUri, providerInfo.Repository));
+            }
+
+            return Task.FromResult(
+                CreateMockRegistryClients(enablePublishSource, clients.Concat(additionalClients).ToArray()).factoryMock);
         }
 
         public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(bool? publishSource, params (Uri registryUri, string repository)[] clients)
@@ -99,9 +134,6 @@ namespace Bicep.Core.Samples
 
             return containerRegistryFactoryBuilder.Build();
         }
-
-        public static ITemplateSpecRepositoryFactory CreateEmptyTemplateSpecRepositoryFactory(bool enablePublishSource = false)
-            => CreateMockTemplateSpecRepositoryFactory(ImmutableDictionary<string, DataSet.ExternalModuleInfo>.Empty, enablePublishSource);
 
         public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext _, bool enablePublishSource = false)
             => CreateMockTemplateSpecRepositoryFactory(dataSet.TemplateSpecs, enablePublishSource);

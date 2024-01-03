@@ -42,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(false);
+            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(false);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
 
@@ -166,7 +166,7 @@ namespace Bicep.Core.IntegrationTests
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
+            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(publishSource);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource: publishSource);
 
@@ -221,7 +221,7 @@ namespace Bicep.Core.IntegrationTests
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
+            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(publishSource);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource: publishSource);
 
@@ -291,7 +291,7 @@ namespace Bicep.Core.IntegrationTests
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
+            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(publishSource);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
 
@@ -367,7 +367,7 @@ namespace Bicep.Core.IntegrationTests
             var dataSet = DataSets.Registry_LF;
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
+            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(publishSource);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, publishSource);
 

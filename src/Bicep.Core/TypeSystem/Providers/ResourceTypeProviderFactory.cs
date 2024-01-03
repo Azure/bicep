@@ -65,7 +65,7 @@ namespace Bicep.Core.TypeSystem.Providers
 
             using var fileStream = fileSystem.File.OpenRead(Path.Combine(typesParentPath, OciTypeLoader.TypesArtifactFilename));
 
-            IResourceTypeProvider? newResourceTypeLoader = providerDescriptor.Name switch
+            IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Name switch
             {
                 AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version),
                 // Note(asilverman): the line of code below is meant for 3rd party provider resolution logic which is not yet implemented.
