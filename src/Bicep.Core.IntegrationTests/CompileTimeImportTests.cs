@@ -1583,7 +1583,7 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Importing_variables_only_does_not_result_in_elevated_ARM_language_version()
+    public void Importing_variable_results_in_ARM_language_version_2()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
             ("main.bicep", """
@@ -1598,7 +1598,7 @@ public class CompileTimeImportTests
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().NotHaveValueAtPath("languageVersion");
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
 
     [TestMethod]
