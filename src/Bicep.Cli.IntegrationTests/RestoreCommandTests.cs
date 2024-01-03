@@ -70,7 +70,7 @@ namespace Bicep.Cli.IntegrationTests
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
-            TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
+            TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
             using (new AssertionScope())
@@ -102,7 +102,7 @@ namespace Bicep.Cli.IntegrationTests
             result.Should().Succeed().And.NotHaveStdout().And.NotHaveStderr();
 
             // ensure something got restored
-            CachedModules.GetCachedRegistryModules(settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+            CachedModules.GetCachedRegistryModules(settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                 .And.AllSatisfy(m => m.Should().NotHaveSource());
         }
 
@@ -138,7 +138,7 @@ namespace Bicep.Cli.IntegrationTests
                 .Returns<RootConfiguration, Uri, string>(clientFactory.CreateAnonymousBlobClient);
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: publishSource), clientFactoryForRestore.Object, templateSpecRepositoryFactory);
-            TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
+            TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
             using (new AssertionScope())
@@ -498,7 +498,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules, PublishSourceEnabled: publishSource), clientFactory, templateSpecRepositoryFactory);
-            TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
+            TestContext.WriteLine($"Cache root = {settings.FeatureOverrides!.CacheRootDirectory}");
             var (output, error, exitCode) = await Bicep(settings, "restore", bicepFilePath);
 
             using (new AssertionScope())
