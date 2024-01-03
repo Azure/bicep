@@ -5419,4 +5419,45 @@ type vnet = {
             ("BCP022", DiagnosticLevel.Error, """Expected a property name at this location."""),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/12799
+    [TestMethod]
+    public void Test_Issue12799()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'test.bicep'
+import * as bicepconfig from 'bicepconfig.bicep'
+// ok
+param one = bicepconfig.directExport
+// Failed to evaluate parameter "two"
+// Unhandled exception during evaluating template language function 'variables' is not handled.bicep(BCP338)
+param two = bicepconfig.functionExport
+"""),
+            ("test.bicep", """
+param one bool
+param two bool
+output bothTrue bool = one && two
+"""),
+            ("bicepconfig.bicep", """
+var json = loadJsonContent('bicepconfig.json')
+func testFunction(b bool) bool => b
+@export()
+var directExport = json.experimentalFeaturesEnabled.userDefinedFunctions
+@export()
+var functionExport = testFunction(json.experimentalFeaturesEnabled.userDefinedFunctions)
+"""),
+            ("bicepconfig.json", """
+{
+  "experimentalFeaturesEnabled": {
+    "compileTimeImports": true,
+    "userDefinedFunctions": true
+  }
+}
+"""));
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().HaveValueAtPath("parameters.one.value", true);
+        result.Parameters.Should().HaveValueAtPath("parameters.two.value", true);
+    }
 }

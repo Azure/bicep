@@ -5,9 +5,14 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
+using Azure.Deployments.Core.Entities;
+using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Expression.Serializers;
+using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Expressions;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
@@ -15,6 +20,7 @@ using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -46,7 +52,7 @@ namespace Bicep.Core.Emit
         private readonly ConcurrentDictionary<ImportedVariableSymbol, Result> importResults = new();
         private readonly ConcurrentDictionary<WildcardImportPropertyReference, Result> wildcardImportVariableResults = new();
         private readonly ConcurrentDictionary<Expression, Result> synthesizedVariableResults = new();
-        private readonly ConcurrentDictionary<SemanticModel, ParameterAssignmentEvaluator> bicepEvaluators = new();
+        private readonly ConcurrentDictionary<SemanticModel, Template> templateLookups = new();
         private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> armEvaluators = new();
         private readonly SemanticModel model;
         private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
@@ -147,7 +153,7 @@ namespace Bicep.Core.Emit
                 return import.SourceModel switch
                 {
                     SemanticModel bicepModel
-                        => EvaluateImportedVariable(bicepModel, import),
+                        => EvaluateImportedVariable(templateLookups.GetOrAdd(bicepModel, GetTemplate), import),
                     ArmTemplateSemanticModel armModel when armModel.SourceFile.Template is Template template
                         => EvaluateImportedVariable(template, import),
                     TemplateSpecSemanticModel tsModel when tsModel.SourceFile.MainTemplateFile.Template is Template template
@@ -161,17 +167,20 @@ namespace Bicep.Core.Emit
             return Result.For(DiagnosticBuilder.ForPosition(import.DeclaringImportedSymbolsListItem.OriginalSymbolName).TypeSymbolUsedAsValue(import.Name));
         });
 
-        private Result EvaluateImportedVariable(SemanticModel importedFrom, ImportedSymbol symbol)
+        private static Template GetTemplate(SemanticModel model)
         {
-            if (importedFrom.Root.VariableDeclarations
-                .Where(v => importedFrom.Exports.ContainsKey(v.Name))
-                .Where(v => LanguageConstants.IdentifierComparer.Equals(v.Name, symbol.OriginalSymbolName))
-                .FirstOrDefault() is VariableSymbol exportedVariable)
+            var textWriter = new StringWriter();
+            using var writer = new SourceAwareJsonTextWriter(model.FileResolver, textWriter)
             {
-                return bicepEvaluators.GetOrAdd(importedFrom, model => new(model)).EvaluateVariable(exportedVariable);
-            }
+                // don't close the textWriter when writer is disposed
+                CloseOutput = false,
+                Formatting = Formatting.Indented
+            };
+            var (template, _) = new TemplateWriter(model).GetTemplate(writer);
 
-            return Result.For(DiagnosticBuilder.ForPosition(symbol.DeclaringImportedSymbolsListItem.OriginalSymbolName).ImportedSymbolNotFound(symbol.OriginalSymbolName ?? LanguageConstants.MissingName));
+            TemplateEngine.ProcessTemplateLanguageExpressions(null, null, null, template, TemplateWriter.NestedDeploymentResourceApiVersion, null);
+
+            return template;
         }
 
         private Result EvaluateImportedVariable(Template importedFrom, ImportedSymbol symbol)
@@ -195,7 +204,7 @@ namespace Bicep.Core.Emit
         private Result EvaluateWildcardImportPropertyAsVariable(WildcardImportPropertyReference propertyReference) => wildcardImportVariableResults.GetOrAdd(propertyReference, r => r.WildcardImport.SourceModel switch
         {
             SemanticModel bicepModel
-                => EvaluateWildcardImportPropertyAsVariable(bicepModel, r),
+                => EvaluateWildcardImportPropertyAsVariable(bicepModel, templateLookups.GetOrAdd(bicepModel, GetTemplate), r),
             ArmTemplateSemanticModel armModel when armModel.SourceFile.Template is Template template
                 => EvaluateWildcardImportPropertyAsVariable(armModel, template, r),
             TemplateSpecSemanticModel tsModel when tsModel.SourceFile.MainTemplateFile.Template is Template template
@@ -204,23 +213,6 @@ namespace Bicep.Core.Emit
                 => Result.For(DiagnosticBuilder.ForPosition(r.WildcardImport.EnclosingDeclaration.FromClause).ReferencedArmTemplateHasErrors()),
             _ => throw new UnreachableException(),
         });
-
-        private Result EvaluateWildcardImportPropertyAsVariable(SemanticModel importedFrom, WildcardImportPropertyReference propertyReference)
-        {
-            if (InvalidPropertyRefDiagnostic(importedFrom, propertyReference) is IDiagnostic diagnostic)
-            {
-                return Result.For(diagnostic);
-            }
-
-            var variableDeclaration = importedFrom.Root.VariableDeclarations.Where(v => v.Name.Equals(propertyReference.PropertyName, StringComparison.OrdinalIgnoreCase)).Single();
-            var evaluated = bicepEvaluators.GetOrAdd(importedFrom, m => new(m)).EvaluateVariable(variableDeclaration);
-            if (evaluated.Value is not null)
-            {
-                return Result.For(evaluated.Value);
-            }
-
-            return Result.For(DiagnosticBuilder.ForPosition(propertyReference.WildcardImport.DeclaringSyntax).FailedToEvaluateVariable(variableDeclaration.Name, evaluated.Diagnostic!.Message));
-        }
 
         private Result EvaluateWildcardImportPropertyAsVariable(ISemanticModel model, Template importedFrom, WildcardImportPropertyReference propertyReference)
         {

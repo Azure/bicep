@@ -108,20 +108,17 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ParamsCompilationResult CompileParams(ServiceBuilder services, params (string fileName, string fileContents)[] files)
         {
-            var configuration = BicepTestConstants.BuiltInConfiguration;
-            services = services.WithConfigurationPatch(c => configuration);
-
             files.Select(x => x.fileName).Should().Contain("parameters.bicepparam");
 
             var (uriDictionary, entryUri) = CreateFileDictionary(files.Select(file => ("/path/to", file.fileName, file.fileContents)).ToArray(), "parameters.bicepparam");
-            var fileResolver = new InMemoryFileResolver(uriDictionary);
-            services = services.WithFileResolver(fileResolver);
 
             var sourceFiles = uriDictionary
                 .Where(x => PathHelper.HasBicepparamsExension(x.Key) || PathHelper.HasBicepExtension(x.Key) || PathHelper.HasArmTemplateLikeExtension(x.Key))
                 .ToDictionary(x => x.Key, x => x.Value);
 
-            var compilation = services.BuildCompilation(sourceFiles, entryUri);
+            var compilation = services
+                .WithMockFileSystem(uriDictionary)
+                .BuildCompilation(sourceFiles, entryUri);
 
             return CompileParams(compilation);
         }

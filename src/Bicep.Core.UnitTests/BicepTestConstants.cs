@@ -122,9 +122,6 @@ namespace Bicep.Core.UnitTests
 
         public static ConfigurationManager CreateFilesystemConfigurationManager() => new(new IOFileSystem());
 
-        public static IConfigurationManager CreateConfigurationManager(Func<RootConfiguration, RootConfiguration> patchFunc)
-            => new PatchingConfigurationManager(CreateFilesystemConfigurationManager(), patchFunc);
-
         public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
             => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager()), featureOverrides);
 
