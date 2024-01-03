@@ -122,7 +122,7 @@ namespace Bicep.Core.Registry
             if (registry.IsArtifactRestoreRequired(artifactReference))
             {
                 // module is not present on the local file system
-                failureBuilder = x => x.ModuleRequiresRestore(artifactReference.FullyQualifiedReference);
+                failureBuilder = x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference);
                 return ArtifactRestoreStatus.Unknown;
             }
 

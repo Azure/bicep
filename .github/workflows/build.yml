@@ -589,7 +589,7 @@ jobs:
         uses: actions/setup-dotnet@v4
 
       - name: Run Tests
-        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults
+        run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/ci.runsettings --results-directory ./TestResults
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3

@@ -2088,4 +2088,22 @@ public class CompileTimeImportTests
             ("BCP081", DiagnosticLevel.Warning, """Resource type "Microsoft.Foo/bars@2022-09-01" does not have types available."""),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/12897
+    [TestMethod]
+    public void LanguageVersion_2_should_be_used_if_types_imported_via_wildcard()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+            ("main.bicep", """
+                import * as types from 'types.bicep'
+                """),
+            ("types.bicep", """
+                @export()
+                type str = string
+                """));
+
+        result.Diagnostics.Should().BeEmpty();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
+    }
 }

@@ -95,7 +95,8 @@ public class DiagnosticLogger
         }
 
         // Add the results from the run to the sarif log, serialize and write to stderr.
-        var sarifLog = new SarifLog {
+        var sarifLog = new SarifLog
+        {
             Runs = new[] {
                 new Run {
                     Tool = new Tool(new ToolComponent

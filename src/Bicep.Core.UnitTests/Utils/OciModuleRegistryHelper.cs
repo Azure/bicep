@@ -67,7 +67,7 @@ namespace Bicep.Core.UnitTests.Utils
             }
         }
 
-        // public a new (real) OciArtifactRegistry instance with an empty on-disk cache that can push and pull modules
+        // create a new (real) OciArtifactRegistry instance with an empty on-disk cache that can push and pull modules
         public static (OciArtifactRegistry, MockRegistryBlobClient) CreateModuleRegistry(
             Uri parentModuleUri,
             IFeatureProvider featureProvider)

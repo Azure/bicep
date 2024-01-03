@@ -33,9 +33,6 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class PublishCommandTests : TestBase
     {
-        [NotNull]
-        public TestContext? TestContext { get; set; }
-
         [TestMethod]
         public async Task Publish_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
         {
