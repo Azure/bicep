@@ -22,6 +22,11 @@ namespace Bicep.Core.UnitTests.Utils
             clientsBuilder.TryAdd((registryUri, repository), new MockRegistryBlobClient());
         }
 
+        public void RegisterMockRepositoryBlobClient(Uri registryUri, string repository, MockRegistryBlobClient client)
+        {
+            clientsBuilder.TryAdd((registryUri, repository), client);
+        }
+
         public (IContainerRegistryClientFactory mockContrainerRegistryClientFactory, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) Build()
         {
             var repoToClient = clientsBuilder.ToImmutable();
