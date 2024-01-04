@@ -120,7 +120,7 @@ namespace Bicep.LangServer.IntegrationTests
                 new List<SyntaxBase>(),
                 (accumulated, current) =>
                 {
-                    if (current is not FunctionCallSyntaxBase)
+                    if (current is not FunctionCallSyntaxBase && current is not ParameterizedTypeInstantiationSyntaxBase)
                     {
                         accumulated.Add(current);
                     }
@@ -130,7 +130,7 @@ namespace Bicep.LangServer.IntegrationTests
                 accumulated => accumulated,
                 // requesting signature help on non-function nodes that are placed inside function call nodes will produce signature help
                 // since we don't want that, stop the visitor from visiting inner nodes when a function call is encountered
-                (accumulated, current) => current is not FunctionCallSyntaxBase);
+                (accumulated, current) => current is not FunctionCallSyntaxBase && current is not ParameterizedTypeInstantiationSyntaxBase);
 
             foreach (var nonFunction in nonFunctions)
             {
