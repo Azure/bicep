@@ -82,6 +82,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             var registry = new OciArtifactRegistry(
                 BicepTestConstants.FileResolver,
+                BicepTestConstants.FileSystem,
                 clientFactory.Object,
                 featureProvider,
                 BicepTestConstants.BuiltInConfiguration,

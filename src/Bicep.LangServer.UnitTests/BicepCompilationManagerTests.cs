@@ -509,20 +509,16 @@ module moduleB './moduleB.bicep' = {
             var server = BicepCompilationManagerHelper.CreateMockServer(document);
 
             var fileResolver = new InMemoryFileResolver(fileDict);
+            var services = new ServiceBuilder()
+                .WithFileResolver(fileResolver)
+                .Build();
+
             var compilationProvider = new BicepCompilationProvider(
                 BicepTestConstants.FeatureProviderFactory,
                 BicepTestConstants.EmptyEnvironment,
                 TestTypeHelper.CreateEmptyNamespaceProvider(),
                 fileResolver,
-                new ModuleDispatcher(
-                    new DefaultArtifactRegistryProvider(
-                        BicepTestConstants.EmptyServiceProvider,
-                        fileResolver,
-                        BicepTestConstants.ClientFactory,
-                        BicepTestConstants.TemplateSpecRepositoryFactory,
-                        BicepTestConstants.FeatureProviderFactory,
-                        BicepTestConstants.BuiltInOnlyConfigurationManager),
-                    BicepTestConstants.BuiltInOnlyConfigurationManager),
+                services.Construct<IModuleDispatcher>(),
                 BicepTestConstants.BuiltInOnlyConfigurationManager,
                 BicepTestConstants.LinterAnalyzer);
 

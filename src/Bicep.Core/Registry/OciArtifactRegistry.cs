@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,11 +39,12 @@ namespace Bicep.Core.Registry
 
         public OciArtifactRegistry(
             IFileResolver FileResolver,
+            IFileSystem fileSystem,
             IContainerRegistryClientFactory clientFactory,
             IFeatureProvider features,
             RootConfiguration configuration,
             Uri parentModuleUri)
-            : base(FileResolver)
+            : base(FileResolver, fileSystem)
         {
             this.cachePath = Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
             this.client = new AzureContainerRegistryManager(clientFactory);
@@ -190,7 +192,7 @@ namespace Bicep.Core.Registry
 
             try
             {
-                string manifestFileContents = File.ReadAllText(manifestFilePath);
+                string manifestFileContents = fileSystem.File.ReadAllText(manifestFilePath);
                 OciManifest ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents)
                     ?? throw new Exception($"Deserialization of cached manifest \"{manifestFilePath}\" failed");
                 return ociManifest;
@@ -219,7 +221,7 @@ namespace Bicep.Core.Registry
 
             foreach (var reference in references)
             {
-                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
+                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectoryPath(reference)}");
                 var (result, errorMessage) = await this.TryRestoreArtifactAsync(configuration, reference);
 
                 if (result is null)
