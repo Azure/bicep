@@ -220,6 +220,55 @@ output fooValue array = fooTest()
 //@[024:031) Identifier |fooTest|
 //@[031:032) LeftParen |(|
 //@[032:033) RightParen |)|
-//@[033:034) NewLine |\n|
+//@[033:035) NewLine |\n\n|
+
+func test() object => loadJsonContent('./repro-data.json')
+//@[000:004) Identifier |func|
+//@[005:009) Identifier |test|
+//@[009:010) LeftParen |(|
+//@[010:011) RightParen |)|
+//@[012:018) Identifier |object|
+//@[019:021) Arrow |=>|
+//@[022:037) Identifier |loadJsonContent|
+//@[037:038) LeftParen |(|
+//@[038:057) StringComplete |'./repro-data.json'|
+//@[057:058) RightParen |)|
+//@[058:059) NewLine |\n|
+func test2() string => loadTextContent('./repro-data.json')
+//@[000:004) Identifier |func|
+//@[005:010) Identifier |test2|
+//@[010:011) LeftParen |(|
+//@[011:012) RightParen |)|
+//@[013:019) Identifier |string|
+//@[020:022) Arrow |=>|
+//@[023:038) Identifier |loadTextContent|
+//@[038:039) LeftParen |(|
+//@[039:058) StringComplete |'./repro-data.json'|
+//@[058:059) RightParen |)|
+//@[059:060) NewLine |\n|
+func test3() object => loadYamlContent('./repro-data.json')
+//@[000:004) Identifier |func|
+//@[005:010) Identifier |test3|
+//@[010:011) LeftParen |(|
+//@[011:012) RightParen |)|
+//@[013:019) Identifier |object|
+//@[020:022) Arrow |=>|
+//@[023:038) Identifier |loadYamlContent|
+//@[038:039) LeftParen |(|
+//@[039:058) StringComplete |'./repro-data.json'|
+//@[058:059) RightParen |)|
+//@[059:060) NewLine |\n|
+func test4() string => loadFileAsBase64('./repro-data.json')
+//@[000:004) Identifier |func|
+//@[005:010) Identifier |test4|
+//@[010:011) LeftParen |(|
+//@[011:012) RightParen |)|
+//@[013:019) Identifier |string|
+//@[020:022) Arrow |=>|
+//@[023:039) Identifier |loadFileAsBase64|
+//@[039:040) LeftParen |(|
+//@[040:059) StringComplete |'./repro-data.json'|
+//@[059:060) RightParen |)|
+//@[060:061) NewLine |\n|
 
 //@[000:000) EndOfFile ||
