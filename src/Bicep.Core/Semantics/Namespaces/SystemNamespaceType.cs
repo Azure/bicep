@@ -1394,11 +1394,18 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static void EmitDiagnosticIfTargetingAlias(string decoratorName, DecoratorSyntax decoratorSyntax, SyntaxBase? decoratorParentTypeSyntax, IBinder binder, IDiagnosticWriter diagnosticWriter)
             {
-                if (UnwrapNullableSyntax(decoratorParentTypeSyntax) is VariableAccessSyntax variableAccess && binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol)
+                if (RefersToTypeAlias(decoratorParentTypeSyntax, binder))
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
                 }
             }
+
+            static bool RefersToTypeAlias(SyntaxBase? typeSyntax, IBinder binder) => UnwrapNullableSyntax(typeSyntax) switch
+            {
+                VariableAccessSyntax variableAccess => binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol or ImportedTypeSymbol,
+                AccessExpressionSyntax accessExpression => binder.GetSymbolInfo(accessExpression.BaseExpression) is WildcardImportSymbol,
+                _ => false,
+            };
 
             static void EmitDiagnosticIfTargetingLiteral(string decoratorName, DecoratorSyntax decoratorSyntax, SyntaxBase? decoratorParentTypeSyntax, ITypeManager typeManager, IDiagnosticWriter diagnosticWriter)
             {
