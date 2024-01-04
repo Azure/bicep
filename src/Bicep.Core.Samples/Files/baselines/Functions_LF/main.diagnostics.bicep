@@ -29,3 +29,8 @@ func fooTest() array => map(barTest(), a => 'Hello ${a}!')
 
 output fooValue array = fooTest()
 
+func test() object => loadJsonContent('./repro-data.json')
+func test2() string => loadTextContent('./repro-data.json')
+func test3() object => loadYamlContent('./repro-data.json')
+func test4() string => loadFileAsBase64('./repro-data.json')
+
