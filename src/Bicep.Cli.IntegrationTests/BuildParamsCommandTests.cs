@@ -43,7 +43,6 @@ namespace Bicep.Cli.IntegrationTests
         private InvocationSettings Settings
             => CreateDefaultSettings() with
             {
-                FeatureOverrides = new(testContext: TestContext),
                 Environment = TestEnvironment.Create(
                     ("stringEnvVariableName", "test"),
                     ("intEnvVariableName", "100"),
@@ -294,7 +293,6 @@ output foo string = foo
         public async Task Build_Valid_Params_File_Should_Succeed(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var features = new FeatureProviderOverrides(TestContext);
             var (output, error, result) = await Bicep(Settings, "build-params", data.Parameters.OutputFilePath, "--bicep-file", data.Bicep.OutputFilePath);
 
             using (new AssertionScope())
