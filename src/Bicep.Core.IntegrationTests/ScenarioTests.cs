@@ -5460,6 +5460,7 @@ var functionExport = testFunction(json.experimentalFeaturesEnabled.userDefinedFu
         result.Parameters.Should().HaveValueAtPath("parameters.one.value", true);
         result.Parameters.Should().HaveValueAtPath("parameters.two.value", true);
     }
+
     // https://github.com/Azure/bicep/issues/12590
     [TestMethod]
     public void Test_Issue12590()
@@ -5515,6 +5516,35 @@ var functionExport = testFunction(json.experimentalFeaturesEnabled.userDefinedFu
         result.Should().HaveDiagnostics(new[]
         {
             ("BCP037", DiagnosticLevel.Error, """The property "extraProperty" is not allowed on objects of type "{ type: 'keyvault', name: string, secrets: string[] }". No other properties are allowed."""),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/12908
+    [TestMethod]
+    public void Test_Issue12908()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+            ("main.bicep", """
+                import { varSecureType } from 'types.bicep'
+                import * as types from 'types.bicep'
+
+                @secure()
+                param secureVariableList varSecureType = { variables: [] }
+
+                @secure()
+                param secureVariableListBis types.varSecureType = { variables: [] }
+                """),
+            ("types.bicep", """
+                @export()
+                type varSecureType = {
+                  variables: []
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP308", DiagnosticLevel.Error, """The decorator "secure" may not be used on statements whose declared type is a reference to a user-defined type."""),
+            ("BCP308", DiagnosticLevel.Error, """The decorator "secure" may not be used on statements whose declared type is a reference to a user-defined type."""),
         });
     }
 }
