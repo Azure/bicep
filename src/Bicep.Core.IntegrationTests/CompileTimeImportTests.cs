@@ -1583,7 +1583,7 @@ public class CompileTimeImportTests
     }
 
     [TestMethod]
-    public void Importing_variables_only_does_not_result_in_elevated_ARM_language_version()
+    public void Importing_variable_results_in_ARM_language_version_2()
     {
         var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
             ("main.bicep", """
@@ -1598,7 +1598,7 @@ public class CompileTimeImportTests
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-        result.Template.Should().NotHaveValueAtPath("languageVersion");
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
 
     [TestMethod]
@@ -2021,5 +2021,25 @@ INVALID FILE
             ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
             ("BCP104", DiagnosticLevel.Error, "The referenced module has errors."),
         });
+    }
+
+    // https://github.com/Azure/bicep/issues/12899
+    [TestMethod]
+    public void LanguageVersion_2_should_be_used_if_types_imported_via_closure()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+            ("main.bicep", """
+                import {a} from 'shared.bicep'
+                """),
+            ("shared.bicep", """
+                @export()
+                var a = b()
+
+                func b() string[] => ['c', 'd']
+                """));
+
+        result.Diagnostics.Should().BeEmpty();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("languageVersion", "2.0");
     }
 }
