@@ -5445,6 +5445,35 @@ func test4() string => loadFileAsBase64('./repro-data.json')
         evaluated.Should().HaveValueAtPath("$.functions[0].members['test4'].output.value", "e30=");
     }
 
+    // https://github.com/Azure/bicep/issues/12698
+    [TestMethod]
+    public void Test_Issue12698()
+    {
+        
+        var result = CompilationHelper.Compile(
+            Services.WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true, CompileTimeImportsEnabled: true)),
+            ("main.bicep", """
+import { MyFunction } from 'export.bicep'
+
+output foo string = MyFunction('foo')
+"""),
+            ("export.bicep", """
+@export()
+func MyFunction(name string) string => '${loadJsonContent('./test-mapping.json')['${name}'].myValue}'
+"""),
+            ("test-mapping.json", """
+{
+  "foo": {
+    "myValue": "bar"
+  }
+}
+"""));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        evaluated.Should().HaveValueAtPath("$.outputs['foo'].value", "bar");
+    }
+
     // https://github.com/Azure/bicep/issues/12799
     [TestMethod]
     public void Test_Issue12799()
