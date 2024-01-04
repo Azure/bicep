@@ -60,7 +60,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
     private IEnumerable<DeclaredResourceMetadata> AnalyzeResourceId(SemanticModel model, SyntaxBase syntax)
     {
         if (syntax is PropertyAccessSyntax idProp &&
-            idProp.PropertyName.NameEquals("id") &&
+            (idProp.PropertyName.NameEquals("id") || idProp.PropertyName.NameEquals("name")) &&
             model.ResourceMetadata.TryLookup(idProp.BaseExpression) is DeclaredResourceMetadata idResource)
         {
             yield return idResource;
