@@ -13,6 +13,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
+using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
@@ -41,7 +42,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private async Task<SourceFileGrouping> GetSourceFileGrouping(DataSet dataSet)
+        private async Task<Compilation> GetCompilation(DataSet dataSet, FeatureProviderOverrides features)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(false);
@@ -50,21 +51,14 @@ namespace Bicep.Core.IntegrationTests.Emit
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var bicepFileUri = PathHelper.FilePathToFileUrl(bicepFilePath);
 
-            var services = new ServiceBuilder()
+            var compiler = Services
                 .WithContainerRegistryClientFactory(clientFactory)
                 .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
-                .Build();
+                .WithFeatureOverrides(features)
+                .Build()
+                .GetCompiler();
 
-            // emitting the template should be successful
-            var dispatcher = services.Construct<IModuleDispatcher>();
-            Workspace workspace = new();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), BicepTestConstants.FeatureProviderFactory);
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.GetArtifactsToRestore())))
-            {
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(BicepTestConstants.FeatureProviderFactory, dispatcher, workspace, sourceFileGrouping);
-            }
-
-            return sourceFileGrouping;
+            return await compiler.CreateCompilation(bicepFileUri);
         }
 
         [DataTestMethod]
@@ -73,9 +67,9 @@ namespace Bicep.Core.IntegrationTests.Emit
         public async Task ValidBicep_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
-            var sourceFileGrouping = await GetSourceFileGrouping(dataSet);
+            var compilation = await GetCompilation(dataSet, new());
 
-            var result = EmitTemplate(sourceFileGrouping, new(), compiledFilePath);
+            var result = EmitTemplate(compilation, compiledFilePath);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -98,9 +92,9 @@ namespace Bicep.Core.IntegrationTests.Emit
         public async Task ValidBicep_EmitTemplate_should_produce_expected_symbolicname_template(DataSet dataSet)
         {
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiledWithSymbolicNames));
-            var sourceFileGrouping = await GetSourceFileGrouping(dataSet);
+            var compilation = await GetCompilation(dataSet, new(SymbolicNameCodegenEnabled: true));
 
-            var result = EmitTemplate(sourceFileGrouping, new(SymbolicNameCodegenEnabled: true), compiledFilePath);
+            var result = EmitTemplate(compilation, compiledFilePath);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -178,11 +172,11 @@ namespace Bicep.Core.IntegrationTests.Emit
         [TestMethod]
         public void TemplateEmitter_output_should_not_include_UTF8_BOM()
         {
-            var sourceFileGrouping = Services.BuildSourceFileGrouping("");
+            var compilationResult = CompilationHelper.Compile("");
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, "main.json");
 
             // emitting the template should be successful
-            var result = this.EmitTemplate(sourceFileGrouping, new(), compiledFilePath);
+            var result = this.EmitTemplate(compilationResult.Compilation, compiledFilePath);
             result.Diagnostics.Should().BeEmpty();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -198,10 +192,10 @@ namespace Bicep.Core.IntegrationTests.Emit
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidBicepTextWriter_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
-            var sourceFileGrouping = await GetSourceFileGrouping(dataSet);
+            var compilation = await GetCompilation(dataSet, new());
 
             var memoryStream = new MemoryStream();
-            var result = this.EmitTemplate(sourceFileGrouping, new(), memoryStream);
+            var result = this.EmitTemplate(compilation, memoryStream);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -219,15 +213,13 @@ namespace Bicep.Core.IntegrationTests.Emit
 
         [DataTestMethod]
         [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public void InvalidBicep_TemplateEmiterShouldNotProduceAnyTemplate(DataSet dataSet)
+        public async Task InvalidBicep_TemplateEmiterShouldNotProduceAnyTemplate(DataSet dataSet)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
+            var compilation = await GetCompilation(dataSet, new());
             string filePath = FileHelper.GetResultFilePath(this.TestContext, $"{dataSet.Name}_Compiled_Original.json");
 
             // emitting the template should fail
-            var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled));
-            var result = this.EmitTemplate(SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath), BicepTestConstants.FeatureProviderFactory), new(), filePath);
+            var result = this.EmitTemplate(compilation, filePath);
             result.Diagnostics.Should().NotBeEmpty();
             result.Status.Should().Be(EmitStatus.Failed);
         }
@@ -235,13 +227,15 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void Valid_bicepparam_TemplateEmiter_should_produce_expected_template(BaselineData_Bicepparam baselineData)
+        public async Task Valid_bicepparam_TemplateEmiter_should_produce_expected_template(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
             data.Compiled.Should().NotBeNull();
 
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, BicepTestConstants.ModuleDispatcher, new Workspace(), PathHelper.FilePathToFileUrl(data.Parameters.OutputFilePath), BicepTestConstants.FeatureProviderFactory);
-            var result = this.EmitParam(sourceFileGrouping, data.Compiled!.OutputFilePath);
+            var compiler = Services.Build().GetCompiler();
+            var compilation = await compiler.CreateCompilation(data.Parameters.OutputFileUri);
+
+            var result = this.EmitParam(compilation, data.Compiled!.OutputFilePath);
 
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
@@ -252,12 +246,14 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.InvalidOnly)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void Invalid_bicepparam_TemplateEmiter_should_not_produce_a_template(BaselineData_Bicepparam baselineData)
+        public async Task Invalid_bicepparam_TemplateEmiter_should_not_produce_a_template(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
 
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, BicepTestConstants.ModuleDispatcher, new Workspace(), PathHelper.FilePathToFileUrl(data.Parameters.OutputFilePath), BicepTestConstants.FeatureProviderFactory);
-            var result = this.EmitParam(sourceFileGrouping, Path.ChangeExtension(data.Parameters.OutputFilePath, ".json"));
+            var compiler = Services.Build().GetCompiler();
+            var compilation = await compiler.CreateCompilation(data.Parameters.OutputFileUri);
+
+            var result = this.EmitParam(compilation, Path.ChangeExtension(data.Parameters.OutputFilePath, ".json"));
 
             result.Diagnostics.Should().NotBeEmpty();
             result.Status.Should().Be(EmitStatus.Failed);
@@ -299,27 +295,24 @@ this
             emitter.Emit(stringWriter);
         }
 
-        private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, FeatureProviderOverrides features, string filePath)
+        private EmitResult EmitTemplate(Compilation compilation, string filePath)
         {
-            var compilation = Services.WithFeatureOverrides(features).Build().BuildCompilation(sourceFileGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
             using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             return emitter.Emit(stream);
         }
 
-        private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, FeatureProviderOverrides features, MemoryStream memoryStream)
+        private EmitResult EmitTemplate(Compilation compilation, MemoryStream memoryStream)
         {
-            var compilation = Services.WithFeatureOverrides(features).Build().BuildCompilation(sourceFileGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
             TextWriter tw = new StreamWriter(memoryStream);
             return emitter.Emit(tw);
         }
 
-        private EmitResult EmitParam(SourceFileGrouping sourceFileGrouping, string outputFilePath)
+        private EmitResult EmitParam(Compilation compilation, string outputFilePath)
         {
-            var compilation = Services.Build().BuildCompilation(sourceFileGrouping);
             var emitter = new ParametersEmitter(compilation.GetEntrypointSemanticModel());
             using var stream = new FileStream(outputFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             return emitter.Emit(stream);

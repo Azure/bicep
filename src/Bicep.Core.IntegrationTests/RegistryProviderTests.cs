@@ -60,8 +60,8 @@ output joke string = dadJoke.body.joke
 
         var bicepUri = PathHelper.FilePathToFileUrl(bicepPath);
 
-        var compiler = GetServiceBuilder(fileSystem, clientFactory).Build().Construct<BicepCompiler>();
-        var result = CompilationHelper.Compile(await compiler.CreateCompilation(bicepUri));
+        var compiler = GetServiceBuilder(fileSystem, clientFactory).Build().GetCompiler();
+        var result = CompilationHelper.GetCompilationResult(await compiler.CreateCompilation(bicepUri));
 
         // TODO uncomment the below once the 3rd party logic has been implemented
         // result.Should().NotHaveAnyDiagnostics();

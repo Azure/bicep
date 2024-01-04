@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using System.Threading.Tasks;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
@@ -17,6 +18,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.Workspaces;
+using FluentAssertions.Common;
 
 namespace Bicep.Core.UnitTests.Utils;
 
@@ -61,9 +63,6 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithEmptyAzResources(this ServiceBuilder serviceBuilder)
         => serviceBuilder.WithRegistration(x => x.WithEmptyAzResources());
 
-    public static ServiceBuilder WithWorkspaceFiles(this ServiceBuilder serviceBuilder, IReadOnlyDictionary<Uri, string> fileContentsByUri)
-        => serviceBuilder.WithRegistration(x => x.WithWorkspaceFiles(fileContentsByUri));
-
     public static ServiceBuilder WithEnvironmentVariables(this ServiceBuilder serviceBuilder, params (string key, string? value)[] variables)
         => serviceBuilder.WithRegistration(x => x.WithEnvironmentVariables(variables));
 
@@ -76,10 +75,14 @@ public static class ServiceBuilderExtensions
 
     public static Compilation BuildCompilation(this ServiceBuilder services, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri)
     {
-        var service = services.WithWorkspaceFiles(fileContentsByUri).Build();
+        var compiler = services.Build().GetCompiler();
+        var workspace = CompilationHelper.CreateWorkspace(fileContentsByUri);
 
-        var sourceFileGrouping = service.BuildSourceFileGrouping(entryFileUri);
-        return service.BuildCompilation(sourceFileGrouping);
+        var compilationTask = compiler.CreateCompilation(entryFileUri, workspace, skipRestore: true);
+
+#pragma warning disable VSTHRD002
+        return compilationTask.GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002
     }
 
     public static Compilation BuildCompilation(this ServiceBuilder services, string text)
@@ -87,19 +90,5 @@ public static class ServiceBuilderExtensions
         var entryFileUri = new Uri("file:///main.bicep");
 
         return BuildCompilation(services, new Dictionary<Uri, string> { [entryFileUri] = text }, entryFileUri);
-    }
-
-    public static SourceFileGrouping BuildSourceFileGrouping(this ServiceBuilder services, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri)
-    {
-        var service = services.WithWorkspaceFiles(fileContentsByUri).Build();
-
-        return service.BuildSourceFileGrouping(entryFileUri);
-    }
-
-    public static SourceFileGrouping BuildSourceFileGrouping(this ServiceBuilder services, string text)
-    {
-        var entryFileUri = new Uri("file:///main.bicep");
-
-        return BuildSourceFileGrouping(services, new Dictionary<Uri, string> { [entryFileUri] = text }, entryFileUri);
     }
 }
