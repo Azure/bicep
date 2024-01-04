@@ -84,7 +84,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 // ensure something got restored
 
-                Directory.Exists(settings.FeatureOverrides.CacheRootDirectory).Should().BeTrue();
+                Directory.Exists(settings.FeatureOverrides!.CacheRootDirectory).Should().BeTrue();
                 Directory.EnumerateFiles(settings.FeatureOverrides.CacheRootDirectory!, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
             }
 
@@ -184,7 +184,7 @@ import '{providerDeclarationSyntax}@2.0.0'
             if (shouldSucceed)
             {
                 // 7. assert the provider files were restored to the cache directory
-                Directory.Exists(settings.FeatureOverrides.CacheRootDirectory).Should().BeTrue();
+                Directory.Exists(settings.FeatureOverrides!.CacheRootDirectory).Should().BeTrue();
                 var providerDir = Path.Combine(settings.FeatureOverrides.CacheRootDirectory!, ModuleReferenceSchemes.Oci, containingFolder, "bicep$providers$az", "2.0.0$");
                 Directory.EnumerateFiles(providerDir).ToList().Select(Path.GetFileName).Should().BeEquivalentTo(new List<string> { "types.tgz", "lock", "manifest", "metadata" });
             }
@@ -213,7 +213,7 @@ import '{providerDeclarationSyntax}@2.0.0'
 
             if (dataSet.HasExternalModules)
             {
-                CachedModules.GetCachedRegistryModules(settings.FeatureOverrides.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
+                CachedModules.GetCachedRegistryModules(settings.FeatureOverrides!.CacheRootDirectory!).Should().HaveCountGreaterThan(0)
                     .And.AllSatisfy(m => m.Should().HaveSource());
             }
 
