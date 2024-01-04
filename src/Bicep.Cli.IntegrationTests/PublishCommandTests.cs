@@ -455,7 +455,7 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{moduleName}".ToLowerInvariant();
 
-            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients(false, (registryUri, repository));
+            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients((registryUri, repository));
 
             var blobClient = blobClients[(registryUri, repository)];
 

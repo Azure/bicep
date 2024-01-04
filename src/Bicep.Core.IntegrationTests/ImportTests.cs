@@ -39,16 +39,20 @@ namespace Bicep.Core.IntegrationTests
 
         private async Task<ServiceBuilder> GetServices()
         {
-            var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"Resources": {}, "Functions": {}}""");
-            var clientFactory = await DataSetsExtensions.GetClientFactoryWithAzModulePublished(new System.IO.Abstractions.FileSystem(), indexJson);
+            var fileSystem = new Dictionary<string, string>
+            {
+                ["/types/index.json"] = """{"Resources": {}, "Functions": {}}""",
+            };
 
-            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
-            Directory.CreateDirectory(cacheRoot);
-
-            return new ServiceBuilder()
-                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(clientFactory)
+            var services = new ServiceBuilder()
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
+                .WithContainerRegistryClientFactory(DataSetsExtensions.CreateOciClientForAzProvider())
+                .WithMockFileSystem(fileSystem)
                 .WithAzResourceTypeLoader(azTypeLoaderLazy.Value);
+
+            await DataSetsExtensions.PublishAzProvider(services.Build(), "/types/index.json");
+
+            return services;
         }
 
         private class TestNamespaceProvider : INamespaceProvider
