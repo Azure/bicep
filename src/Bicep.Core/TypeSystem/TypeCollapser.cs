@@ -347,6 +347,11 @@ internal static class TypeCollapser
             {
                 var (members, viableDiscriminators) = discriminatedObjectTypeBuilder.Build();
 
+                if (members.Count == 1)
+                {
+                    return nullable ? TypeHelper.CreateTypeUnion(members.Single(), LanguageConstants.Null) : members.Single();
+                }
+
                 var discriminator = viableDiscriminators
                     .OrderBy(possibleDiscriminator =>
                     {

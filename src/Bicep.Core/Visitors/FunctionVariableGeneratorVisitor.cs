@@ -38,6 +38,13 @@ namespace Bicep.Core.Visitors
             base.VisitInstanceFunctionCallSyntax(syntax);
         }
 
+        public override void VisitFunctionDeclarationSyntax(FunctionDeclarationSyntax syntax)
+        {
+            // Don't recurse into user-defined functions - we must inline values.
+            // The Deployment Engine prevents referencing variables from within a function body.
+            return;
+        }
+
         private void GenerateVariableFromFunctionCall(FunctionCallSyntaxBase syntax)
         {
             if (semanticModel.TypeManager.GetMatchedFunctionOverload(syntax) is not { } functionOverload ||

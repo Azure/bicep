@@ -51,3 +51,12 @@ func fooTest() array => map(barTest(), a => 'Hello ${a}!')
 output fooValue array = fooTest()
 //@[07:15) Output fooValue. Type: array. Declaration start char: 0, length: 33
 
+func test() object => loadJsonContent('./repro-data.json')
+//@[05:09) Function test. Type: () => object. Declaration start char: 0, length: 58
+func test2() string => loadTextContent('./repro-data.json')
+//@[05:10) Function test2. Type: () => '{}'. Declaration start char: 0, length: 59
+func test3() object => loadYamlContent('./repro-data.json')
+//@[05:10) Function test3. Type: () => object. Declaration start char: 0, length: 59
+func test4() string => loadFileAsBase64('./repro-data.json')
+//@[05:10) Function test4. Type: () => repro-data.json. Declaration start char: 0, length: 60
+

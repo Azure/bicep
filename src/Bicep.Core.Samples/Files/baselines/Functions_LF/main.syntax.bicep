@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:734) ProgramSyntax
+//@[000:975) ProgramSyntax
 //@[000:141) ├─FunctionDeclarationSyntax
 //@[000:004) | ├─Token(Identifier) |func|
 //@[005:013) | ├─IdentifierSyntax
@@ -410,6 +410,95 @@ output fooValue array = fooTest()
 //@[024:031) |   | └─Token(Identifier) |fooTest|
 //@[031:032) |   ├─Token(LeftParen) |(|
 //@[032:033) |   └─Token(RightParen) |)|
-//@[033:034) ├─Token(NewLine) |\n|
+//@[033:035) ├─Token(NewLine) |\n\n|
+
+func test() object => loadJsonContent('./repro-data.json')
+//@[000:058) ├─FunctionDeclarationSyntax
+//@[000:004) | ├─Token(Identifier) |func|
+//@[005:009) | ├─IdentifierSyntax
+//@[005:009) | | └─Token(Identifier) |test|
+//@[009:058) | └─TypedLambdaSyntax
+//@[009:011) |   ├─TypedVariableBlockSyntax
+//@[009:010) |   | ├─Token(LeftParen) |(|
+//@[010:011) |   | └─Token(RightParen) |)|
+//@[012:018) |   ├─VariableAccessSyntax
+//@[012:018) |   | └─IdentifierSyntax
+//@[012:018) |   |   └─Token(Identifier) |object|
+//@[019:021) |   ├─Token(Arrow) |=>|
+//@[022:058) |   └─FunctionCallSyntax
+//@[022:037) |     ├─IdentifierSyntax
+//@[022:037) |     | └─Token(Identifier) |loadJsonContent|
+//@[037:038) |     ├─Token(LeftParen) |(|
+//@[038:057) |     ├─FunctionArgumentSyntax
+//@[038:057) |     | └─StringSyntax
+//@[038:057) |     |   └─Token(StringComplete) |'./repro-data.json'|
+//@[057:058) |     └─Token(RightParen) |)|
+//@[058:059) ├─Token(NewLine) |\n|
+func test2() string => loadTextContent('./repro-data.json')
+//@[000:059) ├─FunctionDeclarationSyntax
+//@[000:004) | ├─Token(Identifier) |func|
+//@[005:010) | ├─IdentifierSyntax
+//@[005:010) | | └─Token(Identifier) |test2|
+//@[010:059) | └─TypedLambdaSyntax
+//@[010:012) |   ├─TypedVariableBlockSyntax
+//@[010:011) |   | ├─Token(LeftParen) |(|
+//@[011:012) |   | └─Token(RightParen) |)|
+//@[013:019) |   ├─VariableAccessSyntax
+//@[013:019) |   | └─IdentifierSyntax
+//@[013:019) |   |   └─Token(Identifier) |string|
+//@[020:022) |   ├─Token(Arrow) |=>|
+//@[023:059) |   └─FunctionCallSyntax
+//@[023:038) |     ├─IdentifierSyntax
+//@[023:038) |     | └─Token(Identifier) |loadTextContent|
+//@[038:039) |     ├─Token(LeftParen) |(|
+//@[039:058) |     ├─FunctionArgumentSyntax
+//@[039:058) |     | └─StringSyntax
+//@[039:058) |     |   └─Token(StringComplete) |'./repro-data.json'|
+//@[058:059) |     └─Token(RightParen) |)|
+//@[059:060) ├─Token(NewLine) |\n|
+func test3() object => loadYamlContent('./repro-data.json')
+//@[000:059) ├─FunctionDeclarationSyntax
+//@[000:004) | ├─Token(Identifier) |func|
+//@[005:010) | ├─IdentifierSyntax
+//@[005:010) | | └─Token(Identifier) |test3|
+//@[010:059) | └─TypedLambdaSyntax
+//@[010:012) |   ├─TypedVariableBlockSyntax
+//@[010:011) |   | ├─Token(LeftParen) |(|
+//@[011:012) |   | └─Token(RightParen) |)|
+//@[013:019) |   ├─VariableAccessSyntax
+//@[013:019) |   | └─IdentifierSyntax
+//@[013:019) |   |   └─Token(Identifier) |object|
+//@[020:022) |   ├─Token(Arrow) |=>|
+//@[023:059) |   └─FunctionCallSyntax
+//@[023:038) |     ├─IdentifierSyntax
+//@[023:038) |     | └─Token(Identifier) |loadYamlContent|
+//@[038:039) |     ├─Token(LeftParen) |(|
+//@[039:058) |     ├─FunctionArgumentSyntax
+//@[039:058) |     | └─StringSyntax
+//@[039:058) |     |   └─Token(StringComplete) |'./repro-data.json'|
+//@[058:059) |     └─Token(RightParen) |)|
+//@[059:060) ├─Token(NewLine) |\n|
+func test4() string => loadFileAsBase64('./repro-data.json')
+//@[000:060) ├─FunctionDeclarationSyntax
+//@[000:004) | ├─Token(Identifier) |func|
+//@[005:010) | ├─IdentifierSyntax
+//@[005:010) | | └─Token(Identifier) |test4|
+//@[010:060) | └─TypedLambdaSyntax
+//@[010:012) |   ├─TypedVariableBlockSyntax
+//@[010:011) |   | ├─Token(LeftParen) |(|
+//@[011:012) |   | └─Token(RightParen) |)|
+//@[013:019) |   ├─VariableAccessSyntax
+//@[013:019) |   | └─IdentifierSyntax
+//@[013:019) |   |   └─Token(Identifier) |string|
+//@[020:022) |   ├─Token(Arrow) |=>|
+//@[023:060) |   └─FunctionCallSyntax
+//@[023:039) |     ├─IdentifierSyntax
+//@[023:039) |     | └─Token(Identifier) |loadFileAsBase64|
+//@[039:040) |     ├─Token(LeftParen) |(|
+//@[040:059) |     ├─FunctionArgumentSyntax
+//@[040:059) |     | └─StringSyntax
+//@[040:059) |     |   └─Token(StringComplete) |'./repro-data.json'|
+//@[059:060) |     └─Token(RightParen) |)|
+//@[060:061) ├─Token(NewLine) |\n|
 
 //@[000:000) └─Token(EndOfFile) ||
