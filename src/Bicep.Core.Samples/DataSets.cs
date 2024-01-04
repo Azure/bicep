@@ -74,6 +74,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet ResourcesManagementGroup_CRLF => CreateDataSet();
 
+        public static DataSet ResourceDerivedTypes_LF => CreateDataSet();
+
         public static DataSet ResourcesTenant_CRLF => CreateDataSet();
 
         public static DataSet TypeDeclarations_LF => CreateDataSet();

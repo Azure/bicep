@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12442568148038291906"
+    }
+  },
+  "definitions": {
+    "foo": {
+      "type": "object",
+      "metadata": {
+        "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+      }
+    }
+  },
+  "parameters": {
+    "bar": {
+      "type": "object",
+      "metadata": {
+        "__bicep_resource_derived_type!": "Microsoft.Resources/tags@2022-09-01"
+      },
+      "defaultValue": {
+        "name": "default",
+        "properties": {
+          "tags": {
+            "fizz": "buzz",
+            "snap": "crackle"
+          }
+        }
+      }
+    }
+  },
+  "resources": {},
+  "outputs": {
+    "baz": {
+      "type": "object",
+      "metadata": {
+        "__bicep_resource_derived_type!": "Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31"
+      },
+      "value": {
+        "name": "myId",
+        "location": "eastus"
+      }
+    }
+  }
+}
