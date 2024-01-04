@@ -1935,6 +1935,49 @@ public class CompileTimeImportTests
         evaluated.Should().HaveValueAtPath("outputs.out.value", "ASP999");
     }
 
+    [TestMethod]
+    public void Imported_objects_can_be_used_in_object_type_narrowing()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {obj} from 'mod.bicep'
+
+                @sealed()
+                output out {} = obj
+                """),
+            ("mod.bicep", """
+                @export()
+                var obj = {foo: 'foo', bar: 'bar'}
+                """));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP037", DiagnosticLevel.Error, """The property "bar" is not allowed on objects of type "{ }". No other properties are allowed."""),
+            ("BCP037", DiagnosticLevel.Error, """The property "foo" is not allowed on objects of type "{ }". No other properties are allowed."""),
+        });
+    }
+
+    [TestMethod]
+    public void Imported_objects_can_be_used_in_discriminated_object_type_narrowing()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import {obj} from 'mod.bicep'
+
+                @discriminator('type')
+                output out {type: 'foo', pop: bool} | {type: 'bar', quux: string} = obj
+                """),
+            ("mod.bicep", """
+                @export()
+                var obj = {type: 'foo', bar: 'bar'}
+                """));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP035", DiagnosticLevel.Error, """The specified "output" declaration is missing the following required properties: "pop"."""),
+        });
+    }
+
     // https://github.com/Azure/bicep/issues/12897
     [TestMethod]
     public void LanguageVersion_2_should_be_used_if_types_imported_via_wildcard()

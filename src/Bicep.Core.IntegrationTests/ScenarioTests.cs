@@ -1518,7 +1518,7 @@ resource mg 'Microsoft.Management/managementGroups@2020-05-01' = {
 }
 ");
 
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Template.Should().HaveValueAtPath("$.resources[0].properties.details.parent", "[managementGroup()]");
 
         var evaluated = TemplateEvaluator.Evaluate(result.Template);
@@ -3992,7 +3992,7 @@ param systemAssignedIdentity bool = false
 @description('Optional. The ID(s) to assign to the resource.')
 param userAssignedIdentities object = {}
 
-var identityType = systemAssignedIdentity ? (!empty(userAssignedIdentities) ? 'SystemAssigned,UserAssigned' : 'SystemAssigned') : (!empty(userAssignedIdentities) ? 'UserAssigned' : 'None')
+var identityType = systemAssignedIdentity ? (!empty(userAssignedIdentities) ? 'SystemAssigned, UserAssigned' : 'SystemAssigned') : (!empty(userAssignedIdentities) ? 'UserAssigned' : 'None')
 
 var identity = identityType != 'None' ? {
   type: identityType
@@ -5378,11 +5378,11 @@ using 'main.bicep'
 param rgs = {
   '0': {
     name: 'rg-test-1'
-    location:'westeurope' 
+    location:'westeurope'
   }
   '1': {
     name: 'rg-test-2'
-    location:'westeurope' 
+    location:'westeurope'
   }
 }
 
@@ -5459,5 +5459,62 @@ var functionExport = testFunction(json.experimentalFeaturesEnabled.userDefinedFu
         result.Should().NotHaveAnyDiagnostics();
         result.Parameters.Should().HaveValueAtPath("parameters.one.value", true);
         result.Parameters.Should().HaveValueAtPath("parameters.two.value", true);
+    }
+    // https://github.com/Azure/bicep/issues/12590
+    [TestMethod]
+    public void Test_Issue12590()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                var resources = {
+                  st: {
+                    type: 'storage'
+                    name: 'st'
+                    containers: []
+                  }
+                  kv: {
+                    type: 'keyvault'
+                    name: 'kv'
+                    secrets: []
+                    extraProperty: 'extra'
+                  }
+                }
+
+                module deploy_resource_module 'resourceModule.bicep' = {
+                  name: 'resourceModule'
+                  params: {
+                    subResource: resources.kv
+                  }
+                }
+                """),
+            ("resourceModule.bicep", """
+                @sealed()
+                type storageAccount = {
+                  type: 'storage'
+                  name: string
+                  containers: string[]
+                }
+
+                @sealed()
+                type keyVault = {
+                  type: 'keyvault'
+                  name: string
+                  secrets: string[]
+                }
+
+                type Resource = {
+                  @discriminator('type')
+                  *: storageAccount | keyVault
+                }
+
+                param resource Resource?
+
+                param subResource keyVault?
+                """));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP037", DiagnosticLevel.Error, """The property "extraProperty" is not allowed on objects of type "{ type: 'keyvault', name: string, secrets: string[] }". No other properties are allowed."""),
+        });
     }
 }
