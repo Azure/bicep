@@ -40,6 +40,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet InvalidResources_CRLF => CreateDataSet();
 
+        public static DataSet InvalidResourceDerivedTypes_LF => CreateDataSet();
+
         public static DataSet InvalidRuntimeValueUsages_LF => CreateDataSet();
 
         public static DataSet ValidDeployTimeUsages_LF => CreateDataSet();

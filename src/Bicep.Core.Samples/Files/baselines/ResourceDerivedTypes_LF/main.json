@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12442568148038291906"
+      "templateHash": "2406575907779073888"
     }
   },
   "definitions": {
@@ -14,6 +14,62 @@
       "type": "object",
       "metadata": {
         "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+      }
+    },
+    "test": {
+      "type": "object",
+      "properties": {
+        "resA": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+          }
+        },
+        "resB": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01"
+          }
+        },
+        "resC": {
+          "type": "array"
+        },
+        "resD": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01"
+          }
+        }
+      }
+    },
+    "strangeFormattings": {
+      "type": "object",
+      "properties": {
+        "test": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview"
+          }
+        },
+        "test2": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+          }
+        },
+        "test3": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+          }
+        }
+      }
+    },
+    "test2": {
+      "type": "object",
+      "metadata": {
+        "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview",
+        "description": "I love space(s)"
       }
     }
   },

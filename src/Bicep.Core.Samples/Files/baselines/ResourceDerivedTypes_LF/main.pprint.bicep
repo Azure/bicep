@@ -1,5 +1,27 @@
 type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
 
+type test = {
+  resA: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
+  resB: sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
+  resC: sys.array
+  resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>
+}
+
+type strangeFormattings = {
+  test: resource<
+    'Astronomer.Astro/organizations@2023-08-01-preview'
+  >
+  test2: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
+  test3: resource<
+    /*    */ 'Microsoft.Storage/storageAccounts@2023-01-01' /*     */
+  >
+}
+
+@description('I love space(s)')
+type test2 = resource<
+  'Astronomer.Astro/organizations@2023-08-01-preview'
+>
+
 param bar resource<'Microsoft.Resources/tags@2022-09-01'> = {
   name: 'default'
   properties: {
