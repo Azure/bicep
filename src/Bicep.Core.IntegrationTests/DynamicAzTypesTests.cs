@@ -2,35 +2,22 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
-using Azure.Bicep.Types.Az;
-using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.IntegrationTests.Extensibility;
-using Bicep.Core.Registry;
 using Bicep.Core.Samples;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -41,17 +28,16 @@ namespace Bicep.Core.IntegrationTests
         {
             var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"Resources": {}, "Functions": {}}""");
 
-            var clientFactory = await DataSetsExtensions.CreateMockRegistryClients(
-                false,
-                (new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}"), $"bicep/providers/az")
-            ).factoryMock.WithPublishedAzProvider(new System.IO.Abstractions.FileSystem(), indexJson);
-
             var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(cacheRoot);
 
-            return new ServiceBuilder()
+            var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(clientFactory);
+                .WithContainerRegistryClientFactory(DataSetsExtensions.CreateOciClientForAzProvider());
+
+            await DataSetsExtensions.PublishAzProvider(services.Build(), indexJson);
+
+            return services;
         }
 
         [TestMethod]
@@ -139,7 +125,6 @@ namespace Bicep.Core.IntegrationTests
         {
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/providers/az", "0.2.661");
             var clientFactory = DataSetsExtensions.CreateMockRegistryClients(
-                false,
                 (new Uri($"https://{testArtifact.RegistryAddress}"), testArtifact.RepositoryPath)).factoryMock;
             await DataSetsExtensions.PublishModuleToRegistryAsync(
                 clientFactory,

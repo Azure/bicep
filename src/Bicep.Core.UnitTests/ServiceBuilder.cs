@@ -24,26 +24,6 @@ public interface IDependencyHelper
 
 public static class IDependencyHelperExtensions
 {
-    public static Compilation BuildCompilation(this IDependencyHelper helper, SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
-        => new(
-            helper.Construct<IFeatureProviderFactory>(),
-            helper.Construct<IEnvironment>(),
-            helper.Construct<INamespaceProvider>(),
-            sourceFileGrouping,
-            helper.Construct<IConfigurationManager>(),
-            helper.Construct<IBicepAnalyzer>(),
-            helper.Construct<IModuleDispatcher>(),
-            modelLookup);
-
-    public static SourceFileGrouping BuildSourceFileGrouping(this IDependencyHelper helper, Uri entryFileUri, bool forceModulesRestore = false)
-        => SourceFileGroupingBuilder.Build(
-            helper.Construct<IFileResolver>(),
-            helper.Construct<IModuleDispatcher>(),
-            helper.Construct<IWorkspace>(),
-            entryFileUri,
-            helper.Construct<IFeatureProviderFactory>(),
-            forceModulesRestore);
-
     public static BicepCompiler GetCompiler(this IDependencyHelper helper)
         => helper.Construct<BicepCompiler>();
 

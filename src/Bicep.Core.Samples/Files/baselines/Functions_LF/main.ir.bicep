@@ -1,5 +1,5 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:734) ProgramExpression
+//@[000:975) ProgramExpression
 //@[000:141) ├─DeclaredFunctionExpression { Name = buildUrl }
 //@[013:141) | └─LambdaExpression
 //@[020:024) |   ├─AmbientTypeReferenceExpression { Name = bool }
@@ -18,6 +18,8 @@ func buildUrl(https bool, hostname string, path string) string => '${https ? 'ht
 //@[129:139) |   |   └─InterpolatedStringExpression
 //@[133:137) |   |     └─LambdaVariableReferenceExpression { Variable = path }
 //@[056:062) |   └─AmbientTypeReferenceExpression { Name = string }
+//@[000:000) |   ├─ObjectExpression [UNPARENTED]
+//@[000:000) |   ├─ObjectExpression [UNPARENTED]
 
 output foo string = buildUrl(true, 'google.com', 'search')
 //@[000:058) ├─DeclaredOutputExpression { Name = foo }
@@ -117,4 +119,23 @@ output fooValue array = fooTest()
 //@[000:033) └─DeclaredOutputExpression { Name = fooValue }
 //@[016:021)   ├─AmbientTypeReferenceExpression { Name = array }
 //@[024:033)   └─UserDefinedFunctionCallExpression { Name = fooTest }
+
+func test() object => loadJsonContent('./repro-data.json')
+//@[000:058) ├─DeclaredFunctionExpression { Name = test }
+//@[009:058) | └─LambdaExpression
+//@[012:018) |   └─AmbientTypeReferenceExpression { Name = object }
+func test2() string => loadTextContent('./repro-data.json')
+//@[000:059) ├─DeclaredFunctionExpression { Name = test2 }
+//@[010:059) | └─LambdaExpression
+//@[023:059) |   ├─StringLiteralExpression { Value = {} }
+//@[013:019) |   └─AmbientTypeReferenceExpression { Name = string }
+func test3() object => loadYamlContent('./repro-data.json')
+//@[000:059) ├─DeclaredFunctionExpression { Name = test3 }
+//@[010:059) | └─LambdaExpression
+//@[013:019) |   └─AmbientTypeReferenceExpression { Name = object }
+func test4() string => loadFileAsBase64('./repro-data.json')
+//@[000:060) ├─DeclaredFunctionExpression { Name = test4 }
+//@[010:060) | └─LambdaExpression
+//@[023:060) |   ├─StringLiteralExpression { Value = e30= }
+//@[013:019) |   └─AmbientTypeReferenceExpression { Name = string }
 
