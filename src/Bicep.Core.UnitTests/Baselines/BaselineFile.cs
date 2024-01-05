@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.IO;
 using System.Text.Json.Serialization;
+using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,6 +24,8 @@ namespace Bicep.Core.UnitTests.Baselines
         public void WriteToOutputFolder(string contents) => File.WriteAllText(OutputFilePath, contents);
 
         public void WriteJsonToOutputFolder<T>(T contents) => WriteToOutputFolder(JsonConvert.SerializeObject(contents, Formatting.Indented));
+
+        public Uri OutputFileUri => PathHelper.FilePathToFileUrl(OutputFilePath);
 
         public void ShouldHaveExpectedValue()
         {

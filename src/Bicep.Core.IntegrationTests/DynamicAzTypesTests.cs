@@ -32,19 +32,16 @@ namespace Bicep.Core.IntegrationTests
         {
             var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"Resources": {}, "Functions": {}}""");
 
-            var clientFactory = DataSetsExtensions.CreateMockRegistryClients(
-                false,
-                (new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}"), $"bicep/providers/az")
-            ).factoryMock;
-
-            clientFactory = await clientFactory.WithPublishedAzProvider(new System.IO.Abstractions.FileSystem(), indexJson);
-
             var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(cacheRoot);
 
-            return new ServiceBuilder()
+            var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(clientFactory);
+                .WithContainerRegistryClientFactory(DataSetsExtensions.CreateOciClientForAzProvider());
+
+            await DataSetsExtensions.PublishAzProvider(services.Build(), indexJson);
+
+            return services;
         }
 
         [TestMethod]

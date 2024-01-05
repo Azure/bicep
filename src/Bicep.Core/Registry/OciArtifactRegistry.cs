@@ -46,7 +46,7 @@ namespace Bicep.Core.Registry
             Uri parentModuleUri)
             : base(FileResolver, fileSystem)
         {
-            this.cachePath = Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
+            this.cachePath = fileSystem.Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
             this.client = new AzureContainerRegistryManager(clientFactory);
             this.configuration = configuration;
             this.features = features;
@@ -439,7 +439,7 @@ namespace Bicep.Core.Registry
             }
 
             //var packageDir = WebUtility.UrlEncode(reference.UnqualifiedReference);
-            return Path.Combine(this.cachePath, registry, repository, tagOrDigest);
+            return fileSystem.Path.Combine(this.cachePath, registry, repository, tagOrDigest);
         }
 
         protected override Uri GetArtifactLockFileUri(OciArtifactReference reference) => this.GetArtifactFileUri(reference, ArtifactFileType.Lock);
@@ -503,7 +503,7 @@ namespace Bicep.Core.Registry
                 _ => throw new NotImplementedException($"Unexpected artifact file type '{fileType}'.")
             };
 
-            return Path.Combine(this.GetArtifactDirectoryPath(reference), fileName);
+            return fileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), fileName);
         }
 
         public override SourceArchive? TryGetSource(OciArtifactReference reference)
