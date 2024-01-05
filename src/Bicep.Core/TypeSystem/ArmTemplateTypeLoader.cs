@@ -11,7 +11,9 @@ using Azure.Deployments.Expression.Extensions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Exceptions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
+using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
@@ -24,6 +26,11 @@ public static class ArmTemplateTypeLoader
         try
         {
             var resolved = TemplateEngine.ResolveSchemaReferences(context, armTemplateSchemaNode);
+
+            if (TryGetResourceDerivedType(context, resolved, flags) is TypeSymbol resourceDerivedType)
+            {
+                return resourceDerivedType;
+            }
 
             if (resolved.Type.Value == TemplateParameterType.SecureString || resolved.Type.Value == TemplateParameterType.SecureObject)
             {
@@ -53,6 +60,19 @@ public static class ArmTemplateTypeLoader
         {
             return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().UnresolvableArmJsonType(tve.TemplateErrorAdditionalInfo.Path ?? "<unknown location>", tve.Message));
         }
+    }
+
+    private static UnboundResourceDerivedType? TryGetResourceDerivedType(SchemaValidationContext context, ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags flags)
+    {
+        if (schemaNode.Metadata?.Value is JObject metadataObject &&
+            metadataObject.TryGetValue(LanguageConstants.MetadataResourceDerivedTypePropertyName, out var resourceType) &&
+            resourceType is JValue { Value: string resourceTypeString } &&
+            ResourceTypeReference.TryParse(resourceTypeString) is ResourceTypeReference resourceTypeReference)
+        {
+            return new UnboundResourceDerivedType(resourceTypeReference, ToTypeSymbol(context, new SansMetadata(schemaNode), flags));
+        }
+
+        return null;
     }
 
     private static TypeSymbol GetStringType(ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags flags)
@@ -198,14 +218,21 @@ public static class ArmTemplateTypeLoader
 
         if (schemaNode.Discriminator is { } discriminator)
         {
-            var variants = ImmutableArray.CreateRange(discriminator.Mapping.Values
-                .Select(unresolvedVariant => TemplateEngine.ResolveSchemaReferences(context, unresolvedVariant))
-                .Select(variant => GetObjectType(
-                    context: context,
-                    properties: schemaNode.Properties.CoalesceEnumerable().Concat(variant.Properties.CoalesceEnumerable()),
-                    requiredProperties: (schemaNode.Required?.Value ?? Array.Empty<string>()).Concat(variant.Required?.Value ?? Array.Empty<string>()),
-                    additionalProperties: variant.AdditionalProperties ?? schemaNode.AdditionalProperties,
-                    flags)));
+            var variants = ImmutableArray.CreateBuilder<TypeSymbol>(discriminator.Mapping.Count);
+            foreach (var mappingEntry in discriminator.Mapping)
+            {
+                var variant = TemplateEngine.ResolveSchemaReferences(context, mappingEntry.Value);
+                variants.Add(TryGetResourceDerivedType(context, variant, flags) is { } resourceDerivedObject
+                    ? new UnboundResourceDerivedPartialObjectType(resourceDerivedObject.TypeReference,
+                        discriminator.PropertyName.Value,
+                        mappingEntry.Key)
+                    : GetObjectType(
+                        context: context,
+                        properties: schemaNode.Properties.CoalesceEnumerable().Concat(variant.Properties.CoalesceEnumerable()),
+                        requiredProperties: (schemaNode.Required?.Value ?? Array.Empty<string>()).Concat(variant.Required?.Value ?? Array.Empty<string>()),
+                        additionalProperties: variant.AdditionalProperties ?? schemaNode.AdditionalProperties,
+                        flags));
+            }
             return new DiscriminatedObjectType(string.Join(" | ", TypeHelper.GetOrderedTypeNames(variants)), flags, discriminator.PropertyName.Value, variants);
         }
 
@@ -265,5 +292,49 @@ public static class ArmTemplateTypeLoader
         }
 
         return new ObjectType(nameBuilder.ToString(), flags, propertyList, additionalPropertiesType, additionalPropertiesFlags);
+    }
+
+    private class SansMetadata : ITemplateSchemaNode
+    {
+        private readonly ITemplateSchemaNode decorated;
+
+        internal SansMetadata(ITemplateSchemaNode toDecorate)
+        {
+            this.decorated = toDecorate;
+        }
+
+        TemplateGenericProperty<JToken>? ITemplateSchemaNode.Metadata => null;
+
+        TemplateGenericProperty<TemplateParameterType> ITemplateSchemaNode.Type => decorated.Type;
+
+        TemplateGenericProperty<string> ITemplateSchemaNode.Ref => decorated.Ref;
+
+        TemplateGenericProperty<JArray> ITemplateSchemaNode.AllowedValues => decorated.AllowedValues;
+
+        TemplateGenericProperty<bool?> ITemplateSchemaNode.Nullable => decorated.Nullable;
+
+        TemplateGenericProperty<long?> ITemplateSchemaNode.MinValue => decorated.MinValue;
+
+        TemplateGenericProperty<long?> ITemplateSchemaNode.MaxValue => decorated.MaxValue;
+
+        TemplateGenericProperty<string> ITemplateSchemaNode.Pattern => decorated.Pattern;
+
+        TemplateGenericProperty<long?> ITemplateSchemaNode.MinLength => decorated.MinLength;
+
+        TemplateGenericProperty<long?> ITemplateSchemaNode.MaxLength => decorated.MaxLength;
+
+        TemplateTypeDefinition[] ITemplateSchemaNode.PrefixItems => decorated.PrefixItems;
+
+        TemplateBooleanOrSchemaNode ITemplateSchemaNode.Items => decorated.Items;
+
+        InsensitiveDictionary<TemplateTypeDefinition> ITemplateSchemaNode.Properties => decorated.Properties;
+
+        TemplateGenericProperty<string[]> ITemplateSchemaNode.Required => decorated.Required;
+
+        TemplateBooleanOrSchemaNode ITemplateSchemaNode.AdditionalProperties => decorated.AdditionalProperties;
+
+        TemplateGenericProperty<bool?> ITemplateSchemaNode.Sealed => decorated.Sealed;
+
+        DiscriminatorConstraintDefinition ITemplateSchemaNode.Discriminator => decorated.Discriminator;
     }
 }

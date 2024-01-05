@@ -69,6 +69,8 @@ namespace Bicep.Core.Semantics
 
                         return null;
                     }
+                case InstanceParameterizedTypeInstantiationSyntax iptic:
+                    return GetPropertySymbol(getDeclaredTypeFunc(iptic.BaseExpression), iptic.PropertyName.IdentifierName);
                 case PropertyAccessSyntax propertyAccess:
                     {
                         var baseType = getDeclaredTypeFunc(propertyAccess.BaseExpression);

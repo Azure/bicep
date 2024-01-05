@@ -232,7 +232,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Dynamic type loading.
+        ///   Looks up a localized string similar to Provider registry.
         /// </summary>
         internal static string ExperimentalFeatureNames_ProviderRegistry {
             get {
@@ -246,6 +246,15 @@ namespace Bicep.Core {
         internal static string ExperimentalFeatureNames_PublishSource {
             get {
                 return ResourceManager.GetString("ExperimentalFeatureNames_PublishSource", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource-derived types.
+        /// </summary>
+        internal static string ExperimentalFeatureNames_ResourceDerivedTypes {
+            get {
+                return ResourceManager.GetString("ExperimentalFeatureNames_ResourceDerivedTypes", resourceCulture);
             }
         }
         

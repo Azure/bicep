@@ -1672,7 +1672,24 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Object)
-                .WithValidator(ValidateNotTargetingAlias)
+                .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                {
+                    switch (UnwrapNullableSyntax(GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder)))
+                    {
+                        case VariableAccessSyntax variableAccess when binder.GetSymbolInfo(variableAccess) is not AmbientTypeSymbol:
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+                            break;
+                        case AccessExpressionSyntax accessExpression when binder.GetSymbolInfo(accessExpression.BaseExpression) is not BuiltInNamespaceSymbol:
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+                            break;
+                        case ParameterizedTypeInstantiationSyntaxBase parameterized when LanguageConstants.IdentifierComparer.Equals(parameterized.Name.IdentifierName, LanguageConstants.TypeNameResource):
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetResourceDerivedType(decoratorName));
+                            break;
+                        case ObjectTypeSyntax @object when @object.AdditionalProperties is not null:
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).SealedIncompatibleWithAdditionalPropertiesDeclaration());
+                            break;
+                    }
+                })
                 .WithEvaluator((functionCall, decorated) =>
                 {
                     if (decorated is TypeDeclaringExpression typeDeclaringExpression)
@@ -1736,15 +1753,54 @@ namespace Bicep.Core.Semantics.Namespaces
             _ => false,
         };
 
-        private static IEnumerable<TypeProperty> GetSystemAmbientSymbols()
+        private static IEnumerable<TypeProperty> GetSystemAmbientSymbols(IFeatureProvider features, BicepSourceFileKind sourceFileKind)
+            => sourceFileKind switch
+            {
+                BicepSourceFileKind.ParamsFile => ImmutableArray<TypeProperty>.Empty,
+                _ => GetArmPrimitiveTypes().Concat(GetBuiltInUtilityTypes(features)),
+            };
+
+        private static IEnumerable<TypeProperty> GetArmPrimitiveTypes()
             => LanguageConstants.DeclarationTypes.Select(t => new TypeProperty(t.Key, new TypeType(t.Value)));
+
+        private static IEnumerable<TypeProperty> GetBuiltInUtilityTypes(IFeatureProvider features)
+        {
+            if (features.ResourceDerivedTypesEnabled)
+            {
+                yield return new(LanguageConstants.TypeNameResource,
+                    new TypeTemplate(LanguageConstants.TypeNameResource,
+                        ImmutableArray.Create(new TypeParameter("ResourceTypeIdentifier",
+                            "A string of the format '<type-name>@<api-version>' that identifies the kind of resource whose body type definition is to be used.",
+                            LanguageConstants.StringResourceIdentifier)),
+                        (binder, syntax, argumentTypes) =>
+                        {
+                            if (syntax.Arguments.FirstOrDefault()?.Expression is not StringSyntax stringArg || stringArg.TryGetLiteralValue() is not string resourceTypeString)
+                            {
+                                return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
+                            }
+
+                            if (!TypeHelper.GetResourceTypeFromString(binder, resourceTypeString, ResourceTypeGenerationFlags.None, parentResourceType: null)
+                                .IsSuccess(out var resourceType, out var errorBuilder))
+                            {
+                                return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
+                            }
+
+                            return new(new ResourceDerivedTypeExpression(syntax, resourceType, resourceType.Body.Type));
+                        }),
+                    description: """
+                        Use the type definition of the body of a specific resource rather than a user-defined type.
+
+                        NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.
+                        """);
+            }
+        }
 
         public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind)
         {
             return new NamespaceType(
                 aliasName,
                 Settings,
-                GetSystemAmbientSymbols(),
+                GetSystemAmbientSymbols(featureProvider, sourceFileKind),
                 GetSystemOverloads(featureProvider, sourceFileKind),
                 BannedFunctions,
                 GetSystemDecorators(featureProvider, sourceFileKind),

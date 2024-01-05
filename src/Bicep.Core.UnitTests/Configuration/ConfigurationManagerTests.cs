@@ -117,7 +117,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false,
-                    "optionalModuleNames": false
+                    "optionalModuleNames": false,
+                    "resourceDerivedTypes": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -200,7 +201,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false,
-                    "optionalModuleNames": false
+                    "optionalModuleNames": false,
+                    "resourceDerivedTypes": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -308,7 +310,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false,
-                    "optionalModuleNames": false
+                    "optionalModuleNames": false,
+                    "resourceDerivedTypes": false
                   },
                   "formatting": {
                     "indentKind": "Space",
@@ -744,7 +747,8 @@ namespace Bicep.Core.UnitTests.Configuration
                     "microsoftGraphPreview": false,
                     "compileTimeImports": false,
                     "publishSource": false,
-                    "optionalModuleNames": false
+                    "optionalModuleNames": false,
+                    "resourceDerivedTypes": false
                   },
                   "formatting": {
                     "indentKind": "Space",

@@ -3,12 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Navigation;
@@ -35,7 +32,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -80,7 +76,7 @@ namespace Bicep.LangServer.IntegrationTests
                 new List<SyntaxBase>(),
                 (accumulated, node) =>
                 {
-                    if (node is ISymbolReference || node is ITopLevelNamedDeclarationSyntax)
+                    if ((node is ISymbolReference @ref && TestSyntaxHelper.NodeShouldBeBound(@ref)) || node is ITopLevelNamedDeclarationSyntax)
                     {
                         accumulated.Add(node);
                     }

@@ -702,7 +702,7 @@ var sortNumeric = sort([8, 3, 10, -13, 5], (x, y) => x < y)
 //@[053:0054) |   |     ├─VariableAccessSyntax
 //@[053:0054) |   |     | └─IdentifierSyntax
 //@[053:0054) |   |     |   └─Token(Identifier) |x|
-//@[055:0056) |   |     ├─Token(LessThan) |<|
+//@[055:0056) |   |     ├─Token(LeftChevron) |<|
 //@[057:0058) |   |     └─VariableAccessSyntax
 //@[057:0058) |   |       └─IdentifierSyntax
 //@[057:0058) |   |         └─Token(Identifier) |y|
@@ -751,7 +751,7 @@ var sortAlpha = sort(['ghi', 'abc', 'def'], (x, y) => x < y)
 //@[054:0055) |   |     ├─VariableAccessSyntax
 //@[054:0055) |   |     | └─IdentifierSyntax
 //@[054:0055) |   |     |   └─Token(Identifier) |x|
-//@[056:0057) |   |     ├─Token(LessThan) |<|
+//@[056:0057) |   |     ├─Token(LeftChevron) |<|
 //@[058:0059) |   |     └─VariableAccessSyntax
 //@[058:0059) |   |       └─IdentifierSyntax
 //@[058:0059) |   |         └─Token(Identifier) |y|
@@ -800,7 +800,7 @@ var sortAlphaReverse = sort(['ghi', 'abc', 'def'], (x, y) => x > y)
 //@[061:0062) |   |     ├─VariableAccessSyntax
 //@[061:0062) |   |     | └─IdentifierSyntax
 //@[061:0062) |   |     |   └─Token(Identifier) |x|
-//@[063:0064) |   |     ├─Token(GreaterThan) |>|
+//@[063:0064) |   |     ├─Token(RightChevron) |>|
 //@[065:0066) |   |     └─VariableAccessSyntax
 //@[065:0066) |   |       └─IdentifierSyntax
 //@[065:0066) |   |         └─Token(Identifier) |y|
@@ -926,7 +926,7 @@ var sortByObjectKey = sort([
 //@[019:0022) |   |     | |   └─IdentifierSyntax
 //@[019:0022) |   |     | |     └─Token(Identifier) |key|
 //@[022:0023) |   |     | └─Token(RightParen) |)|
-//@[024:0025) |   |     ├─Token(LessThan) |<|
+//@[024:0025) |   |     ├─Token(LeftChevron) |<|
 //@[026:0036) |   |     └─FunctionCallSyntax
 //@[026:0029) |   |       ├─IdentifierSyntax
 //@[026:0029) |   |       | └─Token(Identifier) |int|
@@ -980,7 +980,7 @@ var sortEmpty = sort([], (x, y) => int(x) < int(y))
 //@[039:0040) |   |     | |   └─IdentifierSyntax
 //@[039:0040) |   |     | |     └─Token(Identifier) |x|
 //@[040:0041) |   |     | └─Token(RightParen) |)|
-//@[042:0043) |   |     ├─Token(LessThan) |<|
+//@[042:0043) |   |     ├─Token(LeftChevron) |<|
 //@[044:0050) |   |     └─FunctionCallSyntax
 //@[044:0047) |   |       ├─IdentifierSyntax
 //@[044:0047) |   |       | └─Token(Identifier) |int|
@@ -1284,7 +1284,7 @@ var filteredLoop = filter(itemForLoop, i => i > 5)
 //@[044:0045) |   |     ├─VariableAccessSyntax
 //@[044:0045) |   |     | └─IdentifierSyntax
 //@[044:0045) |   |     |   └─Token(Identifier) |i|
-//@[046:0047) |   |     ├─Token(GreaterThan) |>|
+//@[046:0047) |   |     ├─Token(RightChevron) |>|
 //@[048:0049) |   |     └─IntegerLiteralSyntax
 //@[048:0049) |   |       └─Token(Integer) |5|
 //@[049:0050) |   └─Token(RightParen) |)|
@@ -1645,7 +1645,7 @@ var objectMap2 = toObject(range(0, 10), i => '${i}', i => {
 //@[019:0020) |   |     |   | ├─VariableAccessSyntax
 //@[019:0020) |   |     |   | | └─IdentifierSyntax
 //@[019:0020) |   |     |   | |   └─Token(Identifier) |i|
-//@[021:0022) |   |     |   | ├─Token(GreaterThan) |>|
+//@[021:0022) |   |     |   | ├─Token(RightChevron) |>|
 //@[023:0024) |   |     |   | └─IntegerLiteralSyntax
 //@[023:0024) |   |     |   |   └─Token(Integer) |4|
 //@[024:0025) |   |     |   └─Token(RightParen) |)|
@@ -1827,7 +1827,7 @@ var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
 //@[019:0020) |   |     |   | ├─VariableAccessSyntax
 //@[019:0020) |   |     |   | | └─IdentifierSyntax
 //@[019:0020) |   |     |   | |   └─Token(Identifier) |i|
-//@[021:0022) |   |     |   | ├─Token(GreaterThan) |>|
+//@[021:0022) |   |     |   | ├─Token(RightChevron) |>|
 //@[023:0024) |   |     |   | └─IntegerLiteralSyntax
 //@[023:0024) |   |     |   |   └─Token(Integer) |4|
 //@[024:0025) |   |     |   └─Token(RightParen) |)|
