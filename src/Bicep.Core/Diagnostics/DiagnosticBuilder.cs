@@ -2107,6 +2107,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP385",
                 $@"Using resource-derived types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceDerivedTypes)}"".");
+
+            public ErrorDiagnostic DecoratorMayNotTargetResourceDerivedType(string decoratorName) => new(
+                TextSpan,
+                "BCP386",
+                $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a resource-derived type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

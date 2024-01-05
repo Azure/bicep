@@ -30,16 +30,17 @@ type invalid12 = resource<resourceGroup()>
 //@[40:40) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 
 type thisIsWeird = resource</*
-*/'Astronomer.Astro/organizations@2023-08-01-preview' 
-//@[54:54) [BCP237 (Error)] Expected a comma character at this location. (CodeDescription: none) ||
+*/'Astronomer.Astro/organizations@2023-08-01-preview'
+//@[53:53) [BCP237 (Error)] Expected a comma character at this location. (CodeDescription: none) ||
 ///  >
 >
 
-type shouldWeBlockThis = resource<'Microsoft.${'Storage'}/storageAccounts@2022-09-01'>
+type interpolated = resource<'Microsoft.${'Storage'}/storageAccounts@2022-09-01'>
+//@[29:80) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |'Microsoft.${'Storage'}/storageAccounts@2022-09-01'|
 
-@sealed() // this was offered as a completion
-//@[00:09) [BCP316 (Error)] The "sealed" decorator may not be used on object types with an explicit additional properties type declaration. (CodeDescription: none) |@sealed()|
-type shouldWeBlockThis2 = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
+@sealed()
+//@[00:09) [BCP386 (Error)] The decorator "sealed" may not be used on statements whose declared type is a reference to a resource-derived type. (CodeDescription: none) |@sealed()|
+type shouldNotBeSealable = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
 
 type hello = {
   @discriminator('hi')

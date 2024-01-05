@@ -411,11 +411,9 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetModifiedObject(ObjectType declaredObject, DecorableSyntax syntax, TypeSymbolValidationFlags validationFlags)
         {
-            if (TryGetSystemDecorator(syntax, LanguageConstants.ParameterSealedPropertyName) is DecoratorSyntax sealedDecorator)
+            if (TryGetSystemDecorator(syntax, LanguageConstants.ParameterSealedPropertyName) is not null)
             {
-                return declaredObject.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)
-                    ? new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, additionalPropertiesType: null)
-                    : ErrorType.Create(DiagnosticBuilder.ForPosition(sealedDecorator).SealedIncompatibleWithAdditionalPropertiesDeclaration());
+                return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, additionalPropertiesType: null);
             }
 
             if (declaredObject.ValidationFlags == validationFlags)

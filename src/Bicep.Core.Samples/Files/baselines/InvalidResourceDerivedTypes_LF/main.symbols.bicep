@@ -26,17 +26,17 @@ type invalid12 = resource<resourceGroup()>
 //@[5:14) TypeAlias invalid12. Type: error. Declaration start char: 0, length: 42
 
 type thisIsWeird = resource</*
-//@[5:16) TypeAlias thisIsWeird. Type: Type<Astronomer.Astro/organizations>. Declaration start char: 0, length: 94
-*/'Astronomer.Astro/organizations@2023-08-01-preview' 
+//@[5:16) TypeAlias thisIsWeird. Type: Type<Astronomer.Astro/organizations>. Declaration start char: 0, length: 93
+*/'Astronomer.Astro/organizations@2023-08-01-preview'
 ///  >
 >
 
-type shouldWeBlockThis = resource<'Microsoft.${'Storage'}/storageAccounts@2022-09-01'>
-//@[5:22) TypeAlias shouldWeBlockThis. Type: Type<Microsoft.Storage/storageAccounts>. Declaration start char: 0, length: 86
+type interpolated = resource<'Microsoft.${'Storage'}/storageAccounts@2022-09-01'>
+//@[5:17) TypeAlias interpolated. Type: error. Declaration start char: 0, length: 81
 
-@sealed() // this was offered as a completion
-type shouldWeBlockThis2 = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
-//@[5:23) TypeAlias shouldWeBlockThis2. Type: error. Declaration start char: 0, length: 128
+@sealed()
+type shouldNotBeSealable = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
+//@[5:24) TypeAlias shouldNotBeSealable. Type: Type<Microsoft.Storage/storageAccounts>. Declaration start char: 0, length: 93
 
 type hello = {
 //@[5:10) TypeAlias hello. Type: Type<{ bar: Astronomer.Astro/organizations }>. Declaration start char: 0, length: 108

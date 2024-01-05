@@ -116,42 +116,42 @@ type thisIsWeird = resource</*
 //@[17:18) Assignment |=|
 //@[19:27) Identifier |resource|
 //@[27:28) LeftChevron |<|
-*/'Astronomer.Astro/organizations@2023-08-01-preview' 
+*/'Astronomer.Astro/organizations@2023-08-01-preview'
 //@[02:53) StringComplete |'Astronomer.Astro/organizations@2023-08-01-preview'|
-//@[54:55) NewLine |\n|
+//@[53:54) NewLine |\n|
 ///  >
 //@[06:07) NewLine |\n|
 >
 //@[00:01) RightChevron |>|
 //@[01:03) NewLine |\n\n|
 
-type shouldWeBlockThis = resource<'Microsoft.${'Storage'}/storageAccounts@2022-09-01'>
+type interpolated = resource<'Microsoft.${'Storage'}/storageAccounts@2022-09-01'>
 //@[00:04) Identifier |type|
-//@[05:22) Identifier |shouldWeBlockThis|
-//@[23:24) Assignment |=|
-//@[25:33) Identifier |resource|
-//@[33:34) LeftChevron |<|
-//@[34:47) StringLeftPiece |'Microsoft.${|
-//@[47:56) StringComplete |'Storage'|
-//@[56:85) StringRightPiece |}/storageAccounts@2022-09-01'|
-//@[85:86) RightChevron |>|
-//@[86:88) NewLine |\n\n|
+//@[05:17) Identifier |interpolated|
+//@[18:19) Assignment |=|
+//@[20:28) Identifier |resource|
+//@[28:29) LeftChevron |<|
+//@[29:42) StringLeftPiece |'Microsoft.${|
+//@[42:51) StringComplete |'Storage'|
+//@[51:80) StringRightPiece |}/storageAccounts@2022-09-01'|
+//@[80:81) RightChevron |>|
+//@[81:83) NewLine |\n\n|
 
-@sealed() // this was offered as a completion
+@sealed()
 //@[00:01) At |@|
 //@[01:07) Identifier |sealed|
 //@[07:08) LeftParen |(|
 //@[08:09) RightParen |)|
-//@[45:46) NewLine |\n|
-type shouldWeBlockThis2 = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
+//@[09:10) NewLine |\n|
+type shouldNotBeSealable = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
 //@[00:04) Identifier |type|
-//@[05:23) Identifier |shouldWeBlockThis2|
-//@[24:25) Assignment |=|
-//@[26:34) Identifier |resource|
-//@[34:35) LeftChevron |<|
-//@[35:81) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
-//@[81:82) RightChevron |>|
-//@[82:84) NewLine |\n\n|
+//@[05:24) Identifier |shouldNotBeSealable|
+//@[25:26) Assignment |=|
+//@[27:35) Identifier |resource|
+//@[35:36) LeftChevron |<|
+//@[36:82) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
+//@[82:83) RightChevron |>|
+//@[83:85) NewLine |\n\n|
 
 type hello = {
 //@[00:04) Identifier |type|

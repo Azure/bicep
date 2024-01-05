@@ -16,16 +16,16 @@ type invalid11 = resource<123>
 type invalid12 = resource<resourceGroup()>
 
 type thisIsWeird = resource</*
-*/'Astronomer.Astro/organizations@2023-08-01-preview' 
+*/'Astronomer.Astro/organizations@2023-08-01-preview'
 ///  >
 >
 
-type shouldWeBlockThis = resource<
+type interpolated = resource<
   'Microsoft.${'Storage'}/storageAccounts@2022-09-01'
 >
 
-@sealed() // this was offered as a completion
-type shouldWeBlockThis2 = resource<
+@sealed()
+type shouldNotBeSealable = resource<
   'Microsoft.Storage/storageAccounts@2022-09-01'
 >
 

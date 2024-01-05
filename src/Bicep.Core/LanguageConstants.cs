@@ -183,6 +183,7 @@ namespace Bicep.Core
         public const string TypeNameInt = "int";
         public const string TypeNameModule = "module";
         public const string TypeNameTest = "test";
+        public const string TypeNameResource = "resource";
 
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;

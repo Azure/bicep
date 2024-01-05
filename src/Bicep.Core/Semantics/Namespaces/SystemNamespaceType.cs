@@ -1672,7 +1672,24 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                 .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Object)
-                .WithValidator(ValidateNotTargetingAlias)
+                .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
+                {
+                    switch (UnwrapNullableSyntax(GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder)))
+                    {
+                        case VariableAccessSyntax variableAccess when binder.GetSymbolInfo(variableAccess) is not AmbientTypeSymbol:
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+                            break;
+                        case AccessExpressionSyntax accessExpression when binder.GetSymbolInfo(accessExpression.BaseExpression) is not BuiltInNamespaceSymbol:
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+                            break;
+                        case ParameterizedTypeInstantiationSyntaxBase parameterized when LanguageConstants.IdentifierComparer.Equals(parameterized.Name.IdentifierName, LanguageConstants.TypeNameResource):
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetResourceDerivedType(decoratorName));
+                            break;
+                        case ObjectTypeSyntax @object when @object.AdditionalProperties is not null:
+                            diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).SealedIncompatibleWithAdditionalPropertiesDeclaration());
+                            break;
+                    }
+                })
                 .WithEvaluator((functionCall, decorated) =>
                 {
                     if (decorated is TypeDeclaringExpression typeDeclaringExpression)
@@ -1750,19 +1767,19 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             if (features.ResourceDerivedTypesEnabled)
             {
-                yield return new("resource",
-                    new TypeTemplate("resource",
+                yield return new(LanguageConstants.TypeNameResource,
+                    new TypeTemplate(LanguageConstants.TypeNameResource,
                         ImmutableArray.Create(new TypeParameter("ResourceTypeIdentifier",
                             "A string of the format '<type-name>@<api-version>' that identifies the kind of resource whose body type definition is to be used.",
                             LanguageConstants.StringResourceIdentifier)),
                         (binder, syntax, argumentTypes) =>
                         {
-                            if (argumentTypes.FirstOrDefault() is not StringLiteralType stringLiteral)
+                            if (syntax.Arguments.FirstOrDefault()?.Expression is not StringSyntax stringArg || stringArg.TryGetLiteralValue() is not string resourceTypeString)
                             {
                                 return new(DiagnosticBuilder.ForPosition(TextSpan.BetweenExclusive(syntax.OpenChevron, syntax.CloseChevron)).CompileTimeConstantRequired());
                             }
 
-                            if (!TypeHelper.GetResourceTypeFromString(binder, stringLiteral.RawStringValue, ResourceTypeGenerationFlags.None, parentResourceType: null)
+                            if (!TypeHelper.GetResourceTypeFromString(binder, resourceTypeString, ResourceTypeGenerationFlags.None, parentResourceType: null)
                                 .IsSuccess(out var resourceType, out var errorBuilder))
                             {
                                 return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
