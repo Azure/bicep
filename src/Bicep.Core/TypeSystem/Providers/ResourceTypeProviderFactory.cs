@@ -42,28 +42,6 @@ namespace Bicep.Core.TypeSystem.Providers
                 return new(cachedResourceTypeLoaders[key]);
             }
 
-            // is never null since provider restore success is validated prior.
-            var typesTgzPath = Uri.UnescapeDataString(providerDescriptor.TypesBaseUri?.AbsolutePath ?? throw new UnreachableException("the provider directory doesn't exist"));
-            var typesParentPath = Path.GetDirectoryName(typesTgzPath) ?? throw new UnreachableException("the provider directory doesn't exist");
-
-            // compose the path to the OCI manifest based on the cache root directory and provider version
-            var ociManifestPath = Path.Combine(typesParentPath, "manifest");
-            if (!fileSystem.File.Exists(ociManifestPath))
-            {
-                // always exists since provider restore was successful
-                throw new UnreachableException("the provider manifest path doesn't exist");
-            }
-
-            // Read the OCI manifest
-            var manifestFileContents = fileSystem.File.ReadAllText(ociManifestPath);
-            OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
-
-            if (ociManifest is null)
-            {
-                return new(x => x.ErrorOccurredReadingFile(ociManifestPath)); ;
-            }
-
-            using var fileStream = fileSystem.File.OpenRead(Path.Combine(typesParentPath, OciTypeLoader.TypesArtifactFilename));
             IResourceTypeProvider newResourceTypeLoader;
             try
             {
@@ -72,11 +50,15 @@ namespace Bicep.Core.TypeSystem.Providers
                     // Note (asilverman): the line of code below is meant for 3rd party provider resolution logic which is not yet implemented.
                     throw new NotImplementedException($"Provider {providerDescriptor.Name} not supported.");
                 }
-                newResourceTypeLoader = new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version);
+                newResourceTypeLoader =
+                new AzResourceTypeProvider(
+                    new AzResourceTypeLoader(
+                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
+                        providerDescriptor.Version);
             }
-            catch (Exception exception) // catch any exception thrown by the type loader during de-serilization
+            catch (InvalidOciResourceTypesProviderArtifactException exception)
             {
-                return new(x => x.ErrorOccurredReadingFile(exception.Message));
+                return new(x => x.InvalidProviderArtifact(exception.Message));
             }
 
             return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);

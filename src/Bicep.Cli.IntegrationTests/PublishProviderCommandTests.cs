@@ -72,7 +72,7 @@ public class PublishProviderCommandTests : TestBase
         // verify the provider was published
         mockBlobClient.Should().HaveProvider(version, out var tgzStream);
 
-        var typeLoader = OciTypeLoader.FromTgz(tgzStream);
+        var typeLoader = OciTypeLoader.FromStream(tgzStream);
         var azTypeLoader = new AzResourceTypeLoader(typeLoader);
 
         // verify the index works
@@ -96,7 +96,7 @@ public class PublishProviderCommandTests : TestBase
         // verify the provider was published
         mockBlobClient.Should().HaveProvider(version, out var tgzStream2);
 
-        var typeLoader2 = OciTypeLoader.FromTgz(tgzStream2);
+        var typeLoader2 = OciTypeLoader.FromStream(tgzStream2);
         var azTypeLoader2 = new AzResourceTypeLoader(typeLoader2);
 
         // verify the index works

@@ -121,7 +121,7 @@ namespace Bicep.Cli.Commands
             tempStream.Position = 0;
             tarStream.Position = 0;
 
-            var typeLoader = OciTypeLoader.FromTgz(tempStream);
+            var typeLoader = OciTypeLoader.FromStream(tempStream);
             var index = typeLoader.LoadTypeIndex();
             foreach (var (_, typeLocation) in index.Resources)
             {

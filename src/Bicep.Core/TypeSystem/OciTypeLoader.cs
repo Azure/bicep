@@ -4,11 +4,18 @@ using System;
 using System.Collections.Immutable;
 using System.Formats.Tar;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Compression;
 using Azure.Bicep.Types;
 
 namespace Bicep.Core.TypeSystem
 {
+    public class InvalidOciResourceTypesProviderArtifactException : Exception
+    {
+        public InvalidOciResourceTypesProviderArtifactException(string message) : base(message) { }
+    }
+
+
     public class OciTypeLoader : TypeLoader
     {
         private readonly ImmutableDictionary<string, byte[]> typesCache;
@@ -18,7 +25,31 @@ namespace Bicep.Core.TypeSystem
             this.typesCache = typesCache;
         }
 
-        public static OciTypeLoader FromTgz(Stream stream)
+        private static OciTypeLoader FromDiskHelper(IFileSystem fs, Uri? typesTgzUri)
+        {
+            if (typesTgzUri is null)
+            {
+                throw new ArgumentNullException(nameof(typesTgzUri));
+            }
+
+            using var stream = fs.File.OpenRead(typesTgzUri.LocalPath);
+
+            return FromStream(stream);
+        }
+
+        public static OciTypeLoader FromDisk(IFileSystem fs, Uri? typesTgzUri)
+        {
+            try
+            {
+                return FromDiskHelper(fs, typesTgzUri);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOciResourceTypesProviderArtifactException(e.Message);
+            }
+        }
+
+        public static OciTypeLoader FromStream(Stream stream)
         {
             var typesCacheBuilder = ImmutableDictionary.CreateBuilder<string, byte[]>();
 
@@ -31,8 +62,7 @@ namespace Bicep.Core.TypeSystem
             {
                 if (entry.DataStream is null)
                 {
-                    var errorMessage = $"Failed to restore {entry.Name} from OCI provider data";
-                    throw new InvalidOperationException(errorMessage);
+                    throw new InvalidOperationException($"Stream for {entry.Name} is null.");
                 }
 
                 using var memoryStream = new MemoryStream();
@@ -58,7 +88,7 @@ namespace Bicep.Core.TypeSystem
             }
             else
             {
-                throw new ArgumentException($"Failed to restore {path} from OCI provider data", nameof(path));
+                throw new InvalidOciResourceTypesProviderArtifactException($"{path} not found.");
             }
         }
     }
