@@ -212,9 +212,9 @@ namespace Bicep.Core.Semantics
                 syntax.Alias?.IdentifierName,
                 typesBaseUri);
 
-            if (namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind) is not { } namespaceType)
+            if (!namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind).IsSuccess(out var namespaceType, out errorBuilder))
             {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification!.Name));
+                return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
             }
 
             return namespaceType;

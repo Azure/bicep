@@ -64,13 +64,21 @@ namespace Bicep.Core.TypeSystem.Providers
             }
 
             using var fileStream = fileSystem.File.OpenRead(Path.Combine(typesParentPath, OciTypeLoader.TypesArtifactFilename));
-
-            IResourceTypeProvider? newResourceTypeLoader = providerDescriptor.Name switch
+            IResourceTypeProvider newResourceTypeLoader;
+            try
             {
-                AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version),
-                // Note(asilverman): the line of code below is meant for 3rd party provider resolution logic which is not yet implemented.
-                _ => throw new NotImplementedException($"Provider {providerDescriptor.Name} not supported."),
-            };
+                if (providerDescriptor.Name != AzNamespaceType.BuiltInName)
+                {
+                    // Note (asilverman): the line of code below is meant for 3rd party provider resolution logic which is not yet implemented.
+                    throw new NotImplementedException($"Provider {providerDescriptor.Name} not supported.");
+                }
+                newResourceTypeLoader = new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version);
+            }
+            catch (Exception exception) // catch any exception thrown by the type loader during de-serilization
+            {
+                return new(x => x.ErrorOccurredReadingFile(exception.Message));
+            }
+
             return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);
         }
 

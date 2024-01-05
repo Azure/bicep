@@ -1029,18 +1029,16 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("fake", LanguageConstants.String);
         }
 
-        private IEnumerable<FunctionOverload> GetMatches(
+        private static IEnumerable<FunctionOverload> GetMatches(
             string functionName,
             IList<TypeSymbol> argumentTypes,
             out List<ArgumentCountMismatch> argumentCountMismatches,
             out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
-            var namespaceProvider = BicepTestConstants.NamespaceProvider;
             var namespaces = new[] {
-                namespaceProvider.TryGetNamespace(BicepTestConstants.BuiltInAzProviderDescriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
-                namespaceProvider.TryGetNamespace(BicepTestConstants.BuiltInSysProviderDescriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!,
+                TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInAzProviderDescriptor),
+                TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInSysProviderDescriptor)
             };
-
             var matches = new List<FunctionOverload>();
 
             argumentCountMismatches = new List<ArgumentCountMismatch>();

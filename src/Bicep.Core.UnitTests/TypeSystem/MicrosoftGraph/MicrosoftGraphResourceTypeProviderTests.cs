@@ -24,16 +24,11 @@ namespace Bicep.Core.UnitTests.TypeSystem.MicrosoftGraph
     [TestClass]
     public class MicrosoftGraphResourceTypeProviderTests
     {
-        private static NamespaceType GetMicrosoftGraphNamespaceType()
-        {
-            return BicepTestConstants.NamespaceProvider.TryGetNamespace(BicepTestConstants.MicrosoftGraphProviderDescriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
-        }
-
-        [TestMethod]
+ 
+    [TestMethod]
         public void MicrosoftGraphResourceTypeProvider_can_list_all_types_without_throwing()
         {
-            var resourceTypeProvider = GetMicrosoftGraphNamespaceType().ResourceTypeProvider;
-            var availableTypes = resourceTypeProvider.GetAvailableTypes();
+            var availableTypes = TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.MicrosoftGraphProviderDescriptor).ResourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
             var minExpectedTypes = 5;
