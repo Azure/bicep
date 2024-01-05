@@ -57,10 +57,10 @@ namespace Bicep.Core.Samples
             return (compilation, outputDirectory, fileUri);
         }
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, bool enablePublishSource, params (string registryUri, string repository)[] additionalClients)
             => CreateMockRegistryClients(dataSet.RegistryModules, enablePublishSource, additionalClients);
 
-        public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, bool enablePublishSource, params (Uri registryUri, string repository)[] additionalClients)
+        public static IContainerRegistryClientFactory CreateMockRegistryClients(ImmutableDictionary<string, DataSet.ExternalModuleInfo> registryModules, bool enablePublishSource, params (string registryUri, string repository)[] additionalClients)
         {
             var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: enablePublishSource));
             var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
@@ -69,7 +69,7 @@ namespace Bicep.Core.Samples
                 .AddSingleton(featureProviderFactory)
                 ).Construct<IModuleDispatcher>();
 
-            var clients = new List<(Uri registryUri, string repository)>();
+            var clients = new List<(string, string)>();
 
             foreach (var (moduleName, publishInfo) in registryModules)
             {
@@ -80,20 +80,19 @@ namespace Bicep.Core.Samples
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{target}'. Specify a reference to an OCI artifact.");
                 }
 
-                Uri registryUri = new($"https://{targetReference.Registry}");
-                clients.Add((registryUri, targetReference.Repository));
+                clients.Add((targetReference.Registry, targetReference.Repository));
             }
 
             return CreateMockRegistryClients(clients.Concat(additionalClients).ToArray()).factoryMock;
         }
 
-        public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(params (Uri registryUri, string repository)[] clients)
+        public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(params (string, string)[] clients)
         {
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
 
-            foreach (var (registryUri, repository) in clients)
+            foreach (var (registryHost, repository) in clients)
             {
-                containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryUri, repository);
+                containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(registryHost, repository);
 
             }
 
@@ -205,12 +204,6 @@ namespace Bicep.Core.Samples
         }
 
         public static IContainerRegistryClientFactory CreateOciClientForAzProvider()
-        {
-            var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients(
-                (new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}"), $"bicep/providers/az")
-            );
-
-            return clientFactory;
-        }
+            => CreateMockRegistryClients((LanguageConstants.BicepPublicMcrRegistry, $"bicep/providers/az")).factoryMock;
     }
 }

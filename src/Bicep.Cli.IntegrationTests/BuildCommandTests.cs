@@ -123,7 +123,7 @@ namespace Bicep.Cli.IntegrationTests
                 "contoso.azurecr.io",
                 "invalid.azureacr.io" })
             {
-                builder.RegisterMockRepositoryBlobClient(new Uri($"https://{registryHost}"), "bicep/providers/az");
+                builder.RegisterMockRepositoryBlobClient(registryHost, "bicep/providers/az");
             }
 
             // 2. upload a manifest and its blob layer

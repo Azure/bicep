@@ -21,9 +21,9 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class RegistryProviderTests : TestBase
 {
-    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registry, string repository)
+    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registryFqdn, string repositoryPath)
     {
-        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients((new Uri($"https://{registry}"), repository));
+        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients((registryFqdn, repositoryPath));
 
         return new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true))

@@ -125,7 +125,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/providers/az", "0.2.661");
             var clientFactory = DataSetsExtensions.CreateMockRegistryClients(
-                (new Uri($"https://{testArtifact.RegistryAddress}"), testArtifact.RepositoryPath)).factoryMock;
+                (testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
             await DataSetsExtensions.PublishModuleToRegistryAsync(
                 clientFactory,
                 moduleName: "az",
@@ -172,7 +172,9 @@ namespace Bicep.Core.IntegrationTests
             // mock the registry client to return the mock blob client
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
             containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(
-                new Uri($"https://{artifactRegistryAddress.RegistryAddress}"), artifactRegistryAddress.RepositoryPath, mockBlobClient.Object);
+                artifactRegistryAddress.RegistryAddress,
+                artifactRegistryAddress.RepositoryPath,
+                mockBlobClient.Object);
 
             var (clientFactory, _) = containerRegistryFactoryBuilder.Build();
 
