@@ -63,7 +63,17 @@ public class DefaultNamespaceProvider : INamespaceProvider
             return null;
         }
 
-        // TODO: return the 3rd party provider namespace type here
-        return null;
+        else {
+            //redundant
+            if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+            {
+                //TODO (Harsh): determine if we need resourceScope & sourceFileKind
+                //Harsh - we need to pass descriptor name to set the ARMResourceProvider
+                return ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider);
+            }
+
+            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
+            return null;
+        }
     }
 }

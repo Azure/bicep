@@ -63,12 +63,7 @@ output joke string = dadJoke.body.joke
         var compiler = GetServiceBuilder(fileSystem, clientFactory).Build().Construct<BicepCompiler>();
         var result = CompilationHelper.Compile(await compiler.CreateCompilation(bicepUri));
 
-        // TODO uncomment the below once the 3rd party logic has been implemented
-        // result.Should().NotHaveAnyDiagnostics();
-        // result.Template.Should().NotBeNull();
-
-        // TODO remove this once the above is uncommented
-        result.Should().ContainDiagnostic("BCP204", DiagnosticLevel.Error, "Provider namespace \"http\" is not recognized.");
-        result.Should().NotGenerateATemplate();
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
     }
 }

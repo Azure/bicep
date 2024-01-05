@@ -16,6 +16,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Newtonsoft.Json;
+using Bicep.Core.TypeSystem.Providers.ThirdParty;
 
 namespace Bicep.Core.TypeSystem.Providers
 {
@@ -67,7 +68,7 @@ namespace Bicep.Core.TypeSystem.Providers
             IResourceTypeProvider newResourceTypeLoader = providerDescriptor.Alias switch
             {
                 AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version),
-                _ => throw new NotImplementedException($"The provider {providerDescriptor.Alias} is not supported."),
+                _ => new ThirdPartyResourceTypeProvider(new ThirdPartyResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version),
             };
 
             return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);
