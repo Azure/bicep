@@ -159,6 +159,7 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
+        [DoNotParallelize()]
         public async Task ModuleRestoreContentionShouldProduceConsistentState()
         {
             var dataSet = DataSets.Registry_LF;
