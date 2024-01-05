@@ -1,4 +1,4 @@
-type foo = resource < 'Microsoft.Storage/storageAccounts@2023-01-01' >
+type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
 
 type test = {
   resA: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
@@ -10,7 +10,7 @@ type test = {
 type strangeFormattings = {
   test: resource<
 
-  'Astronomer.Astro/organizations@2023-08-01-preview'
+    'Astronomer.Astro/organizations@2023-08-01-preview'
 
   >
   test2: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
@@ -18,13 +18,13 @@ type strangeFormattings = {
 }
 
 @description('I love space(s)')
-type test2 = resource < 
+type test2 = resource<
 
- 'Astronomer.Astro/organizations@2023-08-01-preview' 
+  'Astronomer.Astro/organizations@2023-08-01-preview'
 
- >
+>
 
-param bar resource < 'Microsoft.Resources/tags@2022-09-01' > = {
+param bar resource<'Microsoft.Resources/tags@2022-09-01'> = {
   name: 'default'
   properties: {
     tags: {
@@ -34,7 +34,7 @@ param bar resource < 'Microsoft.Resources/tags@2022-09-01' > = {
   }
 }
 
-output baz resource < 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' > = {
+output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'> = {
   name: 'myId'
   location: 'eastus'
 }
