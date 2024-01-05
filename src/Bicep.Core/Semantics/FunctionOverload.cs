@@ -18,9 +18,7 @@ namespace Bicep.Core.Semantics
     public class FunctionOverload
     {
         public delegate FunctionResult ResultBuilderDelegate(
-            IBinder binder,
-            IEnvironment environment,
-            IFileResolver fileResolver,
+            SemanticModel model,
             IDiagnosticWriter diagnostics,
             FunctionCallSyntaxBase functionCall,
             ImmutableArray<TypeSymbol> argumentTypes);

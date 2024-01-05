@@ -14,7 +14,7 @@ using Bicep.Core.Utils;
 namespace Bicep.Core.FileSystem
 {
     public class FileResolver : IFileResolver
-    {
+    {        
         private readonly IFileSystem fileSystem;
 
         public FileResolver(IFileSystem fileSystem)
@@ -53,47 +53,26 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-        public ResultWithDiagnostic<FileWithEncoding> TryRead(Uri fileUri, Encoding fileEncoding, int maxCharacters)
+        public static ResultWithDiagnostic<FileWithEncoding> ReadWithEncoding(Stream stream, Encoding fileEncoding, int maxCharacters, Uri fileUri)
         {
-            if (!fileUri.IsFile)
-            {
-                return new(x => x.UnableToLoadNonFileUri(fileUri));
-            }
+            using var sr = new StreamReader(stream, fileEncoding, true);
 
-            try
+            Span<char> buffer = stackalloc char[LanguageConstants.MaxLiteralCharacterLimit + 1];
+            var sb = new StringBuilder();
+            while (!sr.EndOfStream)
             {
-                if (DirExists(fileUri))
+                var i = sr.ReadBlock(buffer);
+                sb.Append(new string(buffer.Slice(0, i)));
+                if (maxCharacters > 0 && sb.Length > maxCharacters)
                 {
-                    return new(x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath));
+                    return new(x => x.FileExceedsMaximumSize(fileUri.LocalPath, maxCharacters, "characters"));
                 }
-
-                ApplyWindowsConFileWorkaround(fileUri.LocalPath);
-                using var fileStream = fileSystem.File.OpenRead(fileUri.LocalPath);
-                using var sr = new StreamReader(fileStream, fileEncoding, true);
-
-                Span<char> buffer = stackalloc char[LanguageConstants.MaxLiteralCharacterLimit + 1];
-                var sb = new StringBuilder();
-                while (!sr.EndOfStream)
-                {
-                    var i = sr.ReadBlock(buffer);
-                    sb.Append(new string(buffer.Slice(0, i)));
-                    if (maxCharacters > 0 && sb.Length > maxCharacters)
-                    {
-                        return new(x => x.FileExceedsMaximumSize(fileUri.LocalPath, maxCharacters, "characters"));
-                    }
-                }
-
-                return new(new FileWithEncoding(sb.ToString(), sr.CurrentEncoding));
             }
-            catch (Exception exception)
-            {
-                // I/O classes typically throw a large variety of exceptions
-                // instead of handling each one separately let's just trust the message we get
-                return new(x => x.ErrorOccurredReadingFile(exception.Message));
-            }
+
+            return new(new FileWithEncoding(sb.ToString(), sr.CurrentEncoding));
         }
 
-        public ResultWithDiagnostic<string> TryReadAsBase64(Uri fileUri, int maxCharacters = -1)
+        private ResultWithDiagnostic<MemoryStream> TryRead(Uri fileUri, int maxFileSize)
         {
             if (!fileUri.IsFile)
             {
@@ -106,9 +85,8 @@ namespace Bicep.Core.FileSystem
                     return new(x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath));
                 }
 
-                if (maxCharacters > 0)
+                if (maxFileSize > 0)
                 {
-                    var maxFileSize = maxCharacters / 4 * 3; //each base64 character represents 6 bits
                     var fileInfo = fileSystem.FileInfo.New(fileUri.LocalPath);
                     fileInfo.Refresh();
                     if (fileInfo.Length > maxFileSize)
@@ -122,14 +100,14 @@ namespace Bicep.Core.FileSystem
 
                 Span<byte> buffer = stackalloc byte[102400];
                 var sb = new StringBuilder();
-                using var memoryStream = new MemoryStream(102400);
+                var memoryStream = new MemoryStream(102400);
                 var i = 0;
                 while ((i = fileStream.Read(buffer)) > 0)
                 {
                     memoryStream.Write(buffer.Slice(0, i));
                 }
 
-                return new(Convert.ToBase64String(memoryStream.ToArray(), Base64FormattingOptions.None));
+                return new(memoryStream);
             }
             catch (Exception exception)
             {
@@ -137,6 +115,17 @@ namespace Bicep.Core.FileSystem
                 // instead of handling each one separately let's just trust the message we get
                 return new(x => x.ErrorOccurredReadingFile(exception.Message));
             }
+        }
+
+        public ResultWithDiagnostic<byte[]> TryReadAsBytes(Uri fileUri, int? maxFileSize)
+        {
+            return TryRead(fileUri, maxFileSize ?? -1)
+                .Transform(memoryStream => {
+                    var bytes = memoryStream.ToArray();
+                    memoryStream.Dispose();
+
+                    return bytes;                    
+                });
         }
 
         public ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
@@ -184,19 +173,7 @@ namespace Bicep.Core.FileSystem
         }
 
         public Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)
-        {
-            if (!Uri.TryCreate(parentFileUri, childFilePath, out var relativeUri))
-            {
-                return null;
-            }
-
-            return relativeUri;
-        }
-
-        public string GetRelativePath(string relativeTo, string path)
-        {
-            return fileSystem.Path.GetRelativePath(relativeTo, path).Replace('\\', '/');
-        }
+            => PathHelper.TryResolveFilePath(parentFileUri, childFilePath);
 
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
         {

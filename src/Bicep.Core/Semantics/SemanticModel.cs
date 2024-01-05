@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -45,8 +46,9 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
+        private readonly IReadableFileCache fileLookup;
 
-        public SemanticModel(Compilation compilation, BicepSourceFile sourceFile, IEnvironment environment, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer, RootConfiguration configuration, IFeatureProvider features)
+        public SemanticModel(Compilation compilation, BicepSourceFile sourceFile, IEnvironment environment, IReadableFileCache fileLookup, IBicepAnalyzer linterAnalyzer, RootConfiguration configuration, IFeatureProvider features)
         {
             TraceBuildOperation(sourceFile, configuration);
 
@@ -55,7 +57,7 @@ namespace Bicep.Core.Semantics
             this.Configuration = configuration;
             this.Features = features;
             this.Environment = environment;
-            this.FileResolver = fileResolver;
+            this.fileLookup = fileLookup;
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
@@ -68,7 +70,7 @@ namespace Bicep.Core.Semantics
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(compilation.NamespaceProvider, features, compilation.SourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext, compilation.ArtifactReferenceFactory);
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
-            this.TypeManager = new TypeManager(features, Binder, environment, fileResolver, this.ParsingErrorLookup, Compilation.SourceFileGrouping, Compilation);
+            this.TypeManager = new TypeManager(this, this.Binder);
 
             // name binding is done
             // allow type queries now
@@ -148,6 +150,9 @@ namespace Bicep.Core.Semantics
                 return outputs.ToImmutableArray();
             });
         }
+
+        public ResultWithDiagnostic<AuxiliaryFile> ReadAuxiliaryFile(Uri uri)
+            => fileLookup.Read(this, uri);
 
         private IEnumerable<ExportMetadata> FindExportedTypes() => Root.TypeDeclarations
             .Where(t => IsExported(t.DeclaringType))
@@ -239,8 +244,6 @@ namespace Bicep.Core.Semantics
         public Compilation Compilation { get; }
 
         public ITypeManager TypeManager { get; }
-
-        public IFileResolver FileResolver { get; }
 
         public EmitterSettings EmitterSettings => emitterSettingsLazy.Value;
 

@@ -3,37 +3,36 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Bicep.Core.Diagnostics;
 using JetBrains.Annotations;
 
 namespace Bicep.Core.Utils;
 
 public class Result<TSuccess, TError>
-    where TSuccess : class
-    where TError : class
 {
-    TSuccess? Success { get; }
-
-    TError? Error { get; }
+    private readonly bool isSuccess;
+    private readonly TSuccess? successResult;
+    private readonly TError? errorResult;
 
     public Result(TSuccess success)
     {
-        Success = success;
-        Error = null;
+        this.isSuccess = true;
+        this.successResult = success;
+        this.errorResult = default;
     }
 
     public Result(TError error)
     {
-        Success = null;
-        Error = error;
+        this.isSuccess = false;
+        this.successResult = default;
+        this.errorResult = error;
     }
 
     public bool IsSuccess([NotNullWhen(true)] out TSuccess? success, [NotNullWhen(false)] out TError? error)
     {
-        success = Success;
-        error = Error;
+        success = successResult;
+        error = errorResult;
 
-        return Success is not null;
+        return isSuccess;
     }
 
 
@@ -49,5 +48,5 @@ public class Result<TSuccess, TError>
         => TryUnwrap() ?? throw new InvalidOperationException("Cannot unwrap a failed result.");
 
     public TSuccess? TryUnwrap()
-        => Success;
+        => successResult;
 }

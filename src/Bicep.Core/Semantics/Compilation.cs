@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Immutable;
+using System.IO.Abstractions;
 using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
@@ -39,6 +40,7 @@ namespace Bicep.Core.Semantics
             this.environment = environment;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
+            this.FileCache = new AuxiliaryFileCache(sourceFileGrouping.FileResolver);
             this.configurationManager = configurationManager;
             this.linterAnalyzer = linterAnalyzer;
             this.ArtifactReferenceFactory = artifactReferenceFactory;
@@ -62,6 +64,8 @@ namespace Bicep.Core.Semantics
         public INamespaceProvider NamespaceProvider { get; }
 
         public IArtifactReferenceFactory ArtifactReferenceFactory { get; }
+
+        public AuxiliaryFileCache FileCache { get; }
 
         public SemanticModel GetEntrypointSemanticModel()
             // entry point semantic models are guaranteed to cast successfully
@@ -89,7 +93,7 @@ namespace Bicep.Core.Semantics
             this,
             bicepFile,
             environment,
-            SourceFileGrouping.FileResolver,
+            FileCache,
             linterAnalyzer,
             configurationManager.GetConfiguration(bicepFile.FileUri),
             featureProviderFactory.GetFeatureProvider(bicepFile.FileUri));

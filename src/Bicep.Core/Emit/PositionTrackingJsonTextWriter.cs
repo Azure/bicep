@@ -63,20 +63,18 @@ namespace Bicep.Core.Emit
 
         private static readonly Regex JsonWhitespaceStrippingRegex = new(@"(""(?:[^""\\]|\\.)*"")|\s+", RegexOptions.Compiled);
 
-        private readonly IFileResolver fileResolver;
         private readonly RawSourceMap rawSourceMap;
         private readonly BicepSourceFile? sourceFile;
         private readonly PositionTrackingTextWriter trackingWriter;
 
-        public PositionTrackingJsonTextWriter(IFileResolver fileResolver, TextWriter textWriter, BicepSourceFile? sourceFile = null, RawSourceMap? rawSourceMap = null)
-            : this(fileResolver, new(textWriter), sourceFile, rawSourceMap)
+        public PositionTrackingJsonTextWriter(TextWriter textWriter, BicepSourceFile? sourceFile = null, RawSourceMap? rawSourceMap = null)
+            : this(new(textWriter), sourceFile, rawSourceMap)
         {
         }
 
-        private PositionTrackingJsonTextWriter(IFileResolver fileResolver, PositionTrackingTextWriter trackingWriter, BicepSourceFile? sourceFile, RawSourceMap? rawSourceMap)
+        private PositionTrackingJsonTextWriter(PositionTrackingTextWriter trackingWriter, BicepSourceFile? sourceFile, RawSourceMap? rawSourceMap)
             : base(trackingWriter)
         {
-            this.fileResolver = fileResolver;
             this.rawSourceMap = rawSourceMap ?? new RawSourceMap(new List<RawSourceMapFileEntry>());
             this.sourceFile = sourceFile;
             this.trackingWriter = trackingWriter;
@@ -237,12 +235,10 @@ namespace Bicep.Core.Emit
 
             var sourceMapFileEntries = new List<SourceMapFileEntry>();
             var entrypointFileName = System.IO.Path.GetFileName(sourceFile.FileUri.AbsolutePath);
-            var entrypointAbsolutePath = System.IO.Path.GetDirectoryName(sourceFile.FileUri.AbsolutePath)!;
 
             foreach (var bicepFileEntry in this.rawSourceMap.Entries)
             {
-                var bicepAbsolutePath = bicepFileEntry.SourceFile.FileUri.AbsolutePath;
-                var bicepRelativeFilePath = fileResolver.GetRelativePath(entrypointAbsolutePath, bicepAbsolutePath);
+                var bicepRelativeFilePath = PathHelper.GetRelativePath(sourceFile.FileUri, bicepFileEntry.SourceFile.FileUri);
                 var sourceMapEntries = new List<SourceMapEntry>();
 
                 foreach (var sourceMapEntry in bicepFileEntry.SourceMap)
