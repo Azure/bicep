@@ -15,6 +15,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
+using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -123,9 +124,13 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task Bicep_module_artifact_specified_in_provider_declaration_syntax_yields_diagnostic()
         {
+            // ARRANGE
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/providers/az", "0.2.661");
-            var clientFactory = DataSetsExtensions.CreateMockRegistryClients(
-                (testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
+            var clientFactory = DataSetsExtensions.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
+            var services = new ServiceBuilder()
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
+                .WithContainerRegistryClientFactory(clientFactory);
+
             await DataSetsExtensions.PublishModuleToRegistryAsync(
                 clientFactory,
                 moduleName: "az",
@@ -133,10 +138,6 @@ namespace Bicep.Core.IntegrationTests
                 moduleSource: "",
                 publishSource: false,
                 documentationUri: "mydocs.org/abc");
-
-            var services = new ServiceBuilder()
-           .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
-           .WithContainerRegistryClientFactory(clientFactory);
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
@@ -152,9 +153,41 @@ namespace Bicep.Core.IntegrationTests
             });
         }
 
+        [TestMethod]
+        public async Task Bicep_compiler_handles_corrupted_provider_package_gracefully()
+        {
+            // ARRANGE
+            var testArtifact = new ArtifactRegistryAddress("biceptestdf.azurecr.io", "bicep/providers/az", "0.0.0-corruptpng");
+            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(testArtifact.ClientDescriptor());
+
+            (_, var client) = blobClients.First();
+            await client.SetManifestAsync(BicepTestConstants.BicepProviderManifestWithEmptyTypesLayer, testArtifact.ProviderVersion);
+            await client.UploadBlobAsync(new MemoryStream());
+
+            var services = new ServiceBuilder()
+           .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
+           .WithContainerRegistryClientFactory(clientFactory);
+
+            // ACT
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider '{testArtifact.ToSpecificationString('@')}'
+            ");
+
+            // ASSERT
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP382", DiagnosticLevel.Error, "The OCI resource types provider artifact is invalid. Unable to read beyond the end of the stream."),
+                ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
+            });
+
+        }
+
         public record ArtifactRegistryAddress(string RegistryAddress, string RepositoryPath, string ProviderVersion)
         {
             public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ProviderVersion}";
+
+            public (string, string) ClientDescriptor() => (RegistryAddress, RepositoryPath);
         }
 
         [TestMethod]
@@ -176,11 +209,9 @@ namespace Bicep.Core.IntegrationTests
                 artifactRegistryAddress.RepositoryPath,
                 mockBlobClient.Object);
 
-            var (clientFactory, _) = containerRegistryFactoryBuilder.Build();
-
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
-                .WithContainerRegistryClientFactory(clientFactory);
+                .WithContainerRegistryClientFactory(containerRegistryFactoryBuilder.Build().clientFactory);
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"

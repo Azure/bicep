@@ -27,7 +27,7 @@ namespace Bicep.Core.UnitTests.Utils
             clientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), client);
         }
 
-        public (IContainerRegistryClientFactory mockContrainerRegistryClientFactory, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) Build()
+        public (IContainerRegistryClientFactory clientFactory, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) Build()
         {
             var repoToClient = clientsBuilder.ToImmutable();
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
