@@ -59,7 +59,7 @@ namespace Bicep.LanguageServer
             this.LinterRulesProvider = LinterRulesProvider;
         }
 
-        public void RefreshCompilation(DocumentUri documentUri)
+        public void RefreshCompilation(DocumentUri documentUri, bool clearAuxiliaryFileCache)
         {
             var compilationContext = this.GetCompilation(documentUri);
 
@@ -75,7 +75,7 @@ namespace Bicep.LanguageServer
                 // upsert compilation.
                 if (workspace.TryGetSourceFile(documentUri.ToUriEncoded(), out ISourceFile? sourceFile) && sourceFile is BicepFile)
                 {
-                    UpsertCompilationInternal(documentUri, null, sourceFile);
+                    UpsertCompilationInternal(documentUri, null, sourceFile, clearAuxiliaryFileCache: clearAuxiliaryFileCache);
                 }
 
                 return;
@@ -85,14 +85,14 @@ namespace Bicep.LanguageServer
             // need to make a shallow copy so it counts as a different file even though all the content is identical
             // this was the easiest way to force the compilation to be regenerated
             var shallowCopy = compilationContext.Compilation.SourceFileGrouping.EntryPoint.ShallowClone();
-            UpsertCompilationInternal(documentUri, null, shallowCopy);
+            UpsertCompilationInternal(documentUri, null, shallowCopy, clearAuxiliaryFileCache: clearAuxiliaryFileCache);
         }
 
-        public void RefreshAllActiveCompilations()
+        public void RefreshAllActiveCompilations(bool clearAuxiliaryFileCache)
         {
             foreach (Uri sourceFileUri in workspace.GetActiveSourceFilesByUri().Keys)
             {
-                RefreshCompilation(DocumentUri.From(sourceFileUri));
+                RefreshCompilation(DocumentUri.From(sourceFileUri), clearAuxiliaryFileCache: clearAuxiliaryFileCache);
             }
         }
 
@@ -141,7 +141,7 @@ namespace Bicep.LanguageServer
             throw new InvalidOperationException($"Unable to create source file for uri '{documentUri.ToUriEncoded()}'.");
         }
 
-        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool triggeredByFileOpenEvent = false)
+        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool triggeredByFileOpenEvent = false, bool clearAuxiliaryFileCache = false)
         {
             var (_, removedFiles) = workspace.UpsertSourceFile(newFile);
 
@@ -149,7 +149,7 @@ namespace Bicep.LanguageServer
             if (newFile is BicepSourceFile)
             {
                 // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
-                UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, triggeredByFileOpenEvent);
+                UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, triggeredByFileOpenEvent: triggeredByFileOpenEvent, clearAuxiliaryFileCache: clearAuxiliaryFileCache);
             }
 
             foreach (var (entrypointUri, context) in GetAllSafeActiveContexts())
@@ -157,7 +157,7 @@ namespace Bicep.LanguageServer
                 // we may see an unsafe context if there was a fatal exception
                 if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
-                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, triggeredByFileOpenEvent);
+                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, triggeredByFileOpenEvent: triggeredByFileOpenEvent, clearAuxiliaryFileCache: clearAuxiliaryFileCache);
                 }
             }
         }
@@ -196,10 +196,14 @@ namespace Bicep.LanguageServer
             }
 
             workspace.RemoveSourceFiles(removedFiles);
+            var fileUris = fileEvents.Select(x => x.Uri.ToUriEncoded()).ToImmutableArray();
 
             var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
             foreach (var (entrypointUri, context) in GetAllSafeActiveContexts())
             {
+                var modelsToRefresh = context.Compilation.FileCache.ClearEntries(fileUris).OfType<SemanticModel>();
+                removedFiles.UnionWith(modelsToRefresh.Select(x => x.SourceFile));
+
                 if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
                     UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles);
@@ -256,11 +260,11 @@ namespace Bicep.LanguageServer
             return closedFiles.ToImmutableArray();
         }
 
-        private CompilationContextBase CreateCompilationContext(IWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
+        private CompilationContextBase CreateCompilationContext(IWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, AuxiliaryFileCache? fileCache)
         {
             try
             {
-                return this.provider.Create(workspace, documentUri, modelLookup);
+                return this.provider.Create(workspace, documentUri, modelLookup, fileCache);
             }
             catch (Exception exception)
             {
@@ -284,7 +288,8 @@ namespace Bicep.LanguageServer
             int? version,
             IDictionary<ISourceFile, ISemanticModel> modelLookup,
             IEnumerable<ISourceFile> removedFiles,
-            bool triggeredByFileOpenEvent = false)
+            bool triggeredByFileOpenEvent = false,
+            bool clearAuxiliaryFileCache = false)
         {
             static IEnumerable<Diagnostic> CreateFatalDiagnostics(Exception exception) => new Diagnostic
             {
@@ -302,11 +307,13 @@ namespace Bicep.LanguageServer
             {
                 var potentiallyUnsafeContext = this.activeContexts.AddOrUpdate(
                     documentUri,
-                    (documentUri) => CreateCompilationContext(workspace, documentUri, modelLookup.ToImmutableDictionary()),
+                    (documentUri) => CreateCompilationContext(workspace, documentUri, modelLookup.ToImmutableDictionary(), null),
                     (documentUri, prevPotentiallyUnsafeContext) =>
                     {
+                        AuxiliaryFileCache? fileCache = null;
                         if (prevPotentiallyUnsafeContext is CompilationContext prevContext)
                         {
+                            fileCache = prevContext.Compilation.FileCache;
                             var sourceDependencies = removedFiles
                                 .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetFilesDependingOn(x))
                                 .ToImmutableHashSet();
@@ -322,7 +329,12 @@ namespace Bicep.LanguageServer
                             }
                         }
 
-                        return CreateCompilationContext(workspace, documentUri, modelLookup.ToImmutableDictionary());
+                        if (clearAuxiliaryFileCache)
+                        {
+                            fileCache = null;
+                        }
+
+                        return CreateCompilationContext(workspace, documentUri, modelLookup.ToImmutableDictionary(), fileCache);
                     });
 
                 switch (potentiallyUnsafeContext)
@@ -351,6 +363,8 @@ namespace Bicep.LanguageServer
 
                         // publish all the diagnostics
                         this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
+
+                        context.Compilation.TrimCaches();
 
                         return output;
 

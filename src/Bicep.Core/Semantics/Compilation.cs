@@ -34,20 +34,21 @@ namespace Bicep.Core.Semantics
             IConfigurationManager configurationManager,
             IBicepAnalyzer linterAnalyzer,
             IArtifactReferenceFactory artifactReferenceFactory,
-            ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+            AuxiliaryFileCache fileCache,
+            ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             this.featureProviderFactory = featureProviderFactory;
             this.environment = environment;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
-            this.FileCache = new AuxiliaryFileCache(sourceFileGrouping.FileResolver);
+            this.FileCache = fileCache;
             this.configurationManager = configurationManager;
             this.linterAnalyzer = linterAnalyzer;
             this.ArtifactReferenceFactory = artifactReferenceFactory;
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
-                sourceFile => (modelLookup is not null && modelLookup.TryGetValue(sourceFile, out var existingModel)) ?
+                sourceFile => modelLookup.TryGetValue(sourceFile, out var existingModel) ?
                     new(existingModel) :
                     new Lazy<ISemanticModel>(() => sourceFile switch // semantic model doesn't yet exist for file, create it
                     {
@@ -97,5 +98,11 @@ namespace Bicep.Core.Semantics
             linterAnalyzer,
             configurationManager.GetConfiguration(bicepFile.FileUri),
             featureProviderFactory.GetFeatureProvider(bicepFile.FileUri));
+
+        public void TrimCaches()
+        {
+            var activeModels = this.lazySemanticModelLookup.Values.Select(x => x.Value).OfType<SemanticModel>();
+            FileCache.RemoveStaleEntries(activeModels);
+        }
     }
 }

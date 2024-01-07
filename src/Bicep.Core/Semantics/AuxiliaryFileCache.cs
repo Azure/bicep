@@ -5,11 +5,11 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Syntax;
-using Bicep.Core.Semantics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Utils;
 using System.Diagnostics;
+using System.Linq;
+using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Semantics;
 
@@ -19,14 +19,13 @@ public record AuxiliaryFile(
 
 public interface IReadableFileCache
 {
-    ResultWithDiagnostic<AuxiliaryFile> Read(SemanticModel sourceModel, Uri uri);
+    ResultWithDiagnostic<AuxiliaryFile> Read(ISemanticModel sourceModel, Uri uri);
 }
 
 public class AuxiliaryFileCache : IReadableFileCache
 {
     public record CacheEntry(
-        // Use a ConcurrentDictionary with a dummy value because there's no built-in ConcurrentHashSet
-        ConcurrentDictionary<SemanticModel, byte> References,
+        ImmutableHashSet<ISemanticModel> References,
         ResultWithDiagnostic<AuxiliaryFile> Result);
 
     public AuxiliaryFileCache(IFileResolver fileResolver)
@@ -37,7 +36,7 @@ public class AuxiliaryFileCache : IReadableFileCache
     private readonly ConcurrentDictionary<Uri, CacheEntry> fileCache = new();
     private readonly IFileResolver fileResolver;
 
-    public ResultWithDiagnostic<AuxiliaryFile> Read(SemanticModel sourceModel, Uri uri)
+    public ResultWithDiagnostic<AuxiliaryFile> Read(ISemanticModel sourceModel, Uri uri)
     {
         var cacheEntry = fileCache.AddOrUpdate(
             uri,
@@ -48,32 +47,50 @@ public class AuxiliaryFileCache : IReadableFileCache
                 Trace.WriteLine($"Loaded auxiliary file {uri}. Success: {result.IsSuccess()}");
 
                 return new(
-                    References: new() {
-                        [sourceModel] = 0,
-                    },
+                    References: sourceModel.AsEnumerable().ToImmutableHashSet(),
                     Result: result);
             },
             (uri, entry) => {
-                entry.References.AddOrUpdate(
-                    sourceModel,
-                    0,
-                    (_, _) => 0);
-
-                return entry;
+                return new(
+                    References: entry.References.Add(sourceModel),
+                    Result: entry.Result);
             });
 
         return cacheEntry.Result;
     }
 
-    public void RemoveReferences(SemanticModel model)
+    public void RemoveStaleEntries(IEnumerable<ISemanticModel> activeModels)
     {
         foreach (var kvp in fileCache)
         {
-            if (kvp.Value.References.TryRemove(model, out _) &&
-                kvp.Value.References.IsEmpty)
+            var newEntry = fileCache.AddOrUpdate(
+                kvp.Key,
+                kvp.Value,
+                (uri, entry) => new(
+                    References: entry.References.Intersect(activeModels),
+                    Result: entry.Result));
+
+            // There's a race condition where the above could re-add an entry that was removed by another thread.
+            // To mitigate this, we can remove it here if the entry is the same reference.
+            if (object.ReferenceEquals(newEntry, kvp.Value) ||
+                newEntry.References.IsEmpty)
             {
                 fileCache.TryRemove(kvp);
             }
         }
+    }
+
+    public ImmutableArray<ISemanticModel> ClearEntries(IEnumerable<Uri> fileUris)
+    {
+        HashSet<ISemanticModel> affectedModels = new();
+        foreach (var fileUri in fileUris)
+        {
+            if (fileCache.TryRemove(fileUri, out var cacheEntry))
+            {
+                affectedModels.UnionWith(cacheEntry.References);
+            }
+        }
+
+        return affectedModels.ToImmutableArray();
     }
 }

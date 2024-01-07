@@ -349,7 +349,8 @@ namespace Bicep.LangServer.UnitTests
                 m => m.Create(
                     It.IsAny<IReadOnlyWorkspace>(),
                     It.IsAny<DocumentUri>(),
-                    It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>()))
+                    It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>(),
+                    It.IsAny<AuxiliaryFileCache>()))
                     .Throws(new InvalidOperationException(expectedMessage));
 
             var uri = CreateUri(languageId);
@@ -414,10 +415,14 @@ namespace Bicep.LangServer.UnitTests
             // start by failing
             bool failUpsert = true;
             provider
-                .Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>(), It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>()))
-                .Returns<IReadOnlyWorkspace, DocumentUri, ImmutableDictionary<ISourceFile, ISemanticModel>>((grouping, documentUri, modelLookup) => failUpsert
+                .Setup(m => m.Create(
+                    It.IsAny<IReadOnlyWorkspace>(),
+                    It.IsAny<DocumentUri>(),
+                    It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>(),
+                    It.IsAny<AuxiliaryFileCache>()))
+                .Returns<IReadOnlyWorkspace, DocumentUri, ImmutableDictionary<ISourceFile, ISemanticModel>, AuxiliaryFileCache>((grouping, documentUri, modelLookup, fileCache) => failUpsert
                     ? throw new InvalidOperationException(expectedMessage)
-                    : BicepCompilationManagerHelper.CreateEmptyCompilationProvider().Create(grouping, documentUri, modelLookup));
+                    : BicepCompilationManagerHelper.CreateEmptyCompilationProvider().Create(grouping, documentUri, modelLookup, fileCache));
 
             var workspace = new Workspace();
 

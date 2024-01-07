@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
@@ -60,6 +61,15 @@ public class BicepCompiler
             }
         }
 
-        return new Compilation(featureProviderFactory, environment, namespaceProvider, sourceFileGrouping, configurationManager, bicepAnalyzer, moduleDispatcher);
+        return new Compilation(
+            featureProviderFactory,
+            environment,
+            namespaceProvider,
+            sourceFileGrouping,
+            configurationManager,
+            bicepAnalyzer,
+            moduleDispatcher,
+            new(fileResolver),
+            ImmutableDictionary<ISourceFile, ISemanticModel>.Empty);
     }
 }

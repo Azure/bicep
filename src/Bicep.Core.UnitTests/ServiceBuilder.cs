@@ -24,7 +24,7 @@ public interface IDependencyHelper
 
 public static class IDependencyHelperExtensions
 {
-    public static Compilation BuildCompilation(this IDependencyHelper helper, SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+    public static Compilation BuildCompilation(this IDependencyHelper helper, SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null, AuxiliaryFileCache? fileCache = null)
         => new(
             helper.Construct<IFeatureProviderFactory>(),
             helper.Construct<IEnvironment>(),
@@ -33,7 +33,8 @@ public static class IDependencyHelperExtensions
             helper.Construct<IConfigurationManager>(),
             helper.Construct<IBicepAnalyzer>(),
             helper.Construct<IModuleDispatcher>(),
-            modelLookup);
+            fileCache ?? new(sourceFileGrouping.FileResolver),
+            modelLookup ?? ImmutableDictionary<ISourceFile, ISemanticModel>.Empty);
 
     public static SourceFileGrouping BuildSourceFileGrouping(this IDependencyHelper helper, Uri entryFileUri, bool forceModulesRestore = false)
         => SourceFileGroupingBuilder.Build(
