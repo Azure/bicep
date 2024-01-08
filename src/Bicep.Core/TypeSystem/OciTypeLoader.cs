@@ -46,6 +46,7 @@ namespace Bicep.Core.TypeSystem
             catch (Exception e)
             {
                 throw new InvalidOciResourceTypesProviderArtifactException(e.Message);
+                throw new InvalidOciResourceTypesProviderArtifactException();
             }
         }
 

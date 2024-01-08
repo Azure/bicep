@@ -9,10 +9,10 @@ namespace Bicep.Core.Registry
     {
         NotSpecified,
         WrongArtifactType,
-        WrongModuleLayerMediaType
+        UknownLayerMediaType
     }
 
-    public class InvalidArtifactException : OciModuleRegistryException
+    public class InvalidArtifactException : OciArtifactRegistryException
     {
 
         public InvalidArtifactExceptionKind Kind { get; }
@@ -23,7 +23,7 @@ namespace Bicep.Core.Registry
         }
 
         public InvalidArtifactException(string innerMessage, Exception innerException, InvalidArtifactExceptionKind kind = InvalidArtifactExceptionKind.NotSpecified)
-            : base($"The OCI artifact is not a valid Bicep module. {innerMessage}", innerException)
+            : base($"The OCI artifact is not a valid Bicep artifact. {innerMessage}", innerException)
         {
             Kind = kind;
         }
