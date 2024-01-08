@@ -21,7 +21,8 @@ public record ExperimentalFeaturesEnabled(
     bool MicrosoftGraphPreview,
     bool CompileTimeImports,
     bool PublishSource,
-    bool OptionalModuleNames)
+    bool OptionalModuleNames,
+    bool ResourceDerivedTypes)
 {
     public static ExperimentalFeaturesEnabled Bind(JsonElement element)
         => element.ToNonNullObject<ExperimentalFeaturesEnabled>();

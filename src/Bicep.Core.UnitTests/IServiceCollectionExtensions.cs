@@ -131,15 +131,6 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithEmptyAzResources(this IServiceCollection services)
         => services.WithAzResources(Enumerable.Empty<ResourceTypeComponents>());
 
-    public static IServiceCollection WithWorkspaceFiles(this IServiceCollection services, IReadOnlyDictionary<Uri, string> fileContentsByUri)
-    {
-        var workspace = new Workspace();
-        var sourceFiles = fileContentsByUri.Select(kvp => SourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
-        workspace.UpsertSourceFiles(sourceFiles);
-
-        return services.WithWorkspace(workspace);
-    }
-
     public static IServiceCollection AddSingletonIfNonNull<TService>(this IServiceCollection services, TService? instance)
         where TService : class
     {

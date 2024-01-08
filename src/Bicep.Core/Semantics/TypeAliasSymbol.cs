@@ -18,8 +18,6 @@ public class TypeAliasSymbol : DeclaredSymbol
 
     public SyntaxBase Value { get; }
 
-    public TypeSymbol UnwrapType() => Type is TypeType typeRef ? typeRef.Unwrapped : Type;
-
     public override void Accept(SymbolVisitor visitor) => visitor.VisitTypeAliasSymbol(this);
 
     public override SymbolKind Kind => SymbolKind.TypeAlias;

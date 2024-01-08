@@ -36,6 +36,9 @@ public class AuxiliaryFileCache : IReadableFileCache
     private readonly ConcurrentDictionary<Uri, CacheEntry> fileCache = new();
     private readonly IFileResolver fileResolver;
 
+    /// <summary>
+    /// Reads a given file from the file system, utilizing the cache where possible.
+    /// </summary>
     public ResultWithDiagnostic<AuxiliaryFile> Read(ISemanticModel sourceModel, Uri uri)
     {
         var cacheEntry = fileCache.AddOrUpdate(
@@ -59,6 +62,9 @@ public class AuxiliaryFileCache : IReadableFileCache
         return cacheEntry.Result;
     }
 
+    /// <summary>
+    /// Removes references to semantic models that are no longer active.
+    /// </summary>
     public void RemoveStaleEntries(IEnumerable<ISemanticModel> activeModels)
     {
         foreach (var kvp in fileCache)
@@ -80,6 +86,9 @@ public class AuxiliaryFileCache : IReadableFileCache
         }
     }
 
+    /// <summary>
+    /// Clears the cache for the specified files, to force them to be reloaded from the file system.
+    /// </summary>
     public ImmutableArray<ISemanticModel> ClearEntries(IEnumerable<Uri> fileUris)
     {
         HashSet<ISemanticModel> affectedModels = new();

@@ -35,6 +35,8 @@ namespace Bicep.Core.TypeSystem
         private readonly IDiagnosticLookup parsingErrorLookup;
         private readonly IArtifactFileLookup sourceFileLookup;
         private readonly ISemanticModelLookup semanticModelLookup;
+        private readonly ResourceDerivedTypeBinder resourceDerivedTypeBinder;
+        private readonly ResourceDerivedTypeDiagnosticReporter resourceDerivedTypeDiagnosticReporter;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
@@ -49,6 +51,8 @@ namespace Bicep.Core.TypeSystem
             this.parsingErrorLookup = model.ParsingErrorLookup;
             this.sourceFileLookup = model.Compilation.SourceFileGrouping;
             this.semanticModelLookup = model.Compilation;
+            resourceDerivedTypeBinder = new(binder);
+            resourceDerivedTypeDiagnosticReporter = new(features, binder);
             assignedTypes = new();
             matchedFunctionOverloads = new();
             matchedFunctionResultValues = new();
@@ -82,6 +86,7 @@ namespace Bicep.Core.TypeSystem
             Visit(syntax);
             return matchedFunctionOverloads.TryGetValue(syntax, out var overload) ? overload : null;
         }
+
         public Expression? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax)
         {
             Visit(syntax);
@@ -422,13 +427,19 @@ namespace Bicep.Core.TypeSystem
                     }
                 }
 
-                if (this.binder.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol &&
-                    moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out var _) &&
-                    moduleSemanticModel.HasErrors())
+                if (this.binder.GetSymbolInfo(syntax) is ModuleSymbol moduleSymbol && moduleSymbol.TryGetSemanticModel().IsSuccess(out var moduleSemanticModel, out var _))
                 {
-                    diagnostics.Write(moduleSemanticModel is ArmTemplateSemanticModel
-                        ? DiagnosticBuilder.ForPosition(syntax.Path).ReferencedArmTemplateHasErrors()
-                        : DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
+                    if (moduleSemanticModel.HasErrors())
+                    {
+                        diagnostics.Write(moduleSemanticModel is ArmTemplateSemanticModel
+                            ? DiagnosticBuilder.ForPosition(syntax.Path).ReferencedArmTemplateHasErrors()
+                            : DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
+                    }
+
+                    diagnostics.WriteMultiple(moduleSemanticModel.Parameters.Values.Select(md => md.TypeReference.Type)
+                        .Concat(moduleSemanticModel.Outputs.Select(md => md.TypeReference.Type))
+                        .SelectMany(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics)
+                        .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax.Path))));
                 }
 
 
@@ -972,13 +983,19 @@ namespace Bicep.Core.TypeSystem
                 List<FunctionOverload> nsFunctions = new();
                 foreach (var export in importedModel.Exports.Values)
                 {
+                    diagnostics.WriteMultiple(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics(export.TypeReference.Type)
+                        .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax.Wildcard))));
+
                     if (export is ExportedFunctionMetadata exportedFunction)
                     {
-                        nsFunctions.Add(exportedFunction.Overload);
+                        nsFunctions.Add(TypeHelper.OverloadWithBoundTypes(resourceDerivedTypeBinder, exportedFunction));
                     }
                     else
                     {
-                        nsProperties.Add(new(export.Name, export.TypeReference, TypePropertyFlags.ReadOnly | TypePropertyFlags.Required, export.Description));
+                        nsProperties.Add(new(export.Name,
+                            resourceDerivedTypeBinder.BindResourceDerivedTypes(export.TypeReference.Type),
+                            TypePropertyFlags.ReadOnly | TypePropertyFlags.Required,
+                            export.Description));
                     }
                 }
 
@@ -1019,7 +1036,9 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                return exported.TypeReference;
+                diagnostics.WriteMultiple(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics(exported.TypeReference.Type)
+                    .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax))));
+                return resourceDerivedTypeBinder.BindResourceDerivedTypes(exported.TypeReference.Type);
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)

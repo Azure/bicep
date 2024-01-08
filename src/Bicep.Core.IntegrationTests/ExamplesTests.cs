@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -33,16 +34,15 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private void RunExampleTest(EmbeddedFile embeddedBicep, FeatureProviderOverrides features, string jsonFileExtension)
+        private async Task RunExampleTest(EmbeddedFile embeddedBicep, FeatureProviderOverrides features, string jsonFileExtension)
         {
             var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedBicep);
             var bicepFile = baselineFolder.EntryFile;
             var jsonFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedBicep.FileName, jsonFileExtension));
 
-            var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configManager);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath), BicepTestConstants.FeatureProviderFactory);
-            var compilation = Services.WithFeatureOverrides(features).Build().BuildCompilation(sourceFileGrouping);
+            var compiler = Services.WithFeatureOverrides(features).Build().GetCompiler();
+            var compilation = await compiler.CreateCompilation(bicepFile.OutputFileUri);
+
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
             foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
@@ -78,19 +78,19 @@ namespace Bicep.Core.IntegrationTests
         [DataTestMethod]
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void ExampleIsValid(EmbeddedFile embeddedBicep)
+        public Task ExampleIsValid(EmbeddedFile embeddedBicep)
             => RunExampleTest(embeddedBicep, new(), ".json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void ExampleIsValid_using_experimental_symbolic_names(EmbeddedFile embeddedBicep)
+        public Task ExampleIsValid_using_experimental_symbolic_names(EmbeddedFile embeddedBicep)
             => RunExampleTest(embeddedBicep, new(SymbolicNameCodegenEnabled: true), ".symbolicnames.json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetExtensibilityExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void ExampleIsValid_extensibility(EmbeddedFile embeddedBicep)
+        public Task ExampleIsValid_extensibility(EmbeddedFile embeddedBicep)
             => RunExampleTest(
                 embeddedBicep,
                 new(ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: embeddedBicep.StreamPath.Contains("microsoftGraph")),

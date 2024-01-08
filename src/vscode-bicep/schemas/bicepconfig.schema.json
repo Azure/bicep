@@ -738,6 +738,9 @@
         },
         "optionalModuleNames": {
           "type": "boolean"
+        },
+        "resourceDerivedTypes": {
+          "type": "boolean"
         }
       },
       "additionalProperties": false

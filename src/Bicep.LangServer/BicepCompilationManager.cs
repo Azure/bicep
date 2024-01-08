@@ -364,6 +364,8 @@ namespace Bicep.LanguageServer
                         // publish all the diagnostics
                         this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
 
+                        // This must be called AFTER publishing diagnostics for optimal performance.
+                        // Because semantic models are heavily optimized for lazy-loading, pruning the cache before utilizing it may result in duplicated work.
                         context.Compilation.TrimCaches();
 
                         return output;

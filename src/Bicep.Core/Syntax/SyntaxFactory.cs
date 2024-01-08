@@ -74,8 +74,8 @@ namespace Bicep.Core.Syntax
         public static Token SlashToken => CreateToken(TokenType.Slash);
         public static Token ModuloToken => CreateToken(TokenType.Modulo);
         public static Token ExclamationToken => CreateToken(TokenType.Exclamation);
-        public static Token LessThanToken => CreateToken(TokenType.LessThan);
-        public static Token GreaterThanToken => CreateToken(TokenType.GreaterThan);
+        public static Token LessThanToken => CreateToken(TokenType.LeftChevron);
+        public static Token GreaterThanToken => CreateToken(TokenType.RightChevron);
         public static Token LessThanOrEqualToken => CreateToken(TokenType.LessThanOrEqual);
         public static Token GreaterThanOrEqualToken => CreateToken(TokenType.GreaterThanOrEqual);
         public static Token EqualsToken => CreateToken(TokenType.Equals);

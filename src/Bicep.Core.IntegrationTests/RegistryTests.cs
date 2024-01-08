@@ -71,16 +71,9 @@ namespace Bicep.Core.IntegrationTests
                 .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
                 .Build();
 
-            var dispatcher = services.Construct<IModuleDispatcher>();
+            var compiler = services.GetCompiler();
+            var compilation = await compiler.CreateCompilation(fileUri);
 
-            var workspace = new Workspace();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri, featuresFactory);
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.GetArtifactsToRestore())))
-            {
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featuresFactory, dispatcher, workspace, sourceFileGrouping);
-            }
-
-            var compilation = Services.WithFeatureOverrides(featureOverrides).Build().BuildCompilation(sourceFileGrouping);
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
             var expectedErrorMessage = "Unable to restore the artifact with reference \"{0}\": Unable to create the local artifact directory \"";
@@ -166,6 +159,7 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
+        [DoNotParallelize()]
         public async Task ModuleRestoreContentionShouldProduceConsistentState()
         {
             var dataSet = DataSets.Registry_LF;

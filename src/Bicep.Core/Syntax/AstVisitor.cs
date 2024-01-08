@@ -415,5 +415,23 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Path);
         }
+
+        public override void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax)
+        {
+            this.Visit(syntax.Name);
+            this.VisitNodes(syntax.Children);
+        }
+
+        public override void VisitInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.PropertyName);
+            this.VisitNodes(syntax.Children);
+        }
+
+        public override void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax)
+        {
+            this.Visit(syntax.Expression);
+        }
     }
 }

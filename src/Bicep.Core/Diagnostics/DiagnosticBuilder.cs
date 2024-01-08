@@ -2092,6 +2092,26 @@ namespace Bicep.Core.Diagnostics
                     DiagnosticStyling.Default,
                     codeFix);
             }
+
+            public ErrorDiagnostic TypeIsNotParameterizable(string typeName) => new(
+                TextSpan,
+                "BCP383",
+                $"The \"{typeName}\" type is not parameterizable.");
+
+            public ErrorDiagnostic TypeRequiresParameterization(string typeName, int requiredArgumentCount) => new(
+                TextSpan,
+                "BCP384",
+                $"The \"{typeName}\" type requires {requiredArgumentCount} argument(s).");
+
+            public ErrorDiagnostic ResourceDerivedTypesUnsupported() => new(
+                TextSpan,
+                "BCP385",
+                $@"Using resource-derived types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceDerivedTypes)}"".");
+
+            public ErrorDiagnostic DecoratorMayNotTargetResourceDerivedType(string decoratorName) => new(
+                TextSpan,
+                "BCP386",
+                $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a resource-derived type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

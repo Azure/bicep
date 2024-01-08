@@ -245,5 +245,10 @@ namespace Bicep.LanguageServer.Completions
         /// The current location needs a test body.
         /// </summary>
         TestBody = 1UL << 10,
+
+        /// <summary>
+        /// We're inside the chevrons in a parameterized type: 'typeName&lt;|&gt;'
+        /// </summary>
+        TypeArgument = 1UL << 45,
     }
 }

@@ -759,6 +759,26 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Path);
             });
 
+        public override void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax) =>
+            this.BuildWithConcat(() =>
+            {
+                this.Visit(syntax.Name);
+                this.Visit(syntax.OpenChevron);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
+                this.Visit(syntax.CloseChevron);
+            });
+
+        public override void VisitInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax) =>
+            this.BuildWithConcat(() =>
+            {
+                this.Visit(syntax.BaseExpression);
+                this.Visit(syntax.Dot);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.OpenChevron);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
+                this.Visit(syntax.CloseChevron);
+            });
+
         private static ILinkedDocument Text(string text) =>
             CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text);
 

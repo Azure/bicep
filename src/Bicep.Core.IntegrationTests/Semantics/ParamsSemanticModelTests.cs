@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -28,23 +29,22 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private SemanticModel CreateSemanticModel(ServiceBuilder services, string paramsFilePath)
+        private async Task<SemanticModel> CreateSemanticModel(ServiceBuilder services, string paramsFilePath)
         {
-            var configuration = BicepTestConstants.BuiltInConfiguration;
-            var sourceFileGrouping = services.Build().BuildSourceFileGrouping(PathHelper.FilePathToFileUrl(paramsFilePath));
-            var compilation = services.Build().BuildCompilation(sourceFileGrouping);
-
+            var compiler = services.Build().GetCompiler();
+            var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(paramsFilePath));
+            
             return compilation.GetEntrypointSemanticModel();
         }
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData()]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void ProgramsShouldProduceExpectedDiagnostic(BaselineData_Bicepparam baselineData)
+        public async Task ProgramsShouldProduceExpectedDiagnostic(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
 
-            var model = CreateSemanticModel(Services, data.Parameters.OutputFilePath);
+            var model = await CreateSemanticModel(Services, data.Parameters.OutputFilePath);
 
             // use a deterministic order
             var diagnostics = model.GetAllDiagnostics()
@@ -62,11 +62,11 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData()]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void ProgramsShouldProduceExpectedUserDeclaredSymbols(BaselineData_Bicepparam baselineData)
+        public async Task ProgramsShouldProduceExpectedUserDeclaredSymbols(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
 
-            var model = CreateSemanticModel(Services, data.Parameters.OutputFilePath);
+            var model = await CreateSemanticModel(Services, data.Parameters.OutputFilePath);
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
