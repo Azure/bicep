@@ -2,18 +2,16 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Formats.Tar;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Compression;
 using Azure.Bicep.Types;
+using Bicep.Core.Registry;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class InvalidOciResourceTypesProviderArtifactException : Exception
-    {
-        public InvalidOciResourceTypesProviderArtifactException(string message) : base(message) { }
-    }
 
 
     public class OciTypeLoader : TypeLoader
@@ -45,8 +43,8 @@ namespace Bicep.Core.TypeSystem
             }
             catch (Exception e)
             {
-                throw new InvalidOciResourceTypesProviderArtifactException(e.Message);
-                throw new InvalidOciResourceTypesProviderArtifactException();
+                Trace.WriteLine($"Failed to deserialize provider package from {typesTgzUri}.\n {e.Message}");
+                throw new InvalidArtifactException(e.Message,e,InvalidArtifactExceptionKind.InvalidArtifactContents);
             }
         }
 
@@ -89,7 +87,8 @@ namespace Bicep.Core.TypeSystem
             }
             else
             {
-                throw new InvalidOciResourceTypesProviderArtifactException($"{path} not found.");
+                Trace.WriteLine($"{nameof(GetContentStreamAtPath)} threw an exception. Requested path: '{path}' not found.");
+                throw new InvalidArtifactException($"The path: {path} was not found in artifact contents", InvalidArtifactExceptionKind.InvalidArtifactContents);
             }
         }
     }

@@ -12,6 +12,7 @@ using Azure.Bicep.Types.Az;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
+using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
@@ -56,9 +57,9 @@ namespace Bicep.Core.TypeSystem.Providers
                         OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
                         providerDescriptor.Version);
             }
-            catch (InvalidOciResourceTypesProviderArtifactException exception)
+            catch (InvalidArtifactException e)
             {
-                return new(x => x.InvalidProviderArtifact(exception.Message));
+                return new(x => x.InvalidProviderArtifact(e.Message));
             }
 
             return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);

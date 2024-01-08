@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,6 +20,7 @@ using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryE
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using static Bicep.Core.IntegrationTests.TestDataGenerators.DynamicAzTypesTestDataGenerator;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -154,7 +156,8 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Bicep_compiler_handles_corrupted_provider_package_gracefully()
+        [DynamicData(nameof(ArtifactRegistryCorruptedPackageNegativeTestScenarios), DynamicDataSourceType.Method)]
+        public async Task Bicep_compiler_handles_corrupted_provider_package_gracefully(Stream testPayload, string innerErrorMessage)
         {
             // ARRANGE
             var testArtifact = new ArtifactRegistryAddress("biceptestdf.azurecr.io", "bicep/providers/az", "0.0.0-corruptpng");
@@ -162,7 +165,7 @@ namespace Bicep.Core.IntegrationTests
 
             (_, var client) = blobClients.First();
             await client.SetManifestAsync(BicepTestConstants.BicepProviderManifestWithEmptyTypesLayer, testArtifact.ProviderVersion);
-            await client.UploadBlobAsync(new MemoryStream());
+            await client.UploadBlobAsync(testPayload);
 
             var services = new ServiceBuilder()
            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
@@ -177,7 +180,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP382", DiagnosticLevel.Error, "The OCI resource types provider artifact is invalid. Unable to read beyond the end of the stream."),
+                ("BCP382", DiagnosticLevel.Error, $"The OCI resource types provider artifact is invalid. {innerErrorMessage}"),
                 ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
             });
 

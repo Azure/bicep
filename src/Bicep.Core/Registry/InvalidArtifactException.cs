@@ -9,7 +9,8 @@ namespace Bicep.Core.Registry
     {
         NotSpecified,
         WrongArtifactType,
-        UknownLayerMediaType
+        UknownLayerMediaType,
+        InvalidArtifactContents
     }
 
     public class InvalidArtifactException : OciArtifactRegistryException
