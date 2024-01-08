@@ -178,7 +178,7 @@ namespace Bicep.Core.IntegrationTests
                 .WithContainerRegistryClientFactory(clientFactory)
                 .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
                 .Build();
-                
+
             var dispatcher = services.Construct<IModuleDispatcher>();
 
             var moduleReferences = dataSet.RegistryModules.Values
