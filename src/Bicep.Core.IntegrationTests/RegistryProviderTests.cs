@@ -81,4 +81,20 @@ public class RegistryProviderTests : TestBase
         result.Should().ContainDiagnostic("BCP303", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the provider.");
 
     }
+
+    [TestMethod]
+    public async Task Cannot_import_az_whithout_dynamic_type_loading_enabled()
+    {
+        var services = new ServiceBuilder()
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: false));
+
+        var result = await CompilationHelper.RestoreAndCompile(services, @"
+        provider 'br:mcr.microsoft.com/bicep/provider/az@0.0.0'
+        ");
+        result.Should().NotGenerateATemplate();
+        result.Should().HaveDiagnostics(new[]{
+            ("BCP204", DiagnosticLevel.Error, "Provider namespace \"az\" is not recognized."),
+            ("BCP084",DiagnosticLevel.Error,"The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
+        });
+    }
 }
