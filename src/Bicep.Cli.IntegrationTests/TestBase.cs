@@ -33,7 +33,7 @@ namespace Bicep.Cli.IntegrationTests
         protected static readonly MockRepository Repository = new(MockBehavior.Strict);
 
         protected record InvocationSettings(
-            FeatureProviderOverrides FeatureOverrides,
+            FeatureProviderOverrides? FeatureOverrides,
             IContainerRegistryClientFactory ClientFactory,
             ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory,
             IEnvironment? Environment = null);
@@ -41,19 +41,26 @@ namespace Bicep.Cli.IntegrationTests
         protected static Task<CliResult> Bicep(params string[] args) => Bicep(CreateDefaultSettings(), args);
 
         protected static InvocationSettings CreateDefaultSettings() => new(
-            FeatureOverrides: BicepTestConstants.FeatureOverrides,
+            FeatureOverrides: null,
             ClientFactory: Repository.Create<IContainerRegistryClientFactory>().Object,
             TemplateSpecRepositoryFactory: Repository.Create<ITemplateSpecRepositoryFactory>().Object);
 
         protected static Task<CliResult> Bicep(InvocationSettings settings, params string?[] args /*null args are ignored*/)
             => TextWriterHelper.InvokeWriterAction((@out, err)
                 => new Program(new(Output: @out, Error: err), services
-                    => services
+                    =>
+                {
+                    if (settings.FeatureOverrides is { })
+                    {
+                        services.WithFeatureOverrides(settings.FeatureOverrides);
+                    }
+
+                    services
                         .WithEmptyAzResources()
-                        .WithFeatureOverrides(settings.FeatureOverrides)
                         .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
                         .AddSingleton(settings.ClientFactory)
-                        .AddSingleton(settings.TemplateSpecRepositoryFactory))
+                        .AddSingleton(settings.TemplateSpecRepositoryFactory);
+                })
                     .RunAsync(args.ToArrayExcludingNull(), CancellationToken.None));
 
         protected static void AssertNoErrors(string error)

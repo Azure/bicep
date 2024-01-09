@@ -343,7 +343,7 @@ var lt = 4 < 's'
 //@[04:06) Identifier |lt|
 //@[07:08) Assignment |=|
 //@[09:10) Integer |4|
-//@[11:12) LessThan |<|
+//@[11:12) LeftChevron |<|
 //@[13:16) StringComplete |'s'|
 //@[16:17) NewLine |\n|
 var lteq = null <= 10
@@ -359,7 +359,7 @@ var gt = false>[
 //@[04:06) Identifier |gt|
 //@[07:08) Assignment |=|
 //@[09:14) FalseKeyword |false|
-//@[14:15) GreaterThan |>|
+//@[14:15) RightChevron |>|
 //@[15:16) LeftSquare |[|
 //@[16:17) NewLine |\n|
 ]

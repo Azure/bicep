@@ -518,7 +518,7 @@ var lt = 4 < 's'
 //@[09:0016) | └─BinaryOperationSyntax
 //@[09:0010) |   ├─IntegerLiteralSyntax
 //@[09:0010) |   | └─Token(Integer) |4|
-//@[11:0012) |   ├─Token(LessThan) |<|
+//@[11:0012) |   ├─Token(LeftChevron) |<|
 //@[13:0016) |   └─StringSyntax
 //@[13:0016) |     └─Token(StringComplete) |'s'|
 //@[16:0017) ├─Token(NewLine) |\n|
@@ -544,7 +544,7 @@ var gt = false>[
 //@[09:0018) | └─BinaryOperationSyntax
 //@[09:0014) |   ├─BooleanLiteralSyntax
 //@[09:0014) |   | └─Token(FalseKeyword) |false|
-//@[14:0015) |   ├─Token(GreaterThan) |>|
+//@[14:0015) |   ├─Token(RightChevron) |>|
 //@[15:0018) |   └─ArraySyntax
 //@[15:0016) |     ├─Token(LeftSquare) |[|
 //@[16:0017) |     ├─Token(NewLine) |\n|

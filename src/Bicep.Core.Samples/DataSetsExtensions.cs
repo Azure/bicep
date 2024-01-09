@@ -64,21 +64,23 @@ namespace Bicep.Core.Samples
         {
             var resourceTypeProviders = dataSet.ResourceTypeProviders;
             var clientFactory = await CreateMockRegistryClientsAsync(dataSet.RegistryModules, resourceTypeProviders.Providers, enablePublishSource, additionalClients);
-            await PublishProvidersToRegistryAsync(resourceTypeProviders.Providers, resourceTypeProviders.TypesData, clientFactory);
+
+            var services = new ServiceBuilder()
+               .WithFileSystem(resourceTypeProviders.TypesData)
+               .WithContainerRegistryClientFactory(clientFactory)
+               .Build();
+
+            await PublishProvidersToRegistryAsync(services, resourceTypeProviders.Providers);
 
             return clientFactory;
         }
 
-        public static async Task PublishProvidersToRegistryAsync(
-            DataSet.ExternalResourceTypeProviderMetadata[] providers,
-            IFileSystem fileSystem,
-            IContainerRegistryClientFactory clientFactory)
+        public static async Task PublishProvidersToRegistryAsync(IDependencyHelper services, DataSet.ExternalResourceTypeProviderMetadata[] providers)
         {
             foreach (var providerInfo in providers)
             {
                 await PublishProviderToRegistryAsync(
-                    fileSystem,
-                    clientFactory,
+                    services,
                     providerInfo.TypesIndexPath,
                     $"br:{providerInfo.Registry}/{providerInfo.Repository}:{providerInfo.Version}");
             }
@@ -119,10 +121,10 @@ namespace Bicep.Core.Samples
             }
 
             return Task.FromResult(
-                CreateMockRegistryClients(enablePublishSource, clients.Concat(additionalClients).ToArray()).factoryMock);
+                CreateMockRegistryClients(clients.Concat(additionalClients).ToArray()).factoryMock);
         }
 
-        public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(bool? publishSource, params (Uri registryUri, string repository)[] clients)
+        public static (IContainerRegistryClientFactory factoryMock, ImmutableDictionary<(Uri, string), MockRegistryBlobClient> blobClientMocks) CreateMockRegistryClients(params (Uri registryUri, string repository)[] clients)
         {
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
 
@@ -214,13 +216,10 @@ namespace Bicep.Core.Samples
             await dispatcher.PublishModule(targetReference, stream, sourcesStream, documentationUri);
         }
 
-        public static async Task PublishProviderToRegistryAsync(IFileSystem fileSystem, IContainerRegistryClientFactory clientFactory, string pathToIndexJson, string target)
+        public static async Task PublishProviderToRegistryAsync(IDependencyHelper services, string pathToIndexJson, string target)
         {
-            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
-                .AddSingleton(clientFactory)
-                .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory)
-                .AddSingleton(BicepTestConstants.FeatureProviderFactory)
-                ).Construct<IModuleDispatcher>();
+            var dispatcher = services.Construct<IModuleDispatcher>();
+            var fileSystem = services.Construct<IFileSystem>();
 
             var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, PathHelper.FilePathToFileUrl(pathToIndexJson)).IsSuccess(out var @ref) ? @ref
                 : throw new InvalidOperationException($"Invalid target reference '{target}'. Specify a reference to an OCI artifact.");
@@ -230,26 +229,21 @@ namespace Bicep.Core.Samples
             await dispatcher.PublishProvider(targetReference, tgzStream);
         }
 
-        public static async Task<IContainerRegistryClientFactory> GetClientFactoryWithAzModulePublished(IFileSystem fileSystem, string pathToIndexJson)
-        {
-            var registry = LanguageConstants.BicepPublicMcrRegistry;
-            var registryUri = new Uri($"https://{registry}");
-            var repository = $"bicep/providers/az";
-            var version = BicepTestConstants.BuiltinAzProviderVersion;
-
-            var (clientFactory, _) = CreateMockRegistryClients(false, (registryUri, repository));
-            await PublishProviderToRegistryAsync(fileSystem, clientFactory, pathToIndexJson, $"br:{registry}/{repository}:{version}");
-
-            return clientFactory;
-        }
-
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
 
-        public static async Task<IContainerRegistryClientFactory> WithPublishedAzProvider(this IContainerRegistryClientFactory clientFactory, IFileSystem fileSystem, string pathToIndexJson)
+        public static async Task PublishAzProvider(IDependencyHelper services, string pathToIndexJson)
         {
             var version = BicepTestConstants.BuiltinAzProviderVersion;
             var repository = "bicep/providers/az";
-            await PublishProviderToRegistryAsync(fileSystem, clientFactory, pathToIndexJson, $"br:{LanguageConstants.BicepPublicMcrRegistry}/{repository}:{version}");
+            await PublishProviderToRegistryAsync(services, pathToIndexJson, $"br:{LanguageConstants.BicepPublicMcrRegistry}/{repository}:{version}");
+        }
+
+        public static IContainerRegistryClientFactory CreateOciClientForAzProvider()
+        {
+            var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients(
+                (new Uri($"https://{LanguageConstants.BicepPublicMcrRegistry}"), $"bicep/providers/az")
+            );
+
             return clientFactory;
         }
     }

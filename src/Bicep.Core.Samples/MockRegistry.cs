@@ -18,6 +18,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.VisualStudio.TestPlatform.CrossPlatEngine.Client;
+using Bicep.Core.UnitTests;
 
 namespace Bicep.Core.Samples;
 
@@ -58,8 +59,12 @@ public class MockRegistry
             index.providers,
             publishSource);
 
+        var services = new ServiceBuilder()
+            .WithFileSystem(fileSystem)
+            .WithContainerRegistryClientFactory(clientFactory)
+            .Build();
         await DataSetsExtensions.PublishModulesToRegistryAsync(modules.ToImmutableDictionary(), clientFactory, publishSource);
-        await DataSetsExtensions.PublishProvidersToRegistryAsync(index.providers, fileSystem, clientFactory);
+        await DataSetsExtensions.PublishProvidersToRegistryAsync(services, index.providers);
 
         return clientFactory;
     }

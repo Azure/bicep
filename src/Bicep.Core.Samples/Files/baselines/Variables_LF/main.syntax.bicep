@@ -426,7 +426,7 @@ var myObj = {
 //@[012:0020) |   |   |   |   | ├─BinaryOperationSyntax
 //@[012:0015) |   |   |   |   | | ├─IntegerLiteralSyntax
 //@[012:0015) |   |   |   |   | | | └─Token(Integer) |144|
-//@[016:0017) |   |   |   |   | | ├─Token(GreaterThan) |>|
+//@[016:0017) |   |   |   |   | | ├─Token(RightChevron) |>|
 //@[018:0020) |   |   |   |   | | └─IntegerLiteralSyntax
 //@[018:0020) |   |   |   |   | |   └─Token(Integer) |33|
 //@[021:0023) |   |   |   |   | ├─Token(LogicalAnd) |&&|

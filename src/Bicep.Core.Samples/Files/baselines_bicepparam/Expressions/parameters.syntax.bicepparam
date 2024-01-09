@@ -274,7 +274,7 @@ param myObject = {
 //@[30:0031) |   |   |     ├─VariableAccessSyntax
 //@[30:0031) |   |   |     | └─IdentifierSyntax
 //@[30:0031) |   |   |     |   └─Token(Identifier) |i|
-//@[32:0033) |   |   |     ├─Token(LessThan) |<|
+//@[32:0033) |   |   |     ├─Token(LeftChevron) |<|
 //@[34:0035) |   |   |     └─IntegerLiteralSyntax
 //@[34:0035) |   |   |       └─Token(Integer) |2|
 //@[35:0036) |   |   └─Token(RightParen) |)|
@@ -868,7 +868,7 @@ param myObject = {
 //@[40:0041) |   |   |     ├─VariableAccessSyntax
 //@[40:0041) |   |   |     | └─IdentifierSyntax
 //@[40:0041) |   |   |     |   └─Token(Identifier) |a|
-//@[42:0043) |   |   |     ├─Token(LessThan) |<|
+//@[42:0043) |   |   |     ├─Token(LeftChevron) |<|
 //@[44:0045) |   |   |     └─VariableAccessSyntax
 //@[44:0045) |   |   |       └─IdentifierSyntax
 //@[44:0045) |   |   |         └─Token(Identifier) |b|
@@ -1276,7 +1276,7 @@ param myArray = [
 //@[02:0007) |   | └─BinaryOperationSyntax
 //@[02:0003) |   |   ├─IntegerLiteralSyntax
 //@[02:0003) |   |   | └─Token(Integer) |1|
-//@[04:0005) |   |   ├─Token(LessThan) |<|
+//@[04:0005) |   |   ├─Token(LeftChevron) |<|
 //@[06:0007) |   |   └─IntegerLiteralSyntax
 //@[06:0007) |   |     └─Token(Integer) |2|
 //@[07:0008) |   ├─Token(NewLine) |\n|
@@ -1285,7 +1285,7 @@ param myArray = [
 //@[02:0007) |   | └─BinaryOperationSyntax
 //@[02:0003) |   |   ├─IntegerLiteralSyntax
 //@[02:0003) |   |   | └─Token(Integer) |1|
-//@[04:0005) |   |   ├─Token(GreaterThan) |>|
+//@[04:0005) |   |   ├─Token(RightChevron) |>|
 //@[06:0007) |   |   └─IntegerLiteralSyntax
 //@[06:0007) |   |     └─Token(Integer) |2|
 //@[07:0008) |   ├─Token(NewLine) |\n|

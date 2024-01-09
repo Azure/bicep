@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Linq;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Workspaces;
@@ -23,10 +24,10 @@ namespace Bicep.Core.Emit
                 model.Features.SymbolicNameCodegenEnabled ||
                 // there are any user-defined type declarations
                 model.Root.TypeDeclarations.Any() ||
-                // there are any user-defined types imported
-                model.Root.ImportedTypes.Any() ||
-                // there are any functions imported (it's impossible to tell here if the functions use user-defined types for their parameter or output declarations)
-                model.Root.ImportedFunctions.Any() ||
+                // there are any compile-time imports (imported functions or variables may enclose user-defined types, and determining definitively requires calculating the full import closure)
+                model.Root.ImportedSymbols.Any() ||
+                // there are any wildcard compile-time imports
+                model.Root.WildcardImports.Any() ||
                 // any user-defined type declaration syntax is used (e.g., in a `param` or `output` statement)
                 SyntaxAggregator.Aggregate(model.SourceFile.ProgramSyntax,
                     seed: false,

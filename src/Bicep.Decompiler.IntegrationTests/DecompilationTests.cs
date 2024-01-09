@@ -43,8 +43,8 @@ namespace Bicep.Core.IntegrationTests
             var decompiler = ServiceBuilder.Create().GetDecompiler();
             var (bicepUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(jsonUri), jsonFile.EmbeddedFile.Contents);
 
-            var result = CompilationHelper.Compile(new ServiceBuilder().BuildCompilation(filesToSave, PathHelper.ChangeToBicepExtension(jsonUri)));
-            var diagnosticsByBicepFile = result.Compilation.GetAllDiagnosticsByBicepFile();
+            var compilation = new ServiceBuilder().BuildCompilation(filesToSave, PathHelper.ChangeToBicepExtension(jsonUri));
+            var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile();
 
             using (new AssertionScope())
             {

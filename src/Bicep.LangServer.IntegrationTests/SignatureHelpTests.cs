@@ -120,7 +120,7 @@ namespace Bicep.LangServer.IntegrationTests
                 new List<SyntaxBase>(),
                 (accumulated, current) =>
                 {
-                    if (current is not FunctionCallSyntaxBase)
+                    if (current is not FunctionCallSyntaxBase && current is not ParameterizedTypeInstantiationSyntaxBase)
                     {
                         accumulated.Add(current);
                     }
@@ -130,7 +130,7 @@ namespace Bicep.LangServer.IntegrationTests
                 accumulated => accumulated,
                 // requesting signature help on non-function nodes that are placed inside function call nodes will produce signature help
                 // since we don't want that, stop the visitor from visiting inner nodes when a function call is encountered
-                (accumulated, current) => current is not FunctionCallSyntaxBase);
+                (accumulated, current) => current is not FunctionCallSyntaxBase && current is not ParameterizedTypeInstantiationSyntaxBase);
 
             foreach (var nonFunction in nonFunctions)
             {
@@ -161,6 +161,25 @@ var test = isTrue(|)
 
             signature.Label.Should().Be("isTrue(input: bool): bool");
             signature.Documentation!.MarkupContent!.Value.Should().Be("Checks whether the input is true in a roundabout way");
+        }
+
+        [TestMethod]
+        public async Task Signature_help_works_with_parameterized_types()
+        {
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"type resourceDerived = resource<|>");
+
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(new(ResourceDerivedTypesEnabled: true)));
+            var file = await new ServerRequestHelper(TestContext, server).OpenFile(text);
+
+            var signatureHelp = await file.RequestSignatureHelp(cursor);
+            var signature = signatureHelp!.Signatures.Single();
+
+            signature.Label.Should().Be("resource<ResourceTypeIdentifier: string>");
+            signature.Documentation!.MarkupContent!.Value.Should().Be("""
+                Use the type definition of the body of a specific resource rather than a user-defined type.
+
+                NB: The type definition will be checked by Bicep when the template is compiled but will not be enforced by the ARM engine during a deployment.
+                """);
         }
 
         private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, BicepSourceFile bicepFile, int offset, IFunctionSymbol? symbol, bool expectDecorator)

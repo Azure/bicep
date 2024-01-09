@@ -962,7 +962,7 @@ namespace Bicep.Core.Parsing
                                 return TokenType.LessThanOrEqual;
                         }
                     }
-                    return TokenType.LessThan;
+                    return TokenType.LeftChevron;
                 case '>':
                     if (!textWindow.IsAtEnd())
                     {
@@ -973,7 +973,7 @@ namespace Bicep.Core.Parsing
                                 return TokenType.GreaterThanOrEqual;
                         }
                     }
-                    return TokenType.GreaterThan;
+                    return TokenType.RightChevron;
                 case '=':
                     if (!textWindow.IsAtEnd())
                     {

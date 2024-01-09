@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -28,8 +29,8 @@ namespace Bicep.Core.Registry
 
         private readonly Uri parentModuleUri;
 
-        public TemplateSpecModuleRegistry(IFileResolver fileResolver, ITemplateSpecRepositoryFactory repositoryFactory, IFeatureProvider featureProvider, RootConfiguration configuration, Uri parentModuleUri)
-            : base(fileResolver)
+        public TemplateSpecModuleRegistry(IFileResolver fileResolver, IFileSystem fileSystem, ITemplateSpecRepositoryFactory repositoryFactory, IFeatureProvider featureProvider, RootConfiguration configuration, Uri parentModuleUri)
+            : base(fileResolver, fileSystem)
         {
             this.repositoryFactory = repositoryFactory;
             this.featureProvider = featureProvider;
@@ -78,7 +79,7 @@ namespace Bicep.Core.Registry
 
             foreach (var reference in references)
             {
-                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
+                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference} to {GetArtifactDirectoryPath(reference)}");
                 try
                 {
                     var repository = this.repositoryFactory.CreateRepository(configuration, reference.SubscriptionId);
@@ -110,9 +111,9 @@ namespace Bicep.Core.Registry
         }
 
         protected override void WriteArtifactContentToCache(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
-            File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.Content);
+            fileSystem.File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.Content);
 
-        protected override string GetArtifactDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(
+        protected override string GetArtifactDirectoryPath(TemplateSpecModuleReference reference) => fileSystem.Path.Combine(
             this.featureProvider.CacheRootDirectory,
             this.Scheme,
             reference.SubscriptionId.ToLowerInvariant(),
@@ -120,9 +121,9 @@ namespace Bicep.Core.Registry
             reference.TemplateSpecName.ToLowerInvariant(),
             reference.Version.ToLowerInvariant());
 
-        protected override Uri GetArtifactLockFileUri(TemplateSpecModuleReference reference) => new(Path.Combine(this.GetArtifactDirectoryPath(reference), "lock"), UriKind.Absolute);
+        protected override Uri GetArtifactLockFileUri(TemplateSpecModuleReference reference) => new(fileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), "lock"), UriKind.Absolute);
 
-        private string GetModuleEntryPointPath(TemplateSpecModuleReference reference) => Path.Combine(this.GetArtifactDirectoryPath(reference), "main.json");
+        private string GetModuleEntryPointPath(TemplateSpecModuleReference reference) => fileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), "main.json");
 
         private Uri GetModuleEntryPointUri(TemplateSpecModuleReference reference) => new(this.GetModuleEntryPointPath(reference), UriKind.Absolute);
 
@@ -140,7 +141,7 @@ namespace Bicep.Core.Registry
                 string entrypointPath = this.GetModuleEntryPointPath(moduleReference);
                 if (File.Exists(entrypointPath))
                 {
-                    using var stream = File.OpenRead(entrypointPath);
+                    using var stream = fileSystem.File.OpenRead(entrypointPath);
                     return Task.FromResult(DescriptionHelper.TryGetFromTemplateSpec(stream));
                 }
             }

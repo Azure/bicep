@@ -5,7 +5,9 @@ using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using Bicep.Core;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
@@ -20,7 +22,7 @@ public class Compilation
 {
     private record BenchmarkData(
         ImmutableArray<DataSet> DataSets,
-        IDependencyHelper BicepService);
+        BicepCompiler Compiler);
 
     private static BenchmarkData CreateBenchmarkData()
     {
@@ -30,10 +32,9 @@ public class Compilation
             .Where(x => !x.HasRegistryModules)
             .ToImmutableArray();
 
-        var bicepService = new ServiceBuilder()
-            .WithRegistration(x => x.AddSingleton<IFileSystem>(fileSystem)).Build();
+        var bicepService = new ServiceBuilder().WithFileSystem(fileSystem).Build();
 
-        return new(dataSets, bicepService);
+        return new(dataSets, bicepService.GetCompiler());
     }
 
     private BenchmarkData? benchmarkData;
@@ -45,15 +46,14 @@ public class Compilation
     }
 
     [Benchmark(Description = "Get compilation diagnostics for each dataset")]
-    public void Get_compilation_diagnostics()
+    public async Task Get_compilation_diagnostics()
     {
         // Reuse a single IBicepService to amortize the cost of instantiating dependencies
-        var (dataSets, service) = benchmarkData!;
+        var (dataSets, compiler) = benchmarkData!;
 
         foreach (var dataSet in dataSets)
         {
-            var sourceFileGrouping = service.BuildSourceFileGrouping(new Uri($"file:///{dataSet.Name}/main.bicep"), false);
-            var compilation = service.BuildCompilation(sourceFileGrouping);
+            var compilation = await compiler.CreateCompilation(new Uri($"file:///{dataSet.Name}/main.bicep"), skipRestore: true);
 
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
         }

@@ -47,6 +47,9 @@ resource nicLoop 'Microsoft.Network/networkInterfaces@2020-11-01' = [for i in ra
     ipConfigurations: [
       // TODO: fix this
       ipConfigurations[i]
+//@[06:25) [BCP036 (Warning)] The property "id" expected a value of type "null | string" but the provided value is of type "true". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |ipConfigurations[i]|
+//@[06:25) [BCP037 (Warning)] The property "madeUpProperty" is not allowed on objects of type "NetworkInterfaceIPConfigurationPropertiesFormat". Permissible properties include "applicationGatewayBackendAddressPools", "applicationSecurityGroups", "loadBalancerBackendAddressPools", "loadBalancerInboundNatRules", "primary", "privateIPAddress", "privateIPAddressVersion", "privateIPAllocationMethod", "publicIPAddress", "virtualNetworkTaps". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |ipConfigurations[i]|
+//@[06:25) [BCP036 (Warning)] The property "subnet" expected a value of type "Subnet | null" but the provided value is of type "'hello'". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |ipConfigurations[i]|
     ]
   }
 }]
@@ -57,6 +60,9 @@ resource nicLoop2 'Microsoft.Network/networkInterfaces@2020-11-01' = [for ipConf
     ipConfigurations: [
       // TODO: fix this
       ipConfig
+//@[06:14) [BCP036 (Warning)] The property "id" expected a value of type "null | string" but the provided value in source declaration "ipConfig" is of type "true". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |ipConfig|
+//@[06:14) [BCP037 (Warning)] The property "madeUpProperty" from source declaration "ipConfig" is not allowed on objects of type "NetworkInterfaceIPConfigurationPropertiesFormat". Permissible properties include "applicationGatewayBackendAddressPools", "applicationSecurityGroups", "loadBalancerBackendAddressPools", "loadBalancerInboundNatRules", "primary", "privateIPAddress", "privateIPAddressVersion", "privateIPAllocationMethod", "publicIPAddress", "virtualNetworkTaps". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |ipConfig|
+//@[06:14) [BCP036 (Warning)] The property "subnet" expected a value of type "Subnet | null" but the provided value in source declaration "ipConfig" is of type "'hello'". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |ipConfig|
     ]
   }
 }]

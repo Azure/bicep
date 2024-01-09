@@ -76,9 +76,9 @@ namespace Bicep.Core.Parsing
             TokenType.Plus or
             TokenType.Minus => 90,
 
-            TokenType.GreaterThan or
+            TokenType.RightChevron or
             TokenType.GreaterThanOrEqual or
-            TokenType.LessThan or
+            TokenType.LeftChevron or
             TokenType.LessThanOrEqual => 80,
 
             TokenType.Equals or
@@ -423,10 +423,41 @@ namespace Bicep.Core.Parsing
             return new VariableAccessSyntax(identifier);
         }
 
-        private SyntaxBase TypeVariableAccess()
+        private SyntaxBase ParameterizedTypeArgument()
+        {
+            var expression = this.WithRecovery(TypeExpression, RecoveryFlags.None, TokenType.NewLine, TokenType.Comma, TokenType.RightChevron);
+
+            return new ParameterizedTypeArgumentSyntax(expression);
+        }
+
+        protected (IdentifierSyntax Identifier, Token OpenChevron, IEnumerable<SyntaxBase> ParameterNodes, Token CloseChevron) ParameterizedTypeInstantiation(IdentifierSyntax parameterizedTypeName)
+        {
+            var openChevron = this.Expect(TokenType.LeftChevron, b => b.ExpectedCharacter("<"));
+
+            var itemsOrTokens = HandleFunctionElements(
+                closingTokenType: TokenType.RightChevron,
+                parseChildElement: ParameterizedTypeArgument);
+
+            var closeChevron = this.Expect(TokenType.RightChevron, b => b.ExpectedCharacter(">"));
+
+            return (parameterizedTypeName, openChevron, itemsOrTokens, closeChevron);
+        }
+
+        private SyntaxBase ParameterizedTypeOrTypeVariableAccess()
         {
             var identifierToken = Expect(TokenType.Identifier, b => b.ExpectedTypeIdentifier());
             var identifier = new IdentifierSyntax(identifierToken);
+
+            if (Check(TokenType.LeftChevron))
+            {
+                var parameterizedType = ParameterizedTypeInstantiation(identifier);
+
+                return new ParameterizedTypeInstantiationSyntax(
+                    parameterizedType.Identifier,
+                    parameterizedType.OpenChevron,
+                    parameterizedType.ParameterNodes,
+                    parameterizedType.CloseChevron);
+            }
 
             return new VariableAccessSyntax(identifier);
         }
@@ -932,7 +963,22 @@ namespace Bicep.Core.Parsing
 
                     IdentifierSyntax identifier = this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName());
 
-                    current = new PropertyAccessSyntax(current, dot, null, identifier);
+                    if (Check(TokenType.LeftChevron))
+                    {
+                        var parameterizedType = ParameterizedTypeInstantiation(identifier);
+
+                        current = new InstanceParameterizedTypeInstantiationSyntax(
+                            current,
+                            dot,
+                            parameterizedType.Identifier,
+                            parameterizedType.OpenChevron,
+                            parameterizedType.ParameterNodes,
+                            parameterizedType.CloseChevron);
+                    }
+                    else
+                    {
+                        current = new PropertyAccessSyntax(current, dot, null, identifier);
+                    }
 
                     continue;
                 }
@@ -1218,7 +1264,7 @@ namespace Bicep.Core.Parsing
                     return this.ParenthesizedTypeExpression();
 
                 case TokenType.Identifier:
-                    return this.TypeVariableAccess();
+                    return this.ParameterizedTypeOrTypeVariableAccess();
 
                 default:
                     throw new ExpectedTokenException(nextToken, b => b.UnrecognizedTypeExpression());
@@ -1310,8 +1356,9 @@ namespace Bicep.Core.Parsing
 
         protected SyntaxBase Type(bool allowOptionalResourceType)
         {
-            if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is { } resourceKeyword)
+            if (CheckKeyword(LanguageConstants.ResourceKeyword) && this.reader.PeekAhead(1)?.Type != TokenType.LeftChevron)
             {
+                var resourceKeyword = reader.Read();
                 var type = this.WithRecoveryNullable(
                     () =>
                     {

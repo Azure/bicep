@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10244606579588812152"
+      "templateHash": "12432202576544985285"
     }
   },
   "definitions": {
@@ -124,6 +124,34 @@
           "output": {
             "type": "array",
             "value": "[map(__bicep.barTest(), lambda('a', format('Hello {0}!', lambdaVariables('a'))))]"
+          }
+        },
+        "test": {
+          "parameters": [],
+          "output": {
+            "type": "object",
+            "value": {}
+          }
+        },
+        "test2": {
+          "parameters": [],
+          "output": {
+            "type": "string",
+            "value": "{}"
+          }
+        },
+        "test3": {
+          "parameters": [],
+          "output": {
+            "type": "object",
+            "value": {}
+          }
+        },
+        "test4": {
+          "parameters": [],
+          "output": {
+            "type": "string",
+            "value": "e30="
           }
         }
       }

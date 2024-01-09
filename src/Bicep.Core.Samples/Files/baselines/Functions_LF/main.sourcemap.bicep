@@ -144,11 +144,44 @@ func fooTest() array => map(barTest(), a => 'Hello ${a}!')
 //@            "type": "array",
 //@            "value": "[map(__bicep.barTest(), lambda('a', format('Hello {0}!', lambdaVariables('a'))))]"
 //@          }
-//@        }
+//@        },
 
 output fooValue array = fooTest()
 //@    "fooValue": {
 //@      "type": "array",
 //@      "value": "[__bicep.fooTest()]"
 //@    }
+
+func test() object => loadJsonContent('./repro-data.json')
+//@        "test": {
+//@          "parameters": [],
+//@          "output": {
+//@            "type": "object",
+//@            "value": {}
+//@          }
+//@        },
+func test2() string => loadTextContent('./repro-data.json')
+//@        "test2": {
+//@          "parameters": [],
+//@          "output": {
+//@            "type": "string",
+//@            "value": "{}"
+//@          }
+//@        },
+func test3() object => loadYamlContent('./repro-data.json')
+//@        "test3": {
+//@          "parameters": [],
+//@          "output": {
+//@            "type": "object",
+//@            "value": {}
+//@          }
+//@        },
+func test4() string => loadFileAsBase64('./repro-data.json')
+//@        "test4": {
+//@          "parameters": [],
+//@          "output": {
+//@            "type": "string",
+//@            "value": "e30="
+//@          }
+//@        }
 
