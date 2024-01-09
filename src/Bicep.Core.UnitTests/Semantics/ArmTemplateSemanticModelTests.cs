@@ -436,6 +436,85 @@ public class ArmTemplateSemanticModelTests
         taggedUnionType.UnionMembersByKey["'b'"].Properties["value"].TypeReference.Type.Should().Be(LanguageConstants.Int);
     }
 
+    [TestMethod]
+    public void Resource_derivation_metadata_causes_type_to_be_loaded_as_unbound_resource_derived_type()
+    {
+        var parameterType = GetLoadedParameterType($$"""
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "languageVersion": "2.0",
+              "resources": {},
+              "parameters": {
+                "arrayOfStorageAccounts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "metadata": {
+                      "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01"
+                    }
+                  }
+                }
+              }
+            }
+            """,
+            "arrayOfStorageAccounts");
+
+        var typedArrayParameterType = parameterType.Should().BeOfType<TypedArrayType>().Subject;
+        var itemType = typedArrayParameterType.Item.Should().BeOfType<UnboundResourceDerivedType>().Subject;
+
+        itemType.TypeReference.Type.Should().Be("Microsoft.Storage/storageAccounts");
+        itemType.TypeReference.ApiVersion.Should().Be("2022-09-01");
+        itemType.FallbackType.Should().Be(LanguageConstants.Object);
+    }
+
+    [TestMethod]
+    public void Resource_derivation_metadata_causes_tagged_union_variant_to_be_loaded_as_unbound_resource_derived_type()
+    {
+        var parameterType = GetLoadedParameterType($$"""
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "languageVersion": "2.0",
+              "resources": {},
+              "parameters": {
+                "taggedUnion": {
+                  "type": "object",
+                  "discriminator": {
+                    "propertyName": "name",
+                    "mapping": {
+                      "foo": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "allowedValues": ["foo"]
+                          }
+                        }
+                      },
+                      "default": {
+                        "type": "object",
+                        "metadata": {
+                          "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Resources/tags@2022-09-01"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """,
+            "taggedUnion");
+
+        var typedArrayParameterType = parameterType.Should().BeOfType<DiscriminatedObjectType>().Subject;
+        var itemType = typedArrayParameterType.UnionMembersByKey["'default'"].Should().BeOfType<UnboundResourceDerivedPartialObjectType>().Subject;
+
+        itemType.TypeReference.Type.Should().Be("Microsoft.Resources/tags");
+        itemType.TypeReference.ApiVersion.Should().Be("2022-09-01");
+        var fallbackType = itemType.FallbackType.Should().BeAssignableTo<ObjectType>().Subject;
+        fallbackType.Properties["name"].TypeReference.Type.Should().Be(TypeFactory.CreateStringLiteralType("default"));
+    }
+
     private static TypeSymbol GetLoadedParameterType(string jsonTemplate, string parameterName)
     {
         var model = LoadModel(jsonTemplate);

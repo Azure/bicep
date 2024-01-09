@@ -41,7 +41,7 @@ public class RegistryProviderTests : TestBase
 
         var registry = "example.azurecr.io";
         var repository = $"test/provider/http";
-        
+
         var services = GetServiceBuilder(fileSystem, registry, repository);
 
         await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");

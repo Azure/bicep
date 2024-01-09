@@ -151,6 +151,7 @@ namespace Bicep.Core
         public const string ParameterSealedPropertyName = "sealed";
         public const string MetadataDescriptionPropertyName = "description";
         public const string MetadataResourceTypePropertyName = "resourceType";
+        public const string MetadataResourceDerivedTypePropertyName = "__bicep_resource_derived_type!";
         public const string MetadataExportedPropertyName = "__bicep_export!";
         public const string MetadataImportedFromPropertyName = "__bicep_imported_from!";
         public const string TemplateMetadataExportedVariablesName = "__bicep_exported_variables!";
@@ -182,6 +183,7 @@ namespace Bicep.Core
         public const string TypeNameInt = "int";
         public const string TypeNameModule = "module";
         public const string TypeNameTest = "test";
+        public const string TypeNameResource = "resource";
 
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
@@ -229,6 +231,7 @@ namespace Bicep.Core
         public static readonly TypeSymbol StringFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath);
         public static readonly TypeSymbol StringJsonFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringJsonFilePath);
         public static readonly TypeSymbol StringYamlFilePath = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringYamlFilePath);
+        public static readonly TypeSymbol StringResourceIdentifier = TypeFactory.CreateStringType(validationFlags: TypeSymbolValidationFlags.IsResourceTypeIdentifier);
 
         //Type for available loadTextContent encoding
 

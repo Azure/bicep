@@ -421,6 +421,7 @@ namespace Bicep.Core.Emit
 
             // resource types
             ResourceTypeExpression resourceType => GetTypePropertiesForResourceType(resourceType),
+            ResourceDerivedTypeExpression resourceDerivedType => GetTypePropertiesForResourceDerivedType(resourceDerivedType),
 
             // aggregate types
             ArrayTypeExpression arrayType => GetTypePropertiesForArrayType(arrayType),
@@ -469,6 +470,23 @@ namespace Bicep.Core.Emit
                 ExpressionFactory.CreateObjectProperty(LanguageConstants.ParameterMetadataPropertyName,
                     ExpressionFactory.CreateObject(
                         ExpressionFactory.CreateObjectProperty(LanguageConstants.MetadataResourceTypePropertyName,
+                            ExpressionFactory.CreateStringLiteral(typeString, expression.SourceSyntax),
+                            expression.SourceSyntax).AsEnumerable(),
+                        expression.SourceSyntax),
+                    expression.SourceSyntax),
+            });
+        }
+
+        private static ObjectExpression GetTypePropertiesForResourceDerivedType(ResourceDerivedTypeExpression expression)
+        {
+            var typeString = expression.RootResourceType.TypeReference.FormatName();
+
+            return ExpressionFactory.CreateObject(new[]
+            {
+                TypeProperty(GetNonLiteralTypeName(expression.ExpressedType), expression.SourceSyntax),
+                ExpressionFactory.CreateObjectProperty(LanguageConstants.ParameterMetadataPropertyName,
+                    ExpressionFactory.CreateObject(
+                        ExpressionFactory.CreateObjectProperty(LanguageConstants.MetadataResourceDerivedTypePropertyName,
                             ExpressionFactory.CreateStringLiteral(typeString, expression.SourceSyntax),
                             expression.SourceSyntax).AsEnumerable(),
                         expression.SourceSyntax),
@@ -685,7 +703,7 @@ namespace Bicep.Core.Emit
             StringLiteralType or StringType => "string",
             IntegerLiteralType or IntegerType => "int",
             BooleanLiteralType or BooleanType => "bool",
-            ObjectType => "object",
+            ObjectType or DiscriminatedObjectType => "object",
             ArrayType => "array",
             // This would have been caught by the DeclaredTypeManager during initial type assignment
             _ => throw new ArgumentException("Unresolvable type name"),

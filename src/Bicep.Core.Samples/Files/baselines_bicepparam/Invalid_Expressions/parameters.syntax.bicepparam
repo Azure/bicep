@@ -303,7 +303,7 @@ param testFilter = filter([1, 2], i => i < 'foo')
 //@[39:0040) |   |     ├─VariableAccessSyntax
 //@[39:0040) |   |     | └─IdentifierSyntax
 //@[39:0040) |   |     |   └─Token(Identifier) |i|
-//@[41:0042) |   |     ├─Token(LessThan) |<|
+//@[41:0042) |   |     ├─Token(LeftChevron) |<|
 //@[43:0048) |   |     └─StringSyntax
 //@[43:0048) |   |       └─Token(StringComplete) |'foo'|
 //@[48:0049) |   └─Token(RightParen) |)|

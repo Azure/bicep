@@ -274,7 +274,7 @@ var myObj = {
 //@[006:010) Identifier |test|
 //@[010:011) Colon |:|
 //@[012:015) Integer |144|
-//@[016:017) GreaterThan |>|
+//@[016:017) RightChevron |>|
 //@[018:020) Integer |33|
 //@[021:023) LogicalAnd |&&|
 //@[024:028) TrueKeyword |true|

@@ -283,6 +283,21 @@ namespace Bicep.Core.Semantics
             this.bindings.Add(syntax, symbol);
         }
 
+        public override void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax)
+        {
+            FunctionFlags currentFlags = allowedFlags;
+            Visit(syntax.Name);
+            Visit(syntax.OpenChevron);
+            allowedFlags = allowedFlags.HasAnyDecoratorFlag() ? FunctionFlags.Default : allowedFlags;
+            VisitNodes(syntax.Children);
+            allowedFlags = currentFlags;
+            Visit(syntax.CloseChevron);
+
+            var symbol = this.LookupSymbolByName(syntax.Name, false);
+
+            this.bindings.Add(syntax, symbol);
+        }
+
         protected override void VisitInternal(SyntaxBase syntax)
         {
             // any node can be a binding scope

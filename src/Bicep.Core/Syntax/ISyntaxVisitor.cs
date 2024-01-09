@@ -141,5 +141,11 @@ namespace Bicep.Core.Syntax
         void VisitWildcardImportSyntax(WildcardImportSyntax syntax);
 
         void VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax);
+
+        void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax);
+
+        void VisitInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax);
+
+        void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax);
     }
 }

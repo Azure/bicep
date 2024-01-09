@@ -140,4 +140,6 @@ public interface IExpressionVisitor
     void VisitImportedUserDefinedFunctionCallExpression(ImportedUserDefinedFunctionCallExpression expression);
 
     void VisitWildcardImportInstanceFunctionCallExpression(WildcardImportInstanceFunctionCallExpression expression);
+
+    void VisitResourceDerivedTypeExpression(ResourceDerivedTypeExpression expression);
 }

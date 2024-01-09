@@ -1,0 +1,106 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "2406575907779073888"
+    }
+  },
+  "definitions": {
+    "foo": {
+      "type": "object",
+      "metadata": {
+        "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+      }
+    },
+    "test": {
+      "type": "object",
+      "properties": {
+        "resA": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+          }
+        },
+        "resB": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01"
+          }
+        },
+        "resC": {
+          "type": "array"
+        },
+        "resD": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01"
+          }
+        }
+      }
+    },
+    "strangeFormattings": {
+      "type": "object",
+      "properties": {
+        "test": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview"
+          }
+        },
+        "test2": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+          }
+        },
+        "test3": {
+          "type": "object",
+          "metadata": {
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+          }
+        }
+      }
+    },
+    "test2": {
+      "type": "object",
+      "metadata": {
+        "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview",
+        "description": "I love space(s)"
+      }
+    }
+  },
+  "parameters": {
+    "bar": {
+      "type": "object",
+      "metadata": {
+        "__bicep_resource_derived_type!": "Microsoft.Resources/tags@2022-09-01"
+      },
+      "defaultValue": {
+        "name": "default",
+        "properties": {
+          "tags": {
+            "fizz": "buzz",
+            "snap": "crackle"
+          }
+        }
+      }
+    }
+  },
+  "resources": {},
+  "outputs": {
+    "baz": {
+      "type": "object",
+      "metadata": {
+        "__bicep_resource_derived_type!": "Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31"
+      },
+      "value": {
+        "name": "myId",
+        "location": "eastus"
+      }
+    }
+  }
+}
