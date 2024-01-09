@@ -33,7 +33,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var compiler = services.Build().GetCompiler();
             var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(paramsFilePath));
-            
+
             return compilation.GetEntrypointSemanticModel();
         }
 

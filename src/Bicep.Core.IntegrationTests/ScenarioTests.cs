@@ -5424,7 +5424,7 @@ type vnet = {
     [TestMethod]
     public void Test_Issue12912()
     {
-        
+
         var result = CompilationHelper.Compile(
             Services.WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true)),
             ("main.bicep", """
@@ -5449,7 +5449,7 @@ func test4() string => loadFileAsBase64('./repro-data.json')
     [TestMethod]
     public void Test_Issue12698()
     {
-        
+
         var result = CompilationHelper.Compile(
             Services.WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true, CompileTimeImportsEnabled: true)),
             ("main.bicep", """

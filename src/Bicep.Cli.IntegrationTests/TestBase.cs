@@ -48,18 +48,19 @@ namespace Bicep.Cli.IntegrationTests
         protected static Task<CliResult> Bicep(InvocationSettings settings, params string?[] args /*null args are ignored*/)
             => TextWriterHelper.InvokeWriterAction((@out, err)
                 => new Program(new(Output: @out, Error: err), services
-                    => {
-                        if (settings.FeatureOverrides is {})
-                        {
-                            services.WithFeatureOverrides(settings.FeatureOverrides);
-                        }
+                    =>
+                {
+                    if (settings.FeatureOverrides is { })
+                    {
+                        services.WithFeatureOverrides(settings.FeatureOverrides);
+                    }
 
-                        services
-                            .WithEmptyAzResources()
-                            .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
-                            .AddSingleton(settings.ClientFactory)
-                            .AddSingleton(settings.TemplateSpecRepositoryFactory);
-                    })
+                    services
+                        .WithEmptyAzResources()
+                        .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
+                        .AddSingleton(settings.ClientFactory)
+                        .AddSingleton(settings.TemplateSpecRepositoryFactory);
+                })
                     .RunAsync(args.ToArrayExcludingNull(), CancellationToken.None));
 
         protected static void AssertNoErrors(string error)
