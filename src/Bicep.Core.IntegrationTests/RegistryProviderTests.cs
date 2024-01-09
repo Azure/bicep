@@ -47,16 +47,16 @@ public class RegistryProviderTests : TestBase
         await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+        provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 
-resource dadJoke 'request@v1' = {
-  uri: 'https://icanhazdadjoke.com'
-  method: 'GET'
-  format: 'json'
-}
+        resource dadJoke 'request@v1' = {
+        uri: 'https://icanhazdadjoke.com'
+        method: 'GET'
+        format: 'json'
+        }
 
-output joke string = dadJoke.body.joke
-""");
+        output joke string = dadJoke.body.joke
+        """);
 
         // TODO uncomment the below once the 3rd party logic has been implemented
         // result.Should().NotHaveAnyDiagnostics();
@@ -65,5 +65,20 @@ output joke string = dadJoke.body.joke
         // TODO remove this once the above is uncommented
         result.Should().ContainDiagnostic("BCP204", DiagnosticLevel.Error, "Provider namespace \"http\" is not recognized.");
         result.Should().NotGenerateATemplate();
+    }
+
+    [TestMethod]
+    public async Task Using_interpolated_strings_in_provider_declaration_syntax_results_in_diagnostic()
+    {
+        var services = new ServiceBuilder()
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true));
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+        var registryHost = 'example.azurecr.io'
+        provider 'br:${registryHost}/test/provider/http@1.2.3'
+        """);
+        result.Should().NotGenerateATemplate();
+        result.Should().ContainDiagnostic("BCP303", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the provider.");
+
     }
 }
