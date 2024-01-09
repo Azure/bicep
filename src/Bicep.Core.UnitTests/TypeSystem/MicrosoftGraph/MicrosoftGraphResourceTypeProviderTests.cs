@@ -24,8 +24,8 @@ namespace Bicep.Core.UnitTests.TypeSystem.MicrosoftGraph
     [TestClass]
     public class MicrosoftGraphResourceTypeProviderTests
     {
- 
-    [TestMethod]
+
+        [TestMethod]
         public void MicrosoftGraphResourceTypeProvider_can_list_all_types_without_throwing()
         {
             var availableTypes = TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.MicrosoftGraphProviderDescriptor).ResourceTypeProvider.GetAvailableTypes();
