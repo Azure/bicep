@@ -286,6 +286,7 @@ namespace Bicep.Core.IntegrationTests
                     tarWriter.WriteEntry(tarEntry);
                 }
             }
+            stream.Position = 0;
             return BinaryData.FromStream(stream);
         }
 
