@@ -141,7 +141,11 @@ namespace Bicep.Core.UnitTests
             return telemetryProvider;
         }
 
-        public static BinaryData BicepProviderManifestWithEmptyTypesLayer = BinaryData.FromString($$"""
+        public static BinaryData BicepProviderManifestWithEmptyTypesLayer
+            => GetBicepProviderManifest("sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", 0);
+
+        public static BinaryData GetBicepProviderManifest(string digest, long size) =>
+            BinaryData.FromString($$"""
         {
             "schemaVersion": 2,
             "mediaType": "application/vnd.oci.image.manifest.v1+json",
@@ -154,8 +158,8 @@ namespace Bicep.Core.UnitTests
             "layers": [
             {
                 "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
-                "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                "size": 0
+                "digest": "{{digest}}",
+                "size": {{size}}
             }
             ],
             "annotations": {

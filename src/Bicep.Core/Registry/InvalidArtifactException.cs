@@ -18,7 +18,7 @@ namespace Bicep.Core.Registry
 
         public InvalidArtifactExceptionKind Kind { get; }
 
-        public InvalidArtifactException(string innerMessage, InvalidArtifactExceptionKind kind = InvalidArtifactExceptionKind.NotSpecified) : base($"The OCI artifact is not a valid Bicep module. {innerMessage}")
+        public InvalidArtifactException(string innerMessage, InvalidArtifactExceptionKind kind = InvalidArtifactExceptionKind.NotSpecified) : base($"The OCI artifact is not a valid Bicep artifact. {innerMessage}")
         {
             Kind = kind;
         }

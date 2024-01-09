@@ -209,6 +209,7 @@ namespace Bicep.Core.Semantics
             ResourceTypesProviderDescriptor providerDescriptor = new(
                 syntax.Specification.Name,
                 syntax.Specification.Version,
+                syntax.Specification.BicepRegistryAddress,
                 syntax.Alias?.IdentifierName,
                 typesBaseUri);
 

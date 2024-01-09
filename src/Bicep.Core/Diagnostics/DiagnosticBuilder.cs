@@ -2092,13 +2092,6 @@ namespace Bicep.Core.Diagnostics
                     DiagnosticStyling.Default,
                     codeFix);
             }
-
-            public ErrorDiagnostic InvalidProviderArtifact(string errorMessage){
-                return new ErrorDiagnostic(
-                    TextSpan,
-                    "BCP382",
-                    $"The OCI resource types provider artifact is invalid. {errorMessage}");
-            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

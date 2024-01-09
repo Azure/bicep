@@ -16,6 +16,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.TypeSystem.Providers
@@ -57,9 +58,10 @@ namespace Bicep.Core.TypeSystem.Providers
                         OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
                         providerDescriptor.Version);
             }
-            catch (InvalidArtifactException e)
+            catch (Exception ex)
             {
-                return new(x => x.InvalidProviderArtifact(e.Message));
+                var invalidArtifactException = ex.As<InvalidArtifactException?>() ?? new InvalidArtifactException(ex.Message, ex, InvalidArtifactExceptionKind.NotSpecified);
+                return new(x => x.ArtifactRestoreFailedWithMessage(providerDescriptor.ArtifactReference, invalidArtifactException.Message));
             }
 
             return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);

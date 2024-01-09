@@ -20,7 +20,9 @@ using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryE
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using static Bicep.Core.IntegrationTests.TestDataGenerators.DynamicAzTypesTestDataGenerator;
+using System.Formats.Tar;
+using System.IO.Compression;
+using System.Text;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -157,18 +159,29 @@ namespace Bicep.Core.IntegrationTests
 
         [TestMethod]
         [DynamicData(nameof(ArtifactRegistryCorruptedPackageNegativeTestScenarios), DynamicDataSourceType.Method)]
-        public async Task Bicep_compiler_handles_corrupted_provider_package_gracefully(Stream testPayload, string innerErrorMessage)
+        public async Task Bicep_compiler_handles_corrupted_provider_package_gracefully(
+            BinaryData payload,
+            string innerErrorMessage)
         {
             // ARRANGE
             var testArtifact = new ArtifactRegistryAddress("biceptestdf.azurecr.io", "bicep/providers/az", "0.0.0-corruptpng");
             (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(testArtifact.ClientDescriptor());
 
             (_, var client) = blobClients.First();
-            await client.SetManifestAsync(BicepTestConstants.BicepProviderManifestWithEmptyTypesLayer, testArtifact.ProviderVersion);
-            await client.UploadBlobAsync(testPayload);
+            var blobResult = await client.UploadBlobAsync(payload);
+            var manifest = BicepTestConstants.GetBicepProviderManifest(
+                            blobResult.Value.Digest,
+                            blobResult.Value.SizeInBytes);
+            await client.SetManifestAsync(manifest, testArtifact.ProviderVersion);
+
+            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(cacheRoot);
 
             var services = new ServiceBuilder()
-           .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
+                .WithFeatureOverrides(new(
+                    ExtensibilityEnabled: true,
+                    DynamicTypeLoadingEnabled: true,
+                    CacheRootDirectory: cacheRoot))
            .WithContainerRegistryClientFactory(clientFactory);
 
             // ACT
@@ -180,7 +193,7 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP382", DiagnosticLevel.Error, $"The OCI resource types provider artifact is invalid. {innerErrorMessage}"),
+                ("BCP192", DiagnosticLevel.Error, $"Unable to restore the artifact with reference \"{testArtifact.ToSpecificationString(':')}\": The OCI artifact is not a valid Bicep artifact. {innerErrorMessage}"),
                 ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
             });
 
@@ -240,7 +253,7 @@ namespace Bicep.Core.IntegrationTests
                 unreacheable,
                 new AggregateException(AggregateExceptionMessage),
                 new (string, DiagnosticLevel, string)[]{
-                    new ("BCP192", DiagnosticLevel.Error, @$"Unable to restore the artifact with reference ""{unreacheable.ToSpecificationString(':')}"": {AggregateExceptionMessage}"),
+                    ("BCP192", DiagnosticLevel.Error, @$"Unable to restore the artifact with reference ""{unreacheable.ToSpecificationString(':')}"": {AggregateExceptionMessage}"),
                     ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
                 },
             };
@@ -252,10 +265,68 @@ namespace Bicep.Core.IntegrationTests
                 withoutRepo,
                 new RequestFailedException(404, NotFoundMessage),
                 new (string, DiagnosticLevel, string)[]{
-                    new ("BCP192", DiagnosticLevel.Error, $@"Unable to restore the artifact with reference ""{withoutRepo.ToSpecificationString(':')}"": {NotFoundMessage}"),
+                    ("BCP192", DiagnosticLevel.Error, $@"Unable to restore the artifact with reference ""{withoutRepo.ToSpecificationString(':')}"": {NotFoundMessage}"),
                     ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
                 },
             };
+        }
+
+        private static BinaryData GetTypesTgzBytesFromFiles(params (string filePath, string contents)[] files)
+        {
+            var stream = new MemoryStream();
+            using (var gzStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
+            {
+                using var tarWriter = new TarWriter(gzStream, leaveOpen: true);
+                foreach (var (filePath, contents) in files)
+                {
+                    var tarEntry = new PaxTarEntry(TarEntryType.RegularFile, filePath)
+                    {
+                        DataStream = new MemoryStream(Encoding.ASCII.GetBytes(contents))
+                    };
+                    tarWriter.WriteEntry(tarEntry);
+                }
+            }
+            return BinaryData.FromStream(stream);
+        }
+
+        public static IEnumerable<object[]> ArtifactRegistryCorruptedPackageNegativeTestScenarios()
+        {
+            // Scenario: When OciTypeLoader.FromDisk() throws, the exception is exposed as a diagnostic
+            // Some cases covered by this test are:
+            // - Artifact layer payload is not a GZip compressed
+            // - Artifact layer payload is a GZip compressedbut is not composed of Tar entries
+            yield return new object[]
+            {
+                BinaryData.FromString("This is a NOT GZip compressed data"),
+                "The archive entry was compressed using an unsupported compression method.",
+            };
+
+            // Scenario: Artifact layer payload is missing an "index.json"
+            yield return new object[]
+            {
+                GetTypesTgzBytesFromFiles(
+                    ("unknown.json", "{}")),
+                "The path: index.json was not found in artifact contents"
+            };
+
+            // Scenario: "index.json" is not valid JSON
+            yield return new object[]
+            {
+                GetTypesTgzBytesFromFiles(
+                    ("index.json", """{"INVALID_JSON": 777""")),
+                "'7' is an invalid end of a number. Expected a delimiter. Path: $.INVALID_JSON | LineNumber: 0 | BytePositionInLine: 20."
+            };
+
+            // Scenario: "index.json" with malformed or missing required data
+            yield return new object[]
+            {
+                GetTypesTgzBytesFromFiles(
+                    ("index.json", """{ "UnexpectedMember": false}""")),
+                "Value cannot be null. (Parameter 'source')"
+            };
+
+        }
+
         }
     }
 }
