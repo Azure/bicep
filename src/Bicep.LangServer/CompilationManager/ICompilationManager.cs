@@ -11,9 +11,9 @@ namespace Bicep.LanguageServer.CompilationManager
     {
         void HandleFileChanges(IEnumerable<FileEvent> fileEvents);
 
-        void RefreshCompilation(DocumentUri uri, bool clearAuxiliaryFileCache = false);
+        void RefreshCompilation(DocumentUri uri, bool forceReloadAuxiliaryFiles = false);
 
-        void RefreshAllActiveCompilations(bool clearAuxiliaryFileCache = false);
+        void RefreshAllActiveCompilations();
 
         void OpenCompilation(DocumentUri uri, int? version, string text, string languageId);
 

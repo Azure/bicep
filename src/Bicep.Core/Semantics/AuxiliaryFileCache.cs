@@ -19,87 +19,47 @@ public record AuxiliaryFile(
 
 public interface IReadableFileCache
 {
-    ResultWithDiagnostic<AuxiliaryFile> Read(ISemanticModel sourceModel, Uri uri);
+    ResultWithDiagnostic<AuxiliaryFile> Read(Uri uri);
 }
 
 public class AuxiliaryFileCache : IReadableFileCache
 {
-    public record CacheEntry(
-        ImmutableHashSet<ISemanticModel> References,
-        ResultWithDiagnostic<AuxiliaryFile> Result);
-
     public AuxiliaryFileCache(IFileResolver fileResolver)
     {
         this.fileResolver = fileResolver;
     }
 
-    private readonly ConcurrentDictionary<Uri, CacheEntry> fileCache = new();
+    private readonly ConcurrentDictionary<Uri, ResultWithDiagnostic<AuxiliaryFile>> fileCache = new();
     private readonly IFileResolver fileResolver;
 
     /// <summary>
     /// Reads a given file from the file system, utilizing the cache where possible.
     /// </summary>
-    public ResultWithDiagnostic<AuxiliaryFile> Read(ISemanticModel sourceModel, Uri uri)
-    {
-        var cacheEntry = fileCache.AddOrUpdate(
+    public ResultWithDiagnostic<AuxiliaryFile> Read(Uri uri)
+        => fileCache.GetOrAdd(
             uri,
             uri => {
                 var result = fileResolver.TryReadAsBytes(uri)
                     .Transform(bytes => new AuxiliaryFile(uri, bytes));
 
-                Trace.WriteLine($"Loaded auxiliary file {uri}. Success: {result.IsSuccess()}");
+                Trace.WriteLine($"Loaded auxiliary file result {uri}. Success: {result.IsSuccess()}");
 
-                return new(
-                    References: sourceModel.AsEnumerable().ToImmutableHashSet(),
-                    Result: result);
-            },
-            (uri, entry) => {
-                return new(
-                    References: entry.References.Add(sourceModel),
-                    Result: entry.Result);
+                return result;
             });
 
-        return cacheEntry.Result;
-    }
+    public ImmutableArray<Uri> GetEntries()
+        => fileCache.Keys.ToImmutableArray();
 
-    /// <summary>
-    /// Removes references to semantic models that are no longer active.
-    /// </summary>
-    public void RemoveStaleEntries(IEnumerable<ISemanticModel> activeModels)
+    public void ClearEntries(IEnumerable<Uri> uris)
     {
-        foreach (var kvp in fileCache)
+        foreach (var uri in uris)
         {
-            var newEntry = fileCache.AddOrUpdate(
-                kvp.Key,
-                kvp.Value,
-                (uri, entry) => new(
-                    References: entry.References.Intersect(activeModels),
-                    Result: entry.Result));
+            Trace.WriteLine($"Removing auxiliary file result {uri}.");
 
-            // There's a race condition where the above could re-add an entry that was removed by another thread.
-            // To mitigate this, we can remove it here if the entry is the same reference.
-            if (object.ReferenceEquals(newEntry, kvp.Value) ||
-                newEntry.References.IsEmpty)
-            {
-                fileCache.TryRemove(kvp);
-            }
+            fileCache.TryRemove(uri, out _);
         }
     }
-
-    /// <summary>
-    /// Clears the cache for the specified files, to force them to be reloaded from the file system.
-    /// </summary>
-    public ImmutableArray<ISemanticModel> ClearEntries(IEnumerable<Uri> fileUris)
-    {
-        HashSet<ISemanticModel> affectedModels = new();
-        foreach (var fileUri in fileUris)
-        {
-            if (fileCache.TryRemove(fileUri, out var cacheEntry))
-            {
-                affectedModels.UnionWith(cacheEntry.References);
-            }
-        }
-
-        return affectedModels.ToImmutableArray();
-    }
+    
+    public void PruneInactiveEntries(IEnumerable<Uri> activeEntries)
+        => ClearEntries(fileCache.Keys.Except(activeEntries));
 }

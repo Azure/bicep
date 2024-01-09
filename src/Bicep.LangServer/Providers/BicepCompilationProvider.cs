@@ -49,22 +49,22 @@ namespace Bicep.LanguageServer.Providers
 
         public CompilationContext Create(
             IReadOnlyWorkspace workspace,
+            IReadableFileCache fileCache,
             DocumentUri documentUri,
-            ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup,
-            AuxiliaryFileCache? fileCache)
+            ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
-            fileCache ??= new(fileResolver);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 fileResolver,
                 moduleDispatcher,
                 workspace,
                 documentUri.ToUriEncoded(),
                 featureProviderFactory);
-            return this.CreateContext(sourceFileGrouping, modelLookup, fileCache);
+            return this.CreateContext(fileCache, sourceFileGrouping, modelLookup);
         }
 
         public CompilationContext Update(
             IReadOnlyWorkspace workspace,
+            IReadableFileCache fileCache,
             CompilationContext current,
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
@@ -73,13 +73,13 @@ namespace Bicep.LanguageServer.Providers
                 moduleDispatcher,
                 workspace,
                 current.Compilation.SourceFileGrouping);
-            return this.CreateContext(sourceFileGrouping, modelLookup, current.Compilation.FileCache);
+            return this.CreateContext(fileCache, sourceFileGrouping, modelLookup);
         }
 
         private CompilationContext CreateContext(
+            IReadableFileCache fileCache,
             SourceFileGrouping syntaxTreeGrouping,
-            ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup,
-            AuxiliaryFileCache fileCache)
+            ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             var compilation = new Compilation(
                 featureProviderFactory,

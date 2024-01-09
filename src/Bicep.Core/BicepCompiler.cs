@@ -69,7 +69,7 @@ public class BicepCompiler
             configurationManager,
             bicepAnalyzer,
             moduleDispatcher,
-            new(fileResolver),
+            new AuxiliaryFileCache(fileResolver),
             ImmutableDictionary<ISourceFile, ISemanticModel>.Empty);
     }
 }

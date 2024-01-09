@@ -245,10 +245,10 @@ param requiredIpnut string
     [TestMethod]
     public async Task Auxiliary_file_access_is_cached()
     {
-        var bicepUri = new Uri("file:///path/to/main.bicep");
+        var bicepUri = new Uri("file:///main.bicep");
         var bicepContents = """
 #disable-next-line no-unused-params
-param foo 'abc' = loadTextContent('bar.txt')
+param foo 'abc' = loadTextContent('path/to/bar.txt')
 """;
         var txtFileUri = new Uri("file:///path/to/bar.txt");
         ResultWithDiagnostic<byte[]> result = new(Encoding.UTF8.GetBytes("abc"));
@@ -296,12 +296,20 @@ param foo 'abc' = loadTextContent('bar.txt')
         diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("The specified path is empty."));
         fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Exactly(3));
 
+        // Change a parent folder, verify it triggers a recompilation
+        var parentDirUri = new Uri("file:///path/to/");
+        result = new(x => x.ErrorOccurredReadingFile("It's gone!"));
+        helper.ChangeWatchedFile(parentDirUri);
+        diags = await helper.ChangeFileAsync(TestContext, bicepContents, bicepUri, ++version);
+        diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("An error occurred reading file. It's gone!"));
+        fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Exactly(4));
+
         // Change an unrelated txt file, verify it doesn't trigger a recompilation
         var unrelatedTxtFileUri = new Uri("file:///path/to/notbar.txt");
         helper.ChangeWatchedFile(unrelatedTxtFileUri);
         diags = await helper.ChangeFileAsync(TestContext, bicepContents, bicepUri, ++version);
-        diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("The specified path is empty."));
-        fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Exactly(3));
+        diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("An error occurred reading file. It's gone!"));
+        fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Exactly(4));
         fileResolverMock.Verify(x => x.TryReadAsBytes(unrelatedTxtFileUri, null), Times.Never);
     }
 }

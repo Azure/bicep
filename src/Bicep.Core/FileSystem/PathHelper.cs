@@ -208,6 +208,16 @@ namespace Bicep.Core.FileSystem
             return child.AbsolutePath.StartsWith(parentPath);
         }
 
+        public static bool IsEqualOrSubPathOf(Uri parent, Uri child)
+        {
+            if (parent == child)
+            {
+                return true;
+            }
+
+            return IsSubPathOf(parent, child);
+        }
+
         public static string GetRelativePath(Uri source, Uri target)
         {
             if (source.Scheme != target.Scheme)
