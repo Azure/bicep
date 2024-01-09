@@ -126,7 +126,7 @@ namespace Bicep.Cli.IntegrationTests
             (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(hosts.Select(host => (host, "bicep/providers/az")).ToArray());
 
 
-            //// 2. upload a manifest and its blob layer
+            // 2. upload a manifest and its blob layer
             foreach (var ((uri, _), client) in blobClients)
             {
                 if (uri.Host.Contains("invalid")) { continue; }
