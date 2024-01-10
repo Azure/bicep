@@ -11,6 +11,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
@@ -106,9 +107,9 @@ namespace Bicep.Core.Registry
             return null;
         }
 
-        public override SourceArchiveResult TryGetSource(LocalModuleReference reference)
+        public override ResultWithException<SourceArchive> TryGetSource(LocalModuleReference reference)
         {
-            return new();
+            return new(new SourceNotAvailableException());
         }
     }
 }

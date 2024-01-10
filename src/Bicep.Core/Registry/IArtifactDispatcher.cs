@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
@@ -32,6 +33,6 @@ namespace Bicep.Core.Registry
         void PruneRestoreStatuses();
 
         // Retrieves the sources that have been restored along with the module into the cache (if available)
-        SourceArchiveResult TryGetModuleSources(ArtifactReference reference);
+        ResultWithException<SourceArchive> TryGetModuleSources(ArtifactReference reference);
     }
 }

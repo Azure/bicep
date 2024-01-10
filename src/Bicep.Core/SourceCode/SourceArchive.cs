@@ -14,6 +14,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry.Oci;
@@ -24,44 +25,26 @@ using static Bicep.Core.SourceCode.SourceArchive;
 
 namespace Bicep.Core.SourceCode
 {
-    public record SourceArchiveResult
-    {
-        public SourceArchiveResult()
-        {
-            // This is the case when the source code is not available in the registry cache (presumably wasn't published)
-            SourceArchive = null;
-            Message = null;
-        }
-
-        public SourceArchiveResult(SourceArchive sourceArchive)
-        {
-            SourceArchive = sourceArchive;
-            Message = null;
-        }
-
-        public SourceArchiveResult(string message)
-        {
-            SourceArchive = null;
-            Message = message;
-        }
-
-        // If both are null, there is no source code available in the registry cache (presumably wasn't published)
-        public SourceArchive? SourceArchive;
-        public string? Message;
+    public class SourceNotAvailableException : Exception {
+        public SourceNotAvailableException()
+            : base("(Experimental) No source code is available for this module")
+        { }
     }
 
     // Contains the individual source code files for a Bicep file and all of its dependencies.
     public partial class SourceArchive // Partial required for serialization
     {
-
         // Attributes of this archive instance
 
         private ArchiveMetadata InstanceMetadata { get; init; }
 
         public ImmutableArray<SourceFileInfo> SourceFiles { get; init; }
+
         public string EntrypointRelativePath => InstanceMetadata.EntryPoint;
+
         // The version of Bicep which created this deserialized archive instance.
         public string BicepVersion => InstanceMetadata.BicepVersion;
+
         // The version of the metadata file format used by this archive instance.
         public int MetadataVersion => InstanceMetadata.MetadataVersion;
 
@@ -121,12 +104,12 @@ namespace Bicep.Core.SourceCode
             return null;
         }
 
-        public static SourceArchiveResult UnpackFromStream(Stream stream)
+        public static ResultWithException<SourceArchive> UnpackFromStream(Stream stream)
         {
             var archive = new SourceArchive(stream);
             if (archive.GetRequiredBicepVersionMessage() is string message)
             {
-                return new(message);
+                return new(new Exception(message));
             }
             else
             {

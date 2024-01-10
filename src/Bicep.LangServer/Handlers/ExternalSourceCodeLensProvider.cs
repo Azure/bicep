@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Bicep.Core.Registry;
+using Bicep.Core.SourceCode;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -48,28 +49,28 @@ namespace Bicep.LanguageServer.Handlers
                         {
                             // Displaying main.json
 
-                            if (sourceArchiveResult.SourceArchive is { })
+                            if (sourceArchiveResult.IsSuccess(out var sourceArchive, out var ex))
                             {
                                 yield return CreateCodeLens(
                                     DocumentStart,
                                     "Show Bicep source (experimental)",
                                     "bicep.internal.showModuleSourceFile",
-                                    new ExternalSourceReference(request.TextDocument.Uri).WithRequestForSourceFile(sourceArchiveResult.SourceArchive.EntrypointRelativePath).ToUri().ToString());
+                                    new ExternalSourceReference(request.TextDocument.Uri).WithRequestForSourceFile(sourceArchive.EntrypointRelativePath).ToUri().ToString());
                             }
-                            else if (sourceArchiveResult.Message is { })
+                            else if (ex is SourceNotAvailableException)
                             {
-                                message = $"(Experimental) Cannot display source code for this module. {sourceArchiveResult.Message}";
+                                message = ex.Message;
                             }
                             else
                             {
-                                message = "(Experimental) No source code is available for this module";
+                                message = $"(Experimental) Cannot display source code for this module. {ex.Message}";
                             }
                         }
                         else
                         {
                             // Displaying a bicep file
 
-                            if (sourceArchiveResult.SourceArchive is { })
+                            if (sourceArchiveResult.IsSuccess(out var _, out var ex))
                             {
                                 // We're displaying some source file other than the compiled JSON for the module. Allow user to switch to the compiled JSON.
                                 yield return CreateCodeLens(
@@ -80,7 +81,7 @@ namespace Bicep.LanguageServer.Handlers
                             }
                             else
                             {
-                                message = sourceArchiveResult.Message ??
+                                message = ex.Message ??
                                     // This can happen if the user has a source file open in the editor and then restores to a version of the module that doesn't have source code available.
                                     "Could not find the expected source archive in the module registry";
                             }

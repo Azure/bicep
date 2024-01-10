@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.SourceCode;
@@ -49,7 +50,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         // If entrypointSource is not null, then a source archive will be created with the given entrypointSource, otherwise no source archive will be created.
-        private SharedLanguageHelperManager CreateServer(Uri? bicepModuleEntrypoint, string? entrypointSource, SourceArchiveResult? sourceArchiveResult = null)
+        private SharedLanguageHelperManager CreateServer(Uri? bicepModuleEntrypoint, string? entrypointSource, ResultWithException<SourceArchive>? sourceArchiveResult = null)
         {
             var moduleRegistry = StrictMock.Of<IArtifactRegistry>();
             if (bicepModuleEntrypoint is not null && entrypointSource is not null)
@@ -57,7 +58,7 @@ namespace Bicep.LangServer.IntegrationTests
                 BicepFile moduleEntrypointFile = SourceFileFactory.CreateBicepFile(bicepModuleEntrypoint, entrypointSource);
                 sourceArchiveResult ??= SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(moduleEntrypointFile.FileUri, moduleEntrypointFile));
             }
-            sourceArchiveResult ??= new();
+            sourceArchiveResult ??= new(new SourceNotAvailableException());
             moduleRegistry.Setup(m => m.TryGetSource(It.IsAny<ArtifactReference>())).Returns(sourceArchiveResult);
 
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
@@ -71,7 +72,7 @@ namespace Bicep.LangServer.IntegrationTests
             var artifactRegistries = moduleRegistry.Object.AsArray();
 
             moduleDispatcher.Setup(m => m.TryGetModuleSources(It.IsAny<ArtifactReference>())).Returns((ArtifactReference reference) =>
-                artifactRegistries.Select(r => r.TryGetSource(reference)).FirstOrDefault(s => s is not null) ?? new());
+                artifactRegistries.Select(r => r.TryGetSource(reference)).FirstOrDefault(s => s is not null) ?? new(new SourceNotAvailableException()));
 
             var defaultServer = new SharedLanguageHelperManager();
             defaultServer.Initialize(
@@ -240,7 +241,7 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{this.TestContext.TestName}");
             var moduleEntrypointUri = DocumentUri.From($"/module entrypoint.bicep");
 
-            SourceArchiveResult sourceArchiveResult = new("Source archive is incompatible with this version of Bicep.");
+            var sourceArchiveResult = new ResultWithException<SourceArchive>(new Exception("Source archive is incompatible with this version of Bicep."));
             await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint", sourceArchiveResult);
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(this.TestContext, string.Empty, uri);

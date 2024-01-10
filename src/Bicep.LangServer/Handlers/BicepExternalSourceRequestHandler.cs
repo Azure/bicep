@@ -74,10 +74,9 @@ namespace Bicep.LanguageServer.Handlers
 
             if (request.requestedSourceFile is { })
             {
-                SourceArchiveResult sourceArchiveResult = moduleDispatcher.TryGetModuleSources(moduleReference);
-                if (sourceArchiveResult.SourceArchive is { })
+                if (moduleDispatcher.TryGetModuleSources(moduleReference).IsSuccess(out var sourceArchive, out var ex))
                 {
-                    var requestedFile = sourceArchiveResult.SourceArchive.SourceFiles.FirstOrDefault(f => f.Path == request.requestedSourceFile);
+                    var requestedFile = sourceArchive.SourceFiles.FirstOrDefault(f => f.Path == request.requestedSourceFile);
                     if (requestedFile is null)
                     {
                         throw new InvalidOperationException($"Could not find source file \"{request.requestedSourceFile}\" in the sources for module \"{moduleReference.FullyQualifiedReference}\"");
@@ -85,9 +84,9 @@ namespace Bicep.LanguageServer.Handlers
 
                     return Task.FromResult(new BicepExternalSourceResponse(requestedFile.Contents));
                 }
-                else if (sourceArchiveResult?.Message is { })
+                else if (ex is not SourceNotAvailableException)
                 {
-                    return Task.FromResult(new BicepExternalSourceResponse(null, sourceArchiveResult.Message));
+                    return Task.FromResult(new BicepExternalSourceResponse(null, ex.Message));
                 }
             }
 
