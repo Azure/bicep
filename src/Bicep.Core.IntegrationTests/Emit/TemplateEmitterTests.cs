@@ -44,12 +44,12 @@ namespace Bicep.Core.IntegrationTests.Emit
 
         private async Task<Compilation> GetCompilation(DataSet dataSet, FeatureProviderOverrides features)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext); 
-            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(false);        
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var clientFactory = await dataSet.CreateMockRegistryClientsAsync(false);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-var bicepFileUri = PathHelper.FilePathToFileUrl(bicepFilePath);
+            var bicepFileUri = PathHelper.FilePathToFileUrl(bicepFilePath);
 
             var compiler = Services
                 .WithContainerRegistryClientFactory(clientFactory)

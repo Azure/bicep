@@ -90,7 +90,7 @@ public class LintCommandTests : TestBase
         var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
         var clientFactory = await dataSet.CreateMockRegistryClientsAsync(false);
         var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-await dataSet.PublishModulesToRegistryAsync(clientFactory);
+        await dataSet.PublishModulesToRegistryAsync(clientFactory);
         var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
         var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
