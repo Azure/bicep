@@ -59,11 +59,6 @@ resource dadJoke 'request@v1' = {
 output joke string = dadJoke.body.joke
 """);
 
-        var bicepUri = PathHelper.FilePathToFileUrl(bicepPath);
-
-        var compiler = GetServiceBuilder(fileSystem, clientFactory).Build().Construct<BicepCompiler>();
-        var result = CompilationHelper.Compile(await compiler.CreateCompilation(bicepUri));
-
         result.Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
     }
@@ -71,30 +66,29 @@ output joke string = dadJoke.body.joke
     [TestMethod]
     public async Task Third_party_namespace_errors_with_configuration()
     {
-        System.IO.Abstractions.FileSystem fileSystem = new();
-        var registry = "example.azurecr.io";
-        var registryUri = new Uri($"https://{registry}");
-        var repository = $"test/provider/http";
-
         // types taken from https://github.com/Azure/bicep-registry-providers/tree/21aadf24cd6e8c9c5da2db0d1438df9def548b09/providers/http
-        var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
-            TestContext,
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
             typeof(RegistryProviderTests).Assembly,
             "Files/RegistryProviderTests/HttpProvider");
 
-        var indexJson = Path.Combine(outputDirectory, "types/index.json");
+        var registry = "example.azurecr.io";
+        var repository = $"test/provider/http";
 
-        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients(false, (registryUri, repository));
-        await DataSetsExtensions.PublishProviderToRegistryAsync(fileSystem, clientFactory, indexJson, $"br:{registry}/{repository}:1.2.3");
+        var services = GetServiceBuilder(fileSystem, registry, repository);
 
-        var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
 provider 'br:example.azurecr.io/test/provider/http@1.2.3' with {{}}
+
+resource dadJoke 'request@v1' = {
+  uri: 'https://icanhazdadjoke.com'
+  method: 'GET'
+  format: 'json'
+}
+
+output joke string = dadJoke.body.joke
 """);
-
-        var bicepUri = PathHelper.FilePathToFileUrl(bicepPath);
-
-        var compiler = GetServiceBuilder(fileSystem, clientFactory).Build().Construct<BicepCompiler>();
-        var result = CompilationHelper.Compile(await compiler.CreateCompilation(bicepUri));
 
         result.Should().NotGenerateATemplate();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
