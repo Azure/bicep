@@ -206,7 +206,23 @@ namespace Bicep.Core.TypeSystem
 
             var diagnosticBuilder = DiagnosticBuilder.ForPosition(propertyExpressionPositionable);
 
-            var unknownPropertyDiagnostic = availableProperties.Any() switch
+            var unknownPropertyDiagnostic = GetUnknownPropertyDiagnostic(baseType, propertyExpressionPositionable, propertyName, shouldWarn);
+
+            diagnostics.Write(unknownPropertyDiagnostic);
+
+            return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? ErrorType.Empty() : LanguageConstants.Any;
+        }
+
+        public static IDiagnostic GetUnknownPropertyDiagnostic(ObjectType baseType, IPositionable propertyExpressionPositionable, string propertyName, bool shouldWarn)
+        {
+            var availableProperties = baseType.Properties.Values
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                .Select(p => p.Name)
+                .OrderBy(x => x);
+
+            var diagnosticBuilder = DiagnosticBuilder.ForPosition(propertyExpressionPositionable);
+
+            return availableProperties.Any() switch
             {
                 true => SpellChecker.GetSpellingSuggestion(propertyName, availableProperties) switch
                 {
@@ -216,10 +232,6 @@ namespace Bicep.Core.TypeSystem
                 },
                 _ => diagnosticBuilder.UnknownProperty(shouldWarn, baseType, propertyName)
             };
-
-            diagnostics.Write(unknownPropertyDiagnostic);
-
-            return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? ErrorType.Empty() : LanguageConstants.Any;
         }
 
         public static TypeSymbol FlattenType(TypeSymbol typeToFlatten, IPositionable argumentPosition)

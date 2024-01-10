@@ -31,10 +31,12 @@ namespace Bicep.Core.Emit
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
         public const string TemplateHashPropertyName = "templateHash";
         public const string LanguageVersionPropertyName = "languageVersion";
-        private const string TypePropertyName = "type";
 
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
         public const string NestedDeploymentResourceApiVersion = "2022-09-01";
+        private const string TypePropertyName = "type";
+        private const string InternalTypeRefStart = "#";
+        private const string TypeDefinitionsProperty = "definitions";
 
         private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
@@ -151,7 +153,7 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            emitter.EmitObjectProperty("definitions", () =>
+            emitter.EmitObjectProperty(TypeDefinitionsProperty, () =>
             {
                 foreach (var type in types)
                 {
@@ -377,20 +379,23 @@ namespace Bicep.Core.Emit
 
         private ObjectExpression TypePropertiesForTypeExpression(TypeExpression typeExpression) => typeExpression switch
         {
-            // references
+            // ARM primitive types
             AmbientTypeReferenceExpression ambientTypeReference
                 => ExpressionFactory.CreateObject(TypeProperty(ambientTypeReference.Name, ambientTypeReference.SourceSyntax).AsEnumerable(),
                     ambientTypeReference.SourceSyntax),
             FullyQualifiedAmbientTypeReferenceExpression fullyQualifiedAmbientTypeReference
                 => TypePropertiesForQualifiedReference(fullyQualifiedAmbientTypeReference),
-            TypeAliasReferenceExpression typeAliasReference => CreateRefSchemaNode(typeAliasReference.Symbol.Name, typeAliasReference.SourceSyntax),
-            SynthesizedTypeAliasReferenceExpression typeAliasReference => CreateRefSchemaNode(typeAliasReference.Name, typeAliasReference.SourceSyntax),
-            ImportedTypeReferenceExpression importedTypeReference => CreateRefSchemaNode(
-                Context.ImportClosureInfo.ImportedSymbolNames[importedTypeReference.Symbol],
-                importedTypeReference.SourceSyntax),
-            WildcardImportTypePropertyReferenceExpression importedTypeReference => CreateRefSchemaNode(
-                Context.ImportClosureInfo.WildcardImportPropertyNames[new(importedTypeReference.ImportSymbol, importedTypeReference.PropertyName)],
-                importedTypeReference.SourceSyntax),
+
+            // references
+            TypeAliasReferenceExpression or
+            SynthesizedTypeAliasReferenceExpression or
+            ImportedTypeReferenceExpression or
+            WildcardImportTypePropertyReferenceExpression or
+            TypeReferencePropertyAccessExpression => ExpressionFactory.CreateObject(
+                ExpressionFactory.CreateObjectProperty("$ref",
+                    ExpressionFactory.CreateStringLiteral(GetReferenceString(typeExpression), typeExpression.SourceSyntax),
+                    typeExpression.SourceSyntax).AsEnumerable(),
+                typeExpression.SourceSyntax),
 
             // literals
             StringLiteralTypeExpression @string => ExpressionFactory.CreateObject(
@@ -436,6 +441,29 @@ namespace Bicep.Core.Emit
             _ => throw new ArgumentException("Invalid type expression encountered."),
         };
 
+        private string GetReferenceString(TypeExpression expression) => expression switch
+        {
+            // compound references
+            TypeReferencePropertyAccessExpression typeRefPropertyAccess
+                => $"{GetReferenceString(typeRefPropertyAccess.BaseExpression)}/properties/{Rfc6901Encode(typeRefPropertyAccess.PropertyName)}",
+
+            // roots
+            TypeAliasReferenceExpression typeAliasReference => GetReferenceToTypeDefinition(typeAliasReference.Symbol.Name),
+            SynthesizedTypeAliasReferenceExpression typeAliasReference => GetReferenceToTypeDefinition(typeAliasReference.Name),
+            ImportedTypeReferenceExpression importedTypeReference => GetReferenceToTypeDefinition(
+                Context.ImportClosureInfo.ImportedSymbolNames[importedTypeReference.Symbol]),
+            WildcardImportTypePropertyReferenceExpression importedTypeReference => GetReferenceToTypeDefinition(
+                Context.ImportClosureInfo.WildcardImportPropertyNames[new(importedTypeReference.ImportSymbol, importedTypeReference.PropertyName)]),
+
+            // should have been caught and converted to an error diagnostic by the DeclaredTypeManager
+            _ => throw new ArgumentException($"Cannot create reference pointer for expression of type {expression.GetType()}."),
+        };
+
+        private static string GetReferenceToTypeDefinition(string typeDefinitionName)
+            => $"{InternalTypeRefStart}/{TypeDefinitionsProperty}/{Rfc6901Encode(typeDefinitionName)}";
+
+        private static string Rfc6901Encode(string toEncode) => Uri.EscapeDataString(toEncode.Replace("~", "~0").Replace("/", "~1"));
+
         private static ObjectExpression TypePropertiesForQualifiedReference(FullyQualifiedAmbientTypeReferenceExpression qualifiedAmbientType)
         {
             if (qualifiedAmbientType.ProviderName != SystemNamespaceType.BuiltInName)
@@ -446,10 +474,6 @@ namespace Bicep.Core.Emit
             return ExpressionFactory.CreateObject(TypeProperty(qualifiedAmbientType.Name, qualifiedAmbientType.SourceSyntax).AsEnumerable(),
                 qualifiedAmbientType.SourceSyntax);
         }
-
-        private static ObjectExpression CreateRefSchemaNode(string typeName, SyntaxBase? sourceSyntax) => ExpressionFactory.CreateObject(
-            ExpressionFactory.CreateObjectProperty("$ref", ExpressionFactory.CreateStringLiteral($"#/definitions/{typeName}", sourceSyntax), sourceSyntax).AsEnumerable(),
-            sourceSyntax);
 
         private static ObjectPropertyExpression TypeProperty(string typeName, SyntaxBase? sourceSyntax)
             => Property(TypePropertyName, new StringLiteralExpression(sourceSyntax, typeName), sourceSyntax);

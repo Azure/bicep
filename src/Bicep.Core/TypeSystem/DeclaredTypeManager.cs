@@ -72,39 +72,6 @@ namespace Bicep.Core.TypeSystem
                 case TypeDeclarationSyntax typeDeclaration:
                     return GetTypeType(typeDeclaration);
 
-                case ResourceTypeSyntax resourceType:
-                    return GetResourceTypeType(resourceType);
-
-                case ObjectTypeSyntax objectType:
-                    return new(GetObjectTypeType(objectType), objectType);
-
-                case ObjectTypePropertySyntax typeProperty:
-                    return GetTypePropertyType(typeProperty);
-
-                case ObjectTypeAdditionalPropertiesSyntax typeAdditionalProperties:
-                    return GetTypeAdditionalPropertiesType(typeAdditionalProperties);
-
-                case TupleTypeSyntax tupleType:
-                    return new(GetTupleTypeType(tupleType), tupleType);
-
-                case TupleTypeItemSyntax tupleTypeItem:
-                    return GetTupleTypeItemType(tupleTypeItem);
-
-                case ArrayTypeSyntax arrayType:
-                    return new(GetArrayTypeType(arrayType), arrayType);
-
-                case ArrayTypeMemberSyntax typeMember:
-                    return GetTypeMemberType(typeMember);
-
-                case UnionTypeSyntax unionType:
-                    return new(GetUnionTypeType(unionType), unionType);
-
-                case UnionTypeMemberSyntax unionTypeMember:
-                    return GetTypeMemberType(unionTypeMember);
-
-                case UnaryOperationSyntax unaryOperation:
-                    return new(GetUnaryOperationType(unaryOperation), unaryOperation);
-
                 case ResourceDeclarationSyntax resource:
                     return GetResourceType(resource);
 
@@ -249,7 +216,7 @@ namespace Bicep.Core.TypeSystem
             };
             var typeRefType = type switch
             {
-                ErrorType => type,
+                ErrorType or TypeType => type,
                 _ => new TypeType(type),
             };
 
@@ -258,6 +225,9 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetUserDefinedTypeType(TypeAliasSymbol symbol)
         {
+            // Even if the declared type is invalid because of a illegal cycle, we still want to visit (and cache the type of) nested elements.
+            var declaredType = GetTypeFromTypeSyntax(symbol.DeclaringType.Value, allowNamespaceReferences: false);
+
             if (binder.TryGetCycle(symbol) is { } cycle)
             {
                 var builder = DiagnosticBuilder.ForPosition(symbol.DeclaringType.Name);
@@ -268,11 +238,22 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostic);
             }
 
-            return ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(symbol.DeclaringType.Value, allowNamespaceReferences: false).Type, symbol.DeclaringType);
+            return ApplyTypeModifyingDecorators(declaredType.Type, symbol.DeclaringType);
         }
 
-        private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
-            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
+        private ITypeReference GetTypePropertyType(ObjectTypePropertySyntax syntax) => GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false) switch
+        {
+            DeferredTypeReference deferred => new DeferredTypeReference(() => GetTypePropertyType(syntax, deferred.Type)),
+            ITypeReference otherwise => GetTypePropertyType(syntax, otherwise.Type),
+        };
+
+        private TypeSymbol GetTypePropertyType(ObjectTypePropertySyntax syntax, TypeSymbol typeSymbol)
+            => ApplyTypeModifyingDecorators(UnwrapType(syntax.Value, typeSymbol), syntax);
+
+        private TypeSymbol GetInstantiatedType(ParameterizedTypeInstantiationSyntaxBase syntax)
+            => GetReifiedTypeResult(syntax).IsSuccess(out var typeExpression, out var error)
+                ? typeExpression.ExpressedType
+                : ErrorType.Create(error);
 
         private ITypeReference ApplyTypeModifyingDecorators(ITypeReference declaredType, DecorableSyntax syntax, bool allowLooseAssignment = false) => declaredType switch
         {
@@ -424,19 +405,18 @@ namespace Bicep.Core.TypeSystem
             return new ObjectType(declaredObject.Name, validationFlags, declaredObject.Properties.Values, declaredObject.AdditionalPropertiesType, declaredObject.AdditionalPropertiesFlags);
         }
 
-        private DeclaredTypeAssignment? GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
-            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
+        private ITypeReference GetTypeAdditionalPropertiesType(ObjectTypeAdditionalPropertiesSyntax syntax)
+            => ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
 
-        private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
-            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+        private ITypeReference GetTypeMemberType(ArrayTypeMemberSyntax syntax)
+            => GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false);
 
-        private DeclaredTypeAssignment? GetTypeMemberType(UnionTypeMemberSyntax syntax)
-            => new(syntax.Value switch
-            {
-                // A `null` literal is usually too ambiguous to be a valid type (a `null` value could be valid for any nullable type), but it is permitted as a member of a union of literals.
-                NullLiteralSyntax => LanguageConstants.Null,
-                _ => GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false),
-            }, syntax);
+        private ITypeReference GetTypeMemberType(UnionTypeMemberSyntax syntax) => syntax.Value switch
+        {
+            // A `null` literal is usually too ambiguous to be a valid type (a `null` value could be valid for any nullable type), but it is permitted as a member of a union of literals.
+            NullLiteralSyntax => LanguageConstants.Null,
+            _ => GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false),
+        };
 
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)
         {
@@ -449,33 +429,40 @@ namespace Bicep.Core.TypeSystem
         private ITypeReference GetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences) => TryGetTypeFromTypeSyntax(syntax, allowNamespaceReferences)
             ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidTypeDefinition());
 
-        private ITypeReference? TryGetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences)
+        private ITypeReference? TryGetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences) => declaredTypes.GetOrAdd(syntax, s =>
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
             // assume "any" type when the parameter has parse errors (either missing or was skipped)
-            return syntax switch
+            var declaredType = syntax switch
             {
                 SkippedTriviaSyntax => LanguageConstants.Any,
-                ResourceTypeSyntax resource => GetDeclaredType(resource),
+                ResourceTypeSyntax resource => GetTypeReferenceForResourceType(resource),
                 VariableAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef, allowNamespaceReferences),
-                ParameterizedTypeInstantiationSyntaxBase parameterizedTypeInvocation => ConvertTypeExpressionToType(parameterizedTypeInvocation),
-                ArrayTypeSyntax array => GetDeclaredTypeAssignment(array)?.Reference,
-                ObjectTypeSyntax @object => GetDeclaredType(@object),
-                TupleTypeSyntax tuple => GetDeclaredType(tuple),
+                ParameterizedTypeInstantiationSyntaxBase parameterizedTypeInvocation => GetInstantiatedType(parameterizedTypeInvocation),
+                ArrayTypeSyntax array => GetArrayTypeType(array),
+                ArrayTypeMemberSyntax arrayMember => GetTypeMemberType(arrayMember),
+                ObjectTypeSyntax @object => GetObjectTypeType(@object),
+                ObjectTypePropertySyntax objectProperty => GetTypePropertyType(objectProperty),
+                ObjectTypeAdditionalPropertiesSyntax objectAdditionalProperties => GetTypeAdditionalPropertiesType(objectAdditionalProperties),
+                TupleTypeSyntax tuple => GetTupleTypeType(tuple),
+                TupleTypeItemSyntax tupleItem => GetTupleTypeItemType(tupleItem),
                 StringSyntax @string => ConvertTypeExpressionToType(@string),
                 IntegerLiteralSyntax @int => ConvertTypeExpressionToType(@int),
                 BooleanLiteralSyntax @bool => ConvertTypeExpressionToType(@bool),
-                UnaryOperationSyntax unaryOperation => GetDeclaredTypeAssignment(unaryOperation)?.Reference,
-                UnionTypeSyntax unionType => GetDeclaredTypeAssignment(unionType)?.Reference,
-                UnionTypeMemberSyntax unionTypeMember => GetDeclaredTypeAssignment(unionTypeMember)?.Reference,
+                UnaryOperationSyntax unaryOperation => GetUnaryOperationType(unaryOperation),
+                UnionTypeSyntax unionType => GetUnionTypeType(unionType),
+                UnionTypeMemberSyntax unionTypeMember => GetTypeMemberType(unionTypeMember),
                 ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized, allowNamespaceReferences),
                 PropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
+                ArrayAccessSyntax arrayAccess => ConvertTypeExpressionToType(arrayAccess),
                 NullableTypeSyntax nullableType => ConvertTypeExpressionToType(nullableType),
                 NonNullAssertionSyntax nonNullAssertion => ConvertTypeExpressionToType(nonNullAssertion),
                 _ => null
             };
-        }
+
+            return declaredType is not null ? new(declaredType, syntax, DeclaredTypeFlags.None) : null;
+        })?.Reference;
 
         private DeclaredTypeAssignment GetResourceTypeType(ResourceTypeSyntax syntax)
             => new(GetTypeReferenceForResourceType(syntax), syntax);
@@ -529,11 +516,6 @@ namespace Bicep.Core.TypeSystem
             .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name))
             .Concat(binder.FileSymbol.ImportedTypes.Select(i => i.Name))
             .Distinct();
-
-        private ITypeReference ConvertTypeExpressionToType(ParameterizedTypeInstantiationSyntaxBase syntax)
-            => GetReifiedTypeResult(syntax).IsSuccess(out var typeExpression, out var error)
-                ? typeExpression.ExpressedType
-                : ErrorType.Create(error);
 
         private Result<TypeExpression, ErrorDiagnostic> GetReifiedTypeResult(ParameterizedTypeInstantiationSyntaxBase syntax)
             => reifiedTypes.GetOrAdd(syntax, InstantiateType);
@@ -599,7 +581,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetArrayTypeType(ArrayTypeSyntax syntax)
         {
-            var memberType = GetDeclaredTypeAssignment(syntax.Item)?.Reference ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Item).InvalidTypeDefinition());
+            var memberType = GetTypeFromTypeSyntax(syntax.Item, allowNamespaceReferences: false);
             var flags = TypeSymbolValidationFlags.Default;
 
             return memberType is DeferredTypeReference
@@ -616,8 +598,7 @@ namespace Bicep.Core.TypeSystem
 
             foreach (var prop in syntax.Properties)
             {
-                var propertyType = GetDeclaredTypeAssignment(prop)?.Reference;
-                propertyType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(prop.Value).InvalidTypeDefinition());
+                var propertyType = GetTypeFromTypeSyntax(prop, allowNamespaceReferences: false);
 
                 if (prop.TryGetKeyText() is string propertyName)
                 {
@@ -646,8 +627,7 @@ namespace Bicep.Core.TypeSystem
             var additionalPropertiesDeclarations = syntax.Children.OfType<ObjectTypeAdditionalPropertiesSyntax>().ToImmutableArray();
             ITypeReference additionalPropertiesType = additionalPropertiesDeclarations.Length switch
             {
-                1 => GetDeclaredTypeAssignment(additionalPropertiesDeclarations[0])?.Reference
-                    ?? ErrorType.Create(DiagnosticBuilder.ForPosition(additionalPropertiesDeclarations[0].Value).InvalidTypeDefinition()),
+                1 => GetTypeFromTypeSyntax(additionalPropertiesDeclarations[0], allowNamespaceReferences: false),
                 _ => LanguageConstants.Any,
             };
             var additionalPropertiesFlags = additionalPropertiesDeclarations.Any() ? TypePropertyFlags.None : TypePropertyFlags.FallbackProperty;
@@ -695,7 +675,7 @@ namespace Bicep.Core.TypeSystem
 
             foreach (var item in syntax.Items)
             {
-                var itemType = GetDeclaredTypeAssignment(item)?.Reference ?? ErrorType.Create(DiagnosticBuilder.ForPosition(item.Value).InvalidTypeDefinition());
+                var itemType = GetTypeFromTypeSyntax(item, allowNamespaceReferences: false);
                 items.Add(itemType);
                 nameBuilder.AppendItem(GetPropertyTypeName(item.Value, itemType));
             }
@@ -703,8 +683,8 @@ namespace Bicep.Core.TypeSystem
             return new TupleType(nameBuilder.ToString(), items.ToImmutableArray(), default);
         }
 
-        private DeclaredTypeAssignment? GetTupleTypeItemType(TupleTypeItemSyntax syntax)
-            => new(ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax), syntax);
+        private ITypeReference GetTupleTypeItemType(TupleTypeItemSyntax syntax)
+            => ApplyTypeModifyingDecorators(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
 
         private TypeSymbol ConvertTypeExpressionToType(StringSyntax syntax)
         {
@@ -882,9 +862,41 @@ namespace Bicep.Core.TypeSystem
         private ITypeReference ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax, bool allowNamespaceReferences)
             => GetTypeFromTypeSyntax(syntax.Expression, allowNamespaceReferences);
 
-        private TypeSymbol ConvertTypeExpressionToType(PropertyAccessSyntax syntax)
+        private ITypeReference ConvertTypeExpressionToType(PropertyAccessSyntax syntax)
+            => ConvertTypeExpressionToType(syntax, syntax.PropertyName.IdentifierName, syntax.PropertyName);
+
+        private ITypeReference ConvertTypeExpressionToType(ArrayAccessSyntax syntax)
         {
-            var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: true).Type;
+            if (syntax.IndexExpression is StringSyntax @string)
+            {
+                if (@string.TryGetLiteralValue() is not string propertyName)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(@string).CompileTimeConstantRequired());
+                }
+
+                return ConvertTypeExpressionToType(syntax, propertyName, @string);
+            }
+
+            throw new NotImplementedException();
+        }
+
+        private ITypeReference ConvertTypeExpressionToType(AccessExpressionSyntax syntax, string propertyName, SyntaxBase propertyNameSyntax)
+        {
+            var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: true);
+
+            return RequiresDeferral(syntax.BaseExpression)
+                ? new DeferredTypeReference(() => FinalizeTypePropertyType(baseType, propertyName, propertyNameSyntax))
+                : FinalizeTypePropertyType(baseType, propertyName, propertyNameSyntax);
+        }
+
+        private static TypeSymbol FinalizeTypePropertyType(ITypeReference baseExpressionType, string propertyName, SyntaxBase propertyNameSyntax)
+        {
+            var baseType = baseExpressionType.Type;
+
+            if (TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullableBaseType)
+            {
+                baseType = nonNullableBaseType;
+            }
 
             if (baseType is ErrorType error)
             {
@@ -893,20 +905,35 @@ namespace Bicep.Core.TypeSystem
 
             if (baseType is not ObjectType objectType)
             {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(propertyNameSyntax).ObjectRequiredForPropertyAccess(baseType));
             }
 
-            // Diagnostics will be surfaced by the TypeAssignmentVisitor, so we're only concerned here with whether the property access would be an error type
-            return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, new SimpleDiagnosticWriter()) is TypeType typeType
-                ? typeType.Unwrapped
-                : ErrorType.Empty();
+            if (!objectType.Properties.TryGetValue(propertyName, out var typeProperty))
+            {
+                return ErrorType.Create(
+                    TypeHelper.GetUnknownPropertyDiagnostic(objectType, propertyNameSyntax, propertyName, shouldWarn: false).AsErrorDiagnostic()
+                        ?? throw new UnreachableException("Should only return errors when shouldWarn: false"));
+            }
+
+            return UnwrapType(propertyNameSyntax, typeProperty.TypeReference.Type);
         }
 
-        private TypeSymbol UnwrapType(VariableAccessSyntax syntax, TypeSymbol type) => type switch
+        private static TypeSymbol EnsureNonParameterizedType(SyntaxBase syntax, TypeSymbol type) => type switch
         {
-            TypeType tt => tt.Unwrapped,
             TypeTemplate template => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeRequiresParameterization(template.Name, template.Parameters.Length)),
             _ => type,
+        };
+
+        private static TypeSymbol UnwrapType(SyntaxBase syntax, TypeSymbol type) => EnsureNonParameterizedType(syntax, type) switch
+        {
+            TypeType tt => tt.Unwrapped,
+            _ => type,
+        };
+
+        private static ITypeReference UnwrapType(SyntaxBase syntax, ITypeReference typeReference) => typeReference switch
+        {
+            DeferredTypeReference => new DeferredTypeReference(() => UnwrapType(syntax, typeReference.Type)),
+            _ => UnwrapType(syntax, typeReference.Type),
         };
 
         private ITypeReference ConvertTypeExpressionToType(NullableTypeSyntax syntax)

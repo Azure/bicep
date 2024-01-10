@@ -1190,11 +1190,31 @@ namespace Bicep.LanguageServer.Completions
                 declaredType = nonNullable;
             }
 
+            if (context.Kind.HasFlag(BicepCompletionContextKind.WithinTypeClause) && declaredType is not NamespaceType)
+            {
+                return GetTypeMemberAccessCompletions(compilation, declaredType, context.PropertyAccess, context);
+            }
+
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
                 .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange))
                 .Concat(GetMethods(declaredType)
                 .Select(m => CreateSymbolCompletion(m, context.ReplacementRange, model)));
+        }
+
+        private IEnumerable<CompletionItem> GetTypeMemberAccessCompletions(
+            Compilation compilation,
+            TypeSymbol? baseExpressionDeclaredType,
+            PropertyAccessSyntax propertyAccess,
+            BicepCompletionContext context)
+        {
+            if (baseExpressionDeclaredType is TypeType typeType)
+            {
+                baseExpressionDeclaredType = typeType.Unwrapped;
+            }
+
+            return GetProperties(baseExpressionDeclaredType)
+                .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, propertyAccess, context.ReplacementRange));
         }
 
         private IEnumerable<CompletionItem> GetResourceAccessCompletions(Compilation compilation, BicepCompletionContext context)

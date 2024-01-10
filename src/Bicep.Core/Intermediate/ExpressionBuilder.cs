@@ -182,6 +182,9 @@ public class ExpressionBuilder
                     provider.Config is not null ? ConvertWithoutLowering(provider.Config) : null));
 
             case ParameterDeclarationSyntax parameter:
+                // force evaluation of statement type if it hasn't happened yet
+                Context.SemanticModel.GetTypeInfo(parameter);
+
                 return EvaluateDecorators(parameter, new DeclaredParameterExpression(
                     parameter,
                     parameter.Name.IdentifierName,
@@ -195,6 +198,9 @@ public class ExpressionBuilder
                     ConvertWithoutLowering(variable.Value)));
 
             case FunctionDeclarationSyntax function:
+                // force evaluation of statement type if it hasn't happened yet
+                Context.SemanticModel.GetTypeInfo(function);
+
                 return EvaluateDecorators(function, new DeclaredFunctionExpression(
                     function,
                     EmitConstants.UserDefinedFunctionsNamespace,
@@ -202,6 +208,9 @@ public class ExpressionBuilder
                     ConvertWithoutLowering(function.Lambda)));
 
             case OutputDeclarationSyntax output:
+                // force evaluation of statement type if it hasn't happened yet
+                Context.SemanticModel.GetTypeInfo(output);
+
                 return EvaluateDecorators(output, new DeclaredOutputExpression(
                     output,
                     output.Name.IdentifierName,
@@ -221,6 +230,9 @@ public class ExpressionBuilder
                 return EvaluateDecorators(module, ConvertModule(module));
 
             case TypeDeclarationSyntax typeDeclaration:
+                // force evaluation of statement type if it hasn't happened yet
+                Context.SemanticModel.GetTypeInfo(typeDeclaration);
+
                 return EvaluateDecorators(typeDeclaration, new DeclaredTypeExpression(typeDeclaration,
                     typeDeclaration.Name.IdentifierName,
                     ConvertTypeWithoutLowering(typeDeclaration.Value)));
@@ -250,9 +262,9 @@ public class ExpressionBuilder
         {
             VariableAccessSyntax variableAccess => Context.SemanticModel.Binder.GetSymbolInfo(syntax) switch
             {
-                AmbientTypeSymbol ambientType => new AmbientTypeReferenceExpression(syntax, ambientType.Name, ambientType.Type),
-                TypeAliasSymbol typeAlias => new TypeAliasReferenceExpression(syntax, typeAlias, typeAlias.Type),
-                ImportedTypeSymbol importedSymbol => new ImportedTypeReferenceExpression(syntax, importedSymbol, importedSymbol.Type),
+                AmbientTypeSymbol ambientType => new AmbientTypeReferenceExpression(syntax, ambientType.Name, UnwrapType(ambientType.Type)),
+                TypeAliasSymbol typeAlias => new TypeAliasReferenceExpression(syntax, typeAlias, UnwrapType(typeAlias.Type)),
+                ImportedTypeSymbol importedSymbol => new ImportedTypeReferenceExpression(syntax, importedSymbol, UnwrapType(importedSymbol.Type)),
                 Symbol otherwise => throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression."),
                 _ => throw new ArgumentException($"Unable to locate symbol for name '{variableAccess.Name.IdentifierName}'.")
             },
@@ -307,6 +319,12 @@ public class ExpressionBuilder
             _ => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
         };
 
+    private static TypeSymbol UnwrapType(TypeSymbol type) => type switch
+    {
+        TypeType tt => tt.Unwrapped,
+        _ => type,
+    };
+
     private TypeExpression ConvertPropertyAccessInTypeExpression(PropertyAccessSyntax syntax)
         => ConvertPropertyAccessInTypeExpression(syntax, syntax.PropertyName.IdentifierName);
 
@@ -318,12 +336,28 @@ public class ExpressionBuilder
     private TypeExpression ConvertPropertyAccessInTypeExpression(AccessExpressionSyntax syntax, string propertyName)
         => Context.SemanticModel.GetSymbolInfo(syntax.BaseExpression) switch
         {
-            BuiltInNamespaceSymbol builtIn when TryGetPropertyType(builtIn, propertyName) is TypeType typeType
-                => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, typeType),
-            WildcardImportSymbol wildcardImport when TryGetPropertyType(wildcardImport, propertyName) is TypeType typeType
-                => new WildcardImportTypePropertyReferenceExpression(syntax, wildcardImport, propertyName, typeType),
-            var otherwise => throw new ArgumentException($"Failed to convert property access on symbol of type {otherwise?.GetType()}"),
+            BuiltInNamespaceSymbol builtIn => TryGetPropertyType(builtIn, propertyName) switch
+            {
+                TypeType typeType => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, typeType),
+                _ => throw new ArgumentException($"Property '{propertyName}' of symbol '{builtIn.Name}' was not found or was not valid."),
+            },
+            WildcardImportSymbol wildcardImport => TryGetPropertyType(wildcardImport, propertyName) switch
+            {
+                TypeType typeType => new WildcardImportTypePropertyReferenceExpression(syntax, wildcardImport, propertyName, typeType),
+                _ => throw new ArgumentException($"Property '{propertyName}' of symbol '{wildcardImport.Name}' was not found or was not valid."),
+            },
+            _ => ConvertPropertyAccessInTypeExpression(syntax, ConvertTypeWithoutLowering(syntax.BaseExpression), propertyName),
         };
+
+    private static TypeReferencePropertyAccessExpression ConvertPropertyAccessInTypeExpression(AccessExpressionSyntax syntax, TypeExpression baseExpression, string propertyName)
+    {
+        if (baseExpression.ExpressedType is not ObjectType baseObject || !baseObject.Properties.TryGetValue(propertyName, out var typeProperty))
+        {
+            throw new ArgumentException($"Property '{propertyName}' of type '{baseExpression.ExpressedType.Name}' was not found or was not valid.");
+        }
+
+        return new TypeReferencePropertyAccessExpression(syntax, baseExpression, propertyName, typeProperty.TypeReference.Type);
+    }
 
     private TypeSymbol? TryGetPropertyType(INamespaceSymbol namespaceSymbol, string propertyName)
         => namespaceSymbol.TryGetNamespaceType() is NamespaceType type && type.Properties.TryGetValue(propertyName, out var property)

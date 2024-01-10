@@ -250,5 +250,10 @@ namespace Bicep.LanguageServer.Completions
         /// We're inside the chevrons in a parameterized type: 'typeName&lt;|&gt;'
         /// </summary>
         TypeArgument = 1UL << 45,
+
+        /// <summary>
+        /// The current location is somewhere within a type clause (e.g., the value of a `type` statement).
+        /// </summary>
+        WithinTypeClause = 1UL << 46,
     }
 }

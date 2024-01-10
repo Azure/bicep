@@ -142,4 +142,6 @@ public interface IExpressionVisitor
     void VisitWildcardImportInstanceFunctionCallExpression(WildcardImportInstanceFunctionCallExpression expression);
 
     void VisitResourceDerivedTypeExpression(ResourceDerivedTypeExpression expression);
+
+    void VisitTypeReferencePropertyAccessExpression(TypeReferencePropertyAccessExpression expression);
 }

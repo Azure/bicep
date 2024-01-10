@@ -505,7 +505,7 @@ var test2 = /|* block c|omment *|/
                 {
                     completionLists.Count().Should().Be(1);
 
-                    var snippetCompletions = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet);
+                    var snippetCompletions = completionLists.First().Items.Where(x => x.Kind == CompletionItemKind.Snippet);
 
                     snippetCompletions.Should().SatisfyRespectively(
                         c =>
@@ -557,7 +557,7 @@ var test2 = /|* block c|omment *|/
                 {
                     completionLists.Count().Should().Be(1);
 
-                    var snippetCompletion = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet && x.Label == "snippet");
+                    var snippetCompletion = completionLists.First().Items.Where(x => x.Kind == CompletionItemKind.Snippet && x.Label == "snippet");
 
                     snippetCompletion.Should().SatisfyRespectively(
                         c =>
@@ -595,7 +595,7 @@ var test2 = /|* block c|omment *|/
                 {
                     completionLists.Count().Should().Be(1);
 
-                    var snippetCompletion = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet && x.Label == "res-automation-cred");
+                    var snippetCompletion = completionLists.First().Items.Where(x => x.Kind == CompletionItemKind.Snippet && x.Label == "res-automation-cred");
 
                     snippetCompletion.Should().SatisfyRespectively(
                         c =>
@@ -1663,7 +1663,7 @@ module mod2 './module2.bicep'| = {}
                 {
                     completionLists.Count().Should().Be(1);
 
-                    var snippetCompletions = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet);
+                    var snippetCompletions = completionLists.First().Items.Where(x => x.Kind == CompletionItemKind.Snippet);
 
                     snippetCompletions.Should().SatisfyRespectively(
                         c =>
@@ -1699,7 +1699,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
                 {
                     completionLists.Count().Should().Be(1);
 
-                    var snippetCompletions = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet);
+                    var snippetCompletions = completionLists.First().Items.Where(x => x.Kind == CompletionItemKind.Snippet);
 
                     snippetCompletions.Should().SatisfyRespectively(
                         x =>
@@ -1763,7 +1763,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
                 {
                     completionLists.Count().Should().Be(1);
 
-                    var snippetCompletions = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet);
+                    var snippetCompletions = completionLists.First().Items.Where(x => x.Kind == CompletionItemKind.Snippet);
 
                     snippetCompletions.Should().SatisfyRespectively(
                         c =>
@@ -4668,6 +4668,32 @@ Source port ranges.
                 type acct = resource<'Microsoft.Storage/storageAccounts@'>
                 type fullyQualified = sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'|>
                 """);
+        }
+
+        [TestMethod]
+        public async Task Type_properties_are_offered_as_completions_within_type_clause()
+        {
+            var fileWithCursors = """
+              type foo = {
+                bar: {
+                  baz: string
+                }
+              }
+
+              type completeMe = foo.|
+              type completeMeToo = foo.bar.|
+              """;
+
+            await RunCompletionScenarioTest(TestContext, ServerWithNamespaceProvider, fileWithCursors, completionLists =>
+            {
+                completionLists.Count().Should().Be(2);
+
+                var completionList = completionLists.First();
+                completionList.Should().SatisfyRespectively(i => i.Label.Should().Be("bar"));
+
+                completionList = completionLists.Skip(1).Single();
+                completionList.Should().SatisfyRespectively(i => i.Label.Should().Be("baz"));
+            });
         }
     }
 }

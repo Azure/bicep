@@ -846,7 +846,7 @@ param myParam string
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-            ("BCP289", DiagnosticLevel.Error, "The type definition is not valid."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
         });
     }
 
@@ -993,6 +993,142 @@ param myParam string
         result.Should().HaveDiagnostics(new[]
         {
             ("BCP053", DiagnosticLevel.Warning, """The type "StorageAccountPropertiesCreateParametersOrStorageAccountProperties" does not contain property "unknownProperty". Available properties include "accessTier", "allowBlobPublicAccess", "allowCrossTenantReplication", "allowedCopyScope", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "blobRestoreStatus", "creationTime", "customDomain", "defaultToOAuthAuthentication", "dnsEndpointType", "encryption", "failoverInProgress", "geoReplicationStats", "immutableStorageWithVersioning", "isHnsEnabled", "isLocalUserEnabled", "isNfsV3Enabled", "isSftpEnabled", "keyCreationTime", "keyPolicy", "largeFileSharesState", "lastGeoFailoverTime", "minimumTlsVersion", "networkAcls", "primaryEndpoints", "primaryLocation", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "routingPreference", "sasPolicy", "secondaryEndpoints", "secondaryLocation", "statusOfPrimary", "statusOfSecondary", "storageAccountSkuConversionStatus", "supportsHttpsTrafficOnly"."""),
+        });
+    }
+
+    // https://github.com/azure/bicep/issues/12920
+    [TestMethod]
+    public void Type_property_access_is_valid_type()
+    {
+        var result = CompilationHelper.Compile("""
+            type test2 = {
+              foo: {
+                bar: string
+              }
+            }
+
+            type test3 = test2.foo
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
+            {
+              "$ref": "#/definitions/test2/properties/foo"
+            }
+            """));
+    }
+
+    // cf https://www.rfc-editor.org/rfc/rfc6901#section-6
+    [TestMethod]
+    public void Type_property_access_is_escaped_correctly()
+    {
+        var result = CompilationHelper.Compile("""
+            type test = {
+              '': string
+              'a/b': int
+              'c%d': bool
+              'e^f': string
+              'g|h': int
+              'i\\j': bool
+              'k"l': string
+              ' ': int
+              'm~n': bool
+            }
+
+            type test1 = test['']
+            type test2 = test['a/b']
+            type test3 = test['c%d']
+            type test4 = test['e^f']
+            type test5 = test['g|h']
+            type test6 = test['i\\j']
+            type test7 = test['k"l']
+            type test8 = test[' ']
+            type test9 = test['m~n']
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse("""
+            {
+              "test": {
+                "type": "object",
+                "properties": {
+                  "": {
+                    "type": "string"
+                  },
+                  "a/b": {
+                    "type": "int"
+                  },
+                  "c%d": {
+                    "type": "bool"
+                  },
+                  "e^f": {
+                    "type": "string"
+                  },
+                  "g|h": {
+                    "type": "int"
+                  },
+                  "i\\j": {
+                    "type": "bool"
+                  },
+                  "k\"l": {
+                    "type": "string"
+                  },
+                  " ": {
+                    "type": "int"
+                  },
+                  "m~n": {
+                    "type": "bool"
+                  }
+                }
+              },
+              "test1": {
+                "$ref": "#/definitions/test/properties/"
+              },
+              "test2": {
+                "$ref": "#/definitions/test/properties/a~1b"
+              },
+              "test3": {
+                "$ref": "#/definitions/test/properties/c%25d"
+              },
+              "test4": {
+                "$ref": "#/definitions/test/properties/e%5Ef"
+              },
+              "test5": {
+                "$ref": "#/definitions/test/properties/g%7Ch"
+              },
+              "test6": {
+                "$ref": "#/definitions/test/properties/i%5Cj"
+              },
+              "test7": {
+                "$ref": "#/definitions/test/properties/k%22l"
+              },
+              "test8": {
+                "$ref": "#/definitions/test/properties/%20"
+              },
+              "test9": {
+                "$ref": "#/definitions/test/properties/m~0n"
+              }
+            }
+            """));
+    }
+
+    // https://github.com/azure/bicep/issues/12920
+    [TestMethod]
+    public void Invalid_type_property_access_raises_diagnostic()
+    {
+        var result = CompilationHelper.Compile("""
+            type test2 = {
+              foo: {
+                bar: string
+              }
+            }
+
+            type test3 = test2.bar
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP053", DiagnosticLevel.Error, """The type "{ foo: { bar: string } }" does not contain property "bar". Available properties include "foo"."""),
         });
     }
 }

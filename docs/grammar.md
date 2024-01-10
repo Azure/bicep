@@ -178,16 +178,25 @@ singularTypeExpression ->
   parenthesizedTypeExpression
 
 primaryTypeExpression ->
-  ambientTypeReference |
-  IDENTIFIER(type) |
+  typeReference |
   literalValue |
   unaryOperator literalValue |
   stringComplete |
   multilineString |
   objectType |
-  tupleType
+  tupleType |
+  primaryTypeExpression "." IDENTIFIER(property)
+
+typeReference ->
+  ambientTypeReference |
+  fullyQualifiedAmbientTypeReference |
+  IDENTIFIER(type) |
+  IDENTIFIER(importedType) |
+  IDENTIFIER(wildcardImport) "." IDENTIFIER(type)
 
 ambientTypeReference -> "string" | "int" | "bool" | "array" | "object"
+
+fullyQualifiedAmbientTypeReference -> IDENTIFIER(sysNamespace) "." ambientTypeReference
 
 objectType -> "{" (NL+ ((objectTypeProperty | objectTypeAdditionalPropertiesMatcher) NL+ )* )? "}"
 objectTypeProperty -> decorator* ( IDENTIFIER(name) | stringComplete | multilineString ) ":" typeExpression

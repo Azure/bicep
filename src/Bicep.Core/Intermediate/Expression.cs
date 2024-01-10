@@ -706,6 +706,17 @@ public record ImportedTypeReferenceExpression(
     protected override object? GetDebugAttributes() => new { Symbol.Name };
 }
 
+public record TypeReferencePropertyAccessExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression,
+    string PropertyName,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTypeReferencePropertyAccessExpression(this);
+}
+
 public record WildcardImportTypePropertyReferenceExpression(
     SyntaxBase? SourceSyntax,
     WildcardImportSymbol ImportSymbol,

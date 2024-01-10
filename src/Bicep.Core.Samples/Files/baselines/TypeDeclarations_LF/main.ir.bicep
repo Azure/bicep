@@ -43,7 +43,7 @@ type foo = {
 
   recursion: foo?
 //@[002:0017) |   └─ObjectTypePropertyExpression
-//@[013:0017) |     └─NullableTypeExpression { Name = Type<{ stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] | null }, typeRefProp: bar, literalProp: 'literal', recursion: foo? }> | null }
+//@[013:0017) |     └─NullableTypeExpression { Name = null | { stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] | null }, typeRefProp: bar, literalProp: 'literal', recursion: foo? } }
 //@[013:0016) |       └─TypeAliasReferenceExpression { Name = foo }
 }
 
@@ -273,18 +273,18 @@ var maybeNull2 = mightIncludeNull[0][?'key']
 
 output maybeNull string? = maybeNull
 //@[000:0036) ├─DeclaredOutputExpression { Name = maybeNull }
-//@[017:0024) | ├─NullableTypeExpression { Name = Type<string> | null }
+//@[017:0024) | ├─NullableTypeExpression { Name = null | string }
 //@[017:0023) | | └─AmbientTypeReferenceExpression { Name = string }
 //@[027:0036) | └─VariableReferenceExpression { Variable = maybeNull }
 
 type nullable = string?
 //@[000:0023) ├─DeclaredTypeExpression { Name = nullable }
-//@[016:0023) | └─NullableTypeExpression { Name = Type<string> | null }
+//@[016:0023) | └─NullableTypeExpression { Name = null | string }
 //@[016:0022) |   └─AmbientTypeReferenceExpression { Name = string }
 
 type nonNullable = nullable!
 //@[000:0028) ├─DeclaredTypeExpression { Name = nonNullable }
-//@[019:0028) | └─NonNullableTypeExpression { Name = Type<null | string> }
+//@[019:0028) | └─NonNullableTypeExpression { Name = null | string }
 //@[019:0027) |   └─TypeAliasReferenceExpression { Name = nullable }
 
 type typeA = {
@@ -543,7 +543,7 @@ type discriminatorInnerSelfOptionalCycle1 = typeA | {
 //@[008:0011) |     | └─StringLiteralTypeExpression { Name = 'b' }
   value: discriminatorInnerSelfOptionalCycle1?
 //@[002:0046) |     └─ObjectTypePropertyExpression
-//@[009:0046) |       └─NullableTypeExpression { Name = Type<{ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfOptionalCycle1? }> | null }
+//@[009:0046) |       └─NullableTypeExpression { Name = null | ({ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfOptionalCycle1? }) }
 //@[009:0045) |         └─TypeAliasReferenceExpression { Name = discriminatorInnerSelfOptionalCycle1 }
 }
 

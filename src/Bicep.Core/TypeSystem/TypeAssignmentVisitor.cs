@@ -40,6 +40,7 @@ namespace Bicep.Core.TypeSystem
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
+        private bool withinTypeClause = false;
 
         public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup semanticModelLookup)
         {
@@ -451,7 +452,14 @@ namespace Bicep.Core.TypeSystem
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
 
-                base.VisitParameterDeclarationSyntax(syntax);
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Name);
+
+                withinTypeClause = true;
+                this.Visit(syntax.Type);
+                withinTypeClause = false;
+
+                this.Visit(syntax.Modifier);
 
                 if (syntax.Modifier != null)
                 {
@@ -522,7 +530,12 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name).ReservedTypeName(syntax.Name.IdentifierName));
                 }
 
-                base.VisitTypeDeclarationSyntax(syntax);
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Name);
+
+                withinTypeClause = true;
+                this.Visit(syntax.Value);
+                withinTypeClause = false;
 
                 diagnostics.WriteMultiple(declaredType?.GetDiagnostics() ?? Enumerable.Empty<IDiagnostic>());
 
@@ -737,6 +750,20 @@ namespace Bicep.Core.TypeSystem
                 return declaredType;
             });
 
+        public override void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.TryGetReifiedType(syntax)?.ExpressedType;
+                if (declaredType is null)
+                {
+                    return ErrorType.Empty();
+                }
+
+                diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+
+                return declaredType;
+            });
+
         private TypeSymbol GetDeclaredTypeAndValidateDecorators(DecorableSyntax targetSyntax, SyntaxBase typeSyntax, IDiagnosticWriter diagnostics)
         {
             var declaredType = typeManager.GetDeclaredType(targetSyntax);
@@ -930,7 +957,14 @@ namespace Bicep.Core.TypeSystem
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
                 diagnostics.WriteMultiple(GetOutputDeclarationDiagnostics(declaredType, syntax));
 
-                base.VisitOutputDeclarationSyntax(syntax);
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Name);
+
+                withinTypeClause = true;
+                this.Visit(syntax.Type);
+                withinTypeClause = false;
+
+                this.Visit(syntax.Value);
 
                 return declaredType;
             });
@@ -1519,7 +1553,14 @@ namespace Bicep.Core.TypeSystem
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics => GetAccessedType(syntax, diagnostics));
 
-        private TypeSymbol GetAccessedType(AccessExpressionSyntax syntax, IDiagnosticWriter diagnostics)
+        private TypeSymbol GetAccessedType(AccessExpressionSyntax syntax, IDiagnosticWriter diagnostics) => withinTypeClause
+            ? GetAccessedTypeInTypeExpression(syntax, diagnostics)
+            : GetAccessedTypeInValueExpression(syntax, diagnostics);
+
+        private TypeSymbol GetAccessedTypeInTypeExpression(AccessExpressionSyntax syntax, IDiagnosticWriter diagnostics)
+            => typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+        private TypeSymbol GetAccessedTypeInValueExpression(AccessExpressionSyntax syntax, IDiagnosticWriter diagnostics)
         {
             Stack<AccessExpressionSyntax> chainedAccesses = syntax.ToAccessExpressionStack();
 
