@@ -25,7 +25,8 @@ using static Bicep.Core.SourceCode.SourceArchive;
 
 namespace Bicep.Core.SourceCode
 {
-    public class SourceNotAvailableException : Exception {
+    public class SourceNotAvailableException : Exception
+    {
         public SourceNotAvailableException()
             : base("(Experimental) No source code is available for this module")
         { }
@@ -43,7 +44,8 @@ namespace Bicep.Core.SourceCode
         public string EntrypointRelativePath => InstanceMetadata.EntryPoint;
 
         // The version of Bicep which created this deserialized archive instance.
-        public string BicepVersion => InstanceMetadata.BicepVersion;
+        public string? BicepVersion => InstanceMetadata.BicepVersion;
+        public string FriendlyBicepVersion => InstanceMetadata.BicepVersion ?? "unknown";
 
         // The version of the metadata file format used by this archive instance.
         public int MetadataVersion => InstanceMetadata.MetadataVersion;
@@ -76,7 +78,7 @@ namespace Bicep.Core.SourceCode
             int MetadataVersion,
             string EntryPoint, // Path of the entrypoint file
             IEnumerable<SourceFileInfoEntry> SourceFiles,
-            string BicepVersion = "unknown"
+            string? BicepVersion = null
         );
 
         [JsonSerializable(typeof(SourceFileInfoEntry))]
@@ -93,12 +95,12 @@ namespace Bicep.Core.SourceCode
         {
             if (MetadataVersion < CurrentMetadataVersion)
             {
-                return $"This source code was published with an older, incompatible version of Bicep ({BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}.";
+                return $"This source code was published with an older, incompatible version of Bicep ({FriendlyBicepVersion}). You are using version {ThisAssembly.AssemblyVersion}.";
             }
 
             if (MetadataVersion > CurrentMetadataVersion)
             {
-                return $"This source code was published with a newer, incompatible version of Bicep ({BicepVersion}). You are using version {ThisAssembly.AssemblyVersion}. You need a newer version in order to view the module source.";
+                return $"This source code was published with a newer, incompatible version of Bicep ({FriendlyBicepVersion}). You are using version {ThisAssembly.AssemblyVersion}. You need a newer version in order to view the module source.";
             }
 
             return null;
