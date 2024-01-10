@@ -97,6 +97,9 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<JTokenAssertions>(instance);
         }
 
+        public static AndConstraint<JTokenAssertions> HaveJsonAtPath(this JTokenAssertions instance, string jtokenPath, string json, string because = "", params object[] becauseArgs)
+            => HaveValueAtPath(instance, jtokenPath, JToken.Parse(json), because, becauseArgs);
+
         public static AndConstraint<JTokenAssertions> NotHaveValueAtPath(this JTokenAssertions instance, string jtokenPath, string because = "", params object[] becauseArgs)
         {
             var valueAtPath = instance.Subject?.SelectToken(jtokenPath);
