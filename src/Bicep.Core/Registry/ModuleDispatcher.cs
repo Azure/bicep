@@ -41,10 +41,6 @@ namespace Bicep.Core.Registry
         public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
             => Registries(parentModuleUri).Keys.OrderBy(s => s).ToImmutableArray();
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetModuleReference(string reference, Uri parentModuleUri)
-            => TryGetArtifactReference(ArtifactType.Module, reference, parentModuleUri);
-
-
         public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(ArtifactType artifactType, string reference, Uri parentModuleUri)
         {
             var registries = Registries(parentModuleUri);
@@ -122,7 +118,7 @@ namespace Bicep.Core.Registry
             if (registry.IsArtifactRestoreRequired(artifactReference))
             {
                 // module is not present on the local file system
-                failureBuilder = x => x.ModuleRequiresRestore(artifactReference.FullyQualifiedReference);
+                failureBuilder = x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference);
                 return ArtifactRestoreStatus.Unknown;
             }
 

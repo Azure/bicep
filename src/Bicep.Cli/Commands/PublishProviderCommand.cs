@@ -9,6 +9,7 @@ using System.IO.Abstractions;
 using System.IO.Compression;
 using System.Threading.Tasks;
 using Azure.Bicep.Types;
+using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
 using Azure.Bicep.Types.Serialization;
 using Bicep.Cli.Arguments;
@@ -55,20 +56,29 @@ namespace Bicep.Cli.Commands
 
         public async Task<int> RunAsync(PublishProviderArguments args)
         {
+            await ioContext.Error.WriteLineAsync("The 'publish-provider' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
+
             var indexPath = PathHelper.ResolvePath(args.IndexFile);
             var inputUri = PathHelper.FilePathToFileUrl(indexPath);
             var providerReference = ValidateReference(args.TargetProviderReference, inputUri);
             var overwriteIfExists = args.Force;
 
-            await ioContext.Error.WriteLineAsync("The 'publish-provider' CLI command group is an experimental feature. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.");
-
-            Stream tarStream = await TypesV1Archive.GenerateProviderTarStream(this.fileSystem, indexPath);
+            Stream tarStream;
+            try
+            {
+                tarStream = await TypesV1Archive.GenerateProviderTarStream(this.fileSystem, indexPath);
+                ValidateProvider(tarStream);
+            }
+            catch (Exception exception)
+            {
+                throw new BicepException($"Provider package creation failed: {exception.Message}");
+            }
 
             await this.PublishProviderAsync(providerReference, tarStream, overwriteIfExists);
             return 0;
         }
 
-        private async Task PublishProviderAsync(ArtifactReference target, Stream compiledArmTemplate, bool overwriteIfExists)
+        private async Task PublishProviderAsync(ArtifactReference target, Stream tarStream, bool overwriteIfExists)
         {
             try
             {
@@ -77,7 +87,7 @@ namespace Bicep.Cli.Commands
                 {
                     throw new BicepException($"The Provider \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing provider.");
                 }
-                await this.moduleDispatcher.PublishProvider(target, compiledArmTemplate);
+                await this.moduleDispatcher.PublishProvider(target, tarStream);
             }
             catch (ExternalArtifactException exception)
             {
@@ -101,6 +111,22 @@ namespace Bicep.Cli.Commands
             }
 
             return providerReference;
+        }
+
+        private static void ValidateProvider(Stream tarStream)
+        {
+            // copy the stream to avoid it being closed by OciTypeLoader
+            using var tempStream = new MemoryStream();
+            tarStream.CopyTo(tempStream);
+            tempStream.Position = 0;
+            tarStream.Position = 0;
+
+            var typeLoader = OciTypeLoader.FromTgz(tempStream);
+            var index = typeLoader.LoadTypeIndex();
+            foreach (var (_, typeLocation) in index.Resources)
+            {
+                typeLoader.LoadResourceType(typeLocation);
+            }
         }
     }
 }

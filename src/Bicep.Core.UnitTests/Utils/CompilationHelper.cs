@@ -57,14 +57,19 @@ namespace Bicep.Core.UnitTests.Utils
 
             var (uriDictionary, entryUri) = CreateFileDictionary(filesToAppend, "main.bicep");
 
+            var compiler = services.Build().GetCompiler();
+            var compilation = await compiler.CreateCompilation(entryUri, CreateWorkspace(uriDictionary));
+
+            return GetCompilationResult(compilation);
+        }
+
+        public static IWorkspace CreateWorkspace(IReadOnlyDictionary<Uri, string> uriDictionary)
+        {
             var workspace = new Workspace();
             var sourceFiles = uriDictionary.Select(kvp => SourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
             workspace.UpsertSourceFiles(sourceFiles);
 
-            var compiler = services.Build().Construct<BicepCompiler>();
-            var compilation = await compiler.CreateCompilation(entryUri, workspace);
-
-            return Compile(compilation);
+            return workspace;
         }
 
         public static CompilationResult Compile(ServiceBuilder services, params (string fileName, string fileContents)[] files)
@@ -80,12 +85,15 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static CompilationResult Compile(ServiceBuilder services, IFileResolver fileResolver, IEnumerable<Uri> sourceFiles, Uri entryUri)
         {
-            services = services.WithFileResolver(fileResolver);
+            var compiler = services.WithFileResolver(fileResolver).Build().GetCompiler();
             var sourceFileDict = sourceFiles
                 .Where(x => PathHelper.HasBicepExtension(x) || PathHelper.HasArmTemplateLikeExtension(x))
                 .ToDictionary(x => x, x => fileResolver.TryRead(x).IsSuccess(out var fileContents) ? fileContents : throw new InvalidOperationException($"Failed to find file {x}"));
 
-            return Compile(services.BuildCompilation(sourceFileDict, entryUri));
+#pragma warning disable VSTHRD002
+            var compilation = compiler.CreateCompilation(entryUri, skipRestore: true).GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002
+            return GetCompilationResult(compilation);
         }
 
         public static CompilationResult Compile(IResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
@@ -108,20 +116,17 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ParamsCompilationResult CompileParams(ServiceBuilder services, params (string fileName, string fileContents)[] files)
         {
-            var configuration = BicepTestConstants.BuiltInConfiguration;
-            services = services.WithConfigurationPatch(c => configuration);
-
             files.Select(x => x.fileName).Should().Contain("parameters.bicepparam");
 
             var (uriDictionary, entryUri) = CreateFileDictionary(files.Select(file => ("/path/to", file.fileName, file.fileContents)).ToArray(), "parameters.bicepparam");
-            var fileResolver = new InMemoryFileResolver(uriDictionary);
-            services = services.WithFileResolver(fileResolver);
 
             var sourceFiles = uriDictionary
                 .Where(x => PathHelper.HasBicepparamsExension(x.Key) || PathHelper.HasBicepExtension(x.Key) || PathHelper.HasArmTemplateLikeExtension(x.Key))
                 .ToDictionary(x => x.Key, x => x.Value);
 
-            var compilation = services.BuildCompilation(sourceFiles, entryUri);
+            var compilation = services
+                .WithMockFileSystem(uriDictionary)
+                .BuildCompilation(sourceFiles, entryUri);
 
             return CompileParams(compilation);
         }
@@ -136,7 +141,7 @@ namespace Bicep.Core.UnitTests.Utils
             return (uriDictionary, entryUri);
         }
 
-        public static CompilationResult Compile(Compilation compilation)
+        public static CompilationResult GetCompilationResult(Compilation compilation)
         {
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());

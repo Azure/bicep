@@ -367,6 +367,10 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
+    public virtual void VisitResourceDerivedTypeExpression(ResourceDerivedTypeExpression expression)
+    {
+    }
+
     public virtual void VisitProgramExpression(ProgramExpression expression)
     {
         Visit(expression.Metadata);

@@ -236,18 +236,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP034",
                 $"The enclosing array expected an item of type \"{expectedType}\", but the provided item was of type \"{actualType}\".");
 
-            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, Symbol? sourceDeclaration, ObjectSyntax objectSyntax, ICollection<string> properties, string blockName, bool showTypeInaccuracy, IDiagnosticLookup parsingErrorLookup)
+            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, Symbol? sourceDeclaration, ObjectSyntax? objectSyntax, ICollection<string> properties, string blockName, bool showTypeInaccuracy, IDiagnosticLookup parsingErrorLookup)
             {
                 var sourceDeclarationClause = sourceDeclaration is not null
                     ? $" from source declaration \"{sourceDeclaration.Name}\""
                     : string.Empty;
 
-                var newSyntax = SyntaxModifier.TryAddProperties(
-                    objectSyntax,
-                    properties.Select(p => SyntaxFactory.CreateObjectProperty(p, SyntaxFactory.EmptySkippedTrivia)),
-                    parsingErrorLookup);
-
-                if (newSyntax is null)
+                if (objectSyntax is null ||
+                    SyntaxModifier.TryAddProperties(
+                        objectSyntax,
+                        properties.Select(p => SyntaxFactory.CreateObjectProperty(p, SyntaxFactory.EmptySkippedTrivia)),
+                        parsingErrorLookup) is not { } newSyntax)
                 {
                     // We're unable to come up with an automatic code fix - most likely because there are unhandled parse errors
                     return new Diagnostic(
@@ -1165,20 +1164,20 @@ namespace Bicep.Core.Diagnostics
             // - In VS code, it's transient until the background restore finishes.
             //
             // Should it be split into two separate errors instead?
-            public ErrorDiagnostic ModuleRequiresRestore(string moduleRef) => new(
+            public ErrorDiagnostic ArtifactRequiresRestore(string artifactRef) => new(
                 TextSpan,
                 "BCP190",
-                $"The module with reference \"{moduleRef}\" has not been restored.");
+                $"The artifact with reference \"{artifactRef}\" has not been restored.");
 
-            public ErrorDiagnostic ModuleRestoreFailed(string moduleRef) => new(
+            public ErrorDiagnostic ArtifactRestoreFailed(string artifactRef) => new(
                 TextSpan,
                 "BCP191",
-                $"Unable to restore the module with reference \"{moduleRef}\".");
+                $"Unable to restore the artifact with reference \"{artifactRef}\".");
 
-            public ErrorDiagnostic ModuleRestoreFailedWithMessage(string moduleRef, string message) => new(
+            public ErrorDiagnostic ArtifactRestoreFailedWithMessage(string artifactRef, string message) => new(
                 TextSpan,
                 "BCP192",
-                $"Unable to restore the module with reference \"{moduleRef}\": {message}");
+                $"Unable to restore the artifact with reference \"{artifactRef}\": {message}");
 
             public ErrorDiagnostic InvalidOciArtifactReference(string? aliasName, string badRef) => new(
                 TextSpan,
@@ -1193,7 +1192,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidOciArtifactReferenceInvalidPathSegment(string? aliasName, string badRef, string badSegment) => new(
                 TextSpan,
                 "BCP195",
-                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The module path segment \"{badSegment}\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The artifact path segment \"{badSegment}\" is not valid. Each artifact name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".");
 
             public ErrorDiagnostic InvalidOciArtifactReferenceMissingTagOrDigest(string? aliasName, string badRef) => new(
                 TextSpan,
@@ -2094,11 +2093,25 @@ namespace Bicep.Core.Diagnostics
                     codeFix);
             }
 
-            public ErrorDiagnostic MalformedProviderPackage(string ociManifestPath) => new(
+            public ErrorDiagnostic TypeIsNotParameterizable(string typeName) => new(
                 TextSpan,
-                "BCP382",
-                $"The provider package is malformed and could not be loaded from \"{ociManifestPath}\"."
-            );
+                "BCP383",
+                $"The \"{typeName}\" type is not parameterizable.");
+
+            public ErrorDiagnostic TypeRequiresParameterization(string typeName, int requiredArgumentCount) => new(
+                TextSpan,
+                "BCP384",
+                $"The \"{typeName}\" type requires {requiredArgumentCount} argument(s).");
+
+            public ErrorDiagnostic ResourceDerivedTypesUnsupported() => new(
+                TextSpan,
+                "BCP385",
+                $@"Using resource-derived types requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceDerivedTypes)}"".");
+
+            public ErrorDiagnostic DecoratorMayNotTargetResourceDerivedType(string decoratorName) => new(
+                TextSpan,
+                "BCP386",
+                $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a resource-derived type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

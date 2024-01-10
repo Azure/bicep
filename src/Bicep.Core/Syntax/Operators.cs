@@ -16,9 +16,9 @@ namespace Bicep.Core.Syntax
             [TokenType.NotEquals] = BinaryOperator.NotEquals,
             [TokenType.EqualsInsensitive] = BinaryOperator.EqualsInsensitive,
             [TokenType.NotEqualsInsensitive] = BinaryOperator.NotEqualsInsensitive,
-            [TokenType.LessThan] = BinaryOperator.LessThan,
+            [TokenType.LeftChevron] = BinaryOperator.LessThan,
             [TokenType.LessThanOrEqual] = BinaryOperator.LessThanOrEqual,
-            [TokenType.GreaterThan] = BinaryOperator.GreaterThan,
+            [TokenType.RightChevron] = BinaryOperator.GreaterThan,
             [TokenType.GreaterThanOrEqual] = BinaryOperator.GreaterThanOrEqual,
             [TokenType.Plus] = BinaryOperator.Add,
             [TokenType.Minus] = BinaryOperator.Subtract,
@@ -41,4 +41,3 @@ namespace Bicep.Core.Syntax
         }.ToImmutableDictionary();
     }
 }
-

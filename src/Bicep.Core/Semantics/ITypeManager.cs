@@ -21,5 +21,7 @@ namespace Bicep.Core.Semantics
         FunctionOverload? GetMatchedFunctionOverload(FunctionCallSyntaxBase syntax);
 
         Expression? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax);
+
+        TypeExpression? TryGetReifiedType(ParameterizedTypeInstantiationSyntaxBase syntax);
     }
 }

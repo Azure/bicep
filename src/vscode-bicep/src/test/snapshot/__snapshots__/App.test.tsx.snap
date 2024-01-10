@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`component App should render 1`] = `
-Array [
+[
   .c0 {
   position: absolute;
   left: 0px;
@@ -87,7 +87,7 @@ Array [
             stroke="currentColor"
             strokeWidth="0"
             style={
-              Object {
+              {
                 "color": "#c1c1c1",
               }
             }
@@ -130,7 +130,7 @@ Array [
             stroke="currentColor"
             strokeWidth="0"
             style={
-              Object {
+              {
                 "color": "#c1c1c1",
               }
             }
@@ -173,7 +173,7 @@ Array [
             stroke="currentColor"
             strokeWidth="0"
             style={
-              Object {
+              {
                 "color": "#c1c1c1",
               }
             }
@@ -213,7 +213,7 @@ Array [
             stroke="currentColor"
             strokeWidth="0"
             style={
-              Object {
+              {
                 "color": "#c1c1c1",
               }
             }

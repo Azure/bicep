@@ -71,7 +71,7 @@ namespace Bicep.Core.UnitTests.FileSystem
             Directory.CreateDirectory(lockDir);
             var fileName = Path.Combine(lockDir, "locktest");
 
-            var @lock = FileLock.TryAcquire(fileName);
+            var @lock = FileLock.TryAcquire(BicepTestConstants.FileSystem, fileName);
             @lock.Should().NotBeNull();
             using (@lock)
             {
@@ -91,7 +91,7 @@ namespace Bicep.Core.UnitTests.FileSystem
             Directory.CreateDirectory(lockDir);
             var fileName = Path.Combine(lockDir, "locktest");
 
-            using (var @lock = FileLock.TryAcquire(fileName))
+            using (var @lock = FileLock.TryAcquire(BicepTestConstants.FileSystem, fileName))
             {
                 @lock.Should().NotBeNull();
                 // extra call to Dispose() is intentional
@@ -107,7 +107,7 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             while (sw.Elapsed < acquireTimeout)
             {
-                var acquired = FileLock.TryAcquire(name);
+                var acquired = FileLock.TryAcquire(BicepTestConstants.FileSystem, name);
                 if (acquired is not null)
                 {
                     return acquired;

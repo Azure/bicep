@@ -656,6 +656,12 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return expression;
     }
 
+    void IExpressionVisitor.VisitResourceDerivedTypeExpression(ResourceDerivedTypeExpression expression) => ReplaceCurrent(expression, ReplaceResourceDerivedTypeExpression);
+    public virtual Expression ReplaceResourceDerivedTypeExpression(ResourceDerivedTypeExpression expression)
+    {
+        return expression;
+    }
+
     void IExpressionVisitor.VisitProgramExpression(ProgramExpression expression) => ReplaceCurrent(expression, ReplaceProgramExpression);
     public virtual Expression ReplaceProgramExpression(ProgramExpression expression)
     {

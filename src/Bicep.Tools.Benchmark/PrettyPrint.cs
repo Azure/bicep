@@ -5,7 +5,9 @@ using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using System.Linq;
+using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using Bicep.Core;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Samples;
@@ -22,20 +24,19 @@ public class PrettyPrint
 {
     private record BenchmarkData(
         ImmutableArray<DataSet> DataSets,
-        IDependencyHelper BicepService);
+        BicepCompiler Compiler);
 
     private static BenchmarkData CreateBenchmarkData()
     {
         var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(typeof(DataSet).Assembly, "Files");
 
         var dataSets = DataSets.AllDataSets
-            .Where(x => x.IsValid)
+            .Where(x => !x.HasRegistryModules)
             .ToImmutableArray();
 
-        var bicepService = new ServiceBuilder()
-            .WithRegistration(x => x.AddSingleton(fileSystem)).Build();
+        var bicepService = new ServiceBuilder().WithFileSystem(fileSystem).Build();
 
-        return new(dataSets, bicepService);
+        return new(dataSets, bicepService.GetCompiler());
     }
 
     private BenchmarkData benchmarkData = null!;
@@ -50,15 +51,14 @@ public class PrettyPrint
     }
 
     [Benchmark(Description = "Pretty-print the main file of each valid dataset")]
-    public void PrettyPrint_valid_dataset_main_file()
+    public async Task PrettyPrint_valid_dataset_main_file()
     {
         // Reuse a single IBicepService to amortize the cost of instantiating dependencies
-        var (dataSets, service) = benchmarkData;
+        var (dataSets, compiler) = benchmarkData!;
 
         foreach (var dataSet in dataSets)
         {
-            var sourceFileGrouping = service.BuildSourceFileGrouping(new Uri($"file:///{dataSet.Name}/main.bicep"), false);
-            var compilation = service.BuildCompilation(sourceFileGrouping);
+            var compilation = await compiler.CreateCompilation(new Uri($"file:///{dataSet.Name}/main.bicep"), skipRestore: true);
 
             PrettyPrinter.PrintValidProgram(compilation.GetEntrypointSemanticModel().Root.Syntax, this.printOptions);
         }

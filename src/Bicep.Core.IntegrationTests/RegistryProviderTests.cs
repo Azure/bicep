@@ -22,32 +22,32 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class RegistryProviderTests : TestBase
 {
-    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, IContainerRegistryClientFactory clientFactory)
-        => new ServiceBuilder()
+    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registry, string repository)
+    {
+        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients((new Uri($"https://{registry}"), repository));
+
+        return new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true))
             .WithFileSystem(fileSystem)
             .WithContainerRegistryClientFactory(clientFactory);
+    }
 
     [TestMethod]
     public async Task Providers_published_to_a_registry_can_be_compiled()
     {
-        System.IO.Abstractions.FileSystem fileSystem = new();
-        var registry = "example.azurecr.io";
-        var registryUri = new Uri($"https://{registry}");
-        var repository = $"test/provider/http";
-
         // types taken from https://github.com/Azure/bicep-registry-providers/tree/21aadf24cd6e8c9c5da2db0d1438df9def548b09/providers/http
-        var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
-            TestContext,
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
             typeof(RegistryProviderTests).Assembly,
             "Files/RegistryProviderTests/HttpProvider");
 
-        var indexJson = Path.Combine(outputDirectory, "types/index.json");
+        var registry = "example.azurecr.io";
+        var repository = $"test/provider/http";
 
-        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients(false, (registryUri, repository));
-        await DataSetsExtensions.PublishProviderToRegistryAsync(fileSystem, clientFactory, indexJson, $"br:{registry}/{repository}:1.2.3");
+        var services = GetServiceBuilder(fileSystem, registry, repository);
 
-        var bicepPath = FileHelper.SaveResultFile(TestContext, "main.bicep", """
+        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
 provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 
 resource dadJoke 'request@v1' = {

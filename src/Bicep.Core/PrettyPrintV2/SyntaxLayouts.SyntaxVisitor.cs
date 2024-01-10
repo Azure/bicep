@@ -167,6 +167,13 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitCompileTimeImportFromClauseSyntax(CompileTimeImportFromClauseSyntax syntax) => this.Apply(syntax, LayoutCompileTimeImportFromClauseSyntax);
 
+        public void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax) => this.Apply(syntax, LayoutParameterizedTypeInstantiationSyntax);
+
+        public void VisitInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax)
+            => this.Apply(syntax, LayoutInstanceParameterizedTypeInstantiationSyntax);
+
+        public void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax) => this.Layout(syntax.Expression);
+
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {
             syntax.Accept(this);

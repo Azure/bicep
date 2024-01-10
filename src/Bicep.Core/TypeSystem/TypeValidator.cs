@@ -14,6 +14,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Types;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -332,29 +333,16 @@ namespace Bicep.Core.TypeSystem
             }
 
             // object assignability check
-            if (expression is ObjectSyntax objectValue)
+            if (targetType is ObjectType targetObjectType &&
+                NarrowObjectAssignmentType(config, UnwrapIfConditionBody(expression), expressionType, targetObjectType) is TypeSymbol narrowedObject)
             {
-                switch (targetType)
-                {
-                    case ObjectType targetObjectType:
-                        return NarrowObjectType(config, objectValue, targetObjectType);
-
-                    case DiscriminatedObjectType targetDiscriminated:
-                        return NarrowDiscriminatedObjectType(config, objectValue, targetDiscriminated);
-                }
+                return narrowedObject;
             }
 
-            // if-condition assignability check
-            if (expression is IfConditionSyntax { Body: ObjectSyntax body })
+            if (targetType is DiscriminatedObjectType targetDiscriminatedObjectType &&
+                NarrowDiscriminatedObjectType(config, UnwrapIfConditionBody(expression), expressionType, targetDiscriminatedObjectType) is TypeSymbol narrowedDiscriminatedObject)
             {
-                switch (targetType)
-                {
-                    case ObjectType targetObjectType:
-                        return NarrowObjectType(config, body, targetObjectType);
-
-                    case DiscriminatedObjectType targetDiscriminated:
-                        return NarrowDiscriminatedObjectType(config, body, targetDiscriminated);
-                }
+                return narrowedDiscriminatedObject;
             }
 
             // array assignability check
@@ -381,6 +369,12 @@ namespace Bicep.Core.TypeSystem
 
             return expressionType;
         }
+
+        private static SyntaxBase UnwrapIfConditionBody(SyntaxBase expression) => expression switch
+        {
+            IfConditionSyntax ifCondition => ifCondition.Body,
+            _ => expression,
+        };
 
         private static bool AreLambdaTypesAssignable(LambdaType source, LambdaType target)
         {
@@ -914,7 +908,7 @@ namespace Bicep.Core.TypeSystem
 
         private record ViableTypeCandidate(TypeSymbol Type, IEnumerable<IDiagnostic> Diagnostics);
 
-        private TypeSymbol NarrowDiscriminatedObjectType(TypeValidatorConfig config, ObjectSyntax expression, DiscriminatedObjectType targetType)
+        private TypeSymbol? NarrowDiscriminatedObjectType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, DiscriminatedObjectType targetType)
         {
             // if we have parse errors, there's no point to check assignability
             // we should not return the parse errors however because they will get double collected
@@ -923,33 +917,42 @@ namespace Bicep.Core.TypeSystem
                 return LanguageConstants.Any;
             }
 
-            var discriminatorProperty = expression.Properties.FirstOrDefault(p => targetType.TryGetDiscriminatorProperty(p.TryGetKeyText()) is not null);
-            if (discriminatorProperty == null)
+            if (expressionType is not ObjectType expressionObjectType)
             {
-                // object doesn't contain the discriminator field
-                diagnosticWriter.Write(config.OriginSyntax ?? expression, x => x.MissingRequiredProperty(ShouldWarn(targetType), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
+                // the provided value can be assigned to an discriminated object, but we don't know enough about the value to narrow it any further
+                return null;
+            }
 
-                var propertyKeys = expression.Properties
-                    .Select(x => x.TryGetKeyText())
-                    .Where(key => !string.IsNullOrEmpty(key))
-                    .Select(key => key!);
-
-                // do a reverse lookup to check if there's any misspelled discriminator key
-                var misspelledDiscriminatorKey = SpellChecker.GetSpellingSuggestion(targetType.DiscriminatorKey, propertyKeys);
-
-                if (misspelledDiscriminatorKey is not null)
+            if (expressionObjectType.Properties.TryGetValue(targetType.DiscriminatorKey) is not TypeProperty discriminatorTypeProperty)
+            {
+                // there is no explicit discriminator specified, so we can't determine its value
+                // if the expression type allows additional properties, the provided value may include the discriminator; otherwise, it certainly does not
+                if (!expressionObjectType.HasExplicitAdditionalPropertiesType)
                 {
-                    var misspelledDiscriminatorProperty = expression.Properties.First(x => string.Equals(x.TryGetKeyText(), misspelledDiscriminatorKey));
-                    diagnosticWriter.Write(config.OriginSyntax ?? misspelledDiscriminatorProperty.Key, x => x.DisallowedPropertyWithSuggestion(ShouldWarn(targetType), misspelledDiscriminatorKey, targetType.DiscriminatorKeysUnionType, targetType.DiscriminatorKey));
+                    var shouldWarn = (expressionObjectType.AdditionalPropertiesType?.Type is { } addlPropertiesType && AreTypesAssignable(addlPropertiesType, LanguageConstants.String)) ||
+                        ShouldWarn(targetType);
+                    diagnosticWriter.Write(config.OriginSyntax ?? expression, x => x.MissingRequiredProperty(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
+
+                    // do a reverse lookup to check if there's any misspelled discriminator key
+                    if (SpellChecker.GetSpellingSuggestion(targetType.DiscriminatorKey, expressionObjectType.Properties.Keys) is string misspelledDiscriminatorKey)
+                    {
+                        var misspelledDiscriminatorProperty = (expression as ObjectSyntax)?.Properties.First(x => LanguageConstants.IdentifierComparer.Equals(x.TryGetKeyText(), misspelledDiscriminatorKey));
+                        diagnosticWriter.Write(config.OriginSyntax ?? misspelledDiscriminatorProperty?.Key ?? expression,
+                            x => x.DisallowedPropertyWithSuggestion(ShouldWarn(targetType), misspelledDiscriminatorKey, targetType.DiscriminatorKeysUnionType, targetType.DiscriminatorKey));
+                    }
                 }
 
                 return LanguageConstants.Any;
             }
 
+            var discriminatorDiagnosticTarget = config.OriginSyntax
+                ?? (expression as ObjectSyntax)?.Properties.FirstOrDefault(p => targetType.TryGetDiscriminatorProperty(p.TryGetKeyText()) is not null)?.Value
+                ?? expression;
+
             // At some point in the future we may want to relax the expectation of a string literal key, and allow a generic string.
             // In this case, the best we can do is validate against the union of all the settable properties.
             // Let's not do this just yet, and see if a use-case arises.
-            var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
+            var discriminatorType = discriminatorTypeProperty.TypeReference.Type;
             switch (discriminatorType)
             {
                 case AnyType:
@@ -966,7 +969,7 @@ namespace Bicep.Core.TypeSystem
                         var shouldWarn = config.IsResourceDeclaration || ShouldWarn(targetType);
 
                         diagnosticWriter.Write(
-                            config.OriginSyntax ?? discriminatorProperty.Value,
+                            discriminatorDiagnosticTarget,
                             x =>
                             {
                                 var sourceDeclaration = TryGetSourceDeclaration(config);
@@ -989,13 +992,13 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     // we have a match!
-                    return NarrowObjectType(config, expression, selectedObjectType);
+                    return NarrowObjectAssignmentType(config, expression, expressionType, selectedObjectType);
 
                 // ReSharper disable once ConvertTypeCheckPatternToNullCheck - using null pattern check causes compiler to think that discriminatorType might be null in the default clause.
                 case TypeSymbol when AreTypesAssignable(discriminatorType, targetType.DiscriminatorKeysUnionType):
                     //check if discriminatorType is a subset of targetType.DiscriminatorKeysUnionType.
                     //If match - then warn with message that using property is not recommended and type validation is suspended and return generic object type
-                    diagnosticWriter.Write(discriminatorProperty.Value, x => x.AmbiguousDiscriminatorPropertyValue(targetType.DiscriminatorKey));
+                    diagnosticWriter.Write(discriminatorDiagnosticTarget, x => x.AmbiguousDiscriminatorPropertyValue(targetType.DiscriminatorKey));
                     //TODO: make a deep merge of the discriminator types to return combined object for type checking. Additionally, we need to cover hints.
                     return LanguageConstants.Any;
 
@@ -1003,14 +1006,14 @@ namespace Bicep.Core.TypeSystem
                     {
                         var shouldWarn = (config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType);
                         diagnosticWriter.Write(
-                            config.OriginSyntax ?? discriminatorProperty.Value,
+                            discriminatorDiagnosticTarget,
                             x => x.PropertyTypeMismatch(shouldWarn, TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)));
                         return LanguageConstants.Any;
                     }
             }
         }
 
-        private TypeSymbol NarrowObjectType(TypeValidatorConfig config, ObjectSyntax expression, ObjectType targetType)
+        private TypeSymbol? NarrowObjectAssignmentType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, ObjectType targetType)
         {
             static (TypeSymbol type, bool typeWasPreserved) AddImplicitNull(TypeSymbol propertyType, TypePropertyFlags propertyFlags)
             {
@@ -1025,6 +1028,18 @@ namespace Bicep.Core.TypeSystem
                     : TypeHelper.CreateTypeUnion(unionType.Members.Where(m => m != LanguageConstants.Null));
             }
 
+            if (expression is VariableAccessSyntax variableAccess && DeclaringSyntax(variableAccess) is SyntaxBase declaringSyntax)
+            {
+                TypeValidatorConfig newConfig = new(
+                    skipConstantCheck: config.SkipConstantCheck,
+                    skipTypeErrors: config.SkipTypeErrors,
+                    disallowAny: config.DisallowAny,
+                    originSyntax: variableAccess,
+                    onTypeMismatch: config.OnTypeMismatch,
+                    isResourceDeclaration: config.IsResourceDeclaration);
+                return NarrowObjectAssignmentType(newConfig, declaringSyntax, expressionType, targetType);
+            }
+
             // TODO: Short-circuit on any object to avoid unnecessary processing?
             // TODO: Consider doing the schema check even if there are parse errors
             // if we have parse errors, there's no point to check assignability
@@ -1034,169 +1049,186 @@ namespace Bicep.Core.TypeSystem
                 return targetType;
             }
 
-            var namedPropertyMap = expression.ToNamedPropertyDictionary();
-
-            var missingRequiredProperties = targetType.Properties.Values
-                .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && !TypeValidator.AreTypesAssignable(LanguageConstants.Null, p.TypeReference.Type) && !namedPropertyMap.ContainsKey(p.Name))
-                .ToList();
-
-            if (missingRequiredProperties.Count > 0)
+            if (expressionType is ObjectType expressionObjectType)
             {
-                var (positionable, blockName) = GetMissingPropertyContext(expression);
+                var missingRequiredProperties = targetType.Properties.Values
+                    .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) &&
+                        !AreTypesAssignable(LanguageConstants.Null, p.TypeReference.Type) &&
+                        !expressionObjectType.Properties.ContainsKey(p.Name))
+                    .OrderBy(p => p.Name)
+                    .ToImmutableArray();
 
-                var shouldWarn = (config.IsResourceDeclaration && missingRequiredProperties.All(p => !p.Flags.HasFlag(TypePropertyFlags.SystemProperty)))
-                                 || ShouldWarn(targetType);
-
-                var missingRequiredPropertiesNames = missingRequiredProperties.Select(p => p.Name).OrderBy(p => p).ToList();
-                var showTypeInaccuracy = config.IsResourceDeclaration && missingRequiredProperties.Any(p => !p.Flags.HasFlag(TypePropertyFlags.SystemProperty));
-
-                diagnosticWriter.Write(
-                    config.OriginSyntax ?? positionable,
-                    x => x.MissingRequiredProperties(shouldWarn, TryGetSourceDeclaration(config), expression, missingRequiredPropertiesNames, blockName, showTypeInaccuracy, this.parsingErrorLookup));
-            }
-
-            var narrowedProperties = new List<TypeProperty>();
-            foreach (var declaredProperty in targetType.Properties.Values)
-            {
-                if (namedPropertyMap.TryGetValue(declaredProperty.Name, out var declaredPropertySyntax))
+                if (missingRequiredProperties.Length > 0)
                 {
-                    var skipConstantCheckForProperty = config.SkipConstantCheck;
+                    var (positionable, blockName) = GetMissingPropertyContext(expression);
 
-                    // is the property marked as requiring compile-time constants and has the parent already validated this?
-                    if (skipConstantCheckForProperty == false && declaredProperty.Flags.HasFlag(TypePropertyFlags.Constant))
+                    diagnosticWriter.Write(
+                        config.OriginSyntax ?? positionable,
+                        x => x.MissingRequiredProperties(
+                            warnInsteadOfError: (config.IsResourceDeclaration && missingRequiredProperties.All(p => !p.Flags.HasFlag(TypePropertyFlags.SystemProperty))) ||
+                                ShouldWarn(targetType),
+                            TryGetSourceDeclaration(config),
+                            expression as ObjectSyntax,
+                            missingRequiredProperties.Select(p => p.Name).ToList(),
+                            blockName,
+                            config.IsResourceDeclaration && missingRequiredProperties.Any(p => !p.Flags.HasFlag(TypePropertyFlags.SystemProperty)),
+                            parsingErrorLookup));
+                }
+
+                var narrowedProperties = new List<TypeProperty>();
+                foreach (var declaredProperty in targetType.Properties.Values)
+                {
+                    if (expressionObjectType.Properties.TryGetValue(declaredProperty.Name, out var expressionTypeProperty))
                     {
-                        // validate that values are compile-time constants
-                        GetCompileTimeConstantViolation(declaredPropertySyntax.Value, diagnosticWriter);
+                        var declaredPropertySyntax = (expression as ObjectSyntax)?.TryGetPropertyByName(declaredProperty.Name);
+                        var skipConstantCheckForProperty = config.SkipConstantCheck;
 
-                        // disable compile-time constant validation for children
-                        skipConstantCheckForProperty = true;
-                    }
-
-                    if (declaredProperty.Flags.HasFlag(TypePropertyFlags.ReadOnly))
-                    {
-                        // the declared property is read-only
-                        // value cannot be assigned to a read-only property
-                        var parent = binder.GetParent(expression);
-                        if (parent is ResourceDeclarationSyntax resourceSyntax && resourceSyntax.IsExistingResource())
+                        // is the property marked as requiring compile-time constants and has the parent already validated this?
+                        if (skipConstantCheckForProperty == false && declaredProperty.Flags.HasFlag(TypePropertyFlags.Constant))
                         {
-                            diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax.Key, x => x.CannotUsePropertyInExistingResource(declaredProperty.Name));
+                            // validate that values are compile-time constants
+                            GetCompileTimeConstantViolation(declaredPropertySyntax?.Value ?? expression, diagnosticWriter);
+
+                            // disable compile-time constant validation for children
+                            skipConstantCheckForProperty = true;
                         }
-                        else
+
+                        if (declaredProperty.Flags.HasFlag(TypePropertyFlags.ReadOnly))
                         {
-                            var resourceTypeInaccuracy = !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty) && config.IsResourceDeclaration;
-                            diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax.Key, x => x.CannotAssignToReadOnlyProperty(resourceTypeInaccuracy || ShouldWarn(targetType), declaredProperty.Name, resourceTypeInaccuracy));
+                            var diagnosticTarget = config.OriginSyntax ?? declaredPropertySyntax?.Key ?? expression;
+                            // the declared property is read-only
+                            // value cannot be assigned to a read-only property
+                            bool? isExistingResource = binder.GetParent(expression) switch
+                            {
+                                ResourceDeclarationSyntax rds => rds.IsExistingResource(),
+                                // we previously "unwrapped" an if condition body, so there may be one more ancestor to check
+                                IfConditionSyntax ifCondition => (binder.GetParent(ifCondition) as ResourceDeclarationSyntax)?.IsExistingResource(),
+                                _ => null,
+                            };
+                            if (isExistingResource is true)
+                            {
+                                diagnosticWriter.Write(diagnosticTarget, x => x.CannotUsePropertyInExistingResource(declaredProperty.Name));
+                            }
+                            else
+                            {
+                                var resourceTypeInaccuracy = !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty) && config.IsResourceDeclaration;
+                                diagnosticWriter.Write(diagnosticTarget, x => x.CannotAssignToReadOnlyProperty(resourceTypeInaccuracy || ShouldWarn(targetType), declaredProperty.Name, resourceTypeInaccuracy));
+                            }
+
+                            narrowedProperties.Add(new TypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));
+                            continue;
                         }
 
-                        narrowedProperties.Add(new TypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));
-                        continue;
-                    }
+                        if (declaredProperty.Flags.HasFlag(TypePropertyFlags.FallbackProperty))
+                        {
+                            diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax?.Key ?? expression, x => x.FallbackPropertyUsed(declaredProperty.Name));
+                        }
 
-                    if (declaredProperty.Flags.HasFlag(TypePropertyFlags.FallbackProperty))
+                        var newConfig = new TypeValidatorConfig(
+                            skipConstantCheck: skipConstantCheckForProperty,
+                            skipTypeErrors: true,
+                            disallowAny: declaredProperty.Flags.HasFlag(TypePropertyFlags.DisallowAny),
+                            originSyntax: config.OriginSyntax,
+                            onTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, (config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType), declaredProperty.Name, (config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty))),
+                            isResourceDeclaration: config.IsResourceDeclaration);
+
+                        // append "| null" to the property type for non-required properties
+                        var (propertyAssignmentType, typeWasPreserved) = AddImplicitNull(declaredProperty.TypeReference.Type, declaredProperty.Flags);
+
+                        var narrowedType = NarrowType(newConfig, declaredPropertySyntax?.Value ?? expression, expressionTypeProperty.TypeReference.Type, propertyAssignmentType);
+                        narrowedType = RemoveImplicitNull(narrowedType, typeWasPreserved);
+
+                        narrowedProperties.Add(new TypeProperty(declaredProperty.Name, narrowedType, declaredProperty.Flags));
+                    }
+                    else
                     {
-                        diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax.Key, x => x.FallbackPropertyUsed(declaredProperty.Name));
+                        // TODO should this be narrowed against expressionObjectType.AdditionalPropertiesType ?
+                        narrowedProperties.Add(declaredProperty);
+                    }
+                }
+
+                // find properties that are specified on in the expression object but not declared in the schema
+                var extraProperties = expressionObjectType.Properties
+                    .Where(p => !targetType.Properties.ContainsKey(p.Key));
+
+                // extra properties should raise a diagnostic if the target does not allow additional properties OR the additional properties schema on the target is a "fallback"
+                // No diagnostic should be raised if the receiver accepts but discourages additional properties and the assigned value is not an object literal
+                if (targetType.AdditionalPropertiesType is null || (expression is ObjectSyntax && targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)))
+                {
+                    var shouldWarn = targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty) || ShouldWarn(targetType);
+                    var validUnspecifiedProperties = targetType.Properties.Values
+                        .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) &&
+                            !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty) &&
+                            !expressionObjectType.Properties.ContainsKey(p.Name))
+                        .Select(p => p.Name)
+                        .OrderBy(x => x)
+                        .ToList();
+
+                    foreach (var extraProperty in extraProperties)
+                    {
+                        var extraPropertySyntax = (expression as ObjectSyntax)?.TryGetPropertyByName(extraProperty.Key);
+                        diagnosticWriter.Write(config.OriginSyntax ?? extraPropertySyntax?.Key ?? expression, x =>
+                        {
+                            var sourceDeclaration = TryGetSourceDeclaration(config);
+
+                            if (sourceDeclaration is null && SpellChecker.GetSpellingSuggestion(extraProperty.Key, validUnspecifiedProperties) is { } suggestedKeyName)
+                            {
+                                // only look up suggestions if we're not sourcing this type from another declaration.
+                                return x.DisallowedPropertyWithSuggestion(shouldWarn, extraProperty.Key, targetType, suggestedKeyName);
+                            }
+
+                            return x.DisallowedProperty(shouldWarn, sourceDeclaration, extraProperty.Key, targetType, validUnspecifiedProperties, config.IsResourceDeclaration);
+                        });
                     }
 
-                    var newConfig = new TypeValidatorConfig(
-                        skipConstantCheck: skipConstantCheckForProperty,
-                        skipTypeErrors: true,
-                        disallowAny: declaredProperty.Flags.HasFlag(TypePropertyFlags.DisallowAny),
-                        originSyntax: config.OriginSyntax,
-                        onTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, (config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType), declaredProperty.Name, (config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty))),
-                        isResourceDeclaration: config.IsResourceDeclaration);
-
-                    // append "| null" to the property type for non-required properties
-                    var (propertyAssignmentType, typeWasPreserved) = AddImplicitNull(declaredProperty.TypeReference.Type, declaredProperty.Flags);
-
-                    var narrowedType = NarrowType(newConfig, declaredPropertySyntax.Value, propertyAssignmentType);
-                    narrowedType = RemoveImplicitNull(narrowedType, typeWasPreserved);
-
-                    narrowedProperties.Add(new TypeProperty(declaredProperty.Name, narrowedType, declaredProperty.Flags));
+                    foreach (var unknownProperty in (expression as ObjectSyntax)?.Properties.Where(p => p.TryGetKeyText() is null) ?? Enumerable.Empty<ObjectPropertySyntax>())
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(unknownProperty.Key).DisallowedInterpolatedKeyProperty(shouldWarn,
+                            TryGetSourceDeclaration(config),
+                            targetType,
+                            validUnspecifiedProperties));
+                    }
                 }
                 else
                 {
-                    narrowedProperties.Add(declaredProperty);
-                }
-            }
-
-            // find properties that are specified on in the expression object but not declared in the schema
-            var extraProperties = expression.Properties
-                .Where(p => p.TryGetKeyText() is not string keyName || !targetType.Properties.ContainsKey(keyName));
-
-            if (!targetType.HasExplicitAdditionalPropertiesType)
-            {
-                // extra properties are not allowed by the type
-
-                var shouldWarn = targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty) || ShouldWarn(targetType);
-                var validUnspecifiedProperties = targetType.Properties.Values
-                    .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty) && !namedPropertyMap.ContainsKey(p.Name))
-                    .Select(p => p.Name)
-                    .OrderBy(x => x)
-                    .ToList();
-
-                foreach (var extraProperty in extraProperties)
-                {
-
-                    diagnosticWriter.Write(config.OriginSyntax ?? extraProperty.Key, x =>
+                    // extra properties must be assignable to the right type
+                    foreach (var extraProperty in extraProperties)
                     {
-                        var sourceDeclaration = TryGetSourceDeclaration(config);
+                        var skipConstantCheckForProperty = config.SkipConstantCheck;
+                        var extraPropertySyntax = (expression as ObjectSyntax)?.TryGetPropertyByName(extraProperty.Key);
 
-                        if (extraProperty.TryGetKeyText() is not { } keyName)
+                        // is the property marked as requiring compile-time constants and has the parent already validated this?
+                        if (skipConstantCheckForProperty == false && targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.Constant))
                         {
-                            return x.DisallowedInterpolatedKeyProperty(shouldWarn, sourceDeclaration, targetType, validUnspecifiedProperties);
+                            // validate that values are compile-time constants
+                            GetCompileTimeConstantViolation(extraPropertySyntax?.Value ?? expression, diagnosticWriter);
+
+                            // disable compile-time constant validation for children
+                            skipConstantCheckForProperty = true;
                         }
 
-                        if (sourceDeclaration is null && SpellChecker.GetSpellingSuggestion(keyName, validUnspecifiedProperties) is { } suggestedKeyName)
-                        {
-                            // only look up suggestions if we're not sourcing this type from another declaration.
-                            return x.DisallowedPropertyWithSuggestion(shouldWarn, keyName, targetType, suggestedKeyName);
-                        }
+                        var newConfig = new TypeValidatorConfig(
+                            skipConstantCheck: skipConstantCheckForProperty,
+                            skipTypeErrors: true,
+                            disallowAny: targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.DisallowAny),
+                            originSyntax: config.OriginSyntax,
+                            onTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType), extraProperty.Key, false),
+                            isResourceDeclaration: config.IsResourceDeclaration);
 
-                        return x.DisallowedProperty(shouldWarn, sourceDeclaration, keyName, targetType, validUnspecifiedProperties, config.IsResourceDeclaration);
-                    });
-                }
-            }
-            else
-            {
-                // extra properties must be assignable to the right type
-                foreach (var extraProperty in extraProperties)
-                {
-                    var skipConstantCheckForProperty = config.SkipConstantCheck;
+                        // append "| null" to the type on non-required properties
+                        var (additionalPropertiesAssignmentType, _) = AddImplicitNull(targetType.AdditionalPropertiesType.Type, targetType.AdditionalPropertiesFlags);
 
-                    // is the property marked as requiring compile-time constants and has the parent already validated this?
-                    if (skipConstantCheckForProperty == false && targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.Constant))
-                    {
-                        // validate that values are compile-time constants
-                        GetCompileTimeConstantViolation(extraProperty.Value, diagnosticWriter);
+                        // although we don't use the result here, it's important to call NarrowType to collect diagnostics
+                        var narrowedType = NarrowType(newConfig, extraPropertySyntax?.Value ?? expression, extraProperty.Value.TypeReference.Type, additionalPropertiesAssignmentType);
 
-                        // disable compile-time constant validation for children
-                        skipConstantCheckForProperty = true;
+                        // TODO should we try and narrow the additional properties type? May be difficult
                     }
-
-                    TypeMismatchDiagnosticWriter? onTypeMismatch = null;
-                    if (extraProperty.TryGetKeyText() is { } keyName)
-                    {
-                        onTypeMismatch = GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType), keyName, false);
-                    }
-
-                    var newConfig = new TypeValidatorConfig(
-                        skipConstantCheck: skipConstantCheckForProperty,
-                        skipTypeErrors: true,
-                        disallowAny: targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.DisallowAny),
-                        originSyntax: config.OriginSyntax,
-                        onTypeMismatch: onTypeMismatch,
-                        isResourceDeclaration: config.IsResourceDeclaration);
-
-                    // append "| null" to the type on non-required properties
-                    var (additionalPropertiesAssignmentType, _) = AddImplicitNull(targetType.AdditionalPropertiesType!.Type, targetType.AdditionalPropertiesFlags);
-
-                    // although we don't use the result here, it's important to call NarrowType to collect diagnostics
-                    var narrowedType = NarrowType(newConfig, extraProperty.Value, additionalPropertiesAssignmentType);
-
-                    // TODO should we try and narrow the additional properties type? May be difficult
                 }
+
+                return new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver.CopyToObject);
             }
 
-            return new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver.CopyToObject);
+            return null;
         }
 
         private (IPositionable positionable, string blockName) GetMissingPropertyContext(SyntaxBase expression)

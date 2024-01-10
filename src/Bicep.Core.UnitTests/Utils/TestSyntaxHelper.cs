@@ -11,6 +11,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static bool NodeShouldBeBound(ISymbolReference symbolReference)
             => symbolReference is not InstanceFunctionCallSyntax
                 and not PropertyAccessSyntax
-                and not ObjectPropertySyntax;
+                and not ObjectPropertySyntax
+                and not InstanceParameterizedTypeInstantiationSyntax;
     }
 }

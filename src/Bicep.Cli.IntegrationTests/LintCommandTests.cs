@@ -28,9 +28,6 @@ namespace Bicep.Cli.IntegrationTests;
 [TestClass]
 public class LintCommandTests : TestBase
 {
-    [NotNull]
-    public TestContext? TestContext { get; set; }
-
     [TestMethod]
     public async Task Help_should_output_lint_usage_information()
     {

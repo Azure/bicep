@@ -43,7 +43,7 @@ import {
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
 } from "./commands/showVisualizer";
-import { ShowSourceCommand } from "./commands/showSource";
+import { ShowSourceFromVisualizerCommand } from "./commands/showSourceFromVisualizer";
 import { WalkthroughCopyToClipboardCommand } from "./commands/gettingStarted/WalkthroughCopyToClipboardCommand";
 import { WalkthroughCreateBicepFileCommand } from "./commands/gettingStarted/WalkthroughCreateBicepFileCommand";
 import { WalkthroughOpenBicepFileCommand } from "./commands/gettingStarted/WalkthroughOpenBicepFileCommand";
@@ -191,7 +191,7 @@ export async function activate(
             new ShowDeployPaneToSideCommand(deployPaneViewManager),
             new ShowVisualizerCommand(viewManager),
             new ShowVisualizerToSideCommand(viewManager),
-            new ShowSourceCommand(viewManager),
+            new ShowSourceFromVisualizerCommand(viewManager),
             new WalkthroughCopyToClipboardCommand(),
             new WalkthroughCreateBicepFileCommand(),
             new WalkthroughOpenBicepFileCommand(),

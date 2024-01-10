@@ -1518,7 +1518,7 @@ resource mg 'Microsoft.Management/managementGroups@2020-05-01' = {
 }
 ");
 
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Template.Should().HaveValueAtPath("$.resources[0].properties.details.parent", "[managementGroup()]");
 
         var evaluated = TemplateEvaluator.Evaluate(result.Template);
@@ -3992,7 +3992,7 @@ param systemAssignedIdentity bool = false
 @description('Optional. The ID(s) to assign to the resource.')
 param userAssignedIdentities object = {}
 
-var identityType = systemAssignedIdentity ? (!empty(userAssignedIdentities) ? 'SystemAssigned,UserAssigned' : 'SystemAssigned') : (!empty(userAssignedIdentities) ? 'UserAssigned' : 'None')
+var identityType = systemAssignedIdentity ? (!empty(userAssignedIdentities) ? 'SystemAssigned, UserAssigned' : 'SystemAssigned') : (!empty(userAssignedIdentities) ? 'UserAssigned' : 'None')
 
 var identity = identityType != 'None' ? {
   type: identityType
@@ -5378,11 +5378,11 @@ using 'main.bicep'
 param rgs = {
   '0': {
     name: 'rg-test-1'
-    location:'westeurope' 
+    location:'westeurope'
   }
   '1': {
     name: 'rg-test-2'
-    location:'westeurope' 
+    location:'westeurope'
   }
 }
 
@@ -5417,6 +5417,215 @@ type vnet = {
         {
             ("BCP022", DiagnosticLevel.Error, """Expected a property name at this location."""),
             ("BCP022", DiagnosticLevel.Error, """Expected a property name at this location."""),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/12912
+    [TestMethod]
+    public void Test_Issue12912()
+    {
+
+        var result = CompilationHelper.Compile(
+            Services.WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true)),
+            ("main.bicep", """
+func test() object => loadJsonContent('./repro-data.json')
+func test2() string => loadTextContent('./repro-data.json')
+func test3() object => loadYamlContent('./repro-data.json')
+func test4() string => loadFileAsBase64('./repro-data.json')
+"""),
+            ("repro-data.json", """
+{}
+"""));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        evaluated.Should().HaveValueAtPath("$.functions[0].members['test'].output.value", new JObject());
+        evaluated.Should().HaveValueAtPath("$.functions[0].members['test2'].output.value", "{}");
+        evaluated.Should().HaveValueAtPath("$.functions[0].members['test3'].output.value", new JObject());
+        evaluated.Should().HaveValueAtPath("$.functions[0].members['test4'].output.value", "e30=");
+    }
+
+    // https://github.com/Azure/bicep/issues/12698
+    [TestMethod]
+    public void Test_Issue12698()
+    {
+
+        var result = CompilationHelper.Compile(
+            Services.WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true, CompileTimeImportsEnabled: true)),
+            ("main.bicep", """
+import { MyFunction } from 'export.bicep'
+
+output foo string = MyFunction('foo')
+"""),
+            ("export.bicep", """
+@export()
+func MyFunction(name string) string => '${loadJsonContent('./test-mapping.json')['${name}'].myValue}'
+"""),
+            ("test-mapping.json", """
+{
+  "foo": {
+    "myValue": "bar"
+  }
+}
+"""));
+
+        result.Should().NotHaveAnyDiagnostics();
+        var evaluated = TemplateEvaluator.Evaluate(result.Template);
+        evaluated.Should().HaveValueAtPath("$.outputs['foo'].value", "bar");
+    }
+
+    // https://github.com/Azure/bicep/issues/12799
+    [TestMethod]
+    public void Test_Issue12799()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'test.bicep'
+import * as bicepconfig from 'bicepconfig.bicep'
+// ok
+param one = bicepconfig.directExport
+// Failed to evaluate parameter "two"
+// Unhandled exception during evaluating template language function 'variables' is not handled.bicep(BCP338)
+param two = bicepconfig.functionExport
+"""),
+            ("test.bicep", """
+param one bool
+param two bool
+output bothTrue bool = one && two
+"""),
+            ("bicepconfig.bicep", """
+var json = loadJsonContent('bicepconfig.json')
+func testFunction(b bool) bool => b
+@export()
+var directExport = json.experimentalFeaturesEnabled.userDefinedFunctions
+@export()
+var functionExport = testFunction(json.experimentalFeaturesEnabled.userDefinedFunctions)
+"""),
+            ("bicepconfig.json", """
+{
+  "experimentalFeaturesEnabled": {
+    "compileTimeImports": true,
+    "userDefinedFunctions": true
+  }
+}
+"""));
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().HaveValueAtPath("parameters.one.value", true);
+        result.Parameters.Should().HaveValueAtPath("parameters.two.value", true);
+    }
+
+    // https://github.com/Azure/bicep/issues/12590
+    [TestMethod]
+    public void Test_Issue12590()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                var resources = {
+                  st: {
+                    type: 'storage'
+                    name: 'st'
+                    containers: []
+                  }
+                  kv: {
+                    type: 'keyvault'
+                    name: 'kv'
+                    secrets: []
+                    extraProperty: 'extra'
+                  }
+                }
+
+                module deploy_resource_module 'resourceModule.bicep' = {
+                  name: 'resourceModule'
+                  params: {
+                    subResource: resources.kv
+                  }
+                }
+                """),
+            ("resourceModule.bicep", """
+                @sealed()
+                type storageAccount = {
+                  type: 'storage'
+                  name: string
+                  containers: string[]
+                }
+
+                @sealed()
+                type keyVault = {
+                  type: 'keyvault'
+                  name: string
+                  secrets: string[]
+                }
+
+                type Resource = {
+                  @discriminator('type')
+                  *: storageAccount | keyVault
+                }
+
+                param resource Resource?
+
+                param subResource keyVault?
+                """));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP037", DiagnosticLevel.Error, """The property "extraProperty" is not allowed on objects of type "{ type: 'keyvault', name: string, secrets: string[] }". No other properties are allowed."""),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/12657
+    [TestMethod]
+    public void Test_Issue12657()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param foo = loadJsonContent('foo.json')
+"""),
+            ("main.bicep", """
+param foo {
+  bar: string
+}
+"""),
+            ("foo.json", """
+{
+  "wrongName": "blah"
+}
+"""));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP035", DiagnosticLevel.Error, """The specified "param" declaration is missing the following required properties: "bar"."""),
+        });
+    }
+
+    // https://github.com/Azure/bicep/issues/12908
+    [TestMethod]
+    public void Test_Issue12908()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+            ("main.bicep", """
+                import { varSecureType } from 'types.bicep'
+                import * as types from 'types.bicep'
+
+                @secure()
+                param secureVariableList varSecureType = { variables: [] }
+
+                @secure()
+                param secureVariableListBis types.varSecureType = { variables: [] }
+                """),
+            ("types.bicep", """
+                @export()
+                type varSecureType = {
+                  variables: []
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP308", DiagnosticLevel.Error, """The decorator "secure" may not be used on statements whose declared type is a reference to a user-defined type."""),
+            ("BCP308", DiagnosticLevel.Error, """The decorator "secure" may not be used on statements whose declared type is a reference to a user-defined type."""),
         });
     }
 }

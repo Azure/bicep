@@ -108,11 +108,11 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 case Azure.Bicep.Types.Concrete.NullType:
                     return LanguageConstants.Null;
                 case Azure.Bicep.Types.Concrete.BooleanType:
-                    return LanguageConstants.Bool;
+                    return TypeFactory.CreateBooleanType(GetValidationFlags(isResourceBodyType));
                 case Azure.Bicep.Types.Concrete.IntegerType @int:
-                    return TypeFactory.CreateIntegerType(@int.MinValue, @int.MaxValue);
+                    return TypeFactory.CreateIntegerType(@int.MinValue, @int.MaxValue, GetValidationFlags(isResourceBodyType));
                 case Azure.Bicep.Types.Concrete.StringType @string:
-                    return TypeFactory.CreateStringType(@string.MinLength, @string.MaxLength);
+                    return TypeFactory.CreateStringType(@string.MinLength, @string.MaxLength, GetValidationFlags(isResourceBodyType));
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch
                     {
@@ -144,7 +144,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                         return TypeHelper.CreateTypeUnion(unionType.Elements.Select(x => GetTypeReference(x)));
                     }
                 case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
-                    return TypeFactory.CreateStringLiteralType(stringLiteralType.Value);
+                    return TypeFactory.CreateStringLiteralType(stringLiteralType.Value, GetValidationFlags(isResourceBodyType));
                 case Azure.Bicep.Types.Concrete.DiscriminatedObjectType discriminatedObjectType:
                     {
                         var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));

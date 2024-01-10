@@ -171,7 +171,7 @@ param testFilter = filter([1, 2], i => i < 'foo')
 //@[34:35) Identifier |i|
 //@[36:38) Arrow |=>|
 //@[39:40) Identifier |i|
-//@[41:42) LessThan |<|
+//@[41:42) LeftChevron |<|
 //@[43:48) StringComplete |'foo'|
 //@[48:49) RightParen |)|
 //@[49:50) NewLine |\n|
