@@ -58,7 +58,7 @@ export const App: FC = () => {
           <span className="codicon codicon-beaker" />
           The Bicep Deployment Pane is an experimental feature.
           <br/>
-          Documentation is available <a href="https://github.com/Azure/bicep/blob/main/docs/deploy-ui.md">here</a>. Please raise issues or feature requests <a href={createNewIssueUrl()}>here</a>.
+          Documentation is available <a href="https://github.com/Azure/bicep/blob/main/docs/experimental/deploy-ui.md">here</a>. Please raise issues or feature requests <a href={createNewIssueUrl()}>here</a>.
         </div>
       </FormSection>
       <DeploymentScopeInputView
