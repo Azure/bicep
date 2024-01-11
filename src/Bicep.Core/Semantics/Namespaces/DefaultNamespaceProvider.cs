@@ -46,23 +46,23 @@ public class DefaultNamespaceProvider : INamespaceProvider
     {
         // If we don't have a types path, we're loading a 'built-in' type
         if (descriptor.TypesBaseUri is null &&
-            builtInNamespaceLookup.TryGetValue(descriptor.Name) is { } delegateFn)
+            builtInNamespaceLookup.TryGetValue(descriptor.Name) is { } getProviderFn)
         {
-            return new(delegateFn(descriptor, resourceScope, features, sourceFileKind));
+            return new(getProviderFn(descriptor, resourceScope, features, sourceFileKind));
         }
 
-        // Special-case the 'az' provider being loaded from registry - we need add-on functionality delivered via the namespace provider
-        else if (descriptor.Name == AzNamespaceType.BuiltInName)
+        // dynamic types are not supported for namespaces other than 'az' for now
+        if (descriptor.Name != AzNamespaceType.BuiltInName)
         {
-            if (!resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
-            {
-                Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}");
-                return new(errorBuilder);
-            }
-            return new(AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind));
+            return new(x => x.UnrecognizedProvider(descriptor.Name));
         }
 
-        // extension point for the 3rd party provider namespaces
-        return new(x => x.UnrecognizedProvider(descriptor.Name));
+        if (!resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+        {
+            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}");
+            return new(errorBuilder);
+        }
+        
+        return new(AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind));
     }
 }

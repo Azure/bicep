@@ -23,28 +23,16 @@ namespace Bicep.Core.TypeSystem
             this.typesCache = typesCache;
         }
 
-        private static OciTypeLoader FromDiskHelper(IFileSystem fs, Uri? typesTgzUri)
-        {
-            if (typesTgzUri is null)
-            {
-                throw new ArgumentNullException(nameof(typesTgzUri));
-            }
-
-            using var stream = fs.File.OpenRead(typesTgzUri.LocalPath);
-
-            return FromStream(stream);
-        }
-
-        public static OciTypeLoader FromDisk(IFileSystem fs, Uri? typesTgzUri)
+        public static OciTypeLoader FromDisk(IFileSystem fs, Uri typesTgzUri)
         {
             try
             {
-                return FromDiskHelper(fs, typesTgzUri);
+                return FromStream(fs.File.OpenRead(typesTgzUri.LocalPath));
             }
             catch (Exception e)
             {
                 Trace.WriteLine($"Failed to deserialize provider package from {typesTgzUri}.\n {e.Message}");
-                throw new InvalidArtifactException(e.Message,e,InvalidArtifactExceptionKind.InvalidArtifactContents);
+                throw new InvalidArtifactException(e.Message, e, InvalidArtifactExceptionKind.InvalidArtifactContents);
             }
         }
 

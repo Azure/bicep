@@ -17,7 +17,7 @@ public record ResourceTypesProviderDescriptor
     {
         Name = name;
         Alias = alias ?? name;
-        ArtifactReference = artifactRef ?? "unkown";
+        ArtifactReference = artifactRef ?? "unknown";
         Version = version;
         TypesBaseUri = typesBaseUri;
     }

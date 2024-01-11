@@ -9,7 +9,7 @@ namespace Bicep.Core.Registry
     {
         NotSpecified,
         WrongArtifactType,
-        UknownLayerMediaType,
+        UnknownLayerMediaType,
         InvalidArtifactContents
     }
 

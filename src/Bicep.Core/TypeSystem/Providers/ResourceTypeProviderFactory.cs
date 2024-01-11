@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -27,7 +28,7 @@ namespace Bicep.Core.TypeSystem.Providers
             = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), AzNamespaceType.Settings.ArmTemplateProviderVersion));
 
         private record ResourceTypeLoaderKey(string Name, string Version);
-        private readonly Dictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders = new();
+        private readonly ConcurrentDictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders = new();
         private readonly IFileSystem fileSystem;
 
         public ResourceTypeProviderFactory(IFileSystem fileSystem)
@@ -37,34 +38,37 @@ namespace Bicep.Core.TypeSystem.Providers
 
         public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProviderFromFilePath(ResourceTypesProviderDescriptor providerDescriptor)
         {
+
+
+
             var key = new ResourceTypeLoaderKey(providerDescriptor.Alias, providerDescriptor.Version);
-
-            if (cachedResourceTypeLoaders.ContainsKey(key))
-            {
-                return new(cachedResourceTypeLoaders[key]);
-            }
-
-            IResourceTypeProvider newResourceTypeLoader;
+            IResourceTypeProvider result;
             try
             {
-                if (providerDescriptor.Name != AzNamespaceType.BuiltInName)
+                result = cachedResourceTypeLoaders.GetOrAdd(key, _ =>
                 {
-                    // Note (asilverman): the line of code below is meant for 3rd party provider resolution logic which is not yet implemented.
-                    throw new NotImplementedException($"Provider {providerDescriptor.Name} not supported.");
-                }
-                newResourceTypeLoader =
-                new AzResourceTypeProvider(
-                    new AzResourceTypeLoader(
-                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
-                        providerDescriptor.Version);
+
+                    if (providerDescriptor.Name != AzNamespaceType.BuiltInName)
+                    {
+                        // Note (asilverman): the line of code below is meant for 3rd party provider resolution logic which is not yet implemented.
+                        throw new NotImplementedException($"Provider {providerDescriptor.Name} not supported.");
+                    }
+                    if (providerDescriptor.TypesBaseUri is null)
+                    {
+                        throw new ArgumentException($"Provider {providerDescriptor.Name} requires a types base URI.");
+                    }
+                    return new AzResourceTypeProvider(
+                                    new AzResourceTypeLoader(
+                                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
+                                        providerDescriptor.Version);
+                });
             }
             catch (Exception ex)
             {
-                var invalidArtifactException = ex.As<InvalidArtifactException?>() ?? new InvalidArtifactException(ex.Message, ex, InvalidArtifactExceptionKind.NotSpecified);
+                var invalidArtifactException = ex as InvalidArtifactException ?? new InvalidArtifactException(ex.Message, ex, InvalidArtifactExceptionKind.NotSpecified);
                 return new(x => x.ArtifactRestoreFailedWithMessage(providerDescriptor.ArtifactReference, invalidArtifactException.Message));
             }
-
-            return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);
+            return new(result);
         }
 
         public IResourceTypeProvider GetBuiltInAzResourceTypesProvider()

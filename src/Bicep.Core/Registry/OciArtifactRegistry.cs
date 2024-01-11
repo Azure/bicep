@@ -120,9 +120,9 @@ namespace Bicep.Core.Registry
             }
             catch (InvalidArtifactException exception) when (
                 exception.Kind == InvalidArtifactExceptionKind.WrongArtifactType ||
-                exception.Kind == InvalidArtifactExceptionKind.UknownLayerMediaType)
+                exception.Kind == InvalidArtifactExceptionKind.UnknownLayerMediaType)
             {
-                throw new ExternalArtifactException("An artifact with the tag already exists in the registry, but the artifact is not a Bicep file or module!", exception);
+                throw new ExternalArtifactException($"The artifact referenced by {reference.FullyQualifiedReference} was not downloaded from the registry because it is invalid.", exception);
             }
             catch (RequestFailedException exception)
             {
