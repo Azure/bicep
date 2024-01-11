@@ -10,6 +10,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Providers;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
@@ -102,6 +103,6 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="reference">The module reference</param>
         /// <returns>A source archive</returns>
-        SourceArchive? TryGetSource(ArtifactReference reference);
+        ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference);
     }
 }

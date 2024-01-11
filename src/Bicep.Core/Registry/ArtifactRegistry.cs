@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
@@ -37,7 +38,7 @@ namespace Bicep.Core.Registry
 
         public abstract Task<string?> TryGetDescription(T reference);
 
-        public abstract SourceArchive? TryGetSource(T reference);
+        public abstract ResultWithException<SourceArchive> TryGetSource(T reference);
 
         public bool IsArtifactRestoreRequired(ArtifactReference reference) => this.IsArtifactRestoreRequired(ConvertReference(reference));
 
@@ -62,7 +63,7 @@ namespace Bicep.Core.Registry
 
         public async Task<string?> TryGetDescription(ArtifactReference reference) => await this.TryGetDescription(ConvertReference(reference));
 
-        public SourceArchive? TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
+        public ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
 
         public abstract RegistryCapabilities GetCapabilities(T reference);
 
