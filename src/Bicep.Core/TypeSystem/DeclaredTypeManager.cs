@@ -865,20 +865,15 @@ namespace Bicep.Core.TypeSystem
         private ITypeReference ConvertTypeExpressionToType(PropertyAccessSyntax syntax)
             => ConvertTypeExpressionToType(syntax, syntax.PropertyName.IdentifierName, syntax.PropertyName);
 
-        private ITypeReference ConvertTypeExpressionToType(ArrayAccessSyntax syntax)
+        private ITypeReference ConvertTypeExpressionToType(ArrayAccessSyntax syntax) => syntax.IndexExpression switch
         {
-            if (syntax.IndexExpression is StringSyntax @string)
-            {
-                if (@string.TryGetLiteralValue() is not string propertyName)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(@string).CompileTimeConstantRequired());
-                }
-
-                return ConvertTypeExpressionToType(syntax, propertyName, @string);
-            }
-
-            throw new NotImplementedException();
-        }
+            IntegerLiteralSyntax @int => ConvertTypeExpressionToType(syntax, @int.Value),
+            UnaryOperationSyntax unaryOperation when unaryOperation.Operator == UnaryOperator.Minus
+                => ErrorType.Create(DiagnosticBuilder.ForPosition(unaryOperation).NegatedTypeIndexSought()),
+            StringSyntax @string when @string.TryGetLiteralValue() is string propertyName
+                => ConvertTypeExpressionToType(syntax, propertyName, @string),
+            _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).CompileTimeConstantRequired())
+        };
 
         private ITypeReference ConvertTypeExpressionToType(AccessExpressionSyntax syntax, string propertyName, SyntaxBase propertyNameSyntax)
         {
@@ -916,6 +911,43 @@ namespace Bicep.Core.TypeSystem
             }
 
             return UnwrapType(propertyNameSyntax, typeProperty.TypeReference.Type);
+        }
+
+        private ITypeReference ConvertTypeExpressionToType(ArrayAccessSyntax syntax, ulong index)
+        {
+            var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: true);
+
+            return RequiresDeferral(syntax.BaseExpression)
+                ? new DeferredTypeReference(() => FinalizeTypeIndexAccessType(syntax, index, baseType))
+                : FinalizeTypeIndexAccessType(syntax, index, baseType);
+        }
+
+        private static TypeSymbol FinalizeTypeIndexAccessType(ArrayAccessSyntax syntax, ulong index, ITypeReference baseExpressionType)
+        {
+            var baseType = baseExpressionType.Type;
+
+            if (TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullableBaseType)
+            {
+                baseType = nonNullableBaseType;
+            }
+
+            if (baseType is ErrorType error)
+            {
+                return error;
+            }
+
+            if (baseType is not TupleType tupleType)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).TupleRequiredForIndexAccess(baseType));
+            }
+
+            if (index >= (uint) tupleType.Items.Length)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression)
+                    .IndexOutOfBounds(baseType.Name, tupleType.Items.Length, index <= long.MaxValue ? (long) index : long.MaxValue));
+            }
+
+            return UnwrapType(syntax.IndexExpression, tupleType.Items[(int) index].Type);
         }
 
         private static TypeSymbol EnsureNonParameterizedType(SyntaxBase syntax, TypeSymbol type) => type switch

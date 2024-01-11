@@ -2112,6 +2112,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP386",
                 $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a resource-derived type.");
+
+            public ErrorDiagnostic NegatedTypeIndexSought() => new(
+                TextSpan,
+                "BCP387",
+                "Indexing into a type requires a natural number or 0. Unary operators are not permitted.");
+
+            public ErrorDiagnostic TupleRequiredForIndexAccess(TypeSymbol wrongType) => new(
+                TextSpan,
+                "BCP388",
+                $"Cannot access elements of type \"{wrongType}\" by index. An tuple type is required.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -144,4 +144,6 @@ public interface IExpressionVisitor
     void VisitResourceDerivedTypeExpression(ResourceDerivedTypeExpression expression);
 
     void VisitTypeReferencePropertyAccessExpression(TypeReferencePropertyAccessExpression expression);
+
+    void VisitTypeReferenceIndexAccessExpression(TypeReferenceIndexAccessExpression expression);
 }

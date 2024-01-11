@@ -717,6 +717,17 @@ public record TypeReferencePropertyAccessExpression(
         => visitor.VisitTypeReferencePropertyAccessExpression(this);
 }
 
+public record TypeReferenceIndexAccessExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression,
+    long Index,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTypeReferenceIndexAccessExpression(this);
+}
+
 public record WildcardImportTypePropertyReferenceExpression(
     SyntaxBase? SourceSyntax,
     WildcardImportSymbol ImportSymbol,

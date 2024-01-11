@@ -185,7 +185,8 @@ primaryTypeExpression ->
   multilineString |
   objectType |
   tupleType |
-  primaryTypeExpression "." IDENTIFIER(property)
+  primaryTypeExpression "." IDENTIFIER(property) |
+  primaryTypeExpression "[" NUMBER "]"
 
 typeReference ->
   ambientTypeReference |

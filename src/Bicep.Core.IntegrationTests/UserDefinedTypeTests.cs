@@ -1131,4 +1131,41 @@ param myParam string
             ("BCP053", DiagnosticLevel.Error, """The type "{ foo: { bar: string } }" does not contain property "bar". Available properties include "foo"."""),
         });
     }
+
+    [TestMethod]
+    public void Type_index_access_is_valid_type()
+    {
+        var result = CompilationHelper.Compile("""
+            type test = [
+              { bar: string }
+            ]
+
+            type test2 = test[0]
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test2", JToken.Parse("""
+            {
+              "$ref": "#/definitions/test/prefixItems/0"
+            }
+            """));
+    }
+    [TestMethod]
+    public void Invalid_type_index_access_raises_diagnostic()
+    {
+        var result = CompilationHelper.Compile("""
+            type test = [
+              { bar: string }
+            ]
+
+            type test2 = test[1]
+            type test3 = test[-1]
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP311", DiagnosticLevel.Error, """The provided index value of "1" is not valid for type "[{ bar: string }]". Indexes for this type must be between 0 and 0."""),
+            ("BCP387", DiagnosticLevel.Error, """Indexing into a type requires a natural number or 0. Unary operators are not permitted."""),
+        });
+    }
 }

@@ -311,7 +311,7 @@ public class ExpressionBuilder
             ParenthesizedExpressionSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
             NonNullAssertionSyntax nonNullAssertion => new NonNullableTypeExpression(nonNullAssertion, ConvertTypeWithoutLowering(nonNullAssertion.BaseExpression)),
             PropertyAccessSyntax propertyAccess => ConvertPropertyAccessInTypeExpression(propertyAccess),
-            ArrayAccessSyntax arrayAccess => ConvertPropertyAccessInTypeExpression(arrayAccess),
+            ArrayAccessSyntax arrayAccess => ConvertIndexAccessInTypeExpression(arrayAccess),
             ParameterizedTypeInstantiationSyntaxBase parameterizedTypeInstantiation
                 => Context.SemanticModel.TypeManager.TryGetReifiedType(parameterizedTypeInstantiation) is TypeExpression reified
                     ? reified
@@ -327,11 +327,6 @@ public class ExpressionBuilder
 
     private TypeExpression ConvertPropertyAccessInTypeExpression(PropertyAccessSyntax syntax)
         => ConvertPropertyAccessInTypeExpression(syntax, syntax.PropertyName.IdentifierName);
-
-    private TypeExpression ConvertPropertyAccessInTypeExpression(ArrayAccessSyntax syntax)
-        => Context.SemanticModel.GetTypeInfo(syntax.IndexExpression) is StringLiteralType @string
-            ? ConvertPropertyAccessInTypeExpression(syntax, @string.RawStringValue)
-            : throw new ArgumentException("Array access syntax is not permitted in type expressions unless the indexing expression can be folded to a constant string at compile time.");
 
     private TypeExpression ConvertPropertyAccessInTypeExpression(AccessExpressionSyntax syntax, string propertyName)
         => Context.SemanticModel.GetSymbolInfo(syntax.BaseExpression) switch
@@ -357,6 +352,23 @@ public class ExpressionBuilder
         }
 
         return new TypeReferencePropertyAccessExpression(syntax, baseExpression, propertyName, typeProperty.TypeReference.Type);
+    }
+
+    private TypeExpression ConvertIndexAccessInTypeExpression(ArrayAccessSyntax syntax) => Context.SemanticModel.GetTypeInfo(syntax.IndexExpression) switch
+    {
+        StringLiteralType @string => ConvertPropertyAccessInTypeExpression(syntax, @string.RawStringValue),
+        IntegerLiteralType @int => ConvertIndexAccessInTypeExpression(syntax, ConvertTypeWithoutLowering(syntax.BaseExpression), @int.Value),
+        _ => throw new ArgumentException("Array access syntax is not permitted in type expressions unless the indexing expression can be folded to a constant string or integer at compile time."),
+    };
+
+    private static TypeReferenceIndexAccessExpression ConvertIndexAccessInTypeExpression(ArrayAccessSyntax syntax, TypeExpression baseExpression, long index)
+    {
+        if (baseExpression.ExpressedType is not TupleType baseTuple || index < 0 || baseTuple.Items.Length <= index)
+        {
+            throw new ArgumentException($"Index {index} of type '{baseExpression.ExpressedType.Name}' was not found or was not valid.");
+        }
+
+        return new TypeReferenceIndexAccessExpression(syntax, baseExpression, index, baseTuple.Items[(int)index].Type);
     }
 
     private TypeSymbol? TryGetPropertyType(INamespaceSymbol namespaceSymbol, string propertyName)
