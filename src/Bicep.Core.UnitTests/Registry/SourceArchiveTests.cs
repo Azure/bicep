@@ -147,8 +147,9 @@ public class SourceArchiveTests
         using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.FileUri, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson);
         stream.Length.Should().BeGreaterThan(0);
 
-        SourceArchive sourceArchive = SourceArchive.FromStream(stream);
-        sourceArchive.EntrypointRelativePath.Should().Be("main.bicep");
+        SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).TryUnwrap();
+        sourceArchive.Should().NotBeNull();
+        sourceArchive!.EntrypointRelativePath.Should().Be("main.bicep");
 
 
         var archivedFiles = sourceArchive.SourceFiles.ToArray();
@@ -210,9 +211,10 @@ public class SourceArchiveTests
 
         using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.FileUri, mainBicep, testFile);
 
-        SourceArchive sourceArchive = SourceArchive.FromStream(stream);
+        SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).TryUnwrap();
 
-        sourceArchive.EntrypointRelativePath.Should().Be("my main.bicep");
+        sourceArchive.Should().NotBeNull();
+        sourceArchive!.EntrypointRelativePath.Should().Be("my main.bicep");
 
         var archivedTestFile = sourceArchive.SourceFiles.Single(f => f.Path != "my main.bicep");
         archivedTestFile.Path.Should().Be(expecteArchivedUri);
@@ -246,7 +248,7 @@ public class SourceArchiveTests
             )
         );
 
-        var sut = SourceArchive.FromStream(zip);
+        var sut = SourceArchive.UnpackFromStream(zip).Unwrap();
         var file = sut.SourceFiles.Single();
 
         file.Kind.Should().Be("bicep");
@@ -280,7 +282,7 @@ public class SourceArchiveTests
             )
         );
 
-        var sut = SourceArchive.FromStream(zip);
+        var sut = SourceArchive.UnpackFromStream(zip).Unwrap();
         var file = sut.SourceFiles.Single();
 
         file.Kind.Should().Be("bicep");
@@ -318,12 +320,76 @@ public class SourceArchiveTests
             )
         );
 
-        var sut = SourceArchive.FromStream(zip);
+        var sut = SourceArchive.UnpackFromStream(zip).Unwrap();
         var file = sut.SourceFiles.Single();
 
         file.Kind.Should().Be("bicep");
         file.Contents.Should().Be("bicep contents");
         file.Path.Should().Contain("main.bicep");
+    }
+
+    [TestMethod]
+    public void GetSourceFiles_ShouldGiveError_ForIncompatibleOlderVersion()
+    {
+        var zip = CreateGzippedTarredFileStream(
+            (
+                "__metadata.json",
+                @"
+                {
+                  ""entryPoint"": ""file:///main.bicep"",
+                  ""metadataVersion"": <version>,
+                  ""bicepVersion"": ""0.whatever.0"",
+                  ""sourceFiles"": [
+                    {
+                      ""path"": ""file:///main.bicep"",
+                      ""archivePath"": ""main.bicep"",
+                      ""kind"": ""bicep""
+                    }
+                  ]
+                }".Replace("<version>", (SourceArchive.CurrentMetadataVersion - 1).ToString())
+            ),
+            (
+                "main.bicep",
+                @"bicep contents"
+            )
+        );
+
+        SourceArchive.UnpackFromStream(zip).IsSuccess(out var sourceArchive, out var ex);
+        sourceArchive.Should().BeNull();
+        ex.Should().NotBeNull();
+        ex!.Message.Should().StartWith("This source code was published with an older, incompatible version of Bicep (0.whatever.0). You are using version ");
+    }
+
+    [TestMethod]
+    public void GetSourceFiles_ShouldGiveError_ForIncompatibleNewerVersion()
+    {
+        var zip = CreateGzippedTarredFileStream(
+            (
+                "__metadata.json",
+                @"
+                {
+                  ""entryPoint"": ""file:///main.bicep"",
+                  ""metadataVersion"": <version>,
+                  ""bicepVersion"": ""0.whatever.0"",
+                  ""sourceFiles"": [
+                    {
+                      ""path"": ""file:///main.bicep"",
+                      ""archivePath"": ""main.bicep"",
+                      ""kind"": ""bicep""
+                    }
+                  ]
+                }".Replace("<version>", (SourceArchive.CurrentMetadataVersion + 1).ToString())
+            ),
+            (
+                "main.bicep",
+                @"bicep contents"
+            )
+        );
+
+        var success = SourceArchive.UnpackFromStream(zip).IsSuccess(out _, out var ex);
+        success.Should().BeFalse();
+        ex.Should().NotBeNull();
+        ex!.Message.Should().StartWith("This source code was published with a newer, incompatible version of Bicep (0.whatever.0). You are using version ");
     }
 
     private Stream CreateGzippedTarredFileStream(params (string relativePath, string contents)[] files)

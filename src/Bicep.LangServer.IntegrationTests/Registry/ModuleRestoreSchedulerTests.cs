@@ -210,7 +210,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
                 return new(new MockArtifactRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
             }
 
-            public SourceArchive? TryGetSource(ArtifactReference _) => null;
+            public ResultWithException<SourceArchive> TryGetSource(ArtifactReference artifactReference) => new(new SourceNotAvailableException());
         }
 
         private class MockArtifactRef : ArtifactReference
