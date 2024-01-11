@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Configuration;
 using System.Linq;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -88,5 +89,8 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public static bool CanBeReferenced(this DeclaredSymbol declaredSymbol)
             => declaredSymbol is not OutputSymbol and not MetadataSymbol;
+
+        public static string? TryGetDescriptionFromDecorator(this DeclaredSymbol symbol)
+            => symbol.DeclaringSyntax is DecorableSyntax decorableSyntax ? DescriptionHelper.TryGetFromDecorator(symbol.Context.Compilation.GetSemanticModel(symbol.Context.SourceFile), decorableSyntax) : null;
     }
 }
