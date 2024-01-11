@@ -311,6 +311,7 @@ public class ExpressionBuilder
             ParenthesizedExpressionSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
             NonNullAssertionSyntax nonNullAssertion => new NonNullableTypeExpression(nonNullAssertion, ConvertTypeWithoutLowering(nonNullAssertion.BaseExpression)),
             PropertyAccessSyntax propertyAccess => ConvertPropertyAccessInTypeExpression(propertyAccess),
+            ObjectTypeAdditionalPropertiesAccessSyntax additionalPropertiesAccess => ConvertAdditionalPropertiesAccessInTypeExpression(additionalPropertiesAccess),
             ArrayAccessSyntax arrayAccess => ConvertIndexAccessInTypeExpression(arrayAccess),
             ParameterizedTypeInstantiationSyntaxBase parameterizedTypeInstantiation
                 => Context.SemanticModel.TypeManager.TryGetReifiedType(parameterizedTypeInstantiation) is TypeExpression reified
@@ -369,6 +370,18 @@ public class ExpressionBuilder
         }
 
         return new TypeReferenceIndexAccessExpression(syntax, baseExpression, index, baseTuple.Items[(int)index].Type);
+    }
+
+    private TypeReferenceAdditionalPropertiesAccessExpression ConvertAdditionalPropertiesAccessInTypeExpression(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
+    {
+        var baseExpression = ConvertTypeWithoutLowering(syntax.BaseExpression);
+
+        if (baseExpression.ExpressedType is not ObjectType objectType || objectType.AdditionalPropertiesType is null || !objectType.HasExplicitAdditionalPropertiesType)
+        {
+            throw new ArgumentException($"The additional properties type of type '{baseExpression.ExpressedType.Name}' was not found or was not valid.");
+        }
+
+        return new TypeReferenceAdditionalPropertiesAccessExpression(syntax, baseExpression, objectType.AdditionalPropertiesType.Type);
     }
 
     private TypeSymbol? TryGetPropertyType(INamespaceSymbol namespaceSymbol, string propertyName)

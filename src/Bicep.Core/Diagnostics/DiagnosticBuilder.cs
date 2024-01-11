@@ -2122,6 +2122,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP388",
                 $"Cannot access elements of type \"{wrongType}\" by index. An tuple type is required.");
+
+            public ErrorDiagnostic ExplicitAdditionalPropertiesTypeRequiredForAccessThereto(TypeSymbol wrongType) => new(
+                TextSpan,
+                "BCP389",
+                $"The type \"{wrongType}\" does not declare an additional properties type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

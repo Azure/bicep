@@ -455,6 +455,7 @@ namespace Bicep.Core.TypeSystem
                 UnionTypeMemberSyntax unionTypeMember => GetTypeMemberType(unionTypeMember),
                 ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized, allowNamespaceReferences),
                 PropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
+                ObjectTypeAdditionalPropertiesAccessSyntax additionalPropertiesAccess => ConvertTypeExpressionToType(additionalPropertiesAccess),
                 ArrayAccessSyntax arrayAccess => ConvertTypeExpressionToType(arrayAccess),
                 NullableTypeSyntax nullableType => ConvertTypeExpressionToType(nullableType),
                 NonNullAssertionSyntax nonNullAssertion => ConvertTypeExpressionToType(nonNullAssertion),
@@ -948,6 +949,37 @@ namespace Bicep.Core.TypeSystem
             }
 
             return UnwrapType(syntax.IndexExpression, tupleType.Items[(int) index].Type);
+        }
+
+        private ITypeReference ConvertTypeExpressionToType(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
+        {
+            var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: false);
+
+            return RequiresDeferral(syntax.BaseExpression)
+                ? new DeferredTypeReference(() => FinalizeAdditionalPropertiesAccessType(syntax, baseType))
+                : FinalizeAdditionalPropertiesAccessType(syntax, baseType);
+        }
+
+        private static TypeSymbol FinalizeAdditionalPropertiesAccessType(ObjectTypeAdditionalPropertiesAccessSyntax syntax, ITypeReference baseExpressionType)
+        {
+            var baseType = baseExpressionType.Type;
+
+            if (TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullableBaseType)
+            {
+                baseType = nonNullableBaseType;
+            }
+
+            if (baseType is ErrorType error)
+            {
+                return error;
+            }
+
+            if (baseType is not ObjectType @object || @object.AdditionalPropertiesType is null || !@object.HasExplicitAdditionalPropertiesType)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Asterisk).ExplicitAdditionalPropertiesTypeRequiredForAccessThereto(baseType));
+            }
+
+            return UnwrapType(syntax.Asterisk, @object.AdditionalPropertiesType.Type);
         }
 
         private static TypeSymbol EnsureNonParameterizedType(SyntaxBase syntax, TypeSymbol type) => type switch

@@ -723,7 +723,7 @@ namespace Bicep.Core.TypeSystem
             => TypeHelper.IsLiteralType(memberType) ? null : DiagnosticBuilder.ForPosition(memberSyntax).NonLiteralUnionMember();
 
         public override void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax)
-            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            => AssignType(syntax, () =>
             {
                 var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
 
@@ -760,6 +760,16 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+
+                return declaredType;
+            });
+
+        public override void VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitObjectTypeAdditionalPropertiesAccessSyntax(syntax);
 
                 return declaredType;
             });

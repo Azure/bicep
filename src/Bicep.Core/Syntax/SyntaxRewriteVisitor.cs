@@ -1178,6 +1178,22 @@ namespace Bicep.Core.Syntax
         void ISyntaxVisitor.VisitInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax)
             => ReplaceCurrent(syntax, ReplaceInstanceParameterizedTypeInstantiationSyntax);
 
+        protected virtual SyntaxBase ReplaceObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.BaseExpression, out var baseExpression);
+            hasChanges |= TryRewriteStrict(syntax.Dot, out var dot);
+            hasChanges |= TryRewriteStrict(syntax.Asterisk, out var asterisk);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ObjectTypeAdditionalPropertiesAccessSyntax(baseExpression, dot, asterisk);
+        }
+        void ISyntaxVisitor.VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceObjectTypeAdditionalPropertiesAccessSyntax);
+
         protected virtual SyntaxBase ReplaceParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.Expression, out var expression);

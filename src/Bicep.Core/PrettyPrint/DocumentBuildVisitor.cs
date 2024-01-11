@@ -779,6 +779,9 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.CloseChevron);
             });
 
+        public override void VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax) =>
+            this.BuildWithConcat(() =>  base.VisitObjectTypeAdditionalPropertiesAccessSyntax(syntax));
+
         private static ILinkedDocument Text(string text) =>
             CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text);
 

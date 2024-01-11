@@ -184,16 +184,17 @@ primaryTypeExpression ->
   stringComplete |
   multilineString |
   objectType |
-  tupleType |
-  primaryTypeExpression "." IDENTIFIER(property) |
-  primaryTypeExpression "[" NUMBER "]"
+  tupleType
 
 typeReference ->
   ambientTypeReference |
   fullyQualifiedAmbientTypeReference |
   IDENTIFIER(type) |
   IDENTIFIER(importedType) |
-  IDENTIFIER(wildcardImport) "." IDENTIFIER(type)
+  IDENTIFIER(wildcardImport) "." IDENTIFIER(type) |
+  typeReference "." IDENTIFIER(property) |
+  typeReference "[" NUMBER "]" |
+  typeReference ".*"
 
 ambientTypeReference -> "string" | "int" | "bool" | "array" | "object"
 

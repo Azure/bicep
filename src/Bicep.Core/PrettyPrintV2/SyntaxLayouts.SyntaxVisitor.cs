@@ -174,6 +174,9 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax) => this.Layout(syntax.Expression);
 
+        public void VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
+            => this.Apply(syntax, LayoutObjectTypeAdditionalPropertiesAccessSyntax);
+
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {
             syntax.Accept(this);

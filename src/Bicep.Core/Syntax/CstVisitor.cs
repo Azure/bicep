@@ -540,5 +540,12 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Expression);
         }
+
+        public override void VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.Dot);
+            this.Visit(syntax.Asterisk);
+        }
     }
 }

@@ -376,6 +376,11 @@ public abstract class ExpressionVisitor : IExpressionVisitor
         Visit(expression.BaseExpression);
     }
 
+    public virtual void VisitTypeReferenceAdditionalPropertiesAccessExpression(TypeReferenceAdditionalPropertiesAccessExpression expression)
+    {
+        Visit(expression.BaseExpression);
+    }
+
     public virtual void VisitTypeReferenceIndexAccessExpression(TypeReferenceIndexAccessExpression expression)
     {
         Visit(expression.BaseExpression);

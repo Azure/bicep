@@ -392,6 +392,7 @@ namespace Bicep.Core.Emit
             ImportedTypeReferenceExpression or
             WildcardImportTypePropertyReferenceExpression or
             TypeReferencePropertyAccessExpression or
+            TypeReferenceAdditionalPropertiesAccessExpression or
             TypeReferenceIndexAccessExpression => ExpressionFactory.CreateObject(
                 ExpressionFactory.CreateObjectProperty("$ref",
                     ExpressionFactory.CreateStringLiteral(GetReferenceString(typeExpression), typeExpression.SourceSyntax),
@@ -447,6 +448,8 @@ namespace Bicep.Core.Emit
             // compound references
             TypeReferencePropertyAccessExpression typeRefPropertyAccess
                 => $"{GetReferenceString(typeRefPropertyAccess.BaseExpression)}/properties/{Rfc6901Encode(typeRefPropertyAccess.PropertyName)}",
+            TypeReferenceAdditionalPropertiesAccessExpression typeRefAdditionalPropertiesAccess
+                => $"{GetReferenceString(typeRefAdditionalPropertiesAccess.BaseExpression)}/additionalProperties",
             TypeReferenceIndexAccessExpression typeRefIndexAccess
                 => $"{GetReferenceString(typeRefIndexAccess.BaseExpression)}/prefixItems/{typeRefIndexAccess.Index}",
 

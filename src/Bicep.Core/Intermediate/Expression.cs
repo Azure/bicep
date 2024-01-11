@@ -717,6 +717,16 @@ public record TypeReferencePropertyAccessExpression(
         => visitor.VisitTypeReferencePropertyAccessExpression(this);
 }
 
+public record TypeReferenceAdditionalPropertiesAccessExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTypeReferenceAdditionalPropertiesAccessExpression(this);
+}
+
 public record TypeReferenceIndexAccessExpression(
     SyntaxBase? SourceSyntax,
     TypeExpression BaseExpression,

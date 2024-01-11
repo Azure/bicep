@@ -961,11 +961,19 @@ namespace Bicep.Core.Parsing
                     // dot operator
                     Token dot = this.reader.Read();
 
+                    if (this.Check(TokenType.Asterisk))
+                    {
+                        Token asterisk = this.Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*"));
+                        current = new ObjectTypeAdditionalPropertiesAccessSyntax(current, dot, asterisk);
+
+                        continue;
+                    }
+
                     IdentifierSyntax identifier = this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName());
 
-                    if (Check(TokenType.LeftChevron))
+                    if (this.Check(TokenType.LeftChevron))
                     {
-                        var parameterizedType = ParameterizedTypeInstantiation(identifier);
+                        var parameterizedType = this.ParameterizedTypeInstantiation(identifier);
 
                         current = new InstanceParameterizedTypeInstantiationSyntax(
                             current,

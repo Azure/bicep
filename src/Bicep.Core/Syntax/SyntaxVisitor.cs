@@ -153,6 +153,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax);
 
+        public abstract void VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax);
+
         public void Visit(SyntaxBase? node)
         {
             if (node == null)

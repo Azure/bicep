@@ -1150,6 +1150,7 @@ param myParam string
             }
             """));
     }
+
     [TestMethod]
     public void Invalid_type_index_access_raises_diagnostic()
     {
@@ -1166,6 +1167,44 @@ param myParam string
         {
             ("BCP311", DiagnosticLevel.Error, """The provided index value of "1" is not valid for type "[{ bar: string }]". Indexes for this type must be between 0 and 0."""),
             ("BCP387", DiagnosticLevel.Error, """Indexing into a type requires a natural number or 0. Unary operators are not permitted."""),
+        });
+    }
+
+    [TestMethod]
+    public void Type_additional_properties_access_is_valid_type()
+    {
+        var result = CompilationHelper.Compile("""
+            type test = {
+              foo: string
+              bar: string
+              *: int
+            }
+
+            type test2 = test.*
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test2", JToken.Parse("""
+            {
+              "$ref": "#/definitions/test/additionalProperties"
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Invalid_additional_properties_access_raises_diagnostic()
+    {
+        var result = CompilationHelper.Compile("""
+            type test = {
+              foo: string
+            }
+
+            type test2 = test.*
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP389", DiagnosticLevel.Error, """The type "{ foo: string }" does not declare an additional properties type."""),
         });
     }
 }

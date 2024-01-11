@@ -670,6 +670,14 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
         return hasChanges ? expression with { BaseExpression = baseExpression } : expression;
     }
 
+    void IExpressionVisitor.VisitTypeReferenceAdditionalPropertiesAccessExpression(TypeReferenceAdditionalPropertiesAccessExpression expression) => ReplaceCurrent(expression, ReplaceTypeReferenceAdditionalPropertiesAccessExpression);
+    public virtual Expression ReplaceTypeReferenceAdditionalPropertiesAccessExpression(TypeReferenceAdditionalPropertiesAccessExpression expression)
+    {
+        var hasChanges = TryRewriteStrict(expression.BaseExpression, out var baseExpression);
+
+        return hasChanges ? expression with { BaseExpression = baseExpression } : expression;
+    }
+
     void IExpressionVisitor.VisitTypeReferenceIndexAccessExpression(TypeReferenceIndexAccessExpression expression) => ReplaceCurrent(expression, ReplaceTypeReferenceIndexAccessExpression);
     public virtual Expression ReplaceTypeReferenceIndexAccessExpression(TypeReferenceIndexAccessExpression expression)
     {
