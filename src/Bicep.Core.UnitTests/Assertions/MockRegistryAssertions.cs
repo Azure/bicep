@@ -120,6 +120,7 @@ namespace Bicep.Core.UnitTests.Assertions
                                     expectedSourceContent!.Position = 0;
                                     byte[] expectedSourceBytes = new byte[expectedSourceContent.Length];
                                     expectedSourceContent.Read(expectedSourceBytes, 0, expectedSourceBytes.Length);
+                                    expectedSourceContent.Position = 0;
 
                                     actualSourcesBytes.Should().Equal(expectedSourceBytes, "module sources should match");
                                 }
