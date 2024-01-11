@@ -198,7 +198,6 @@ namespace Bicep.Core.SourceCode
         {
             var filesBuilder = ImmutableDictionary.CreateBuilder<string, string>();
 
-            stream.Position = 0;
             var gz = new GZipStream(stream, CompressionMode.Decompress);
             using var tarReader = new TarReader(gz);
 
