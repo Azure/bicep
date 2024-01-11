@@ -171,7 +171,7 @@ namespace Bicep.Core.SourceCode
 
             var metadataJson = dictionary[MetadataArchivedFileName]
                 ?? throw new BicepException("Incorrectly formatted source file: No {MetadataArchivedFileName} entry");
-            var metadata = JsonSerializer.Deserialize<MetadataEntry>(metadataJson, MetadataSerializationContext.Default.MetadataEntry)
+            var metadata = JsonSerializer.Deserialize(metadataJson, MetadataSerializationContext.Default.MetadataEntry)
                 ?? throw new BicepException("Source archive has invalid metadata entry");
 
             var infos = new List<SourceFileInfo>();

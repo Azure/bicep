@@ -72,7 +72,7 @@ namespace Bicep.Cli.Commands
 
                 // Publishing an ARM template file.
                 using var armTemplateStream = this.fileSystem.FileStream.New(inputPath, FileMode.Open, FileAccess.Read);
-                await this.PublishModuleAsync(moduleReference, armTemplateStream, null, documentationUri, overwriteIfExists);
+                await this.PublishModuleAsync(moduleReference, BinaryData.FromStream(armTemplateStream), null, documentationUri, overwriteIfExists);
 
                 return 0;
             }
@@ -117,13 +117,14 @@ namespace Bicep.Cli.Commands
             using (sourcesStream)
             {
                 Trace.WriteLine(sourcesStream is { } ? "Publishing Bicep module with source" : "Publishing Bicep module without source");
-                await this.PublishModuleAsync(moduleReference, compiledArmTemplateStream, sourcesStream, documentationUri, overwriteIfExists);
+                var sourcesPayload = sourcesStream is { } ? BinaryData.FromStream(sourcesStream) : null;
+                await this.PublishModuleAsync(moduleReference, BinaryData.FromStream(compiledArmTemplateStream), sourcesPayload, documentationUri, overwriteIfExists);
             }
 
             return 0;
         }
 
-        private async Task PublishModuleAsync(ArtifactReference target, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, bool overwriteIfExists)
+        private async Task PublishModuleAsync(ArtifactReference target, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, bool overwriteIfExists)
         {
             try
             {

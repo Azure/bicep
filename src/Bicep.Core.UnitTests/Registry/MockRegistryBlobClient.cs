@@ -39,19 +39,19 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         // maps digest to blob bytes
-        public ConcurrentDictionary<string, TextByteArray> Blobs { get; } = new();
+        public ConcurrentDictionary<string, BinaryData> Blobs { get; } = new();
 
         // May be different than number of actual blobs because blobs with the same contents get stored only once
         public int BlobUploads { get; private set; }
 
         // maps digest to manifest bytes
-        public ConcurrentDictionary<string, TextByteArray> Manifests { get; } = new();
+        public ConcurrentDictionary<string, BinaryData> Manifests { get; } = new();
 
         // maps tag to manifest digest
         public ConcurrentDictionary<string, string> ManifestTags { get; } = new();
 
         public IDictionary<string, OciManifest> ManifestObjects =>
-            Manifests.ToDictionary(kvp => kvp.Key, kvp => OciSerialization.Deserialize<OciManifest>(kvp.Value.ToStream()));
+            Manifests.ToDictionary(kvp => kvp.Key, kvp => OciManifest.FromBinaryData(kvp.Value)!);
 
         public IDictionary<string, OciManifest> ModuleManifestObjects =>
             ManifestObjects
@@ -85,7 +85,7 @@ namespace Bicep.Core.UnitTests.Registry
                 digest = tagOrDigest;
             }
 
-            if (!this.Manifests.TryGetValue(digest, out var bytes))
+            if (!this.Manifests.TryGetValue(digest, out var data))
             {
                 throw new RequestFailedException(404, "Mock manifest does not exist.");
             }
@@ -93,7 +93,7 @@ namespace Bicep.Core.UnitTests.Registry
             return CreateResult(ContainerRegistryModelFactory.GetManifestResult(
                 digest: digest,
                 mediaType: ManifestMediaType.OciImageManifest.ToString(),
-                manifest: BinaryData.FromBytes(bytes.ToArray())));
+                manifest: data));
         }
 
         public override async Task<Response<UploadRegistryBlobResult>> UploadBlobAsync(Stream stream, CancellationToken cancellationToken = default)
@@ -104,10 +104,10 @@ namespace Bicep.Core.UnitTests.Registry
 
         public override Response<UploadRegistryBlobResult> UploadBlob(Stream stream, CancellationToken cancellationToken = default)
         {
-            var (copy, digest) = ReadStream(stream);
-            Blobs.TryAdd(digest, new TextByteArray(copy));
+            var (data, digest) = ReadStream(stream);
+            Blobs.TryAdd(digest, data);
 
-            var result = CreateResult(ContainerRegistryModelFactory.UploadRegistryBlobResult(digest, copy.Length));
+            var result = CreateResult(ContainerRegistryModelFactory.UploadRegistryBlobResult(digest, data.ToArray().Length));
             ++BlobUploads;
             return result;
         }
@@ -121,7 +121,7 @@ namespace Bicep.Core.UnitTests.Registry
         public override Response<SetManifestResult> SetManifest(BinaryData manifest, string? tag = default, ManifestMediaType? mediaType = default, CancellationToken cancellationToken = default)
         {
             var (copy, digest) = ReadStream(manifest.ToStream());
-            Manifests.TryAdd(digest, new TextByteArray(copy));
+            Manifests.TryAdd(digest, copy);
 
             if (tag is not null)
             {
@@ -132,20 +132,11 @@ namespace Bicep.Core.UnitTests.Registry
             return CreateResult(ContainerRegistryModelFactory.SetManifestResult(digest));
         }
 
-        public static (ImmutableArray<byte> bytes, string digest) ReadStream(Stream stream)
+        public static (BinaryData bytes, string digest) ReadStream(Stream stream)
         {
-            stream.Position = 0;
-            string digest = DescriptorFactory.ComputeDigest(DescriptorFactory.AlgorithmIdentifierSha256, stream);
-
-            stream.Position = 0;
-            using var reader = new BinaryReader(stream, new UTF8Encoding(false), true);
-
-            var builder = ImmutableArray.CreateBuilder<byte>();
-
-            stream.Position = 0;
-            var bytes = reader.ReadBytes((int)stream.Length).ToImmutableArray();
-
-            return (bytes, digest);
+            var data = BinaryData.FromStream(stream);
+            string digest = Core.Registry.Oci.OciDescriptor.ComputeDigest(Core.Registry.Oci.OciDescriptor.AlgorithmIdentifierSha256, data);
+            return (data, digest);
         }
 
         private static Response<T> CreateResult<T>(T value)

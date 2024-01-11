@@ -183,7 +183,7 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public async Task PublishModule(ArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri)
+        public async Task PublishModule(ArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri)
         {
             var registry = this.GetRegistry(reference);
 
@@ -191,7 +191,7 @@ namespace Bicep.Core.Registry
             await registry.PublishModule(reference, compiledArmTemplate, bicepSources, documentationUri, description);
         }
 
-        public async Task PublishProvider(ArtifactReference reference, Stream typesTgz)
+        public async Task PublishProvider(ArtifactReference reference, BinaryData typesTgz)
         {
             var registry = this.GetRegistry(reference);
 

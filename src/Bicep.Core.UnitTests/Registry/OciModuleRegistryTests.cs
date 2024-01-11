@@ -582,18 +582,18 @@ namespace Bicep.Core.UnitTests.Registry
 
             var (ociRegistry, blobClient, _) = CreateModuleRegistryAndBicepFile(null, true);
 
-            var template = new TextByteArray(jsonContentsV1);
-            var sources = publishSource ? new TextByteArray("This is a test. This is only a test. If this were a real source archive, it would have been binary.") : null;
+            var template = BinaryData.FromString(jsonContentsV1);
+            var sources = publishSource ? BinaryData.FromString("This is a test. This is only a test. If this were a real source archive, it would have been binary.") : null;
 
-            await ociRegistry.PublishModule(moduleReference, template.ToStream(), sources?.ToStream(), "http://documentation", "description");
+            await ociRegistry.PublishModule(moduleReference, template, sources, "http://documentation", "description");
 
             if (publishSource)
             {
-                blobClient.Should().HaveModuleWithSource("v1", template.ToStream(), sources!.ToStream());
+                blobClient.Should().HaveModuleWithSource("v1", template, sources);
             }
             else
             {
-                blobClient.Should().HaveModuleWithNoSource("v1", template.ToStream());
+                blobClient.Should().HaveModuleWithNoSource("v1", template);
             }
         }
 
@@ -618,30 +618,30 @@ namespace Bicep.Core.UnitTests.Registry
 
             var (ociRegistry, blobClient, _) = CreateModuleRegistryAndBicepFile(null, true);
 
-            var templateV1 = new TextByteArray(jsonContentsV1);
-            var sourcesV1 = sourceContentsV1 == null ? null : new TextByteArray(sourceContentsV1);
-            await ociRegistry.PublishModule(moduleReferenceV1, templateV1.ToStream(), sourcesV1?.ToStream(), "http://documentation", "description");
+            var templateV1 = BinaryData.FromString(jsonContentsV1);
+            var sourcesV1 = sourceContentsV1 == null ? null : BinaryData.FromString(sourceContentsV1);
+            await ociRegistry.PublishModule(moduleReferenceV1, templateV1, sourcesV1, "http://documentation", "description");
 
-            var templateV2 = new TextByteArray(jsonContentsV2);
-            var sourcesV2 = sourceContentsV2 == null ? null : new TextByteArray(sourceContentsV2);
-            await ociRegistry.PublishModule(moduleReferenceV2, templateV2.ToStream(), sourcesV2?.ToStream(), "http://documentation", "description");
+            var templateV2 = BinaryData.FromString(jsonContentsV2);
+            var sourcesV2 = sourceContentsV2 == null ? null : BinaryData.FromString(sourceContentsV2);
+            await ociRegistry.PublishModule(moduleReferenceV2, templateV2, sourcesV2, "http://documentation", "description");
 
             if (sourcesV1 != null)
             {
-                blobClient.Should().HaveModuleWithSource("v1", templateV1.ToStream(), sourcesV1.ToStream());
+                blobClient.Should().HaveModuleWithSource("v1", templateV1, sourcesV1);
             }
             else
             {
-                blobClient.Should().HaveModuleWithNoSource("v1", templateV1.ToStream());
+                blobClient.Should().HaveModuleWithNoSource("v1", templateV1);
             }
 
             if (sourcesV2 != null)
             {
-                blobClient.Should().HaveModuleWithSource("v2", templateV2.ToStream(), sourcesV2.ToStream());
+                blobClient.Should().HaveModuleWithSource("v2", templateV2, sourcesV2);
             }
             else
             {
-                blobClient.Should().HaveModuleWithNoSource("v2", templateV2.ToStream());
+                blobClient.Should().HaveModuleWithNoSource("v2", templateV2);
             }
         }
 
@@ -661,18 +661,18 @@ namespace Bicep.Core.UnitTests.Registry
 
             var (ociRegistry, blobClient, _) = CreateModuleRegistryAndBicepFile(null, true);
 
-            var template = new TextByteArray(jsonContentsV1);
-            var sourceStream = publishSource ? CreateSourceStream("This is a test. This is only a test. If this were a real source archive, it would have been binary.") : null;
+            var template = BinaryData.FromString(jsonContentsV1);
+            var sources = publishSource ? BinaryData.FromString("This is a test. This is only a test. If this were a real source archive, it would have been binary.") : null;
 
-            await ociRegistry.PublishModule(moduleReference, template.ToStream(), sourceStream, "http://documentation", "description");
+            await ociRegistry.PublishModule(moduleReference, template, sources, "http://documentation", "description");
 
             if (publishSource)
             {
-                blobClient.Should().HaveModuleWithSource("v1", template.ToStream(), sourceStream);
+                blobClient.Should().HaveModuleWithSource("v1", template, sources);
             }
             else
             {
-                blobClient.Should().HaveModuleWithNoSource("v1", template.ToStream());
+                blobClient.Should().HaveModuleWithNoSource("v1", template);
             }
 
             await RestoreModule(ociRegistry, moduleReference);
@@ -680,10 +680,10 @@ namespace Bicep.Core.UnitTests.Registry
             ociRegistry.Should().HaveValidCachedModules(withSource: publishSource);
             var actualSource = ociRegistry.TryGetSource(moduleReference);
 
-            if (sourceStream is { })
+            if (sources is { })
             {
                 actualSource.Should().NotBeNull();
-                actualSource.Should().BeEquivalentTo(SourceArchive.FromStream(sourceStream));
+                actualSource.Should().BeEquivalentTo(SourceArchive.FromStream(sources.ToStream()));
             }
             else
             {
@@ -779,14 +779,6 @@ namespace Bicep.Core.UnitTests.Registry
             features.Setup(m => m.PublishSourceEnabled).Returns(publishSourceEnabled);
 
             return features.Object;
-        }
-
-        private Stream CreateSourceStream(string mainBicepContent)
-        {
-            var mainBicepUri = new Uri("https://hello/main.bicep", UriKind.Absolute);
-            return SourceArchive.PackSourcesIntoStream(mainBicepUri, new ISourceFile[] {
-                SourceFileFactory.CreateBicepFile(mainBicepUri, "metadata description = 'this is my test bicep file'")
-            });
         }
 
         #endregion Helpers

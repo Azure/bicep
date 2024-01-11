@@ -168,18 +168,9 @@ namespace Bicep.Core.Samples
             {
                 throw new InvalidOperationException($"Module {moduleName} failed to procuce a template.");
             }
-
-            var stream = new MemoryStream();
-            using (var streamWriter = new StreamWriter(stream, leaveOpen: true))
-            using (var writer = new JsonTextWriter(streamWriter))
-            {
-                await result.Template.WriteToAsync(writer);
-            }
-            stream.Position = 0;
-
-            using Stream? sourcesStream = publishSource ? SourceArchive.PackSourcesIntoStream(result.Compilation.SourceFileGrouping) : null;
-
-            await dispatcher.PublishModule(targetReference, stream, sourcesStream, documentationUri);
+            
+            BinaryData? sourcesStream = publishSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(result.Compilation.SourceFileGrouping)) : null;
+            await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, documentationUri);
         }
 
         public static async Task PublishProviderToRegistryAsync(IDependencyHelper services, string pathToIndexJson, string target)
