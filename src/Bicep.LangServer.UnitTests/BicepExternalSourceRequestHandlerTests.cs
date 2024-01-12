@@ -6,11 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Net;
-using System.Reflection.Metadata;
-using System.Security.Policy;
 using System.Threading.Tasks;
-using System.Web;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
@@ -247,7 +243,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = new Uri("file:///foo/bar/entrypoint.bicep");
-            var sourceArchive = SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(bicepUri, new Core.Workspaces.ISourceFile[] {
+            var sourceArchive = SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(bicepUri, null, new Core.Workspaces.ISourceFile[] {
                 SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
 
@@ -289,7 +285,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = new Uri("file:///foo/bar/entrypoint.bicep");
-            var sourceArchive = SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(bicepUri, new Core.Workspaces.ISourceFile[] {
+            var sourceArchive = SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(bicepUri, null, new Core.Workspaces.ISourceFile[] {
                 SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
 
@@ -409,6 +405,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             SourceArchive? sourceArchive = entrypointUri is { } ?
                 SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(
                     entrypointUri,
+                    null,
                     new Core.Workspaces.ISourceFile[] {
                         SourceFileFactory.CreateBicepFile(entrypointUri, "metadata description = 'bicep module'")
                     })).TryUnwrap()

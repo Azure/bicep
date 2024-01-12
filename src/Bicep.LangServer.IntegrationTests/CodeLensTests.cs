@@ -56,7 +56,7 @@ namespace Bicep.LangServer.IntegrationTests
             if (bicepModuleEntrypoint is not null && entrypointSource is not null)
             {
                 BicepFile moduleEntrypointFile = SourceFileFactory.CreateBicepFile(bicepModuleEntrypoint, entrypointSource);
-                sourceArchiveResult ??= SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(moduleEntrypointFile.FileUri, moduleEntrypointFile));
+                sourceArchiveResult ??= SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(moduleEntrypointFile.FileUri, null, moduleEntrypointFile));
             }
             sourceArchiveResult ??= new(new SourceNotAvailableException());
             moduleRegistry.Setup(m => m.TryGetSource(It.IsAny<ArtifactReference>())).Returns(sourceArchiveResult);

@@ -784,7 +784,7 @@ namespace Bicep.Core.UnitTests.Registry
         private Stream CreateSourceStream(string mainBicepContent)
         {
             var mainBicepUri = new Uri("https://hello/main.bicep", UriKind.Absolute);
-            return SourceArchive.PackSourcesIntoStream(mainBicepUri, new ISourceFile[] {
+            return SourceArchive.PackSourcesIntoStream(mainBicepUri, null, new ISourceFile[] {
                 SourceFileFactory.CreateBicepFile(mainBicepUri, "metadata description = 'this is my test bicep file'")
             });
         }

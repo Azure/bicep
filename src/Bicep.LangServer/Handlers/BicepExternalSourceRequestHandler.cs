@@ -76,12 +76,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 if (moduleDispatcher.TryGetModuleSources(moduleReference).IsSuccess(out var sourceArchive, out var ex))
                 {
-                    var requestedFile = sourceArchive.SourceFiles.FirstOrDefault(f => f.Path == request.requestedSourceFile);
-                    if (requestedFile is null)
-                    {
-                        throw new InvalidOperationException($"Could not find source file \"{request.requestedSourceFile}\" in the sources for module \"{moduleReference.FullyQualifiedReference}\"");
-                    }
-
+                    var requestedFile = sourceArchive.FindExpectedSourceFile(request.requestedSourceFile);
                     return Task.FromResult(new BicepExternalSourceResponse(requestedFile.Contents));
                 }
                 else if (ex is not SourceNotAvailableException)

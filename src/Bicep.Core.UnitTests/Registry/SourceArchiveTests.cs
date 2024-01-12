@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Formats.Tar;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
-using System.IO.Pipes;
 using System.Linq;
 using System.Text;
 using Bicep.Core.SourceCode;
@@ -15,6 +15,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.Core.UnitTests.SourceCode;
@@ -144,7 +145,7 @@ public class SourceArchiveTests
         var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "Main template.json", SourceArchive.SourceKind_TemplateSpec, TemplateSpecJsonSource);
         var localModuleJson = CreateSourceFile(fs, projectFolder, "localModule.json", SourceArchive.SourceKind_ArmTemplate, LocalModuleDotJsonSource);
 
-        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.FileUri, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson);
+        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.FileUri, null, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson);
         stream.Length.Should().BeGreaterThan(0);
 
         SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).TryUnwrap();
@@ -161,6 +162,70 @@ public class SourceArchiveTests
                 new ("Main template.json", "Main template.json", SourceArchive.SourceKind_TemplateSpec,  TemplateSpecJsonSource),
                 new ("localModule.json", "localModule.json", SourceArchive.SourceKind_ArmTemplate,  LocalModuleDotJsonSource),
             });
+    }
+
+    [TestMethod]
+    public void CanPackAndUnpackDocumentLinks()
+    {
+        Uri projectFolder = new("file:///my project/my sources/", UriKind.Absolute);
+        var fs = new MockFileSystem();
+        fs.AddDirectory(projectFolder.LocalPath);
+
+        var mainBicep = CreateSourceFile(fs, projectFolder, "main.bicep", SourceArchive.SourceKind_Bicep, MainDotBicepSource);
+        var mainJson = CreateSourceFile(fs, projectFolder, "main.json", SourceArchive.SourceKind_ArmTemplate, MainDotJsonSource);
+        var standaloneJson = CreateSourceFile(fs, projectFolder, "standalone.json", SourceArchive.SourceKind_ArmTemplate, StandaloneJsonSource);
+        var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "Main template.json", SourceArchive.SourceKind_TemplateSpec, TemplateSpecJsonSource);
+        var localModuleJson = CreateSourceFile(fs, projectFolder, "localModule.json", SourceArchive.SourceKind_ArmTemplate, LocalModuleDotJsonSource);
+
+        var dict = new Dictionary<Uri, SourceCodeDocumentUriLink[]>()
+        {
+            {
+                new Uri("file:///my project/my sources/main.bicep", UriKind.Absolute),
+                new SourceCodeDocumentUriLink[]
+                {
+                    new SourceCodeDocumentUriLink(new SourceCodeRange(1, 2, 1, 3), new Uri("file:///my project/my sources/modules/module1.bicep", UriKind.Absolute)),
+                }
+            },
+            {
+                new Uri("file:///my project/my sources/modules/module1.bicep", UriKind.Absolute),
+                new SourceCodeDocumentUriLink[]
+                {
+                    new SourceCodeDocumentUriLink(new SourceCodeRange(123, 124, 234, 235), new Uri("file:///my project/my sources/main.bicep", UriKind.Absolute)),
+                    new SourceCodeDocumentUriLink(new SourceCodeRange(234, 235, 345, 346), new Uri("file:///my project/my sources/remote/main.json", UriKind.Absolute)),
+                    new SourceCodeDocumentUriLink(new SourceCodeRange(123, 456, 234, 567), new Uri("file:///my project/my sources/main.bicep", UriKind.Absolute)),
+                }
+            },
+        };
+
+        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.FileUri, dict, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson);
+        stream.Length.Should().BeGreaterThan(0);
+
+        SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).TryUnwrap();
+        sourceArchive.Should().NotBeNull();
+
+        var links = sourceArchive!.DocumentLinks;
+
+        var expected = new Dictionary<string, SourceCodeDocumentPathLink[]>()
+        {
+            {
+                "main.bicep",
+                new SourceCodeDocumentPathLink[]
+                {
+                    new SourceCodeDocumentPathLink(new SourceCodeRange(1, 2, 1, 3), "modules/module1.bicep"),
+                }
+            },
+            {
+                "modules/module1.bicep",
+                new SourceCodeDocumentPathLink[]
+                {
+                    new SourceCodeDocumentPathLink(new SourceCodeRange(123, 124, 234, 235), "main.bicep"),
+                    new SourceCodeDocumentPathLink(new SourceCodeRange(234, 235, 345, 346), "remote/main.json"),
+                    new SourceCodeDocumentPathLink(new SourceCodeRange(123, 456, 234, 567), "main.bicep"),
+                }
+            },
+        };
+
+        links.Should().BeEquivalentTo(expected);
     }
 
     [DataTestMethod]
@@ -209,7 +274,7 @@ public class SourceArchiveTests
         var mainBicep = CreateSourceFile(fs, mainBicepFolder, Path.GetFileName(mainBicepPath), SourceArchive.SourceKind_Bicep, MainDotBicepSource);
         var testFile = CreateSourceFile(fs, mainBicepFolder, pathRelativeToMainBicepLocation, SourceArchive.SourceKind_Bicep, SecondaryDotBicepSource);
 
-        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.FileUri, mainBicep, testFile);
+        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.FileUri, null, mainBicep, testFile);
 
         SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).TryUnwrap();
 
