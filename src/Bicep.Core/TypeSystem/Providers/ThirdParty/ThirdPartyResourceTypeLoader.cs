@@ -28,7 +28,6 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);
-            //Harsh - do we need functions? what are they? 
             availableFunctions = indexedTypes.Functions.ToImmutableDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value.ToImmutableDictionary(
