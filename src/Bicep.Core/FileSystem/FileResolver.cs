@@ -14,7 +14,7 @@ using Bicep.Core.Utils;
 namespace Bicep.Core.FileSystem
 {
     public class FileResolver : IFileResolver
-    {        
+    {
         private readonly IFileSystem fileSystem;
 
         public FileResolver(IFileSystem fileSystem)
@@ -29,33 +29,15 @@ namespace Bicep.Core.FileSystem
         }
 
         public ResultWithDiagnostic<string> TryRead(Uri fileUri)
+            => TryReadInternal<string>(fileUri, 0, stream => {
+                using var reader = new StreamReader(stream);
+
+                return new(reader.ReadToEnd());
+            });
+
+        public static ResultWithDiagnostic<FileWithEncoding> ReadWithEncoding(BinaryData data, Encoding fileEncoding, int maxCharacters, Uri fileUri)
         {
-            if (!fileUri.IsFile)
-            {
-                return new(x => x.UnableToLoadNonFileUri(fileUri));
-            }
-
-            try
-            {
-                if (DirExists(fileUri))
-                {
-                    return new(x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath));
-                }
-
-                ApplyWindowsConFileWorkaround(fileUri.LocalPath);
-                return new(fileSystem.File.ReadAllText(fileUri.LocalPath));
-            }
-            catch (Exception exception)
-            {
-                // I/O classes typically throw a large variety of exceptions
-                // instead of handling each one separately let's just trust the message we get
-                return new(x => x.ErrorOccurredReadingFile(exception.Message));
-            }
-        }
-
-        public static ResultWithDiagnostic<FileWithEncoding> ReadWithEncoding(Stream stream, Encoding fileEncoding, int maxCharacters, Uri fileUri)
-        {
-            using var sr = new StreamReader(stream, fileEncoding, true);
+            using var sr = new StreamReader(data.ToStream(), fileEncoding, true);
 
             Span<char> buffer = stackalloc char[LanguageConstants.MaxLiteralCharacterLimit + 1];
             var sb = new StringBuilder();
@@ -72,12 +54,31 @@ namespace Bicep.Core.FileSystem
             return new(new FileWithEncoding(sb.ToString(), sr.CurrentEncoding));
         }
 
-        private ResultWithDiagnostic<MemoryStream> TryRead(Uri fileUri, int maxFileSize)
+        public ResultWithDiagnostic<BinaryData> TryReadAsBinaryData(Uri fileUri, int? maxFileSize)
+            => TryReadInternal<BinaryData>(fileUri, maxFileSize ?? 0, stream => new(BinaryData.FromStream(stream)));
+
+        public ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
+            => TryReadInternal<string>(fileUri, 0, stream => {
+                if (n <= 0)
+                {
+                    throw new InvalidOperationException($"Cannot read {n} characters");
+                }
+
+                using var sr = new StreamReader(stream, fileEncoding, true);
+
+                var buffer = new char[n];
+                n = sr.ReadBlock(buffer, 0, n);
+
+                return new(new string(buffer.Take(n).ToArray()));
+            });
+
+        private ResultWithDiagnostic<T> TryReadInternal<T>(Uri fileUri, int maxFileSize, Func<Stream, ResultWithDiagnostic<T>> readFunc)
         {
             if (!fileUri.IsFile)
             {
                 return new(x => x.UnableToLoadNonFileUri(fileUri));
             }
+
             try
             {
                 if (DirExists(fileUri))
@@ -98,63 +99,7 @@ namespace Bicep.Core.FileSystem
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
                 using var fileStream = fileSystem.File.OpenRead(fileUri.LocalPath);
 
-                Span<byte> buffer = stackalloc byte[102400];
-                var sb = new StringBuilder();
-                var memoryStream = new MemoryStream(102400);
-                var i = 0;
-                while ((i = fileStream.Read(buffer)) > 0)
-                {
-                    memoryStream.Write(buffer.Slice(0, i));
-                }
-
-                return new(memoryStream);
-            }
-            catch (Exception exception)
-            {
-                // I/O classes typically throw a large variety of exceptions
-                // instead of handling each one separately let's just trust the message we get
-                return new(x => x.ErrorOccurredReadingFile(exception.Message));
-            }
-        }
-
-        public ResultWithDiagnostic<byte[]> TryReadAsBytes(Uri fileUri, int? maxFileSize)
-        {
-            return TryRead(fileUri, maxFileSize ?? -1)
-                .Transform(memoryStream => {
-                    var bytes = memoryStream.ToArray();
-                    memoryStream.Dispose();
-
-                    return bytes;                    
-                });
-        }
-
-        public ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
-        {
-            if (n <= 0)
-            {
-                throw new InvalidOperationException($"Cannot read {n} characters");
-            }
-
-            if (!fileUri.IsFile)
-            {
-                return new(x => x.UnableToLoadNonFileUri(fileUri));
-            }
-
-            try
-            {
-                if (DirExists(fileUri))
-                {
-                    return new(x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath));
-                }
-
-                ApplyWindowsConFileWorkaround(fileUri.LocalPath);
-                using var fileStream = fileSystem.File.OpenRead(fileUri.LocalPath);
-                using var sr = new StreamReader(fileStream, fileEncoding, true);
-
-                var buffer = new char[n];
-                n = sr.ReadBlock(buffer, 0, n);
-
-                return new(new string(buffer.Take(n).ToArray()));
+                return readFunc(fileStream);
             }
             catch (Exception exception)
             {

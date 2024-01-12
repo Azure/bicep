@@ -1176,8 +1176,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(readErrorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            using var stream = new MemoryStream(auxiliaryFile.Content);
-            if (!FileResolver.ReadWithEncoding(stream, fileEncoding, maxCharacters, fileUri).IsSuccess(out var result, out var fileReadFailureBuilder))
+            if (!FileResolver.ReadWithEncoding(auxiliaryFile.Content, fileEncoding, maxCharacters, fileUri).IsSuccess(out var result, out var fileReadFailureBuilder))
             {
                 return new(fileReadFailureBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
@@ -1207,7 +1206,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(readErrorBuilder(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
             }
 
-            var bytes = auxiliaryFile.Content;
+            var bytes = auxiliaryFile.Content.ToArray();
             var maxFileSize = LanguageConstants.MaxLiteralCharacterLimit / 4 * 3; //each base64 character represents 6 bits
             if (bytes.Length > maxFileSize)
             {

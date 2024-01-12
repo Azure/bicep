@@ -15,7 +15,7 @@ namespace Bicep.Core.Semantics;
 
 public record AuxiliaryFile(
     Uri FileUri,
-    byte[] Content);
+    BinaryData Content);
 
 public interface IReadableFileCache
 {
@@ -39,8 +39,8 @@ public class AuxiliaryFileCache : IReadableFileCache
         => fileCache.GetOrAdd(
             uri,
             uri => {
-                var result = fileResolver.TryReadAsBytes(uri)
-                    .Transform(bytes => new AuxiliaryFile(uri, bytes));
+                var result = fileResolver.TryReadAsBinaryData(uri)
+                    .Transform(data => new AuxiliaryFile(uri, data));
 
                 Trace.WriteLine($"Loaded auxiliary file result {uri}. Success: {result.IsSuccess()}");
 
@@ -59,7 +59,7 @@ public class AuxiliaryFileCache : IReadableFileCache
             fileCache.TryRemove(uri, out _);
         }
     }
-    
+
     public void PruneInactiveEntries(IEnumerable<Uri> activeEntries)
         => ClearEntries(fileCache.Keys.Except(activeEntries));
 }

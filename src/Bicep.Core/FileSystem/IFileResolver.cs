@@ -30,6 +30,11 @@ public interface IFileResolver
 
     ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n);
 
+    /// <summary>
+    /// Tries to read a file as binary data.
+    /// </summary>
+    ResultWithDiagnostic<BinaryData> TryReadAsBinaryData(Uri fileUri, int? maxFileSize = null);
+
     void Write(Uri fileUri, Stream contents);
 
     /// <summary>
@@ -64,11 +69,4 @@ public interface IFileResolver
     /// </summary>
     /// <param name="uri">The URI to test.</param>
     bool FileExists(Uri uri);
-
-    /// <summary>
-    /// Tries to read a file and encode it as base64 string. If an exception is encoutered, returns null and sets a non-null failureMessage.
-    /// </summary>
-    /// <param name="fileUri">The file URI to read.</param>
-    /// <param name="maxFileSize">Maximum number of bytes to read. if null - read all.</param>
-    ResultWithDiagnostic<byte[]> TryReadAsBytes(Uri fileUri, int? maxFileSize = null);
 }

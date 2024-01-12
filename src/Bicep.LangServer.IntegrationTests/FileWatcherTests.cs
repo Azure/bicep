@@ -251,10 +251,10 @@ param requiredIpnut string
 param foo 'abc' = loadTextContent('path/to/bar.txt')
 """;
         var txtFileUri = new Uri("file:///path/to/bar.txt");
-        ResultWithDiagnostic<byte[]> result = new(Encoding.UTF8.GetBytes("abc"));
+        ResultWithDiagnostic<BinaryData> result = new(BinaryData.FromBytes(Encoding.UTF8.GetBytes("abc")));
 
         var fileResolverMock = StrictMock.Of<IFileResolver>();
-        fileResolverMock.Setup(x => x.TryReadAsBytes(txtFileUri, It.IsAny<int?>()))
+        fileResolverMock.Setup(x => x.TryReadAsBinaryData(txtFileUri, It.IsAny<int?>()))
             .Returns<Uri, int?>((_, _) => result);
 
         using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
@@ -265,36 +265,36 @@ param foo 'abc' = loadTextContent('path/to/bar.txt')
         // The txt file is loaded when the bicep file is opened
         var diags = await helper.OpenFileOnceAsync(TestContext, bicepContents, bicepUri);
         diags.Diagnostics.Should().BeEmpty();
-        fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Once);
+        fileResolverMock.Verify(x => x.TryReadAsBinaryData(txtFileUri, null), Times.Once);
 
         // Change the bicep file, verify the txt file is not reloaded
         diags = await helper.ChangeFileAsync(TestContext, bicepContents, bicepUri, ++version);
         diags.Diagnostics.Should().BeEmpty();
-        fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Once);
+        fileResolverMock.Verify(x => x.TryReadAsBinaryData(txtFileUri, null), Times.Once);
 
         // Change the txt file, verify diagnostics are re-published for the bicep file
-        result = new(Encoding.UTF8.GetBytes("def"));
+        result = new(BinaryData.FromBytes(Encoding.UTF8.GetBytes("def")));
         helper.ChangeWatchedFile(txtFileUri);
         diags = await helper.WaitForDiagnostics(bicepUri);
         diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("Expected a value of type \"'abc'\" but the provided value is of type \"'def'\"."));
-        fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Exactly(2));
+        fileResolverMock.Verify(x => x.TryReadAsBinaryData(txtFileUri, null), Times.Exactly(2));
 
         // Change the bicep file, verify the txt file is not reloaded
         diags = await helper.ChangeFileAsync(TestContext, bicepContents, bicepUri, ++version);
         diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("Expected a value of type \"'abc'\" but the provided value is of type \"'def'\"."));
-        fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Exactly(2));
+        fileResolverMock.Verify(x => x.TryReadAsBinaryData(txtFileUri, null), Times.Exactly(2));
 
         // Simulate a failure loading the txt file, verify diagnostics are re-published for the bicep file
         result = new(x => x.FilePathIsEmpty());
         helper.ChangeWatchedFile(txtFileUri);
         diags = await helper.WaitForDiagnostics(bicepUri);
         diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("The specified path is empty."));
-        fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Exactly(3));
+        fileResolverMock.Verify(x => x.TryReadAsBinaryData(txtFileUri, null), Times.Exactly(3));
 
         // Change the bicep file, verify the txt file is not reloaded, even when there was a failure loading the file
         diags = await helper.ChangeFileAsync(TestContext, bicepContents, bicepUri, ++version);
         diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("The specified path is empty."));
-        fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Exactly(3));
+        fileResolverMock.Verify(x => x.TryReadAsBinaryData(txtFileUri, null), Times.Exactly(3));
 
         // Change a parent folder, verify it triggers a recompilation
         var parentDirUri = new Uri("file:///path/to/");
@@ -302,14 +302,14 @@ param foo 'abc' = loadTextContent('path/to/bar.txt')
         helper.ChangeWatchedFile(parentDirUri);
         diags = await helper.ChangeFileAsync(TestContext, bicepContents, bicepUri, ++version);
         diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("An error occurred reading file. It's gone!"));
-        fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Exactly(4));
+        fileResolverMock.Verify(x => x.TryReadAsBinaryData(txtFileUri, null), Times.Exactly(4));
 
         // Change an unrelated txt file, verify it doesn't trigger a recompilation
         var unrelatedTxtFileUri = new Uri("file:///path/to/notbar.txt");
         helper.ChangeWatchedFile(unrelatedTxtFileUri);
         diags = await helper.ChangeFileAsync(TestContext, bicepContents, bicepUri, ++version);
         diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("An error occurred reading file. It's gone!"));
-        fileResolverMock.Verify(x => x.TryReadAsBytes(txtFileUri, null), Times.Exactly(4));
-        fileResolverMock.Verify(x => x.TryReadAsBytes(unrelatedTxtFileUri, null), Times.Never);
+        fileResolverMock.Verify(x => x.TryReadAsBinaryData(txtFileUri, null), Times.Exactly(4));
+        fileResolverMock.Verify(x => x.TryReadAsBinaryData(unrelatedTxtFileUri, null), Times.Never);
     }
 }
