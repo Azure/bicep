@@ -2132,6 +2132,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP390",
                 $"The type \"{wrongType}\" does not declare an element type.");
+
+            public ErrorDiagnostic AccessExpressionForbiddenBase() => new(
+                TextSpan,
+                "BCP391",
+                "Access expressions within type clauses are only allowed if the innermost base expression is a symbolic reference to a type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

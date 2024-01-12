@@ -1113,22 +1113,24 @@ param myParam string
     }
 
     // https://github.com/azure/bicep/issues/12920
-    [TestMethod]
-    public void Invalid_type_property_access_raises_diagnostic()
+    [DataTestMethod]
+    [DataRow("test.bar", "BCP053", """The type "{ foo: { bar: string } }" does not contain property "bar". Available properties include "foo".""")]
+    [DataRow("{ foo: string }.foo", "BCP391", "Access expressions within type clauses are only allowed if the innermost base expression is a symbolic reference to a type.")]
+    public void Invalid_type_property_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
     {
-        var result = CompilationHelper.Compile("""
-            type test2 = {
+        var result = CompilationHelper.Compile($$"""
+            type test = {
               foo: {
                 bar: string
               }
             }
 
-            type test3 = test2.bar
+            type test2 = {{accessExpression}}
             """);
 
         result.Should().HaveDiagnostics(new[]
         {
-            ("BCP053", DiagnosticLevel.Error, """The type "{ foo: { bar: string } }" does not contain property "bar". Available properties include "foo"."""),
+            (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
     }
 
@@ -1151,22 +1153,23 @@ param myParam string
             """));
     }
 
-    [TestMethod]
-    public void Invalid_type_index_access_raises_diagnostic()
+    [DataTestMethod]
+    [DataRow("test[1]", "BCP311", """The provided index value of "1" is not valid for type "[{ bar: string }]". Indexes for this type must be between 0 and 0.""")]
+    [DataRow("test[-1]", "BCP387", """Indexing into a type requires a natural number or 0. Unary operators are not permitted.""")]
+    [DataRow("[string][0]", "BCP391", "Access expressions within type clauses are only allowed if the innermost base expression is a symbolic reference to a type.")]
+    public void Invalid_type_index_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile($$"""
             type test = [
               { bar: string }
             ]
 
-            type test2 = test[1]
-            type test3 = test[-1]
+            type test2 = {{accessExpression}}
             """);
 
         result.Should().HaveDiagnostics(new[]
         {
-            ("BCP311", DiagnosticLevel.Error, """The provided index value of "1" is not valid for type "[{ bar: string }]". Indexes for this type must be between 0 and 0."""),
-            ("BCP387", DiagnosticLevel.Error, """Indexing into a type requires a natural number or 0. Unary operators are not permitted."""),
+            (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
     }
 
@@ -1191,20 +1194,23 @@ param myParam string
             """));
     }
 
-    [TestMethod]
-    public void Invalid_additional_properties_access_raises_diagnostic()
+    [DataTestMethod]
+    [DataRow("test.*", "BCP389", """The type "{ foo: string }" does not declare an additional properties type.""")]
+    [DataRow("object.*", "BCP389", """The type "object" does not declare an additional properties type.""")]
+    [DataRow("{ *: string }.*", "BCP391", "Access expressions within type clauses are only allowed if the innermost base expression is a symbolic reference to a type.")]
+    public void Invalid_additional_properties_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile($$"""
             type test = {
               foo: string
             }
 
-            type test2 = test.*
+            type test2 = {{accessExpression}}
             """);
 
         result.Should().HaveDiagnostics(new[]
         {
-            ("BCP389", DiagnosticLevel.Error, """The type "{ foo: string }" does not declare an additional properties type."""),
+            (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
     }
 
@@ -1225,25 +1231,24 @@ param myParam string
             """));
     }
 
-    [TestMethod]
-    public void Invalid_type_items_access_raises_diagnostic()
+    [DataTestMethod]
+    [DataRow("test[*]", "BCP390", """The type "[{ bar: string }]" does not declare an element type.""")]
+    [DataRow("array[*]", "BCP390", """The type "array" does not declare an element type.""")]
+    [DataRow("test[0][*]", "BCP390", """The type "{ bar: string }" does not declare an element type.""")]
+    [DataRow("string[][*]", "BCP391", "Access expressions within type clauses are only allowed if the innermost base expression is a symbolic reference to a type.")]
+    public void Invalid_type_items_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
     {
-        var result = CompilationHelper.Compile("""
+        var result = CompilationHelper.Compile($$"""
             type test = [
               { bar: string }
             ]
-            type test2 = array
 
-            type test3 = test[*]
-            type test4 = test2[*]
-            type test5 = test[0][*]
+            type test2 = {{accessExpression}}
             """);
 
         result.Should().HaveDiagnostics(new[]
         {
-            ("BCP390", DiagnosticLevel.Error, """The type "[{ bar: string }]" does not declare an element type."""),
-            ("BCP390", DiagnosticLevel.Error, """The type "array" does not declare an element type."""),
-            ("BCP390", DiagnosticLevel.Error, """The type "{ bar: string }" does not declare an element type."""),
+            (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
     }
 }
