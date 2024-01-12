@@ -93,7 +93,7 @@ output joke string = dadJoke.body.joke
         result.Should().NotGenerateATemplate();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
             //Harsh - Why are there multiple errors showing? Is this okay? 
-            ("BCP205", DiagnosticLevel.Error, "Provider namespace \"thirdparty\" does not support configuration."),
+            ("BCP205", DiagnosticLevel.Error, "Provider namespace \"http\" does not support configuration."),
             ("BCP022", DiagnosticLevel.Error, "Expected a property name at this location."),
             ("BCP018", DiagnosticLevel.Error, "Expected the \":\" character at this location."),
             ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location.")

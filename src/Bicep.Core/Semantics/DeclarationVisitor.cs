@@ -206,11 +206,6 @@ namespace Bicep.Core.Semantics
                 return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
             }
 
-            else if (typesBaseUri != null && !features.ProviderRegistryEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
-            }
-
             ResourceTypesProviderDescriptor providerDescriptor = new(
                 syntax.Specification.Name,
                 syntax.Specification.Version,

@@ -12,13 +12,13 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
     public class K8sResourceTypeLoader : IResourceTypeLoader
     {
         private readonly ITypeLoader typeLoader;
-        private readonly K8sResourceTypeFactory resourceTypeFactory;
+        private readonly ExtensibilityResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
 
         public K8sResourceTypeLoader()
         {
             typeLoader = new K8sTypeLoader();
-            resourceTypeFactory = new K8sResourceTypeFactory();
+            resourceTypeFactory = new ExtensibilityResourceTypeFactory();
             var indexedTypes = typeLoader.LoadTypeIndex();
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),

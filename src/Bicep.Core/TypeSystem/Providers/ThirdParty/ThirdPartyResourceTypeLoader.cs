@@ -16,15 +16,14 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
     public class ThirdPartyResourceTypeLoader : IResourceTypeLoader
     {
         private readonly ITypeLoader typeLoader;
-        //No need to create a 3rd party factory
-        private readonly K8sResourceTypeFactory resourceTypeFactory;
+        private readonly ExtensibilityResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
         private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<TypeLocation>>> availableFunctions;
 
         public ThirdPartyResourceTypeLoader(ITypeLoader typeLoader)
         {
             this.typeLoader = typeLoader;
-            resourceTypeFactory = new K8sResourceTypeFactory();
+            resourceTypeFactory = new ExtensibilityResourceTypeFactory();
             var indexedTypes = typeLoader.LoadTypeIndex();
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
@@ -42,8 +41,6 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableTypes.Keys;
 
-        //Will need to update loadType
-        //Harsh - Do we need this function? 
         public ResourceTypeComponents LoadType(ResourceTypeReference reference)
         {
             var typeLocation = availableTypes[reference];

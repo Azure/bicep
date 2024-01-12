@@ -51,27 +51,30 @@ public class DefaultNamespaceProvider : INamespaceProvider
             return getProvider(descriptor, resourceScope, features, sourceFileKind);
         }
 
-        resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder);
-
-        if (dynamicallyLoadedProvider is not null)
+        // Special-case the 'az' provider being loaded from registry - we need add-on functionality delivered via the namespace provider
+        if (descriptor.Name == AzNamespaceType.BuiltInName)
         {
-            switch (descriptor.Name)
+            if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
-                // Special-case the 'az' provider being loaded from registry - we need add-on functionality delivered via the namespace provider
-                case AzNamespaceType.BuiltInName:
-                    return AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind);
-                default:
-                    //TODO (Harsh): determine if we need resourceScope & sourceFileKind
-                    //Harsh - we need to pass descriptor name to set the ARMResourceProvider
-                    return ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider);
+                return AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind);
             }
-        }
 
-        if (errorBuilder is not null)
-        {
             Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
+            return null;
         }
 
-        return null;
+        else 
+        {   // Only attempt to create a ThirdPartyNamespaceType if the feature is enabled
+            if(features.ProviderRegistryEnabled)
+            {
+                if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+                {
+                    return ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider);
+                }
+
+                Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
+            }
+            return null;
+        }
     }
 }

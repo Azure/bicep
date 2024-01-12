@@ -10,15 +10,12 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public static class ThirdPartyNamespaceType
     {
-        // harsh - we may not need a built in name or may have to get this from Create function 
-        public const string BuiltInName = "thirdparty";
-
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
-            BicepProviderName: BuiltInName,
+            BicepProviderName: string.Empty,
             ConfigurationType: null,
-            ArmTemplateProviderName: "",
-            ArmTemplateProviderVersion: "");
+            ArmTemplateProviderName: string.Empty,
+            ArmTemplateProviderVersion: string.Empty);
 
         public static NamespaceType Create(string name, string aliasName, IResourceTypeProvider resourceTypeProvider)
         {
@@ -26,9 +23,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 aliasName,
                 new NamespaceSettings(
                     IsSingleton: true,
-                    BicepProviderName: BuiltInName,
+                    BicepProviderName: name,
                     ConfigurationType: null,
-                    ArmTemplateProviderName: name,
+                    ArmTemplateProviderName: name[0].ToString().ToUpper() + name.Substring(1),
                     ArmTemplateProviderVersion: resourceTypeProvider.Version),
                 ImmutableArray<TypeProperty>.Empty,
                 ImmutableArray<FunctionOverload>.Empty,

@@ -9,11 +9,12 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.K8s
 {
-    public class K8sResourceTypeFactory
+    // Renamed from K8sResourceTypeFactory to ExtensibilityResourceTypeFactory
+    public class ExtensibilityResourceTypeFactory
     {
         private readonly ConcurrentDictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol> typeCache;
 
-        public K8sResourceTypeFactory()
+        public ExtensibilityResourceTypeFactory()
         {
             typeCache = new();
         }
