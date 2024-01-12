@@ -77,12 +77,12 @@ namespace Bicep.LanguageServer.Handlers
             return new ExternalSourceReference(Components, requestedSourceFile); // recalculate title
         }
 
-        public ExternalSourceReference(OciArtifactReference moduleReference, SourceArchive? sourceArchive)
+        public ExternalSourceReference(OciArtifactReference moduleReference, SourceArchive? sourceArchive, bool defaultToDisplayingBicep = true)
         {
             Debug.Assert(moduleReference.Type == ArtifactType.Module && moduleReference.Scheme == OciArtifactReferenceFacts.Scheme, "Expecting a module reference, not a provider reference");
             Components = moduleReference.AddressComponents;
 
-            if (sourceArchive is { })
+            if (sourceArchive is { } && defaultToDisplayingBicep)
             {
                 // We have Bicep source code available
                 RequestedFile = sourceArchive.EntrypointRelativePath;

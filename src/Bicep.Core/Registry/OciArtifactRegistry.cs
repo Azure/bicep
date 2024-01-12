@@ -22,6 +22,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
+using Bicep.Core.Utils;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -501,15 +502,16 @@ namespace Bicep.Core.Registry
             return fileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), fileName);
         }
 
-        public override SourceArchive? TryGetSource(OciArtifactReference reference)
+        public override ResultWithException<SourceArchive> TryGetSource(OciArtifactReference reference)
         {
             var zipPath = GetArtifactFilePath(reference, ArtifactFileType.Source);
             if (File.Exists(zipPath))
             {
-                return SourceArchive.FromStream(File.OpenRead(zipPath));
+                return SourceArchive.UnpackFromStream(File.OpenRead(zipPath));
             }
 
-            return null;
+            // No sources available (presumably they weren't published)
+            return new(new SourceNotAvailableException());
         }
 
         private enum ArtifactFileType
