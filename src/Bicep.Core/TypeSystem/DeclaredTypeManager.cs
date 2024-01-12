@@ -457,6 +457,7 @@ namespace Bicep.Core.TypeSystem
                 PropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
                 ObjectTypeAdditionalPropertiesAccessSyntax additionalPropertiesAccess => ConvertTypeExpressionToType(additionalPropertiesAccess),
                 ArrayAccessSyntax arrayAccess => ConvertTypeExpressionToType(arrayAccess),
+                ArrayTypeItemsAccessSyntax itemsAccess => ConvertTypeExpressionToType(itemsAccess),
                 NullableTypeSyntax nullableType => ConvertTypeExpressionToType(nullableType),
                 NonNullAssertionSyntax nonNullAssertion => ConvertTypeExpressionToType(nonNullAssertion),
                 _ => null
@@ -980,6 +981,37 @@ namespace Bicep.Core.TypeSystem
             }
 
             return UnwrapType(syntax.Asterisk, @object.AdditionalPropertiesType.Type);
+        }
+
+        private ITypeReference ConvertTypeExpressionToType(ArrayTypeItemsAccessSyntax syntax)
+        {
+            var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: false);
+
+            return RequiresDeferral(syntax.BaseExpression)
+                ? new DeferredTypeReference(() => FinalizeItemsAccessType(syntax, baseType))
+                : FinalizeItemsAccessType(syntax, baseType);
+        }
+
+        private static TypeSymbol FinalizeItemsAccessType(ArrayTypeItemsAccessSyntax syntax, ITypeReference baseExpressionType)
+        {
+            var baseType = baseExpressionType.Type;
+
+            if (TypeHelper.TryRemoveNullability(baseType) is TypeSymbol nonNullableBaseType)
+            {
+                baseType = nonNullableBaseType;
+            }
+
+            if (baseType is ErrorType error)
+            {
+                return error;
+            }
+
+            if (baseType is not TypedArrayType @array)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Asterisk).ExplicitItemsTypeRequiredForAccessThereto(baseType));
+            }
+
+            return UnwrapType(syntax.Asterisk, @array.Item.Type);
         }
 
         private static TypeSymbol EnsureNonParameterizedType(SyntaxBase syntax, TypeSymbol type) => type switch

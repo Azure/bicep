@@ -438,5 +438,10 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.BaseExpression);
         }
+
+        public override void VisitArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+        }
     }
 }

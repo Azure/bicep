@@ -780,7 +780,10 @@ namespace Bicep.Core.PrettyPrint
             });
 
         public override void VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax) =>
-            this.BuildWithConcat(() =>  base.VisitObjectTypeAdditionalPropertiesAccessSyntax(syntax));
+            this.BuildWithConcat(() => base.VisitObjectTypeAdditionalPropertiesAccessSyntax(syntax));
+
+        public override void VisitArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax)
+            => this.BuildWithConcat(() => base.VisitArrayTypeItemsAccessSyntax(syntax));
 
         private static ILinkedDocument Text(string text) =>
             CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text);

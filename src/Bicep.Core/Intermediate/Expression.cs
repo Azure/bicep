@@ -738,6 +738,16 @@ public record TypeReferenceIndexAccessExpression(
         => visitor.VisitTypeReferenceIndexAccessExpression(this);
 }
 
+public record TypeReferenceItemsAccessExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTypeReferenceItemsAccessExpression(this);
+}
+
 public record WildcardImportTypePropertyReferenceExpression(
     SyntaxBase? SourceSyntax,
     WildcardImportSymbol ImportSymbol,

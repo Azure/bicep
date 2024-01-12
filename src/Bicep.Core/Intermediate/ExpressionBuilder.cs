@@ -313,6 +313,7 @@ public class ExpressionBuilder
             PropertyAccessSyntax propertyAccess => ConvertPropertyAccessInTypeExpression(propertyAccess),
             ObjectTypeAdditionalPropertiesAccessSyntax additionalPropertiesAccess => ConvertAdditionalPropertiesAccessInTypeExpression(additionalPropertiesAccess),
             ArrayAccessSyntax arrayAccess => ConvertIndexAccessInTypeExpression(arrayAccess),
+            ArrayTypeItemsAccessSyntax itemsAccess => ConvertItemsAccessInTypeExpression(itemsAccess),
             ParameterizedTypeInstantiationSyntaxBase parameterizedTypeInstantiation
                 => Context.SemanticModel.TypeManager.TryGetReifiedType(parameterizedTypeInstantiation) is TypeExpression reified
                     ? reified
@@ -382,6 +383,18 @@ public class ExpressionBuilder
         }
 
         return new TypeReferenceAdditionalPropertiesAccessExpression(syntax, baseExpression, objectType.AdditionalPropertiesType.Type);
+    }
+
+    private TypeReferenceItemsAccessExpression ConvertItemsAccessInTypeExpression(ArrayTypeItemsAccessSyntax syntax)
+    {
+        var baseExpression = ConvertTypeWithoutLowering(syntax.BaseExpression);
+
+        if (baseExpression.ExpressedType is not TypedArrayType arrayType)
+        {
+            throw new ArgumentException($"The element type of type '{baseExpression.ExpressedType.Name}' was not found or was not valid.");
+        }
+
+        return new TypeReferenceItemsAccessExpression(syntax, baseExpression, arrayType.Item.Type);
     }
 
     private TypeSymbol? TryGetPropertyType(INamespaceSymbol namespaceSymbol, string propertyName)

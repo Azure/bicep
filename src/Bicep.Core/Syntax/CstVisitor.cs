@@ -547,5 +547,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Dot);
             this.Visit(syntax.Asterisk);
         }
+
+        public override void VisitArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.OpenBracket);
+            this.Visit(syntax.Asterisk);
+            this.Visit(syntax.CloseBracket);
+        }
     }
 }

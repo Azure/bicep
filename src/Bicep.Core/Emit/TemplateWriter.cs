@@ -393,7 +393,8 @@ namespace Bicep.Core.Emit
             WildcardImportTypePropertyReferenceExpression or
             TypeReferencePropertyAccessExpression or
             TypeReferenceAdditionalPropertiesAccessExpression or
-            TypeReferenceIndexAccessExpression => ExpressionFactory.CreateObject(
+            TypeReferenceIndexAccessExpression or
+            TypeReferenceItemsAccessExpression => ExpressionFactory.CreateObject(
                 ExpressionFactory.CreateObjectProperty("$ref",
                     ExpressionFactory.CreateStringLiteral(GetReferenceString(typeExpression), typeExpression.SourceSyntax),
                     typeExpression.SourceSyntax).AsEnumerable(),
@@ -452,6 +453,8 @@ namespace Bicep.Core.Emit
                 => $"{GetReferenceString(typeRefAdditionalPropertiesAccess.BaseExpression)}/additionalProperties",
             TypeReferenceIndexAccessExpression typeRefIndexAccess
                 => $"{GetReferenceString(typeRefIndexAccess.BaseExpression)}/prefixItems/{typeRefIndexAccess.Index}",
+            TypeReferenceItemsAccessExpression typeRefItemsAccess
+                => $"{GetReferenceString(typeRefItemsAccess.BaseExpression)}/items",
 
             // roots
             TypeAliasReferenceExpression typeAliasReference => GetReferenceToTypeDefinition(typeAliasReference.Symbol.Name),

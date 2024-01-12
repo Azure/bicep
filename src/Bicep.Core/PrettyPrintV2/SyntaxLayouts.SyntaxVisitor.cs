@@ -177,6 +177,8 @@ namespace Bicep.Core.PrettyPrintV2
         public void VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
             => this.Apply(syntax, LayoutObjectTypeAdditionalPropertiesAccessSyntax);
 
+        public void VisitArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax) => this.Apply(syntax, LayoutArrayTypeItemsAccessSyntax);
+
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {
             syntax.Accept(this);

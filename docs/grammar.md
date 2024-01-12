@@ -193,7 +193,7 @@ typeReference ->
   IDENTIFIER(importedType) |
   IDENTIFIER(wildcardImport) "." IDENTIFIER(type) |
   typeReference "." IDENTIFIER(property) |
-  typeReference "[" NUMBER "]" |
+  typeReference "[" (NUMBER | "*") "]" |
   typeReference ".*"
 
 ambientTypeReference -> "string" | "int" | "bool" | "array" | "object"

@@ -148,4 +148,6 @@ public interface IExpressionVisitor
     void VisitTypeReferenceAdditionalPropertiesAccessExpression(TypeReferenceAdditionalPropertiesAccessExpression expression);
 
     void VisitTypeReferenceIndexAccessExpression(TypeReferenceIndexAccessExpression expression);
+
+    void VisitTypeReferenceItemsAccessExpression(TypeReferenceItemsAccessExpression expression);
 }

@@ -577,6 +577,9 @@ namespace Bicep.Core.PrettyPrintV2
         private IEnumerable<Document> LayoutObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax) =>
             this.Glue(syntax.BaseExpression, syntax.Dot, syntax.Asterisk);
 
+        private IEnumerable<Document> LayoutArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax) =>
+            this.Glue(syntax.BaseExpression, syntax.OpenBracket, syntax.Asterisk, syntax.OpenBracket);
+
         private IEnumerable<Document> LayoutLeadingNodes(IEnumerable<SyntaxBase> leadingNodes) =>
             this.LayoutMany(leadingNodes)
                 .Where(x => x != HardLine); // Remove empty lines between decorators.

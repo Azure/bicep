@@ -945,6 +945,12 @@ namespace Bicep.Core.Parsing
                         Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
                         current = new ArrayTypeSyntax(new ArrayTypeMemberSyntax(current), openSquare, closeSquare);
                     }
+                    else if (this.Check(TokenType.Asterisk))
+                    {
+                        Token asterisk = this.Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*"));
+                        Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
+                        current = new ArrayTypeItemsAccessSyntax(current, openSquare, asterisk, closeSquare);
+                    }
                     else
                     {
                         SyntaxBase indexExpression = this.Expression(ExpressionFlags.None);

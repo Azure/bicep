@@ -155,6 +155,8 @@ namespace Bicep.Core.Syntax
 
         public abstract void VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax);
 
+        public abstract void VisitArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax);
+
         public void Visit(SyntaxBase? node)
         {
             if (node == null)

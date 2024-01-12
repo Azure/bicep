@@ -149,5 +149,7 @@ namespace Bicep.Core.Syntax
         void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax);
 
         void VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax);
+
+        void VisitArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax);
     }
 }

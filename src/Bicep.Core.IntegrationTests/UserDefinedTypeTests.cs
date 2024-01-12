@@ -1207,4 +1207,43 @@ param myParam string
             ("BCP389", DiagnosticLevel.Error, """The type "{ foo: string }" does not declare an additional properties type."""),
         });
     }
+
+    [TestMethod]
+    public void Type_element_access_is_valid_type()
+    {
+        var result = CompilationHelper.Compile("""
+            type test = string[]
+
+            type test2 = test[*]
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test2", JToken.Parse("""
+            {
+              "$ref": "#/definitions/test/items"
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Invalid_type_items_access_raises_diagnostic()
+    {
+        var result = CompilationHelper.Compile("""
+            type test = [
+              { bar: string }
+            ]
+            type test2 = array
+
+            type test3 = test[*]
+            type test4 = test2[*]
+            type test5 = test[0][*]
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP390", DiagnosticLevel.Error, """The type "[{ bar: string }]" does not declare an element type."""),
+            ("BCP390", DiagnosticLevel.Error, """The type "array" does not declare an element type."""),
+            ("BCP390", DiagnosticLevel.Error, """The type "{ bar: string }" does not declare an element type."""),
+        });
+    }
 }

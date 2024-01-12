@@ -1194,6 +1194,23 @@ namespace Bicep.Core.Syntax
         void ISyntaxVisitor.VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
             => ReplaceCurrent(syntax, ReplaceObjectTypeAdditionalPropertiesAccessSyntax);
 
+        protected virtual SyntaxBase ReplaceArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.BaseExpression, out var baseExpression);
+            hasChanges |= TryRewriteStrict(syntax.OpenBracket, out var openBracket);
+            hasChanges |= TryRewriteStrict(syntax.Asterisk, out var asterisk);
+            hasChanges |= TryRewriteStrict(syntax.CloseBracket, out var closeBracket);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ArrayTypeItemsAccessSyntax(baseExpression, openBracket, asterisk, closeBracket);
+        }
+        void ISyntaxVisitor.VisitArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceArrayTypeItemsAccessSyntax);
+
         protected virtual SyntaxBase ReplaceParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.Expression, out var expression);

@@ -2127,6 +2127,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP389",
                 $"The type \"{wrongType}\" does not declare an additional properties type.");
+
+            public ErrorDiagnostic ExplicitItemsTypeRequiredForAccessThereto(TypeSymbol wrongType) => new(
+                TextSpan,
+                "BCP390",
+                $"The type \"{wrongType}\" does not declare an element type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
