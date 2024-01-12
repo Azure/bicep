@@ -5601,4 +5601,18 @@ var functionExport = testFunction(json.experimentalFeaturesEnabled.userDefinedFu
             ("BCP308", DiagnosticLevel.Error, """The decorator "secure" may not be used on statements whose declared type is a reference to a user-defined type."""),
         });
     }
+
+    [TestMethod]
+    public void Test_Blaah()
+    {
+        var result = CompilationHelper.Compile("""
+        var foo = {
+          foo: 'foo'
+          if (true) bar: 'bar'
+          baz: 'baz'
+        }
+        """);
+
+        result.Template.Should().HaveValueAtPath("$.variables['foo']", "");
+    }
 }

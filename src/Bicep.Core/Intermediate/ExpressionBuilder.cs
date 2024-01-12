@@ -513,6 +513,7 @@ public class ExpressionBuilder
 
         return new ObjectPropertyExpression(
             SourceSyntax: null,
+            Condition: null,
             Key: new StringLiteralExpression(SourceSyntax: null, Value: AzResourceTypeProvider.ResourceNamePropertyName),
             Value: ExpressionFactory.CreateFunctionCall("format", formatStringExpression.AsEnumerable().Concat(formatParameters)));
     }
@@ -691,11 +692,14 @@ public class ExpressionBuilder
 
     private ObjectPropertyExpression ConvertObjectProperty(ObjectPropertySyntax syntax)
     {
+        var conditionExpression = syntax.IfCondition is IfConditionSyntax  ifConditionSyntax ?
+            ConvertWithoutLowering(ifConditionSyntax.ConditionExpression) :
+            null;
         var keyExpression = syntax.Key is IdentifierSyntax identifier ?
             new StringLiteralExpression(identifier, identifier.IdentifierName) :
             ConvertWithoutLowering(syntax.Key);
 
-        return new(syntax, keyExpression, ConvertWithoutLowering(syntax.Value));
+        return new(syntax, conditionExpression, keyExpression, ConvertWithoutLowering(syntax.Value));
     }
 
     private Expression ConvertFunctionDirect(FunctionCallSyntaxBase functionCall)

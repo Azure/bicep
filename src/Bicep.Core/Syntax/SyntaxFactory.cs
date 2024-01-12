@@ -94,10 +94,10 @@ namespace Bicep.Core.Syntax
         {
             if (value is SkippedTriviaSyntax)
             {
-                return new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, EmptyTrivia), value);
+                return new ObjectPropertySyntax(null, CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, EmptyTrivia), value);
             }
 
-            return new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, EmptyTrivia, SingleSpaceTrivia), value);
+            return new ObjectPropertySyntax(null, CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, EmptyTrivia, SingleSpaceTrivia), value);
         }
 
         public static ObjectSyntax CreateObject(IEnumerable<ObjectPropertySyntax> properties)

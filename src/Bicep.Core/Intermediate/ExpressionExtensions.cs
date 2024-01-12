@@ -44,12 +44,14 @@ public static class ExpressionExtensions
 
             properties[matchingIndex] = new ObjectPropertyExpression(
                 properties[matchingIndex].SourceSyntax,
+                null,
                 properties[matchingIndex].Key,
                 mergedValue);
         }
         else
         {
             properties.Add(new ObjectPropertyExpression(
+                null,
                 null,
                 new StringLiteralExpression(null, propertyName),
                 propertyValue));

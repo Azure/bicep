@@ -98,6 +98,7 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
+            Visit(syntax.IfCondition);
             if (syntax.Key is StringSyntax @string)
             {
                 Visit(@string);

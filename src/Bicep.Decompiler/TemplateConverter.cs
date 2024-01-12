@@ -378,7 +378,7 @@ namespace Bicep.Decompiler
                         else
                         {
                             // key is an interpolated string
-                            return new ObjectPropertySyntax(pair[0], SyntaxFactory.ColonToken, pair[1]);
+                            return new ObjectPropertySyntax(null, pair[0], SyntaxFactory.ColonToken, pair[1]);
                         }
                     }
 
@@ -386,7 +386,7 @@ namespace Bicep.Decompiler
                     // since ObjectPropertySyntax only accepts IdentifierSyntax or StringSyntax, we need
                     // to wrap it in a string syntax
                     var keySyntax = SyntaxFactory.CreateString(new[] { string.Empty, string.Empty }, pair[0].AsEnumerable());
-                    return new ObjectPropertySyntax(keySyntax, SyntaxFactory.ColonToken, pair[1]);
+                    return new ObjectPropertySyntax(null, keySyntax, SyntaxFactory.ColonToken, pair[1]);
                 }));
                 return true;
             }
@@ -793,7 +793,7 @@ namespace Bicep.Decompiler
                         keySyntax = SyntaxFactory.CreateInterpolatedKey(keySyntax);
                     }
 
-                    var objectProperty = new ObjectPropertySyntax(keySyntax, SyntaxFactory.ColonToken, ParseJToken(value));
+                    var objectProperty = new ObjectPropertySyntax(null, keySyntax, SyntaxFactory.ColonToken, ParseJToken(value));
                     properties.Add(objectProperty);
                 }
                 else

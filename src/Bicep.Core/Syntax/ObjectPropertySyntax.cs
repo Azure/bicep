@@ -7,12 +7,12 @@ namespace Bicep.Core.Syntax
 {
     public class ObjectPropertySyntax : ExpressionSyntax
     {
-        public ObjectPropertySyntax(SyntaxBase key, SyntaxBase colon, SyntaxBase value)
+        public ObjectPropertySyntax(SyntaxBase? ifCondition, SyntaxBase key, SyntaxBase colon, SyntaxBase value)
         {
             AssertSyntaxType(key, nameof(key), typeof(IdentifierSyntax), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(colon, nameof(colon), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(colon as Token, nameof(colon), TokenType.Colon);
-
+            this.IfCondition = ifCondition;
             this.Key = key;
             this.Colon = colon;
             this.Value = value;
@@ -27,6 +27,8 @@ namespace Bicep.Core.Syntax
                 // this should not be possible as we assert the type in the constructor
                 _ => throw new InvalidOperationException($"Unexpected key syntax {Key.GetType()}"),
             };
+
+        public SyntaxBase? IfCondition { get; }
 
         public SyntaxBase Key { get; }
 

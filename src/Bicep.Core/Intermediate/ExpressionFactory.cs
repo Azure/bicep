@@ -14,6 +14,7 @@ public static class ExpressionFactory
     public static ObjectPropertyExpression CreateObjectProperty(string name, Expression value, SyntaxBase? sourceSyntax = null)
         => new(
             sourceSyntax,
+            null,
             new StringLiteralExpression(sourceSyntax, name),
             value);
 

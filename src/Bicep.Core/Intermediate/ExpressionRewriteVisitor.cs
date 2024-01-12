@@ -167,10 +167,11 @@ public abstract class ExpressionRewriteVisitor : IExpressionVisitor
     public virtual Expression ReplaceObjectPropertyExpression(ObjectPropertyExpression expression)
     {
         var hasChanges =
+            TryRewrite(expression.Condition, out var condition) |
             TryRewrite(expression.Key, out var key) |
             TryRewrite(expression.Value, out var value);
 
-        return hasChanges ? expression with { Key = key, Value = value } : expression;
+        return hasChanges ? expression with { Condition = condition, Key = key, Value = value } : expression;
     }
 
     void IExpressionVisitor.VisitParametersReferenceExpression(ParametersReferenceExpression expression) => ReplaceCurrent(expression, ReplaceParametersReferenceExpression);

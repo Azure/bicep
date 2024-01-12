@@ -265,6 +265,7 @@ namespace Bicep.Core.Syntax
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
+            this.Visit(syntax.IfCondition);
             this.Visit(syntax.Key);
             this.Visit(syntax.Colon);
             this.Visit(syntax.Value);

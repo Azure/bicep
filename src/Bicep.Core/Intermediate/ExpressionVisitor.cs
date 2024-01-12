@@ -102,6 +102,7 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public virtual void VisitObjectPropertyExpression(ObjectPropertyExpression expression)
     {
+        Visit(expression.Condition);
         Visit(expression.Key);
         Visit(expression.Value);
     }

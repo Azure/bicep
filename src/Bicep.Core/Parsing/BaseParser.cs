@@ -1076,6 +1076,19 @@ namespace Bicep.Core.Parsing
                     return this.Declaration(LanguageConstants.ResourceKeyword);
                 }
 
+                IfConditionSyntax? ifCondition = null;
+                if (CheckKeyword(LanguageConstants.IfKeyword) &&
+                    Check(reader.PeekAhead(1), TokenType.LeftParen))
+                {
+                    var ifKeyword = this.ExpectKeyword(LanguageConstants.IfKeyword);
+                    var conditionExpression = this.WithRecovery(
+                        () => this.ParenthesizedExpression(WithoutExpressionFlag(expressionFlags, ExpressionFlags.None)),
+                        RecoveryFlags.None,
+                        TokenType.Colon, TokenType.NewLine, TokenType.RightBrace);
+
+                    ifCondition = new(ifKeyword, conditionExpression, SkipEmpty());
+                }
+
                 var key = this.WithRecovery(
                     () => ThrowIfSkipped(
                         () =>
@@ -1092,7 +1105,7 @@ namespace Bicep.Core.Parsing
                 var colon = this.WithRecovery(() => Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(key), TokenType.NewLine, TokenType.RightBrace);
                 var value = this.WithRecovery(() => Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(colon), TokenType.NewLine, TokenType.RightBrace);
 
-                return new ObjectPropertySyntax(key, colon, value);
+                return new ObjectPropertySyntax(ifCondition, key, colon, value);
             }, RecoveryFlags.None, TokenType.NewLine, TokenType.RightBrace);
         }
 

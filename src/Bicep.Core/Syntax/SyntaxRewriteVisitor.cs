@@ -667,7 +667,8 @@ namespace Bicep.Core.Syntax
 
         protected virtual SyntaxBase ReplaceObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            var hasChanges = TryRewrite(syntax.Key, out var key);
+            var hasChanges = TryRewrite(syntax.IfCondition, out var ifCondition);
+            hasChanges|= TryRewrite(syntax.Key, out var key);
             hasChanges |= TryRewrite(syntax.Colon, out var colon);
             hasChanges |= TryRewrite(syntax.Value, out var value);
 
@@ -676,7 +677,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ObjectPropertySyntax(key, colon, value);
+            return new ObjectPropertySyntax(ifCondition, key, colon, value);
         }
         void ISyntaxVisitor.VisitObjectPropertySyntax(ObjectPropertySyntax syntax) => ReplaceCurrent(syntax, ReplaceObjectPropertySyntax);
 

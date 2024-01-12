@@ -202,9 +202,14 @@ namespace Bicep.Core.PrettyPrintV2
             this.Glue(syntax.Base, syntax.NullabilityMarker);
 
         private IEnumerable<Document> LayoutObjectPropertySyntax(ObjectPropertySyntax syntax) =>
-            this.Spread(
-                this.Glue(syntax.Key, syntax.Colon),
-                syntax.Value);
+            syntax.IfCondition is {}
+                ? this.Spread(
+                    syntax.IfCondition,
+                    this.Glue(syntax.Key, syntax.Colon),
+                    syntax.Value)
+                : this.Spread(
+                    this.Glue(syntax.Key, syntax.Colon),
+                    syntax.Value);
 
         private IEnumerable<Document> LayoutObjectSyntax(ObjectSyntax syntax) =>
             this.Bracket(

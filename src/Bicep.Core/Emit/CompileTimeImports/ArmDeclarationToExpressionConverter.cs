@@ -414,6 +414,7 @@ internal class ArmDeclarationToExpressionConverter
         {
             JObject objectToCovert => ExpressionFactory.CreateObject(
                 objectToCovert.Properties().Select(jProperty => new ObjectPropertyExpression(sourceSyntax,
+                    null,
                     ConvertToExpression(parsedExpressions, jProperty.Name),
                     ConvertToExpression(parsedExpressions, jProperty.Value))),
                 sourceSyntax),

@@ -113,7 +113,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                     continue;
                 }
 
-                var replacementNameProp = new ObjectPropertySyntax(resourceNameProp.Key, resourceNameProp.Colon, newName);
+                var replacementNameProp = new ObjectPropertySyntax(resourceNameProp.IfCondition, resourceNameProp.Key, resourceNameProp.Colon, newName);
                 var parentProp = SyntaxFactory.CreateObjectProperty(
                     LanguageConstants.ResourceParentPropertyName,
                     SyntaxFactory.CreateVariableAccess(otherResourceSymbol.Name));

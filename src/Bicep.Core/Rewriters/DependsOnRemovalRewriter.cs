@@ -112,6 +112,7 @@ namespace Bicep.Core.Rewriters
                     if (newDependsOnArrayChildren.Any(x => x is ArrayItemSyntax))
                     {
                         newChildren.Add(new ObjectPropertySyntax(
+                            dependsOnProperty.IfCondition,
                             dependsOnProperty.Key,
                             dependsOnProperty.Colon,
                             new ArraySyntax(

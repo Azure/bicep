@@ -581,17 +581,11 @@ namespace Bicep.Core.PrettyPrint
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax) =>
-            this.Build(() => base.VisitObjectPropertySyntax(syntax), children =>
-            {
-                // When a property value is an unterminated string, there can be more than
-                // 3 children.
-                Debug.Assert(children.Length >= 3);
-
-                ILinkedDocument key = children[0];
-                ILinkedDocument colon = children[1];
-                ILinkedDocument value = children[2];
-
-                return Concat(key, colon, Space, value);
+            this.BuildWithConcat(() => {
+                this.Visit(syntax.IfCondition);
+                this.Visit(syntax.Key);
+                this.Visit(syntax.Colon);
+                this.Visit(syntax.Value);
             });
 
         public override void VisitArraySyntax(ArraySyntax syntax) =>

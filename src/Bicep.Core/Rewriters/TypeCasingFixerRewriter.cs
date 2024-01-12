@@ -53,6 +53,7 @@ namespace Bicep.Core.Rewriters
                         }
 
                         newChildren.Add(new ObjectPropertySyntax(
+                            objectProperty.IfCondition,
                             newKeySyntax,
                             objectProperty.Colon,
                             Rewrite(objectProperty.Value)));

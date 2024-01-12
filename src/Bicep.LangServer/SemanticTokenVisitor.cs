@@ -109,6 +109,7 @@ namespace Bicep.LanguageServer
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
+            Visit(syntax.IfCondition);
             if (syntax.Key is StringSyntax @string)
             {
                 Visit(@string);

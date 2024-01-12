@@ -19,7 +19,7 @@ public class SyntaxModifier
             return null;
         }
 
-        var newProperty = new ObjectPropertySyntax(property.Key, property.Colon, updateFunc(property.Value));
+        var newProperty = new ObjectPropertySyntax(property.IfCondition, property.Key, property.Colon, updateFunc(property.Value));
 
         return new ObjectSyntax(
             @object.OpenBrace,

@@ -1222,7 +1222,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 JObject @object => new ObjectExpression(null, @object.Properties()
                     .Where(x => SupportedJsonTokenTypes.Contains(x.Value.Type))
-                    .Select(x => new ObjectPropertyExpression(null, new StringLiteralExpression(null, x.Name), ConvertJsonToExpression(x.Value)))
+                    .Select(x => new ObjectPropertyExpression(null, null, new StringLiteralExpression(null, x.Name), ConvertJsonToExpression(x.Value)))
                     .ToImmutableArray()),
                 JArray @array => new ArrayExpression(null, @array
                     .Where(x => SupportedJsonTokenTypes.Contains(x.Type))

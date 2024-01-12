@@ -91,6 +91,7 @@ public record InterpolatedStringExpression(
 
 public record ObjectPropertyExpression(
     SyntaxBase? SourceSyntax,
+    Expression? Condition,
     Expression Key,
     Expression Value
 ) : Expression(SourceSyntax)
