@@ -678,16 +678,16 @@ namespace Bicep.Core.UnitTests.Registry
             await RestoreModule(ociRegistry, moduleReference);
 
             ociRegistry.Should().HaveValidCachedModules(withSource: publishSource);
-            var actualSource = ociRegistry.TryGetSource(moduleReference);
+            var actualSourceResult = ociRegistry.TryGetSource(moduleReference);
 
             if (sourceStream is { })
             {
-                actualSource.Should().NotBeNull();
-                actualSource.Should().BeEquivalentTo(SourceArchive.FromStream(sourceStream));
+                actualSourceResult.TryUnwrap().Should().NotBeNull();
+                actualSourceResult.Unwrap().Should().BeEquivalentTo(SourceArchive.UnpackFromStream(sourceStream).Unwrap());
             }
             else
             {
-                actualSource.Should().BeNull();
+                actualSourceResult.IsSuccess().Should().BeFalse();
             }
         }
 
