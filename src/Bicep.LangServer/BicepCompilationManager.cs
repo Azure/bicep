@@ -174,8 +174,8 @@ namespace Bicep.LanguageServer
                 }
             }
 
-            var activeEntries = activeContexts.Values.OfType<CompilationContext>()
-                .SelectMany(x => x.Compilation.GetAllBicepModels())
+            var activeEntries = GetAllSafeActiveContexts()
+                .SelectMany(x => x.Value.Compilation.GetAllBicepModels())
                 .SelectMany(x => x.GetAuxiliaryFileReferences())
                 .Distinct();
 

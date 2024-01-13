@@ -296,19 +296,19 @@ param requiredIpnut string
         diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("The specified path is empty."));
         fileResolverMock.Verify(x => x.TryReadAsBinaryData(txtFileUri, null), Times.Exactly(3));
 
-        // Change a parent folder, verify it triggers a recompilation
-        var parentDirUri = new Uri("file:///path/to/");
-        result = new(x => x.ErrorOccurredReadingFile("It's gone!"));
-        helper.ChangeWatchedFile(parentDirUri);
+        // Delete a parent folder, verify it triggers a recompilation
+        var parentDirUri = new Uri("file:///path/to");
+        result = new(x => x.ErrorOccurredReadingFile("Parent directory is gone!"));
+        helper.ChangeWatchedFile(parentDirUri, FileChangeType.Deleted);
         diags = await helper.ChangeFileAsync(TestContext, bicepContents, bicepUri, ++version);
-        diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("An error occurred reading file. It's gone!"));
+        diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("An error occurred reading file. Parent directory is gone!"));
         fileResolverMock.Verify(x => x.TryReadAsBinaryData(txtFileUri, null), Times.Exactly(4));
 
         // Change an unrelated txt file, verify it doesn't trigger a recompilation
         var unrelatedTxtFileUri = new Uri("file:///path/to/notbar.txt");
         helper.ChangeWatchedFile(unrelatedTxtFileUri);
         diags = await helper.ChangeFileAsync(TestContext, bicepContents, bicepUri, ++version);
-        diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("An error occurred reading file. It's gone!"));
+        diags.Diagnostics.Should().OnlyContain(x => x.Message.Contains("An error occurred reading file. Parent directory is gone!"));
         fileResolverMock.Verify(x => x.TryReadAsBinaryData(txtFileUri, null), Times.Exactly(4));
         fileResolverMock.Verify(x => x.TryReadAsBinaryData(unrelatedTxtFileUri, null), Times.Never);
     }
