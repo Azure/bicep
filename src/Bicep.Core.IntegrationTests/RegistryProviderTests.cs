@@ -16,6 +16,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FileSystem = System.IO.Abstractions.FileSystem;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests;
 
@@ -61,6 +62,7 @@ output joke string = dadJoke.body.joke
 
         result.Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
+
     }
 
     [TestMethod]
@@ -79,7 +81,7 @@ output joke string = dadJoke.body.joke
         await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/test/provider/http@1.2.3' with {{}}
+provider 'br:example.azurecr.io/test/provider/http@1.2.3' with {}
 
 resource dadJoke 'request@v1' = {
   uri: 'https://icanhazdadjoke.com'
@@ -92,12 +94,44 @@ output joke string = dadJoke.body.joke
 
         result.Should().NotGenerateATemplate();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-            //Harsh - Why are there multiple errors showing? Is this okay? 
-            ("BCP205", DiagnosticLevel.Error, "Provider namespace \"http\" does not support configuration."),
-            ("BCP022", DiagnosticLevel.Error, "Expected a property name at this location."),
-            ("BCP018", DiagnosticLevel.Error, "Expected the \":\" character at this location."),
-            ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location.")
+            ("BCP205", DiagnosticLevel.Error, "Provider namespace \"http\" does not support configuration.")
         });
+    }
+
+    [TestMethod]
+    public async Task Third_party_imports_are_enabled_when_feature_is_enabled()
+    {
+        var service = new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true));
+        var result = await CompilationHelper.RestoreAndCompile(service, @$"
+provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+");
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().DeepEqual(JToken.Parse("""
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.1-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+    "_EXPERIMENTAL_FEATURES_ENABLED": [
+      "Extensibility"
+    ],
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14577456470128607958"
+    }
+  },
+  "imports": {
+    "http": {
+      "provider": "http",
+      "version": "1.2.3"
+    }
+  },
+  "resources": {}
+}
+"""));
     }
 
     [TestMethod]
@@ -118,12 +152,5 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         result2.Should().HaveDiagnostics(new[] {
                 ("BCP204", DiagnosticLevel.Error, "Provider namespace \"http\" is not recognized."),
             });
-
-        service = new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry:true));
-        var result3 = await CompilationHelper.RestoreAndCompile(service, @$"
-provider 'br:example.azurecr.io/test/provider/http@1.2.3'
-");
-        result3.Should().NotHaveAnyDiagnostics();
-        result3.Template.Should().NotBeNull();
     }
 }

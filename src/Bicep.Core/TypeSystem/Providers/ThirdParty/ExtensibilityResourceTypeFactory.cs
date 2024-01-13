@@ -7,7 +7,7 @@ using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 
-namespace Bicep.Core.TypeSystem.Providers.K8s
+namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 {
     // Renamed from K8sResourceTypeFactory to ExtensibilityResourceTypeFactory
     public class ExtensibilityResourceTypeFactory

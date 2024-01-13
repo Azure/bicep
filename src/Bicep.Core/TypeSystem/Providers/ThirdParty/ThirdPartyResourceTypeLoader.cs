@@ -7,7 +7,6 @@ using Azure.Bicep.Types;
 using Azure.Bicep.Types.K8s;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Providers.Az;
-using Bicep.Core.TypeSystem.Providers.K8s;
 using Bicep.Core.TypeSystem.Types;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 

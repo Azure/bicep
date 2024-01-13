@@ -36,8 +36,6 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                     bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
                     break;
                 default:
-                    // we exhaustively test deserialization of every resource type during CI, and this happens in a deterministic fashion,
-                    // so this exception should never occur in the released product
                     throw new ArgumentException($"Resource {resourceType.TypeReference.FormatName()} has unexpected body type {bodyType.GetType()}");
             }
 
@@ -115,6 +113,6 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
 
-        public string Version { get; } = "1.0.0";
+        public string Version { get; }
     }
 }

@@ -25,7 +25,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     IsSingleton: true,
                     BicepProviderName: name,
                     ConfigurationType: null,
-                    ArmTemplateProviderName: name[0].ToString().ToUpper() + name.Substring(1),
+                    ArmTemplateProviderName: name,
                     ArmTemplateProviderVersion: resourceTypeProvider.Version),
                 ImmutableArray<TypeProperty>.Empty,
                 ImmutableArray<FunctionOverload>.Empty,
