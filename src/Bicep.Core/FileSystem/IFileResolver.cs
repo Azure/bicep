@@ -28,6 +28,9 @@ public interface IFileResolver
     /// <param name="fileUri">The file URI to read.</param>
     ResultWithDiagnostic<string> TryRead(Uri fileUri);
 
+    /// <summary>
+    /// Reads a file contents up to a certain number of characters.
+    /// </summary>
     ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n);
 
     /// <summary>

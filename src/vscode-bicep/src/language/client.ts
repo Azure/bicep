@@ -110,10 +110,10 @@ export async function createLanguageService(
     },
     synchronize: {
       configurationSection: "bicep",
-      // These file watcher globs should be kept in-sync with those defined in BicepDidChangeWatchedFilesHandler.cs
       fileEvents: [
-        vscode.workspace.createFileSystemWatcher("**/"), // folder changes
-        vscode.workspace.createFileSystemWatcher("**/*"), // file changes
+        // Register to watch all files and folders, regardless of extension, because they could be referenced by load* functions.
+        // We will do the filtering in the language server. This glob pattern should be kept in-sync with BicepDidChangeWatchedFilesHandler.cs.
+        vscode.workspace.createFileSystemWatcher("**/*"),
       ],
     },
   };

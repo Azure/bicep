@@ -247,9 +247,9 @@ param requiredIpnut string
     {
         var bicepUri = new Uri("file:///main.bicep");
         var bicepContents = """
-#disable-next-line no-unused-params
-param foo 'abc' = loadTextContent('path/to/bar.txt')
-""";
+        #disable-next-line no-unused-params
+        param foo 'abc' = loadTextContent('path/to/bar.txt')
+        """;
         var txtFileUri = new Uri("file:///path/to/bar.txt");
         ResultWithDiagnostic<BinaryData> result = new(BinaryData.FromBytes(Encoding.UTF8.GetBytes("abc")));
 

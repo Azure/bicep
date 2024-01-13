@@ -74,7 +74,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         }
 
         [TestMethod]
-        public void _should_return_expected_results()
+        public void TryReadAsBinaryData_should_return_expected_results()
         {
             var fileResolver = GetFileResolver();
             var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
