@@ -88,7 +88,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             .ToImmutableArray();
 
         var outputs = model.Root.OutputDeclarations
-            .Select(x => new GetMetadataResponse.SymbolDefinition(GetRange(model.SourceFile, x.DeclaringSyntax),x.Name, x.TryGetDescriptionFromDecorator()))
+            .Select(x => new GetMetadataResponse.SymbolDefinition(GetRange(model.SourceFile, x.DeclaringSyntax), x.Name, x.TryGetDescriptionFromDecorator()))
             .ToImmutableArray();
 
         return new(metadata, parameters, outputs);
@@ -125,7 +125,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
             foreach (var dependency in dependencies.Where(d => d.Kind == ResourceDependencyKind.Primary))
             {
                 var target = nodesBySymbol.TryGetValue(dependency.Resource);
-                if (source is {} && target is {})
+                if (source is { } && target is { })
                 {
                     edges.Add(new(source.Name, target.Name));
                 }

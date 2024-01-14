@@ -60,7 +60,7 @@ public class JsonRpcCommandTests : TestBase
     public async Task Version_returns_bicep_version()
     {
         await RunServerTest(
-            services => {},
+            services => { },
             async (client, token) =>
             {
                 var response = await client.Version(new(), token);
@@ -165,12 +165,12 @@ resource baz 'My.Rp/foo@2020-01-01' = {
             async (client, token) =>
             {
                 var response = await client.GetDeploymentGraph(new("/main.bicep"), token);
-                response.Nodes.Should().Equal(new GetDeploymentGraphResponse.Node[] { 
+                response.Nodes.Should().Equal(new GetDeploymentGraphResponse.Node[] {
                     new(new(new(4, 0), new(7, 1)), "bar", "My.Rp/foo", true, null),
                     new(new(new(9, 0), new(12, 1)), "baz", "My.Rp/foo", false, null),
                     new(new(new(0, 0), new(2, 1)), "foo", "My.Rp/foo", false, null),
                 });
-                response.Edges.Should().Equal(new GetDeploymentGraphResponse.Edge[] { 
+                response.Edges.Should().Equal(new GetDeploymentGraphResponse.Edge[] {
                     new("bar", "foo"),
                     new("baz", "bar"),
                 });
