@@ -121,12 +121,8 @@ namespace Bicep.Core.Registry
              */
 
             var manifest = new OciManifest(2, mediaType, artifactType, config, layerDescriptors.ToImmutableArray(), annotations.Build());
-            // var serializedManifest = JsonSerializer.Serialize(manifest,  OciManifestSerializationContext.Default.OciManifest);
            
-            var manifestBinaryData = BinaryData.FromObjectAsJson(manifest, new JsonSerializerOptions{
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-            });
+            var manifestBinaryData = BinaryData.FromObjectAsJson(manifest, OciManifestSerializationContext.Default.Options);
             _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
         }
 
