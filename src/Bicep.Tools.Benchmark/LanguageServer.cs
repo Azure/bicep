@@ -29,7 +29,7 @@ public class LanguageServer
 
     private static async Task<BenchmarkData> CreateBenchmarkData()
     {
-        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(typeof(DataSet).Assembly, "Files");
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(typeof(DataSet).Assembly, "Files/baselines");
         var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
         var client = await StartServer(fileSystem, diagsListener);
 
