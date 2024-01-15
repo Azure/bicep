@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -1135,6 +1136,40 @@ param myParam string
     }
 
     [TestMethod]
+    public void Type_property_access_resolves_refs_and_traverses_imports()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+            ("types.bicep", """
+                @export()
+                type myObject = {
+                  quux: int
+                }
+                """),
+            ("main.bicep", """
+                import * as types from 'types.bicep'
+
+                type test = {
+                  baz: types.myObject
+                }
+
+                type test2 = {
+                  foo: {
+                    bar: test
+                  }
+                }
+
+                type test3 = test2.foo.bar.baz.quux
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
+            {
+              "$ref": "#/definitions/_1.myObject/properties/quux"
+            }
+            """));
+    }
+
+    [TestMethod]
     public void Type_index_access_is_valid_type()
     {
         var result = CompilationHelper.Compile("""
@@ -1171,6 +1206,34 @@ param myParam string
         {
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
+    }
+
+    [TestMethod]
+    public void Type_index_access_resolves_refs_and_traverses_imports()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+            ("types.bicep", """
+                @export()
+                type myTuple = [int, string]
+                """),
+            ("main.bicep", """
+                import * as types from 'types.bicep'
+
+                type test = [
+                  types.myTuple
+                ]
+
+                type test2 = [string, bool, test]
+
+                type test3 = test2[2][0][1]
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
+            {
+              "$ref": "#/definitions/_1.myTuple/prefixItems/1"
+            }
+            """));
     }
 
     [TestMethod]
@@ -1215,6 +1278,40 @@ param myParam string
     }
 
     [TestMethod]
+    public void Type_additional_properties_access_resolves_refs_and_traverses_imports()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+            ("types.bicep", """
+                @export()
+                type myObject = {
+                  *: int
+                }
+                """),
+            ("main.bicep", """
+                import * as types from 'types.bicep'
+
+                type test = {
+                  *: types.myObject
+                }
+
+                type test2 = {
+                  *: {
+                    *: test
+                  }
+                }
+
+                type test3 = test2.*.*.*.*
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
+            {
+              "$ref": "#/definitions/_1.myObject/additionalProperties"
+            }
+            """));
+    }
+
+    [TestMethod]
     public void Type_element_access_is_valid_type()
     {
         var result = CompilationHelper.Compile("""
@@ -1250,5 +1347,31 @@ param myParam string
         {
             (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
         });
+    }
+
+    [TestMethod]
+    public void Type_element_access_resolves_refs_and_traverses_imports()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+            ("types.bicep", """
+                @export()
+                type strings = string[]
+                """),
+            ("main.bicep", """
+                import * as types from 'types.bicep'
+
+                type test = types.strings[]
+
+                type test2 = test[]
+
+                type test3 = test2[*][*][*]
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
+            {
+              "$ref": "#/definitions/_1.strings/items"
+            }
+            """));
     }
 }

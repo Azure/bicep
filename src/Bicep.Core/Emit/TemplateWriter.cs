@@ -391,14 +391,7 @@ namespace Bicep.Core.Emit
             SynthesizedTypeAliasReferenceExpression or
             ImportedTypeReferenceExpression or
             WildcardImportTypePropertyReferenceExpression or
-            TypeReferencePropertyAccessExpression or
-            TypeReferenceAdditionalPropertiesAccessExpression or
-            TypeReferenceIndexAccessExpression or
-            TypeReferenceItemsAccessExpression => ExpressionFactory.CreateObject(
-                ExpressionFactory.CreateObjectProperty("$ref",
-                    ExpressionFactory.CreateStringLiteral(GetReferenceString(typeExpression), typeExpression.SourceSyntax),
-                    typeExpression.SourceSyntax).AsEnumerable(),
-                typeExpression.SourceSyntax),
+            ITypeReferenceAccessExpression => GetTypePropertiesForReferenceExpression(typeExpression),
 
             // literals
             StringLiteralTypeExpression @string => ExpressionFactory.CreateObject(
@@ -467,6 +460,152 @@ namespace Bicep.Core.Emit
             // should have been caught and converted to an error diagnostic by the DeclaredTypeManager
             _ => throw new ArgumentException($"Cannot create reference pointer for expression of type {expression.GetType()}."),
         };
+
+        private ObjectExpression GetTypePropertiesForReferenceExpression(TypeExpression typeExpression) => ResolveTypeReferenceExpression(typeExpression) switch
+        {
+            ResolvedInternalReference internalRef => ExpressionFactory.CreateObject(
+                ExpressionFactory.CreateObjectProperty("$ref",
+                    ExpressionFactory.CreateStringLiteral(internalRef.RefString, typeExpression.SourceSyntax),
+                    typeExpression.SourceSyntax).AsEnumerable(),
+                typeExpression.SourceSyntax),
+            var otherwise => throw new ArgumentException($"Cannot create schema node for reference resolution of type {otherwise.GetType()}."),
+        };
+
+        private interface ITypeReferenceExpressionResolution
+        {
+            TypeExpression Declaration { get; }
+
+            ITypeReferenceExpressionResolution DescendToProperty(string propertyName, TypeExpression propertyDeclaration);
+
+            ITypeReferenceExpressionResolution DescendToAdditionalProperties(TypeExpression additionalPropertiesDeclaration);
+
+            ITypeReferenceExpressionResolution DescendToIndex(long index, TypeExpression indexDeclaration);
+
+            ITypeReferenceExpressionResolution DescendToItems(TypeExpression itemsDeclaration);
+        }
+
+        private record ResolvedInternalReference(ImmutableArray<string> ReferenceSegments, TypeExpression Declaration) : ITypeReferenceExpressionResolution
+        {
+            internal string RefString => string.Join('/', InternalTypeRefStart.AsEnumerable().Concat(ReferenceSegments.Select(Rfc6901Encode)));
+
+            public ITypeReferenceExpressionResolution DescendToProperty(string propertyName, TypeExpression propertyDeclaration)
+                => new ResolvedInternalReference(ReferenceSegments.AddRange("properties", propertyName), propertyDeclaration);
+
+            public ITypeReferenceExpressionResolution DescendToAdditionalProperties(TypeExpression additionalPropertiesDeclaration)
+                => new ResolvedInternalReference(ReferenceSegments.Add("additionalProperties"), additionalPropertiesDeclaration);
+
+            public ITypeReferenceExpressionResolution DescendToIndex(long index, TypeExpression indexDeclaration)
+                => new ResolvedInternalReference(ReferenceSegments.AddRange("prefixItems", index.ToInvariantString()), indexDeclaration);
+
+            public ITypeReferenceExpressionResolution DescendToItems(TypeExpression itemsDeclaration)
+                => new ResolvedInternalReference(ReferenceSegments.Add("items"), itemsDeclaration);
+        }
+
+        private ITypeReferenceExpressionResolution ResolveTypeReferenceExpression(TypeExpression expression)
+        {
+            Stack<ITypeReferenceAccessExpression> typeReferencesStack = new();
+            TypeExpression root = expression;
+
+            while (root is ITypeReferenceAccessExpression accessExpression)
+            {
+                typeReferencesStack.Push(accessExpression);
+                root = accessExpression.BaseExpression;
+            }
+
+            var rootName = root switch
+            {
+                TypeAliasReferenceExpression typeAliasReference => typeAliasReference.Symbol.Name,
+                SynthesizedTypeAliasReferenceExpression typeAliasReference => typeAliasReference.Name,
+                ImportedTypeReferenceExpression importedTypeReference => Context.ImportClosureInfo.ImportedSymbolNames[importedTypeReference.Symbol],
+                WildcardImportTypePropertyReferenceExpression importedTypeReference
+                    => Context.ImportClosureInfo.WildcardImportPropertyNames[new(importedTypeReference.ImportSymbol, importedTypeReference.PropertyName)],
+                _ => throw new ArgumentException($"Cannot resolve type reference access expression with a root of type '{root.GetType().Name}'.")
+            };
+
+            ITypeReferenceExpressionResolution currentResolution = new ResolvedInternalReference(
+                ImmutableArray.Create(TypeDefinitionsProperty, rootName),
+                declaredTypesByName[rootName].Value);
+            while (typeReferencesStack.TryPop(out var currentAccessExpression))
+            {
+                if (currentAccessExpression is TypeReferencePropertyAccessExpression or TypeReferenceAdditionalPropertiesAccessExpression)
+                {
+                    ObjectTypeExpression @object;
+                    while (true)
+                    {
+                        if (currentResolution.Declaration is not ObjectTypeExpression objectTypeExpression)
+                        {
+                            currentResolution = ResolveTypeReferenceExpression(currentResolution.Declaration);
+                            continue;
+                        }
+
+                        @object = objectTypeExpression;
+                        break;
+                    }
+
+                    if (currentAccessExpression is TypeReferencePropertyAccessExpression propertyAccess)
+                    {
+                        currentResolution = currentResolution.DescendToProperty(propertyAccess.PropertyName,
+                            @object.PropertyExpressions
+                                .Single(p => StringComparer.OrdinalIgnoreCase.Equals(p.PropertyName, propertyAccess.PropertyName))
+                                .Value);
+                    }
+                    else if (currentAccessExpression is TypeReferenceAdditionalPropertiesAccessExpression additionalPropertiesAccess)
+                    {
+                        if (@object.AdditionalPropertiesExpression is null)
+                        {
+                            throw new ArgumentException("This should have been caught by the type checker.");
+                        }
+
+                        currentResolution = currentResolution.DescendToAdditionalProperties(@object.AdditionalPropertiesExpression.Value);
+                    }
+                    else
+                    {
+                        throw new UnreachableException();
+                    }
+                }
+                else if (currentAccessExpression is TypeReferenceIndexAccessExpression indexAccess)
+                {
+                    TupleTypeExpression tuple;
+                    while (true)
+                    {
+                        if (currentResolution.Declaration is not TupleTypeExpression tupleTypeExpression)
+                        {
+                            currentResolution = ResolveTypeReferenceExpression(currentResolution.Declaration);
+                            continue;
+                        }
+
+                        tuple = tupleTypeExpression;
+                        break;
+                    }
+
+                    currentResolution = currentResolution.DescendToIndex(indexAccess.Index, tuple.ItemExpressions[(int) indexAccess.Index].Value);
+                }
+                else if (currentAccessExpression is TypeReferenceItemsAccessExpression itemsAccess)
+                {
+                    ArrayTypeExpression array;
+                    while (true)
+                    {
+                        if (currentResolution.Declaration is not ArrayTypeExpression arrayTypeExpression)
+                        {
+                            currentResolution = ResolveTypeReferenceExpression(currentResolution.Declaration);
+                            continue;
+                        }
+
+                        array = arrayTypeExpression;
+                        break;
+                    }
+
+                    currentResolution = currentResolution.DescendToItems(array.BaseExpression);
+                }
+                else
+                {
+                    throw new UnreachableException(
+                        $"This if/else block should be exhaustive, but received an unexpected reference access expression of type {currentAccessExpression.GetType().Name}.");
+                }
+            }
+
+            return currentResolution;
+        }
 
         private static string GetReferenceToTypeDefinition(string typeDefinitionName)
             => $"{InternalTypeRefStart}/{TypeDefinitionsProperty}/{Rfc6901Encode(typeDefinitionName)}";
