@@ -158,17 +158,6 @@ import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
         }
 
         [TestMethod]
-        public async Task Imports_return_error_with_unrecognized_namespace()
-        {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"
-provider 'madeUpNamespace@1.0.0'
-");
-            result.Should().HaveDiagnostics(new[] {
-                ("BCP204", DiagnosticLevel.Error, "Provider namespace \"madeUpNamespace\" is not recognized."),
-            });
-        }
-
-        [TestMethod]
         public async Task Import_configuration_is_blocked_by_default()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"

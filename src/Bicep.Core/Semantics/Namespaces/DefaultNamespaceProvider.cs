@@ -63,18 +63,15 @@ public class DefaultNamespaceProvider : INamespaceProvider
             return null;
         }
 
-        else 
-        {   // Only attempt to create a ThirdPartyNamespaceType if the feature is enabled
-            if(features.ProviderRegistryEnabled)
+        if (descriptor.TypesBaseUri != null){
+            if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedThirdPartyProvider, out var errorBuilderForThirdParty))
             {
-                if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
-                {
-                    return ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider);
-                }
-
-                Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
+                return ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedThirdPartyProvider);
             }
-            return null;
+
+            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilderForThirdParty(DiagnosticBuilder.ForDocumentStart())}");
         }
+
+        return null;
     }
 }
