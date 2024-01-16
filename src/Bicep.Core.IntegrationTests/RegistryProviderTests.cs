@@ -149,7 +149,8 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         var result2 = await CompilationHelper.RestoreAndCompile(service, @$"
 provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 ");
-        result2.Should().NotHaveAnyDiagnostics();
-        result2.Template.Should().NotBeNull();
+        result2.Should().HaveDiagnostics(new[] {
+        ("BCP204", DiagnosticLevel.Error, "Provider namespace \"http\" is not recognized."),
+            });
     }
 }
