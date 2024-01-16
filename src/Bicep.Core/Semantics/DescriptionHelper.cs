@@ -11,6 +11,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Core.Semantics
 {
@@ -88,6 +89,9 @@ namespace Bicep.Core.Semantics
             var root = JsonElementFactory.CreateElementFromStream(jsonArmTemplateContents);
             return root.TryGetPropertyByPath($"metadata.{LanguageConstants.MetadataDescriptionPropertyName}")?.GetString();
         }
+
+        public static string? TryGetFromArmTemplate(BinaryData jsonArmTemplateContents) 
+            => TryGetFromArmTemplate(jsonArmTemplateContents.ToStream());
 
         /// <summary>
         /// Retrieves description for a given module repesented by a template spec's contents
