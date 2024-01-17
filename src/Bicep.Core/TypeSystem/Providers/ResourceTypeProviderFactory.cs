@@ -18,6 +18,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Providers.ThirdParty;
 
 namespace Bicep.Core.TypeSystem.Providers
 {
@@ -47,19 +48,22 @@ namespace Bicep.Core.TypeSystem.Providers
                 result = cachedResourceTypeLoaders.GetOrAdd(key, _ =>
                 {
 
-                    if (providerDescriptor.Name != AzNamespaceType.BuiltInName)
-                    {
-                        // Note (asilverman): the line of code below is meant for 3rd party provider resolution logic which is not yet implemented.
-                        throw new NotImplementedException($"Provider {providerDescriptor.Name} not supported.");
-                    }
                     if (providerDescriptor.TypesBaseUri is null)
                     {
                         throw new ArgumentException($"Provider {providerDescriptor.Name} requires a types base URI.");
                     }
-                    return new AzResourceTypeProvider(
-                                    new AzResourceTypeLoader(
-                                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
+                    if (providerDescriptor.Name != AzNamespaceType.BuiltInName)
+                    {
+                        return new ThirdPartyResourceTypeProvider(
+                                    new ThirdPartyResourceTypeLoader(
+                                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)), 
                                         providerDescriptor.Version);
+                    }
+                    
+                    return new AzResourceTypeProvider(
+                                new AzResourceTypeLoader(
+                                    OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
+                                    providerDescriptor.Version);
                 });
             }
             catch (Exception ex)

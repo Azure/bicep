@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -51,18 +52,30 @@ public class DefaultNamespaceProvider : INamespaceProvider
             return new(getProviderFn(descriptor, resourceScope, features, sourceFileKind));
         }
 
-        // dynamic types are not supported for namespaces other than 'az' for now
-        if (descriptor.Name != AzNamespaceType.BuiltInName)
+        // Special-case the 'az' provider being loaded from registry - we need add-on functionality delivered via the namespace provider
+        if (descriptor.Name == AzNamespaceType.BuiltInName)
         {
-            return new(x => x.UnrecognizedProvider(descriptor.Name));
+            if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+            {
+                return new(AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind));
+            }
+
+            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
+            return new(errorBuilder);
         }
 
-        if (!resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+        // If the feature is enabled, try to load a third-party provider
+        if (features.ProviderRegistryEnabled)
         {
-            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}");
+            if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+            {
+                return new(ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider));
+            }
+
+            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
             return new(errorBuilder);
         }
         
-        return new(AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind));
+        return new(x => x.UnrecognizedProvider(descriptor.Name));
     }
 }
