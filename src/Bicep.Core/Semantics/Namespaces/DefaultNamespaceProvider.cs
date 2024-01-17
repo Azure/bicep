@@ -63,7 +63,16 @@ public class DefaultNamespaceProvider : INamespaceProvider
             return null;
         }
 
-        // TODO: return the 3rd party provider namespace type here
+        if (features.ProviderRegistryEnabled)
+        {
+            if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+            {
+                return ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider);
+            }
+
+            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
+        }
+
         return null;
     }
 }

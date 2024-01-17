@@ -16,6 +16,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Providers.ThirdParty;
 
 namespace Bicep.Core.TypeSystem.Providers
 {
@@ -68,8 +69,7 @@ namespace Bicep.Core.TypeSystem.Providers
             IResourceTypeProvider? newResourceTypeLoader = providerDescriptor.Name switch
             {
                 AzNamespaceType.BuiltInName => new AzResourceTypeProvider(new AzResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version),
-                // Note(asilverman): the line of code below is meant for 3rd party provider resolution logic which is not yet implemented.
-                _ => throw new NotImplementedException($"Provider {providerDescriptor.Name} not supported."),
+                _ => new ThirdPartyResourceTypeProvider(new ThirdPartyResourceTypeLoader(OciTypeLoader.FromTgz(fileStream)), providerDescriptor.Version),
             };
             return new(cachedResourceTypeLoaders[key] = newResourceTypeLoader);
         }
