@@ -23,12 +23,12 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class RegistryProviderTests : TestBase
 {
-    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registry, string repository)
+    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registry, string repository, bool extensibilityEnabledBool, bool providerRegistryBool)
     {
         var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients((new Uri($"https://{registry}"), repository));
 
         return new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true))
+            .WithFeatureOverrides(new(ExtensibilityEnabled: extensibilityEnabledBool, ProviderRegistry: providerRegistryBool))
             .WithFileSystem(fileSystem)
             .WithContainerRegistryClientFactory(clientFactory);
     }
@@ -44,7 +44,7 @@ public class RegistryProviderTests : TestBase
         var registry = "example.azurecr.io";
         var repository = $"test/provider/http";
 
-        var services = GetServiceBuilder(fileSystem, registry, repository);
+        var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
 
         await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
@@ -76,7 +76,7 @@ output joke string = dadJoke.body.joke
         var registry = "example.azurecr.io";
         var repository = $"test/provider/http";
 
-        var services = GetServiceBuilder(fileSystem, registry, repository);
+        var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
 
         await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
@@ -101,8 +101,18 @@ output joke string = dadJoke.body.joke
     [TestMethod]
     public async Task Third_party_imports_are_enabled_when_feature_is_enabled()
     {
-        var service = new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true));
-        var result = await CompilationHelper.RestoreAndCompile(service, @$"
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
+            typeof(RegistryProviderTests).Assembly,
+            "Files/RegistryProviderTests/HttpProvider");
+
+        var registry = "example.azurecr.io";
+        var repository = $"test/provider/http";
+
+        var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
+
+        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+
+        var result = await CompilationHelper.RestoreAndCompile(services, @$"
 provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 ");
         result.Should().NotHaveAnyDiagnostics();
@@ -137,16 +147,27 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
     [TestMethod]
     public async Task Third_party_imports_are_disabled_unless_feature_is_enabled()
     {
-        var service = new ServiceBuilder();
-        var result = await CompilationHelper.RestoreAndCompile(service, @$"
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
+             typeof(RegistryProviderTests).Assembly,
+             "Files/RegistryProviderTests/HttpProvider");
+
+        var registry = "example.azurecr.io";
+        var repository = $"test/provider/http";
+
+        var services = GetServiceBuilder(fileSystem, registry, repository, false, false);
+
+        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+
+        var result = await CompilationHelper.RestoreAndCompile(services, @$"
 provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 ");
         result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
             });
 
-        service = new ServiceBuilder().WithFeatureOverrides(new(ExtensibilityEnabled: true));
-        var result2 = await CompilationHelper.RestoreAndCompile(service, @$"
+        services = GetServiceBuilder(fileSystem, registry, repository, true, false);
+
+        var result2 = await CompilationHelper.RestoreAndCompile(services, @$"
 provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 ");
         result2.Should().HaveDiagnostics(new[] {
