@@ -4,6 +4,8 @@
 using System;
 using System.Xml;
 
+namespace Bicep.Core.Extensions;
+
 public static class DateTimeExtensions
 {
     public static string ToRfc3339Format(this DateTime date)

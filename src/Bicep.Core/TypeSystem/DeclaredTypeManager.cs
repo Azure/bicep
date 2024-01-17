@@ -541,24 +541,7 @@ namespace Bicep.Core.TypeSystem
         private Result<TypeExpression, ErrorDiagnostic> InstantiateType(InstanceParameterizedTypeInstantiationSyntax syntax)
         {
             var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: true).Type;
-
-            if (baseType is ErrorType error && error.GetDiagnostics().FirstOrDefault() is { } baseTypeDiagnostic)
-            {
-                return new(baseTypeDiagnostic);
-            }
-
-            if (baseType is not ObjectType objectType)
-            {
-                return new(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
-            }
-
-            var diagnostics = ToListDiagnosticWriter.Create();
-            var propertyType = TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, diagnostics);
-
-            if (diagnostics.GetDiagnostics().OfType<ErrorDiagnostic>().FirstOrDefault() is { } propertyAccessDiagnostic)
-            {
-                return new(propertyAccessDiagnostic);
-            }
+            var propertyType = FinalizeTypePropertyType(baseType, syntax.PropertyName.IdentifierName, syntax.PropertyName);
 
             return InstantiateType(syntax, $"{baseType.Name}.{syntax.PropertyName.IdentifierName}", propertyType);
         }
@@ -891,7 +874,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeTypePropertyType(baseType, propertyName, propertyNameSyntax);
         }
 
-        private static bool IsPermittedTypeAccessExpressionBase(SyntaxBase baseExpression) => baseExpression switch
+        private bool IsPermittedTypeAccessExpressionBase(SyntaxBase baseExpression) => baseExpression switch
         {
             // if the base expression is itself an access expression, any error will bubble up from the innermost access expression
             AccessExpressionSyntax or
@@ -899,6 +882,15 @@ namespace Bicep.Core.TypeSystem
             ArrayTypeItemsAccessSyntax => true,
             // Accessing properties or elements of a reference is permitted
             VariableAccessSyntax => true,
+            // as is accessing elements of a resource-derived type
+            ParameterizedTypeInstantiationSyntax parameterized
+                when binder.GetSymbolInfo(parameterized) is AmbientTypeSymbol ambient &&
+                ambient.DeclaringNamespace.ProviderNameEquals(SystemNamespaceType.BuiltInName) &&
+                LanguageConstants.IdentifierComparer.Equals(ambient.Name, LanguageConstants.TypeNameResource) => true,
+            InstanceParameterizedTypeInstantiationSyntax parameterized
+                when binder.GetSymbolInfo(parameterized.BaseExpression) is BuiltInNamespaceSymbol ns &&
+                ns.TryGetNamespaceType()?.ProviderNameEquals(SystemNamespaceType.BuiltInName) is true &&
+                LanguageConstants.IdentifierComparer.Equals(parameterized.Name.IdentifierName, LanguageConstants.TypeNameResource) => true,
             _ => false,
         };
 

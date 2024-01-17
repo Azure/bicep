@@ -1785,7 +1785,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                 return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
                             }
 
-                            return new(new ResourceDerivedTypeExpression(syntax, resourceType, resourceType.Body.Type));
+                            return new(new ResourceDerivedTypeExpression(syntax, resourceType));
                         }),
                     description: """
                         Use the type definition of the body of a specific resource rather than a user-defined type.

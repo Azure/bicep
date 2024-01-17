@@ -335,12 +335,12 @@ public class ExpressionBuilder
         {
             BuiltInNamespaceSymbol builtIn => TryGetPropertyType(builtIn, propertyName) switch
             {
-                TypeType typeType => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, typeType),
+                TypeType typeType => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, typeType.Unwrapped),
                 _ => throw new ArgumentException($"Property '{propertyName}' of symbol '{builtIn.Name}' was not found or was not valid."),
             },
             WildcardImportSymbol wildcardImport => TryGetPropertyType(wildcardImport, propertyName) switch
             {
-                TypeType typeType => new WildcardImportTypePropertyReferenceExpression(syntax, wildcardImport, propertyName, typeType),
+                TypeType typeType => new WildcardImportTypePropertyReferenceExpression(syntax, wildcardImport, propertyName, typeType.Unwrapped),
                 _ => throw new ArgumentException($"Property '{propertyName}' of symbol '{wildcardImport.Name}' was not found or was not valid."),
             },
             _ => ConvertPropertyAccessInTypeExpression(syntax, ConvertTypeWithoutLowering(syntax.BaseExpression), propertyName),

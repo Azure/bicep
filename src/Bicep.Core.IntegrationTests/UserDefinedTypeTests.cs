@@ -1136,13 +1136,34 @@ param myParam string
     }
 
     [TestMethod]
+    public void Type_property_access_can_be_used_on_resource_derived_types()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            ("main.bicep", """
+                type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.storageAccountName", JToken.Parse($$"""
+            {
+                "type": "string",
+                "metadata": {
+                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+                }
+            }
+            """));
+    }
+
+    [TestMethod]
     public void Type_property_access_resolves_refs_and_traverses_imports()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, ResourceDerivedTypesEnabled: true)),
             ("types.bicep", """
                 @export()
                 type myObject = {
                   quux: int
+                  saSku: resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.sku
                 }
                 """),
             ("main.bicep", """
@@ -1159,12 +1180,21 @@ param myParam string
                 }
 
                 type test3 = test2.foo.bar.baz.quux
+                type test4 = test2.foo.bar.baz.saSku.name
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
             {
               "$ref": "#/definitions/_1.myObject/properties/quux"
+            }
+            """));
+        result.Template.Should().HaveValueAtPath("definitions.test4", JToken.Parse($$"""
+            {
+              "type": "string",
+              "metadata": {
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/sku/properties/name"
+              }
             }
             """));
     }
@@ -1278,12 +1308,37 @@ param myParam string
     }
 
     [TestMethod]
+    public void Type_additional_properties_access_can_be_used_on_resource_derived_types()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            ("main.bicep", """
+                type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.tag", JToken.Parse($$"""
+            {
+                "type": "string",
+                "metadata": {
+                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
+                }
+            }
+            """));
+    }
+
+    [TestMethod]
     public void Type_additional_properties_access_resolves_refs_and_traverses_imports()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, ResourceDerivedTypesEnabled: true)),
             ("types.bicep", """
+                type tagsDict = {
+                  *: resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags
+                }
+
                 @export()
                 type myObject = {
+                  namedTagBags: tagsDict
                   *: int
                 }
                 """),
@@ -1301,12 +1356,21 @@ param myParam string
                 }
 
                 type test3 = test2.*.*.*.*
+                type test4 = test2.*.*.*.namedTagBags.*.*
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
             {
               "$ref": "#/definitions/_1.myObject/additionalProperties"
+            }
+            """));
+        result.Template.Should().HaveValueAtPath("definitions.test4", JToken.Parse($$"""
+            {
+              "type": "string",
+              "metadata": {
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
+              }
             }
             """));
     }
@@ -1350,27 +1414,70 @@ param myParam string
     }
 
     [TestMethod]
+    public void Type_element_access_can_be_used_on_resource_derived_types()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            ("main.bicep", """
+                type storageAccountName = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.storageAccountName", JToken.Parse($$"""
+            {
+                "type": "object",
+                "metadata": {
+                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items"
+                }
+            }
+            """));
+    }
+
+    [TestMethod]
     public void Type_element_access_resolves_refs_and_traverses_imports()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, ResourceDerivedTypesEnabled: true)),
             ("types.bicep", """
+                @export()
+                type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+
                 @export()
                 type strings = string[]
                 """),
             ("main.bicep", """
                 import * as types from 'types.bicep'
 
+                type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+
                 type test = types.strings[]
 
                 type test2 = test[]
 
                 type test3 = test2[*][*][*]
+                type test4 = accessPolicy.permissions.keys[*]
+                type test5 = types.accessPolicy.permissions.keys[*]
                 """));
 
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
             {
               "$ref": "#/definitions/_1.strings/items"
+            }
+            """));
+        result.Template.Should().HaveValueAtPath("definitions.test4", JToken.Parse($$"""
+            {
+              "type": "string",
+              "metadata": {
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items/properties/permissions/properties/keys/items"
+              }
+            }
+            """));
+        result.Template.Should().HaveValueAtPath("definitions.test5", JToken.Parse($$"""
+            {
+              "type": "string",
+              "metadata": {
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items/properties/permissions/properties/keys/items"
+              }
             }
             """));
     }

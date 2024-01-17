@@ -951,9 +951,8 @@ public record ParameterKeyVaultReferenceExpression(
 
 public record ResourceDerivedTypeExpression(
     SyntaxBase? SourceSyntax,
-    ResourceType RootResourceType,
-    TypeSymbol ExpressedType
-) : TypeExpression(SourceSyntax, ExpressedType)
+    ResourceType RootResourceType
+) : TypeExpression(SourceSyntax, RootResourceType.Body.Type)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitResourceDerivedTypeExpression(this);
