@@ -16,7 +16,6 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
-using Newtonsoft.Json;
 using Bicep.Core.TypeSystem.Providers.ThirdParty;
 
 namespace Bicep.Core.TypeSystem.Providers
