@@ -18,13 +18,11 @@ namespace Bicep.Cli.Commands;
 public class JsonRpcCommand : ICommand
 {
     private readonly BicepCompiler compiler;
-    private readonly ITokenCredentialFactory credentialFactory;
     private readonly IOContext io;
 
-    public JsonRpcCommand(BicepCompiler compiler, ITokenCredentialFactory credentialFactory, IOContext io)
+    public JsonRpcCommand(BicepCompiler compiler, IOContext io)
     {
         this.compiler = compiler;
-        this.credentialFactory = credentialFactory;
         this.io = io;
     }
 
@@ -43,7 +41,7 @@ public class JsonRpcCommand : ICommand
 
             await clientPipe.ConnectAsync(cancellationToken);
 
-            using var rpc = new JsonRpc(clientPipe, clientPipe);
+            using var rpc = new JsonRpc(CliJsonRpcServer.CreateMessageHandler(clientPipe, clientPipe));
             await RunServer(rpc, cancellationToken);
         }
         else if (args.Socket is { } port)
@@ -53,12 +51,12 @@ public class JsonRpcCommand : ICommand
             await tcpClient.ConnectAsync(IPAddress.Loopback, port, cancellationToken);
             using var tcpStream = tcpClient.GetStream();
 
-            using var rpc = new JsonRpc(tcpStream, tcpStream);
+            using var rpc = new JsonRpc(CliJsonRpcServer.CreateMessageHandler(tcpStream, tcpStream));
             await RunServer(rpc, cancellationToken);
         }
         else
         {
-            using var rpc = new JsonRpc(Console.OpenStandardOutput(), Console.OpenStandardInput());
+            using var rpc = new JsonRpc(CliJsonRpcServer.CreateMessageHandler(Console.OpenStandardOutput(), Console.OpenStandardInput()));
             await RunServer(rpc, cancellationToken);
         }
 
@@ -67,8 +65,9 @@ public class JsonRpcCommand : ICommand
 
     private async Task RunServer(JsonRpc jsonRpc, CancellationToken cancellationToken)
     {
-        var server = new RpcServer(compiler, credentialFactory);
-        jsonRpc.AddLocalRpcTarget(server);
+        var server = new CliJsonRpcServer(compiler);
+        jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);
+
         jsonRpc.StartListening();
 
         await Task.WhenAny(jsonRpc.Completion, WaitForCancellation(cancellationToken));

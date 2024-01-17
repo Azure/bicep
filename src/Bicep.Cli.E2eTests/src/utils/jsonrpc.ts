@@ -11,6 +11,44 @@ import {
 } from "vscode-jsonrpc/node";
 import { bicepCli } from "./fs";
 
+interface VersionRequest {}
+
+interface VersionResponse {
+  version: string;
+}
+
+interface GetDeploymentGraphRequest {
+  path: string;
+}
+
+interface GetDeploymentGraphResponse {
+  nodes: GetDeploymentGraphResponseNode[];
+  edges: GetDeploymentGraphResponseEdge[];
+}
+
+interface GetDeploymentGraphResponseNode {
+  range: Range;
+  name: string;
+  type: string;
+  isExisting: boolean;
+  relativePath?: string;
+}
+
+interface GetDeploymentGraphResponseEdge {
+  source: string;
+  target: string;
+}
+
+interface Position {
+  line: number;
+  char: number;
+}
+
+interface Range {
+  start: Position;
+  end: Position;
+}
+
 interface CompileRequest {
   path: string;
 }
@@ -22,12 +60,38 @@ interface CompileResponse {
 }
 
 interface CompileResponseDiagnostic {
-  line: number;
-  char: number;
+  range: Range;
   level: string;
   code: string;
   message: string;
 }
+
+interface GetMetadataRequest {
+  path: string;
+}
+
+interface GetMetadataResponse {
+  metadata: MetadataDefinition[];
+  parameters: ParamDefinition[];
+  outputs: ParamDefinition[];
+}
+
+interface MetadataDefinition {
+  name: string;
+  value: string;
+}
+
+interface ParamDefinition {
+  range: Range;
+  name: string;
+  description?: string;
+}
+
+export const versionRequestType = new RequestType<
+  VersionRequest,
+  VersionResponse,
+  never
+>("bicep/version");
 
 export const compileRequestType = new RequestType<
   CompileRequest,
@@ -35,28 +99,17 @@ export const compileRequestType = new RequestType<
   never
 >("bicep/compile");
 
-interface ValidateRequest {
-  subscriptionId: string;
-  resourceGroup: string;
-  path: string;
-}
-
-interface ValidateResponse {
-  error?: ValidateResponseError;
-}
-
-interface ValidateResponseError {
-  code: string;
-  message: string;
-  target?: string;
-  details?: ValidateResponseError[];
-}
-
-export const validateRequestType = new RequestType<
-  ValidateRequest,
-  ValidateResponse,
+export const getMetadataRequestType = new RequestType<
+  GetMetadataRequest,
+  GetMetadataResponse,
   never
->("bicep/validate");
+>("bicep/getMetadata");
+
+export const getDeploymentGraphRequestType = new RequestType<
+  GetDeploymentGraphRequest,
+  GetDeploymentGraphResponse,
+  never
+>("bicep/getDeploymentGraph");
 
 function generateRandomPipeName(): string {
   const randomSuffix = randomBytes(21).toString("hex");

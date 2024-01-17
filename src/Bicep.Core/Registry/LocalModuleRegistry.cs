@@ -11,6 +11,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
@@ -73,10 +74,10 @@ namespace Bicep.Core.Registry
 
         public override bool IsArtifactRestoreRequired(LocalModuleReference reference) => false;
 
-        public override Task PublishModule(LocalModuleReference moduleReference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description)
+        public override Task PublishModule(LocalModuleReference moduleReference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, string? description)
             => throw new NotSupportedException("Local modules cannot be published.");
 
-        public override Task PublishProvider(LocalModuleReference reference, Stream typesTgz)
+        public override Task PublishProvider(LocalModuleReference reference, BinaryData typesTgz)
             => throw new NotSupportedException("Local providers cannot be published.");
 
         public override Task<bool> CheckArtifactExists(LocalModuleReference reference) => throw new NotSupportedException("Local modules cannot be published.");
@@ -106,9 +107,9 @@ namespace Bicep.Core.Registry
             return null;
         }
 
-        public override SourceArchive? TryGetSource(LocalModuleReference reference)
+        public override ResultWithException<SourceArchive> TryGetSource(LocalModuleReference reference)
         {
-            return null;
+            return new(new SourceNotAvailableException());
         }
     }
 }

@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
@@ -25,13 +26,13 @@ namespace Bicep.Core.Registry
 
         Task<bool> CheckProviderExists(ArtifactReference reference);
 
-        Task PublishModule(ArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri);
+        Task PublishModule(ArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri);
 
-        Task PublishProvider(ArtifactReference reference, Stream compiledArmTemplate);
+        Task PublishProvider(ArtifactReference reference, BinaryData compiledArmTemplate);
 
         void PruneRestoreStatuses();
 
         // Retrieves the sources that have been restored along with the module into the cache (if available)
-        SourceArchive? TryGetModuleSources(ArtifactReference reference);
+        ResultWithException<SourceArchive> TryGetModuleSources(ArtifactReference reference);
     }
 }

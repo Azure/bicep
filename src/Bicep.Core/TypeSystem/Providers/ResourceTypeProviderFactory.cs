@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Reflection;
+using System.Text.Json;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Diagnostics;
@@ -17,8 +18,6 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using Newtonsoft.Json;
 
 namespace Bicep.Core.TypeSystem.Providers
 {

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -10,6 +11,7 @@ using System.Text.Json.Nodes;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
 using FluentAssertions.Primitives;
@@ -31,19 +33,21 @@ namespace Bicep.Core.UnitTests.Assertions
 
         protected override string Identifier => $"CachedModule at {Subject.ModuleCacheFolder}";
 
-        public AndConstraint<CachedModuleAssertions> HaveSource(bool f = true)
+        public AndConstraint<CachedModuleAssertions> HaveSource(bool shouldHaveSource = true)
         {
             Subject.Should().BeValid();
 
-            if (f)
+            if (shouldHaveSource)
             {
                 Subject.HasSourceLayer.Should().BeTrue();
-                Subject.TryGetSource().Should().NotBeNull();
+                Subject.TryGetSource().IsSuccess().Should().BeTrue();
             }
             else
             {
                 Subject.HasSourceLayer.Should().BeFalse();
-                Subject.TryGetSource().Should().BeNull();
+                Subject.TryGetSource().IsSuccess().Should().BeFalse();
+                Subject.TryGetSource().IsSuccess(out _, out var ex);
+                ex.Should().BeOfType<SourceNotAvailableException>();
             }
 
             return new(this);
