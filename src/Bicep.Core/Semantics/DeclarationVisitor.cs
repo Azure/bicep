@@ -209,8 +209,9 @@ namespace Bicep.Core.Semantics
             ResourceTypesProviderDescriptor providerDescriptor = new(
                 syntax.Specification.Name,
                 syntax.Specification.Version,
-                syntax.Specification.BicepRegistryAddress,
+                isImplicitImport: false,
                 syntax.Alias?.IdentifierName,
+                syntax.Specification.BicepRegistryAddress,
                 typesBaseUri);
 
             if (!namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind).IsSuccess(out var namespaceType, out errorBuilder))
