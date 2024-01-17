@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Reflection;
+using System.Text.Json;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Diagnostics;
@@ -56,8 +57,8 @@ namespace Bicep.Core.TypeSystem.Providers
             }
 
             // Read the OCI manifest
-            var manifestFileContents = fileSystem.File.ReadAllText(ociManifestPath);
-            OciManifest? ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents);
+            var manifestFileContents = fileSystem.File.OpenRead(ociManifestPath);
+            var ociManifest = JsonSerializer.Deserialize(manifestFileContents, OciManifestSerializationContext.Default.OciManifest);
 
             if (ociManifest is null)
             {

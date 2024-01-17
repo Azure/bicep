@@ -26,9 +26,9 @@ namespace Bicep.Core.Registry
 
         Task<bool> CheckProviderExists(ArtifactReference reference);
 
-        Task PublishModule(ArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri);
+        Task PublishModule(ArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri);
 
-        Task PublishProvider(ArtifactReference reference, Stream compiledArmTemplate);
+        Task PublishProvider(ArtifactReference reference, BinaryData compiledArmTemplate);
 
         void PruneRestoreStatuses();
 

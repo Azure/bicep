@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
@@ -36,7 +38,7 @@ namespace Bicep.Core.Registry
 
         // From the spec: "While the algorithm does allow one to implement a wide variety of algorithms, compliant implementations should use sha256."
         // (https://docs.docker.com/registry/spec/api/#content-digests)
-        private static readonly string DigestAlgorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
+        private static readonly string DigestAlgorithmIdentifier = OciDescriptor.AlgorithmIdentifierSha256;
 
         public AzureContainerRegistryManager(IContainerRegistryClientFactory clientFactory)
         {
@@ -78,29 +80,21 @@ namespace Bicep.Core.Registry
             IOciArtifactReference artifactReference,
             string? mediaType,
             string? artifactType,
-            StreamDescriptor config,
-            IEnumerable<StreamDescriptor> layers,
+            OciDescriptor config,
+            IEnumerable<OciDescriptor> layers,
             OciManifestAnnotationsBuilder annotations)
         {
 
             // push is not supported anonymously
             var blobClient = this.CreateBlobClient(configuration, artifactReference, anonymousAccess: false);
 
-            config.ResetStream();
-            var configDescriptor = DescriptorFactory.CreateDescriptor(DigestAlgorithmIdentifier, config);
-
-            config.ResetStream();
-            _ = await blobClient.UploadBlobAsync(config.Stream);
+            _ = await blobClient.UploadBlobAsync(config.Data);
 
             var layerDescriptors = new List<OciDescriptor>(layers.Count());
             foreach (var layer in layers)
             {
-                layer.ResetStream();
-                var layerDescriptor = DescriptorFactory.CreateDescriptor(DigestAlgorithmIdentifier, layer);
-                layerDescriptors.Add(layerDescriptor);
-
-                layer.ResetStream();
-                _ = await blobClient.UploadBlobAsync(layer.Stream);
+                layerDescriptors.Add(layer);
+                _ = await blobClient.UploadBlobAsync(layer.Data);
             }
 
             /* Sample artifact manifest:
@@ -126,14 +120,10 @@ namespace Bicep.Core.Registry
                 }
              */
 
-            var manifest = new OciManifest(2, mediaType, artifactType, configDescriptor, layerDescriptors.ToImmutableArray(), annotations.Build());
-
-            using var manifestStream = new MemoryStream();
-            OciSerialization.Serialize(manifestStream, manifest);
-
-            manifestStream.Position = 0;
-            var manifestBinaryData = await BinaryData.FromStreamAsync(manifestStream);
-            var manifestUploadResult = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
+            var manifest = new OciManifest(2, mediaType, artifactType, config, layerDescriptors.ToImmutableArray(), annotations.Build());
+           
+            var manifestBinaryData = BinaryData.FromObjectAsJson(manifest, OciManifestSerializationContext.Default.Options);
+            _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
         }
 
         private static Uri GetRegistryUri(IOciArtifactReference artifactReference) => new($"https://{artifactReference.Registry}");
@@ -204,16 +194,14 @@ namespace Bicep.Core.Registry
 
         private static void ValidateBlobResponse(Response<DownloadRegistryBlobResult> blobResponse, OciDescriptor descriptor)
         {
-            using var stream = blobResponse.Value.Content.ToStream();
+            var data = blobResponse.Value.Content;
+            var dataSize = data.ToArray().Length;
 
-            if (descriptor.Size != stream.Length)
+            if (descriptor.Size != dataSize)
             {
-                throw new InvalidArtifactException($"Expected blob size of {descriptor.Size} bytes but received {stream.Length} bytes from the registry.");
+                throw new InvalidArtifactException($"Expected blob size of {descriptor.Size} bytes but received {dataSize} bytes from the registry.");
             }
-
-            stream.Position = 0;
-            string digestFromContents = DescriptorFactory.ComputeDigest(DigestAlgorithmIdentifier, stream);
-            stream.Position = 0;
+            string digestFromContents = OciDescriptor.ComputeDigest(DigestAlgorithmIdentifier, data);
 
             if (!string.Equals(descriptor.Digest, digestFromContents, StringComparison.Ordinal))
             {
@@ -224,9 +212,7 @@ namespace Bicep.Core.Registry
         private static void ValidateManifestResponse(Response<GetManifestResult> manifestResponse)
         {
             var digestFromRegistry = manifestResponse.Value.Digest;
-            var stream = manifestResponse.Value.Manifest.ToStream();
-
-            string digestFromContent = DescriptorFactory.ComputeDigest(DigestAlgorithmIdentifier, stream);
+            string digestFromContent = OciDescriptor.ComputeDigest(DigestAlgorithmIdentifier, manifestResponse.Value.Manifest);
 
             if (!string.Equals(digestFromRegistry, digestFromContent, DigestComparison))
             {
