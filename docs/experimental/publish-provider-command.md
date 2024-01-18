@@ -1,7 +1,7 @@
 # Using the `publish-provider` command (Experimental!)
 
 ## What is it?
-The publish provider command allows you to **publish** provider types to a registry of your choice. Simply specify a file and the registry provider reference.
+The publish provider command allows you to **publish** providers to a registry of your choice. Simply specify a file and the registry provider reference.
 
 ## Using
 `bicep publish-provider` \<file> --target \<ref>
