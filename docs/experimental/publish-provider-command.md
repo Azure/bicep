@@ -14,8 +14,8 @@ The publish provider command allows you to **publish** provider types to a regis
 \<force> Overwrite existing published provider
 
 ### Examples
-`bicep publish-provider` index.json --target br:example.azurecr.io/hello/world:v1\
-`bicep publish-provider` index.json --target br:example.azurecr.io/hello/world:v1 --force
+`bicep publish-provider` ./index.json --target br:example.azurecr.io/hello/world:v1\
+`bicep publish-provider` ./index.json --target br:example.azurecr.io/hello/world:v1 --force
 
 ## Raising bugs or feature requests
 Please raise bug reports or feature requests under [Bicep Issues](https://github.com/Azure/bicep/issues) as usual.
