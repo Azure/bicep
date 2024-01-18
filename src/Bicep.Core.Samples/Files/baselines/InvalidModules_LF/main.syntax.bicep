@@ -267,37 +267,30 @@ module './main.bicep' = if
 //@[026:00028) ├─Token(NewLine) |\n\n|
 
 module './main.bicep' = if (
-//@[000:00028) ├─ModuleDeclarationSyntax
+//@[000:00062) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00007) | ├─IdentifierSyntax
 //@[007:00007) | | └─SkippedTriviaSyntax
 //@[007:00021) | ├─StringSyntax
 //@[007:00021) | | └─Token(StringComplete) |'./main.bicep'|
 //@[022:00023) | ├─Token(Assignment) |=|
-//@[024:00028) | └─IfConditionSyntax
+//@[024:00062) | └─IfConditionSyntax
 //@[024:00026) |   ├─Token(Identifier) |if|
-//@[027:00028) |   ├─ParenthesizedExpressionSyntax
+//@[027:00062) |   ├─ParenthesizedExpressionSyntax
 //@[027:00028) |   | ├─Token(LeftParen) |(|
-//@[028:00028) |   | ├─SkippedTriviaSyntax
-//@[028:00028) |   | └─SkippedTriviaSyntax
-//@[028:00028) |   └─SkippedTriviaSyntax
-//@[028:00030) ├─Token(NewLine) |\n\n|
+//@[028:00036) |   | ├─SkippedTriviaSyntax
+//@[028:00030) |   | | ├─Token(NewLine) |\n\n|
 
 module './main.bicep' = if (true
-//@[000:00032) ├─ModuleDeclarationSyntax
-//@[000:00006) | ├─Token(Identifier) |module|
-//@[007:00007) | ├─IdentifierSyntax
-//@[007:00007) | | └─SkippedTriviaSyntax
-//@[007:00021) | ├─StringSyntax
-//@[007:00021) | | └─Token(StringComplete) |'./main.bicep'|
-//@[022:00023) | ├─Token(Assignment) |=|
-//@[024:00032) | └─IfConditionSyntax
-//@[024:00026) |   ├─Token(Identifier) |if|
-//@[027:00032) |   ├─ParenthesizedExpressionSyntax
-//@[027:00028) |   | ├─Token(LeftParen) |(|
-//@[028:00032) |   | ├─BooleanLiteralSyntax
-//@[028:00032) |   | | └─Token(TrueKeyword) |true|
-//@[032:00032) |   | └─SkippedTriviaSyntax
+//@[000:00006) |   | | └─VariableAccessSyntax
+//@[000:00006) |   | |   └─IdentifierSyntax
+//@[000:00006) |   | |     └─Token(Identifier) |module|
+//@[007:00032) |   | └─SkippedTriviaSyntax
+//@[007:00021) |   |   ├─Token(StringComplete) |'./main.bicep'|
+//@[022:00023) |   |   ├─Token(Assignment) |=|
+//@[024:00026) |   |   ├─Token(Identifier) |if|
+//@[027:00028) |   |   ├─Token(LeftParen) |(|
+//@[028:00032) |   |   └─Token(TrueKeyword) |true|
 //@[032:00032) |   └─SkippedTriviaSyntax
 //@[032:00034) ├─Token(NewLine) |\n\n|
 

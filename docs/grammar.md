@@ -136,11 +136,11 @@ functionCall -> IDENTIFIER "(" argumentList? ")"
 parenthesizedExpression -> "(" expression ")"
 
 localVariable -> IDENTIFIER
-variableBlock -> "(" ( localVariable ("," localVariable)* )? ")"
+variableBlock -> "(" NL* ( localVariable NL* ("," NL* localVariable NL*)* )? ")"
 lambdaExpression -> ( variableBlock | localVariable ) "=>" expression
 
 typedLocalVariable -> IDENTIFIER primaryTypeExpression
-typedVariableBlock -> "(" ( typedLocalVariable ("," typedLocalVariable)* )? ")"
+typedVariableBlock -> "(" NL* ( typedLocalVariable NL* ("," NL* typedLocalVariable NL*)* )? ")"
 typedLambdaExpression -> typedVariableBlock primaryTypeExpression "=>" expression
 
 ifCondition -> "if" parenthesizedExpression object

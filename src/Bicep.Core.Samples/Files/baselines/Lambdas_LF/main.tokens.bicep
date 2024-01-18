@@ -990,6 +990,43 @@ var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
 })
 //@[000:001) RightBrace |}|
 //@[001:002) RightParen |)|
-//@[002:003) NewLine |\n|
+//@[002:004) NewLine |\n\n|
+
+var multiLine = reduce(['abc', 'def', 'ghi'], '', (
+//@[000:003) Identifier |var|
+//@[004:013) Identifier |multiLine|
+//@[014:015) Assignment |=|
+//@[016:022) Identifier |reduce|
+//@[022:023) LeftParen |(|
+//@[023:024) LeftSquare |[|
+//@[024:029) StringComplete |'abc'|
+//@[029:030) Comma |,|
+//@[031:036) StringComplete |'def'|
+//@[036:037) Comma |,|
+//@[038:043) StringComplete |'ghi'|
+//@[043:044) RightSquare |]|
+//@[044:045) Comma |,|
+//@[046:048) StringComplete |''|
+//@[048:049) Comma |,|
+//@[050:051) LeftParen |(|
+//@[051:052) NewLine |\n|
+  cur,
+//@[002:005) Identifier |cur|
+//@[005:006) Comma |,|
+//@[006:007) NewLine |\n|
+  next
+//@[002:006) Identifier |next|
+//@[006:007) NewLine |\n|
+) => concat(cur, next))
+//@[000:001) RightParen |)|
+//@[002:004) Arrow |=>|
+//@[005:011) Identifier |concat|
+//@[011:012) LeftParen |(|
+//@[012:015) Identifier |cur|
+//@[015:016) Comma |,|
+//@[017:021) Identifier |next|
+//@[021:022) RightParen |)|
+//@[022:023) RightParen |)|
+//@[023:024) NewLine |\n|
 
 //@[000:000) EndOfFile ||

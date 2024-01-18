@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12432202576544985285"
+      "templateHash": "2216132208843131284"
     }
   },
   "definitions": {
@@ -152,6 +152,62 @@
           "output": {
             "type": "string",
             "value": "e30="
+          }
+        },
+        "a": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "____________________________________________________________________________________________"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "a"
+          }
+        },
+        "b": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "longParameterName1"
+            },
+            {
+              "type": "string",
+              "name": "longParameterName2"
+            },
+            {
+              "type": "string",
+              "name": "longParameterName3"
+            },
+            {
+              "type": "string",
+              "name": "longParameterName4"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "b"
+          }
+        },
+        "buildUrlMultiLine": {
+          "parameters": [
+            {
+              "type": "bool",
+              "name": "https"
+            },
+            {
+              "type": "string",
+              "name": "hostname"
+            },
+            {
+              "type": "string",
+              "name": "path"
+            }
+          ],
+          "output": {
+            "type": "string",
+            "value": "[format('{0}://{1}{2}', if(parameters('https'), 'https', 'http'), parameters('hostname'), if(empty(parameters('path')), '', format('/{0}', parameters('path'))))]"
           }
         }
       }

@@ -609,12 +609,9 @@ var threeElements = (1, 2, 3)
 //@[21:28) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |1, 2, 3|
 var unterminated1 = (
 //@[04:17) [no-unused-vars (Warning)] Variable "unterminated1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |unterminated1|
-//@[21:21) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+//@[21:25) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |\nvar|
 var unterminated2 = (,
-//@[04:17) [no-unused-vars (Warning)] Variable "unterminated2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |unterminated2|
-//@[21:22) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |,|
-//@[21:22) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |,|
-//@[22:22) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+//@[04:17) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) |unterminated2|
 
 // trailing decorator with no declaration
 @minLength()

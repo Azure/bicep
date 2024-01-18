@@ -29,3 +29,17 @@ func test() object => loadJsonContent('./repro-data.json')
 func test2() string => loadTextContent('./repro-data.json')
 func test3() object => loadYamlContent('./repro-data.json')
 func test4() string => loadFileAsBase64('./repro-data.json')
+
+// validate formatter works (https://github.com/Azure/bicep/issues/12913)
+func a(
+  ____________________________________________________________________________________________ string
+) string => 'a'
+func b(
+  longParameterName1 string,
+  longParameterName2 string,
+  longParameterName3 string,
+  longParameterName4 string
+) string => 'b'
+
+func buildUrlMultiLine(https bool, hostname string, path string) string =>
+  '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'

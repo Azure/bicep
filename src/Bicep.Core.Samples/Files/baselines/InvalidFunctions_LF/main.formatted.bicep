@@ -25,7 +25,7 @@ func sayHello(name string) string => 'Hi ${name}!'
 output hellos array = map([ 'Evie', 'Casper' ], sayHello) // this syntax not supported currently, but should it be?
 
 func sayHelloBadNewlines(
-name string) string => 'Hi ${name}!'
+  name string) string => 'Hi ${name}!'
 
 type validStringLiteralUnion = 'foo' | 'bar' | 'baz'
 func invalidArgs(a validStringLiteralUnion, b string) string => a
@@ -35,3 +35,17 @@ func recursive() string => recursive()
 
 func recursiveA() string => recursiveB()
 func recursiveB() string => recursiveA()
+
+func onlyComma(,) string => 'foo'
+func trailingCommas(a string,,) string => 'foo'
+func multiLineOnly(
+  a string
+  b string) string => 'foo'
+
+func multiLineTrailingCommas(
+  a string,
+  ,) string => 'foo'
+
+func lineBeforeComma(
+  a string
+  ,b string) string => 'foo'

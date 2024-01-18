@@ -1,5 +1,5 @@
 param ids array
-//@[000:2375) ProgramSyntax
+//@[000:2629) ProgramSyntax
 //@[000:0015) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0009) | ├─IdentifierSyntax
@@ -1622,6 +1622,178 @@ output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
 //@[067:0070) |   |     └─IdentifierSyntax
 //@[067:0070) |   |       └─Token(Identifier) |foo|
 //@[070:0071) |   └─Token(RightParen) |)|
-//@[071:0072) ├─Token(NewLine) |\n|
+//@[071:0073) ├─Token(NewLine) |\n\n|
+
+var onlyComma = map([0], (,) => 'foo')
+//@[000:0038) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |onlyComma|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0038) | └─FunctionCallSyntax
+//@[016:0019) |   ├─IdentifierSyntax
+//@[016:0019) |   | └─Token(Identifier) |map|
+//@[019:0020) |   ├─Token(LeftParen) |(|
+//@[020:0023) |   ├─FunctionArgumentSyntax
+//@[020:0023) |   | └─ArraySyntax
+//@[020:0021) |   |   ├─Token(LeftSquare) |[|
+//@[021:0022) |   |   ├─ArrayItemSyntax
+//@[021:0022) |   |   | └─IntegerLiteralSyntax
+//@[021:0022) |   |   |   └─Token(Integer) |0|
+//@[022:0023) |   |   └─Token(RightSquare) |]|
+//@[023:0024) |   ├─Token(Comma) |,|
+//@[025:0037) |   ├─FunctionArgumentSyntax
+//@[025:0037) |   | └─LambdaSyntax
+//@[025:0028) |   |   ├─VariableBlockSyntax
+//@[025:0026) |   |   | ├─Token(LeftParen) |(|
+//@[026:0026) |   |   | ├─SkippedTriviaSyntax
+//@[026:0027) |   |   | ├─Token(Comma) |,|
+//@[027:0028) |   |   | └─Token(RightParen) |)|
+//@[029:0031) |   |   ├─Token(Arrow) |=>|
+//@[032:0037) |   |   └─StringSyntax
+//@[032:0037) |   |     └─Token(StringComplete) |'foo'|
+//@[037:0038) |   └─Token(RightParen) |)|
+//@[038:0039) ├─Token(NewLine) |\n|
+var trailingCommas = map([0], (a,,) => 'foo')
+//@[000:0045) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0018) | ├─IdentifierSyntax
+//@[004:0018) | | └─Token(Identifier) |trailingCommas|
+//@[019:0020) | ├─Token(Assignment) |=|
+//@[021:0045) | └─FunctionCallSyntax
+//@[021:0024) |   ├─IdentifierSyntax
+//@[021:0024) |   | └─Token(Identifier) |map|
+//@[024:0025) |   ├─Token(LeftParen) |(|
+//@[025:0028) |   ├─FunctionArgumentSyntax
+//@[025:0028) |   | └─ArraySyntax
+//@[025:0026) |   |   ├─Token(LeftSquare) |[|
+//@[026:0027) |   |   ├─ArrayItemSyntax
+//@[026:0027) |   |   | └─IntegerLiteralSyntax
+//@[026:0027) |   |   |   └─Token(Integer) |0|
+//@[027:0028) |   |   └─Token(RightSquare) |]|
+//@[028:0029) |   ├─Token(Comma) |,|
+//@[030:0044) |   ├─FunctionArgumentSyntax
+//@[030:0044) |   | └─LambdaSyntax
+//@[030:0035) |   |   ├─VariableBlockSyntax
+//@[030:0031) |   |   | ├─Token(LeftParen) |(|
+//@[031:0032) |   |   | ├─LocalVariableSyntax
+//@[031:0032) |   |   | | └─IdentifierSyntax
+//@[031:0032) |   |   | |   └─Token(Identifier) |a|
+//@[032:0033) |   |   | ├─Token(Comma) |,|
+//@[033:0033) |   |   | ├─SkippedTriviaSyntax
+//@[033:0034) |   |   | ├─Token(Comma) |,|
+//@[034:0035) |   |   | └─Token(RightParen) |)|
+//@[036:0038) |   |   ├─Token(Arrow) |=>|
+//@[039:0044) |   |   └─StringSyntax
+//@[039:0044) |   |     └─Token(StringComplete) |'foo'|
+//@[044:0045) |   └─Token(RightParen) |)|
+//@[045:0046) ├─Token(NewLine) |\n|
+var multiLineOnly = map([0], (
+//@[000:0051) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0017) | ├─IdentifierSyntax
+//@[004:0017) | | └─Token(Identifier) |multiLineOnly|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0051) | └─FunctionCallSyntax
+//@[020:0023) |   ├─IdentifierSyntax
+//@[020:0023) |   | └─Token(Identifier) |map|
+//@[023:0024) |   ├─Token(LeftParen) |(|
+//@[024:0027) |   ├─FunctionArgumentSyntax
+//@[024:0027) |   | └─ArraySyntax
+//@[024:0025) |   |   ├─Token(LeftSquare) |[|
+//@[025:0026) |   |   ├─ArrayItemSyntax
+//@[025:0026) |   |   | └─IntegerLiteralSyntax
+//@[025:0026) |   |   |   └─Token(Integer) |0|
+//@[026:0027) |   |   └─Token(RightSquare) |]|
+//@[027:0028) |   ├─Token(Comma) |,|
+//@[029:0049) |   ├─FunctionArgumentSyntax
+//@[029:0049) |   | └─ParenthesizedExpressionSyntax
+//@[029:0030) |   |   ├─Token(LeftParen) |(|
+//@[030:0035) |   |   ├─SkippedTriviaSyntax
+//@[030:0031) |   |   | ├─Token(NewLine) |\n|
+  a
+//@[002:0003) |   |   | ├─VariableAccessSyntax
+//@[002:0003) |   |   | | └─IdentifierSyntax
+//@[002:0003) |   |   | |   └─Token(Identifier) |a|
+//@[003:0004) |   |   | └─Token(NewLine) |\n|
+  b) => 'foo')
+//@[002:0014) |   |   └─SkippedTriviaSyntax
+//@[002:0003) |   |     ├─Token(Identifier) |b|
+//@[003:0004) |   |     ├─Token(RightParen) |)|
+//@[005:0007) |   |     ├─Token(Arrow) |=>|
+//@[008:0013) |   |     ├─Token(StringComplete) |'foo'|
+//@[013:0014) |   |     └─Token(RightParen) |)|
+//@[014:0015) |   ├─Token(NewLine) |\n|
+)
+//@[000:0001) |   └─Token(RightParen) |)|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+var multiLineTrailingCommas = map([0], (
+//@[000:0060) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0027) | ├─IdentifierSyntax
+//@[004:0027) | | └─Token(Identifier) |multiLineTrailingCommas|
+//@[028:0029) | ├─Token(Assignment) |=|
+//@[030:0060) | └─FunctionCallSyntax
+//@[030:0033) |   ├─IdentifierSyntax
+//@[030:0033) |   | └─Token(Identifier) |map|
+//@[033:0034) |   ├─Token(LeftParen) |(|
+//@[034:0037) |   ├─FunctionArgumentSyntax
+//@[034:0037) |   | └─ArraySyntax
+//@[034:0035) |   |   ├─Token(LeftSquare) |[|
+//@[035:0036) |   |   ├─ArrayItemSyntax
+//@[035:0036) |   |   | └─IntegerLiteralSyntax
+//@[035:0036) |   |   |   └─Token(Integer) |0|
+//@[036:0037) |   |   └─Token(RightSquare) |]|
+//@[037:0038) |   ├─Token(Comma) |,|
+//@[039:0059) |   ├─FunctionArgumentSyntax
+//@[039:0059) |   | └─LambdaSyntax
+//@[039:0050) |   |   ├─VariableBlockSyntax
+//@[039:0040) |   |   | ├─Token(LeftParen) |(|
+//@[040:0041) |   |   | ├─SkippedTriviaSyntax
+//@[040:0041) |   |   | | └─Token(NewLine) |\n|
+  a,
+//@[002:0003) |   |   | ├─LocalVariableSyntax
+//@[002:0003) |   |   | | └─IdentifierSyntax
+//@[002:0003) |   |   | |   └─Token(Identifier) |a|
+//@[003:0004) |   |   | ├─Token(Comma) |,|
+//@[004:0005) |   |   | ├─SkippedTriviaSyntax
+//@[004:0005) |   |   | | └─Token(NewLine) |\n|
+  ,) => 'foo')
+//@[002:0002) |   |   | ├─SkippedTriviaSyntax
+//@[002:0003) |   |   | ├─Token(Comma) |,|
+//@[003:0004) |   |   | └─Token(RightParen) |)|
+//@[005:0007) |   |   ├─Token(Arrow) |=>|
+//@[008:0013) |   |   └─StringSyntax
+//@[008:0013) |   |     └─Token(StringComplete) |'foo'|
+//@[013:0014) |   └─Token(RightParen) |)|
+//@[014:0016) ├─Token(NewLine) |\n\n|
+
+var lineBeforeComma = map([0], (
+//@[000:0053) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0019) | ├─IdentifierSyntax
+//@[004:0019) | | └─Token(Identifier) |lineBeforeComma|
+//@[020:0021) | ├─Token(Assignment) |=|
+//@[022:0053) | └─SkippedTriviaSyntax
+//@[022:0025) |   ├─Token(Identifier) |map|
+//@[025:0026) |   ├─Token(LeftParen) |(|
+//@[026:0027) |   ├─Token(LeftSquare) |[|
+//@[027:0028) |   ├─Token(Integer) |0|
+//@[028:0029) |   ├─Token(RightSquare) |]|
+//@[029:0030) |   ├─Token(Comma) |,|
+//@[031:0032) |   ├─Token(LeftParen) |(|
+//@[032:0033) |   ├─Token(NewLine) |\n|
+  a
+//@[002:0003) |   ├─Token(Identifier) |a|
+//@[003:0004) |   ├─Token(NewLine) |\n|
+  ,b) => 'foo')
+//@[002:0003) |   ├─Token(Comma) |,|
+//@[003:0004) |   ├─Token(Identifier) |b|
+//@[004:0005) |   ├─Token(RightParen) |)|
+//@[006:0008) |   ├─Token(Arrow) |=>|
+//@[009:0014) |   ├─Token(StringComplete) |'foo'|
+//@[014:0015) |   ├─Token(RightParen) |)|
+//@[015:0016) |   └─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

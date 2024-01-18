@@ -162,3 +162,30 @@ output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
 //@[56:57) [BCP247 (Error)] Using lambda variables inside resource or module array access is not currently supported. Found the following lambda variable(s) being accessed: "i". (CodeDescription: none) |i|
 //@[67:70) [BCP052 (Error)] The type "outputs" does not contain property "foo". (CodeDescription: none) |foo|
 
+var onlyComma = map([0], (,) => 'foo')
+//@[04:13) [no-unused-vars (Warning)] Variable "onlyComma" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |onlyComma|
+//@[25:37) [BCP070 (Error)] Argument of type "() => 'foo'" is not assignable to parameter of type "any => any". (CodeDescription: none) |(,) => 'foo'|
+//@[26:27) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |,|
+var trailingCommas = map([0], (a,,) => 'foo')
+//@[04:18) [no-unused-vars (Warning)] Variable "trailingCommas" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |trailingCommas|
+//@[33:34) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |,|
+var multiLineOnly = map([0], (
+//@[04:17) [no-unused-vars (Warning)] Variable "multiLineOnly" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |multiLineOnly|
+//@[30:35) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |\n  a\n|
+  a
+  b) => 'foo')
+//@[02:03) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) |b|
+)
+
+var multiLineTrailingCommas = map([0], (
+//@[04:27) [no-unused-vars (Warning)] Variable "multiLineTrailingCommas" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |multiLineTrailingCommas|
+  a,
+  ,) => 'foo')
+//@[02:03) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |,|
+
+var lineBeforeComma = map([0], (
+//@[04:19) [no-unused-vars (Warning)] Variable "lineBeforeComma" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |lineBeforeComma|
+  a
+  ,b) => 'foo')
+
+//@[00:00) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) ||

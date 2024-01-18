@@ -49,9 +49,9 @@ output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not suppo
 //@[07:13) Output hellos. Type: array. Declaration start char: 0, length: 55
 
 func sayHelloBadNewlines(
-//@[25:25) Local <missing>. Type: any. Declaration start char: 25, length: 0
-//@[05:24) Function sayHelloBadNewlines. Type: any => any. Declaration start char: 0, length: 25
+//@[05:24) Function sayHelloBadNewlines. Type: string => string. Declaration start char: 0, length: 64
   name string) string => 'Hi ${name}!'
+//@[02:06) Local name. Type: string. Declaration start char: 2, length: 11
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 //@[05:28) TypeAlias validStringLiteralUnion. Type: Type<'bar' | 'baz' | 'foo'>. Declaration start char: 0, length: 48
@@ -69,4 +69,30 @@ func recursiveA() string => recursiveB()
 //@[05:15) Function recursiveA. Type: () => string. Declaration start char: 0, length: 40
 func recursiveB() string => recursiveA()
 //@[05:15) Function recursiveB. Type: () => string. Declaration start char: 0, length: 40
+
+func onlyComma(,) string => 'foo'
+//@[15:15) Local <missing>. Type: any. Declaration start char: 15, length: 0
+//@[05:14) Function onlyComma. Type: any => 'foo'. Declaration start char: 0, length: 33
+func trailingCommas(a string,,) string => 'foo'
+//@[20:21) Local a. Type: string. Declaration start char: 20, length: 8
+//@[29:29) Local <missing>. Type: any. Declaration start char: 29, length: 0
+//@[05:19) Function trailingCommas. Type: (string, any) => 'foo'. Declaration start char: 0, length: 47
+func multiLineOnly(
+//@[05:18) Function multiLineOnly. Type: string => any. Declaration start char: 0, length: 58
+  a string
+//@[02:03) Local a. Type: string. Declaration start char: 2, length: 8
+  b string) string => 'foo'
+
+func multiLineTrailingCommas(
+//@[05:28) Function multiLineTrailingCommas. Type: (string, any) => 'foo'. Declaration start char: 0, length: 62
+  a string,
+//@[02:03) Local a. Type: string. Declaration start char: 2, length: 8
+  ,) string => 'foo'
+//@[02:02) Local <missing>. Type: any. Declaration start char: 2, length: 0
+
+func lineBeforeComma(
+//@[05:20) Function lineBeforeComma. Type: string => any. Declaration start char: 0, length: 61
+  a string
+//@[02:03) Local a. Type: string. Declaration start char: 2, length: 8
+  ,b string) string => 'foo'
 

@@ -887,6 +887,116 @@ output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
 //@[066:067) Dot |.|
 //@[067:070) Identifier |foo|
 //@[070:071) RightParen |)|
-//@[071:072) NewLine |\n|
+//@[071:073) NewLine |\n\n|
+
+var onlyComma = map([0], (,) => 'foo')
+//@[000:003) Identifier |var|
+//@[004:013) Identifier |onlyComma|
+//@[014:015) Assignment |=|
+//@[016:019) Identifier |map|
+//@[019:020) LeftParen |(|
+//@[020:021) LeftSquare |[|
+//@[021:022) Integer |0|
+//@[022:023) RightSquare |]|
+//@[023:024) Comma |,|
+//@[025:026) LeftParen |(|
+//@[026:027) Comma |,|
+//@[027:028) RightParen |)|
+//@[029:031) Arrow |=>|
+//@[032:037) StringComplete |'foo'|
+//@[037:038) RightParen |)|
+//@[038:039) NewLine |\n|
+var trailingCommas = map([0], (a,,) => 'foo')
+//@[000:003) Identifier |var|
+//@[004:018) Identifier |trailingCommas|
+//@[019:020) Assignment |=|
+//@[021:024) Identifier |map|
+//@[024:025) LeftParen |(|
+//@[025:026) LeftSquare |[|
+//@[026:027) Integer |0|
+//@[027:028) RightSquare |]|
+//@[028:029) Comma |,|
+//@[030:031) LeftParen |(|
+//@[031:032) Identifier |a|
+//@[032:033) Comma |,|
+//@[033:034) Comma |,|
+//@[034:035) RightParen |)|
+//@[036:038) Arrow |=>|
+//@[039:044) StringComplete |'foo'|
+//@[044:045) RightParen |)|
+//@[045:046) NewLine |\n|
+var multiLineOnly = map([0], (
+//@[000:003) Identifier |var|
+//@[004:017) Identifier |multiLineOnly|
+//@[018:019) Assignment |=|
+//@[020:023) Identifier |map|
+//@[023:024) LeftParen |(|
+//@[024:025) LeftSquare |[|
+//@[025:026) Integer |0|
+//@[026:027) RightSquare |]|
+//@[027:028) Comma |,|
+//@[029:030) LeftParen |(|
+//@[030:031) NewLine |\n|
+  a
+//@[002:003) Identifier |a|
+//@[003:004) NewLine |\n|
+  b) => 'foo')
+//@[002:003) Identifier |b|
+//@[003:004) RightParen |)|
+//@[005:007) Arrow |=>|
+//@[008:013) StringComplete |'foo'|
+//@[013:014) RightParen |)|
+//@[014:015) NewLine |\n|
+)
+//@[000:001) RightParen |)|
+//@[001:003) NewLine |\n\n|
+
+var multiLineTrailingCommas = map([0], (
+//@[000:003) Identifier |var|
+//@[004:027) Identifier |multiLineTrailingCommas|
+//@[028:029) Assignment |=|
+//@[030:033) Identifier |map|
+//@[033:034) LeftParen |(|
+//@[034:035) LeftSquare |[|
+//@[035:036) Integer |0|
+//@[036:037) RightSquare |]|
+//@[037:038) Comma |,|
+//@[039:040) LeftParen |(|
+//@[040:041) NewLine |\n|
+  a,
+//@[002:003) Identifier |a|
+//@[003:004) Comma |,|
+//@[004:005) NewLine |\n|
+  ,) => 'foo')
+//@[002:003) Comma |,|
+//@[003:004) RightParen |)|
+//@[005:007) Arrow |=>|
+//@[008:013) StringComplete |'foo'|
+//@[013:014) RightParen |)|
+//@[014:016) NewLine |\n\n|
+
+var lineBeforeComma = map([0], (
+//@[000:003) Identifier |var|
+//@[004:019) Identifier |lineBeforeComma|
+//@[020:021) Assignment |=|
+//@[022:025) Identifier |map|
+//@[025:026) LeftParen |(|
+//@[026:027) LeftSquare |[|
+//@[027:028) Integer |0|
+//@[028:029) RightSquare |]|
+//@[029:030) Comma |,|
+//@[031:032) LeftParen |(|
+//@[032:033) NewLine |\n|
+  a
+//@[002:003) Identifier |a|
+//@[003:004) NewLine |\n|
+  ,b) => 'foo')
+//@[002:003) Comma |,|
+//@[003:004) Identifier |b|
+//@[004:005) RightParen |)|
+//@[006:008) Arrow |=>|
+//@[009:014) StringComplete |'foo'|
+//@[014:015) RightParen |)|
+//@[015:016) NewLine |\n|
 
 //@[000:000) EndOfFile ||

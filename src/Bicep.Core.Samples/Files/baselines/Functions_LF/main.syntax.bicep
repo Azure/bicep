@@ -1,504 +1,653 @@
 func buildUrl(https bool, hostname string, path string) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
-//@[000:975) ProgramSyntax
-//@[000:141) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:013) | ├─IdentifierSyntax
-//@[005:013) | | └─Token(Identifier) |buildUrl|
-//@[013:141) | └─TypedLambdaSyntax
-//@[013:055) |   ├─TypedVariableBlockSyntax
-//@[013:014) |   | ├─Token(LeftParen) |(|
-//@[014:024) |   | ├─TypedLocalVariableSyntax
-//@[014:019) |   | | ├─IdentifierSyntax
-//@[014:019) |   | | | └─Token(Identifier) |https|
-//@[020:024) |   | | └─VariableAccessSyntax
-//@[020:024) |   | |   └─IdentifierSyntax
-//@[020:024) |   | |     └─Token(Identifier) |bool|
-//@[024:025) |   | ├─Token(Comma) |,|
-//@[026:041) |   | ├─TypedLocalVariableSyntax
-//@[026:034) |   | | ├─IdentifierSyntax
-//@[026:034) |   | | | └─Token(Identifier) |hostname|
-//@[035:041) |   | | └─VariableAccessSyntax
-//@[035:041) |   | |   └─IdentifierSyntax
-//@[035:041) |   | |     └─Token(Identifier) |string|
-//@[041:042) |   | ├─Token(Comma) |,|
-//@[043:054) |   | ├─TypedLocalVariableSyntax
-//@[043:047) |   | | ├─IdentifierSyntax
-//@[043:047) |   | | | └─Token(Identifier) |path|
-//@[048:054) |   | | └─VariableAccessSyntax
-//@[048:054) |   | |   └─IdentifierSyntax
-//@[048:054) |   | |     └─Token(Identifier) |string|
-//@[054:055) |   | └─Token(RightParen) |)|
-//@[056:062) |   ├─VariableAccessSyntax
-//@[056:062) |   | └─IdentifierSyntax
-//@[056:062) |   |   └─Token(Identifier) |string|
-//@[063:065) |   ├─Token(Arrow) |=>|
-//@[066:141) |   └─StringSyntax
-//@[066:069) |     ├─Token(StringLeftPiece) |'${|
-//@[069:093) |     ├─TernaryOperationSyntax
-//@[069:074) |     | ├─VariableAccessSyntax
-//@[069:074) |     | | └─IdentifierSyntax
-//@[069:074) |     | |   └─Token(Identifier) |https|
-//@[075:076) |     | ├─Token(Question) |?|
-//@[077:084) |     | ├─StringSyntax
-//@[077:084) |     | | └─Token(StringComplete) |'https'|
-//@[085:086) |     | ├─Token(Colon) |:|
-//@[087:093) |     | └─StringSyntax
-//@[087:093) |     |   └─Token(StringComplete) |'http'|
-//@[093:099) |     ├─Token(StringMiddlePiece) |}://${|
-//@[099:107) |     ├─VariableAccessSyntax
-//@[099:107) |     | └─IdentifierSyntax
-//@[099:107) |     |   └─Token(Identifier) |hostname|
-//@[107:110) |     ├─Token(StringMiddlePiece) |}${|
-//@[110:139) |     ├─TernaryOperationSyntax
-//@[110:121) |     | ├─FunctionCallSyntax
-//@[110:115) |     | | ├─IdentifierSyntax
-//@[110:115) |     | | | └─Token(Identifier) |empty|
-//@[115:116) |     | | ├─Token(LeftParen) |(|
-//@[116:120) |     | | ├─FunctionArgumentSyntax
-//@[116:120) |     | | | └─VariableAccessSyntax
-//@[116:120) |     | | |   └─IdentifierSyntax
-//@[116:120) |     | | |     └─Token(Identifier) |path|
-//@[120:121) |     | | └─Token(RightParen) |)|
-//@[122:123) |     | ├─Token(Question) |?|
-//@[124:126) |     | ├─StringSyntax
-//@[124:126) |     | | └─Token(StringComplete) |''|
-//@[127:128) |     | ├─Token(Colon) |:|
-//@[129:139) |     | └─StringSyntax
-//@[129:133) |     |   ├─Token(StringLeftPiece) |'/${|
-//@[133:137) |     |   ├─VariableAccessSyntax
-//@[133:137) |     |   | └─IdentifierSyntax
-//@[133:137) |     |   |   └─Token(Identifier) |path|
-//@[137:139) |     |   └─Token(StringRightPiece) |}'|
-//@[139:141) |     └─Token(StringRightPiece) |}'|
-//@[141:143) ├─Token(NewLine) |\n\n|
+//@[000:1461) ProgramSyntax
+//@[000:0141) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0013) | ├─IdentifierSyntax
+//@[005:0013) | | └─Token(Identifier) |buildUrl|
+//@[013:0141) | └─TypedLambdaSyntax
+//@[013:0055) |   ├─TypedVariableBlockSyntax
+//@[013:0014) |   | ├─Token(LeftParen) |(|
+//@[014:0024) |   | ├─TypedLocalVariableSyntax
+//@[014:0019) |   | | ├─IdentifierSyntax
+//@[014:0019) |   | | | └─Token(Identifier) |https|
+//@[020:0024) |   | | └─VariableAccessSyntax
+//@[020:0024) |   | |   └─IdentifierSyntax
+//@[020:0024) |   | |     └─Token(Identifier) |bool|
+//@[024:0025) |   | ├─Token(Comma) |,|
+//@[026:0041) |   | ├─TypedLocalVariableSyntax
+//@[026:0034) |   | | ├─IdentifierSyntax
+//@[026:0034) |   | | | └─Token(Identifier) |hostname|
+//@[035:0041) |   | | └─VariableAccessSyntax
+//@[035:0041) |   | |   └─IdentifierSyntax
+//@[035:0041) |   | |     └─Token(Identifier) |string|
+//@[041:0042) |   | ├─Token(Comma) |,|
+//@[043:0054) |   | ├─TypedLocalVariableSyntax
+//@[043:0047) |   | | ├─IdentifierSyntax
+//@[043:0047) |   | | | └─Token(Identifier) |path|
+//@[048:0054) |   | | └─VariableAccessSyntax
+//@[048:0054) |   | |   └─IdentifierSyntax
+//@[048:0054) |   | |     └─Token(Identifier) |string|
+//@[054:0055) |   | └─Token(RightParen) |)|
+//@[056:0062) |   ├─VariableAccessSyntax
+//@[056:0062) |   | └─IdentifierSyntax
+//@[056:0062) |   |   └─Token(Identifier) |string|
+//@[063:0065) |   ├─Token(Arrow) |=>|
+//@[066:0141) |   └─StringSyntax
+//@[066:0069) |     ├─Token(StringLeftPiece) |'${|
+//@[069:0093) |     ├─TernaryOperationSyntax
+//@[069:0074) |     | ├─VariableAccessSyntax
+//@[069:0074) |     | | └─IdentifierSyntax
+//@[069:0074) |     | |   └─Token(Identifier) |https|
+//@[075:0076) |     | ├─Token(Question) |?|
+//@[077:0084) |     | ├─StringSyntax
+//@[077:0084) |     | | └─Token(StringComplete) |'https'|
+//@[085:0086) |     | ├─Token(Colon) |:|
+//@[087:0093) |     | └─StringSyntax
+//@[087:0093) |     |   └─Token(StringComplete) |'http'|
+//@[093:0099) |     ├─Token(StringMiddlePiece) |}://${|
+//@[099:0107) |     ├─VariableAccessSyntax
+//@[099:0107) |     | └─IdentifierSyntax
+//@[099:0107) |     |   └─Token(Identifier) |hostname|
+//@[107:0110) |     ├─Token(StringMiddlePiece) |}${|
+//@[110:0139) |     ├─TernaryOperationSyntax
+//@[110:0121) |     | ├─FunctionCallSyntax
+//@[110:0115) |     | | ├─IdentifierSyntax
+//@[110:0115) |     | | | └─Token(Identifier) |empty|
+//@[115:0116) |     | | ├─Token(LeftParen) |(|
+//@[116:0120) |     | | ├─FunctionArgumentSyntax
+//@[116:0120) |     | | | └─VariableAccessSyntax
+//@[116:0120) |     | | |   └─IdentifierSyntax
+//@[116:0120) |     | | |     └─Token(Identifier) |path|
+//@[120:0121) |     | | └─Token(RightParen) |)|
+//@[122:0123) |     | ├─Token(Question) |?|
+//@[124:0126) |     | ├─StringSyntax
+//@[124:0126) |     | | └─Token(StringComplete) |''|
+//@[127:0128) |     | ├─Token(Colon) |:|
+//@[129:0139) |     | └─StringSyntax
+//@[129:0133) |     |   ├─Token(StringLeftPiece) |'/${|
+//@[133:0137) |     |   ├─VariableAccessSyntax
+//@[133:0137) |     |   | └─IdentifierSyntax
+//@[133:0137) |     |   |   └─Token(Identifier) |path|
+//@[137:0139) |     |   └─Token(StringRightPiece) |}'|
+//@[139:0141) |     └─Token(StringRightPiece) |}'|
+//@[141:0143) ├─Token(NewLine) |\n\n|
 
 output foo string = buildUrl(true, 'google.com', 'search')
-//@[000:058) ├─OutputDeclarationSyntax
-//@[000:006) | ├─Token(Identifier) |output|
-//@[007:010) | ├─IdentifierSyntax
-//@[007:010) | | └─Token(Identifier) |foo|
-//@[011:017) | ├─VariableAccessSyntax
-//@[011:017) | | └─IdentifierSyntax
-//@[011:017) | |   └─Token(Identifier) |string|
-//@[018:019) | ├─Token(Assignment) |=|
-//@[020:058) | └─FunctionCallSyntax
-//@[020:028) |   ├─IdentifierSyntax
-//@[020:028) |   | └─Token(Identifier) |buildUrl|
-//@[028:029) |   ├─Token(LeftParen) |(|
-//@[029:033) |   ├─FunctionArgumentSyntax
-//@[029:033) |   | └─BooleanLiteralSyntax
-//@[029:033) |   |   └─Token(TrueKeyword) |true|
-//@[033:034) |   ├─Token(Comma) |,|
-//@[035:047) |   ├─FunctionArgumentSyntax
-//@[035:047) |   | └─StringSyntax
-//@[035:047) |   |   └─Token(StringComplete) |'google.com'|
-//@[047:048) |   ├─Token(Comma) |,|
-//@[049:057) |   ├─FunctionArgumentSyntax
-//@[049:057) |   | └─StringSyntax
-//@[049:057) |   |   └─Token(StringComplete) |'search'|
-//@[057:058) |   └─Token(RightParen) |)|
-//@[058:060) ├─Token(NewLine) |\n\n|
+//@[000:0058) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |foo|
+//@[011:0017) | ├─VariableAccessSyntax
+//@[011:0017) | | └─IdentifierSyntax
+//@[011:0017) | |   └─Token(Identifier) |string|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0058) | └─FunctionCallSyntax
+//@[020:0028) |   ├─IdentifierSyntax
+//@[020:0028) |   | └─Token(Identifier) |buildUrl|
+//@[028:0029) |   ├─Token(LeftParen) |(|
+//@[029:0033) |   ├─FunctionArgumentSyntax
+//@[029:0033) |   | └─BooleanLiteralSyntax
+//@[029:0033) |   |   └─Token(TrueKeyword) |true|
+//@[033:0034) |   ├─Token(Comma) |,|
+//@[035:0047) |   ├─FunctionArgumentSyntax
+//@[035:0047) |   | └─StringSyntax
+//@[035:0047) |   |   └─Token(StringComplete) |'google.com'|
+//@[047:0048) |   ├─Token(Comma) |,|
+//@[049:0057) |   ├─FunctionArgumentSyntax
+//@[049:0057) |   | └─StringSyntax
+//@[049:0057) |   |   └─Token(StringComplete) |'search'|
+//@[057:0058) |   └─Token(RightParen) |)|
+//@[058:0060) ├─Token(NewLine) |\n\n|
 
 func sayHello(name string) string => 'Hi ${name}!'
-//@[000:050) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:013) | ├─IdentifierSyntax
-//@[005:013) | | └─Token(Identifier) |sayHello|
-//@[013:050) | └─TypedLambdaSyntax
-//@[013:026) |   ├─TypedVariableBlockSyntax
-//@[013:014) |   | ├─Token(LeftParen) |(|
-//@[014:025) |   | ├─TypedLocalVariableSyntax
-//@[014:018) |   | | ├─IdentifierSyntax
-//@[014:018) |   | | | └─Token(Identifier) |name|
-//@[019:025) |   | | └─VariableAccessSyntax
-//@[019:025) |   | |   └─IdentifierSyntax
-//@[019:025) |   | |     └─Token(Identifier) |string|
-//@[025:026) |   | └─Token(RightParen) |)|
-//@[027:033) |   ├─VariableAccessSyntax
-//@[027:033) |   | └─IdentifierSyntax
-//@[027:033) |   |   └─Token(Identifier) |string|
-//@[034:036) |   ├─Token(Arrow) |=>|
-//@[037:050) |   └─StringSyntax
-//@[037:043) |     ├─Token(StringLeftPiece) |'Hi ${|
-//@[043:047) |     ├─VariableAccessSyntax
-//@[043:047) |     | └─IdentifierSyntax
-//@[043:047) |     |   └─Token(Identifier) |name|
-//@[047:050) |     └─Token(StringRightPiece) |}!'|
-//@[050:052) ├─Token(NewLine) |\n\n|
+//@[000:0050) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0013) | ├─IdentifierSyntax
+//@[005:0013) | | └─Token(Identifier) |sayHello|
+//@[013:0050) | └─TypedLambdaSyntax
+//@[013:0026) |   ├─TypedVariableBlockSyntax
+//@[013:0014) |   | ├─Token(LeftParen) |(|
+//@[014:0025) |   | ├─TypedLocalVariableSyntax
+//@[014:0018) |   | | ├─IdentifierSyntax
+//@[014:0018) |   | | | └─Token(Identifier) |name|
+//@[019:0025) |   | | └─VariableAccessSyntax
+//@[019:0025) |   | |   └─IdentifierSyntax
+//@[019:0025) |   | |     └─Token(Identifier) |string|
+//@[025:0026) |   | └─Token(RightParen) |)|
+//@[027:0033) |   ├─VariableAccessSyntax
+//@[027:0033) |   | └─IdentifierSyntax
+//@[027:0033) |   |   └─Token(Identifier) |string|
+//@[034:0036) |   ├─Token(Arrow) |=>|
+//@[037:0050) |   └─StringSyntax
+//@[037:0043) |     ├─Token(StringLeftPiece) |'Hi ${|
+//@[043:0047) |     ├─VariableAccessSyntax
+//@[043:0047) |     | └─IdentifierSyntax
+//@[043:0047) |     |   └─Token(Identifier) |name|
+//@[047:0050) |     └─Token(StringRightPiece) |}!'|
+//@[050:0052) ├─Token(NewLine) |\n\n|
 
 output hellos array = map(['Evie', 'Casper'], name => sayHello(name))
-//@[000:069) ├─OutputDeclarationSyntax
-//@[000:006) | ├─Token(Identifier) |output|
-//@[007:013) | ├─IdentifierSyntax
-//@[007:013) | | └─Token(Identifier) |hellos|
-//@[014:019) | ├─VariableAccessSyntax
-//@[014:019) | | └─IdentifierSyntax
-//@[014:019) | |   └─Token(Identifier) |array|
-//@[020:021) | ├─Token(Assignment) |=|
-//@[022:069) | └─FunctionCallSyntax
-//@[022:025) |   ├─IdentifierSyntax
-//@[022:025) |   | └─Token(Identifier) |map|
-//@[025:026) |   ├─Token(LeftParen) |(|
-//@[026:044) |   ├─FunctionArgumentSyntax
-//@[026:044) |   | └─ArraySyntax
-//@[026:027) |   |   ├─Token(LeftSquare) |[|
-//@[027:033) |   |   ├─ArrayItemSyntax
-//@[027:033) |   |   | └─StringSyntax
-//@[027:033) |   |   |   └─Token(StringComplete) |'Evie'|
-//@[033:034) |   |   ├─Token(Comma) |,|
-//@[035:043) |   |   ├─ArrayItemSyntax
-//@[035:043) |   |   | └─StringSyntax
-//@[035:043) |   |   |   └─Token(StringComplete) |'Casper'|
-//@[043:044) |   |   └─Token(RightSquare) |]|
-//@[044:045) |   ├─Token(Comma) |,|
-//@[046:068) |   ├─FunctionArgumentSyntax
-//@[046:068) |   | └─LambdaSyntax
-//@[046:050) |   |   ├─LocalVariableSyntax
-//@[046:050) |   |   | └─IdentifierSyntax
-//@[046:050) |   |   |   └─Token(Identifier) |name|
-//@[051:053) |   |   ├─Token(Arrow) |=>|
-//@[054:068) |   |   └─FunctionCallSyntax
-//@[054:062) |   |     ├─IdentifierSyntax
-//@[054:062) |   |     | └─Token(Identifier) |sayHello|
-//@[062:063) |   |     ├─Token(LeftParen) |(|
-//@[063:067) |   |     ├─FunctionArgumentSyntax
-//@[063:067) |   |     | └─VariableAccessSyntax
-//@[063:067) |   |     |   └─IdentifierSyntax
-//@[063:067) |   |     |     └─Token(Identifier) |name|
-//@[067:068) |   |     └─Token(RightParen) |)|
-//@[068:069) |   └─Token(RightParen) |)|
-//@[069:071) ├─Token(NewLine) |\n\n|
+//@[000:0069) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0013) | ├─IdentifierSyntax
+//@[007:0013) | | └─Token(Identifier) |hellos|
+//@[014:0019) | ├─VariableAccessSyntax
+//@[014:0019) | | └─IdentifierSyntax
+//@[014:0019) | |   └─Token(Identifier) |array|
+//@[020:0021) | ├─Token(Assignment) |=|
+//@[022:0069) | └─FunctionCallSyntax
+//@[022:0025) |   ├─IdentifierSyntax
+//@[022:0025) |   | └─Token(Identifier) |map|
+//@[025:0026) |   ├─Token(LeftParen) |(|
+//@[026:0044) |   ├─FunctionArgumentSyntax
+//@[026:0044) |   | └─ArraySyntax
+//@[026:0027) |   |   ├─Token(LeftSquare) |[|
+//@[027:0033) |   |   ├─ArrayItemSyntax
+//@[027:0033) |   |   | └─StringSyntax
+//@[027:0033) |   |   |   └─Token(StringComplete) |'Evie'|
+//@[033:0034) |   |   ├─Token(Comma) |,|
+//@[035:0043) |   |   ├─ArrayItemSyntax
+//@[035:0043) |   |   | └─StringSyntax
+//@[035:0043) |   |   |   └─Token(StringComplete) |'Casper'|
+//@[043:0044) |   |   └─Token(RightSquare) |]|
+//@[044:0045) |   ├─Token(Comma) |,|
+//@[046:0068) |   ├─FunctionArgumentSyntax
+//@[046:0068) |   | └─LambdaSyntax
+//@[046:0050) |   |   ├─LocalVariableSyntax
+//@[046:0050) |   |   | └─IdentifierSyntax
+//@[046:0050) |   |   |   └─Token(Identifier) |name|
+//@[051:0053) |   |   ├─Token(Arrow) |=>|
+//@[054:0068) |   |   └─FunctionCallSyntax
+//@[054:0062) |   |     ├─IdentifierSyntax
+//@[054:0062) |   |     | └─Token(Identifier) |sayHello|
+//@[062:0063) |   |     ├─Token(LeftParen) |(|
+//@[063:0067) |   |     ├─FunctionArgumentSyntax
+//@[063:0067) |   |     | └─VariableAccessSyntax
+//@[063:0067) |   |     |   └─IdentifierSyntax
+//@[063:0067) |   |     |     └─Token(Identifier) |name|
+//@[067:0068) |   |     └─Token(RightParen) |)|
+//@[068:0069) |   └─Token(RightParen) |)|
+//@[069:0071) ├─Token(NewLine) |\n\n|
 
 func objReturnType(name string) object => {
-//@[000:068) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:018) | ├─IdentifierSyntax
-//@[005:018) | | └─Token(Identifier) |objReturnType|
-//@[018:068) | └─TypedLambdaSyntax
-//@[018:031) |   ├─TypedVariableBlockSyntax
-//@[018:019) |   | ├─Token(LeftParen) |(|
-//@[019:030) |   | ├─TypedLocalVariableSyntax
-//@[019:023) |   | | ├─IdentifierSyntax
-//@[019:023) |   | | | └─Token(Identifier) |name|
-//@[024:030) |   | | └─VariableAccessSyntax
-//@[024:030) |   | |   └─IdentifierSyntax
-//@[024:030) |   | |     └─Token(Identifier) |string|
-//@[030:031) |   | └─Token(RightParen) |)|
-//@[032:038) |   ├─VariableAccessSyntax
-//@[032:038) |   | └─IdentifierSyntax
-//@[032:038) |   |   └─Token(Identifier) |object|
-//@[039:041) |   ├─Token(Arrow) |=>|
-//@[042:068) |   └─ObjectSyntax
-//@[042:043) |     ├─Token(LeftBrace) |{|
-//@[043:044) |     ├─Token(NewLine) |\n|
+//@[000:0068) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0018) | ├─IdentifierSyntax
+//@[005:0018) | | └─Token(Identifier) |objReturnType|
+//@[018:0068) | └─TypedLambdaSyntax
+//@[018:0031) |   ├─TypedVariableBlockSyntax
+//@[018:0019) |   | ├─Token(LeftParen) |(|
+//@[019:0030) |   | ├─TypedLocalVariableSyntax
+//@[019:0023) |   | | ├─IdentifierSyntax
+//@[019:0023) |   | | | └─Token(Identifier) |name|
+//@[024:0030) |   | | └─VariableAccessSyntax
+//@[024:0030) |   | |   └─IdentifierSyntax
+//@[024:0030) |   | |     └─Token(Identifier) |string|
+//@[030:0031) |   | └─Token(RightParen) |)|
+//@[032:0038) |   ├─VariableAccessSyntax
+//@[032:0038) |   | └─IdentifierSyntax
+//@[032:0038) |   |   └─Token(Identifier) |object|
+//@[039:0041) |   ├─Token(Arrow) |=>|
+//@[042:0068) |   └─ObjectSyntax
+//@[042:0043) |     ├─Token(LeftBrace) |{|
+//@[043:0044) |     ├─Token(NewLine) |\n|
   hello: 'Hi ${name}!'
-//@[002:022) |     ├─ObjectPropertySyntax
-//@[002:007) |     | ├─IdentifierSyntax
-//@[002:007) |     | | └─Token(Identifier) |hello|
-//@[007:008) |     | ├─Token(Colon) |:|
-//@[009:022) |     | └─StringSyntax
-//@[009:015) |     |   ├─Token(StringLeftPiece) |'Hi ${|
-//@[015:019) |     |   ├─VariableAccessSyntax
-//@[015:019) |     |   | └─IdentifierSyntax
-//@[015:019) |     |   |   └─Token(Identifier) |name|
-//@[019:022) |     |   └─Token(StringRightPiece) |}!'|
-//@[022:023) |     ├─Token(NewLine) |\n|
+//@[002:0022) |     ├─ObjectPropertySyntax
+//@[002:0007) |     | ├─IdentifierSyntax
+//@[002:0007) |     | | └─Token(Identifier) |hello|
+//@[007:0008) |     | ├─Token(Colon) |:|
+//@[009:0022) |     | └─StringSyntax
+//@[009:0015) |     |   ├─Token(StringLeftPiece) |'Hi ${|
+//@[015:0019) |     |   ├─VariableAccessSyntax
+//@[015:0019) |     |   | └─IdentifierSyntax
+//@[015:0019) |     |   |   └─Token(Identifier) |name|
+//@[019:0022) |     |   └─Token(StringRightPiece) |}!'|
+//@[022:0023) |     ├─Token(NewLine) |\n|
 }
-//@[000:001) |     └─Token(RightBrace) |}|
-//@[001:003) ├─Token(NewLine) |\n\n|
+//@[000:0001) |     └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
 
 func arrayReturnType(name string) array => [
-//@[000:053) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:020) | ├─IdentifierSyntax
-//@[005:020) | | └─Token(Identifier) |arrayReturnType|
-//@[020:053) | └─TypedLambdaSyntax
-//@[020:033) |   ├─TypedVariableBlockSyntax
-//@[020:021) |   | ├─Token(LeftParen) |(|
-//@[021:032) |   | ├─TypedLocalVariableSyntax
-//@[021:025) |   | | ├─IdentifierSyntax
-//@[021:025) |   | | | └─Token(Identifier) |name|
-//@[026:032) |   | | └─VariableAccessSyntax
-//@[026:032) |   | |   └─IdentifierSyntax
-//@[026:032) |   | |     └─Token(Identifier) |string|
-//@[032:033) |   | └─Token(RightParen) |)|
-//@[034:039) |   ├─VariableAccessSyntax
-//@[034:039) |   | └─IdentifierSyntax
-//@[034:039) |   |   └─Token(Identifier) |array|
-//@[040:042) |   ├─Token(Arrow) |=>|
-//@[043:053) |   └─ArraySyntax
-//@[043:044) |     ├─Token(LeftSquare) |[|
-//@[044:045) |     ├─Token(NewLine) |\n|
+//@[000:0053) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0020) | ├─IdentifierSyntax
+//@[005:0020) | | └─Token(Identifier) |arrayReturnType|
+//@[020:0053) | └─TypedLambdaSyntax
+//@[020:0033) |   ├─TypedVariableBlockSyntax
+//@[020:0021) |   | ├─Token(LeftParen) |(|
+//@[021:0032) |   | ├─TypedLocalVariableSyntax
+//@[021:0025) |   | | ├─IdentifierSyntax
+//@[021:0025) |   | | | └─Token(Identifier) |name|
+//@[026:0032) |   | | └─VariableAccessSyntax
+//@[026:0032) |   | |   └─IdentifierSyntax
+//@[026:0032) |   | |     └─Token(Identifier) |string|
+//@[032:0033) |   | └─Token(RightParen) |)|
+//@[034:0039) |   ├─VariableAccessSyntax
+//@[034:0039) |   | └─IdentifierSyntax
+//@[034:0039) |   |   └─Token(Identifier) |array|
+//@[040:0042) |   ├─Token(Arrow) |=>|
+//@[043:0053) |   └─ArraySyntax
+//@[043:0044) |     ├─Token(LeftSquare) |[|
+//@[044:0045) |     ├─Token(NewLine) |\n|
   name
-//@[002:006) |     ├─ArrayItemSyntax
-//@[002:006) |     | └─VariableAccessSyntax
-//@[002:006) |     |   └─IdentifierSyntax
-//@[002:006) |     |     └─Token(Identifier) |name|
-//@[006:007) |     ├─Token(NewLine) |\n|
+//@[002:0006) |     ├─ArrayItemSyntax
+//@[002:0006) |     | └─VariableAccessSyntax
+//@[002:0006) |     |   └─IdentifierSyntax
+//@[002:0006) |     |     └─Token(Identifier) |name|
+//@[006:0007) |     ├─Token(NewLine) |\n|
 ]
-//@[000:001) |     └─Token(RightSquare) |]|
-//@[001:003) ├─Token(NewLine) |\n\n|
+//@[000:0001) |     └─Token(RightSquare) |]|
+//@[001:0003) ├─Token(NewLine) |\n\n|
 
 func asdf(name string) array => [
-//@[000:051) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:009) | ├─IdentifierSyntax
-//@[005:009) | | └─Token(Identifier) |asdf|
-//@[009:051) | └─TypedLambdaSyntax
-//@[009:022) |   ├─TypedVariableBlockSyntax
-//@[009:010) |   | ├─Token(LeftParen) |(|
-//@[010:021) |   | ├─TypedLocalVariableSyntax
-//@[010:014) |   | | ├─IdentifierSyntax
-//@[010:014) |   | | | └─Token(Identifier) |name|
-//@[015:021) |   | | └─VariableAccessSyntax
-//@[015:021) |   | |   └─IdentifierSyntax
-//@[015:021) |   | |     └─Token(Identifier) |string|
-//@[021:022) |   | └─Token(RightParen) |)|
-//@[023:028) |   ├─VariableAccessSyntax
-//@[023:028) |   | └─IdentifierSyntax
-//@[023:028) |   |   └─Token(Identifier) |array|
-//@[029:031) |   ├─Token(Arrow) |=>|
-//@[032:051) |   └─ArraySyntax
-//@[032:033) |     ├─Token(LeftSquare) |[|
-//@[033:034) |     ├─Token(NewLine) |\n|
+//@[000:0051) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0009) | ├─IdentifierSyntax
+//@[005:0009) | | └─Token(Identifier) |asdf|
+//@[009:0051) | └─TypedLambdaSyntax
+//@[009:0022) |   ├─TypedVariableBlockSyntax
+//@[009:0010) |   | ├─Token(LeftParen) |(|
+//@[010:0021) |   | ├─TypedLocalVariableSyntax
+//@[010:0014) |   | | ├─IdentifierSyntax
+//@[010:0014) |   | | | └─Token(Identifier) |name|
+//@[015:0021) |   | | └─VariableAccessSyntax
+//@[015:0021) |   | |   └─IdentifierSyntax
+//@[015:0021) |   | |     └─Token(Identifier) |string|
+//@[021:0022) |   | └─Token(RightParen) |)|
+//@[023:0028) |   ├─VariableAccessSyntax
+//@[023:0028) |   | └─IdentifierSyntax
+//@[023:0028) |   |   └─Token(Identifier) |array|
+//@[029:0031) |   ├─Token(Arrow) |=>|
+//@[032:0051) |   └─ArraySyntax
+//@[032:0033) |     ├─Token(LeftSquare) |[|
+//@[033:0034) |     ├─Token(NewLine) |\n|
   'asdf'
-//@[002:008) |     ├─ArrayItemSyntax
-//@[002:008) |     | └─StringSyntax
-//@[002:008) |     |   └─Token(StringComplete) |'asdf'|
-//@[008:009) |     ├─Token(NewLine) |\n|
+//@[002:0008) |     ├─ArrayItemSyntax
+//@[002:0008) |     | └─StringSyntax
+//@[002:0008) |     |   └─Token(StringComplete) |'asdf'|
+//@[008:0009) |     ├─Token(NewLine) |\n|
   name
-//@[002:006) |     ├─ArrayItemSyntax
-//@[002:006) |     | └─VariableAccessSyntax
-//@[002:006) |     |   └─IdentifierSyntax
-//@[002:006) |     |     └─Token(Identifier) |name|
-//@[006:007) |     ├─Token(NewLine) |\n|
+//@[002:0006) |     ├─ArrayItemSyntax
+//@[002:0006) |     | └─VariableAccessSyntax
+//@[002:0006) |     |   └─IdentifierSyntax
+//@[002:0006) |     |     └─Token(Identifier) |name|
+//@[006:0007) |     ├─Token(NewLine) |\n|
 ]
-//@[000:001) |     └─Token(RightSquare) |]|
-//@[001:003) ├─Token(NewLine) |\n\n|
+//@[000:0001) |     └─Token(RightSquare) |]|
+//@[001:0003) ├─Token(NewLine) |\n\n|
 
 @minValue(0)
-//@[000:035) ├─TypeDeclarationSyntax
-//@[000:012) | ├─DecoratorSyntax
-//@[000:001) | | ├─Token(At) |@|
-//@[001:012) | | └─FunctionCallSyntax
-//@[001:009) | |   ├─IdentifierSyntax
-//@[001:009) | |   | └─Token(Identifier) |minValue|
-//@[009:010) | |   ├─Token(LeftParen) |(|
-//@[010:011) | |   ├─FunctionArgumentSyntax
-//@[010:011) | |   | └─IntegerLiteralSyntax
-//@[010:011) | |   |   └─Token(Integer) |0|
-//@[011:012) | |   └─Token(RightParen) |)|
-//@[012:013) | ├─Token(NewLine) |\n|
+//@[000:0035) ├─TypeDeclarationSyntax
+//@[000:0012) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0012) | | └─FunctionCallSyntax
+//@[001:0009) | |   ├─IdentifierSyntax
+//@[001:0009) | |   | └─Token(Identifier) |minValue|
+//@[009:0010) | |   ├─Token(LeftParen) |(|
+//@[010:0011) | |   ├─FunctionArgumentSyntax
+//@[010:0011) | |   | └─IntegerLiteralSyntax
+//@[010:0011) | |   |   └─Token(Integer) |0|
+//@[011:0012) | |   └─Token(RightParen) |)|
+//@[012:0013) | ├─Token(NewLine) |\n|
 type positiveInt = int
-//@[000:004) | ├─Token(Identifier) |type|
-//@[005:016) | ├─IdentifierSyntax
-//@[005:016) | | └─Token(Identifier) |positiveInt|
-//@[017:018) | ├─Token(Assignment) |=|
-//@[019:022) | └─VariableAccessSyntax
-//@[019:022) |   └─IdentifierSyntax
-//@[019:022) |     └─Token(Identifier) |int|
-//@[022:024) ├─Token(NewLine) |\n\n|
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0016) | ├─IdentifierSyntax
+//@[005:0016) | | └─Token(Identifier) |positiveInt|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0022) | └─VariableAccessSyntax
+//@[019:0022) |   └─IdentifierSyntax
+//@[019:0022) |     └─Token(Identifier) |int|
+//@[022:0024) ├─Token(NewLine) |\n\n|
 
 func typedArg(input string[]) positiveInt => length(input)
-//@[000:058) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:013) | ├─IdentifierSyntax
-//@[005:013) | | └─Token(Identifier) |typedArg|
-//@[013:058) | └─TypedLambdaSyntax
-//@[013:029) |   ├─TypedVariableBlockSyntax
-//@[013:014) |   | ├─Token(LeftParen) |(|
-//@[014:028) |   | ├─TypedLocalVariableSyntax
-//@[014:019) |   | | ├─IdentifierSyntax
-//@[014:019) |   | | | └─Token(Identifier) |input|
-//@[020:028) |   | | └─ArrayTypeSyntax
-//@[020:026) |   | |   ├─ArrayTypeMemberSyntax
-//@[020:026) |   | |   | └─VariableAccessSyntax
-//@[020:026) |   | |   |   └─IdentifierSyntax
-//@[020:026) |   | |   |     └─Token(Identifier) |string|
-//@[026:027) |   | |   ├─Token(LeftSquare) |[|
-//@[027:028) |   | |   └─Token(RightSquare) |]|
-//@[028:029) |   | └─Token(RightParen) |)|
-//@[030:041) |   ├─VariableAccessSyntax
-//@[030:041) |   | └─IdentifierSyntax
-//@[030:041) |   |   └─Token(Identifier) |positiveInt|
-//@[042:044) |   ├─Token(Arrow) |=>|
-//@[045:058) |   └─FunctionCallSyntax
-//@[045:051) |     ├─IdentifierSyntax
-//@[045:051) |     | └─Token(Identifier) |length|
-//@[051:052) |     ├─Token(LeftParen) |(|
-//@[052:057) |     ├─FunctionArgumentSyntax
-//@[052:057) |     | └─VariableAccessSyntax
-//@[052:057) |     |   └─IdentifierSyntax
-//@[052:057) |     |     └─Token(Identifier) |input|
-//@[057:058) |     └─Token(RightParen) |)|
-//@[058:060) ├─Token(NewLine) |\n\n|
+//@[000:0058) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0013) | ├─IdentifierSyntax
+//@[005:0013) | | └─Token(Identifier) |typedArg|
+//@[013:0058) | └─TypedLambdaSyntax
+//@[013:0029) |   ├─TypedVariableBlockSyntax
+//@[013:0014) |   | ├─Token(LeftParen) |(|
+//@[014:0028) |   | ├─TypedLocalVariableSyntax
+//@[014:0019) |   | | ├─IdentifierSyntax
+//@[014:0019) |   | | | └─Token(Identifier) |input|
+//@[020:0028) |   | | └─ArrayTypeSyntax
+//@[020:0026) |   | |   ├─ArrayTypeMemberSyntax
+//@[020:0026) |   | |   | └─VariableAccessSyntax
+//@[020:0026) |   | |   |   └─IdentifierSyntax
+//@[020:0026) |   | |   |     └─Token(Identifier) |string|
+//@[026:0027) |   | |   ├─Token(LeftSquare) |[|
+//@[027:0028) |   | |   └─Token(RightSquare) |]|
+//@[028:0029) |   | └─Token(RightParen) |)|
+//@[030:0041) |   ├─VariableAccessSyntax
+//@[030:0041) |   | └─IdentifierSyntax
+//@[030:0041) |   |   └─Token(Identifier) |positiveInt|
+//@[042:0044) |   ├─Token(Arrow) |=>|
+//@[045:0058) |   └─FunctionCallSyntax
+//@[045:0051) |     ├─IdentifierSyntax
+//@[045:0051) |     | └─Token(Identifier) |length|
+//@[051:0052) |     ├─Token(LeftParen) |(|
+//@[052:0057) |     ├─FunctionArgumentSyntax
+//@[052:0057) |     | └─VariableAccessSyntax
+//@[052:0057) |     |   └─IdentifierSyntax
+//@[052:0057) |     |     └─Token(Identifier) |input|
+//@[057:0058) |     └─Token(RightParen) |)|
+//@[058:0060) ├─Token(NewLine) |\n\n|
 
 func barTest() array => ['abc', 'def']
-//@[000:038) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:012) | ├─IdentifierSyntax
-//@[005:012) | | └─Token(Identifier) |barTest|
-//@[012:038) | └─TypedLambdaSyntax
-//@[012:014) |   ├─TypedVariableBlockSyntax
-//@[012:013) |   | ├─Token(LeftParen) |(|
-//@[013:014) |   | └─Token(RightParen) |)|
-//@[015:020) |   ├─VariableAccessSyntax
-//@[015:020) |   | └─IdentifierSyntax
-//@[015:020) |   |   └─Token(Identifier) |array|
-//@[021:023) |   ├─Token(Arrow) |=>|
-//@[024:038) |   └─ArraySyntax
-//@[024:025) |     ├─Token(LeftSquare) |[|
-//@[025:030) |     ├─ArrayItemSyntax
-//@[025:030) |     | └─StringSyntax
-//@[025:030) |     |   └─Token(StringComplete) |'abc'|
-//@[030:031) |     ├─Token(Comma) |,|
-//@[032:037) |     ├─ArrayItemSyntax
-//@[032:037) |     | └─StringSyntax
-//@[032:037) |     |   └─Token(StringComplete) |'def'|
-//@[037:038) |     └─Token(RightSquare) |]|
-//@[038:039) ├─Token(NewLine) |\n|
+//@[000:0038) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0012) | ├─IdentifierSyntax
+//@[005:0012) | | └─Token(Identifier) |barTest|
+//@[012:0038) | └─TypedLambdaSyntax
+//@[012:0014) |   ├─TypedVariableBlockSyntax
+//@[012:0013) |   | ├─Token(LeftParen) |(|
+//@[013:0014) |   | └─Token(RightParen) |)|
+//@[015:0020) |   ├─VariableAccessSyntax
+//@[015:0020) |   | └─IdentifierSyntax
+//@[015:0020) |   |   └─Token(Identifier) |array|
+//@[021:0023) |   ├─Token(Arrow) |=>|
+//@[024:0038) |   └─ArraySyntax
+//@[024:0025) |     ├─Token(LeftSquare) |[|
+//@[025:0030) |     ├─ArrayItemSyntax
+//@[025:0030) |     | └─StringSyntax
+//@[025:0030) |     |   └─Token(StringComplete) |'abc'|
+//@[030:0031) |     ├─Token(Comma) |,|
+//@[032:0037) |     ├─ArrayItemSyntax
+//@[032:0037) |     | └─StringSyntax
+//@[032:0037) |     |   └─Token(StringComplete) |'def'|
+//@[037:0038) |     └─Token(RightSquare) |]|
+//@[038:0039) ├─Token(NewLine) |\n|
 func fooTest() array => map(barTest(), a => 'Hello ${a}!')
-//@[000:058) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:012) | ├─IdentifierSyntax
-//@[005:012) | | └─Token(Identifier) |fooTest|
-//@[012:058) | └─TypedLambdaSyntax
-//@[012:014) |   ├─TypedVariableBlockSyntax
-//@[012:013) |   | ├─Token(LeftParen) |(|
-//@[013:014) |   | └─Token(RightParen) |)|
-//@[015:020) |   ├─VariableAccessSyntax
-//@[015:020) |   | └─IdentifierSyntax
-//@[015:020) |   |   └─Token(Identifier) |array|
-//@[021:023) |   ├─Token(Arrow) |=>|
-//@[024:058) |   └─FunctionCallSyntax
-//@[024:027) |     ├─IdentifierSyntax
-//@[024:027) |     | └─Token(Identifier) |map|
-//@[027:028) |     ├─Token(LeftParen) |(|
-//@[028:037) |     ├─FunctionArgumentSyntax
-//@[028:037) |     | └─FunctionCallSyntax
-//@[028:035) |     |   ├─IdentifierSyntax
-//@[028:035) |     |   | └─Token(Identifier) |barTest|
-//@[035:036) |     |   ├─Token(LeftParen) |(|
-//@[036:037) |     |   └─Token(RightParen) |)|
-//@[037:038) |     ├─Token(Comma) |,|
-//@[039:057) |     ├─FunctionArgumentSyntax
-//@[039:057) |     | └─LambdaSyntax
-//@[039:040) |     |   ├─LocalVariableSyntax
-//@[039:040) |     |   | └─IdentifierSyntax
-//@[039:040) |     |   |   └─Token(Identifier) |a|
-//@[041:043) |     |   ├─Token(Arrow) |=>|
-//@[044:057) |     |   └─StringSyntax
-//@[044:053) |     |     ├─Token(StringLeftPiece) |'Hello ${|
-//@[053:054) |     |     ├─VariableAccessSyntax
-//@[053:054) |     |     | └─IdentifierSyntax
-//@[053:054) |     |     |   └─Token(Identifier) |a|
-//@[054:057) |     |     └─Token(StringRightPiece) |}!'|
-//@[057:058) |     └─Token(RightParen) |)|
-//@[058:060) ├─Token(NewLine) |\n\n|
+//@[000:0058) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0012) | ├─IdentifierSyntax
+//@[005:0012) | | └─Token(Identifier) |fooTest|
+//@[012:0058) | └─TypedLambdaSyntax
+//@[012:0014) |   ├─TypedVariableBlockSyntax
+//@[012:0013) |   | ├─Token(LeftParen) |(|
+//@[013:0014) |   | └─Token(RightParen) |)|
+//@[015:0020) |   ├─VariableAccessSyntax
+//@[015:0020) |   | └─IdentifierSyntax
+//@[015:0020) |   |   └─Token(Identifier) |array|
+//@[021:0023) |   ├─Token(Arrow) |=>|
+//@[024:0058) |   └─FunctionCallSyntax
+//@[024:0027) |     ├─IdentifierSyntax
+//@[024:0027) |     | └─Token(Identifier) |map|
+//@[027:0028) |     ├─Token(LeftParen) |(|
+//@[028:0037) |     ├─FunctionArgumentSyntax
+//@[028:0037) |     | └─FunctionCallSyntax
+//@[028:0035) |     |   ├─IdentifierSyntax
+//@[028:0035) |     |   | └─Token(Identifier) |barTest|
+//@[035:0036) |     |   ├─Token(LeftParen) |(|
+//@[036:0037) |     |   └─Token(RightParen) |)|
+//@[037:0038) |     ├─Token(Comma) |,|
+//@[039:0057) |     ├─FunctionArgumentSyntax
+//@[039:0057) |     | └─LambdaSyntax
+//@[039:0040) |     |   ├─LocalVariableSyntax
+//@[039:0040) |     |   | └─IdentifierSyntax
+//@[039:0040) |     |   |   └─Token(Identifier) |a|
+//@[041:0043) |     |   ├─Token(Arrow) |=>|
+//@[044:0057) |     |   └─StringSyntax
+//@[044:0053) |     |     ├─Token(StringLeftPiece) |'Hello ${|
+//@[053:0054) |     |     ├─VariableAccessSyntax
+//@[053:0054) |     |     | └─IdentifierSyntax
+//@[053:0054) |     |     |   └─Token(Identifier) |a|
+//@[054:0057) |     |     └─Token(StringRightPiece) |}!'|
+//@[057:0058) |     └─Token(RightParen) |)|
+//@[058:0060) ├─Token(NewLine) |\n\n|
 
 output fooValue array = fooTest()
-//@[000:033) ├─OutputDeclarationSyntax
-//@[000:006) | ├─Token(Identifier) |output|
-//@[007:015) | ├─IdentifierSyntax
-//@[007:015) | | └─Token(Identifier) |fooValue|
-//@[016:021) | ├─VariableAccessSyntax
-//@[016:021) | | └─IdentifierSyntax
-//@[016:021) | |   └─Token(Identifier) |array|
-//@[022:023) | ├─Token(Assignment) |=|
-//@[024:033) | └─FunctionCallSyntax
-//@[024:031) |   ├─IdentifierSyntax
-//@[024:031) |   | └─Token(Identifier) |fooTest|
-//@[031:032) |   ├─Token(LeftParen) |(|
-//@[032:033) |   └─Token(RightParen) |)|
-//@[033:035) ├─Token(NewLine) |\n\n|
+//@[000:0033) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0015) | ├─IdentifierSyntax
+//@[007:0015) | | └─Token(Identifier) |fooValue|
+//@[016:0021) | ├─VariableAccessSyntax
+//@[016:0021) | | └─IdentifierSyntax
+//@[016:0021) | |   └─Token(Identifier) |array|
+//@[022:0023) | ├─Token(Assignment) |=|
+//@[024:0033) | └─FunctionCallSyntax
+//@[024:0031) |   ├─IdentifierSyntax
+//@[024:0031) |   | └─Token(Identifier) |fooTest|
+//@[031:0032) |   ├─Token(LeftParen) |(|
+//@[032:0033) |   └─Token(RightParen) |)|
+//@[033:0035) ├─Token(NewLine) |\n\n|
 
 func test() object => loadJsonContent('./repro-data.json')
-//@[000:058) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:009) | ├─IdentifierSyntax
-//@[005:009) | | └─Token(Identifier) |test|
-//@[009:058) | └─TypedLambdaSyntax
-//@[009:011) |   ├─TypedVariableBlockSyntax
-//@[009:010) |   | ├─Token(LeftParen) |(|
-//@[010:011) |   | └─Token(RightParen) |)|
-//@[012:018) |   ├─VariableAccessSyntax
-//@[012:018) |   | └─IdentifierSyntax
-//@[012:018) |   |   └─Token(Identifier) |object|
-//@[019:021) |   ├─Token(Arrow) |=>|
-//@[022:058) |   └─FunctionCallSyntax
-//@[022:037) |     ├─IdentifierSyntax
-//@[022:037) |     | └─Token(Identifier) |loadJsonContent|
-//@[037:038) |     ├─Token(LeftParen) |(|
-//@[038:057) |     ├─FunctionArgumentSyntax
-//@[038:057) |     | └─StringSyntax
-//@[038:057) |     |   └─Token(StringComplete) |'./repro-data.json'|
-//@[057:058) |     └─Token(RightParen) |)|
-//@[058:059) ├─Token(NewLine) |\n|
+//@[000:0058) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0009) | ├─IdentifierSyntax
+//@[005:0009) | | └─Token(Identifier) |test|
+//@[009:0058) | └─TypedLambdaSyntax
+//@[009:0011) |   ├─TypedVariableBlockSyntax
+//@[009:0010) |   | ├─Token(LeftParen) |(|
+//@[010:0011) |   | └─Token(RightParen) |)|
+//@[012:0018) |   ├─VariableAccessSyntax
+//@[012:0018) |   | └─IdentifierSyntax
+//@[012:0018) |   |   └─Token(Identifier) |object|
+//@[019:0021) |   ├─Token(Arrow) |=>|
+//@[022:0058) |   └─FunctionCallSyntax
+//@[022:0037) |     ├─IdentifierSyntax
+//@[022:0037) |     | └─Token(Identifier) |loadJsonContent|
+//@[037:0038) |     ├─Token(LeftParen) |(|
+//@[038:0057) |     ├─FunctionArgumentSyntax
+//@[038:0057) |     | └─StringSyntax
+//@[038:0057) |     |   └─Token(StringComplete) |'./repro-data.json'|
+//@[057:0058) |     └─Token(RightParen) |)|
+//@[058:0059) ├─Token(NewLine) |\n|
 func test2() string => loadTextContent('./repro-data.json')
-//@[000:059) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:010) | ├─IdentifierSyntax
-//@[005:010) | | └─Token(Identifier) |test2|
-//@[010:059) | └─TypedLambdaSyntax
-//@[010:012) |   ├─TypedVariableBlockSyntax
-//@[010:011) |   | ├─Token(LeftParen) |(|
-//@[011:012) |   | └─Token(RightParen) |)|
-//@[013:019) |   ├─VariableAccessSyntax
-//@[013:019) |   | └─IdentifierSyntax
-//@[013:019) |   |   └─Token(Identifier) |string|
-//@[020:022) |   ├─Token(Arrow) |=>|
-//@[023:059) |   └─FunctionCallSyntax
-//@[023:038) |     ├─IdentifierSyntax
-//@[023:038) |     | └─Token(Identifier) |loadTextContent|
-//@[038:039) |     ├─Token(LeftParen) |(|
-//@[039:058) |     ├─FunctionArgumentSyntax
-//@[039:058) |     | └─StringSyntax
-//@[039:058) |     |   └─Token(StringComplete) |'./repro-data.json'|
-//@[058:059) |     └─Token(RightParen) |)|
-//@[059:060) ├─Token(NewLine) |\n|
+//@[000:0059) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0010) | ├─IdentifierSyntax
+//@[005:0010) | | └─Token(Identifier) |test2|
+//@[010:0059) | └─TypedLambdaSyntax
+//@[010:0012) |   ├─TypedVariableBlockSyntax
+//@[010:0011) |   | ├─Token(LeftParen) |(|
+//@[011:0012) |   | └─Token(RightParen) |)|
+//@[013:0019) |   ├─VariableAccessSyntax
+//@[013:0019) |   | └─IdentifierSyntax
+//@[013:0019) |   |   └─Token(Identifier) |string|
+//@[020:0022) |   ├─Token(Arrow) |=>|
+//@[023:0059) |   └─FunctionCallSyntax
+//@[023:0038) |     ├─IdentifierSyntax
+//@[023:0038) |     | └─Token(Identifier) |loadTextContent|
+//@[038:0039) |     ├─Token(LeftParen) |(|
+//@[039:0058) |     ├─FunctionArgumentSyntax
+//@[039:0058) |     | └─StringSyntax
+//@[039:0058) |     |   └─Token(StringComplete) |'./repro-data.json'|
+//@[058:0059) |     └─Token(RightParen) |)|
+//@[059:0060) ├─Token(NewLine) |\n|
 func test3() object => loadYamlContent('./repro-data.json')
-//@[000:059) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:010) | ├─IdentifierSyntax
-//@[005:010) | | └─Token(Identifier) |test3|
-//@[010:059) | └─TypedLambdaSyntax
-//@[010:012) |   ├─TypedVariableBlockSyntax
-//@[010:011) |   | ├─Token(LeftParen) |(|
-//@[011:012) |   | └─Token(RightParen) |)|
-//@[013:019) |   ├─VariableAccessSyntax
-//@[013:019) |   | └─IdentifierSyntax
-//@[013:019) |   |   └─Token(Identifier) |object|
-//@[020:022) |   ├─Token(Arrow) |=>|
-//@[023:059) |   └─FunctionCallSyntax
-//@[023:038) |     ├─IdentifierSyntax
-//@[023:038) |     | └─Token(Identifier) |loadYamlContent|
-//@[038:039) |     ├─Token(LeftParen) |(|
-//@[039:058) |     ├─FunctionArgumentSyntax
-//@[039:058) |     | └─StringSyntax
-//@[039:058) |     |   └─Token(StringComplete) |'./repro-data.json'|
-//@[058:059) |     └─Token(RightParen) |)|
-//@[059:060) ├─Token(NewLine) |\n|
+//@[000:0059) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0010) | ├─IdentifierSyntax
+//@[005:0010) | | └─Token(Identifier) |test3|
+//@[010:0059) | └─TypedLambdaSyntax
+//@[010:0012) |   ├─TypedVariableBlockSyntax
+//@[010:0011) |   | ├─Token(LeftParen) |(|
+//@[011:0012) |   | └─Token(RightParen) |)|
+//@[013:0019) |   ├─VariableAccessSyntax
+//@[013:0019) |   | └─IdentifierSyntax
+//@[013:0019) |   |   └─Token(Identifier) |object|
+//@[020:0022) |   ├─Token(Arrow) |=>|
+//@[023:0059) |   └─FunctionCallSyntax
+//@[023:0038) |     ├─IdentifierSyntax
+//@[023:0038) |     | └─Token(Identifier) |loadYamlContent|
+//@[038:0039) |     ├─Token(LeftParen) |(|
+//@[039:0058) |     ├─FunctionArgumentSyntax
+//@[039:0058) |     | └─StringSyntax
+//@[039:0058) |     |   └─Token(StringComplete) |'./repro-data.json'|
+//@[058:0059) |     └─Token(RightParen) |)|
+//@[059:0060) ├─Token(NewLine) |\n|
 func test4() string => loadFileAsBase64('./repro-data.json')
-//@[000:060) ├─FunctionDeclarationSyntax
-//@[000:004) | ├─Token(Identifier) |func|
-//@[005:010) | ├─IdentifierSyntax
-//@[005:010) | | └─Token(Identifier) |test4|
-//@[010:060) | └─TypedLambdaSyntax
-//@[010:012) |   ├─TypedVariableBlockSyntax
-//@[010:011) |   | ├─Token(LeftParen) |(|
-//@[011:012) |   | └─Token(RightParen) |)|
-//@[013:019) |   ├─VariableAccessSyntax
-//@[013:019) |   | └─IdentifierSyntax
-//@[013:019) |   |   └─Token(Identifier) |string|
-//@[020:022) |   ├─Token(Arrow) |=>|
-//@[023:060) |   └─FunctionCallSyntax
-//@[023:039) |     ├─IdentifierSyntax
-//@[023:039) |     | └─Token(Identifier) |loadFileAsBase64|
-//@[039:040) |     ├─Token(LeftParen) |(|
-//@[040:059) |     ├─FunctionArgumentSyntax
-//@[040:059) |     | └─StringSyntax
-//@[040:059) |     |   └─Token(StringComplete) |'./repro-data.json'|
-//@[059:060) |     └─Token(RightParen) |)|
-//@[060:061) ├─Token(NewLine) |\n|
+//@[000:0060) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0010) | ├─IdentifierSyntax
+//@[005:0010) | | └─Token(Identifier) |test4|
+//@[010:0060) | └─TypedLambdaSyntax
+//@[010:0012) |   ├─TypedVariableBlockSyntax
+//@[010:0011) |   | ├─Token(LeftParen) |(|
+//@[011:0012) |   | └─Token(RightParen) |)|
+//@[013:0019) |   ├─VariableAccessSyntax
+//@[013:0019) |   | └─IdentifierSyntax
+//@[013:0019) |   |   └─Token(Identifier) |string|
+//@[020:0022) |   ├─Token(Arrow) |=>|
+//@[023:0060) |   └─FunctionCallSyntax
+//@[023:0039) |     ├─IdentifierSyntax
+//@[023:0039) |     | └─Token(Identifier) |loadFileAsBase64|
+//@[039:0040) |     ├─Token(LeftParen) |(|
+//@[040:0059) |     ├─FunctionArgumentSyntax
+//@[040:0059) |     | └─StringSyntax
+//@[040:0059) |     |   └─Token(StringComplete) |'./repro-data.json'|
+//@[059:0060) |     └─Token(RightParen) |)|
+//@[060:0062) ├─Token(NewLine) |\n\n|
 
-//@[000:000) └─Token(EndOfFile) ||
+// validate formatter works (https://github.com/Azure/bicep/issues/12913)
+//@[073:0074) ├─Token(NewLine) |\n|
+func a(____________________________________________________________________________________________ string) string => 'a'
+//@[000:0121) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0006) | ├─IdentifierSyntax
+//@[005:0006) | | └─Token(Identifier) |a|
+//@[006:0121) | └─TypedLambdaSyntax
+//@[006:0107) |   ├─TypedVariableBlockSyntax
+//@[006:0007) |   | ├─Token(LeftParen) |(|
+//@[007:0106) |   | ├─TypedLocalVariableSyntax
+//@[007:0099) |   | | ├─IdentifierSyntax
+//@[007:0099) |   | | | └─Token(Identifier) |____________________________________________________________________________________________|
+//@[100:0106) |   | | └─VariableAccessSyntax
+//@[100:0106) |   | |   └─IdentifierSyntax
+//@[100:0106) |   | |     └─Token(Identifier) |string|
+//@[106:0107) |   | └─Token(RightParen) |)|
+//@[108:0114) |   ├─VariableAccessSyntax
+//@[108:0114) |   | └─IdentifierSyntax
+//@[108:0114) |   |   └─Token(Identifier) |string|
+//@[115:0117) |   ├─Token(Arrow) |=>|
+//@[118:0121) |   └─StringSyntax
+//@[118:0121) |     └─Token(StringComplete) |'a'|
+//@[121:0122) ├─Token(NewLine) |\n|
+func b(longParameterName1 string, longParameterName2 string, longParameterName3 string, longParameterName4 string) string => 'b'
+//@[000:0128) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0006) | ├─IdentifierSyntax
+//@[005:0006) | | └─Token(Identifier) |b|
+//@[006:0128) | └─TypedLambdaSyntax
+//@[006:0114) |   ├─TypedVariableBlockSyntax
+//@[006:0007) |   | ├─Token(LeftParen) |(|
+//@[007:0032) |   | ├─TypedLocalVariableSyntax
+//@[007:0025) |   | | ├─IdentifierSyntax
+//@[007:0025) |   | | | └─Token(Identifier) |longParameterName1|
+//@[026:0032) |   | | └─VariableAccessSyntax
+//@[026:0032) |   | |   └─IdentifierSyntax
+//@[026:0032) |   | |     └─Token(Identifier) |string|
+//@[032:0033) |   | ├─Token(Comma) |,|
+//@[034:0059) |   | ├─TypedLocalVariableSyntax
+//@[034:0052) |   | | ├─IdentifierSyntax
+//@[034:0052) |   | | | └─Token(Identifier) |longParameterName2|
+//@[053:0059) |   | | └─VariableAccessSyntax
+//@[053:0059) |   | |   └─IdentifierSyntax
+//@[053:0059) |   | |     └─Token(Identifier) |string|
+//@[059:0060) |   | ├─Token(Comma) |,|
+//@[061:0086) |   | ├─TypedLocalVariableSyntax
+//@[061:0079) |   | | ├─IdentifierSyntax
+//@[061:0079) |   | | | └─Token(Identifier) |longParameterName3|
+//@[080:0086) |   | | └─VariableAccessSyntax
+//@[080:0086) |   | |   └─IdentifierSyntax
+//@[080:0086) |   | |     └─Token(Identifier) |string|
+//@[086:0087) |   | ├─Token(Comma) |,|
+//@[088:0113) |   | ├─TypedLocalVariableSyntax
+//@[088:0106) |   | | ├─IdentifierSyntax
+//@[088:0106) |   | | | └─Token(Identifier) |longParameterName4|
+//@[107:0113) |   | | └─VariableAccessSyntax
+//@[107:0113) |   | |   └─IdentifierSyntax
+//@[107:0113) |   | |     └─Token(Identifier) |string|
+//@[113:0114) |   | └─Token(RightParen) |)|
+//@[115:0121) |   ├─VariableAccessSyntax
+//@[115:0121) |   | └─IdentifierSyntax
+//@[115:0121) |   |   └─Token(Identifier) |string|
+//@[122:0124) |   ├─Token(Arrow) |=>|
+//@[125:0128) |   └─StringSyntax
+//@[125:0128) |     └─Token(StringComplete) |'b'|
+//@[128:0130) ├─Token(NewLine) |\n\n|
+
+func buildUrlMultiLine(
+//@[000:0158) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0022) | ├─IdentifierSyntax
+//@[005:0022) | | └─Token(Identifier) |buildUrlMultiLine|
+//@[022:0158) | └─TypedLambdaSyntax
+//@[022:0072) |   ├─TypedVariableBlockSyntax
+//@[022:0023) |   | ├─Token(LeftParen) |(|
+//@[023:0024) |   | ├─Token(NewLine) |\n|
+  https bool,
+//@[002:0012) |   | ├─TypedLocalVariableSyntax
+//@[002:0007) |   | | ├─IdentifierSyntax
+//@[002:0007) |   | | | └─Token(Identifier) |https|
+//@[008:0012) |   | | └─VariableAccessSyntax
+//@[008:0012) |   | |   └─IdentifierSyntax
+//@[008:0012) |   | |     └─Token(Identifier) |bool|
+//@[012:0013) |   | ├─Token(Comma) |,|
+//@[013:0014) |   | ├─Token(NewLine) |\n|
+  hostname string,
+//@[002:0017) |   | ├─TypedLocalVariableSyntax
+//@[002:0010) |   | | ├─IdentifierSyntax
+//@[002:0010) |   | | | └─Token(Identifier) |hostname|
+//@[011:0017) |   | | └─VariableAccessSyntax
+//@[011:0017) |   | |   └─IdentifierSyntax
+//@[011:0017) |   | |     └─Token(Identifier) |string|
+//@[017:0018) |   | ├─Token(Comma) |,|
+//@[018:0019) |   | ├─Token(NewLine) |\n|
+  path string
+//@[002:0013) |   | ├─TypedLocalVariableSyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |path|
+//@[007:0013) |   | | └─VariableAccessSyntax
+//@[007:0013) |   | |   └─IdentifierSyntax
+//@[007:0013) |   | |     └─Token(Identifier) |string|
+//@[013:0014) |   | ├─Token(NewLine) |\n|
+) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+//@[000:0001) |   | └─Token(RightParen) |)|
+//@[002:0008) |   ├─VariableAccessSyntax
+//@[002:0008) |   | └─IdentifierSyntax
+//@[002:0008) |   |   └─Token(Identifier) |string|
+//@[009:0011) |   ├─Token(Arrow) |=>|
+//@[012:0087) |   └─StringSyntax
+//@[012:0015) |     ├─Token(StringLeftPiece) |'${|
+//@[015:0039) |     ├─TernaryOperationSyntax
+//@[015:0020) |     | ├─VariableAccessSyntax
+//@[015:0020) |     | | └─IdentifierSyntax
+//@[015:0020) |     | |   └─Token(Identifier) |https|
+//@[021:0022) |     | ├─Token(Question) |?|
+//@[023:0030) |     | ├─StringSyntax
+//@[023:0030) |     | | └─Token(StringComplete) |'https'|
+//@[031:0032) |     | ├─Token(Colon) |:|
+//@[033:0039) |     | └─StringSyntax
+//@[033:0039) |     |   └─Token(StringComplete) |'http'|
+//@[039:0045) |     ├─Token(StringMiddlePiece) |}://${|
+//@[045:0053) |     ├─VariableAccessSyntax
+//@[045:0053) |     | └─IdentifierSyntax
+//@[045:0053) |     |   └─Token(Identifier) |hostname|
+//@[053:0056) |     ├─Token(StringMiddlePiece) |}${|
+//@[056:0085) |     ├─TernaryOperationSyntax
+//@[056:0067) |     | ├─FunctionCallSyntax
+//@[056:0061) |     | | ├─IdentifierSyntax
+//@[056:0061) |     | | | └─Token(Identifier) |empty|
+//@[061:0062) |     | | ├─Token(LeftParen) |(|
+//@[062:0066) |     | | ├─FunctionArgumentSyntax
+//@[062:0066) |     | | | └─VariableAccessSyntax
+//@[062:0066) |     | | |   └─IdentifierSyntax
+//@[062:0066) |     | | |     └─Token(Identifier) |path|
+//@[066:0067) |     | | └─Token(RightParen) |)|
+//@[068:0069) |     | ├─Token(Question) |?|
+//@[070:0072) |     | ├─StringSyntax
+//@[070:0072) |     | | └─Token(StringComplete) |''|
+//@[073:0074) |     | ├─Token(Colon) |:|
+//@[075:0085) |     | └─StringSyntax
+//@[075:0079) |     |   ├─Token(StringLeftPiece) |'/${|
+//@[079:0083) |     |   ├─VariableAccessSyntax
+//@[079:0083) |     |   | └─IdentifierSyntax
+//@[079:0083) |     |   |   └─Token(Identifier) |path|
+//@[083:0085) |     |   └─Token(StringRightPiece) |}'|
+//@[085:0087) |     └─Token(StringRightPiece) |}'|
+//@[087:0088) ├─Token(NewLine) |\n|
+
+//@[000:0000) └─Token(EndOfFile) ||
