@@ -121,8 +121,14 @@ namespace Bicep.Core.SourceCode
             return PackSourcesIntoStream(sourceFileGrouping.EntryFileUri, documentLinks, sourceFileGrouping.SourceFiles.ToArray());
         }
 
+        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, params ISourceFile[] sourceFiles)
+        {
+            throw new Exception("asdfg");
+            //return PackSourcesIntoStream(entrypointFileUri, documentLinks: null, sourceFiles);
+        }
+
         // TODO: Toughen this up to handle conflicting paths, ".." paths, etc.
-        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params ISourceFile[] sourceFiles)
+        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]> documentLinks, params ISourceFile[] sourceFiles)
         {
             var baseFolderBuilder = new UriBuilder(entrypointFileUri)
             {
