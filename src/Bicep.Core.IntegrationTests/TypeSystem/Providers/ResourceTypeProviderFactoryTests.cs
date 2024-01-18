@@ -31,7 +31,7 @@ public class ResourceTypeProviderFactoryTests
         var repositoryPath = $"test/provider";
         var repositoryNames = new[] { "foo", "bar" };
 
-        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients(repositoryNames.Select(name => (new Uri($"https://{registry}"), $"{repositoryPath}/{name}")).ToArray());
+        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients(repositoryNames.Select(name => (registry, $"{repositoryPath}/{name}")).ToArray());
 
         var services = new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true))
