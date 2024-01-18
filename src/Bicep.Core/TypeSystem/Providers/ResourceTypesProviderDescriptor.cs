@@ -11,11 +11,15 @@ public record ResourceTypesProviderDescriptor
     public ResourceTypesProviderDescriptor(
         string name,
         string version,
+        bool isImplicitImport,
         string? alias = null,
+        string? artifactRef = null,
         Uri? typesBaseUri = null)
     {
+
         Name = name;
         Alias = alias ?? name;
+        ArtifactReference = artifactRef ?? (isImplicitImport ? name : $"{name}@{version}");
         Version = version;
         TypesBaseUri = typesBaseUri;
     }
@@ -27,4 +31,6 @@ public record ResourceTypesProviderDescriptor
     public Uri? TypesBaseUri { get; }
 
     public string Version { get; }
+
+    public string ArtifactReference { get; }
 }

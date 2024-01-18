@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -14,6 +15,7 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.Workspaces;
 using Moq;
 
 namespace Bicep.Core.UnitTests.Utils
@@ -125,5 +127,9 @@ namespace Bicep.Core.UnitTests.Utils
                 TypeSymbolValidationFlags.Default,
                 key,
                 members);
+
+        public static NamespaceType GetBuiltInNamespaceType(ResourceTypesProviderDescriptor descriptor) => BicepTestConstants.NamespaceProvider
+            .TryGetNamespace(descriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)
+            .IsSuccess(out var ns) ? ns : throw new UnreachableException("always succeeds");
     }
 }

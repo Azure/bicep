@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -17,7 +18,7 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public class DefaultNamespaceProvider : INamespaceProvider
 {
-    private delegate NamespaceType? GetNamespaceDelegate(
+    private delegate NamespaceType GetNamespaceDelegate(
         ResourceTypesProviderDescriptor descriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
@@ -38,7 +39,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
         }.ToImmutableDictionary();
     }
 
-    public NamespaceType? TryGetNamespace(
+    public ResultWithDiagnostic<NamespaceType> TryGetNamespace(
         ResourceTypesProviderDescriptor descriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
@@ -46,9 +47,9 @@ public class DefaultNamespaceProvider : INamespaceProvider
     {
         // If we don't have a types path, we're loading a 'built-in' type
         if (descriptor.TypesBaseUri is null &&
-            builtInNamespaceLookup.TryGetValue(descriptor.Name) is { } getProvider)
+            builtInNamespaceLookup.TryGetValue(descriptor.Name) is { } getProviderFn)
         {
-            return getProvider(descriptor, resourceScope, features, sourceFileKind);
+            return new(getProviderFn(descriptor, resourceScope, features, sourceFileKind));
         }
 
         // Special-case the 'az' provider being loaded from registry - we need add-on functionality delivered via the namespace provider
@@ -56,23 +57,25 @@ public class DefaultNamespaceProvider : INamespaceProvider
         {
             if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
-                return AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind);
+                return new(AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind));
             }
 
             Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
-            return null;
+            return new(errorBuilder);
         }
 
+        // If the feature is enabled, try to load a third-party provider
         if (features.ProviderRegistryEnabled)
         {
             if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
-                return ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider);
+                return new(ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider));
             }
 
             Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
+            return new(errorBuilder);
         }
-
-        return null;
+        
+        return new(x => x.UnrecognizedProvider(descriptor.Name));
     }
 }

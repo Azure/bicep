@@ -151,7 +151,7 @@ namespace Bicep.Core.Registry
             {
                 // manifest does not exist
                 Trace.WriteLine($"Manifest for module {artifactReference.FullyQualifiedReference} could not be found in the registry.");
-                throw new OciModuleRegistryException("The artifact does not exist in the registry.", exception);
+                throw new OciArtifactRegistryException("The artifact does not exist in the registry.", exception);
             }
             Debug.Assert(manifestResponse.Value.Manifest.ToArray().Length > 0);
 
@@ -216,7 +216,7 @@ namespace Bicep.Core.Registry
 
             if (!string.Equals(digestFromRegistry, digestFromContent, DigestComparison))
             {
-                throw new OciModuleRegistryException($"There is a mismatch in the manifest digests. Received content digest = {digestFromContent}, Digest in registry response = {digestFromRegistry}");
+                throw new OciArtifactRegistryException($"There is a mismatch in the manifest digests. Received content digest = {digestFromContent}, Digest in registry response = {digestFromRegistry}");
             }
         }
     }

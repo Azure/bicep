@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
@@ -12,7 +13,7 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public interface INamespaceProvider
 {
-    NamespaceType? TryGetNamespace(
+    ResultWithDiagnostic<NamespaceType> TryGetNamespace(
         ResourceTypesProviderDescriptor providerDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,

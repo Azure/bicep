@@ -33,12 +33,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             LanguageConstants.ResourceParentPropertyName
         }.ToImmutableHashSet(LanguageConstants.IdentifierComparer);
 
-        private static NamespaceType GetAzNamespaceType()
-        {
-            var nsProvider = BicepTestConstants.NamespaceProvider;
-
-            return nsProvider.TryGetNamespace(BicepTestConstants.BuiltInAzProviderDescriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
-        }
+        private static readonly NamespaceType AzNamespaceType = TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInAzProviderDescriptor);
 
         private static IEnumerable<object[]> GetDeserializeTestData()
         {
@@ -61,7 +56,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                 ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.HasParentDefined,
             };
 
-            foreach (var providerGrouping in GetAzNamespaceType().ResourceTypeProvider.GetAvailableTypes().GroupBy(x => x.TypeSegments[0]))
+            foreach (var providerGrouping in AzNamespaceType.ResourceTypeProvider.GetAvailableTypes().GroupBy(x => x.TypeSegments[0]))
             {
                 foreach (var apiVersionGrouping in providerGrouping.GroupBy(x => x.ApiVersion))
                 {
@@ -94,15 +89,14 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         {
             // We deliberately load a new instance here for each test iteration rather than re-using an instance.
             // This is because there are various internal caches which will consume too much memory and crash in CI if allowed to grow unrestricted.
-            var azNamespaceType = GetAzNamespaceType();
-            var resourceTypeProvider = azNamespaceType.ResourceTypeProvider;
+            var resourceTypeProvider = AzNamespaceType.ResourceTypeProvider;
 
             foreach (var availableType in resourceTypes)
             {
                 var typeReference = ResourceTypeReference.Parse(availableType);
 
                 resourceTypeProvider.HasDefinedType(typeReference).Should().BeTrue();
-                var resourceType = resourceTypeProvider.TryGetDefinedType(azNamespaceType, typeReference, flags)!;
+                var resourceType = resourceTypeProvider.TryGetDefinedType(AzNamespaceType, typeReference, flags)!;
 
                 try
                 {
@@ -150,7 +144,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         [TestMethod]
         public void AzResourceTypeProvider_can_list_all_types_without_throwing()
         {
-            var resourceTypeProvider = GetAzNamespaceType().ResourceTypeProvider;
+            var resourceTypeProvider = AzNamespaceType.ResourceTypeProvider;
             var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available

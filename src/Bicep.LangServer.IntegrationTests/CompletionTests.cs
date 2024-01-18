@@ -1787,13 +1787,13 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
 
             var fileWithCursors = @"
-|
-provider 'ns1@1.0.0' |
-provider 'ns2@1.0.0' a|
-provider 'ns3@1.0.0' as|
-provider |
-provider a|
-";
+            |
+            provider 'ns1@1.0.0' |
+            provider 'ns2@1.0.0' a|
+            provider 'ns3@1.0.0' as|
+            provider |
+            provider a|
+            ";
             await RunCompletionScenarioTest(this.TestContext, ServerWithExtensibilityEnabled, fileWithCursors,
                 completions => completions.Should().SatisfyRespectively(
                     c => c!.Select(x => x.Label).Should().Contain("provider"),
