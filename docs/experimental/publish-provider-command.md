@@ -7,11 +7,11 @@ The publish provider command allows you to **publish** providers to a registry o
 `bicep publish-provider <file> --target <ref>`
 
 ### Arguments
-`<file>` Path to the input file (index JSON file)
-\<ref> The provider reference
+`<file>` Path to the input file (index JSON file)\
+`<ref>` The provider reference
 
 ### Options
-\<force> Overwrite existing published provider
+`force` Overwrite existing published provider
 
 ### Examples
 `bicep publish-provider` ./index.json --target br:example.azurecr.io/hello/world:v1\
