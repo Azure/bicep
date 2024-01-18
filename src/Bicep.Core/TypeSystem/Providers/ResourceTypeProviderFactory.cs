@@ -36,7 +36,7 @@ namespace Bicep.Core.TypeSystem.Providers
 
         public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProviderFromFilePath(ResourceTypesProviderDescriptor providerDescriptor)
         {
-            var key = new ResourceTypeLoaderKey(providerDescriptor.Alias, providerDescriptor.Version);
+            var key = new ResourceTypeLoaderKey(providerDescriptor.Name, providerDescriptor.Version);
 
             if (cachedResourceTypeLoaders.ContainsKey(key))
             {
