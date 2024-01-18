@@ -11,6 +11,7 @@ using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Snippets;
@@ -26,11 +27,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
         private ISnippetsProvider CreateSnippetsProvider()
             => ServiceBuilder.Create(s => s.AddSingleton<SnippetsProvider>()).Construct<SnippetsProvider>();
 
-        private readonly NamespaceType azNamespaceType = BicepTestConstants.NamespaceProvider.TryGetNamespace(
-            BicepTestConstants.BuiltInAzProviderDescriptor,
-            ResourceScope.ResourceGroup,
-            BicepTestConstants.Features,
-            BicepSourceFileKind.BicepFile)!;
+        private readonly NamespaceType azNamespaceType = TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInAzProviderDescriptor);
 
         [TestMethod]
         public void CompletionPriorityOfResourceSnippets_ShouldBeHigh()

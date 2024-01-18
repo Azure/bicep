@@ -23,9 +23,9 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class RegistryProviderTests : TestBase
 {
-    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registry, string repository, bool extensibilityEnabledBool, bool providerRegistryBool)
+    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registryHost, string repositoryPath, bool extensibilityEnabledBool, bool providerRegistryBool)
     {
-        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients((new Uri($"https://{registry}"), repository));
+        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients((registryHost, repositoryPath));
 
         return new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: extensibilityEnabledBool, ProviderRegistry: providerRegistryBool))
@@ -49,20 +49,19 @@ public class RegistryProviderTests : TestBase
         await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+        provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 
-resource dadJoke 'request@v1' = {
-  uri: 'https://icanhazdadjoke.com'
-  method: 'GET'
-  format: 'json'
-}
+        resource dadJoke 'request@v1' = {
+        uri: 'https://icanhazdadjoke.com'
+        method: 'GET'
+        format: 'json'
+        }
 
-output joke string = dadJoke.body.joke
-""");
+        output joke string = dadJoke.body.joke
+        """);
 
         result.Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
-
     }
 
     [TestMethod]
@@ -81,16 +80,16 @@ output joke string = dadJoke.body.joke
         await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-provider 'br:example.azurecr.io/test/provider/http@1.2.3' with {}
+        provider 'br:example.azurecr.io/test/provider/http@1.2.3' with {}
 
-resource dadJoke 'request@v1' = {
-  uri: 'https://icanhazdadjoke.com'
-  method: 'GET'
-  format: 'json'
-}
+        resource dadJoke 'request@v1' = {
+        uri: 'https://icanhazdadjoke.com'
+        method: 'GET'
+        format: 'json'
+        }
 
-output joke string = dadJoke.body.joke
-""");
+        output joke string = dadJoke.body.joke
+        """);
 
         result.Should().NotGenerateATemplate();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
@@ -113,35 +112,35 @@ output joke string = dadJoke.body.joke
         await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, @$"
-provider 'br:example.azurecr.io/test/provider/http@1.2.3'
-");
+        provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+        ");
         result.Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
         result.Template.Should().DeepEqual(JToken.Parse("""
-{
-  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "languageVersion": "2.1-experimental",
-  "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
-    "_EXPERIMENTAL_FEATURES_ENABLED": [
-      "Extensibility"
-    ],
-    "_generator": {
-      "name": "bicep",
-      "version": "dev",
-      "templateHash": "14577456470128607958"
-    }
-  },
-  "imports": {
-    "http": {
-      "provider": "http",
-      "version": "1.2.3"
-    }
-  },
-  "resources": {}
-}
-"""));
+        {
+        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+        "languageVersion": "2.1-experimental",
+        "contentVersion": "1.0.0.0",
+        "metadata": {
+            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+            "_EXPERIMENTAL_FEATURES_ENABLED": [
+            "Extensibility"
+            ],
+            "_generator": {
+            "name": "bicep",
+            "version": "dev",
+            "templateHash": "14577456470128607958"
+            }
+        },
+        "imports": {
+            "http": {
+            "provider": "http",
+            "version": "1.2.3"
+            }
+        },
+        "resources": {}
+        }
+        """));
     }
 
     [TestMethod]
@@ -159,8 +158,8 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, @$"
-provider 'br:example.azurecr.io/test/provider/http@1.2.3'
-");
+        provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+        ");
         result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
             });
@@ -168,10 +167,40 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
         services = GetServiceBuilder(fileSystem, registry, repository, true, false);
 
         var result2 = await CompilationHelper.RestoreAndCompile(services, @$"
-provider 'br:example.azurecr.io/test/provider/http@1.2.3'
-");
+        provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+        ");
         result2.Should().HaveDiagnostics(new[] {
         ("BCP204", DiagnosticLevel.Error, "Provider namespace \"http\" is not recognized."),
             });
+    }
+
+    [TestMethod]
+    public async Task Using_interpolated_strings_in_provider_declaration_syntax_results_in_diagnostic()
+    {
+        var services = new ServiceBuilder()
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true));
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+        var registryHost = 'example.azurecr.io'
+        provider 'br:${registryHost}/test/provider/http@1.2.3'
+        """);
+        result.Should().NotGenerateATemplate();
+        result.Should().ContainDiagnostic("BCP303", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the provider.");
+    }
+
+    [TestMethod]
+    public async Task Cannot_import_az_whithout_dynamic_type_loading_enabled()
+    {
+        var services = new ServiceBuilder()
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: false));
+
+        var result = await CompilationHelper.RestoreAndCompile(services, @"
+        provider 'br:mcr.microsoft.com/bicep/provider/az@0.0.0'
+        ");
+        result.Should().NotGenerateATemplate();
+        result.Should().HaveDiagnostics(new[]{
+            ("BCP204", DiagnosticLevel.Error, "Provider namespace \"az\" is not recognized."),
+            ("BCP084",DiagnosticLevel.Error,"The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
+        });
     }
 }

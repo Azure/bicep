@@ -209,12 +209,14 @@ namespace Bicep.Core.Semantics
             ResourceTypesProviderDescriptor providerDescriptor = new(
                 syntax.Specification.Name,
                 syntax.Specification.Version,
+                isImplicitImport: false,
                 syntax.Alias?.IdentifierName,
+                syntax.Specification.BicepRegistryAddress,
                 typesBaseUri);
 
-            if (namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind) is not { } namespaceType)
+            if (!namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind).IsSuccess(out var namespaceType, out errorBuilder))
             {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification!.Name));
+                return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
             }
 
             return namespaceType;

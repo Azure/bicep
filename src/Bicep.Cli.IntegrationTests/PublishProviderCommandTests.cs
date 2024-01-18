@@ -53,7 +53,7 @@ public class PublishProviderCommandTests : TestBase
         var repository = $"test/provider";
         var version = "0.0.1";
 
-        var (clientFactory, blobClientMocks) = DataSetsExtensions.CreateMockRegistryClients((registryUri, repository));
+        var (clientFactory, blobClientMocks) = DataSetsExtensions.CreateMockRegistryClients((registryStr, repository));
         var mockBlobClient = blobClientMocks[(registryUri, repository)];
 
         var indexPath = Path.Combine(outputDirectory, "index.json");
@@ -72,7 +72,7 @@ public class PublishProviderCommandTests : TestBase
         // verify the provider was published
         mockBlobClient.Should().HaveProvider(version, out var tgzStream);
 
-        var typeLoader = OciTypeLoader.FromTgz(tgzStream);
+        var typeLoader = OciTypeLoader.FromStream(tgzStream);
         var azTypeLoader = new AzResourceTypeLoader(typeLoader);
 
         // verify the index works
@@ -96,7 +96,7 @@ public class PublishProviderCommandTests : TestBase
         // verify the provider was published
         mockBlobClient.Should().HaveProvider(version, out var tgzStream2);
 
-        var typeLoader2 = OciTypeLoader.FromTgz(tgzStream2);
+        var typeLoader2 = OciTypeLoader.FromStream(tgzStream2);
         var azTypeLoader2 = new AzResourceTypeLoader(typeLoader2);
 
         // verify the index works

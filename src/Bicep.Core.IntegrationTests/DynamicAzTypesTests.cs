@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,12 +16,17 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
+using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Formats.Tar;
+using System.IO.Compression;
+using System.Text;
 
 namespace Bicep.Core.IntegrationTests
 {
+
     [TestClass]
     public class DynamicAzTypesTests : TestBase
     {
@@ -123,9 +129,13 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task Bicep_module_artifact_specified_in_provider_declaration_syntax_yields_diagnostic()
         {
+            // ARRANGE
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/providers/az", "0.2.661");
-            var clientFactory = DataSetsExtensions.CreateMockRegistryClients(
-                (new Uri($"https://{testArtifact.RegistryAddress}"), testArtifact.RepositoryPath)).factoryMock;
+            var clientFactory = DataSetsExtensions.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
+            var services = new ServiceBuilder()
+                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
+                .WithContainerRegistryClientFactory(clientFactory);
+
             await DataSetsExtensions.PublishModuleToRegistryAsync(
                 clientFactory,
                 moduleName: "az",
@@ -133,10 +143,6 @@ namespace Bicep.Core.IntegrationTests
                 moduleSource: "",
                 publishSource: false,
                 documentationUri: "mydocs.org/abc");
-
-            var services = new ServiceBuilder()
-           .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
-           .WithContainerRegistryClientFactory(clientFactory);
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
@@ -152,9 +158,53 @@ namespace Bicep.Core.IntegrationTests
             });
         }
 
+        [TestMethod]
+        [DynamicData(nameof(ArtifactRegistryCorruptedPackageNegativeTestScenarios), DynamicDataSourceType.Method)]
+        public async Task Bicep_compiler_handles_corrupted_provider_package_gracefully(
+            BinaryData payload,
+            string innerErrorMessage)
+        {
+            // ARRANGE
+            var testArtifact = new ArtifactRegistryAddress("biceptestdf.azurecr.io", "bicep/providers/az", "0.0.0-corruptpng");
+            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(testArtifact.ClientDescriptor());
+
+            (_, var client) = blobClients.First();
+            var blobResult = await client.UploadBlobAsync(payload);
+            var manifest = BicepTestConstants.GetBicepProviderManifest(
+                            blobResult.Value.Digest,
+                            blobResult.Value.SizeInBytes);
+            await client.SetManifestAsync(manifest, testArtifact.ProviderVersion);
+
+            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(cacheRoot);
+
+            var services = new ServiceBuilder()
+                .WithFeatureOverrides(new(
+                    ExtensibilityEnabled: true,
+                    DynamicTypeLoadingEnabled: true,
+                    CacheRootDirectory: cacheRoot))
+           .WithContainerRegistryClientFactory(clientFactory);
+
+            // ACT
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider '{testArtifact.ToSpecificationString('@')}'
+            ");
+
+            // ASSERT
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP192", DiagnosticLevel.Error, $"Unable to restore the artifact with reference \"{testArtifact.ToSpecificationString(':')}\": The OCI artifact is not a valid Bicep artifact. {innerErrorMessage}"),
+                ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
+            });
+
+        }
+
         public record ArtifactRegistryAddress(string RegistryAddress, string RepositoryPath, string ProviderVersion)
         {
             public string ToSpecificationString(char delim) => $"br:{RegistryAddress}/{RepositoryPath}{delim}{ProviderVersion}";
+
+            public (string, string) ClientDescriptor() => (RegistryAddress, RepositoryPath);
         }
 
         [TestMethod]
@@ -172,13 +222,13 @@ namespace Bicep.Core.IntegrationTests
             // mock the registry client to return the mock blob client
             var containerRegistryFactoryBuilder = new TestContainerRegistryClientFactoryBuilder();
             containerRegistryFactoryBuilder.RegisterMockRepositoryBlobClient(
-                new Uri($"https://{artifactRegistryAddress.RegistryAddress}"), artifactRegistryAddress.RepositoryPath, mockBlobClient.Object);
-
-            var (clientFactory, _) = containerRegistryFactoryBuilder.Build();
+                artifactRegistryAddress.RegistryAddress,
+                artifactRegistryAddress.RepositoryPath,
+                mockBlobClient.Object);
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
-                .WithContainerRegistryClientFactory(clientFactory);
+                .WithContainerRegistryClientFactory(containerRegistryFactoryBuilder.Build().clientFactory);
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
@@ -204,7 +254,7 @@ namespace Bicep.Core.IntegrationTests
                 unreacheable,
                 new AggregateException(AggregateExceptionMessage),
                 new (string, DiagnosticLevel, string)[]{
-                    new ("BCP192", DiagnosticLevel.Error, @$"Unable to restore the artifact with reference ""{unreacheable.ToSpecificationString(':')}"": {AggregateExceptionMessage}"),
+                    ("BCP192", DiagnosticLevel.Error, @$"Unable to restore the artifact with reference ""{unreacheable.ToSpecificationString(':')}"": {AggregateExceptionMessage}"),
                     ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
                 },
             };
@@ -216,9 +266,65 @@ namespace Bicep.Core.IntegrationTests
                 withoutRepo,
                 new RequestFailedException(404, NotFoundMessage),
                 new (string, DiagnosticLevel, string)[]{
-                    new ("BCP192", DiagnosticLevel.Error, $@"Unable to restore the artifact with reference ""{withoutRepo.ToSpecificationString(':')}"": {NotFoundMessage}"),
+                    ("BCP192", DiagnosticLevel.Error, $@"Unable to restore the artifact with reference ""{withoutRepo.ToSpecificationString(':')}"": {NotFoundMessage}"),
                     ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
                 },
+            };
+        }
+
+        private static BinaryData GetTypesTgzBytesFromFiles(params (string filePath, string contents)[] files)
+        {
+            var stream = new MemoryStream();
+            using (var gzStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
+            {
+                using var tarWriter = new TarWriter(gzStream, leaveOpen: true);
+                foreach (var (filePath, contents) in files)
+                {
+                    var tarEntry = new PaxTarEntry(TarEntryType.RegularFile, filePath)
+                    {
+                        DataStream = new MemoryStream(Encoding.ASCII.GetBytes(contents))
+                    };
+                    tarWriter.WriteEntry(tarEntry);
+                }
+            }
+            stream.Position = 0;
+            return BinaryData.FromStream(stream);
+        }
+
+        public static IEnumerable<object[]> ArtifactRegistryCorruptedPackageNegativeTestScenarios()
+        {
+            // Scenario: When OciTypeLoader.FromDisk() throws, the exception is exposed as a diagnostic
+            // Some cases covered by this test are:
+            // - Artifact layer payload is not a GZip compressed
+            // - Artifact layer payload is a GZip compressedbut is not composed of Tar entries
+            yield return new object[]
+            {
+                BinaryData.FromString("This is a NOT GZip compressed data"),
+                "The archive entry was compressed using an unsupported compression method.",
+            };
+
+            // Scenario: Artifact layer payload is missing an "index.json"
+            yield return new object[]
+            {
+                GetTypesTgzBytesFromFiles(
+                    ("unknown.json", "{}")),
+                "The path: index.json was not found in artifact contents"
+            };
+
+            // Scenario: "index.json" is not valid JSON
+            yield return new object[]
+            {
+                GetTypesTgzBytesFromFiles(
+                    ("index.json", """{"INVALID_JSON": 777""")),
+                "'7' is an invalid end of a number. Expected a delimiter. Path: $.INVALID_JSON | LineNumber: 0 | BytePositionInLine: 20."
+            };
+
+            // Scenario: "index.json" with malformed or missing required data
+            yield return new object[]
+            {
+                GetTypesTgzBytesFromFiles(
+                    ("index.json", """{ "UnexpectedMember": false}""")),
+                "Value cannot be null. (Parameter 'source')"
             };
         }
     }

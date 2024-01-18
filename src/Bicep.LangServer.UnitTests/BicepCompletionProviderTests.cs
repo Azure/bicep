@@ -484,18 +484,9 @@ output length int =
 
             var functionCompletions = completions.Where(c => c.Kind == CompletionItemKind.Function).OrderBy(c => c.Label).ToList();
 
-            var namespaceProvider = BicepTestConstants.NamespaceProvider;
             var namespaces = new[] {
-                namespaceProvider.TryGetNamespace(
-                    BicepTestConstants.BuiltInAzProviderDescriptor,
-                    ResourceScope.ResourceGroup,
-                    BicepTestConstants.Features,
-                    BicepSourceFileKind.BicepFile)!,
-                namespaceProvider.TryGetNamespace(
-                    BicepTestConstants.BuiltInSysProviderDescriptor,
-                    ResourceScope.ResourceGroup,
-                    BicepTestConstants.Features,
-                    BicepSourceFileKind.BicepFile)!,
+                TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInAzProviderDescriptor),
+                TestTypeHelper.GetBuiltInNamespaceType(BicepTestConstants.BuiltInSysProviderDescriptor)
             };
 
             var availableFunctionNames = namespaces

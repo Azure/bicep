@@ -2,13 +2,18 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Formats.Tar;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Compression;
 using Azure.Bicep.Types;
+using Bicep.Core.Registry;
 
 namespace Bicep.Core.TypeSystem
 {
+
+
     public class OciTypeLoader : TypeLoader
     {
         private readonly ImmutableDictionary<string, byte[]> typesCache;
@@ -18,7 +23,20 @@ namespace Bicep.Core.TypeSystem
             this.typesCache = typesCache;
         }
 
-        public static OciTypeLoader FromTgz(Stream stream)
+        public static OciTypeLoader FromDisk(IFileSystem fs, Uri typesTgzUri)
+        {
+            try
+            {
+                return FromStream(fs.File.OpenRead(typesTgzUri.LocalPath));
+            }
+            catch (Exception e)
+            {
+                Trace.WriteLine($"Failed to deserialize provider package from {typesTgzUri}.\n {e.Message}");
+                throw new InvalidArtifactException(e.Message, e, InvalidArtifactExceptionKind.InvalidArtifactContents);
+            }
+        }
+
+        public static OciTypeLoader FromStream(Stream stream)
         {
             var typesCacheBuilder = ImmutableDictionary.CreateBuilder<string, byte[]>();
 
@@ -31,8 +49,7 @@ namespace Bicep.Core.TypeSystem
             {
                 if (entry.DataStream is null)
                 {
-                    var errorMessage = $"Failed to restore {entry.Name} from OCI provider data";
-                    throw new InvalidOperationException(errorMessage);
+                    throw new InvalidOperationException($"Stream for {entry.Name} is null.");
                 }
 
                 using var memoryStream = new MemoryStream();
@@ -58,7 +75,8 @@ namespace Bicep.Core.TypeSystem
             }
             else
             {
-                throw new ArgumentException($"Failed to restore {path} from OCI provider data", nameof(path));
+                Trace.WriteLine($"{nameof(GetContentStreamAtPath)} threw an exception. Requested path: '{path}' not found.");
+                throw new InvalidArtifactException($"The path: {path} was not found in artifact contents", InvalidArtifactExceptionKind.InvalidArtifactContents);
             }
         }
     }
