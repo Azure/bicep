@@ -38,9 +38,9 @@ namespace Bicep.Core.Modules
 
             this.mainLayer = mainLayers.Count() switch
             {
-                0 => throw new InvalidArtifactException($"Expected to find a layer with media type {expectedLayerMediaType}, but found none.", InvalidArtifactExceptionKind.WrongModuleLayerMediaType),
+                0 => throw new InvalidArtifactException($"Expected to find a layer with media type {expectedLayerMediaType}, but found none.", InvalidArtifactExceptionKind.UnknownLayerMediaType),
                 1 => mainLayers.Single(),
-                _ => throw new InvalidArtifactException($"Did not expect to find multiple layer media types of {string.Join(", ", mainLayers.Select(l => l.MediaType).Order().Distinct().ToArray())}", InvalidArtifactExceptionKind.WrongModuleLayerMediaType)
+                _ => throw new InvalidArtifactException($"Did not expect to find multiple layer media types of {string.Join(", ", mainLayers.Select(l => l.MediaType).Order().Distinct().ToArray())}", InvalidArtifactExceptionKind.UnknownLayerMediaType)
             };
         }
 

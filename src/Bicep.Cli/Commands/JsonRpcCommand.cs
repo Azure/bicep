@@ -67,7 +67,7 @@ public class JsonRpcCommand : ICommand
     {
         var server = new CliJsonRpcServer(compiler);
         jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);
-        
+
         jsonRpc.StartListening();
 
         await Task.WhenAny(jsonRpc.Completion, WaitForCancellation(cancellationToken));

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
@@ -939,11 +940,17 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private TypeSymbol CreateDummyResourceType()
         {
-            var typeProvider = TestTypeHelper.CreateEmptyNamespaceProvider();
-            var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
-            var azNamespaceType = typeProvider.TryGetNamespace(BicepTestConstants.BuiltInAzProviderDescriptor, ResourceScope.ResourceGroup, BicepTestConstants.Features, BicepSourceFileKind.BicepFile)!;
+            var ns = TestTypeHelper.CreateEmptyNamespaceProvider()
+                .TryGetNamespace(
+                    BicepTestConstants.BuiltInAzProviderDescriptor,
+                    ResourceScope.ResourceGroup,
+                    BicepTestConstants.Features,
+                    BicepSourceFileKind.BicepFile)
+                .IsSuccess(out var azNamespaceType) ? azNamespaceType : throw new UnreachableException("always succeeds");
 
-            return azNamespaceType.ResourceTypeProvider.TryGenerateFallbackType(azNamespaceType, typeReference, ResourceTypeGenerationFlags.None)!;
+            var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
+
+            return ns.ResourceTypeProvider.TryGenerateFallbackType(azNamespaceType, typeReference, ResourceTypeGenerationFlags.None)!;
         }
 
         private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(ISyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType, IDiagnosticLookup? parsingErrorLookup = null)

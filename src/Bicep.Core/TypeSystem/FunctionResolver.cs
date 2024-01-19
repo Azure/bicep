@@ -3,24 +3,26 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Types;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.TypeSystem
 {
     public class FunctionResolver
     {
-        public readonly ImmutableArray<FunctionOverload> functionOverloads;
-        private readonly ImmutableArray<BannedFunction> bannedFunctions;
+        public readonly IReadOnlyList<FunctionOverload> functionOverloads;
+        private readonly IReadOnlyList<BannedFunction> bannedFunctions;
         private readonly ObjectType declaringObject;
 
         public FunctionResolver(ObjectType declaringObject, IEnumerable<FunctionOverload>? functionOverloads = null, IEnumerable<BannedFunction>? bannedFunctions = null)
         {
-            this.functionOverloads = functionOverloads?.ToImmutableArray() ?? ImmutableArray<FunctionOverload>.Empty;
-            this.bannedFunctions = bannedFunctions?.ToImmutableArray() ?? ImmutableArray<BannedFunction>.Empty;
+            this.functionOverloads = functionOverloads.CoalesceEnumerable().ToArray();
+            this.bannedFunctions = bannedFunctions.CoalesceEnumerable().ToArray();
 
             var wildcardOverloads = this.functionOverloads.OfType<FunctionWildcardOverload>();
 
@@ -34,31 +36,31 @@ namespace Bicep.Core.TypeSystem
 
                     return new FunctionSymbol(declaringObject, name, overloads.Concat(matchingWildcards));
                 }, LanguageConstants.IdentifierComparer)
-                .ToDictionary<FunctionSymbol, string, FunctionSymbol?>(s => s.Name, s => s, LanguageConstants.IdentifierComparer);
+                .ToDictionary(s => s.Name, s => s, LanguageConstants.IdentifierComparer);
 
-            this.BannedFunctions = this.bannedFunctions.ToImmutableDictionary(bf => bf.Name, LanguageConstants.IdentifierComparer);
+            this.BannedFunctions = this.bannedFunctions.ToDictionary(bf => bf.Name, LanguageConstants.IdentifierComparer);
 
             // don't pre-build symbols for wildcard functions, because we don't want to equate two differently-named symbols with each other
             this.FunctionWildcardOverloads = this.functionOverloads
                 .OfType<FunctionWildcardOverload>()
-                .ToImmutableArray();
+                .ToArray();
             this.declaringObject = declaringObject;
         }
 
         public FunctionResolver CopyToObject(ObjectType declaringObject)
             => new(declaringObject, functionOverloads, bannedFunctions);
 
-        private IDictionary<string, FunctionSymbol?> FunctionCache { get; }
+        private IReadOnlyDictionary<string, FunctionSymbol> FunctionCache { get; }
 
-        private ImmutableDictionary<string, BannedFunction> BannedFunctions { get; }
+        private IReadOnlyDictionary<string, BannedFunction> BannedFunctions { get; }
 
-        private ImmutableArray<FunctionWildcardOverload> FunctionWildcardOverloads { get; }
+        private IReadOnlyList<FunctionWildcardOverload> FunctionWildcardOverloads { get; }
 
         public Symbol? TryGetSymbol(IdentifierSyntax identifierSyntax)
             => TryGetBannedFunction(identifierSyntax) ?? TryGetFunctionSymbol(identifierSyntax.IdentifierName);
 
-        public ImmutableDictionary<string, FunctionSymbol> GetKnownFunctions()
-            => this.FunctionCache.Values.ToImmutableDictionaryExcludingNullValues(symbol => symbol.Name, LanguageConstants.IdentifierComparer);
+        public IReadOnlyDictionary<string, FunctionSymbol> GetKnownFunctions()
+            => this.FunctionCache;
 
         private Symbol? TryGetBannedFunction(IdentifierSyntax identifierSyntax)
         {
