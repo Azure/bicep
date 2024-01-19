@@ -6,5 +6,9 @@
       "Environment",
       "AzureCLI"
     ]
+  },
+  "experimentalFeaturesEnabled": {
+    "extensibility": true,
+    "providerRegistry": true
   }
 }
