@@ -13,19 +13,27 @@ using Bicep.Core.UnitTests.Assertions;
 using System;
 using System.Linq;
 using Bicep.Core.UnitTests;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 
 namespace Bicep.Core.IntegrationTests;
 
 [TestClass]
 public class ResourceTypeProviderFactoryTests
 {
+    [NotNull]
+    public TestContext? TestContext { get; set; }
+
     [TestMethod]
-    // the cache uses the provider name and version as keys for the cache
     public async Task ProviderNameAndVersionAreUsedAsCacheKeys()
     {
-        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
-              typeof(RegistryProviderTests).Assembly,
-              "Files/RegistryProviderTests/HttpProvider");
+        // var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
+        // Directory.CreateDirectory(cacheRoot);
+
+        var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
+            TestContext,
+            typeof(RegistryProviderTests).Assembly,
+            "Files/RegistryProviderTests/HttpProvider");
 
         var registry = "example.azurecr.io";
         var repositoryPath = $"test/provider";
@@ -35,12 +43,12 @@ public class ResourceTypeProviderFactoryTests
 
         var services = new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true))
-            .WithFileSystem(fileSystem)
             .WithContainerRegistryClientFactory(clientFactory);
 
         foreach (var repoName in new[] { "foo", "bar" })
         {
-            await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repositoryPath}/{repoName}:1.2.3");
+            var indexJsonPath = Path.Combine(outputDirectory, "types", "index.json");
+            await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), indexJsonPath, $"br:{registry}/{repositoryPath}/{repoName}:1.2.3");
         }
 
         var result = await CompilationHelper.RestoreAndCompile(

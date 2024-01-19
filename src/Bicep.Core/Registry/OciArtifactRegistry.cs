@@ -434,7 +434,6 @@ namespace Bicep.Core.Registry
                 throw new InvalidOperationException("Module reference is missing both tag and digest.");
             }
 
-            //var packageDir = WebUtility.UrlEncode(reference.UnqualifiedReference);
             return fileSystem.Path.Combine(this.cachePath, registry, repository, tagOrDigest);
         }
 
