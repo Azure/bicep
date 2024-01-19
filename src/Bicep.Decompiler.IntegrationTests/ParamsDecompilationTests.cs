@@ -110,7 +110,7 @@ param fourth = {
   }
 }";
             var expectedBicepparamFile =
-@"using './dir/main.bicep'
+@"using 'dir/main.bicep'
 
 param first = 'test'
 

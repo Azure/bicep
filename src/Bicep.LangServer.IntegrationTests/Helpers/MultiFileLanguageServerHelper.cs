@@ -16,6 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -59,7 +60,7 @@ namespace Bicep.LangServer.IntegrationTests
             return new(helper.Server, helper.Client, notificationRouter);
         }
 
-        public async Task OpenFileOnceAsync(TestContext testContext, string text, DocumentUri documentUri)
+        public async Task<PublishDiagnosticsParams> OpenFileOnceAsync(TestContext testContext, string text, DocumentUri documentUri)
         {
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
@@ -72,13 +73,13 @@ namespace Bicep.LangServer.IntegrationTests
 
             // notifications don't produce responses,
             // but our server should send us diagnostics when it receives the notification
-            await diagsListener.WaitNext();
+            return await diagsListener.WaitNext();
         }
 
-        public async Task OpenFileOnceAsync(TestContext testContext, BicepSourceFile file)
+        public async Task<PublishDiagnosticsParams> OpenFileOnceAsync(TestContext testContext, BicepSourceFile file)
             => await OpenFileOnceAsync(testContext, file.ProgramSyntax.ToTextPreserveFormatting(), file.FileUri);
 
-        public async Task ChangeFileAsync(TestContext testContext, string text, DocumentUri documentUri, int version)
+        public async Task<PublishDiagnosticsParams> ChangeFileAsync(TestContext testContext, string text, DocumentUri documentUri, int version)
         {
             // OpenFileOnceAsync should have already been called on this file
             this.notificationRouter.TryGetValue(documentUri, out var diagsListener).Should().BeTrue("because a diagnostics listener should have already been registered");
@@ -89,7 +90,27 @@ namespace Bicep.LangServer.IntegrationTests
 
             // notifications don't produce responses,
             // but our server should send us diagnostics when it receives the notification
-            await diagsListener!.WaitNext();
+            return await diagsListener!.WaitNext();
+        }
+
+        public async Task<PublishDiagnosticsParams> WaitForDiagnostics(DocumentUri documentUri)
+        {
+            // OpenFileOnceAsync should have already been called on this file
+            this.notificationRouter.TryGetValue(documentUri, out var diagsListener).Should().BeTrue("because a diagnostics listener should have already been registered");
+
+            return await diagsListener!.WaitNext();
+        }
+
+        public void ChangeWatchedFile(Uri fileUri, FileChangeType changeType = FileChangeType.Changed)
+        {
+            this.Client.DidChangeWatchedFiles(new()
+            {
+                Changes = new Container<FileEvent>(new FileEvent
+                {
+                    Uri = fileUri,
+                    Type = changeType,
+                }),
+            });
         }
 
         public async Task ChangeFileAsync(TestContext testContext, BicepFile file, int version)

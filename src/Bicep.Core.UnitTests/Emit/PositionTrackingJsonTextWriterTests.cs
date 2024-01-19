@@ -34,7 +34,6 @@ namespace Bicep.Core.UnitTests.Emit
 
             var rawSourceMap = new RawSourceMap(new List<RawSourceMapFileEntry>());
             var jsonWriter = new PositionTrackingJsonTextWriter(
-                BicepTestConstants.FileResolver,
                 new StringWriter(),
                 SourceFileFactory.CreateBicepFile(FileUri, Text),
                 rawSourceMap);
@@ -52,7 +51,6 @@ namespace Bicep.Core.UnitTests.Emit
 
             var parentRawSourceMap = new RawSourceMap(new List<RawSourceMapFileEntry>());
             var parentJsonWriter = new PositionTrackingJsonTextWriter(
-                BicepTestConstants.FileResolver,
                 new StringWriter(),
                 sourceFile,
                 parentRawSourceMap);
@@ -66,7 +64,6 @@ namespace Bicep.Core.UnitTests.Emit
                 new List<TextSpan>() { new (nestedStartPosition, 0) })}) }
             );
             var nestedJsonWriter = new PositionTrackingJsonTextWriter(
-                BicepTestConstants.FileResolver,
                 new StringWriter(),
                 sourceFile,
                 nestedRawSourceMap);

@@ -72,7 +72,7 @@ namespace Bicep.Core.Emit
         private JToken GenerateTemplate(string contentVersion)
         {
             using var stringWriter = new StringWriter();
-            using var jsonWriter = new PositionTrackingJsonTextWriter(this.Context.SemanticModel.FileResolver, stringWriter);
+            using var jsonWriter = new PositionTrackingJsonTextWriter(stringWriter);
             var emitter = new ExpressionEmitter(jsonWriter, this.Context);
 
             jsonWriter.WriteStartObject();

@@ -27,6 +27,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
     {
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
+        private static SemanticModel CreateDummySemanticModel()
+            => CompilationHelper.Compile("").Compilation.GetEntrypointSemanticModel();
+
         [DataTestMethod]
         [DynamicData(nameof(GetExactMatchData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void ExactOrPartialFunctionMatchShouldHaveCorrectReturnType(string displayName, string functionName, TypeSymbol expectedReturnType, IList<TypeSymbol> argumentTypes)
@@ -40,7 +43,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
             mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
 
-            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, BicepTestConstants.EmptyEnvironment, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, argumentTypes.ToImmutableArray()).Type.Should().Be(expectedReturnType);
+            matches.Single().ResultBuilder(CreateDummySemanticModel(), mockDiagnosticWriter.Object, functionCall, argumentTypes.ToImmutableArray()).Type.Should().Be(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -56,7 +59,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
             mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
 
-            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, BicepTestConstants.EmptyEnvironment, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
+            matches.Select(m => m.ResultBuilder(CreateDummySemanticModel(), mockDiagnosticWriter.Object, functionCall, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]
@@ -639,9 +642,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             matches.Should().HaveCount(1);
 
             return matches.Single().ResultBuilder(
-                Repository.Create<IBinder>().Object,
-                BicepTestConstants.EmptyEnvironment,
-                Repository.Create<IFileResolver>().Object,
+                CreateDummySemanticModel(),
                 Repository.Create<IDiagnosticWriter>().Object,
                 SyntaxFactory.CreateFunctionCall(functionName, arguments),
                 argumentTypes.ToImmutableArray());

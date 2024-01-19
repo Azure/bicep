@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.IO;
+using System.Linq;
 using Bicep.Core.Emit.Options;
 
 namespace Bicep.Core.FileSystem
@@ -207,6 +208,16 @@ namespace Bicep.Core.FileSystem
             return child.AbsolutePath.StartsWith(parentPath);
         }
 
+        public static bool IsEqualOrSubPathOf(Uri parent, Uri child)
+        {
+            if (parent == child)
+            {
+                return true;
+            }
+
+            return IsSubPathOf(parent, child);
+        }
+
         public static string GetRelativePath(Uri source, Uri target)
         {
             if (source.Scheme != target.Scheme)
@@ -214,14 +225,22 @@ namespace Bicep.Core.FileSystem
                 throw new InvalidOperationException($"Source scheme '{source.Scheme}' does not match target scheme '{target.Scheme}'");
             }
 
-            var relativePath = source.MakeRelativeUri(target).OriginalString;
-            if (!relativePath.StartsWith("."))
+            if (source == target)
             {
-                // follow the convention of './main.bicep' rather than 'main.bicep'
-                relativePath = $"./{relativePath}";
+                return source.Segments.Last();
             }
 
-            return relativePath;
+            return source.MakeRelativeUri(target).OriginalString;
+        }
+
+        public static Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)
+        {
+            if (!Uri.TryCreate(parentFileUri, childFilePath, out var relativeUri))
+            {
+                return null;
+            }
+
+            return relativeUri;
         }
     }
 }

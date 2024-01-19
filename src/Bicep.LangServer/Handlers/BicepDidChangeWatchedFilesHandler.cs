@@ -39,7 +39,6 @@ namespace Bicep.LanguageServer.Handlers
             // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed
             if (bicepConfigFileChangeEvents.Any())
             {
-                Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUriEncoded();
                 bicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace();
             }
 
@@ -50,22 +49,13 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override DidChangeWatchedFilesRegistrationOptions CreateRegistrationOptions(DidChangeWatchedFilesCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            // These file watcher globs should be kept in-sync with those defined in client.ts
             Watchers = new Container<FileSystemWatcher>(
                     new FileSystemWatcher()
                     {
                         Kind = WatchKind.Create | WatchKind.Change | WatchKind.Delete,
-                        GlobPattern = new("**/")
-                    },
-                    new FileSystemWatcher()
-                    {
-                        Kind = WatchKind.Create | WatchKind.Change | WatchKind.Delete,
-                        GlobPattern = new("**/*.bicep")
-                    },
-                    new FileSystemWatcher()
-                    {
-                        Kind = WatchKind.Create | WatchKind.Change | WatchKind.Delete,
-                        GlobPattern = new("**/*.{json,jsonc,arm}")
+                        // Register to watch all files and folders, regardless of extension, because they could be referenced by load* functions.
+                        // We will do the filtering in the language server. This glob pattern should be kept in-sync with client.ts.
+                        GlobPattern = new("**/*")
                     }
                 )
         };

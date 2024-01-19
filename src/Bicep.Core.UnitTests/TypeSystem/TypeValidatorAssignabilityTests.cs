@@ -960,15 +960,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Setup(x => x.GetParent(It.IsAny<SyntaxBase>()))
                 .Returns<SyntaxBase>(x => hierarchy.GetParent(x));
 
-            var fileResolverMock = StrictMock.Of<IFileResolver>();
-
             binderMock
                 .Setup(x => x.GetSymbolInfo(It.IsAny<SyntaxBase>()))
                 .Returns<SyntaxBase>(x => null);
 
             parsingErrorLookup ??= EmptyDiagnosticLookup.Instance;
 
-            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, BicepTestConstants.EmptyEnvironment, fileResolverMock.Object, parsingErrorLookup, StrictMock.Of<IArtifactFileLookup>().Object, StrictMock.Of<ISemanticModelLookup>().Object);
+            var model = CompilationHelper.Compile("").Compilation.GetEntrypointSemanticModel();
+            var typeManager = new TypeManager(model, binderMock.Object);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, parsingErrorLookup, diagnosticWriter, expression, targetType);
