@@ -24,6 +24,7 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json.Linq;
+using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -117,17 +118,15 @@ namespace Bicep.Cli.IntegrationTests
         {
             // SETUP
             // 1. create a mock registry client
-            var builder = new TestContainerRegistryClientFactoryBuilder();
-            foreach (var registryHost in new[] {
-                LanguageConstants.BicepPublicMcrRegistry,
-                "contoso.azurecr.io",
-                "invalid.azureacr.io" })
-            {
-                builder.RegisterMockRepositoryBlobClient(new Uri($"https://{registryHost}"), "bicep/providers/az");
-            }
+            var hosts = new[] {
+                    LanguageConstants.BicepPublicMcrRegistry,
+                    "contoso.azurecr.io",
+                    "invalid.azureacr.io"
+            };
+            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(hosts.Select(host => (host, "bicep/providers/az")).ToArray());
+
 
             // 2. upload a manifest and its blob layer
-            var (clientFactory, blobClients) = builder.Build();
             foreach (var ((uri, _), client) in blobClients)
             {
                 if (uri.Host.Contains("invalid")) { continue; }
@@ -136,30 +135,30 @@ namespace Bicep.Cli.IntegrationTests
             }
 
             // 3. create a main.bicep and save it to a output directory
-            var bicepFile = $"""
-import '{providerDeclarationSyntax}@2.0.0'
-""";
+            var bicepFile = $@"
+            import '{providerDeclarationSyntax}@2.0.0'
+            ";
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
             var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
             File.WriteAllText(bicepFilePath, bicepFile);
 
             var bicepConfigFile = $$"""
-{
-    "providerAliases" : {
-        "br": {
-            "contoso": {
-                "registry": "contoso.azurecr.io",
-                "providerPath": "bicep/providers"
-            },
-            "mcr": {
-                "registry": "mcr.microsoft.com",
-                "providerPath": "bicep/providers"
+            {
+                "providerAliases" : {
+                    "br": {
+                        "contoso": {
+                            "registry": "contoso.azurecr.io",
+                            "providerPath": "bicep/providers"
+                        },
+                        "mcr": {
+                            "registry": "mcr.microsoft.com",
+                            "providerPath": "bicep/providers"
+                        }
+                    }
+                }
             }
-        }
-    }
-}
-""";
+            """;
             var bicepConfigPath = Path.Combine(tempDirectory, "bicepconfig.json");
             File.WriteAllText(bicepConfigPath, bicepConfigFile);
 

@@ -117,8 +117,8 @@ namespace Bicep.Core.UnitTests.Utils
                 artifactReference: moduleReference,
                 mediaType: mediaType,
                 artifactType: artifactType,
-                config: new StreamDescriptor(new TextByteArray(configContents ?? string.Empty).ToStream(), BicepModuleMediaTypes.BicepModuleConfigV1),
-                layers: (layers.Select(layer => new StreamDescriptor(TextByteArray.TextToStream(layer.contents), layer.mediaType))),
+                config: new OciDescriptor(configContents ?? string.Empty, BicepModuleMediaTypes.BicepModuleConfigV1),
+                layers: layers.Select(layer => new OciDescriptor(layer.contents, layer.mediaType)),
                 new OciManifestAnnotationsBuilder()
             );
 

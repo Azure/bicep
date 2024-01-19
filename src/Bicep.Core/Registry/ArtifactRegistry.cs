@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
@@ -21,9 +22,9 @@ namespace Bicep.Core.Registry
 
         public abstract Task<bool> CheckArtifactExists(T reference);
 
-        public abstract Task PublishModule(T reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description);
+        public abstract Task PublishModule(T reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description);
 
-        public abstract Task PublishProvider(T reference, Stream typesTgz);
+        public abstract Task PublishProvider(T reference, BinaryData typesTgz);
 
         public abstract Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<T> references);
 
@@ -37,16 +38,16 @@ namespace Bicep.Core.Registry
 
         public abstract Task<string?> TryGetDescription(T reference);
 
-        public abstract SourceArchive? TryGetSource(T reference);
+        public abstract ResultWithException<SourceArchive> TryGetSource(T reference);
 
         public bool IsArtifactRestoreRequired(ArtifactReference reference) => this.IsArtifactRestoreRequired(ConvertReference(reference));
 
         public Task<bool> CheckArtifactExists(ArtifactReference reference) => this.CheckArtifactExists(ConvertReference(reference));
 
-        public Task PublishModule(ArtifactReference artifactReference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description)
+        public Task PublishModule(ArtifactReference artifactReference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
             => this.PublishModule(ConvertReference(artifactReference), compiled, bicepSources, documentationUri, description);
 
-        public Task PublishProvider(ArtifactReference reference, Stream typesTgz)
+        public Task PublishProvider(ArtifactReference reference, BinaryData typesTgz)
             => this.PublishProvider(ConvertReference(reference), typesTgz);
 
         public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreArtifacts(IEnumerable<ArtifactReference> references) =>
@@ -62,7 +63,7 @@ namespace Bicep.Core.Registry
 
         public async Task<string?> TryGetDescription(ArtifactReference reference) => await this.TryGetDescription(ConvertReference(reference));
 
-        public SourceArchive? TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
+        public ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
 
         public abstract RegistryCapabilities GetCapabilities(T reference);
 

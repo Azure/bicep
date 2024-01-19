@@ -8,9 +8,9 @@ namespace Bicep.Core.Syntax
 {
     public class SyntaxHierarchy : ISyntaxHierarchy
     {
-        private readonly ImmutableDictionary<SyntaxBase, SyntaxBase?> parentMap;
+        private readonly IReadOnlyDictionary<SyntaxBase, SyntaxBase?> parentMap;
 
-        private SyntaxHierarchy(ImmutableDictionary<SyntaxBase, SyntaxBase?> parentMap)
+        private SyntaxHierarchy(IReadOnlyDictionary<SyntaxBase, SyntaxBase?> parentMap)
         {
             this.parentMap = parentMap;
         }
@@ -21,7 +21,7 @@ namespace Bicep.Core.Syntax
             var visitor = new ParentTrackingVisitor(parentMap);
             visitor.Visit(root);
 
-            return new SyntaxHierarchy(parentMap.ToImmutableDictionary());
+            return new SyntaxHierarchy(parentMap);
         }
 
         /// <summary>

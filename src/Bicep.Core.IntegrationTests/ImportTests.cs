@@ -59,24 +59,27 @@ namespace Bicep.Core.IntegrationTests
         {
             private readonly ImmutableDictionary<string, Func<string, NamespaceType>> builderDict;
 
+            private readonly HashSet<string> builtInNamespacesNames = new(){
+                SystemNamespaceType.BuiltInName,
+                AzNamespaceType.BuiltInName,
+                MicrosoftGraphNamespaceType.BuiltInName,
+                K8sNamespaceType.BuiltInName,
+            };
+
             public TestNamespaceProvider(Dictionary<string, Func<string, NamespaceType>> builderDict)
             {
                 this.builderDict = builderDict.ToImmutableDictionary();
             }
 
-            public static bool AllowImportStatements => true;
-
-            public NamespaceType? TryGetNamespace(
-                ResourceTypesProviderDescriptor typesProviderDescriptor,
-                ResourceScope resourceScope,
-                IFeatureProvider features,
-                BicepSourceFileKind sourceFileKind)
-                    => typesProviderDescriptor.Name switch
-                    {
-                        SystemNamespaceType.BuiltInName => SystemNamespaceType.Create(typesProviderDescriptor.Alias, features, sourceFileKind),
-                        { } _ when builderDict.TryGetValue(typesProviderDescriptor.Name) is { } builderFunc => builderFunc(typesProviderDescriptor.Alias),
-                        _ => default,
-                    };
+            public ResultWithDiagnostic<NamespaceType> TryGetNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
+            {
+                if (builtInNamespacesNames.Contains(providerDescriptor.Name))
+                {
+                    return new(TestTypeHelper.GetBuiltInNamespaceType(providerDescriptor));
+                }
+                var namespaceBuilderFn = builderDict[providerDescriptor.Name];
+                return new(namespaceBuilderFn(providerDescriptor.Alias));
+            }
         }
 
         [TestMethod]
@@ -158,17 +161,6 @@ import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
         }
 
         [TestMethod]
-        public async Task Imports_return_error_with_unrecognized_namespace()
-        {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"
-provider 'madeUpNamespace@1.0.0'
-");
-            result.Should().HaveDiagnostics(new[] {
-                ("BCP204", DiagnosticLevel.Error, "Provider namespace \"madeUpNamespace\" is not recognized."),
-            });
-        }
-
-        [TestMethod]
         public async Task Import_configuration_is_blocked_by_default()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
@@ -178,6 +170,16 @@ provider 'madeUpNamespace@1.0.0'
             ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
+            });
+        }
+        [TestMethod]
+        public async Task Imports_return_error_with_unrecognized_namespace()
+        {
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"
+provider 'madeUpNamespace@1.0.0'
+");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP204", DiagnosticLevel.Error, "Provider namespace \"madeUpNamespace\" is not recognized."),
             });
         }
 

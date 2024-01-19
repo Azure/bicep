@@ -55,11 +55,20 @@ namespace Bicep.Core.UnitTests
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
-        public static ResourceTypesProviderDescriptor BuiltInAzProviderDescriptor { get; } = new(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion);
+        public static ResourceTypesProviderDescriptor BuiltInAzProviderDescriptor { get; } = new(
+            AzNamespaceType.BuiltInName,
+            AzNamespaceType.Settings.ArmTemplateProviderVersion,
+            isImplicitImport: true);
 
-        public static ResourceTypesProviderDescriptor BuiltInSysProviderDescriptor { get; } = new(SystemNamespaceType.BuiltInName, SystemNamespaceType.Settings.ArmTemplateProviderVersion);
+        public static ResourceTypesProviderDescriptor BuiltInSysProviderDescriptor { get; } = new(
+            SystemNamespaceType.BuiltInName,
+            SystemNamespaceType.Settings.ArmTemplateProviderVersion,
+            isImplicitImport: true);
 
-        public static ResourceTypesProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = new(MicrosoftGraphNamespaceType.BuiltInName, MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion);
+        public static ResourceTypesProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = new(
+            MicrosoftGraphNamespaceType.BuiltInName,
+            MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion,
+            isImplicitImport: true);
 
         // Linter rules added to this list will be automtically disabled for most tests.
         // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
@@ -141,7 +150,11 @@ namespace Bicep.Core.UnitTests
             return telemetryProvider;
         }
 
-        public static BinaryData BicepProviderManifestWithEmptyTypesLayer = BinaryData.FromString($$"""
+        public static BinaryData BicepProviderManifestWithEmptyTypesLayer
+            => GetBicepProviderManifest("sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", 0);
+
+        public static BinaryData GetBicepProviderManifest(string digest, long size) =>
+            BinaryData.FromString($$"""
         {
             "schemaVersion": 2,
             "mediaType": "application/vnd.oci.image.manifest.v1+json",
@@ -154,8 +167,8 @@ namespace Bicep.Core.UnitTests
             "layers": [
             {
                 "mediaType": "{{BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip}}",
-                "digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                "size": 0
+                "digest": "{{digest}}",
+                "size": {{size}}
             }
             ],
             "annotations": {

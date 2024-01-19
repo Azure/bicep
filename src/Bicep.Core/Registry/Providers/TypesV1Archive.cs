@@ -16,9 +16,9 @@ namespace Bicep.Core.Registry.Providers;
 
 public static class TypesV1Archive
 {
-    public static async Task<Stream> GenerateProviderTarStream(IFileSystem fileSystem, string indexJsonPath)
+    public static async Task<BinaryData> GenerateProviderTarStream(IFileSystem fileSystem, string indexJsonPath)
     {
-        var stream = new MemoryStream();
+        using var stream = new MemoryStream();
 
         using (var gzStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
         {
@@ -40,7 +40,7 @@ public static class TypesV1Archive
 
         stream.Seek(0, SeekOrigin.Begin);
 
-        return stream;
+        return BinaryData.FromStream(stream);
     }
 
     private static async Task AddFileToTar(TarWriter tarWriter, string archivePath, string contents)
