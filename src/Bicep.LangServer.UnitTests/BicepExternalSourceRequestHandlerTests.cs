@@ -405,7 +405,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             SourceArchive? sourceArchive = entrypointUri is { } ?
                 SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(
                     entrypointUri,
-                    new Core.Workspaces.ISourceFile[] {
+                    new ISourceFile[] {
                         SourceFileFactory.CreateBicepFile(entrypointUri, "metadata description = 'bicep module'")
                     })).TryUnwrap()
                 : null;
