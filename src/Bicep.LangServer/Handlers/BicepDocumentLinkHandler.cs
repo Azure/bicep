@@ -53,7 +53,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (request.TextDocument.Uri.Scheme == LangServerConstants.ExternalSourceFileScheme)
             {
-                ExternalSourceReference? externalReference = null;
+                ExternalSourceReference? externalReference;
                 try
                 {
                     externalReference = new ExternalSourceReference(request.TextDocument.Uri);
