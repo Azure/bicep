@@ -101,11 +101,11 @@ namespace Bicep.LanguageServer
             UpsertCompilationInternal(documentUri, null, shallowCopy);
         }
 
-        public void RefreshAllActiveCompilations()
+        public void RefreshAllActiveCompilations(bool forceReloadAuxiliaryFiles)
         {
             foreach (Uri sourceFileUri in workspace.GetActiveSourceFilesByUri().Keys)
             {
-                RefreshCompilation(DocumentUri.From(sourceFileUri), forceReloadAuxiliaryFiles: false);
+                RefreshCompilation(DocumentUri.From(sourceFileUri), forceReloadAuxiliaryFiles);
             }
         }
 
