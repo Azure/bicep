@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Formats.Tar;
 using System.IO;
 using System.IO.Compression;
@@ -12,16 +11,9 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.Json.Serialization.Metadata;
-using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
-using Bicep.Core.Navigation;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.Semantics;
-using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
-using static Bicep.Core.SourceCode.SourceArchive;
 
 namespace Bicep.Core.SourceCode
 {
@@ -36,6 +28,7 @@ namespace Bicep.Core.SourceCode
     public partial class SourceArchive // Partial required for serialization
     {
         // Attributes of this archive instance
+        #region Attributes of this archive instance
 
         private ArchiveMetadata InstanceMetadata { get; init; }
 
@@ -50,7 +43,11 @@ namespace Bicep.Core.SourceCode
         // The version of the metadata file format used by this archive instance.
         public int MetadataVersion => InstanceMetadata.MetadataVersion;
 
-        // Constants
+        public IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]> DocumentLinks => InstanceMetadata.DocumentLinks ?? new Dictionary<string, SourceCodeDocumentPathLink[]>();
+
+        #endregion
+
+        #region Constants
 
         public const string SourceKind_Bicep = "bicep";
         public const string SourceKind_ArmTemplate = "armTemplate";
@@ -62,9 +59,14 @@ namespace Bicep.Core.SourceCode
         public const int CurrentMetadataVersion = 0;
         private static readonly string CurrentBicepVersion = ThisAssembly.AssemblyVersion;
 
+        #endregion
+
+        #region Serialization
+
         public partial record SourceFileInfo(
+            // Note: Path is also used as the key for source file retrieval
             string Path,        // the location, relative to the main.bicep file's folder, for the file that will be shown to the end user (required in all Bicep versions)
-            string ArchivePath, // the location (relative to root) of where the file is stored in the archive
+            string ArchivePath, // the location (relative to root) of where the file is stored in the archive (munged from Path, e.g. in case Path starts with "../")
             string Kind,         // kind of source
             string Contents
         );
@@ -73,12 +75,14 @@ namespace Bicep.Core.SourceCode
         [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
         private partial class MetadataSerializationContext : JsonSerializerContext { }
 
+        // Metadata for the entire archive (stored in __metadata.json file in archive)
         [JsonSerializable(typeof(ArchiveMetadata))]
         private record ArchiveMetadata(
             int MetadataVersion,
             string EntryPoint, // Path of the entrypoint file
             IEnumerable<SourceFileInfoEntry> SourceFiles,
-            string? BicepVersion = null
+            string? BicepVersion = null,
+            IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? DocumentLinks = null // Maps source file path -> array of document links inside that file
         );
 
         [JsonSerializable(typeof(SourceFileInfoEntry))]
@@ -91,20 +95,7 @@ namespace Bicep.Core.SourceCode
             string Kind         // kind of source
         );
 
-        private string? GetRequiredBicepVersionMessage()
-        {
-            if (MetadataVersion < CurrentMetadataVersion)
-            {
-                return $"This source code was published with an older, incompatible version of Bicep ({FriendlyBicepVersion}). You are using version {ThisAssembly.AssemblyVersion}.";
-            }
-
-            if (MetadataVersion > CurrentMetadataVersion)
-            {
-                return $"This source code was published with a newer, incompatible version of Bicep ({FriendlyBicepVersion}). You are using version {ThisAssembly.AssemblyVersion}. You need a newer version in order to view the module source.";
-            }
-
-            return null;
-        }
+        #endregion
 
         public static ResultWithException<SourceArchive> UnpackFromStream(Stream stream)
         {
@@ -126,11 +117,17 @@ namespace Bicep.Core.SourceCode
         /// <returns>A .tar.gz file as a binary stream</returns>
         public static Stream PackSourcesIntoStream(SourceFileGrouping sourceFileGrouping)
         {
-            return PackSourcesIntoStream(sourceFileGrouping.EntryFileUri, sourceFileGrouping.SourceFiles.ToArray());
+            var documentLinks = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(sourceFileGrouping);
+            return PackSourcesIntoStream(sourceFileGrouping.EntryFileUri, documentLinks, sourceFileGrouping.SourceFiles.ToArray());
+        }
+
+        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, params ISourceFile[] sourceFiles)
+        {
+            return PackSourcesIntoStream(entrypointFileUri, documentLinks: null, sourceFiles);
         }
 
         // TODO: Toughen this up to handle conflicting paths, ".." paths, etc.
-        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, params ISourceFile[] sourceFiles)
+        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params ISourceFile[] sourceFiles)
         {
             var baseFolderBuilder = new UriBuilder(entrypointFileUri)
             {
@@ -178,7 +175,7 @@ namespace Bicep.Core.SourceCode
                     }
 
                     // Add the metadata file
-                    var metadataContents = CreateMetadataFileContents(entryPointPath, filesMetadata);
+                    var metadataContents = CreateMetadataFileContents(baseFolderUri, entryPointPath, filesMetadata, documentLinks);
                     WriteNewFileEntry(tarWriter, MetadataFileName, metadataContents);
                 }
             }
@@ -188,10 +185,41 @@ namespace Bicep.Core.SourceCode
 
             (string location, string archivePath) CalculateFilePathsFromUri(Uri uri)
             {
-                Uri relativeUri = baseFolderUri.MakeRelativeUri(uri);
-                var relativeLocation = Uri.UnescapeDataString(relativeUri.OriginalString);
+                var relativeLocation = CalculateRelativeFilePath(baseFolderUri, uri);
                 return (relativeLocation, relativeLocation);
             }
+        }
+
+        public SourceFileInfo FindExpectedSourceFile(string path)
+        {
+            if (this.SourceFiles.FirstOrDefault(f => 0 == StringComparer.Ordinal.Compare(f.Path, path)) is { } sourceFile)
+            {
+                return sourceFile;
+            }
+
+            throw new Exception($"Unable to find source file \"{path}\" in the source archive");
+        }
+
+        private string? GetRequiredBicepVersionMessage()
+        {
+            if (MetadataVersion < CurrentMetadataVersion)
+            {
+                return $"This source code was published with an older, incompatible version of Bicep ({FriendlyBicepVersion}). You are using version {ThisAssembly.AssemblyVersion}.";
+            }
+
+            if (MetadataVersion > CurrentMetadataVersion)
+            {
+                return $"This source code was published with a newer, incompatible version of Bicep ({FriendlyBicepVersion}). You are using version {ThisAssembly.AssemblyVersion}. You need a newer version in order to view the module source.";
+            }
+
+            return null;
+        }
+
+        private static string CalculateRelativeFilePath(Uri baseFolderUri, Uri uri)
+        {
+            Uri relativeUri = baseFolderUri.MakeRelativeUri(uri);
+            var relativeLocation = Uri.UnescapeDataString(relativeUri.OriginalString);
+            return relativeLocation;
         }
 
         private SourceArchive(Stream stream)
@@ -226,11 +254,35 @@ namespace Bicep.Core.SourceCode
             this.SourceFiles = infos.ToImmutableArray();
         }
 
-        private static string CreateMetadataFileContents(string entrypointPath, IEnumerable<SourceFileInfoEntry> files)
+        private static string CreateMetadataFileContents(
+            Uri baseFolderUri,
+            string entrypointPath,
+            IEnumerable<SourceFileInfoEntry> files,
+            IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks
+        )
         {
             // Add the __metadata.json file
-            var metadata = new ArchiveMetadata(CurrentMetadataVersion, entrypointPath, files, CurrentBicepVersion);
+            var metadata = new ArchiveMetadata(CurrentMetadataVersion, entrypointPath, files, CurrentBicepVersion, UriDocumentLinksToPathBasedLinks(baseFolderUri, documentLinks));
             return JsonSerializer.Serialize(metadata, MetadataSerializationContext.Default.ArchiveMetadata);
+        }
+
+        private static IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? UriDocumentLinksToPathBasedLinks(
+            Uri baseFolderUri,
+            IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? uriBasedDocumentLinks
+        )
+        {
+            return uriBasedDocumentLinks?.Select(
+                x => new KeyValuePair<string, SourceCodeDocumentPathLink[]>(
+                    CalculateRelativeFilePath(baseFolderUri, x.Key),
+                    x.Value.Select(link => DocumentPathLinkFromUriLink(baseFolderUri, link)).ToArray()
+                )).ToImmutableDictionary();
+        }
+
+        private static SourceCodeDocumentPathLink DocumentPathLinkFromUriLink(Uri baseFolderUri, SourceCodeDocumentUriLink uriBasedLink)
+        {
+            return new SourceCodeDocumentPathLink(
+                uriBasedLink.Range,
+                CalculateRelativeFilePath(baseFolderUri, uriBasedLink.Target));
         }
 
         private static void WriteNewFileEntry(TarWriter tarWriter, string archivePath, string contents)

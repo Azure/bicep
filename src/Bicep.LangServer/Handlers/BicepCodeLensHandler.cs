@@ -20,14 +20,10 @@ namespace Bicep.LanguageServer.Handlers
     // Provides code lenses for a range in a Bicep document
     public class BicepCodeLensHandler : CodeLensHandlerBase
     {
-        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
-        private readonly ICompilationManager compilationManager;
         private readonly IModuleDispatcher moduleDispatcher;
 
-        public BicepCodeLensHandler(ICompilationManager compilationManager, IClientCapabilitiesProvider clientCapabilitiesProvider, IModuleDispatcher moduleDispatcher)
+        public BicepCodeLensHandler(IModuleDispatcher moduleDispatcher)
         {
-            this.clientCapabilitiesProvider = clientCapabilitiesProvider;
-            this.compilationManager = compilationManager;
             this.moduleDispatcher = moduleDispatcher;
         }
 

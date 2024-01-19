@@ -6,11 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Net;
-using System.Reflection.Metadata;
-using System.Security.Policy;
 using System.Threading.Tasks;
-using System.Web;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
@@ -409,7 +405,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             SourceArchive? sourceArchive = entrypointUri is { } ?
                 SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(
                     entrypointUri,
-                    new Core.Workspaces.ISourceFile[] {
+                    new ISourceFile[] {
                         SourceFileFactory.CreateBicepFile(entrypointUri, "metadata description = 'bicep module'")
                     })).TryUnwrap()
                 : null;
