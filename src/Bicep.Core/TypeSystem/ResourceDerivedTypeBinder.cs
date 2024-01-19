@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -16,6 +17,8 @@ namespace Bicep.Core.TypeSystem;
 
 public class ResourceDerivedTypeBinder
 {
+    private static readonly StringComparer PointerSegmentComparer = StringComparer.OrdinalIgnoreCase;
+
     private readonly Stack<TypeSymbol> currentlyBinding = new();
     private readonly ConcurrentDictionary<TypeSymbol, TypeSymbol> boundTypes = new();
     private readonly Stack<TypeSymbol> currentlySearchingForUnboundTypes = new();
@@ -60,11 +63,57 @@ public class ResourceDerivedTypeBinder
     private TypeSymbol CalculateTypeBinding(IUnboundResourceDerivedType unbound)
     {
         // TODO support types derived from resources other than the `az` provider. This will require some refactoring of how provider artifacts are restored
-        var bound = binder.NamespaceResolver.GetMatchingResourceTypes(unbound.TypeReference, ResourceTypeGenerationFlags.None)
+        if (binder.NamespaceResolver.GetMatchingResourceTypes(unbound.TypeReference, ResourceTypeGenerationFlags.None)
             .Where(resourceType => LanguageConstants.IdentifierComparer.Equals(resourceType.DeclaringNamespace.ProviderName, AzNamespaceType.BuiltInName))
-            .FirstOrDefault();
+            .FirstOrDefault()
+            ?.Body.Type is TypeSymbol bodyType)
+        {
+            var current = bodyType;
+            for (int i = 0; i < unbound.PointerSegments.Length; i++)
+            {
+                switch (unbound.PointerSegments[i].ToLowerInvariant())
+                {
+                    case "properties" when current is ObjectType @object &&
+                        TryGetNamedProperty(@object, unbound.PointerSegments[++i]) is TypeProperty namedProperty:
+                            current = namedProperty.TypeReference.Type;
+                            continue;
+                    case "additionalproperties" when current is ObjectType @object &&
+                        @object.AdditionalPropertiesType is not null:
+                            current = @object.AdditionalPropertiesType.Type;
+                            continue;
+                    case "prefixitems" when current is TupleType tuple &&
+                        int.TryParse(unbound.PointerSegments[++i], out int index) &&
+                        0 <= index &&
+                        index < tuple.Items.Length:
+                            current = tuple.Items[index].Type;
+                            continue;
+                    case "items" when current is ArrayType array:
+                        current = array.Item.Type;
+                        continue;
+                }
 
-        return bound?.Body.Type ?? unbound.FallbackType;
+                return unbound.FallbackType;
+            }
+
+            return current;
+        }
+
+        return unbound.FallbackType;
+    }
+
+    private static TypeProperty? TryGetNamedProperty(ObjectType @object, string propertyName)
+    {
+        if (@object.Properties.TryGetValue(propertyName, out var property))
+        {
+            return property;
+        }
+
+        if (@object.Properties.Where(p => PointerSegmentComparer.Equals(propertyName, p.Key)).FirstOrDefault() is { } caseInsensitiveMatch)
+        {
+            return caseInsensitiveMatch.Value;
+        }
+
+        return null;
     }
 
     private TupleType CalculateTypeBinding(TupleType unbound)

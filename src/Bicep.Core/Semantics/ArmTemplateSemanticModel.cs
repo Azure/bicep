@@ -86,7 +86,7 @@ namespace Bicep.Core.Semantics
                             return new ParameterMetadata(
                                 parameterProperty.Key,
                                 type,
-                                parameterProperty.Value.DefaultValue is null && !TypeHelper.IsNullable(type),
+                                parameterProperty.Value.DefaultValue is null && !TypeHelper.IsNullable(type.Type),
                                 GetMostSpecificDescription(parameterProperty.Value));
                         },
                         LanguageConstants.IdentifierComparer);
@@ -150,7 +150,7 @@ namespace Bicep.Core.Semantics
             return diagnosticWriter.GetDiagnostics().Count > 0;
         }
 
-        private TypeSymbol GetType(TemplateInputParameter parameter) => parameter.Type?.Value switch
+        private ITypeReference GetType(TemplateInputParameter parameter) => parameter.Type?.Value switch
         {
             TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(GetMetadata(parameter), out var resourceType) =>
                 resourceType,
@@ -158,8 +158,8 @@ namespace Bicep.Core.Semantics
             _ => GetType((ITemplateSchemaNode)parameter, allowLooseAssignment: true),
         };
 
-        private TypeSymbol GetType(ITemplateSchemaNode schemaNode, bool allowLooseAssignment = false)
-            => ArmTemplateTypeLoader.ToTypeSymbol(SchemaValidationContext.ForTemplate(SourceFile.Template),
+        private ITypeReference GetType(ITemplateSchemaNode schemaNode, bool allowLooseAssignment = false)
+            => ArmTemplateTypeLoader.ToTypeReference(SchemaValidationContext.ForTemplate(SourceFile.Template),
                 schemaNode,
                 allowLooseAssignment ? TypeSymbolValidationFlags.AllowLooseAssignment : TypeSymbolValidationFlags.Default);
 
@@ -194,7 +194,7 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        private TypeSymbol GetType(TemplateOutputParameter output)
+        private ITypeReference GetType(TemplateOutputParameter output)
         {
             return output.Type?.Value switch
             {

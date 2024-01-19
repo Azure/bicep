@@ -916,7 +916,9 @@ namespace Bicep.Core.TypeSystem
             if (!objectType.Properties.TryGetValue(propertyName, out var typeProperty))
             {
                 return ErrorType.Create(
-                    TypeHelper.GetUnknownPropertyDiagnostic(objectType, propertyNameSyntax, propertyName, shouldWarn: false).AsErrorDiagnostic()
+                    TypeHelper.GetUnknownPropertyDiagnostic(objectType, propertyName, shouldWarn: false)
+                        .Invoke(DiagnosticBuilder.ForPosition(propertyNameSyntax))
+                        .AsErrorDiagnostic()
                         ?? throw new UnreachableException("Should only return errors when shouldWarn: false"));
             }
 

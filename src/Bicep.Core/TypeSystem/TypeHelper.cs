@@ -204,33 +204,30 @@ namespace Bicep.Core.TypeSystem
                 .Select(p => p.Name)
                 .OrderBy(x => x);
 
-            var diagnosticBuilder = DiagnosticBuilder.ForPosition(propertyExpressionPositionable);
-
-            var unknownPropertyDiagnostic = GetUnknownPropertyDiagnostic(baseType, propertyExpressionPositionable, propertyName, shouldWarn);
+            var unknownPropertyDiagnostic = GetUnknownPropertyDiagnostic(baseType, propertyName, shouldWarn)
+                .Invoke(DiagnosticBuilder.ForPosition(propertyExpressionPositionable));
 
             diagnostics.Write(unknownPropertyDiagnostic);
 
             return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? ErrorType.Empty() : LanguageConstants.Any;
         }
 
-        public static IDiagnostic GetUnknownPropertyDiagnostic(ObjectType baseType, IPositionable propertyExpressionPositionable, string propertyName, bool shouldWarn)
+        public static DiagnosticBuilder.DiagnosticBuilderDelegate GetUnknownPropertyDiagnostic(ObjectType baseType, string propertyName, bool shouldWarn)
         {
             var availableProperties = baseType.Properties.Values
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
                 .Select(p => p.Name)
                 .OrderBy(x => x);
 
-            var diagnosticBuilder = DiagnosticBuilder.ForPosition(propertyExpressionPositionable);
-
             return availableProperties.Any() switch
             {
                 true => SpellChecker.GetSpellingSuggestion(propertyName, availableProperties) switch
                 {
                     string suggestedPropertyName when suggestedPropertyName != null =>
-                        diagnosticBuilder.UnknownPropertyWithSuggestion(shouldWarn, baseType, propertyName, suggestedPropertyName),
-                    _ => diagnosticBuilder.UnknownPropertyWithAvailableProperties(shouldWarn, baseType, propertyName, availableProperties),
+                        x => x.UnknownPropertyWithSuggestion(shouldWarn, baseType, propertyName, suggestedPropertyName),
+                    _ => x => x.UnknownPropertyWithAvailableProperties(shouldWarn, baseType, propertyName, availableProperties),
                 },
-                _ => diagnosticBuilder.UnknownProperty(shouldWarn, baseType, propertyName)
+                _ => x => x.UnknownProperty(shouldWarn, baseType, propertyName)
             };
         }
 

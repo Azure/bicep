@@ -165,7 +165,7 @@ internal class ArmDeclarationToExpressionConverter
     private TypeExpression ConvertToTypeExpressionIgnoringNullability(ITemplateSchemaNode schemaNode)
     {
         // drop constraints that would have already been processed: Nullable, Min/MaxValue, Min/MaxLength, Pattern
-        var bicepType = ArmTemplateTypeLoader.ToTypeSymbol(schemaContext, new TemplateTypeDefinition
+        var bicepType = ArmTemplateTypeLoader.ToTypeReference(schemaContext, new TemplateTypeDefinition
         {
             AdditionalProperties = schemaNode.AdditionalProperties,
             AllowedValues = schemaNode.AllowedValues,
@@ -177,7 +177,7 @@ internal class ArmDeclarationToExpressionConverter
             Required = schemaNode.Required,
             Sealed = schemaNode.Sealed,
             Type = schemaNode.Type,
-        });
+        }).Type;
 
         if (schemaNode.AllowedValues?.Value is { } allowedValues)
         {

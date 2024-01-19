@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Types;
@@ -13,13 +14,11 @@ namespace Bicep.Core.TypeSystem.Types;
 /// </summary>
 public interface IUnboundResourceDerivedType
 {
-    // TODO This type needs to capture:
-    //   - A provider identifier (built-in name or OCI reference)
-    //   - A type reference
-    //   - A list of properties to traverse
-    //   - An ARM primitive type
+    // TODO This type needs to capture a provider identifier (built-in name or OCI reference) in order to support providers other than `az`
 
     public ResourceTypeReference TypeReference { get; }
+
+    public ImmutableArray<string> PointerSegments { get; }
 
     public TypeSymbol FallbackType { get; }
 }

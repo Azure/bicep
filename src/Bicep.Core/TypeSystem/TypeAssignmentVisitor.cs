@@ -437,8 +437,8 @@ namespace Bicep.Core.TypeSystem
                             : DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
                     }
 
-                    diagnostics.WriteMultiple(moduleSemanticModel.Parameters.Values.Select(md => md.TypeReference.Type)
-                        .Concat(moduleSemanticModel.Outputs.Select(md => md.TypeReference.Type))
+                    diagnostics.WriteMultiple(moduleSemanticModel.Parameters.Values.Select(md => md.TypeReference)
+                        .Concat(moduleSemanticModel.Outputs.Select(md => md.TypeReference))
                         .SelectMany(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics)
                         .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax.Path))));
                 }
@@ -1027,7 +1027,7 @@ namespace Bicep.Core.TypeSystem
                 List<FunctionOverload> nsFunctions = new();
                 foreach (var export in importedModel.Exports.Values)
                 {
-                    diagnostics.WriteMultiple(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics(export.TypeReference.Type)
+                    diagnostics.WriteMultiple(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics(export.TypeReference)
                         .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax.Wildcard))));
 
                     if (export is ExportedFunctionMetadata exportedFunction)
@@ -1080,7 +1080,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                diagnostics.WriteMultiple(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics(exported.TypeReference.Type)
+                diagnostics.WriteMultiple(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics(exported.TypeReference)
                     .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax))));
                 return resourceDerivedTypeBinder.BindResourceDerivedTypes(exported.TypeReference.Type);
             });

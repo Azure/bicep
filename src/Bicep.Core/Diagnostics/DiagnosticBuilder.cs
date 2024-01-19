@@ -2137,6 +2137,18 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP391",
                 "Access expressions within type clauses are only allowed if the innermost base expression is a symbolic reference to a type.");
+
+            public Diagnostic InvalidResourceTypeIdentifier(string resourceTypeIdentifier) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP392",
+                $"""The supplied resource type identifier "{resourceTypeIdentifier}" was not recognized as a valid resource type name.""");
+
+            public Diagnostic UnrecognizedResourceDerivedTypePointerSegment(string unrecognizedSegment) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP393",
+                $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

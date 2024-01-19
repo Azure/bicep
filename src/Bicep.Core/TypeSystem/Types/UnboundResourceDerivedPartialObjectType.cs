@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 
@@ -11,7 +12,7 @@ namespace Bicep.Core.TypeSystem.Types;
 /// </summary>
 public class UnboundResourceDerivedPartialObjectType : ObjectType, IUnboundResourceDerivedType
 {
-    public UnboundResourceDerivedPartialObjectType(ResourceTypeReference typeReference, string discriminatorName, string discriminatorValue)
+    public UnboundResourceDerivedPartialObjectType(ResourceTypeReference typeReference, ImmutableArray<string> pointerSegments, string discriminatorName, string discriminatorValue)
         : base(typeReference.FormatType(),
             TypeSymbolValidationFlags.Default,
             new TypeProperty(discriminatorName, TypeFactory.CreateStringLiteralType(discriminatorValue)).AsEnumerable(),
@@ -19,9 +20,12 @@ public class UnboundResourceDerivedPartialObjectType : ObjectType, IUnboundResou
             TypePropertyFlags.FallbackProperty)
     {
         TypeReference = typeReference;
+        PointerSegments = pointerSegments;
     }
 
     public ResourceTypeReference TypeReference { get; }
+
+    public ImmutableArray<string> PointerSegments { get; }
 
     public TypeSymbol FallbackType => this;
 

@@ -208,8 +208,11 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        public static bool ShouldWarn(TypeSymbol targetType)
-            => targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnTypeMismatch);
+        public static bool ShouldWarn(TypeSymbol targetType) => targetType switch
+        {
+            UnionType union => union.Members.Any(m => ShouldWarn(m.Type)),
+            _ => targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnTypeMismatch),
+        };
 
         public static TypeSymbol NarrowTypeAndCollectDiagnostics(ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter, SyntaxBase expression, TypeSymbol targetType, bool isResourceDeclaration = false)
         {
@@ -1129,7 +1132,11 @@ namespace Bicep.Core.TypeSystem
                             skipTypeErrors: true,
                             disallowAny: declaredProperty.Flags.HasFlag(TypePropertyFlags.DisallowAny),
                             originSyntax: config.OriginSyntax,
-                            onTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, (config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType), declaredProperty.Name, (config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty))),
+                            onTypeMismatch: GetPropertyMismatchDiagnosticWriter(
+                                config: config,
+                                shouldWarn: (config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(declaredProperty.TypeReference.Type),
+                                propertyName: declaredProperty.Name,
+                                showTypeInaccuracyClause: config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)),
                             isResourceDeclaration: config.IsResourceDeclaration);
 
                         // append "| null" to the property type for non-required properties

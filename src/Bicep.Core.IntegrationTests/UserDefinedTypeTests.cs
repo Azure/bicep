@@ -959,6 +959,59 @@ param myParam string
     }
 
     [TestMethod]
+    public void Param_with_resource_derived_type_property_can_be_loaded()
+    {
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            ("main.bicep", """
+                module mod 'mod.json' = {
+                    name: 'mod'
+                    params: {
+                        saName: 'ab'
+                        connectionParameterType: 'sting'
+                        ipRuleAction: 'Deny'
+                    }
+                }
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "languageVersion": "2.0",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "saName": {
+                            "type": "string",
+                            "metadata": {
+                                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+                            }
+                        },
+                        "connectionParameterType": {
+                            "type": "string",
+                            "metadata": {
+                                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Web/customApis@2016-06-01#properties/properties/properties/connectionParameters/additionalProperties/properties/type"
+                            }
+                        },
+                        "ipRuleAction": {
+                            "type": "string",
+                            "metadata": {
+                                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/properties/properties/networkAcls/properties/ipRules/items/properties/action"
+                            }
+                        }
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 2) is too short to assign to a target for which the minimum allowable length is 3."),
+            ("BCP088", DiagnosticLevel.Warning, """The property "connectionParameterType" expected a value of type "'array' | 'bool' | 'connection' | 'int' | 'oauthSetting' | 'object' | 'secureobject' | 'securestring' | 'string'" but the provided value is of type "'sting'". Did you mean "'string'"?"""),
+            ("BCP036", DiagnosticLevel.Warning, """The property "ipRuleAction" expected a value of type "'Allow'" but the provided value is of type "'Deny'"."""),
+        });
+
+    }
+
+    [TestMethod]
     public void Output_with_resource_derived_type_can_be_loaded()
     {
         var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
