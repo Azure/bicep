@@ -27,9 +27,6 @@ public class ResourceTypeProviderFactoryTests
     [TestMethod]
     public async Task ProviderNameAndVersionAreUsedAsCacheKeys()
     {
-        // var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
-        // Directory.CreateDirectory(cacheRoot);
-
         var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
             TestContext,
             typeof(RegistryProviderTests).Assembly,
@@ -45,7 +42,7 @@ public class ResourceTypeProviderFactoryTests
             .WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true))
             .WithContainerRegistryClientFactory(clientFactory);
 
-        foreach (var repoName in new[] { "foo", "bar" })
+        foreach (var repoName in repositoryNames)
         {
             var indexJsonPath = Path.Combine(outputDirectory, "types", "index.json");
             await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), indexJsonPath, $"br:{registry}/{repositoryPath}/{repoName}:1.2.3");
