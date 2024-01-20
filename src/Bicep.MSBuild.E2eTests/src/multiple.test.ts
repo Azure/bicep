@@ -12,8 +12,8 @@ describe("msbuild", () => {
 
     expect(result.stderr).toBe("");
 
-    example.expectTemplate("bin/Debug/templates/net7.0/empty.json");
-    example.expectTemplate("bin/Debug/templates/net7.0/passthrough.json");
-    example.expectTemplate("bin/Debug/templates/net7.0/special/special.arm");
+    example.expectTemplate("bin/Debug/templates/net8.0/empty.json");
+    example.expectTemplate("bin/Debug/templates/net8.0/passthrough.json");
+    example.expectTemplate("bin/Debug/templates/net8.0/special/special.arm");
   });
 });

@@ -14,6 +14,12 @@
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <!-- restore pre-.net7 trim behavior https://learn.microsoft.com/en-us/dotnet/core/compatibility/deployment/7.0/trim-all-assemblies -->
     <TrimMode>partial</TrimMode>
+
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishTrimmed>true</PublishTrimmed>
+    <!-- restore pre-.net8 trim behavior https://learn.microsoft.com/en-us/dotnet/core/compatibility/serialization/8.0/publishtrimmed -->
+    <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
   </PropertyGroup>
 
   <ItemGroup>

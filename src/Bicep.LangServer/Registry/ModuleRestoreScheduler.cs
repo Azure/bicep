@@ -75,7 +75,7 @@ namespace Bicep.LanguageServer.Registry
                 if (this.consumerTask is not null)
                 {
                     // signal cancellation first
-                    this.cancellationTokenSource.Cancel();
+                    await this.cancellationTokenSource.CancelAsync();
 
                     lock (this.queue)
                     {
