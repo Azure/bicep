@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Registry
 {
     [TestClass]
-    public class DescriptorFactoryTests
+    public class OciDescriptorTests
     {
         [TestMethod]
         public void UnknownAlgorithmShouldThrow()

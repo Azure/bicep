@@ -41,7 +41,7 @@ namespace Bicep.Core.TypeSystem.Providers
 
 
 
-            var key = new ResourceTypeLoaderKey(providerDescriptor.Alias, providerDescriptor.Version);
+            var key = new ResourceTypeLoaderKey(providerDescriptor.Name, providerDescriptor.Version);
             IResourceTypeProvider result;
             try
             {

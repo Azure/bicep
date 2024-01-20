@@ -79,7 +79,7 @@ namespace Bicep.Core.Workspaces
             // Rebuild source files that contain external module references restored during the inital build.
             var sourceFilesToRebuild = current.SourceFiles
                 .Where(sourceFile
-                    => GetModuleDeclarations(sourceFile)
+                    => GetArtifactReferenceDeclarations(sourceFile)
                         .Any(moduleDeclaration
                             => modulesToRestore.Contains(new ArtifactResolutionInfo(moduleDeclaration, sourceFile))))
                 .ToImmutableHashSet()
@@ -265,8 +265,8 @@ namespace Bicep.Core.Workspaces
             _ => Enumerable.Empty<IArtifactReferenceSyntax>(),
         };
 
-        private static IEnumerable<ModuleDeclarationSyntax> GetModuleDeclarations(ISourceFile sourceFile) => sourceFile is BicepFile bicepFile
-            ? bicepFile.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>()
-            : Enumerable.Empty<ModuleDeclarationSyntax>();
+        private static IEnumerable<IArtifactReferenceSyntax> GetArtifactReferenceDeclarations(ISourceFile sourceFile) => sourceFile is BicepFile bicepFile
+            ? bicepFile.ProgramSyntax.Declarations.OfType<IArtifactReferenceSyntax>()
+            : Enumerable.Empty<IArtifactReferenceSyntax>();
     }
 }
