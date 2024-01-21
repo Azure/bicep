@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -69,9 +70,9 @@ namespace Bicep.Core.Workspaces
         {
             var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current);
             var isParamsFile = current.EntryPoint is BicepParamFile;
-            var modulesToRestore = current.GetArtifactsToRestore().ToHashSet();
+            var artifactsToRestore = current.GetArtifactsToRestore().ToHashSet();
 
-            foreach (var (module, sourceFile) in modulesToRestore)
+            foreach (var (module, sourceFile) in artifactsToRestore)
             {
                 builder.fileUriResultByArtifactReference[sourceFile].Remove(module);
             }
@@ -81,7 +82,7 @@ namespace Bicep.Core.Workspaces
                 .Where(sourceFile
                     => GetArtifactReferenceDeclarations(sourceFile)
                         .Any(moduleDeclaration
-                            => modulesToRestore.Contains(new ArtifactResolutionInfo(moduleDeclaration, sourceFile))))
+                            => artifactsToRestore.Contains(new ArtifactResolutionInfo(moduleDeclaration, sourceFile))))
                 .ToImmutableHashSet()
                 .SelectMany(sourceFile => current.GetFilesDependingOn(sourceFile))
                 .ToImmutableHashSet();
