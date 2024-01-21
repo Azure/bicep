@@ -49,7 +49,12 @@ public record GetMetadataResponse(
     public record SymbolDefinition(
         Range Range,
         string Name,
+        TypeDefinition? Type,
         string? Description);
+
+    public record TypeDefinition(
+        Range? Range,
+        string Name);
 
     public record MetadataDefinition(
         string Name,

@@ -84,7 +84,13 @@ interface MetadataDefinition {
 interface ParamDefinition {
   range: Range;
   name: string;
+  type?: TypeDefinition;
   description?: string;
+}
+
+interface TypeDefinition {
+  range?: Range;
+  name: string;
 }
 
 export const versionRequestType = new RequestType<

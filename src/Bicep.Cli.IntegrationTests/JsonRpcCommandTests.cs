@@ -116,6 +116,16 @@ metadata description = 'my file'
 @description('foo param')
 param foo string
 
+param inlineType {
+  sdf: string
+}
+
+param declaredType asdf
+
+type asdf = {
+  foo: string
+}
+
 @description('bar output')
 output bar string = foo
 """,
@@ -130,10 +140,12 @@ output bar string = foo
                     new("description", "my file"),
                 });
                 response.Parameters.Should().Equal(new GetMetadataResponse.SymbolDefinition[] {
-                    new(new(new(2, 0), new(3, 16)), "foo", "foo param"),
+                    new(new(new(2, 0), new(3, 16)), "foo", new(null, "string"), "foo param"),
+                    new(new(new(5, 0), new(7, 1)), "inlineType", new(null, "{ sdf: string }"), null),
+                    new(new(new(9, 0), new(9, 23)), "declaredType", new(new(new(11, 0), new(13, 1)), "asdf"), null),
                 });
                 response.Outputs.Should().Equal(new GetMetadataResponse.SymbolDefinition[] {
-                    new(new(new(5, 0), new(6, 23)), "bar", "bar output"),
+                    new(new(new(15, 0), new(16, 23)), "bar", new(null, "string"), "bar output"),
                 });
             });
     }
