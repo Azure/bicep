@@ -90,7 +90,7 @@ namespace Bicep.Core.Semantics
             return root.TryGetPropertyByPath($"metadata.{LanguageConstants.MetadataDescriptionPropertyName}")?.GetString();
         }
 
-        public static string? TryGetFromArmTemplate(BinaryData jsonArmTemplateContents) 
+        public static string? TryGetFromArmTemplate(BinaryData jsonArmTemplateContents)
             => TryGetFromArmTemplate(jsonArmTemplateContents.ToStream());
 
         /// <summary>

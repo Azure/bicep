@@ -121,7 +121,7 @@ namespace Bicep.Core.Registry
              */
 
             var manifest = new OciManifest(2, mediaType, artifactType, config, layerDescriptors.ToImmutableArray(), annotations.Build());
-           
+
             var manifestBinaryData = BinaryData.FromObjectAsJson(manifest, OciManifestSerializationContext.Default.Options);
             _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
         }

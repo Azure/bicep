@@ -167,7 +167,7 @@ namespace Bicep.Core.Samples
             {
                 throw new InvalidOperationException($"Module {moduleName} failed to procuce a template.");
             }
-            
+
             BinaryData? sourcesStream = publishSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(result.Compilation.SourceFileGrouping)) : null;
             await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, documentationUri);
         }

@@ -40,7 +40,7 @@ namespace Bicep.Core.Registry.Oci
         }
 
         [JsonIgnore]
-        public BinaryData? Data {get;}
+        public BinaryData? Data { get; }
         public string MediaType { get; }
         public string Digest { get; }
         public long Size { get; }

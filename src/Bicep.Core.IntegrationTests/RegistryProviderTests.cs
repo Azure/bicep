@@ -15,8 +15,8 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using FileSystem = System.IO.Abstractions.FileSystem;
 using Newtonsoft.Json.Linq;
+using FileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.IntegrationTests;
 

@@ -29,7 +29,8 @@ namespace Bicep.Core.FileSystem
         }
 
         public ResultWithDiagnostic<string> TryRead(Uri fileUri)
-            => TryReadInternal<string>(fileUri, 0, stream => {
+            => TryReadInternal<string>(fileUri, 0, stream =>
+            {
                 using var reader = new StreamReader(stream);
 
                 return new(reader.ReadToEnd());
@@ -58,7 +59,8 @@ namespace Bicep.Core.FileSystem
             => TryReadInternal<BinaryData>(fileUri, maxFileSize ?? 0, stream => new(BinaryData.FromStream(stream)));
 
         public ResultWithDiagnostic<string> TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n)
-            => TryReadInternal<string>(fileUri, 0, stream => {
+            => TryReadInternal<string>(fileUri, 0, stream =>
+            {
                 if (n <= 0)
                 {
                     throw new InvalidOperationException($"Cannot read {n} characters");

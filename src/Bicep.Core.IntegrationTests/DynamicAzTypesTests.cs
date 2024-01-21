@@ -3,8 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Formats.Tar;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
@@ -16,13 +19,10 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
-using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Formats.Tar;
-using System.IO.Compression;
-using System.Text;
+using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 
 namespace Bicep.Core.IntegrationTests
 {

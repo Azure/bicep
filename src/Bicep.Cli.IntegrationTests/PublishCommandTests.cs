@@ -343,7 +343,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
-                .Setup(m => m.UploadBlobAsync(It.IsAny<BinaryData>()  , It.IsAny<CancellationToken>()))
+                .Setup(m => m.UploadBlobAsync(It.IsAny<BinaryData>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
             client
                 .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -464,7 +464,7 @@ namespace Bicep.Cli.IntegrationTests
 
             await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
 
-            var manifest = blobClient.Manifests.Single().Value.ToObjectFromJson<OciManifest>(new JsonSerializerOptions{PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
+            var manifest = blobClient.Manifests.Single().Value.ToObjectFromJson<OciManifest>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
             if (expectedDescription is null)
             {

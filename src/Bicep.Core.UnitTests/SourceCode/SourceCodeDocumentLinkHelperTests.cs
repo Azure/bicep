@@ -17,7 +17,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
 {
     private Uri GetUri(string relativePath)
     {
-        return  new Uri(InMemoryFileResolver.GetFileUri("/path/to/"), relativePath);
+        return new Uri(InMemoryFileResolver.GetFileUri("/path/to/"), relativePath);
     }
 
     [TestMethod]
