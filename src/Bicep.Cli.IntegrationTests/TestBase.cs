@@ -25,7 +25,7 @@ namespace Bicep.Cli.IntegrationTests
     {
         private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
             => ServiceBuilder.Create(
-                x => x.WithEmptyAzResources().AddSingleton(clientFactory).AddSingleton(templateSpecRepositoryFactory)).GetCompiler();
+                x => x.AddSingleton(clientFactory).AddSingleton(templateSpecRepositoryFactory)).GetCompiler();
 
         protected const string BuildSummaryFailedRegex = @"Build failed: (\d*) Warning\(s\), ([1-9][0-9]*) Error\(s\)";
         protected const string BuildSummarySucceededRegex = @"Build succeeded: (\d*) Warning\(s\), 0 Error\(s\)";
@@ -55,7 +55,6 @@ namespace Bicep.Cli.IntegrationTests
                         }
 
                         services
-                            .WithEmptyAzResources()
                             .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
                             .AddSingleton(settings.ClientFactory)
                             .AddSingleton(settings.TemplateSpecRepositoryFactory);
@@ -90,7 +89,7 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static async Task<IEnumerable<string>> GetAllParamDiagnostics(string paramFilePath)
         {
-            var compiler = new ServiceBuilder().WithEmptyAzResources().Build().GetCompiler();
+            var compiler = new ServiceBuilder().Build().GetCompiler();
 
             var compilation = await compiler.CreateCompilation(PathHelper.FilePathToFileUrl(paramFilePath));
 

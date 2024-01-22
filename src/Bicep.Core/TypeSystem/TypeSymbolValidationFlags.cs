@@ -56,8 +56,8 @@ namespace Bicep.Core.TypeSystem
         IsResourceTypeIdentifier = 1 << 7,
 
         /// <summary>
-        /// Display warning diagnostics instead of errors if an unknown property is accessed or supplied.
+        /// Display warning diagnostics instead of errors if an unknown property is accessed or supplied, a required property is not provided, a read-only property is supplied, or a write-only property is accessed.
         /// </summary>
-        WarnOnUnknownProperties = 1 << 8,
+        WarnOnPropertyTypeMismatch = 1 << 8,
     }
 }

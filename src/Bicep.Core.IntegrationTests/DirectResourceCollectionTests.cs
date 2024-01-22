@@ -208,7 +208,7 @@ resource containerController2 'Microsoft.ContainerInstance/containerGroups@2022-
         public void DirectResourceCollectionAccess_NotAllowedWithinUnsupportedResourceProperties_InlinedVariable()
         {
             const string additionalContent = """
-var containerWorkerIps = map(containerWorkers, (w) => w.properties.ipAddress.ip)
+var containerWorkerIps = join(map(containerWorkers, (w) => w.properties.ipAddress.ip), ',')
 resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = {
   name: 'gh9440-inlined'
   location: 'westus'
@@ -234,7 +234,7 @@ resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' =
         {
             const string additionalContent = """
 var containerWorkersAliased = containerWorkers
-var containerWorkerIps = map(containerWorkersAliased, (w) => w.properties.ipAddress.ip)
+var containerWorkerIps = join(map(containerWorkersAliased, (w) => w.properties.ipAddress.ip), ',')
 resource propertyLoop 'Microsoft.ContainerInstance/containerGroups@2022-09-01' = {
   name: 'gh9440-inlined'
   location: 'westus'

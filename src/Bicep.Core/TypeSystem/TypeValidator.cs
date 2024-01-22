@@ -214,6 +214,12 @@ namespace Bicep.Core.TypeSystem
             _ => targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnTypeMismatch),
         };
 
+        public static bool ShouldWarnForPropertyMismatch(TypeSymbol targetType) => targetType switch
+        {
+            UnionType union => union.Members.Any(m => ShouldWarnForPropertyMismatch(m.Type)),
+            _ => targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch),
+        };
+
         public static TypeSymbol NarrowTypeAndCollectDiagnostics(ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter, SyntaxBase expression, TypeSymbol targetType, bool isResourceDeclaration = false)
         {
             var config = new TypeValidatorConfig(
@@ -933,7 +939,7 @@ namespace Bicep.Core.TypeSystem
                 if (!expressionObjectType.HasExplicitAdditionalPropertiesType)
                 {
                     var shouldWarn = (expressionObjectType.AdditionalPropertiesType?.Type is { } addlPropertiesType && AreTypesAssignable(addlPropertiesType, LanguageConstants.String)) ||
-                        ShouldWarn(targetType);
+                        ShouldWarnForPropertyMismatch(targetType);
                     diagnosticWriter.Write(config.OriginSyntax ?? expression, x => x.MissingRequiredProperty(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType));
 
                     // do a reverse lookup to check if there's any misspelled discriminator key
@@ -941,7 +947,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         var misspelledDiscriminatorProperty = (expression as ObjectSyntax)?.Properties.First(x => LanguageConstants.IdentifierComparer.Equals(x.TryGetKeyText(), misspelledDiscriminatorKey));
                         diagnosticWriter.Write(config.OriginSyntax ?? misspelledDiscriminatorProperty?.Key ?? expression,
-                            x => x.DisallowedPropertyWithSuggestion(ShouldWarn(targetType), misspelledDiscriminatorKey, targetType.DiscriminatorKeysUnionType, targetType.DiscriminatorKey));
+                            x => x.DisallowedPropertyWithSuggestion(ShouldWarnForPropertyMismatch(targetType), misspelledDiscriminatorKey, targetType.DiscriminatorKeysUnionType, targetType.DiscriminatorKey));
                     }
                 }
 
@@ -969,7 +975,7 @@ namespace Bicep.Core.TypeSystem
 
                         // Treat as a warning, regardless of whether a property is a 'SystemProperty'.
                         // We don't want to block compilation if the RP has an incomplete discriminator on the 'name' field.
-                        var shouldWarn = config.IsResourceDeclaration || ShouldWarn(targetType);
+                        var shouldWarn = config.IsResourceDeclaration || ShouldWarnForPropertyMismatch(targetType);
 
                         diagnosticWriter.Write(
                             discriminatorDiagnosticTarget,
@@ -1007,7 +1013,7 @@ namespace Bicep.Core.TypeSystem
 
                 default:
                     {
-                        var shouldWarn = (config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType);
+                        var shouldWarn = (config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarnForPropertyMismatch(targetType);
                         diagnosticWriter.Write(
                             discriminatorDiagnosticTarget,
                             x => x.PropertyTypeMismatch(shouldWarn, TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)));
@@ -1069,7 +1075,7 @@ namespace Bicep.Core.TypeSystem
                         config.OriginSyntax ?? positionable,
                         x => x.MissingRequiredProperties(
                             warnInsteadOfError: (config.IsResourceDeclaration && missingRequiredProperties.All(p => !p.Flags.HasFlag(TypePropertyFlags.SystemProperty))) ||
-                                ShouldWarn(targetType),
+                                ShouldWarnForPropertyMismatch(targetType),
                             TryGetSourceDeclaration(config),
                             expression as ObjectSyntax,
                             missingRequiredProperties.Select(p => p.Name).ToList(),
@@ -1162,7 +1168,7 @@ namespace Bicep.Core.TypeSystem
                 // No diagnostic should be raised if the receiver accepts but discourages additional properties and the assigned value is not an object literal
                 if (targetType.AdditionalPropertiesType is null || (expression is ObjectSyntax && targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)))
                 {
-                    var shouldWarn = targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty) || targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnUnknownProperties);
+                    var shouldWarn = targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty) || ShouldWarnForPropertyMismatch(targetType);
                     var validUnspecifiedProperties = targetType.Properties.Values
                         .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) &&
                             !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty) &&
@@ -1219,7 +1225,7 @@ namespace Bicep.Core.TypeSystem
                             skipTypeErrors: true,
                             disallowAny: targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.DisallowAny),
                             originSyntax: config.OriginSyntax,
-                            onTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType), extraProperty.Key, false),
+                            onTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType.AdditionalPropertiesType.Type), extraProperty.Key, false),
                             isResourceDeclaration: config.IsResourceDeclaration);
 
                         // append "| null" to the type on non-required properties

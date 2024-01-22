@@ -1508,7 +1508,7 @@ namespace Bicep.Core.TypeSystem
                                 return TypeHelper.GetNamedPropertyType(baseObject,
                                     syntax.IndexExpression,
                                     literalIndex.RawStringValue,
-                                    syntax.IsSafeAccess || baseObject.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnUnknownProperties),
+                                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(baseObject),
                                     diagnostics);
                             }
 
@@ -1629,7 +1629,7 @@ namespace Bicep.Core.TypeSystem
             ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType,
                 syntax.PropertyName,
                 syntax.PropertyName.IdentifierName,
-                syntax.IsSafeAccess || objectType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnUnknownProperties),
+                syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
                 diagnostics),
 
             // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type

@@ -154,7 +154,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                     {
                         return new TypedArrayType(GetTypeReference(arrayType.ItemType, false, false),
-                            GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
+                            GetValidationFlags(isResourceBodyType: false, isResourceBodyTopLevelPropertyType: isResourceBodyType));
                     }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:
                     {
@@ -218,7 +218,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
 
             if (!isResourceBodyType)
             {
-                flags |= TypeSymbolValidationFlags.WarnOnUnknownProperties;
+                flags |= TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch;
             }
 
             // strict validation on top-level resource properties, as 'custom' top-level properties are not supported by the platform

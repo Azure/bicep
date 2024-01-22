@@ -32,7 +32,6 @@ namespace Bicep.Core.IntegrationTests.Emit
     public class TemplateEmitterTests
     {
         private static ServiceBuilder Services => new ServiceBuilder()
-            .WithEmptyAzResources()
             .WithEnvironmentVariables(
                 ("stringEnvVariableName", "test"),
                 ("intEnvVariableName", "100"),

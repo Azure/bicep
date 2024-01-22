@@ -31,7 +31,7 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/readWriteTests@2020-01-01");
 
-            var propertiesType = new ObjectType("Properties", TypeSymbolValidationFlags.WarnOnTypeMismatch, new[] {
+            var propertiesType = new ObjectType("Properties", TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch, new[] {
                 new TypeProperty("readwrite", LanguageConstants.String, TypePropertyFlags.None, "This is a property which supports reading AND writing!"),
                 new TypeProperty("readonly", LanguageConstants.String, TypePropertyFlags.ReadOnly, "This is a property which only supports reading."),
                 new TypeProperty("writeonly", LanguageConstants.String, TypePropertyFlags.WriteOnly, "This is a property which only supports writing."),
@@ -49,7 +49,7 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/readOnlyTests@2020-01-01");
 
-            var propertiesType = new ObjectType("Properties", TypeSymbolValidationFlags.WarnOnTypeMismatch, new[] {
+            var propertiesType = new ObjectType("Properties", TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch, new[] {
                 new TypeProperty("readwrite", LanguageConstants.String, TypePropertyFlags.None, "This is a property which supports reading AND writing!"),
                 new TypeProperty("readonly", LanguageConstants.String, TypePropertyFlags.ReadOnly, "This is a property which only supports reading."),
                 new TypeProperty("writeonly", LanguageConstants.String, TypePropertyFlags.WriteOnly, "This is a property which only supports writing."),
@@ -69,7 +69,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             var bodyAProps = new ObjectType(
                 "BodyAProperties",
-                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch,
                 new[] {
                     new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propA!"),
                 },
@@ -77,7 +77,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             var bodyBProps = new ObjectType(
                 "BodyBProperties",
-                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch,
                 new[] {
                     new TypeProperty("propB", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propB!"),
                 },
@@ -107,7 +107,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             var propsA = new ObjectType(
                 "PropertiesA",
-                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch,
                 new[] {
                     new TypeProperty("propType", TypeFactory.CreateStringLiteralType("PropertiesA"), TypePropertyFlags.None, "..."),
                     new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propA!"),
@@ -116,7 +116,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             var propsB = new ObjectType(
                 "PropertiesB",
-                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch,
                 new[] {
                     new TypeProperty("propType", TypeFactory.CreateStringLiteralType("PropertiesB"), TypePropertyFlags.None, "..."),
                     new TypeProperty("propB", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propB!"),
@@ -142,7 +142,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             var bodyAProps = new ObjectType(
                 "BodyAProperties",
-                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch,
                 new[] {
                     new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propA!"),
                 },
@@ -150,7 +150,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             var bodyBProps = new ObjectType(
                 "BodyBProperties",
-                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch,
                 new[] {
                     new TypeProperty("propB", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propB!"),
                 },
@@ -182,7 +182,7 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/fallbackProperties@2020-01-01");
 
-            var propertiesType = new ObjectType("Properties", TypeSymbolValidationFlags.WarnOnTypeMismatch, new[] {
+            var propertiesType = new ObjectType("Properties", TypeSymbolValidationFlags.WarnOnPropertyTypeMismatch, new[] {
                 new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "This is a property which is required."),
             }, null);
 
