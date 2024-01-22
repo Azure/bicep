@@ -86,14 +86,15 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactDeclaration, Uri parentModuleUri)
+        public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactReferenceSyntax, Uri parentModuleUri)
         {
-            if (!SyntaxHelper.TryGetForeignTemplatePath(artifactDeclaration).IsSuccess(out var artifactReferenceString, out var failureBuilder))
+            var config = configurationManager.GetConfiguration(parentModuleUri);
+            if (!artifactReferenceSyntax.ResolveArtifactPath(config).IsSuccess(out var artifactReference, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
-
-            return this.TryGetArtifactReference(artifactDeclaration.GetArtifactType(), artifactReferenceString, parentModuleUri);
+            
+            return this.TryGetArtifactReference(artifactReferenceSyntax.GetArtifactType(), artifactReference, parentModuleUri);
         }
 
         public RegistryCapabilities GetRegistryCapabilities(ArtifactReference artifactReference)

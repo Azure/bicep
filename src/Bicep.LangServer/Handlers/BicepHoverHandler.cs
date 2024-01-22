@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -179,12 +180,11 @@ namespace Bicep.LanguageServer.Handlers
             IArtifactRegistryProvider moduleRegistryProvider,
             ModuleSymbol module)
         {
-            if (!SyntaxHelper.TryGetForeignTemplatePath(module.DeclaringModule).IsSuccess(out var filePath))
+            var filePath = module.DeclaringModule.TryGetPath()?.TryGetLiteralValue() is string modulePath ? modulePath : string.Empty;
+            var descriptionLines = new List<string?>
             {
-                filePath = string.Empty;
-            }
-            var descriptionLines = new List<string?>();
-            descriptionLines.Add(TryGetDescription(result, module));
+                TryGetDescription(result, module)
+            };
 
             var uri = request.TextDocument.Uri.ToUriEncoded();
             var registries = moduleRegistryProvider.Registries(uri);

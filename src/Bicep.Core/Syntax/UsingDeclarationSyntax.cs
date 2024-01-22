@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Linq;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
@@ -27,6 +29,9 @@ namespace Bicep.Core.Syntax
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitUsingDeclarationSyntax(this);
 
         public ArtifactType GetArtifactType() => ArtifactType.Module;
+
+        public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration _)
+            => SyntaxHelper.TryGetForeignTemplatePath(this, x => x.UsingPathHasNotBeenSpecified());
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, this.Path);
 

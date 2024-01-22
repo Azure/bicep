@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
@@ -27,17 +28,19 @@ namespace Bicep.Core.Syntax
         {
             if (parameterSymbol.DeclaringSyntax is ParameterDeclarationSyntax syntax)
             {
-                return SyntaxHelper.TryGetDefaultValue(syntax);
+                return TryGetDefaultValue(syntax);
             }
 
             return null;
         }
 
-        public static ResultWithDiagnostic<string> TryGetForeignTemplatePath(IArtifactReferenceSyntax foreignTemplateReference)
+        public static ResultWithDiagnostic<string> TryGetForeignTemplatePath(
+            IArtifactReferenceSyntax foreignTemplateReference, 
+            DiagnosticBuilder.ErrorBuilderDelegate onUnspecifiedPath)
         {
             if (foreignTemplateReference.Path is not StringSyntax pathSyntax)
             {
-                return new(OnMissingPathSyntaxErrorBuilder(foreignTemplateReference));
+                return new(onUnspecifiedPath);
             }
 
             if (pathSyntax.TryGetLiteralValue() is not string pathValue)
@@ -47,14 +50,7 @@ namespace Bicep.Core.Syntax
 
             return new(pathValue);
         }
-
-        private static DiagnosticBuilder.ErrorBuilderDelegate OnMissingPathSyntaxErrorBuilder(IArtifactReferenceSyntax syntax) => syntax switch
-        {
-            ModuleDeclarationSyntax => x => x.ModulePathHasNotBeenSpecified(),
-            UsingDeclarationSyntax => x => x.UsingPathHasNotBeenSpecified(),
-            _ => x => x.PathHasNotBeenSpecified(),
-        };
-
+        
         public static ResourceScope GetTargetScope(TargetScopeSyntax targetScopeSyntax)
         {
             // TODO: Revisit when adding support for multiple target scopes

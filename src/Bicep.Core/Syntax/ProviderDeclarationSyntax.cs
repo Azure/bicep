@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
@@ -52,5 +54,10 @@ namespace Bicep.Core.Syntax
         public ArtifactType GetArtifactType() => ArtifactType.Provider;
 
         public SyntaxBase? Path => this.Specification.BicepRegistryAddress is { } registryAddress ? SyntaxFactory.CreateStringLiteral(registryAddress) : null;
+
+        public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration config)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
