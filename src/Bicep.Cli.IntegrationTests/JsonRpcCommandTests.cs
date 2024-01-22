@@ -116,6 +116,16 @@ metadata description = 'my file'
 @description('foo param')
 param foo string
 
+param inlineType {
+  sdf: string
+}
+
+param declaredType asdf
+
+type asdf = {
+  foo: string
+}
+
 @description('bar output')
 output bar string = foo
 """,
@@ -130,10 +140,12 @@ output bar string = foo
                     new("description", "my file"),
                 });
                 response.Parameters.Should().Equal(new GetMetadataResponse.SymbolDefinition[] {
-                    new(new(new(2, 0), new(3, 16)), "foo", "foo param"),
+                    new(new(new(2, 0), new(3, 16)), "foo", new(null, "string"), "foo param"),
+                    new(new(new(5, 0), new(7, 1)), "inlineType", new(null, "{ sdf: string }"), null),
+                    new(new(new(9, 0), new(9, 23)), "declaredType", new(new(new(11, 0), new(13, 1)), "asdf"), null),
                 });
                 response.Outputs.Should().Equal(new GetMetadataResponse.SymbolDefinition[] {
-                    new(new(new(5, 0), new(6, 23)), "bar", "bar output"),
+                    new(new(new(15, 0), new(16, 23)), "bar", new(null, "string"), "bar output"),
                 });
             });
     }
@@ -173,6 +185,46 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                 response.Edges.Should().Equal(new GetDeploymentGraphResponse.Edge[] {
                     new("bar", "foo"),
                     new("baz", "bar"),
+                });
+            });
+    }
+
+    [TestMethod]
+    public async Task GetFileReferences_returns_all_referenced_files()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicepparam"] = """
+using 'main.bicep'
+
+param foo = 'foo'
+""",
+            ["/main.bicep"] = """
+param foo string
+
+var test = loadTextContent('invalid.txt')
+var test2 = loadTextContent('valid.txt')
+""",
+            ["/valid.txt"] = """
+hello!
+""",
+            ["/bicepconfig.json"] = """
+{}
+""",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.GetFileReferences(new("/main.bicepparam"), token);
+
+                response.FilePaths.Should().Equal(new[] {
+                    "/bicepconfig.json",
+                    "/invalid.txt",
+                    "/main.bicep",
+                    "/main.bicepparam",
+                    "/valid.txt",
                 });
             });
     }

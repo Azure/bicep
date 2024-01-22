@@ -37,5 +37,8 @@ Allows you to define your own custom functions. See [User-defined functions in B
 ### `publish-provider` CLI Command
 Command that allows the publishing of providers to container registries. For more information, see [Using the Publish Provider Command](./experimental/publish-provider-command.md).
 
+### `jsonrpc` CLI Command
+Command that launches the CLI in a JSONRPC server mode. Useful for invoking the CLI programatically to consume structured output, and to avoid cold-start delays when compiling multiple files. For more information, see [Using the JSONRPC Command](./experimental/jsonrpc-command.md).
+
 ### Deployment Pane
 The Deployment Pane is a UI panel in VSCode that allows you to connect to your Azure subscription and execute validate, deploy & whatif operations and get instant feedback without leaving the editor. For more information, see [Using the Deployment Pane](./experimental/deploy-ui.md).

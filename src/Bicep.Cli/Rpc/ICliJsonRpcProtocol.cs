@@ -38,6 +38,12 @@ public record CompileResponse(
         string Message);
 }
 
+public record GetFileReferencesRequest(
+    string Path);
+
+public record GetFileReferencesResponse(
+    ImmutableArray<string> FilePaths);
+
 public record GetMetadataRequest(
     string Path);
 
@@ -49,7 +55,12 @@ public record GetMetadataResponse(
     public record SymbolDefinition(
         Range Range,
         string Name,
+        TypeDefinition? Type,
         string? Description);
+
+    public record TypeDefinition(
+        Range? Range,
+        string Name);
 
     public record MetadataDefinition(
         string Name,
@@ -88,4 +99,7 @@ public interface ICliJsonRpcProtocol
 
     [JsonRpcMethod("bicep/getDeploymentGraph", UseSingleObjectParameterDeserialization = true)]
     Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken);
+
+    [JsonRpcMethod("bicep/getFileReferences", UseSingleObjectParameterDeserialization = true)]
+    Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken);
 }

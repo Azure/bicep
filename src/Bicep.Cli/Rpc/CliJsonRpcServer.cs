@@ -77,21 +77,68 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         return new(success, diagnostics, success ? writer.ToString() : null);
     }
 
+    public async Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken)
+    {
+        var model = await GetSemanticModel(compiler, request.Path);
+        var diagnostics = GetDiagnostics(model.Compilation).ToImmutableArray();
+
+        var fileUris = new HashSet<Uri>();
+        foreach (var otherModel in model.Compilation.GetAllBicepModels())
+        {
+            fileUris.Add(otherModel.SourceFile.FileUri);
+            fileUris.UnionWith(otherModel.GetAuxiliaryFileReferences());
+            if (otherModel.Configuration.ConfigFileUri is {} configFileUri)
+            {
+                fileUris.Add(configFileUri);
+            }
+        }
+
+        return new(
+            fileUris.Select(x => x.LocalPath).OrderBy(x => x).ToImmutableArray());
+    }
+
     public async Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken)
     {
         var model = await GetSemanticModel(compiler, request.Path);
 
         var metadata = GetModelMetadata(model).ToImmutableArray();
-
-        var parameters = model.Root.ParameterDeclarations
-            .Select(x => new GetMetadataResponse.SymbolDefinition(GetRange(model.SourceFile, x.DeclaringSyntax), x.Name, x.TryGetDescriptionFromDecorator()))
-            .ToImmutableArray();
-
-        var outputs = model.Root.OutputDeclarations
-            .Select(x => new GetMetadataResponse.SymbolDefinition(GetRange(model.SourceFile, x.DeclaringSyntax), x.Name, x.TryGetDescriptionFromDecorator()))
-            .ToImmutableArray();
+        var parameters = model.Root.ParameterDeclarations.Select(x => GetSymbolDefinition(model, x)).ToImmutableArray();
+        var outputs = model.Root.OutputDeclarations.Select(x => GetSymbolDefinition(model, x)).ToImmutableArray();
 
         return new(metadata, parameters, outputs);
+    }
+
+    private static GetMetadataResponse.SymbolDefinition GetSymbolDefinition(SemanticModel model, DeclaredSymbol symbol)
+    {
+        var typeSyntax = symbol switch {
+            ParameterSymbol x => x.DeclaringParameter.Type,
+            OutputSymbol x => x.DeclaringOutput.Type,
+            _ => null,
+        };
+
+        GetMetadataResponse.TypeDefinition? getTypeInfo() {
+            if (typeSyntax is {} && 
+                model.GetSymbolInfo(typeSyntax) is DeclaredSymbol typeSymbol)
+            {
+                return new(
+                    GetRange(model.SourceFile, typeSymbol.DeclaringSyntax),
+                    typeSymbol.Name);
+            }
+
+            if (typeSyntax is {} && 
+                model.GetDeclaredType(symbol.DeclaringSyntax) is {} type)
+            {
+                return new(null, type.Name);
+            }
+
+            return null;
+        }
+
+        return new(
+            GetRange(model.SourceFile, symbol.DeclaringSyntax),
+            symbol.Name,
+            getTypeInfo(),
+            symbol.TryGetDescriptionFromDecorator());
     }
 
     public async Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken)
