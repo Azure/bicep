@@ -1505,7 +1505,11 @@ namespace Bicep.Core.TypeSystem
                             if (indexType is StringLiteralType literalIndex)
                             {
                                 // indexing using a string literal so we know the name of the property
-                                return TypeHelper.GetNamedPropertyType(baseObject, syntax.IndexExpression, literalIndex.RawStringValue, syntax.IsSafeAccess || TypeValidator.ShouldWarn(baseObject), diagnostics);
+                                return TypeHelper.GetNamedPropertyType(baseObject,
+                                    syntax.IndexExpression,
+                                    literalIndex.RawStringValue,
+                                    syntax.IsSafeAccess || baseObject.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnUnknownProperties),
+                                    diagnostics);
                             }
 
                             // the property name is itself an expression
@@ -1622,7 +1626,11 @@ namespace Bicep.Core.TypeSystem
             // there's already a parse error for it, so we don't need to add a type error as well
             ObjectType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
 
-            ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, syntax.IsSafeAccess || TypeValidator.ShouldWarn(objectType), diagnostics),
+            ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType,
+                syntax.PropertyName,
+                syntax.PropertyName.IdentifierName,
+                syntax.IsSafeAccess || objectType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnUnknownProperties),
+                diagnostics),
 
             // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
             DiscriminatedObjectType => LanguageConstants.Any,

@@ -963,10 +963,13 @@ param myParam string
     {
         var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("main.bicep", """
+                @minLength(2)
+                param saName string
+
                 module mod 'mod.json' = {
                     name: 'mod'
                     params: {
-                        saName: 'ab'
+                        saName: saName
                         connectionParameterType: 'sting'
                         ipRuleAction: 'Deny'
                     }
@@ -1004,7 +1007,7 @@ param myParam string
         result.Should().NotHaveAnyCompilationBlockingDiagnostics();
         result.Should().HaveDiagnostics(new[]
         {
-            ("BCP333", DiagnosticLevel.Warning, "The provided value (whose length will always be less than or equal to 2) is too short to assign to a target for which the minimum allowable length is 3."),
+            ("BCP334", DiagnosticLevel.Warning, "The provided value can have a length as small as 2 and may be too short to assign to a target with a configured minimum length of 3."),
             ("BCP088", DiagnosticLevel.Warning, """The property "connectionParameterType" expected a value of type "'array' | 'bool' | 'connection' | 'int' | 'oauthSetting' | 'object' | 'secureobject' | 'securestring' | 'string'" but the provided value is of type "'sting'". Did you mean "'string'"?"""),
             ("BCP036", DiagnosticLevel.Warning, """The property "ipRuleAction" expected a value of type "'Allow'" but the provided value is of type "'Deny'"."""),
         });

@@ -1162,7 +1162,7 @@ namespace Bicep.Core.TypeSystem
                 // No diagnostic should be raised if the receiver accepts but discourages additional properties and the assigned value is not an object literal
                 if (targetType.AdditionalPropertiesType is null || (expression is ObjectSyntax && targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)))
                 {
-                    var shouldWarn = targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty) || ShouldWarn(targetType);
+                    var shouldWarn = targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty) || targetType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.WarnOnUnknownProperties);
                     var validUnspecifiedProperties = targetType.Properties.Values
                         .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) &&
                             !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty) &&

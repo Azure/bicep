@@ -54,5 +54,10 @@ namespace Bicep.Core.TypeSystem
         /// Indicates that this type will be a string that contains a fully qualified resource type (e.g., 'Microsoft.Resource/deployments@2022-09-01').
         /// </summary>
         IsResourceTypeIdentifier = 1 << 7,
+
+        /// <summary>
+        /// Display warning diagnostics instead of errors if an unknown property is accessed or supplied.
+        /// </summary>
+        WarnOnUnknownProperties = 1 << 8,
     }
 }
