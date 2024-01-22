@@ -50,13 +50,13 @@ jobs:
         run: dotnet build --configuration release
 
       - name: Publish Bicep
-        run: dotnet publish --configuration release --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
+        run: dotnet publish --configuration release --self-contained true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Upload Bicep
         uses: actions/upload-artifact@v3
         with:
           name: bicep-release-${{ matrix.rid }}
-          path: ./src/Bicep.Cli/bin/release/net7.0/${{ matrix.rid }}/publish/*
+          path: ./src/Bicep.Cli/bin/release/net8.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
 
       - name: Upload Bicep project assets file
@@ -110,7 +110,7 @@ jobs:
       - name: Publish Language Server
         run: |
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
-          cp -R src/Bicep.LangServer/bin/release/net7.0/publish ./src/vscode-bicep/bicepLanguageServer
+          cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
 
       - name: npm ci
         run: npm ci
@@ -170,7 +170,7 @@ jobs:
       - name: Publish Language Server
         run: |
           dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
-          cp -R src/Bicep.LangServer/bin/release/net7.0/publish ./src/vscode-bicep/bicepLanguageServer
+          cp -R src/Bicep.LangServer/bin/release/net8.0/publish ./src/vscode-bicep/bicepLanguageServer
 
       - name: npm ci
         run: npm ci
@@ -318,7 +318,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bicep-setup-win-x64
-          path: ./src/installer-win/bin/release/net7.0/bicep-setup-win-x64.exe
+          path: ./src/installer-win/bin/release/net8.0/bicep-setup-win-x64.exe
           if-no-files-found: error
 
   build-cli-nugets:

@@ -51,7 +51,7 @@ public class JsonRpcCommandTests : TestBase
                 }
                 finally
                 {
-                    cts.Cancel();
+                    await cts.CancelAsync();
                 }
             }, cts.Token));
     }

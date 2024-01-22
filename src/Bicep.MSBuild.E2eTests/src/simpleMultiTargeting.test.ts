@@ -11,9 +11,9 @@ describe("msbuild", () => {
     const buildResult = example.build();
     expect(buildResult.stderr).toBe("");
 
-    example.expectTemplate("bin/Debug/net7.0/empty.json");
-    example.expectTemplate("bin/Debug/net7.0/passthrough.json");
-    example.expectTemplate("bin/Debug/net7.0/theAnswer.json");
+    example.expectTemplate("bin/Debug/net8.0/empty.json");
+    example.expectTemplate("bin/Debug/net8.0/passthrough.json");
+    example.expectTemplate("bin/Debug/net8.0/theAnswer.json");
 
     example.expectTemplate("bin/Debug/net472/empty.json");
     example.expectTemplate("bin/Debug/net472/passthrough.json");
@@ -22,9 +22,9 @@ describe("msbuild", () => {
     const cleanResult = example.clean();
     expect(cleanResult.stderr).toBe("");
 
-    example.expectNoFile("bin/Debug/net7.0/empty.json");
-    example.expectNoFile("bin/Debug/net7.0/passthrough.json");
-    example.expectNoFile("bin/Debug/net7.0/theAnswer.json");
+    example.expectNoFile("bin/Debug/net8.0/empty.json");
+    example.expectNoFile("bin/Debug/net8.0/passthrough.json");
+    example.expectNoFile("bin/Debug/net8.0/theAnswer.json");
 
     example.expectNoFile("bin/Debug/net472/empty.json");
     example.expectNoFile("bin/Debug/net472/passthrough.json");
@@ -33,9 +33,9 @@ describe("msbuild", () => {
     const publishResult = example.publish("net472");
     expect(publishResult.stderr).toBe("");
 
-    example.expectNoFile("bin/Debug/net7.0/publish/empty.json");
-    example.expectNoFile("bin/Debug/net7.0/publish/passthrough.json");
-    example.expectNoFile("bin/Debug/net7.0/publish/theAnswer.json");
+    example.expectNoFile("bin/Debug/net8.0/publish/empty.json");
+    example.expectNoFile("bin/Debug/net8.0/publish/passthrough.json");
+    example.expectNoFile("bin/Debug/net8.0/publish/theAnswer.json");
 
     example.expectTemplate("bin/Debug/net472/publish/empty.json");
     example.expectTemplate("bin/Debug/net472/publish/passthrough.json");
