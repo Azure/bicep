@@ -77,6 +77,26 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         return new(success, diagnostics, success ? writer.ToString() : null);
     }
 
+    public async Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken)
+    {
+        var model = await GetSemanticModel(compiler, request.Path);
+        var diagnostics = GetDiagnostics(model.Compilation).ToImmutableArray();
+
+        var fileUris = new HashSet<Uri>();
+        foreach (var otherModel in model.Compilation.GetAllBicepModels())
+        {
+            fileUris.Add(otherModel.SourceFile.FileUri);
+            fileUris.UnionWith(otherModel.GetAuxiliaryFileReferences());
+            if (otherModel.Configuration.ConfigFileUri is {} configFileUri)
+            {
+                fileUris.Add(configFileUri);
+            }
+        }
+
+        return new(
+            fileUris.Select(x => x.LocalPath).OrderBy(x => x).ToImmutableArray());
+    }
+
     public async Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken)
     {
         var model = await GetSemanticModel(compiler, request.Path);

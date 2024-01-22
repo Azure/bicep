@@ -9,7 +9,8 @@
 
 import { MessageConnection } from "vscode-jsonrpc";
 import { pathToExampleFile, writeTempFile } from "./utils/fs";
-import { compileRequestType, getDeploymentGraphRequestType, getMetadataRequestType, openConnection, versionRequestType } from "./utils/jsonrpc";
+import { compileRequestType, getDeploymentGraphRequestType, getFileReferencesRequestType, getMetadataRequestType, openConnection, versionRequestType } from "./utils/jsonrpc";
+import path from "path";
 
 let connection: MessageConnection;
 beforeAll(async () => (connection = await openConnection()));
@@ -87,6 +88,38 @@ describe("bicep jsonrpc", () => {
     expect(result.parameters.filter(x => x.name === 'foo')[0].description).toEqual('foo param');
     expect(result.outputs.filter(x => x.name === 'bar')[0].description).toEqual('bar output');
   });
+
+  it("should return file references for a bicep file", async () => {
+    const bicepParamPath = writeTempFile("jsonrpc", "main.bicepparam", `
+using 'main.bicep'
+
+param foo = 'foo'
+`);
+    writeTempFile("jsonrpc", "main.bicep", `
+param foo string
+
+var test = loadTextContent('invalid.txt')
+var test2 = loadTextContent('valid.txt')
+`);
+    writeTempFile("jsonrpc", "valid.txt", `
+hello!
+`);
+    writeTempFile("jsonrpc", "bicepconfig.json", `
+{}
+`);
+
+    const result = await getFileReferences(
+      connection,
+      bicepParamPath); 
+
+    expect(result.filePaths).toEqual([
+      path.join(bicepParamPath, '../bicepconfig.json'),
+      path.join(bicepParamPath, '../invalid.txt'),
+      path.join(bicepParamPath, '../main.bicep'),
+      path.join(bicepParamPath, '../main.bicepparam'),
+      path.join(bicepParamPath, '../valid.txt'),
+    ]);
+  });
 });
 
 async function version(connection: MessageConnection) {
@@ -107,6 +140,12 @@ async function getMetadata(connection: MessageConnection, bicepFile: string) {
 
 async function getDeploymentGraph(connection: MessageConnection, bicepFile: string) {
   return await connection.sendRequest(getDeploymentGraphRequestType, {
+    path: bicepFile,
+  });
+}
+
+async function getFileReferences(connection: MessageConnection, bicepFile: string) {
+  return await connection.sendRequest(getFileReferencesRequestType, {
     path: bicepFile,
   });
 }

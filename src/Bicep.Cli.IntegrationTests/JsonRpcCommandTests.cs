@@ -188,4 +188,44 @@ resource baz 'My.Rp/foo@2020-01-01' = {
                 });
             });
     }
+
+    [TestMethod]
+    public async Task GetFileReferences_returns_all_referenced_files()
+    {
+        var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+        {
+            ["/main.bicepparam"] = """
+using 'main.bicep'
+
+param foo = 'foo'
+""",
+            ["/main.bicep"] = """
+param foo string
+
+var test = loadTextContent('invalid.txt')
+var test2 = loadTextContent('valid.txt')
+""",
+            ["/valid.txt"] = """
+hello!
+""",
+            ["/bicepconfig.json"] = """
+{}
+""",
+        });
+
+        await RunServerTest(
+            services => services.WithFileSystem(fileSystem),
+            async (client, token) =>
+            {
+                var response = await client.GetFileReferences(new("/main.bicepparam"), token);
+
+                response.FilePaths.Should().Equal(new[] {
+                    "/bicepconfig.json",
+                    "/invalid.txt",
+                    "/main.bicep",
+                    "/main.bicepparam",
+                    "/valid.txt",
+                });
+            });
+    }
 }

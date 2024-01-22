@@ -98,7 +98,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
 
-        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
+        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, Uri? configFileUri = null)
         {
             var configurationData = new Dictionary<string, object>
             {
@@ -128,7 +128,7 @@ namespace Bicep.Core.UnitTests
                 element = element.SetPropertyByPath(path, value);
             }
 
-            return RootConfiguration.Bind(element, configurationPath);
+            return RootConfiguration.Bind(element, configFileUri);
         }
 
         public static ConfigurationManager CreateFilesystemConfigurationManager() => new(new IOFileSystem());

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
@@ -43,15 +44,15 @@ namespace Bicep.Core.Configuration
 
     public partial class ModuleAliasesConfiguration : ConfigurationSection<ModuleAliases>
     {
-        private readonly string? configurationPath;
+        private readonly Uri? configFileUri;
 
-        private ModuleAliasesConfiguration(ModuleAliases data, string? configurationPath)
+        private ModuleAliasesConfiguration(ModuleAliases data, Uri? configFileUri)
             : base(data)
         {
-            this.configurationPath = configurationPath;
+            this.configFileUri = configFileUri;
         }
 
-        public static ModuleAliasesConfiguration Bind(JsonElement element, string? configurationPath) => new(element.ToNonNullObject<ModuleAliases>(), configurationPath);
+        public static ModuleAliasesConfiguration Bind(JsonElement element, Uri? configFileUri) => new(element.ToNonNullObject<ModuleAliases>(), configFileUri);
 
         public ImmutableSortedDictionary<string, OciArtifactModuleAlias> GetOciArtifactModuleAliases()
         {
@@ -72,17 +73,17 @@ namespace Bicep.Core.Configuration
 
             if (!this.Data.TemplateSpecModuleAliases.TryGetValue(aliasName, out var alias))
             {
-                return new(x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, this.configurationPath));
+                return new(x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, configFileUri));
             }
 
             if (alias.Subscription is null)
             {
-                return new(x => x.InvalidTemplateSpecAliasSubscriptionNullOrUndefined(aliasName, this.configurationPath));
+                return new(x => x.InvalidTemplateSpecAliasSubscriptionNullOrUndefined(aliasName, configFileUri));
             }
 
             if (alias.ResourceGroup is null)
             {
-                return new(x => x.InvalidTemplateSpecAliasResourceGroupNullOrUndefined(aliasName, this.configurationPath));
+                return new(x => x.InvalidTemplateSpecAliasResourceGroupNullOrUndefined(aliasName, configFileUri));
             }
 
             return new(alias);
@@ -97,12 +98,12 @@ namespace Bicep.Core.Configuration
 
             if (!this.Data.OciArtifactModuleAliases.TryGetValue(aliasName, out var alias))
             {
-                return new(x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, this.configurationPath));
+                return new(x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, configFileUri));
             }
 
             if (alias.Registry is null)
             {
-                return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, this.configurationPath));
+                return new(x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, configFileUri));
             }
 
             return new(alias);

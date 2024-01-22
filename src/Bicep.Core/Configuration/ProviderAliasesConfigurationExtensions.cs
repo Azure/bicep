@@ -25,7 +25,7 @@ public static class ProviderAliasesConfigurationExtensions
             rootConfiguration.CacheRootDirectory,
             rootConfiguration.ExperimentalFeaturesEnabled,
             rootConfiguration.Formatting,
-            rootConfiguration.ConfigurationPath,
+            rootConfiguration.ConfigFileUri,
             rootConfiguration.DiagnosticBuilders);
     }
 }

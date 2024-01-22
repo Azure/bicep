@@ -104,7 +104,7 @@ namespace Bicep.Core.Configuration
                     configuration.CacheRootDirectory,
                     configuration.ExperimentalFeaturesEnabled,
                     configuration.Formatting,
-                    configuration.ConfigurationPath,
+                    configuration.ConfigFileUri,
                     diagnostics);
             }
 
@@ -120,7 +120,7 @@ namespace Bicep.Core.Configuration
                 using var stream = fileSystem.FileStream.New(configurationUri.LocalPath, FileMode.Open, FileAccess.Read);
                 var element = IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElementFromStream(stream));
 
-                return (RootConfiguration.Bind(element, configurationUri.LocalPath), null);
+                return (RootConfiguration.Bind(element, configurationUri), null);
             }
             catch (ConfigurationException exception)
             {

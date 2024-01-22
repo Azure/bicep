@@ -39,6 +39,14 @@ interface GetDeploymentGraphResponseEdge {
   target: string;
 }
 
+interface GetFileReferencesRequest {
+  path: string;
+}
+
+interface GetFileReferencesResponse {
+  filePaths: string[];
+}
+
 interface Position {
   line: number;
   char: number;
@@ -116,6 +124,12 @@ export const getDeploymentGraphRequestType = new RequestType<
   GetDeploymentGraphResponse,
   never
 >("bicep/getDeploymentGraph");
+
+export const getFileReferencesRequestType = new RequestType<
+  GetFileReferencesRequest,
+  GetFileReferencesResponse,
+  never
+>("bicep/getFileReferences");
 
 function generateRandomPipeName(): string {
   const randomSuffix = randomBytes(21).toString("hex");
