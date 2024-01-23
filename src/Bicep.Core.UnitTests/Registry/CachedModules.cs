@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceCode;
 using FluentAssertions;
@@ -85,14 +86,14 @@ public record CachedModule(
 
     public bool HasSourceLayer => LayerMediaTypes.Contains("application/vnd.ms.bicep.module.source.v1.tar+gzip");
 
-    public SourceArchive? TryGetSource()
+    public ResultWithException<SourceArchive> TryGetSource()
     {
         var sourceArchivePath = Path.Combine(ModuleCacheFolder, $"source.tar.gz");
         if (File.Exists(sourceArchivePath))
         {
-            return SourceArchive.FromStream(File.OpenRead(sourceArchivePath));
+            return SourceArchive.UnpackFromStream(File.OpenRead(sourceArchivePath));
         }
 
-        return null;
+        return new(new SourceNotAvailableException());
     }
 }

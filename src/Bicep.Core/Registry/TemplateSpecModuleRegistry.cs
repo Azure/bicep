@@ -14,6 +14,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
@@ -59,10 +60,10 @@ namespace Bicep.Core.Registry
         public override bool IsArtifactRestoreRequired(TemplateSpecModuleReference reference) =>
             !this.FileResolver.FileExists(this.GetModuleEntryPointUri(reference));
 
-        public override Task PublishModule(TemplateSpecModuleReference reference, Stream compiled, Stream? bicepSources, string? documentationUri, string? description)
+        public override Task PublishModule(TemplateSpecModuleReference reference, BinaryData compiled, BinaryData? bicepSources, string? documentationUri, string? description)
             => throw new NotSupportedException("Template Spec modules cannot be published.");
 
-        public override Task PublishProvider(TemplateSpecModuleReference reference, Stream typesTgz)
+        public override Task PublishProvider(TemplateSpecModuleReference reference, BinaryData typesTgz)
             => throw new NotSupportedException("Template Spec providers cannot be published.");
 
         public override Task<bool> CheckArtifactExists(TemplateSpecModuleReference reference) => throw new NotSupportedException("Template Spec modules cannot be published.");
@@ -153,9 +154,9 @@ namespace Bicep.Core.Registry
             return Task.FromResult<string?>(null);
         }
 
-        public override SourceArchive? TryGetSource(TemplateSpecModuleReference reference)
+        public override ResultWithException<SourceArchive> TryGetSource(TemplateSpecModuleReference reference)
         {
-            return null;
+            return new(new SourceNotAvailableException());
         }
     }
 }

@@ -70,8 +70,8 @@ namespace Bicep.Core.Diagnostics
                 ? $"The Template Spec reference \"{referenceValue}\" after resolving alias \"{aliasName}\" is not valid."
                 : $"The specified Template Spec reference \"{referenceValue}\" is not valid.";
 
-            private static string BuildBicepConfigurationClause(string? configurationPath) => configurationPath is not null
-                ? $"Bicep configuration \"{configurationPath}\""
+            private static string BuildBicepConfigurationClause(Uri? configFileUri) => configFileUri is not null
+                ? $"Bicep configuration \"{configFileUri.LocalPath}\""
                 : $"built-in Bicep configuration";
 
             public ErrorDiagnostic UnrecognizedToken(string token) => new(
@@ -1274,30 +1274,30 @@ namespace Bicep.Core.Diagnostics
                 "BCP211",
                 $"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public ErrorDiagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, string? configurationPath) => new(
+            public ErrorDiagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => new(
                 TextSpan,
                 "BCP212",
-                $"The Template Spec module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}.");
+                $"The Template Spec module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
-            public ErrorDiagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, string? configurationPath) => new(
+            public ErrorDiagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => new(
                 TextSpan,
                 "BCP213",
-                $"The OCI artifact module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}.");
+                $"The OCI artifact module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
-            public ErrorDiagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, string? configurationPath) => new(
+            public ErrorDiagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, Uri? configFileUri) => new(
                 TextSpan,
                 "BCP214",
-                $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configurationPath)} is in valid. The \"subscription\" property cannot be null or undefined.");
+                $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is in valid. The \"subscription\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, string? configurationPath) => new(
+            public ErrorDiagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, Uri? configFileUri) => new(
                 TextSpan,
                 "BCP215",
-                $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configurationPath)} is in valid. The \"resourceGroup\" property cannot be null or undefined.");
+                $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is in valid. The \"resourceGroup\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, string? configurationPath) => new(
+            public ErrorDiagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => new(
                 TextSpan,
                 "BCP216",
-                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configurationPath)} is invalid. The \"registry\" property cannot be null or undefined.");
+                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
             public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidSubscirptionId(string? aliasName, string subscriptionId, string referenceValue) => new(
                 TextSpan,
@@ -2059,15 +2059,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP377",
                 $"The provider alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public ErrorDiagnostic InvalidOciArtifactProviderAliasRegistryNullOrUndefined(string aliasName, string? configurationPath) => new(
+            public ErrorDiagnostic InvalidOciArtifactProviderAliasRegistryNullOrUndefined(string aliasName, Uri? configFileUri) => new(
                 TextSpan,
                 "BCP378",
-                $"The OCI artifact provider alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configurationPath)} is invalid. The \"registry\" property cannot be null or undefined.");
+                $"The OCI artifact provider alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configFileUri)} is invalid. The \"registry\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic OciArtifactProviderAliasNameDoesNotExistInConfiguration(string aliasName, string? configurationPath) => new(
+            public ErrorDiagnostic OciArtifactProviderAliasNameDoesNotExistInConfiguration(string aliasName, Uri? configFileUri) => new(
                 TextSpan,
                 "BCP379",
-                $"The OCI artifact provider alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}.");
+                $"The OCI artifact provider alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configFileUri)}.");
 
             public ErrorDiagnostic UnsupportedArtifactType(ArtifactType artifactType) => new(
                 TextSpan,

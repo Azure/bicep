@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Emit;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -34,13 +35,6 @@ namespace Bicep.Cli.Services
     {
         public static TestResults Run(ImmutableArray<TestSymbol> testDeclarations)
         {
-            var templateOutputBuffer = new StringBuilder();
-            using var textWriter = new StringWriter();
-
-            return EvaluateTemplates(testDeclarations, textWriter);
-        }
-        private static TestResults EvaluateTemplates(ImmutableArray<TestSymbol> testDeclarations, StringWriter textWriter)
-        {
             var testResults = ImmutableArray.CreateBuilder<TestResult>(); ;
             foreach (var testDeclaration in testDeclarations)
             {
@@ -48,7 +42,7 @@ namespace Bicep.Cli.Services
                     semanticModel is SemanticModel testSemanticModel)
                 {
                     var parameters = TryGetParameters(testSemanticModel, testDeclaration);
-                    var template = GetTemplate(testSemanticModel, testDeclaration);
+                    var template = GetTemplate(testSemanticModel);
 
                     var evaluation = TemplateEvaluator.Evaluate(template, parameters);
                     var testResult = new TestResult(testDeclaration, evaluation);
@@ -63,10 +57,10 @@ namespace Bicep.Cli.Services
 
         }
 
-        private static JToken GetTemplate(SemanticModel model, TestSymbol test)
+        private static JToken GetTemplate(SemanticModel model)
         {
             var textWriter = new StringWriter();
-            using var writer = new SourceAwareJsonTextWriter(model.FileResolver, textWriter)
+            using var writer = new SourceAwareJsonTextWriter(textWriter)
             {
                 // don't close the textWriter when writer is disposed
                 CloseOutput = false,
@@ -83,7 +77,7 @@ namespace Bicep.Cli.Services
                 body.TryGetPropertyByName("params") is { } paramsProperty)
             {
                 var textWriter = new StringWriter();
-                using var writer = new PositionTrackingJsonTextWriter(model.FileResolver, textWriter)
+                using var writer = new PositionTrackingJsonTextWriter(textWriter)
                 {
                     // don't close the textWriter when writer is disposed
                     CloseOutput = false,

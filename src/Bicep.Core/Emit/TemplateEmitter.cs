@@ -111,13 +111,12 @@ public class TemplateEmitter
     /// <param name="textWriter">The text writer to write the template</param>
     public EmitResult Emit(TextWriter textWriter) => EmitOrFail(() =>
     {
-        var fileResolver = compilation.GetEntrypointSemanticModel().FileResolver;
         var sourceFileToTrack = model switch
         {
             SemanticModel bicepModel when bicepModel.Features.SourceMappingEnabled => bicepModel.SourceFile,
             _ => null,
         };
-        using var writer = new SourceAwareJsonTextWriter(fileResolver, textWriter, sourceFileToTrack)
+        using var writer = new SourceAwareJsonTextWriter(textWriter, sourceFileToTrack)
         {
             // don't close the textWriter when writer is disposed
             CloseOutput = false,

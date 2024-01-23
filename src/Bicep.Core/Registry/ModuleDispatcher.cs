@@ -16,6 +16,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
@@ -183,7 +184,7 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public async Task PublishModule(ArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri)
+        public async Task PublishModule(ArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri)
         {
             var registry = this.GetRegistry(reference);
 
@@ -191,7 +192,7 @@ namespace Bicep.Core.Registry
             await registry.PublishModule(reference, compiledArmTemplate, bicepSources, documentationUri, description);
         }
 
-        public async Task PublishProvider(ArtifactReference reference, Stream typesTgz)
+        public async Task PublishProvider(ArtifactReference reference, BinaryData typesTgz)
         {
             var registry = this.GetRegistry(reference);
 
@@ -228,7 +229,7 @@ namespace Bicep.Core.Registry
         private IArtifactRegistry GetRegistry(ArtifactReference reference) =>
             Registries(reference.ParentModuleUri).TryGetValue(reference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected artifactDeclaration reference scheme '{reference.Scheme}'.");
 
-        public SourceArchive? TryGetModuleSources(ArtifactReference reference)
+        public ResultWithException<SourceArchive> TryGetModuleSources(ArtifactReference reference)
         {
             var registry = this.GetRegistry(reference);
             return registry.TryGetSource(reference);

@@ -26,7 +26,7 @@ public class RootConfigurationTests
                 cacheRootDirectory,
                 BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesEnabled,
                 BicepTestConstants.BuiltInConfiguration.Formatting,
-                BicepTestConstants.BuiltInConfiguration.ConfigurationPath,
+                BicepTestConstants.BuiltInConfiguration.ConfigFileUri,
                 BicepTestConstants.BuiltInConfiguration.DiagnosticBuilders);
 
         configuration.CacheRootDirectory.Should().Be(expectedExpandedDirectory);

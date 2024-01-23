@@ -45,21 +45,24 @@ namespace Bicep.Cli.IntegrationTests
             ClientFactory: Repository.Create<IContainerRegistryClientFactory>().Object,
             TemplateSpecRepositoryFactory: Repository.Create<ITemplateSpecRepositoryFactory>().Object);
 
-        protected static Task<CliResult> Bicep(InvocationSettings settings, params string?[] args /*null args are ignored*/)
+        protected static Task<CliResult> Bicep(Action<IServiceCollection> registerAction, CancellationToken cancellationToken, params string[] args)
             => TextWriterHelper.InvokeWriterAction((@out, err)
-                => new Program(new(Output: @out, Error: err), services
-                    => {
-                        if (settings.FeatureOverrides is {})
-                        {
-                            services.WithFeatureOverrides(settings.FeatureOverrides);
-                        }
+                => new Program(new(Output: @out, Error: err), registerAction)
+                    .RunAsync(args, cancellationToken));
 
-                        services
-                            .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
-                            .AddSingleton(settings.ClientFactory)
-                            .AddSingleton(settings.TemplateSpecRepositoryFactory);
-                    })
-                    .RunAsync(args.ToArrayExcludingNull(), CancellationToken.None));
+        protected static Task<CliResult> Bicep(InvocationSettings settings, params string?[] args /*null args are ignored*/)
+            => Bicep(services =>
+                {
+                    if (settings.FeatureOverrides is { })
+                    {
+                        services.WithFeatureOverrides(settings.FeatureOverrides);
+                    }
+
+                    services
+                        .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
+                        .AddSingleton(settings.ClientFactory)
+                        .AddSingleton(settings.TemplateSpecRepositoryFactory);
+                }, CancellationToken.None, args.ToArrayExcludingNull());
 
         protected static void AssertNoErrors(string error)
         {

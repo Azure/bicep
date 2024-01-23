@@ -50,12 +50,7 @@ namespace Bicep.Core.Semantics
             IArtifactReferenceSyntax reference,
             ISemanticModelLookup semanticModelLookup)
         {
-            if (!TryGetSourceFile(sourceFileLookup, reference).IsSuccess(out var sourceFile, out var error))
-            {
-                return new(error);
-            }
-
-            return new(semanticModelLookup.GetSemanticModel(sourceFile));
+            return TryGetSourceFile(sourceFileLookup, reference).Transform(semanticModelLookup.GetSemanticModel);
         }
 
         public static Result<ISemanticModel, ErrorDiagnostic> TryGetTemplateModelForArtifactReference(IArtifactFileLookup sourceFileLookup,

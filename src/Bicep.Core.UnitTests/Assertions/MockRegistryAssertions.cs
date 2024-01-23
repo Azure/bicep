@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -33,22 +34,22 @@ namespace Bicep.Core.UnitTests.Assertions
 
         protected override string Identifier => nameof(MockRegistryBlobClient);
 
-        public AndConstraint<MockRegistryAssertions> HaveModuleWithSource(string tag, Stream expectedModuleContent, Stream? expectedSourceContent = null)
+        public AndConstraint<MockRegistryAssertions> HaveModuleWithSource(string tag, BinaryData expectedModuleContent, BinaryData? expectedSourceContent = null)
         {
             return this.HaveModuleCore(tag, expectedModuleContent, validateSource: true, expectingToHaveSource: true, expectedSourceContent: expectedSourceContent);
         }
 
-        public AndConstraint<MockRegistryAssertions> HaveModuleWithNoSource(string tag, Stream expectedModuleContent)
+        public AndConstraint<MockRegistryAssertions> HaveModuleWithNoSource(string tag, BinaryData expectedModuleContent)
         {
             return this.HaveModuleCore(tag, expectedModuleContent, validateSource: true, expectingToHaveSource: false, expectedSourceContent: null);
         }
 
-        public AndConstraint<MockRegistryAssertions> HaveModule(string tag, Stream expectedModuleContent)
+        public AndConstraint<MockRegistryAssertions> HaveModule(string tag, BinaryData expectedModuleContent)
         {
             return this.HaveModuleCore(tag, expectedModuleContent, validateSource: false, expectingToHaveSource: false, expectedSourceContent: null);
         }
 
-        private AndConstraint<MockRegistryAssertions> HaveModuleCore(string tag, Stream expectedModuleContent, bool validateSource, bool expectingToHaveSource, Stream? expectedSourceContent)
+        private AndConstraint<MockRegistryAssertions> HaveModuleCore(string tag, BinaryData expectedModuleContent, bool validateSource, bool expectingToHaveSource, BinaryData? expectedSourceContent)
         {
             using (new AssertionScope())
             {
@@ -74,7 +75,7 @@ namespace Bicep.Core.UnitTests.Assertions
                     var configBytes = this.Subject.Blobs[config.Digest];
                     config.Size.Should().Be(configBytes.ToArray().Length, "Config size field should match config size");
                     JsonElement? configJson = null;
-                    var convertToJson = () => configJson = JsonElementFactory.CreateElement(configBytes.Text);
+                    var convertToJson = () => configJson = JsonElementFactory.CreateElement(configBytes.ToString());
                     convertToJson.Should().NotThrow("Config should be a valid JSON object");
                     configJson!.Value.ValueKind.Should().Be(JsonValueKind.Object, "Config should be a JSON object");
                 }
@@ -89,11 +90,10 @@ namespace Bicep.Core.UnitTests.Assertions
                     this.Subject.Blobs.Should().ContainKey(layer1.Digest, "layer blob should exist");
 
                     var layerBytes = this.Subject.Blobs[layer1.Digest];
-                    ((long)layerBytes.Bytes.Length).Should().Be(layer1.Size, "layer blob should match size");
+                    ((long)layerBytes.ToArray().Length).Should().Be(layer1.Size, "layer blob should match size");
 
                     var actualMainJsonStream = layerBytes.ToStream().FromJsonStream<JToken>();
-                    expectedModuleContent.Position = 0;
-                    var expectedMainJsonStream = expectedModuleContent.FromJsonStream<JToken>();
+                    var expectedMainJsonStream = expectedModuleContent.ToStream().FromJsonStream<JToken>();
                     expectedMainJsonStream.Should().NotBeNull();
 
                     actualMainJsonStream.Should().DeepEqual(expectedMainJsonStream, "module content should match");
@@ -111,17 +111,13 @@ namespace Bicep.Core.UnitTests.Assertions
                                 layer2.MediaType.Should().Be("application/vnd.ms.bicep.module.source.v1.tar+gzip", "source layer media type should be correct");
                                 this.Subject.Blobs.Should().ContainKey(layer2.Digest, "source layer blob should exist");
 
-                                var layer2Bytes = this.Subject.Blobs[layer2.Digest].Bytes.ToArray();
+                                var layer2Bytes = this.Subject.Blobs[layer2.Digest].ToArray();
                                 ((long)layer2Bytes.Length).Should().Be(layer2.Size, "source ayer blob should match size");
 
                                 if (expectedSourceContent is { })
                                 {
                                     var actualSourcesBytes = layer2Bytes!;
-                                    expectedSourceContent!.Position = 0;
-                                    byte[] expectedSourceBytes = new byte[expectedSourceContent.Length];
-                                    expectedSourceContent.Read(expectedSourceBytes, 0, expectedSourceBytes.Length);
-
-                                    actualSourcesBytes.Should().Equal(expectedSourceBytes, "module sources should match");
+                                    actualSourcesBytes.Should().Equal(expectedSourceContent.ToArray(), "module sources should match");
                                 }
                             }
                         }
@@ -154,7 +150,7 @@ namespace Bicep.Core.UnitTests.Assertions
             var configBytes = this.Subject.Blobs[config.Digest];
             config.Size.Should().Be(configBytes.ToArray().Length, "Config size field should match config size");
             JsonElement? configJson = null;
-            var convertToJson = () => configJson = JsonElementFactory.CreateElement(configBytes.Text);
+            var convertToJson = () => configJson = JsonElementFactory.CreateElement(configBytes.ToString());
             convertToJson.Should().NotThrow("Config should be a valid JSON object");
             configJson!.Value.ValueKind.Should().Be(JsonValueKind.Object, "Config should be a JSON object");
 
@@ -167,13 +163,13 @@ namespace Bicep.Core.UnitTests.Assertions
             this.Subject.Blobs.Should().ContainKey(tgzLayer.Digest, "layer blob should exist");
 
             var layerBytes = this.Subject.Blobs[tgzLayer.Digest];
-            ((long)layerBytes.Bytes.Length).Should().Be(tgzLayer.Size, "layer blob should match size");
+            ((long)layerBytes.ToArray().Length).Should().Be(tgzLayer.Size, "layer blob should match size");
 
             tgzStream = layerBytes.ToStream();
             return new(this);
         }
 
-        public AndConstraint<MockRegistryAssertions> OnlyHaveModule(string tag, Stream expectedMainJsonContent)
+        public AndConstraint<MockRegistryAssertions> OnlyHaveModule(string tag, BinaryData expectedMainJsonContent)
         {
             using (new AssertionScope())
             {
@@ -191,7 +187,7 @@ namespace Bicep.Core.UnitTests.Assertions
             return new(this);
         }
 
-        public AndConstraint<MockRegistryAssertions> OnlyHaveReachableModule(string tag, Stream expectedMainJsonContent)
+        public AndConstraint<MockRegistryAssertions> OnlyHaveReachableModule(string tag, BinaryData expectedMainJsonContent)
         {
             using (new AssertionScope())
             {

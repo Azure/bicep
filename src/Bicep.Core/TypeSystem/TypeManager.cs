@@ -18,13 +18,13 @@ namespace Bicep.Core.TypeSystem
         private readonly TypeAssignmentVisitor typeAssignmentVisitor;
         private readonly DeclaredTypeManager declaredTypeManager;
 
-        public TypeManager(IFeatureProvider features, IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup semanticModelLookup)
+        public TypeManager(SemanticModel model, IBinder binder)
         {
             // bindings will be modified by name binding after this object is created
             // so we can't make an immutable copy here
             // (using the IReadOnlyDictionary to prevent accidental mutation)
-            this.typeAssignmentVisitor = new TypeAssignmentVisitor(this, features, binder, environment, fileResolver, parsingErrorLookup, sourceFileLookup, semanticModelLookup);
-            this.declaredTypeManager = new DeclaredTypeManager(this, binder, features);
+            this.typeAssignmentVisitor = new(this, model);
+            this.declaredTypeManager = new(this, binder, model.Features);
         }
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)

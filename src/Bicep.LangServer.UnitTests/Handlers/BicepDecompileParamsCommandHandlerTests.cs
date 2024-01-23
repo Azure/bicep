@@ -54,7 +54,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
   }
 }";
             var expectedOutput =
-@"using './main.bicep'
+@"using 'main.bicep'
 
 param foo = 'bar'";
 

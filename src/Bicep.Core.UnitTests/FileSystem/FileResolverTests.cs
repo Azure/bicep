@@ -74,50 +74,27 @@ namespace Bicep.Core.UnitTests.FileSystem
         }
 
         [TestMethod]
-        public void TryReadWithLimit_should_return_expected_results()
-        {
-            var fileResolver = GetFileResolver();
-            var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
-            var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
-
-            File.WriteAllText(tempFile, "abcd\r\ndef");
-
-            fileResolver.TryRead(tempFileUri, Encoding.UTF8, 6).IsSuccess(out var result, out var failureMessage).Should().BeFalse();
-            result.Should().BeNull();
-            failureMessage.Should().NotBeNull();
-            Core.Diagnostics.DiagnosticBuilder.DiagnosticBuilderInternal diag = new(new Core.Parsing.TextSpan(0, 5));
-            var err = failureMessage!.Invoke(diag);
-            err.Message.Should().Contain($"6 characters");
-
-            File.Delete(tempFile);
-
-            fileResolver.TryRead(tempFileUri, Encoding.UTF8, 6).IsSuccess(out result, out failureMessage).Should().BeFalse();
-            result.Should().BeNull();
-            failureMessage.Should().NotBeNull();
-        }
-
-        [TestMethod]
-        public void TryReadAsBase64_should_return_expected_results()
+        public void TryReadAsBinaryData_should_return_expected_results()
         {
             var fileResolver = GetFileResolver();
             var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
             var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
 
             File.WriteAllText(tempFile, "abcd\r\ndef\r\n\r\nghi");
-            fileResolver.TryReadAsBase64(tempFileUri).IsSuccess(out var fileContents, out var failureMessage).Should().BeTrue();
-            fileContents.Should().Be("YWJjZA0KZGVmDQoNCmdoaQ==");
+            fileResolver.TryReadAsBinaryData(tempFileUri).IsSuccess(out var fileContents, out var failureMessage).Should().BeTrue();
+            Convert.ToBase64String(fileContents, Base64FormattingOptions.None).Should().Be("YWJjZA0KZGVmDQoNCmdoaQ==");
             failureMessage.Should().BeNull();
 
-            fileResolver.TryReadAsBase64(tempFileUri, 8).IsSuccess(out fileContents, out failureMessage).Should().BeFalse();
+            fileResolver.TryReadAsBinaryData(tempFileUri, 6).IsSuccess(out fileContents, out failureMessage).Should().BeFalse();
             fileContents.Should().BeNull();
             failureMessage.Should().NotBeNull();
             Core.Diagnostics.DiagnosticBuilder.DiagnosticBuilderInternal diag = new(new Core.Parsing.TextSpan(0, 5));
             var err = failureMessage!.Invoke(diag);
-            err.Message.Should().Contain($"{8 / 4 * 3} bytes");
+            err.Message.Should().Contain($"6 bytes");
 
             File.Delete(tempFile);
 
-            fileResolver.TryReadAsBase64(tempFileUri).IsSuccess(out fileContents, out failureMessage).Should().BeFalse();
+            fileResolver.TryReadAsBinaryData(tempFileUri).IsSuccess(out fileContents, out failureMessage).Should().BeFalse();
             fileContents.Should().BeNull();
             failureMessage.Should().NotBeNull();
         }

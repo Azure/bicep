@@ -26,13 +26,12 @@ namespace Bicep.Core.Emit
         /// <summary>
         /// Creates a JsonTextWriter that is capable of generating a source map for the compiled JSON
         /// </summary>
-        /// <param name="fileResolver"></param>
         /// <param name="textWriter"></param>
         /// <param name="sourceFileToTrack">If set to default, source mapping is disabled</param>
-        public SourceAwareJsonTextWriter(IFileResolver fileResolver, TextWriter textWriter, BicepSourceFile? sourceFileToTrack = default) : base(textWriter)
+        public SourceAwareJsonTextWriter(TextWriter textWriter, BicepSourceFile? sourceFileToTrack = default) : base(textWriter)
         {
             this.sourceFile = sourceFileToTrack;
-            this.TrackingJsonWriter = new PositionTrackingJsonTextWriter(fileResolver, new StringWriter(), this.sourceFile);
+            this.TrackingJsonWriter = new PositionTrackingJsonTextWriter(new StringWriter(), this.sourceFile);
         }
 
         public void ProcessSourceMap(JToken templateWithHash)

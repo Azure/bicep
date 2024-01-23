@@ -8,14 +8,21 @@
  */
 
 import { MessageConnection } from "vscode-jsonrpc";
-import { pathToExampleFile } from "./utils/fs";
-import { compileRequestType, openConnection, validateRequestType } from "./utils/jsonrpc";
+import { pathToExampleFile, writeTempFile } from "./utils/fs";
+import { compileRequestType, getDeploymentGraphRequestType, getFileReferencesRequestType, getMetadataRequestType, openConnection, versionRequestType } from "./utils/jsonrpc";
+import path from "path";
 
 let connection: MessageConnection;
 beforeAll(async () => (connection = await openConnection()));
 afterAll(() => connection.dispose());
 
 describe("bicep jsonrpc", () => {
+  it("should return a version number", async () => {
+    const result = await version(connection);
+
+    expect(result.version).toMatch(/^\d+\.\d+\.\d+/);
+  });
+
   it("should build a bicep file", async () => {
     const result = await compile(
       connection,
@@ -24,6 +31,29 @@ describe("bicep jsonrpc", () => {
 
     expect(result.success).toBeTruthy();
     expect(result.contents?.length).toBeGreaterThan(0);
+  });
+
+  it("should return a deployment graph", async () => {
+    const bicepPath = writeTempFile("jsonrpc", "metadata.bicep", `
+    resource foo 'My.Rp/foo@2020-01-01' = {
+      name: 'foo'
+    }
+    
+    resource bar 'My.Rp/foo@2020-01-01' existing = {
+      name: 'bar'
+      dependsOn: [foo]
+    }
+    
+    resource baz 'My.Rp/foo@2020-01-01' = {
+      name: 'baz'
+      dependsOn: [bar]
+    }
+    `);
+
+    const result = await getDeploymentGraph(connection, bicepPath);
+
+    expect(result.nodes).toHaveLength(3);
+    expect(result.edges).toHaveLength(2);
   });
 
   it("should return diagnostics if the bicep file has errors", async () => {
@@ -39,18 +69,62 @@ describe("bicep jsonrpc", () => {
     expect(error.message).toBe('The name "osDiskSizeGb" does not exist in the current context.');
   });
 
-  // preflight doesn't work in this test suite as it requires authentication. Change xit -> it to test locally.
-  xit("should validate a bicepparam file", async () => {
-    const result = await validate(
-      connection,
-      pathToExampleFile("bicepparam", "main.bicepparam"),
-    );
+  it("should return metadata for a bicep file", async () => {
+    const bicepPath = writeTempFile("jsonrpc", "metadata.bicep", `
+    metadata description = 'my file'
 
-    expect(result.error!.code).toBe("InvalidTemplateDeployment");
-    expect(result.error!.details![0].code).toBe("PreflightValidationCheckFailed");
-    expect(result.error!.details![0].details![0].code).toBe("AccountNameInvalid");
-  }, 60000);
+    @description('foo param')
+    param foo string
+    
+    @description('bar output')
+    output bar string = foo
+    `);
+
+    const result = await getMetadata(
+      connection,
+      bicepPath);
+
+    expect(result.metadata.filter(x => x.name === 'description')[0].value).toEqual('my file');
+    expect(result.parameters.filter(x => x.name === 'foo')[0].description).toEqual('foo param');
+    expect(result.outputs.filter(x => x.name === 'bar')[0].description).toEqual('bar output');
+  });
+
+  it("should return file references for a bicep file", async () => {
+    const bicepParamPath = writeTempFile("jsonrpc", "main.bicepparam", `
+using 'main.bicep'
+
+param foo = 'foo'
+`);
+    writeTempFile("jsonrpc", "main.bicep", `
+param foo string
+
+var test = loadTextContent('invalid.txt')
+var test2 = loadTextContent('valid.txt')
+`);
+    writeTempFile("jsonrpc", "valid.txt", `
+hello!
+`);
+    writeTempFile("jsonrpc", "bicepconfig.json", `
+{}
+`);
+
+    const result = await getFileReferences(
+      connection,
+      bicepParamPath); 
+
+    expect(result.filePaths).toEqual([
+      path.join(bicepParamPath, '../bicepconfig.json'),
+      path.join(bicepParamPath, '../invalid.txt'),
+      path.join(bicepParamPath, '../main.bicep'),
+      path.join(bicepParamPath, '../main.bicepparam'),
+      path.join(bicepParamPath, '../valid.txt'),
+    ]);
+  });
 });
+
+async function version(connection: MessageConnection) {
+  return await connection.sendRequest(versionRequestType, {});
+}
 
 async function compile(connection: MessageConnection, bicepFile: string) {
   return await connection.sendRequest(compileRequestType, {
@@ -58,10 +132,20 @@ async function compile(connection: MessageConnection, bicepFile: string) {
   });
 }
 
-async function validate(connection: MessageConnection, bicepparamFile: string) {
-  return await connection.sendRequest(validateRequestType, {
-    subscriptionId: 'a1bfa635-f2bf-42f1-86b5-848c674fc321',
-    resourceGroup: 'ant-test',
-    path: bicepparamFile,
+async function getMetadata(connection: MessageConnection, bicepFile: string) {
+  return await connection.sendRequest(getMetadataRequestType, {
+    path: bicepFile,
+  });
+}
+
+async function getDeploymentGraph(connection: MessageConnection, bicepFile: string) {
+  return await connection.sendRequest(getDeploymentGraphRequestType, {
+    path: bicepFile,
+  });
+}
+
+async function getFileReferences(connection: MessageConnection, bicepFile: string) {
+  return await connection.sendRequest(getFileReferencesRequestType, {
+    path: bicepFile,
   });
 }

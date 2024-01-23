@@ -45,6 +45,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDeploymentGraphHandler>()
                     .WithHandler<GetDeploymentDataHandler>()
                     .WithHandler<BicepReferencesHandler>()
+                    .WithHandler<BicepDocumentLinkHandler>()
                     .WithHandler<BicepDocumentHighlightHandler>()
                     .WithHandler<BicepDocumentFormattingHandler>()
                     .WithHandler<BicepRenameHandler>()
@@ -107,30 +108,7 @@ namespace Bicep.LanguageServer
         {
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
-            services
-                .AddBicepCore()
-                .AddBicepDecompiler()
-                .AddBicepparamDecompiler()
-                .AddSingleton<IWorkspace, Workspace>()
-                .AddSingleton<ISnippetsProvider, SnippetsProvider>()
-                .AddSingleton<ITelemetryProvider, TelemetryProvider>()
-                .AddSingleton<ICompilationManager, BicepCompilationManager>()
-                .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
-                .AddSingleton<ISymbolResolver, BicepSymbolResolver>()
-                .AddSingleton<ICompletionProvider, BicepCompletionProvider>()
-                .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>()
-                .AddSingleton<IAzResourceProvider, AzResourceProvider>()
-                .AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>()
-                .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
-                .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
-                .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
-                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
-                .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
-                .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-                .AddSingleton<IArmClientProvider, ArmClientProvider>()
-                .AddSingleton<IDeploymentHelper, DeploymentHelper>()
-                .AddSingleton<ISettingsProvider, SettingsProvider>()
-                .AddSingleton<IAzureContainerRegistriesProvider, AzureContainerRegistriesProvider>();
+            services.AddServerDependencies();
 
             services
                 .AddHttpClient<IPublicRegistryModuleMetadataProvider, PublicRegistryModuleMetadataProvider>()

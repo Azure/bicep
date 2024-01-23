@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.Core.Configuration
 {
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<ManagedIdentityType>))]
     public enum ManagedIdentityType
     {
         SystemAssigned,

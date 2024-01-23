@@ -96,10 +96,11 @@ namespace Bicep.Core.UnitTests.FileSystem
             PathHelper.GetDefaultDecompileOutputPath(path).Should().Be(expectedPath);
         }
 
-        [DataRow("file:///path/to/source.txt", "file:///path/to/target.exe", "./target.exe")]
+        [DataRow("file:///path/to/source.txt", "file:///path/to/target.exe", "target.exe")]
         [DataRow("file:///path/to/source.txt", "file:///path/target.exe", "../target.exe")]
-        [DataRow("file:///path/source.txt", "file:///path/to/target.exe", "./to/target.exe")]
-        [DataRow("inmemory:///path/source.txt", "inmemory:///path/to/target.exe", "./to/target.exe")]
+        [DataRow("file:///path/source.txt", "file:///path/to/target.exe", "to/target.exe")]
+        [DataRow("inmemory:///path/source.txt", "inmemory:///path/to/target.exe", "to/target.exe")]
+        [DataRow("file:///samefile.txt", "file:///samefile.txt", "samefile.txt")]
         [TestMethod]
         public void GetRelativePath_should_return_expected_output(string source, string target, string expected)
         {

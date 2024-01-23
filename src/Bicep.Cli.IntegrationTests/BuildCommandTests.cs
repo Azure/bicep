@@ -27,6 +27,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json.Linq;
+using RegistryUtils = Bicep.Core.UnitTests.Utils.ContainerRegistryClientFactoryExtensions;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -120,17 +121,15 @@ namespace Bicep.Cli.IntegrationTests
         {
             // SETUP
             // 1. create a mock registry client
-            var builder = new TestContainerRegistryClientFactoryBuilder();
-            foreach (var registryHost in new[] {
-                LanguageConstants.BicepPublicMcrRegistry,
-                "contoso.azurecr.io",
-                "invalid.azureacr.io" })
-            {
-                builder.RegisterMockRepositoryBlobClient(new Uri($"https://{registryHost}"), "bicep/providers/az");
-            }
+            var hosts = new[] {
+                    LanguageConstants.BicepPublicMcrRegistry,
+                    "contoso.azurecr.io",
+                    "invalid.azureacr.io"
+            };
+            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(hosts.Select(host => (host, "bicep/providers/az")).ToArray());
+
 
             // 2. upload a manifest and its blob layer
-            var (clientFactory, blobClients) = builder.Build();
             foreach (var ((uri, _), client) in blobClients)
             {
                 if (uri.Host.Contains("invalid")) { continue; }

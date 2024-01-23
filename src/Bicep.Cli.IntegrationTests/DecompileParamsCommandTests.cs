@@ -96,7 +96,7 @@ param fourth = {
   }
 }";
             var expectedOutput =
-@"using './dir/main.bicep'
+@"using 'dir/main.bicep'
 
 param foo = 'bar'";
 

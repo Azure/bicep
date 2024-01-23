@@ -36,31 +36,36 @@ namespace Bicep.Core.Semantics.Namespaces
             ArmTemplateProviderName: "AzureResourceManager",
             ArmTemplateProviderVersion: new Version(EmbeddedAzProviderVersion).ToString(3));
 
+        private delegate bool VisibilityDelegate(ResourceScope scope, BicepSourceFileKind sourceFileKind);
+        private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
+
+        private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetAzOverloads().ToImmutableArray();
+
         private static FunctionOverload.ResultBuilderDelegate AddDiagnosticsAndReturnResult(TypeSymbol returnType, DiagnosticBuilder.DiagnosticBuilderDelegate writeDiagnostic)
         {
-            return (_, _, _, diagnostics, functionCall, argumentTypes) =>
+            return (_, diagnostics, functionCall, argumentTypes) =>
             {
                 diagnostics.Write(functionCall.Name, writeDiagnostic);
                 return new(returnType);
             };
         }
 
-        private static FunctionResult GetRestrictedResourceGroupReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetRestrictedResourceGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
                 new ResourceGroupScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
                 new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
-        private static FunctionResult GetRestrictedSubscriptionReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetRestrictedSubscriptionReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
                 new SubscriptionScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
                 new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
-        private static FunctionResult GetRestrictedManagementGroupReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetRestrictedManagementGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
                 new ManagementGroupScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
                 new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
 
-        private static FunctionResult GetTenantReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetTenantReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(new TenantScopeType(functionCall.Arguments, new[]
             {
                 new TypeProperty("tenantId", LanguageConstants.String),
@@ -69,7 +74,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("displayName", LanguageConstants.String),
             }));
 
-        private static FunctionResult GetManagementGroupReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetManagementGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var summary = new ObjectType("summaryProperties", TypeSymbolValidationFlags.Default, new[]
             {
@@ -102,7 +107,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }));
         }
 
-        private static FunctionResult GetResourceGroupReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetResourceGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             var properties = new ObjectType("properties", TypeSymbolValidationFlags.Default, new[]
             {
@@ -121,7 +126,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }));
         }
 
-        private static FunctionResult GetSubscriptionReturnResult(IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult GetSubscriptionReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             return new(new SubscriptionScopeType(functionCall.Arguments, new[]
             {
@@ -188,7 +193,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }, null);
         }
 
-        private static ObjectType GetDeploymentReturnType(ResourceScope targetScope)
+        private static ObjectType GetDeploymentReturnType(bool resourceGroupScope)
         {
             // Note: there are other properties which could be included here, but they allow you to break out of the bicep world.
             // We're going to omit them and only include what is truly necessary. If we get feature requests to expose more properties, we should discuss this further.
@@ -211,7 +216,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 }, null)),
             };
 
-            if (!targetScope.HasFlag(ResourceScope.ResourceGroup))
+            if (!resourceGroupScope)
             {
                 // deployments in the 'resourcegroup' scope do not have the 'location' property. All other scopes do.
                 var locationProperty = new TypeProperty("location", LanguageConstants.String);
@@ -295,16 +300,30 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
+
+            yield return (
+                new FunctionOverloadBuilder("deployment")
+                    .WithReturnType(GetDeploymentReturnType(resourceGroupScope: true))
+                    .WithGenericDescription("Returns information about the current deployment operation.")
+                    .Build(),
+                ResourceScope.ResourceGroup);
+
+            yield return (
+                new FunctionOverloadBuilder("deployment")
+                    .WithReturnType(GetDeploymentReturnType(resourceGroupScope: false))
+                    .WithGenericDescription("Returns information about the current deployment operation.")
+                    .Build(),
+                ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription);
         }
 
-        private static IEnumerable<FunctionOverload> GetAzOverloads(ResourceScope resourceScope, BicepSourceFileKind sourceFileKind)
+        private static IEnumerable<NamespaceValue<FunctionOverload>> GetAzOverloads()
         {
-            if (sourceFileKind == BicepSourceFileKind.ParamsFile)
+            static IEnumerable<FunctionOverload> GetParamsFilePermittedOverloads()
             {
                 yield return new FunctionOverloadBuilder(GetSecretFunctionName)
                     .WithReturnType(LanguageConstants.SecureString)
                     .WithGenericDescription("Retrieve a value from an Azure Key Vault at the start of a deployment. All arguments must be compile-time constants.")
-                    .WithReturnResultBuilder((_, _, _, _, func, argumentTypes) =>
+                    .WithReturnResultBuilder((_, _, func, argumentTypes) =>
                     {
                         if ((argumentTypes[0] as StringLiteralType)?.RawStringValue is not { } subscriptionId)
                         {
@@ -344,25 +363,9 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.DirectAssignment)
                     .Build();
             }
-            else
+
+            static IEnumerable<FunctionOverload> GetBicepFilePermittedOverloads()
             {
-                foreach (var (functionOverload, allowedScopes) in GetScopeFunctions())
-                {
-                    // we only include it if it's valid at all of the scopes that the template is valid at
-                    if (resourceScope == (resourceScope & allowedScopes))
-                    {
-                        yield return functionOverload;
-                    }
-
-                    // TODO: add banned function to explain why a given function isn't available
-                }
-
-                // TODO: Add schema for return type
-                yield return new FunctionOverloadBuilder("deployment")
-                    .WithReturnType(GetDeploymentReturnType(resourceScope))
-                    .WithGenericDescription("Returns information about the current deployment operation.")
-                    .Build();
-
                 yield return new FunctionOverloadBuilder("environment")
                     .WithReturnType(GetEnvironmentReturnType())
                     .WithGenericDescription("Returns information about the Azure environment used for deployment.")
@@ -500,9 +503,25 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.RequiresInlining)
                     .Build();
             }
+
+            foreach (var overload in GetBicepFilePermittedOverloads())
+            {
+                yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
+            }
+
+            foreach (var overload in GetParamsFilePermittedOverloads())
+            {
+                yield return new(overload, (_, sfk) => sfk == BicepSourceFileKind.ParamsFile);
+            }
+
+            foreach (var (overload, allowedScopes) in GetScopeFunctions())
+            {
+                // we only include it if it's valid at all of the scopes that the template is valid at
+                yield return new(overload, (scope, sfk) => sfk == BicepSourceFileKind.BicepFile && scope == (scope & allowedScopes));
+            }
         }
 
-        public static NamespaceType Create(string aliasName, ResourceScope resourceScope, IResourceTypeProvider resourceTypeProvider, BicepSourceFileKind bicepSourceFileKind)
+        public static NamespaceType Create(string aliasName, ResourceScope scope, IResourceTypeProvider resourceTypeProvider, BicepSourceFileKind sourceFileKind)
         {
             return new NamespaceType(
                 aliasName,
@@ -513,7 +532,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     ArmTemplateProviderName: "AzureResourceManager",
                     ArmTemplateProviderVersion: resourceTypeProvider.Version),
                 ImmutableArray<TypeProperty>.Empty,
-                GetAzOverloads(resourceScope, bicepSourceFileKind),
+                Overloads.Where(x => x.IsVisible(scope, sourceFileKind)).Select(x => x.Value),
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,
                 resourceTypeProvider);

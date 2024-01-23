@@ -35,7 +35,8 @@ namespace Bicep.LanguageServer.Configuration
         public void RefreshCompilationOfSourceFilesInWorkspace()
         {
             configurationManager.PurgeCache();
-            compilationManager.RefreshAllActiveCompilations();
+            // We shouldn't need to reload auxiliary files if a configuration file has changed.
+            compilationManager.RefreshAllActiveCompilations(forceReloadAuxiliaryFiles: false);
         }
 
         public void HandleBicepConfigOpenEvent(DocumentUri documentUri)

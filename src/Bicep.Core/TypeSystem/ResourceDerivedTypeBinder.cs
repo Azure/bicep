@@ -127,7 +127,7 @@ public class ResourceDerivedTypeBinder
             if (currentlyBinding.Contains(unboundItemType))
             {
                 boundItemTypes.Add(new DeferredTypeReference(() => boundTypes[unboundItemType]));
-                hasChanges = hasChanges || ContainsUnboundTypes(unboundItemType);;
+                hasChanges = hasChanges || ContainsUnboundTypes(unboundItemType); ;
             }
             else
             {
@@ -228,7 +228,7 @@ public class ResourceDerivedTypeBinder
             if (currentlyBinding.Contains(unboundMemberType))
             {
                 boundMembers.Add(new DeferredTypeReference(() => boundTypes[unboundMemberType]));
-                hasChanges = hasChanges || ContainsUnboundTypes(unboundMemberType);;
+                hasChanges = hasChanges || ContainsUnboundTypes(unboundMemberType); ;
             }
             else
             {

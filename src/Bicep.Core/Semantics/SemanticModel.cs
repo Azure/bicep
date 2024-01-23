@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -45,17 +46,17 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
+        private readonly ConcurrentDictionary<Uri, ResultWithDiagnostic<AuxiliaryFile>> auxiliaryFileCache = new();
 
-        public SemanticModel(Compilation compilation, BicepSourceFile sourceFile, IEnvironment environment, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer, RootConfiguration configuration, IFeatureProvider features)
+        public SemanticModel(Compilation compilation, BicepSourceFile sourceFile)
         {
-            TraceBuildOperation(sourceFile, configuration);
-
             this.Compilation = compilation;
             this.SourceFile = sourceFile;
-            this.Configuration = configuration;
-            this.Features = features;
-            this.Environment = environment;
-            this.FileResolver = fileResolver;
+            this.Configuration = compilation.ConfigurationManager.GetConfiguration(sourceFile.FileUri);
+            this.Features = compilation.FeatureProviderFactory.GetFeatureProvider(sourceFile.FileUri);
+            this.Environment = compilation.Environment;
+
+            TraceBuildOperation(sourceFile, Features, Configuration);
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
@@ -66,9 +67,9 @@ namespace Bicep.Core.Semantics
             // This allows the binder to create the right kind of symbol for compile-time imports.
             var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(compilation, sourceFile);
             this.SymbolContext = symbolContext;
-            this.Binder = new Binder(compilation.NamespaceProvider, features, compilation.SourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext, compilation.ArtifactReferenceFactory);
-            this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
-            this.TypeManager = new TypeManager(features, Binder, environment, fileResolver, this.ParsingErrorLookup, Compilation.SourceFileGrouping, Compilation);
+            this.Binder = new Binder(compilation.NamespaceProvider, Features, compilation.SourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext, compilation.ArtifactReferenceFactory);
+            this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(Features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
+            this.TypeManager = new TypeManager(this, this.Binder);
 
             // name binding is done
             // allow type queries now
@@ -86,7 +87,7 @@ namespace Bicep.Core.Semantics
             this.resourceAncestorsLazy = new(() => ResourceAncestorGraph.Compute(this));
             this.ResourceMetadata = new ResourceMetadataCache(this);
 
-            LinterAnalyzer = linterAnalyzer;
+            LinterAnalyzer = compilation.LinterAnalyzer;
 
             this.allResourcesLazy = new(GetAllResourceMetadata);
             this.declaredResourcesLazy = new(() => this.AllResources.OfType<DeclaredResourceMetadata>().ToImmutableArray());
@@ -149,6 +150,15 @@ namespace Bicep.Core.Semantics
             });
         }
 
+        public ResultWithDiagnostic<AuxiliaryFile> ReadAuxiliaryFile(Uri uri)
+            => auxiliaryFileCache.GetOrAdd(uri, Compilation.FileCache.Read);
+
+        public IEnumerable<Uri> GetAuxiliaryFileReferences()
+            => auxiliaryFileCache.Keys;
+
+        public bool HasAuxiliaryFileReference(Uri uri)
+            => auxiliaryFileCache.ContainsKey(uri);
+
         private IEnumerable<ExportMetadata> FindExportedTypes() => Root.TypeDeclarations
             .Where(t => IsExported(t.DeclaringType))
             .Select(t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType)));
@@ -167,50 +177,20 @@ namespace Bicep.Core.Semantics
         private bool IsExported(DecorableSyntax syntax)
             => SemanticModelHelper.TryGetDecoratorInNamespace(this, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is not null;
 
-        private static void TraceBuildOperation(BicepSourceFile sourceFile, RootConfiguration configuration)
+        private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, RootConfiguration configuration)
         {
-            static IEnumerable<string> getExperimentalFeatures(RootConfiguration configuration)
-            {
-                var features = configuration.ExperimentalFeaturesEnabled;
-
-                if (features.SymbolicNameCodegen)
-                {
-                    yield return nameof(features.SymbolicNameCodegen);
-                }
-                if (features.Extensibility)
-                {
-                    yield return nameof(features.Extensibility);
-                }
-                if (features.ResourceTypedParamsAndOutputs)
-                {
-                    yield return nameof(features.ResourceTypedParamsAndOutputs);
-                }
-                if (features.SourceMapping)
-                {
-                    yield return nameof(features.SourceMapping);
-                }
-                if (features.PrettyPrinting)
-                {
-                    yield return nameof(features.PrettyPrinting);
-                }
-                if (features.TestFramework)
-                {
-                    yield return nameof(features.TestFramework);
-                }
-            }
-
             var sb = new StringBuilder();
 
             sb.Append($"Building semantic model for {sourceFile.FileUri} ({sourceFile.FileKind}). ");
-            var experimentalFeatures = getExperimentalFeatures(configuration).ToImmutableArray();
+            var experimentalFeatures = features.EnabledFeatureMetadata.Select(x => x.name).ToArray();
             if (experimentalFeatures.Any())
             {
                 sb.Append($"Experimental features enabled: {string.Join(',', experimentalFeatures)}. ");
             }
 
-            if (configuration.ConfigurationPath is { } configPath)
+            if (configuration.ConfigFileUri is { } configFileUri)
             {
-                sb.Append($"Using bicepConfig from path {configPath}.");
+                sb.Append($"Using bicepConfig from {configFileUri}.");
             }
             else
             {
@@ -239,8 +219,6 @@ namespace Bicep.Core.Semantics
         public Compilation Compilation { get; }
 
         public ITypeManager TypeManager { get; }
-
-        public IFileResolver FileResolver { get; }
 
         public EmitterSettings EmitterSettings => emitterSettingsLazy.Value;
 

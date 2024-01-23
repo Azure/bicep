@@ -178,7 +178,7 @@ namespace Bicep.Core.IntegrationTests
                 .WithContainerRegistryClientFactory(clientFactory)
                 .WithTemplateSpecRepositoryFactory(templateSpecRepositoryFactory)
                 .Build();
-                
+
             var dispatcher = services.Construct<IModuleDispatcher>();
 
             var moduleReferences = dataSet.RegistryModules.Values
@@ -194,7 +194,7 @@ namespace Bicep.Core.IntegrationTests
                 dispatcher.GetArtifactRestoreStatus(moduleReference, out _).Should().Be(ArtifactRestoreStatus.Unknown);
             }
 
-            const int ConcurrentTasks = 25;
+            const int ConcurrentTasks = 10;
             var tasks = new List<Task<bool>>();
             for (int i = 0; i < ConcurrentTasks; i++)
             {

@@ -41,9 +41,17 @@ namespace Bicep.LanguageServer.Handlers
         // This should be undefined to request the compiled JSON file (can't use "main.json" because there
         //   might actually be a source file called "main.json" in the original module sources, and that would
         //   be different from the compiled JSON file).
-        public string? RequestedFile { get; init; }
+        private string? requestedFile;
+        public string? RequestedFile
+        {
+            get => this.requestedFile;
+            set
+            {
+                this.requestedFile = string.IsNullOrWhiteSpace(value) ? null : value;
+            }
+        }
 
-        public bool IsRequestingCompiledJson => string.IsNullOrWhiteSpace(RequestedFile);
+        public bool IsRequestingCompiledJson => RequestedFile is null;
 
         public ExternalSourceReference(DocumentUri uri)
         : this(uri.Path, uri.Query, uri.Fragment) { }
@@ -77,12 +85,12 @@ namespace Bicep.LanguageServer.Handlers
             return new ExternalSourceReference(Components, requestedSourceFile); // recalculate title
         }
 
-        public ExternalSourceReference(OciArtifactReference moduleReference, SourceArchive? sourceArchive)
+        public ExternalSourceReference(OciArtifactReference moduleReference, SourceArchive? sourceArchive, bool defaultToDisplayingBicep = true)
         {
             Debug.Assert(moduleReference.Type == ArtifactType.Module && moduleReference.Scheme == OciArtifactReferenceFacts.Scheme, "Expecting a module reference, not a provider reference");
             Components = moduleReference.AddressComponents;
 
-            if (sourceArchive is { })
+            if (sourceArchive is { } && defaultToDisplayingBicep)
             {
                 // We have Bicep source code available
                 RequestedFile = sourceArchive.EntrypointRelativePath;

@@ -98,7 +98,6 @@ namespace Bicep.Core.Emit
             return GenerateTemplateWithoutHash(writer.TrackingJsonWriter);
         }
 
-
         private (Template, JToken) GenerateTemplateWithoutHash(PositionTrackingJsonTextWriter jsonWriter)
         {
             var emitter = new ExpressionEmitter(jsonWriter, this.Context);
@@ -1242,7 +1241,7 @@ namespace Bicep.Core.Emit
                         var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel);
                         var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
                         var moduleTextWriter = new StringWriter();
-                        var moduleJsonWriter = new SourceAwareJsonTextWriter(this.Context.SemanticModel.FileResolver, moduleTextWriter, moduleBicepFile);
+                        var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
 
                         moduleWriter.Write(moduleJsonWriter);
                         jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);

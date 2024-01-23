@@ -11,17 +11,17 @@ describe("msbuild", () => {
     const buildResult = example.build();
     expect(buildResult.stderr).toBe("");
 
-    example.expectFile("bin/Debug/net7.0/csharp.dll");
-    const templateRelativePath = "bin/Debug/net7.0/empty.json";
+    example.expectFile("bin/Debug/net8.0/csharp.dll");
+    const templateRelativePath = "bin/Debug/net8.0/empty.json";
     example.expectTemplate(templateRelativePath);
 
-    const templateRelativePath2 = "bin/Debug/net7.0/empty2.json";
+    const templateRelativePath2 = "bin/Debug/net8.0/empty2.json";
     example.expectTemplate(templateRelativePath2);
 
-    const skipFileRelativePath = "bin/Debug/net7.0/skip.json";
+    const skipFileRelativePath = "bin/Debug/net8.0/skip.json";
     example.expectNoFile(skipFileRelativePath);
 
-    const skipFileRelativePath2 = "bin/Debug/net7.0/skip2.json";
+    const skipFileRelativePath2 = "bin/Debug/net8.0/skip2.json";
     example.expectNoFile(skipFileRelativePath2);
 
     const cleanResult = example.clean();
@@ -37,11 +37,11 @@ describe("msbuild", () => {
     expect(buildResult.stderr).toBe("");
 
     // both build and publish outputs should be present
-    example.expectTemplate(templateRelativePath);
-    example.expectTemplate(templateRelativePath2);
-    example.expectTemplate("bin/Debug/net7.0/publish/empty.json");
-    example.expectTemplate("bin/Debug/net7.0/publish/empty2.json");
-    example.expectNoFile("bin/Debug/net7.0/publish/skip.json");
-    example.expectNoFile("bin/Debug/net7.0/publish/skip2.json");
+    example.expectTemplate("bin/Release/net8.0/empty.json");
+    example.expectTemplate("bin/Release/net8.0/empty2.json");
+    example.expectTemplate("bin/Release/net8.0/publish/empty.json");
+    example.expectTemplate("bin/Release/net8.0/publish/empty2.json");
+    example.expectNoFile("bin/Release/net8.0/publish/skip.json");
+    example.expectNoFile("bin/Release/net8.0/publish/skip2.json");
   });
 });

@@ -5573,6 +5573,33 @@ var functionExport = testFunction(json.experimentalFeaturesEnabled.userDefinedFu
         });
     }
 
+    // https://github.com/Azure/bicep/issues/12657
+    [TestMethod]
+    public void Test_Issue12657()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param foo = loadJsonContent('foo.json')
+"""),
+            ("main.bicep", """
+param foo {
+  bar: string
+}
+"""),
+            ("foo.json", """
+{
+  "wrongName": "blah"
+}
+"""));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP035", DiagnosticLevel.Error, """The specified "param" declaration is missing the following required properties: "bar"."""),
+        });
+    }
+
     // https://github.com/Azure/bicep/issues/12908
     [TestMethod]
     public void Test_Issue12908()

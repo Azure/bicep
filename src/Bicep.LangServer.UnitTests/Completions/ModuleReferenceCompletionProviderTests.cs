@@ -834,7 +834,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 yield return "testacr3.azurecr.io";
 
                 // Cancel at source
-                cts.Cancel();
+                await cts.CancelAsync();
 
                 await Task.Delay(1);
                 ct.ThrowIfCancellationRequested();

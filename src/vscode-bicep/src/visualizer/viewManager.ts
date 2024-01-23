@@ -29,6 +29,9 @@ export class BicepVisualizerViewManager
       ),
     );
 
+    const existingMiddleware =
+      languageClient.clientOptions.middleware?.handleDiagnostics;
+
     this.languageClient.clientOptions.middleware = {
       ...(this.languageClient.clientOptions.middleware ?? {}),
       handleDiagnostics: (uri, diagnostics, next) => {
@@ -36,7 +39,11 @@ export class BicepVisualizerViewManager
           view.render();
         }
 
-        next(uri, diagnostics);
+        if (existingMiddleware) {
+          existingMiddleware(uri, diagnostics, next);
+        } else {
+          next(uri, diagnostics);
+        }
       },
     };
   }

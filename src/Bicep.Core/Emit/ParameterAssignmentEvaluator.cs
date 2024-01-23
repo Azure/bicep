@@ -17,6 +17,7 @@ using Azure.Deployments.Templates.Expressions;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.CompileTimeImports;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -296,7 +297,7 @@ public class ParameterAssignmentEvaluator
         try
         {
             var textWriter = new StringWriter();
-            using var writer = new SourceAwareJsonTextWriter(model.FileResolver, textWriter)
+            using var writer = new SourceAwareJsonTextWriter(textWriter)
             {
                 // don't close the textWriter when writer is disposed
                 CloseOutput = false,

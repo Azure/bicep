@@ -31,7 +31,7 @@ namespace Bicep.Core.TypeSystem
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IEnvironment environment;
-        private readonly IFileResolver fileResolver;
+        private readonly SemanticModel model;
         private readonly IDiagnosticLookup parsingErrorLookup;
         private readonly IArtifactFileLookup sourceFileLookup;
         private readonly ISemanticModelLookup semanticModelLookup;
@@ -41,16 +41,16 @@ namespace Bicep.Core.TypeSystem
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, Expression> matchedFunctionResultValues;
 
-        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IEnvironment environment, IFileResolver fileResolver, IDiagnosticLookup parsingErrorLookup, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup semanticModelLookup)
+        public TypeAssignmentVisitor(ITypeManager typeManager, SemanticModel model)
         {
             this.typeManager = typeManager;
-            this.features = features;
-            this.binder = binder;
-            this.environment = environment;
-            this.fileResolver = fileResolver;
-            this.parsingErrorLookup = parsingErrorLookup;
-            this.sourceFileLookup = sourceFileLookup;
-            this.semanticModelLookup = semanticModelLookup;
+            this.model = model;
+            this.features = model.Features;
+            this.binder = model.Binder;
+            this.environment = model.Environment;
+            this.parsingErrorLookup = model.ParsingErrorLookup;
+            this.sourceFileLookup = model.Compilation.SourceFileGrouping;
+            this.semanticModelLookup = model.Compilation;
             resourceDerivedTypeBinder = new(binder);
             resourceDerivedTypeDiagnosticReporter = new(features, binder);
             assignedTypes = new();
@@ -2125,7 +2125,7 @@ namespace Bicep.Core.TypeSystem
                 matchedFunctionOverloads.TryAdd(syntax, matchedOverload);
 
                 // return its type
-                var result = matchedOverload.ResultBuilder(binder, environment, fileResolver, diagnosticWriter, syntax, argumentTypes);
+                var result = matchedOverload.ResultBuilder(model, diagnosticWriter, syntax, argumentTypes);
                 if (result.Value is not null)
                 {
                     matchedFunctionResultValues.TryAdd(syntax, result.Value);

@@ -97,9 +97,9 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             var thirdSource = new TaskCompletionSource<bool>();
 
             var compilationManager = Repository.Create<ICompilationManager>();
-            compilationManager.Setup(m => m.RefreshCompilation(firstUri)).Callback<DocumentUri>(uri => firstSource.SetResult(true));
-            compilationManager.Setup(m => m.RefreshCompilation(secondUri)).Callback<DocumentUri>(uri => secondSource.SetResult(true));
-            compilationManager.Setup(m => m.RefreshCompilation(thirdUri)).Callback<DocumentUri>(uri => thirdSource.SetResult(true));
+            compilationManager.Setup(m => m.RefreshCompilation(firstUri, false)).Callback<DocumentUri, bool>((uri, _) => firstSource.SetResult(true));
+            compilationManager.Setup(m => m.RefreshCompilation(secondUri, false)).Callback<DocumentUri, bool>((uri, _) => secondSource.SetResult(true));
+            compilationManager.Setup(m => m.RefreshCompilation(thirdUri, false)).Callback<DocumentUri, bool>((uri, _) => thirdSource.SetResult(true));
 
             var firstFileSet = CreateModules("mock:one", "mock:two");
             var secondFileSet = CreateModules("mock:three", "mock:four");
@@ -163,8 +163,8 @@ namespace Bicep.LangServer.IntegrationTests.Registry
                 buffer.AppendLine($"module foo '{reference}' = {{}}");
             }
 
-            var file = SourceFileFactory.CreateBicepFile(new System.Uri("untitled://hello"), buffer.ToString());
-            return file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Select(mds => new ArtifactResolutionInfo(mds, file as ISourceFile)).ToImmutableArray();
+            var file = SourceFileFactory.CreateBicepFile(new Uri("untitled://hello"), buffer.ToString());
+            return file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Select(mds => new ArtifactResolutionInfo(mds, file)).ToImmutableArray();
         }
 
         private class MockRegistry : IArtifactRegistry
@@ -173,19 +173,19 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public string Scheme => "mock";
 
-            public RegistryCapabilities GetCapabilities(ArtifactReference reference) => throw new NotImplementedException();
+            public RegistryCapabilities GetCapabilities(ArtifactReference _) => throw new NotImplementedException();
 
-            public bool IsArtifactRestoreRequired(ArtifactReference reference) => true;
+            public bool IsArtifactRestoreRequired(ArtifactReference _) => true;
 
-            public Task PublishModule(ArtifactReference reference, Stream compiledArmTemplates, Stream? bicepSources, string? documentationUri, string? description)
+            public Task PublishModule(ArtifactReference _, BinaryData __, BinaryData? ___, string? ____, string? _____)
                 => throw new NotImplementedException();
 
-            public Task PublishProvider(ArtifactReference reference, Stream typesTgz)
+            public Task PublishProvider(ArtifactReference _, BinaryData __)
                 => throw new NotImplementedException();
 
-            public Task<bool> CheckArtifactExists(ArtifactReference reference) => throw new NotImplementedException();
+            public Task<bool> CheckArtifactExists(ArtifactReference _) => throw new NotImplementedException();
 
-            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> references)
+            public Task<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateArtifactsCache(IEnumerable<ArtifactReference> _)
             {
                 throw new NotImplementedException();
             }
@@ -196,21 +196,21 @@ namespace Bicep.LangServer.IntegrationTests.Registry
                 return Task.FromResult<IDictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>>(new Dictionary<ArtifactReference, DiagnosticBuilder.ErrorBuilderDelegate>());
             }
 
-            public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference)
+            public ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference _)
             {
                 throw new NotImplementedException();
             }
 
-            public string? GetDocumentationUri(ArtifactReference reference) => null;
+            public string? GetDocumentationUri(ArtifactReference _) => null;
 
-            public Task<string?> TryGetDescription(ArtifactReference reference) => Task.FromResult<string?>(null);
+            public Task<string?> TryGetDescription(ArtifactReference _) => Task.FromResult<string?>(null);
 
-            public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType artifactType, string? _, string reference)
+            public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType _, string? __, string reference)
             {
                 return new(new MockArtifactRef(reference, PathHelper.FilePathToFileUrl(Path.GetTempFileName())));
             }
 
-            public SourceArchive? TryGetSource(ArtifactReference artifactReference) => null;
+            public ResultWithException<SourceArchive> TryGetSource(ArtifactReference artifactReference) => new(new SourceNotAvailableException());
         }
 
         private class MockArtifactRef : ArtifactReference

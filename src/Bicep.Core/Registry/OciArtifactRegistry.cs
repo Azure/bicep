@@ -9,6 +9,7 @@ using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
@@ -21,7 +22,9 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
+using Bicep.Core.Utils;
 using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Core.Registry
 {
@@ -120,9 +123,9 @@ namespace Bicep.Core.Registry
             }
             catch (InvalidArtifactException exception) when (
                 exception.Kind == InvalidArtifactExceptionKind.WrongArtifactType ||
-                exception.Kind == InvalidArtifactExceptionKind.WrongModuleLayerMediaType)
+                exception.Kind == InvalidArtifactExceptionKind.UnknownLayerMediaType)
             {
-                throw new ExternalArtifactException("An artifact with the tag already exists in the registry, but the artifact is not a Bicep file or module!", exception);
+                throw new ExternalArtifactException($"The artifact referenced by {reference.FullyQualifiedReference} was not downloaded from the registry because it is invalid.", exception);
             }
             catch (RequestFailedException exception)
             {
@@ -193,9 +196,8 @@ namespace Bicep.Core.Registry
             try
             {
                 string manifestFileContents = fileSystem.File.ReadAllText(manifestFilePath);
-                OciManifest ociManifest = JsonConvert.DeserializeObject<OciManifest>(manifestFileContents)
-                    ?? throw new Exception($"Deserialization of cached manifest \"{manifestFilePath}\" failed");
-                return ociManifest;
+                var manifest = JsonSerializer.Deserialize(manifestFileContents,  OciManifestSerializationContext.Default.OciManifest);
+                return manifest ?? throw new Exception($"Deserialization of cached manifest \"{manifestFilePath}\" failed");
             }
             catch (Exception ex)
             {
@@ -247,26 +249,23 @@ namespace Bicep.Core.Registry
             return await base.InvalidateArtifactsCacheInternal(references);
         }
 
-        public override async Task PublishModule(OciArtifactReference reference, Stream compiledArmTemplate, Stream? bicepSources, string? documentationUri, string? description)
+        public override async Task PublishModule(OciArtifactReference reference, BinaryData compiledArmTemplate, BinaryData? bicepSources, string? documentationUri, string? description)
         {
             // This needs to be valid JSON, otherwise there may be compatibility issues.
             // NOTE: Bicep v0.20 and earlier will throw on this, so it's a breaking change.
-            var config = new StreamDescriptor(new MemoryStream(Encoding.UTF8.GetBytes("{}")), BicepModuleMediaTypes.BicepModuleConfigV1);
+            var config = new Oci.OciDescriptor("{}", BicepModuleMediaTypes.BicepModuleConfigV1);
 
-            List<StreamDescriptor> layers = new()
+            List<Oci.OciDescriptor> layers = new()
             {
-                new (
-                    compiledArmTemplate,
-                    BicepModuleMediaTypes.BicepModuleLayerV1Json,
-                    new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
+                new(compiledArmTemplate, BicepModuleMediaTypes.BicepModuleLayerV1Json, new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
             };
 
             if (bicepSources is { } && features.PublishSourceEnabled)
             {
                 layers.Add(
-                    new StreamDescriptor(
-                        bicepSources,
-                        BicepModuleMediaTypes.BicepSourceV1Layer,
+                    new(
+                        bicepSources, 
+                        BicepModuleMediaTypes.BicepSourceV1Layer, 
                         new OciManifestAnnotationsBuilder().WithTitle("Source files").Build()));
             }
 
@@ -299,17 +298,14 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public override async Task PublishProvider(OciArtifactReference reference, Stream typesTgz)
+        public override async Task PublishProvider(OciArtifactReference reference, BinaryData typesTgz)
         {
             // This needs to be valid JSON, otherwise there may be compatibility issues.
-            var config = new StreamDescriptor(new MemoryStream(Encoding.UTF8.GetBytes("{}")), BicepMediaTypes.BicepProviderConfigV1);
+            var config = new Oci.OciDescriptor("{}", BicepMediaTypes.BicepProviderConfigV1);
 
-            List<StreamDescriptor> layers = new()
+            List<Oci.OciDescriptor> layers = new()
             {
-                new (
-                    typesTgz,
-                    BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip,
-                    new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
+                new(typesTgz, BicepMediaTypes.BicepProviderArtifactLayerV1TarGzip, new OciManifestAnnotationsBuilder().WithTitle("types.tgz").Build())
             };
 
             var annotations = new OciManifestAnnotationsBuilder()
@@ -438,7 +434,6 @@ namespace Bicep.Core.Registry
                 throw new InvalidOperationException("Module reference is missing both tag and digest.");
             }
 
-            //var packageDir = WebUtility.UrlEncode(reference.UnqualifiedReference);
             return fileSystem.Path.Combine(this.cachePath, registry, repository, tagOrDigest);
         }
 
@@ -506,15 +501,16 @@ namespace Bicep.Core.Registry
             return fileSystem.Path.Combine(this.GetArtifactDirectoryPath(reference), fileName);
         }
 
-        public override SourceArchive? TryGetSource(OciArtifactReference reference)
+        public override ResultWithException<SourceArchive> TryGetSource(OciArtifactReference reference)
         {
             var zipPath = GetArtifactFilePath(reference, ArtifactFileType.Source);
             if (File.Exists(zipPath))
             {
-                return SourceArchive.FromStream(File.OpenRead(zipPath));
+                return SourceArchive.UnpackFromStream(File.OpenRead(zipPath));
             }
 
-            return null;
+            // No sources available (presumably they weren't published)
+            return new(new SourceNotAvailableException());
         }
 
         private enum ArtifactFileType

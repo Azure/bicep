@@ -63,22 +63,22 @@ namespace Bicep.Cli.Commands
             var providerReference = ValidateReference(args.TargetProviderReference, inputUri);
             var overwriteIfExists = args.Force;
 
-            Stream tarStream;
+            BinaryData tarPayload;
             try
             {
-                tarStream = await TypesV1Archive.GenerateProviderTarStream(this.fileSystem, indexPath);
-                ValidateProvider(tarStream);
+                tarPayload = await TypesV1Archive.GenerateProviderTarStream(this.fileSystem, indexPath);
+                ValidateProvider(tarPayload);
             }
             catch (Exception exception)
             {
                 throw new BicepException($"Provider package creation failed: {exception.Message}");
             }
 
-            await this.PublishProviderAsync(providerReference, tarStream, overwriteIfExists);
+            await this.PublishProviderAsync(providerReference, tarPayload, overwriteIfExists);
             return 0;
         }
 
-        private async Task PublishProviderAsync(ArtifactReference target, Stream tarStream, bool overwriteIfExists)
+        private async Task PublishProviderAsync(ArtifactReference target, BinaryData tarPayload, bool overwriteIfExists)
         {
             try
             {
@@ -87,7 +87,7 @@ namespace Bicep.Cli.Commands
                 {
                     throw new BicepException($"The Provider \"{target.FullyQualifiedReference}\" already exists in registry. Use --force to overwrite the existing provider.");
                 }
-                await this.moduleDispatcher.PublishProvider(target, tarStream);
+                await this.moduleDispatcher.PublishProvider(target, tarPayload);
             }
             catch (ExternalArtifactException exception)
             {
@@ -113,15 +113,11 @@ namespace Bicep.Cli.Commands
             return providerReference;
         }
 
-        private static void ValidateProvider(Stream tarStream)
+        private static void ValidateProvider(BinaryData provider)
         {
-            // copy the stream to avoid it being closed by OciTypeLoader
-            using var tempStream = new MemoryStream();
-            tarStream.CopyTo(tempStream);
-            tempStream.Position = 0;
-            tarStream.Position = 0;
+            using var tempStream = provider.ToStream();
 
-            var typeLoader = OciTypeLoader.FromTgz(tempStream);
+            var typeLoader = OciTypeLoader.FromStream(tempStream);
             var index = typeLoader.LoadTypeIndex();
             foreach (var (_, typeLocation) in index.Resources)
             {

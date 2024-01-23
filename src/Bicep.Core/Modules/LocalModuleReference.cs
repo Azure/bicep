@@ -8,6 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Modules
 {
@@ -49,26 +50,20 @@ namespace Bicep.Core.Modules
 
         public static ResultWithDiagnostic<LocalModuleReference> TryParse(string unqualifiedReference, Uri parentModuleUri)
         {
-            if (!Validate(unqualifiedReference, out var failureBuilder))
-            {
-                return new(failureBuilder);
-            }
-
-            return new(new LocalModuleReference(unqualifiedReference, parentModuleUri));
+            return Validate(unqualifiedReference)
+                .Transform(_ => new LocalModuleReference(unqualifiedReference, parentModuleUri));
         }
 
-        public static bool Validate(string pathName, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static ResultWithDiagnostic<bool> Validate(string pathName)
         {
             if (pathName.Length == 0)
             {
-                failureBuilder = x => x.FilePathIsEmpty();
-                return false;
+                return new(x => x.FilePathIsEmpty());
             }
 
             if (pathName.First() == '/')
             {
-                failureBuilder = x => x.FilePathBeginsWithForwardSlash();
-                return false;
+                return new(x => x.FilePathBeginsWithForwardSlash());
             }
 
             foreach (var pathChar in pathName)
@@ -76,31 +71,26 @@ namespace Bicep.Core.Modules
                 if (pathChar == '\\')
                 {
                     // enforce '/' rather than '\' for module paths for cross-platform compatibility
-                    failureBuilder = x => x.FilePathContainsBackSlash();
-                    return false;
+                    return new(x => x.FilePathContainsBackSlash());
                 }
 
                 if (forbiddenPathChars.Contains(pathChar))
                 {
-                    failureBuilder = x => x.FilePathContainsForbiddenCharacters(forbiddenPathChars);
-                    return false;
+                    return new(x => x.FilePathContainsForbiddenCharacters(forbiddenPathChars));
                 }
 
                 if (IsInvalidPathControlCharacter(pathChar))
                 {
-                    failureBuilder = x => x.FilePathContainsControlChars();
-                    return false;
+                    return new(x => x.FilePathContainsControlChars());
                 }
             }
 
             if (forbiddenPathTerminatorChars.Contains(pathName.Last()))
             {
-                failureBuilder = x => x.FilePathHasForbiddenTerminator(forbiddenPathTerminatorChars);
-                return false;
+                return new(x => x.FilePathHasForbiddenTerminator(forbiddenPathTerminatorChars));
             }
 
-            failureBuilder = null;
-            return true;
+            return new(true);
         }
 
         private static readonly ImmutableHashSet<char> forbiddenPathChars = "<>:\"\\|?*".ToImmutableHashSet();
