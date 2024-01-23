@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
 using Bicep.Cli.Arguments;
-using Bicep.Core.FileSystem;
 
 namespace Bicep.Cli.Helpers;
 

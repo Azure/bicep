@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.IO;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

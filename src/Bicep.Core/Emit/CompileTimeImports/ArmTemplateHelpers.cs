@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using Azure.Deployments.Core.Definitions.Schema;
 
 namespace Bicep.Core.Emit.CompileTimeImports;

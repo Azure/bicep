@@ -1,20 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Azure.Deployments.Core.Extensions;
-using Azure.ResourceManager.Resources.Models;
-using JetBrains.Annotations;
-using Microsoft.WindowsAzure.ResourceStack.Common.Algorithms;
-using Microsoft.WindowsAzure.ResourceStack.Common.Storage;
-
 namespace Bicep.Core.PrettyPrintV2.Documents
 {
     public static class DocumentOperators

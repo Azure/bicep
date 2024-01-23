@@ -1,34 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.IO.Abstractions;
-using System.IO.Compression;
-using System.Threading.Tasks;
-using Azure.Bicep.Types;
-using Azure.Bicep.Types.Concrete;
-using Azure.Bicep.Types.Index;
-using Azure.Bicep.Types.Serialization;
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Logging;
-using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Providers;
-using Bicep.Core.Resources;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.TypeSystem.Providers.Az;
-using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Cli.Commands
 {

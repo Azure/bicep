@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;

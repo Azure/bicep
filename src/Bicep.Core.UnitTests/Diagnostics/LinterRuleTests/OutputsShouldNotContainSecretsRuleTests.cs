@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

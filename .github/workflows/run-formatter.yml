@@ -28,7 +28,10 @@ jobs:
         uses: actions/setup-dotnet@v4
 
       - name: Format
-        run: dotnet format
+        run: dotnet format 
+      
+      - name: Remove unnecessary using directives (IDE0005)
+        run: dotnet format style --diagnostics IDE0005 --severity info
 
       - name: Commit and push formatting updates
         if: (!github.ref_protected)

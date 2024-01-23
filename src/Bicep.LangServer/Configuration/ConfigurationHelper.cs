@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using OmniSharp.Extensions.LanguageServer.Protocol;

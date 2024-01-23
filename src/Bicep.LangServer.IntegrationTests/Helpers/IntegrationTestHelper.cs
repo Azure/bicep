@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using System.Threading.Tasks;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Utils;

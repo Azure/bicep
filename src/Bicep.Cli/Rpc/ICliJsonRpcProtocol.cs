@@ -2,10 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Serialization;
 using StreamJsonRpc;
 
 namespace Bicep.Cli.Rpc;

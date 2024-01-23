@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.Core.UnitTests.Assertions;

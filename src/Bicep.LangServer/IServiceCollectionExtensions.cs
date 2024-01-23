@@ -25,7 +25,6 @@ using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Microsoft.Extensions.DependencyInjection;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
-using System;
 
 namespace Bicep.LanguageServer;
 

@@ -1,18 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
 using Bicep.Core.Collections.Trees;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
-using Bicep.Core.PrettyPrint.Documents;
 
 namespace Bicep.Core.Diagnostics
 {

@@ -1,19 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Rpc;
 using Bicep.Core;
 using Bicep.Core.Features;
-using Bicep.Core.Registry.Auth;
 using StreamJsonRpc;
 
 namespace Bicep.Cli.Commands;

@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Configuration;
-using System.Linq;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;

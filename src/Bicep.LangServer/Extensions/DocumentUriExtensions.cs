@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class DocumentUriExtensions

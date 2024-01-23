@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Features;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;

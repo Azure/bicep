@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.IO.Pipelines;
 using System.Reactive.Concurrency;
-using System.Threading;
-using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Utils;

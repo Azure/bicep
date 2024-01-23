@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.LanguageServer.Providers;
 using MediatR;

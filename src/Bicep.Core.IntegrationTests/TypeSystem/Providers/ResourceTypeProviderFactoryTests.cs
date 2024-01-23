@@ -1,20 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.IO.Abstractions.TestingHelpers;
-using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Samples;
-using Bicep.Core.TypeSystem.Providers;
+using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.Core.UnitTests.Assertions;
-using System;
-using System.Linq;
-using Bicep.Core.UnitTests;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
 
 namespace Bicep.Core.IntegrationTests;
 
