@@ -182,9 +182,6 @@ public class ExpressionBuilder
                     provider.Config is not null ? ConvertWithoutLowering(provider.Config) : null));
 
             case ParameterDeclarationSyntax parameter:
-                // force evaluation of statement type if it hasn't happened yet
-                Context.SemanticModel.GetTypeInfo(parameter);
-
                 return EvaluateDecorators(parameter, new DeclaredParameterExpression(
                     parameter,
                     parameter.Name.IdentifierName,
@@ -198,9 +195,6 @@ public class ExpressionBuilder
                     ConvertWithoutLowering(variable.Value)));
 
             case FunctionDeclarationSyntax function:
-                // force evaluation of statement type if it hasn't happened yet
-                Context.SemanticModel.GetTypeInfo(function);
-
                 return EvaluateDecorators(function, new DeclaredFunctionExpression(
                     function,
                     EmitConstants.UserDefinedFunctionsNamespace,
@@ -208,9 +202,6 @@ public class ExpressionBuilder
                     ConvertWithoutLowering(function.Lambda)));
 
             case OutputDeclarationSyntax output:
-                // force evaluation of statement type if it hasn't happened yet
-                Context.SemanticModel.GetTypeInfo(output);
-
                 return EvaluateDecorators(output, new DeclaredOutputExpression(
                     output,
                     output.Name.IdentifierName,
@@ -230,9 +221,6 @@ public class ExpressionBuilder
                 return EvaluateDecorators(module, ConvertModule(module));
 
             case TypeDeclarationSyntax typeDeclaration:
-                // force evaluation of statement type if it hasn't happened yet
-                Context.SemanticModel.GetTypeInfo(typeDeclaration);
-
                 return EvaluateDecorators(typeDeclaration, new DeclaredTypeExpression(typeDeclaration,
                     typeDeclaration.Name.IdentifierName,
                     ConvertTypeWithoutLowering(typeDeclaration.Value)));
@@ -310,10 +298,10 @@ public class ExpressionBuilder
             },
             ParenthesizedExpressionSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
             NonNullAssertionSyntax nonNullAssertion => new NonNullableTypeExpression(nonNullAssertion, ConvertTypeWithoutLowering(nonNullAssertion.BaseExpression)),
-            PropertyAccessSyntax propertyAccess => ConvertPropertyAccessInTypeExpression(propertyAccess),
-            ObjectTypeAdditionalPropertiesAccessSyntax additionalPropertiesAccess => ConvertAdditionalPropertiesAccessInTypeExpression(additionalPropertiesAccess),
-            ArrayAccessSyntax arrayAccess => ConvertIndexAccessInTypeExpression(arrayAccess),
-            ArrayTypeItemsAccessSyntax itemsAccess => ConvertItemsAccessInTypeExpression(itemsAccess),
+            TypePropertyAccessSyntax propertyAccess => ConvertTypePropertyAccess(propertyAccess),
+            TypeAdditionalPropertiesAccessSyntax additionalPropertiesAccess => ConvertTypeAdditionalPropertiesAccess(additionalPropertiesAccess),
+            TypeArrayAccessSyntax arrayAccess => ConvertTypeArrayAccess(arrayAccess),
+            TypeItemsAccessSyntax itemsAccess => ConvertTypeItemsAccess(itemsAccess),
             ParameterizedTypeInstantiationSyntaxBase parameterizedTypeInstantiation
                 => Context.SemanticModel.TypeManager.TryGetReifiedType(parameterizedTypeInstantiation) is TypeExpression reified
                     ? reified
@@ -327,11 +315,11 @@ public class ExpressionBuilder
         _ => type,
     };
 
-    private TypeExpression ConvertPropertyAccessInTypeExpression(PropertyAccessSyntax syntax)
-        => ConvertPropertyAccessInTypeExpression(syntax, syntax.PropertyName.IdentifierName);
+    private TypeExpression ConvertTypePropertyAccess(TypePropertyAccessSyntax syntax)
+        => ConvertTypePropertyAccess(syntax, syntax.BaseExpression, syntax.PropertyName.IdentifierName);
 
-    private TypeExpression ConvertPropertyAccessInTypeExpression(AccessExpressionSyntax syntax, string propertyName)
-        => Context.SemanticModel.GetSymbolInfo(syntax.BaseExpression) switch
+    private TypeExpression ConvertTypePropertyAccess(SyntaxBase syntax, SyntaxBase baseExpression, string propertyName)
+        => Context.SemanticModel.GetSymbolInfo(baseExpression) switch
         {
             BuiltInNamespaceSymbol builtIn => TryGetPropertyType(builtIn, propertyName) switch
             {
@@ -343,10 +331,10 @@ public class ExpressionBuilder
                 TypeType typeType => new WildcardImportTypePropertyReferenceExpression(syntax, wildcardImport, propertyName, typeType.Unwrapped),
                 _ => throw new ArgumentException($"Property '{propertyName}' of symbol '{wildcardImport.Name}' was not found or was not valid."),
             },
-            _ => ConvertPropertyAccessInTypeExpression(syntax, ConvertTypeWithoutLowering(syntax.BaseExpression), propertyName),
+            _ => ConvertTypePropertyAccess(syntax, ConvertTypeWithoutLowering(baseExpression), propertyName),
         };
 
-    private static TypeReferencePropertyAccessExpression ConvertPropertyAccessInTypeExpression(AccessExpressionSyntax syntax, TypeExpression baseExpression, string propertyName)
+    private static TypeReferencePropertyAccessExpression ConvertTypePropertyAccess(SyntaxBase syntax, TypeExpression baseExpression, string propertyName)
     {
         if (baseExpression.ExpressedType is not ObjectType baseObject || !baseObject.Properties.TryGetValue(propertyName, out var typeProperty))
         {
@@ -356,14 +344,14 @@ public class ExpressionBuilder
         return new TypeReferencePropertyAccessExpression(syntax, baseExpression, propertyName, typeProperty.TypeReference.Type);
     }
 
-    private TypeExpression ConvertIndexAccessInTypeExpression(ArrayAccessSyntax syntax) => Context.SemanticModel.GetTypeInfo(syntax.IndexExpression) switch
+    private TypeExpression ConvertTypeArrayAccess(TypeArrayAccessSyntax syntax) => Context.SemanticModel.GetTypeInfo(syntax.IndexExpression) switch
     {
-        StringLiteralType @string => ConvertPropertyAccessInTypeExpression(syntax, @string.RawStringValue),
-        IntegerLiteralType @int => ConvertIndexAccessInTypeExpression(syntax, ConvertTypeWithoutLowering(syntax.BaseExpression), @int.Value),
+        StringLiteralType @string => ConvertTypePropertyAccess(syntax, syntax.BaseExpression, @string.RawStringValue),
+        IntegerLiteralType @int => ConvertTypeArrayAccess(syntax, ConvertTypeWithoutLowering(syntax.BaseExpression), @int.Value),
         _ => throw new ArgumentException("Array access syntax is not permitted in type expressions unless the indexing expression can be folded to a constant string or integer at compile time."),
     };
 
-    private static TypeReferenceIndexAccessExpression ConvertIndexAccessInTypeExpression(ArrayAccessSyntax syntax, TypeExpression baseExpression, long index)
+    private static TypeReferenceIndexAccessExpression ConvertTypeArrayAccess(TypeArrayAccessSyntax syntax, TypeExpression baseExpression, long index)
     {
         if (baseExpression.ExpressedType is not TupleType baseTuple || index < 0 || baseTuple.Items.Length <= index)
         {
@@ -373,7 +361,7 @@ public class ExpressionBuilder
         return new TypeReferenceIndexAccessExpression(syntax, baseExpression, index, baseTuple.Items[(int)index].Type);
     }
 
-    private TypeReferenceAdditionalPropertiesAccessExpression ConvertAdditionalPropertiesAccessInTypeExpression(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
+    private TypeReferenceAdditionalPropertiesAccessExpression ConvertTypeAdditionalPropertiesAccess(TypeAdditionalPropertiesAccessSyntax syntax)
     {
         var baseExpression = ConvertTypeWithoutLowering(syntax.BaseExpression);
 
@@ -385,7 +373,7 @@ public class ExpressionBuilder
         return new TypeReferenceAdditionalPropertiesAccessExpression(syntax, baseExpression, objectType.AdditionalPropertiesType.Type);
     }
 
-    private TypeReferenceItemsAccessExpression ConvertItemsAccessInTypeExpression(ArrayTypeItemsAccessSyntax syntax)
+    private TypeReferenceItemsAccessExpression ConvertTypeItemsAccess(TypeItemsAccessSyntax syntax)
     {
         var baseExpression = ConvertTypeWithoutLowering(syntax.BaseExpression);
 

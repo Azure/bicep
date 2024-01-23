@@ -1213,8 +1213,19 @@ namespace Bicep.LanguageServer.Completions
                 baseExpressionDeclaredType = typeType.Unwrapped;
             }
 
-            return GetProperties(baseExpressionDeclaredType)
+            var completions = GetProperties(baseExpressionDeclaredType)
                 .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, propertyAccess, context.ReplacementRange));
+
+            if (GetAdditionalPropertiesType(baseExpressionDeclaredType) is not null)
+            {
+                completions = completions.Append(CompletionItemBuilder.Create(CompletionItemKind.Property, "*")
+                    .WithPlainTextEdit(context.ReplacementRange, "*")
+                    .WithCommitCharacters(PropertyAccessCommitChars)
+                    .WithSortText(GetSortText("*", CompletionPriority.Low))
+                    .Build());
+            }
+
+            return completions;
         }
 
         private IEnumerable<CompletionItem> GetResourceAccessCompletions(Compilation compilation, BicepCompletionContext context)
@@ -1291,6 +1302,16 @@ namespace Bicep.LanguageServer.Completions
                 _ => Enumerable.Empty<TypeProperty>(),
             }).Where(p => !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty));
         }
+
+        private static TypeSymbol? GetAdditionalPropertiesType(TypeSymbol? type) => type switch
+        {
+            ResourceType resourceType => GetAdditionalPropertiesType(resourceType.Body.Type),
+            ModuleType moduleType => GetAdditionalPropertiesType(moduleType.Body.Type),
+            TestType testType => GetAdditionalPropertiesType(testType.Body.Type),
+            ObjectType objectType when objectType.AdditionalPropertiesType is not null && !objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)
+                => objectType.AdditionalPropertiesType.Type,
+            _ => null,
+        };
 
         private static IEnumerable<FunctionSymbol> GetMethods(TypeSymbol? type) => type switch
         {

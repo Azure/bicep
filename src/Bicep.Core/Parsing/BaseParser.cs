@@ -949,14 +949,14 @@ namespace Bicep.Core.Parsing
                     {
                         Token asterisk = this.Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*"));
                         Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
-                        current = new ArrayTypeItemsAccessSyntax(current, openSquare, asterisk, closeSquare);
+                        current = new TypeItemsAccessSyntax(current, openSquare, asterisk, closeSquare);
                     }
                     else
                     {
                         SyntaxBase indexExpression = this.Expression(ExpressionFlags.None);
                         Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
-                        current = new ArrayAccessSyntax(current, openSquare, null, indexExpression, closeSquare);
+                        current = new TypeArrayAccessSyntax(current, openSquare, indexExpression, closeSquare);
                     }
 
                     continue;
@@ -970,7 +970,7 @@ namespace Bicep.Core.Parsing
                     if (this.Check(TokenType.Asterisk))
                     {
                         Token asterisk = this.Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*"));
-                        current = new ObjectTypeAdditionalPropertiesAccessSyntax(current, dot, asterisk);
+                        current = new TypeAdditionalPropertiesAccessSyntax(current, dot, asterisk);
 
                         continue;
                     }
@@ -991,7 +991,7 @@ namespace Bicep.Core.Parsing
                     }
                     else
                     {
-                        current = new PropertyAccessSyntax(current, dot, null, identifier);
+                        current = new TypePropertyAccessSyntax(current, dot, identifier);
                     }
 
                     continue;

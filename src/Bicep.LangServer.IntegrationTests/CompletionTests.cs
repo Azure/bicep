@@ -4677,22 +4677,32 @@ Source port ranges.
               type foo = {
                 bar: {
                   baz: string
+                  quux: {
+                    *: {
+                      pop: int
+                    }
+                  }
                 }
               }
 
               type completeMe = foo.|
               type completeMeToo = foo.bar.|
+              type additionalPropertiesCompletion = foo.bar.quux.|
               """;
 
             await RunCompletionScenarioTest(TestContext, ServerWithNamespaceProvider, fileWithCursors, completionLists =>
             {
-                completionLists.Count().Should().Be(2);
+                completionLists.Count().Should().Be(3);
 
                 var completionList = completionLists.First();
                 completionList.Should().SatisfyRespectively(i => i.Label.Should().Be("bar"));
 
-                completionList = completionLists.Skip(1).Single();
-                completionList.Should().SatisfyRespectively(i => i.Label.Should().Be("baz"));
+                completionList = completionLists.Skip(1).First();
+                completionList.Should().SatisfyRespectively(i => i.Label.Should().Be("baz"),
+                  i => i.Label.Should().Be("quux"));
+
+                completionList = completionLists.Skip(2).First();
+                completionList.Should().SatisfyRespectively(i => i.Label.Should().Be("*"));
             });
         }
     }

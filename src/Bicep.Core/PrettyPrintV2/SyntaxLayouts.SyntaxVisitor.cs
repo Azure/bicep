@@ -174,10 +174,14 @@ namespace Bicep.Core.PrettyPrintV2
 
         public void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax) => this.Layout(syntax.Expression);
 
-        public void VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
-            => this.Apply(syntax, LayoutObjectTypeAdditionalPropertiesAccessSyntax);
+        public void VisitTypePropertyAccessSyntax(TypePropertyAccessSyntax syntax) => this.Apply(syntax, LayoutTypePropertyAccessSyntax);
 
-        public void VisitArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax) => this.Apply(syntax, LayoutArrayTypeItemsAccessSyntax);
+        public void VisitTypeAdditionalPropertiesAccessSyntax(TypeAdditionalPropertiesAccessSyntax syntax)
+            => this.Apply(syntax, LayoutTypeAdditionalPropertiesAccessSyntax);
+
+        public void VisitTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax) => this.Apply(syntax, LayoutTypeArrayAccessSyntax);
+
+        public void VisitTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax) => this.Apply(syntax, LayoutTypeItemsAccessSyntax);
 
         public IEnumerable<Document> Layout(SyntaxBase syntax)
         {

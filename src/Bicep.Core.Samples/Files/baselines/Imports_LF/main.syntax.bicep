@@ -112,7 +112,7 @@ param fizzParam mod2.fizz
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:015) | ├─IdentifierSyntax
 //@[06:015) | | └─Token(Identifier) |fizzParam|
-//@[16:025) | └─PropertyAccessSyntax
+//@[16:025) | └─TypePropertyAccessSyntax
 //@[16:020) |   ├─VariableAccessSyntax
 //@[16:020) |   | └─IdentifierSyntax
 //@[16:020) |   |   └─Token(Identifier) |mod2|

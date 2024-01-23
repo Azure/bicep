@@ -173,6 +173,18 @@ namespace Bicep.Core.TypeSystem
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
             => WithSelfReferencePermitted(() => base.VisitPropertyAccessSyntax(syntax), selfReferencePermitted: false);
 
+        public override void VisitTypePropertyAccessSyntax(TypePropertyAccessSyntax syntax)
+            => WithSelfReferencePermitted(() => base.VisitTypePropertyAccessSyntax(syntax), selfReferencePermitted: false);
+
+        public override void VisitTypeAdditionalPropertiesAccessSyntax(TypeAdditionalPropertiesAccessSyntax syntax)
+            => WithSelfReferencePermitted(() => base.VisitTypeAdditionalPropertiesAccessSyntax(syntax), selfReferencePermitted: false);
+
+        public override void VisitTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax)
+            => WithSelfReferencePermitted(() => base.VisitTypeArrayAccessSyntax(syntax), selfReferencePermitted: false);
+
+        public override void VisitTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax)
+            => WithSelfReferencePermitted(() => base.VisitTypeItemsAccessSyntax(syntax), selfReferencePermitted: false);
+
         private void WithSelfReferencePermitted(Action action, bool selfReferencePermitted)
         {
             var previousSelfReferencePermissionState = this.selfReferencePermitted;

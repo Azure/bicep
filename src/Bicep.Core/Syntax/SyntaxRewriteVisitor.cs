@@ -1178,7 +1178,23 @@ namespace Bicep.Core.Syntax
         void ISyntaxVisitor.VisitInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax)
             => ReplaceCurrent(syntax, ReplaceInstanceParameterizedTypeInstantiationSyntax);
 
-        protected virtual SyntaxBase ReplaceObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
+        protected virtual SyntaxBase ReplaceTypePropertyAccessSyntax(TypePropertyAccessSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.BaseExpression, out var baseExpression);
+            hasChanges |= TryRewriteStrict(syntax.Dot, out var dot);
+            hasChanges |= TryRewriteStrict(syntax.PropertyName, out var propertyName);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new TypePropertyAccessSyntax(baseExpression, dot, propertyName);
+        }
+        void ISyntaxVisitor.VisitTypePropertyAccessSyntax(TypePropertyAccessSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceTypePropertyAccessSyntax);
+
+        protected virtual SyntaxBase ReplaceTypeAdditionalPropertiesAccessSyntax(TypeAdditionalPropertiesAccessSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.BaseExpression, out var baseExpression);
             hasChanges |= TryRewriteStrict(syntax.Dot, out var dot);
@@ -1189,27 +1205,44 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ObjectTypeAdditionalPropertiesAccessSyntax(baseExpression, dot, asterisk);
+            return new TypeAdditionalPropertiesAccessSyntax(baseExpression, dot, asterisk);
         }
-        void ISyntaxVisitor.VisitObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
-            => ReplaceCurrent(syntax, ReplaceObjectTypeAdditionalPropertiesAccessSyntax);
+        void ISyntaxVisitor.VisitTypeAdditionalPropertiesAccessSyntax(TypeAdditionalPropertiesAccessSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceTypeAdditionalPropertiesAccessSyntax);
 
-        protected virtual SyntaxBase ReplaceArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax)
+        protected virtual SyntaxBase ReplaceTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.BaseExpression, out var baseExpression);
-            hasChanges |= TryRewriteStrict(syntax.OpenBracket, out var openBracket);
-            hasChanges |= TryRewriteStrict(syntax.Asterisk, out var asterisk);
-            hasChanges |= TryRewriteStrict(syntax.CloseBracket, out var closeBracket);
+            hasChanges |= TryRewriteStrict(syntax.OpenSquare, out var openSquare);
+            hasChanges |= TryRewrite(syntax.IndexExpression, out var indexExpression);
+            hasChanges |= TryRewriteStrict(syntax.CloseSquare, out var closeSquare);
 
             if (!hasChanges)
             {
                 return syntax;
             }
 
-            return new ArrayTypeItemsAccessSyntax(baseExpression, openBracket, asterisk, closeBracket);
+            return new TypeArrayAccessSyntax(baseExpression, openSquare, indexExpression, closeSquare);
         }
-        void ISyntaxVisitor.VisitArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax)
-            => ReplaceCurrent(syntax, ReplaceArrayTypeItemsAccessSyntax);
+        void ISyntaxVisitor.VisitTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceTypeArrayAccessSyntax);
+
+        protected virtual SyntaxBase ReplaceTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.BaseExpression, out var baseExpression);
+            hasChanges |= TryRewriteStrict(syntax.OpenSquare, out var openBracket);
+            hasChanges |= TryRewriteStrict(syntax.Asterisk, out var asterisk);
+            hasChanges |= TryRewriteStrict(syntax.CloseSquare, out var closeBracket);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new TypeItemsAccessSyntax(baseExpression, openBracket, asterisk, closeBracket);
+        }
+        void ISyntaxVisitor.VisitTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax)
+            => ReplaceCurrent(syntax, ReplaceTypeItemsAccessSyntax);
 
         protected virtual SyntaxBase ReplaceParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax)
         {

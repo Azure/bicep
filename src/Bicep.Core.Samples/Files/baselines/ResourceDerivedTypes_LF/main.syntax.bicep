@@ -61,7 +61,7 @@ type test = {
 //@[02:0006) |   | ├─IdentifierSyntax
 //@[02:0006) |   | | └─Token(Identifier) |resC|
 //@[06:0007) |   | ├─Token(Colon) |:|
-//@[08:0017) |   | └─PropertyAccessSyntax
+//@[08:0017) |   | └─TypePropertyAccessSyntax
 //@[08:0011) |   |   ├─VariableAccessSyntax
 //@[08:0011) |   |   | └─IdentifierSyntax
 //@[08:0011) |   |   |   └─Token(Identifier) |sys|
@@ -297,7 +297,7 @@ type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2023-01-01
 //@[05:0023) | ├─IdentifierSyntax
 //@[05:0023) | | └─Token(Identifier) |storageAccountName|
 //@[24:0025) | ├─Token(Assignment) |=|
-//@[26:0087) | └─PropertyAccessSyntax
+//@[26:0087) | └─TypePropertyAccessSyntax
 //@[26:0082) |   ├─ParameterizedTypeInstantiationSyntax
 //@[26:0034) |   | ├─IdentifierSyntax
 //@[26:0034) |   | | └─Token(Identifier) |resource|
@@ -316,9 +316,9 @@ type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.
 //@[05:0017) | ├─IdentifierSyntax
 //@[05:0017) | | └─Token(Identifier) |accessPolicy|
 //@[18:0019) | ├─Token(Assignment) |=|
-//@[20:0097) | └─ArrayTypeItemsAccessSyntax
-//@[20:0094) |   ├─PropertyAccessSyntax
-//@[20:0079) |   | ├─PropertyAccessSyntax
+//@[20:0097) | └─TypeItemsAccessSyntax
+//@[20:0094) |   ├─TypePropertyAccessSyntax
+//@[20:0079) |   | ├─TypePropertyAccessSyntax
 //@[20:0068) |   | | ├─ParameterizedTypeInstantiationSyntax
 //@[20:0028) |   | | | ├─IdentifierSyntax
 //@[20:0028) |   | | | | └─Token(Identifier) |resource|
@@ -343,9 +343,9 @@ type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
 //@[05:0008) | ├─IdentifierSyntax
 //@[05:0008) | | └─Token(Identifier) |tag|
 //@[09:0010) | ├─Token(Assignment) |=|
-//@[11:0076) | └─ObjectTypeAdditionalPropertiesAccessSyntax
-//@[11:0074) |   ├─PropertyAccessSyntax
-//@[11:0069) |   | ├─PropertyAccessSyntax
+//@[11:0076) | └─TypeAdditionalPropertiesAccessSyntax
+//@[11:0074) |   ├─TypePropertyAccessSyntax
+//@[11:0069) |   | ├─TypePropertyAccessSyntax
 //@[11:0058) |   | | ├─ParameterizedTypeInstantiationSyntax
 //@[11:0019) |   | | | ├─IdentifierSyntax
 //@[11:0019) |   | | | | └─Token(Identifier) |resource|

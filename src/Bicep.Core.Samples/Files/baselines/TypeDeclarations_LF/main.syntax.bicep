@@ -530,7 +530,7 @@ param inlineObjectParam {
 //@[002:0005) | | | ├─IdentifierSyntax
 //@[002:0005) | | | | └─Token(Identifier) |baz|
 //@[005:0006) | | | ├─Token(Colon) |:|
-//@[007:0015) | | | └─PropertyAccessSyntax
+//@[007:0015) | | | └─TypePropertyAccessSyntax
 //@[007:0010) | | |   ├─VariableAccessSyntax
 //@[007:0010) | | |   | └─IdentifierSyntax
 //@[007:0010) | | |   |   └─Token(Identifier) |sys|

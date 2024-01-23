@@ -143,6 +143,24 @@ namespace Bicep.Core.TypeSystem
 
                 case TypedLambdaSyntax typedLambda:
                     return GetTypedLambdaType(typedLambda);
+
+                case ResourceTypeSyntax:
+                case ParameterizedTypeInstantiationSyntaxBase:
+                case ArrayTypeSyntax:
+                case ArrayTypeMemberSyntax:
+                case ObjectTypeSyntax:
+                case ObjectTypePropertySyntax:
+                case ObjectTypeAdditionalPropertiesSyntax:
+                case TupleTypeSyntax:
+                case TupleTypeItemSyntax:
+                case UnionTypeSyntax:
+                case UnionTypeMemberSyntax:
+                case TypePropertyAccessSyntax:
+                case TypeAdditionalPropertiesAccessSyntax:
+                case TypeArrayAccessSyntax:
+                case TypeItemsAccessSyntax:
+                case NullableTypeSyntax:
+                    return TryGetTypeAssignmentFromTypeSyntax(syntax, allowNamespaceReferences: false);
             }
 
             return null;
@@ -429,7 +447,10 @@ namespace Bicep.Core.TypeSystem
         private ITypeReference GetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences) => TryGetTypeFromTypeSyntax(syntax, allowNamespaceReferences)
             ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidTypeDefinition());
 
-        private ITypeReference? TryGetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences) => declaredTypes.GetOrAdd(syntax, s =>
+        private ITypeReference? TryGetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences)
+            => TryGetTypeAssignmentFromTypeSyntax(syntax, allowNamespaceReferences)?.Reference;
+
+        private DeclaredTypeAssignment? TryGetTypeAssignmentFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences) => declaredTypes.GetOrAdd(syntax, s =>
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
@@ -454,17 +475,17 @@ namespace Bicep.Core.TypeSystem
                 UnionTypeSyntax unionType => GetUnionTypeType(unionType),
                 UnionTypeMemberSyntax unionTypeMember => GetTypeMemberType(unionTypeMember),
                 ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized, allowNamespaceReferences),
-                PropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
-                ObjectTypeAdditionalPropertiesAccessSyntax additionalPropertiesAccess => ConvertTypeExpressionToType(additionalPropertiesAccess),
-                ArrayAccessSyntax arrayAccess => ConvertTypeExpressionToType(arrayAccess),
-                ArrayTypeItemsAccessSyntax itemsAccess => ConvertTypeExpressionToType(itemsAccess),
+                TypePropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
+                TypeAdditionalPropertiesAccessSyntax additionalPropertiesAccess => ConvertTypeExpressionToType(additionalPropertiesAccess),
+                TypeArrayAccessSyntax arrayAccess => ConvertTypeExpressionToType(arrayAccess),
+                TypeItemsAccessSyntax itemsAccess => ConvertTypeExpressionToType(itemsAccess),
                 NullableTypeSyntax nullableType => ConvertTypeExpressionToType(nullableType),
                 NonNullAssertionSyntax nonNullAssertion => ConvertTypeExpressionToType(nonNullAssertion),
                 _ => null
             };
 
             return declaredType is not null ? new(declaredType, syntax, DeclaredTypeFlags.None) : null;
-        })?.Reference;
+        });
 
         private DeclaredTypeAssignment GetResourceTypeType(ResourceTypeSyntax syntax)
             => new(GetTypeReferenceForResourceType(syntax), syntax);
@@ -737,6 +758,10 @@ namespace Bicep.Core.TypeSystem
             NullableTypeSyntax nullableType => RequiresDeferral(nullableType.Base),
             UnaryOperationSyntax unaryOperation => RequiresDeferral(unaryOperation.Expression),
             UnionTypeSyntax unionType => unionType.Members.Any(m => RequiresDeferral(m.Value)),
+            TypePropertyAccessSyntax typePropertyAccess => RequiresDeferral(typePropertyAccess.BaseExpression),
+            TypeAdditionalPropertiesAccessSyntax typeAdditionalPropertiesAccess => RequiresDeferral(typeAdditionalPropertiesAccess.BaseExpression),
+            TypeArrayAccessSyntax typeArrayAccess => RequiresDeferral(typeArrayAccess.BaseExpression),
+            TypeItemsAccessSyntax typeItemsAccess => RequiresDeferral(typeItemsAccess.BaseExpression),
             VariableAccessSyntax variableAccess when binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol => true,
             _ => false,
         };
@@ -847,29 +872,29 @@ namespace Bicep.Core.TypeSystem
         private ITypeReference ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax, bool allowNamespaceReferences)
             => GetTypeFromTypeSyntax(syntax.Expression, allowNamespaceReferences);
 
-        private ITypeReference ConvertTypeExpressionToType(PropertyAccessSyntax syntax)
-            => ConvertTypeExpressionToType(syntax, syntax.PropertyName.IdentifierName, syntax.PropertyName);
+        private ITypeReference ConvertTypeExpressionToType(TypePropertyAccessSyntax syntax)
+            => ConvertTypeExpressionToType(syntax, syntax.BaseExpression, syntax.PropertyName.IdentifierName, syntax.PropertyName);
 
-        private ITypeReference ConvertTypeExpressionToType(ArrayAccessSyntax syntax) => syntax.IndexExpression switch
+        private ITypeReference ConvertTypeExpressionToType(TypeArrayAccessSyntax syntax) => syntax.IndexExpression switch
         {
             IntegerLiteralSyntax @int => ConvertTypeExpressionToType(syntax, @int.Value),
             UnaryOperationSyntax unaryOperation when unaryOperation.Operator == UnaryOperator.Minus
                 => ErrorType.Create(DiagnosticBuilder.ForPosition(unaryOperation).NegatedTypeIndexSought()),
             StringSyntax @string when @string.TryGetLiteralValue() is string propertyName
-                => ConvertTypeExpressionToType(syntax, propertyName, @string),
+                => ConvertTypeExpressionToType(syntax, syntax.BaseExpression, propertyName, @string),
             _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).CompileTimeConstantRequired())
         };
 
-        private ITypeReference ConvertTypeExpressionToType(AccessExpressionSyntax syntax, string propertyName, SyntaxBase propertyNameSyntax)
+        private ITypeReference ConvertTypeExpressionToType(SyntaxBase syntax, SyntaxBase baseExpression, string propertyName, SyntaxBase propertyNameSyntax)
         {
-            if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
+            if (!IsPermittedTypeAccessExpressionBase(baseExpression))
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).AccessExpressionForbiddenBase());
             }
 
-            var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: true);
+            var baseType = GetTypeFromTypeSyntax(baseExpression, allowNamespaceReferences: true);
 
-            return RequiresDeferral(syntax.BaseExpression)
+            return RequiresDeferral(baseExpression)
                 ? new DeferredTypeReference(() => FinalizeTypePropertyType(baseType, propertyName, propertyNameSyntax))
                 : FinalizeTypePropertyType(baseType, propertyName, propertyNameSyntax);
         }
@@ -877,9 +902,10 @@ namespace Bicep.Core.TypeSystem
         private bool IsPermittedTypeAccessExpressionBase(SyntaxBase baseExpression) => baseExpression switch
         {
             // if the base expression is itself an access expression, any error will bubble up from the innermost access expression
-            AccessExpressionSyntax or
-            ObjectTypeAdditionalPropertiesAccessSyntax or
-            ArrayTypeItemsAccessSyntax => true,
+            TypePropertyAccessSyntax or
+            TypeAdditionalPropertiesAccessSyntax or
+            TypeArrayAccessSyntax or
+            TypeItemsAccessSyntax => true,
             // Accessing properties or elements of a reference is permitted
             VariableAccessSyntax => true,
             // as is accessing elements of a resource-derived type
@@ -925,7 +951,7 @@ namespace Bicep.Core.TypeSystem
             return UnwrapType(propertyNameSyntax, typeProperty.TypeReference.Type);
         }
 
-        private ITypeReference ConvertTypeExpressionToType(ArrayAccessSyntax syntax, ulong index)
+        private ITypeReference ConvertTypeExpressionToType(TypeArrayAccessSyntax syntax, ulong index)
         {
             if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
             {
@@ -939,7 +965,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeTypeIndexAccessType(syntax, index, baseType);
         }
 
-        private static TypeSymbol FinalizeTypeIndexAccessType(ArrayAccessSyntax syntax, ulong index, ITypeReference baseExpressionType)
+        private static TypeSymbol FinalizeTypeIndexAccessType(TypeArrayAccessSyntax syntax, ulong index, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 
@@ -967,7 +993,7 @@ namespace Bicep.Core.TypeSystem
             return UnwrapType(syntax.IndexExpression, tupleType.Items[(int) index].Type);
         }
 
-        private ITypeReference ConvertTypeExpressionToType(ObjectTypeAdditionalPropertiesAccessSyntax syntax)
+        private ITypeReference ConvertTypeExpressionToType(TypeAdditionalPropertiesAccessSyntax syntax)
         {
             if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
             {
@@ -981,7 +1007,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeAdditionalPropertiesAccessType(syntax, baseType);
         }
 
-        private static TypeSymbol FinalizeAdditionalPropertiesAccessType(ObjectTypeAdditionalPropertiesAccessSyntax syntax, ITypeReference baseExpressionType)
+        private static TypeSymbol FinalizeAdditionalPropertiesAccessType(TypeAdditionalPropertiesAccessSyntax syntax, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 
@@ -1003,7 +1029,7 @@ namespace Bicep.Core.TypeSystem
             return UnwrapType(syntax.Asterisk, @object.AdditionalPropertiesType.Type);
         }
 
-        private ITypeReference ConvertTypeExpressionToType(ArrayTypeItemsAccessSyntax syntax)
+        private ITypeReference ConvertTypeExpressionToType(TypeItemsAccessSyntax syntax)
         {
             if (!IsPermittedTypeAccessExpressionBase(syntax.BaseExpression))
             {
@@ -1017,7 +1043,7 @@ namespace Bicep.Core.TypeSystem
                 : FinalizeItemsAccessType(syntax, baseType);
         }
 
-        private static TypeSymbol FinalizeItemsAccessType(ArrayTypeItemsAccessSyntax syntax, ITypeReference baseExpressionType)
+        private static TypeSymbol FinalizeItemsAccessType(TypeItemsAccessSyntax syntax, ITypeReference baseExpressionType)
         {
             var baseType = baseExpressionType.Type;
 

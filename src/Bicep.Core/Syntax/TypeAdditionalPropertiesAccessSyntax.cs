@@ -8,9 +8,9 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public class ObjectTypeAdditionalPropertiesAccessSyntax : TypeSyntax
+public class TypeAdditionalPropertiesAccessSyntax : TypeSyntax
 {
-    public ObjectTypeAdditionalPropertiesAccessSyntax(SyntaxBase baseExpression, Token dot, Token asterisk)
+    public TypeAdditionalPropertiesAccessSyntax(SyntaxBase baseExpression, Token dot, Token asterisk)
     {
         AssertTokenType(dot, nameof(dot), TokenType.Dot);
         AssertTokenType(asterisk, nameof(asterisk), TokenType.Asterisk);
@@ -26,7 +26,7 @@ public class ObjectTypeAdditionalPropertiesAccessSyntax : TypeSyntax
 
     public Token Asterisk { get; }
 
-    public override void Accept(ISyntaxVisitor visitor) => visitor.VisitObjectTypeAdditionalPropertiesAccessSyntax(this);
+    public override void Accept(ISyntaxVisitor visitor) => visitor.VisitTypeAdditionalPropertiesAccessSyntax(this);
 
     public override TextSpan Span => TextSpan.Between(BaseExpression, Asterisk);
 }

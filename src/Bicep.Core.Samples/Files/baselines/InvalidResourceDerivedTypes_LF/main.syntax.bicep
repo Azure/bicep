@@ -301,7 +301,7 @@ type typoInPropertyName = resource<'Microsoft.Storage/storageAccounts@2023-01-01
 //@[005:0023) | ├─IdentifierSyntax
 //@[005:0023) | | └─Token(Identifier) |typoInPropertyName|
 //@[024:0025) | ├─Token(Assignment) |=|
-//@[026:0086) | └─PropertyAccessSyntax
+//@[026:0086) | └─TypePropertyAccessSyntax
 //@[026:0082) |   ├─ParameterizedTypeInstantiationSyntax
 //@[026:0034) |   | ├─IdentifierSyntax
 //@[026:0034) |   | | └─Token(Identifier) |resource|
@@ -320,10 +320,10 @@ type typoInPropertyName2 = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.prop
 //@[005:0024) | ├─IdentifierSyntax
 //@[005:0024) | | └─Token(Identifier) |typoInPropertyName2|
 //@[025:0026) | ├─Token(Assignment) |=|
-//@[027:0112) | └─PropertyAccessSyntax
-//@[027:0104) |   ├─ArrayTypeItemsAccessSyntax
-//@[027:0101) |   | ├─PropertyAccessSyntax
-//@[027:0086) |   | | ├─PropertyAccessSyntax
+//@[027:0112) | └─TypePropertyAccessSyntax
+//@[027:0104) |   ├─TypeItemsAccessSyntax
+//@[027:0101) |   | ├─TypePropertyAccessSyntax
+//@[027:0086) |   | | ├─TypePropertyAccessSyntax
 //@[027:0075) |   | | | ├─ParameterizedTypeInstantiationSyntax
 //@[027:0035) |   | | | | ├─IdentifierSyntax
 //@[027:0035) |   | | | | | └─Token(Identifier) |resource|
@@ -351,10 +351,10 @@ type typoInPropertyName3 = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.prop
 //@[005:0024) | ├─IdentifierSyntax
 //@[005:0024) | | └─Token(Identifier) |typoInPropertyName3|
 //@[025:0026) | ├─Token(Assignment) |=|
-//@[027:0113) | └─PropertyAccessSyntax
-//@[027:0104) |   ├─PropertyAccessSyntax
-//@[027:0089) |   | ├─ArrayTypeItemsAccessSyntax
-//@[027:0086) |   | | ├─PropertyAccessSyntax
+//@[027:0113) | └─TypePropertyAccessSyntax
+//@[027:0104) |   ├─TypePropertyAccessSyntax
+//@[027:0089) |   | ├─TypeItemsAccessSyntax
+//@[027:0086) |   | | ├─TypePropertyAccessSyntax
 //@[027:0075) |   | | | ├─ParameterizedTypeInstantiationSyntax
 //@[027:0035) |   | | | | ├─IdentifierSyntax
 //@[027:0035) |   | | | | | └─Token(Identifier) |resource|
@@ -382,10 +382,10 @@ type typoInPropertyName4 = resource<'Microsoft.Web/customApis@2016-06-01'>.prope
 //@[005:0024) | ├─IdentifierSyntax
 //@[005:0024) | | └─Token(Identifier) |typoInPropertyName4|
 //@[025:0026) | ├─Token(Assignment) |=|
-//@[027:0114) | └─PropertyAccessSyntax
-//@[027:0108) |   ├─ObjectTypeAdditionalPropertiesAccessSyntax
-//@[027:0106) |   | ├─PropertyAccessSyntax
-//@[027:0085) |   | | ├─PropertyAccessSyntax
+//@[027:0114) | └─TypePropertyAccessSyntax
+//@[027:0108) |   ├─TypeAdditionalPropertiesAccessSyntax
+//@[027:0106) |   | ├─TypePropertyAccessSyntax
+//@[027:0085) |   | | ├─TypePropertyAccessSyntax
 //@[027:0074) |   | | | ├─ParameterizedTypeInstantiationSyntax
 //@[027:0035) |   | | | | ├─IdentifierSyntax
 //@[027:0035) |   | | | | | └─Token(Identifier) |resource|
@@ -412,10 +412,10 @@ type typoInPropertyName5 = resource<'Microsoft.Web/customApis@2016-06-01'>.prope
 //@[005:0024) | ├─IdentifierSyntax
 //@[005:0024) | | └─Token(Identifier) |typoInPropertyName5|
 //@[025:0026) | ├─Token(Assignment) |=|
-//@[027:0113) | └─PropertyAccessSyntax
-//@[027:0108) |   ├─PropertyAccessSyntax
-//@[027:0087) |   | ├─ObjectTypeAdditionalPropertiesAccessSyntax
-//@[027:0085) |   | | ├─PropertyAccessSyntax
+//@[027:0113) | └─TypePropertyAccessSyntax
+//@[027:0108) |   ├─TypePropertyAccessSyntax
+//@[027:0087) |   | ├─TypeAdditionalPropertiesAccessSyntax
+//@[027:0085) |   | | ├─TypePropertyAccessSyntax
 //@[027:0074) |   | | | ├─ParameterizedTypeInstantiationSyntax
 //@[027:0035) |   | | | | ├─IdentifierSyntax
 //@[027:0035) |   | | | | | └─Token(Identifier) |resource|

@@ -574,11 +574,17 @@ namespace Bicep.Core.PrettyPrintV2
                     padding: LineOrEmpty,
                     forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any()));
 
-        private IEnumerable<Document> LayoutObjectTypeAdditionalPropertiesAccessSyntax(ObjectTypeAdditionalPropertiesAccessSyntax syntax) =>
+        private IEnumerable<Document> LayoutTypePropertyAccessSyntax(TypePropertyAccessSyntax syntax) =>
+            this.Glue(syntax.BaseExpression, syntax.Dot, syntax.PropertyName);
+
+        private IEnumerable<Document> LayoutTypeAdditionalPropertiesAccessSyntax(TypeAdditionalPropertiesAccessSyntax syntax) =>
             this.Glue(syntax.BaseExpression, syntax.Dot, syntax.Asterisk);
 
-        private IEnumerable<Document> LayoutArrayTypeItemsAccessSyntax(ArrayTypeItemsAccessSyntax syntax) =>
-            this.Glue(syntax.BaseExpression, syntax.OpenBracket, syntax.Asterisk, syntax.OpenBracket);
+        private IEnumerable<Document> LayoutTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax) =>
+            this.Glue(syntax.BaseExpression, syntax.OpenSquare, syntax.IndexExpression, syntax.OpenSquare);
+
+        private IEnumerable<Document> LayoutTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax) =>
+            this.Glue(syntax.BaseExpression, syntax.OpenSquare, syntax.Asterisk, syntax.OpenSquare);
 
         private IEnumerable<Document> LayoutLeadingNodes(IEnumerable<SyntaxBase> leadingNodes) =>
             this.LayoutMany(leadingNodes)
