@@ -179,16 +179,16 @@ public class SourceArchiveTests
                 new Uri("file:///my project/my sources/main.bicep", UriKind.Absolute),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(1, 2, 1, 3), new Uri("file:///my project/my sources/modules/module1.bicep", UriKind.Absolute)),
+                    new(new SourceCodeRange(1, 2, 1, 3), new Uri("file:///my project/my sources/modules/module1.bicep", UriKind.Absolute)),
                 }
             },
             {
                 new Uri("file:///my project/my sources/modules/module1.bicep", UriKind.Absolute),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(123, 124, 234, 235), new Uri("file:///my project/my sources/main.bicep", UriKind.Absolute)),
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(234, 235, 345, 346), new Uri("file:///my project/my sources/remote/main.json", UriKind.Absolute)),
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(123, 456, 234, 567), new Uri("file:///my project/my sources/main.bicep", UriKind.Absolute)),
+                    new(new SourceCodeRange(123, 124, 234, 235), new Uri("file:///my project/my sources/main.bicep", UriKind.Absolute)),
+                    new(new SourceCodeRange(234, 235, 345, 346), new Uri("file:///my project/my sources/remote/main.json", UriKind.Absolute)),
+                    new(new SourceCodeRange(123, 456, 234, 567), new Uri("file:///my project/my sources/main.bicep", UriKind.Absolute)),
                 }
             },
         };
@@ -207,16 +207,16 @@ public class SourceArchiveTests
                 "main.bicep",
                 new SourceCodeDocumentPathLink[]
                 {
-                    new SourceCodeDocumentPathLink(new SourceCodeRange(1, 2, 1, 3), "modules/module1.bicep"),
+                    new(new SourceCodeRange(1, 2, 1, 3), "modules/module1.bicep"),
                 }
             },
             {
                 "modules/module1.bicep",
                 new SourceCodeDocumentPathLink[]
                 {
-                    new SourceCodeDocumentPathLink(new SourceCodeRange(123, 124, 234, 235), "main.bicep"),
-                    new SourceCodeDocumentPathLink(new SourceCodeRange(234, 235, 345, 346), "remote/main.json"),
-                    new SourceCodeDocumentPathLink(new SourceCodeRange(123, 456, 234, 567), "main.bicep"),
+                    new(new SourceCodeRange(123, 124, 234, 235), "main.bicep"),
+                    new(new SourceCodeRange(234, 235, 345, 346), "remote/main.json"),
+                    new(new SourceCodeRange(123, 456, 234, 567), "main.bicep"),
                 }
             },
         };

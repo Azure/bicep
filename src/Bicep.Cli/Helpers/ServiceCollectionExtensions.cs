@@ -16,8 +16,8 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Environment = Bicep.Core.Utils.Environment;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Cli.Helpers;
 

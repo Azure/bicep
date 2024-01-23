@@ -69,7 +69,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("testRG", "myModule:v2", "bicepconfig.json", "BCP212", "The Template Spec module alias name \"testRG\" does not exist in the Bicep configuration \"/bicepconfig.json\".")]
         public void TryParse_AliasNotInConfiguration_ReturnsFalseAndSetsError(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
         {
-            var configuration = BicepTestConstants.CreateMockConfiguration(configFileUri: configurationPath is {} ? new Uri($"file:///{configurationPath}") : null);
+            var configuration = BicepTestConstants.CreateMockConfiguration(configFileUri: configurationPath is { } ? new Uri($"file:///{configurationPath}") : null);
 
             TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 

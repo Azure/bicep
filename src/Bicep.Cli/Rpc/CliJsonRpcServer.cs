@@ -67,7 +67,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         {
             fileUris.Add(otherModel.SourceFile.FileUri);
             fileUris.UnionWith(otherModel.GetAuxiliaryFileReferences());
-            if (otherModel.Configuration.ConfigFileUri is {} configFileUri)
+            if (otherModel.Configuration.ConfigFileUri is { } configFileUri)
             {
                 fileUris.Add(configFileUri);
             }
@@ -90,14 +90,16 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
 
     private static GetMetadataResponse.SymbolDefinition GetSymbolDefinition(SemanticModel model, DeclaredSymbol symbol)
     {
-        var typeSyntax = symbol switch {
+        var typeSyntax = symbol switch
+        {
             ParameterSymbol x => x.DeclaringParameter.Type,
             OutputSymbol x => x.DeclaringOutput.Type,
             _ => null,
         };
 
-        GetMetadataResponse.TypeDefinition? getTypeInfo() {
-            if (typeSyntax is {} && 
+        GetMetadataResponse.TypeDefinition? getTypeInfo()
+        {
+            if (typeSyntax is { } &&
                 model.GetSymbolInfo(typeSyntax) is DeclaredSymbol typeSymbol)
             {
                 return new(
@@ -105,8 +107,8 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
                     typeSymbol.Name);
             }
 
-            if (typeSyntax is {} && 
-                model.GetDeclaredType(symbol.DeclaringSyntax) is {} type)
+            if (typeSyntax is { } &&
+                model.GetDeclaredType(symbol.DeclaringSyntax) is { } type)
             {
                 return new(null, type.Name);
             }

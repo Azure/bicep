@@ -15,7 +15,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
 {
     private Uri GetUri(string relativePath)
     {
-        return  new Uri(InMemoryFileResolver.GetFileUri("/path/to/"), relativePath);
+        return new Uri(InMemoryFileResolver.GetFileUri("/path/to/"), relativePath);
     }
 
     [TestMethod]
@@ -45,7 +45,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                 GetUri("main.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(1, 18, 1, 34), GetUri("createVM.bicep")),
+                    new(new SourceCodeRange(1, 18, 1, 34), GetUri("createVM.bicep")),
                 }
             },
         });
@@ -71,7 +71,7 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                 GetUri("main.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(1, 18, 1, 37), GetUri("../createVM.bicep")),
+                    new(new SourceCodeRange(1, 18, 1, 37), GetUri("../createVM.bicep")),
                 }
             },
         });
@@ -121,15 +121,15 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                 GetUri("createVM.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(0, 12, 0, 34), GetUri("../../whatever.bicep")),
+                    new(new SourceCodeRange(0, 12, 0, 34), GetUri("../../whatever.bicep")),
                 }
             },
             {
                 GetUri("main.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(0, 12, 0, 44), GetUri("modules/ai/bing-resources.json")),
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(2, 18, 2, 34), GetUri("createVM.bicep")),
+                    new(new SourceCodeRange(0, 12, 0, 44), GetUri("modules/ai/bing-resources.json")),
+                    new(new SourceCodeRange(2, 18, 2, 34), GetUri("createVM.bicep")),
                 }
             },
         });
@@ -192,9 +192,9 @@ public class SourceCodeDocumentLinkHelperTests : TestBase
                 GetUri("main.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(0, 31, 0, 31+26), GetUri("access-policy/main.bicep")),
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(8, 24, 8, 24+19), GetUri("secret/main.bicep")),
-                    new SourceCodeDocumentUriLink(new SourceCodeRange(23, 21, 23, 21+16), GetUri("key/main.bicep")),
+                    new(new SourceCodeRange(0, 31, 0, 31+26), GetUri("access-policy/main.bicep")),
+                    new(new SourceCodeRange(8, 24, 8, 24+19), GetUri("secret/main.bicep")),
+                    new(new SourceCodeRange(23, 21, 23, 21+16), GetUri("key/main.bicep")),
                 }
             },
         });

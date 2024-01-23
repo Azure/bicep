@@ -34,7 +34,8 @@ public class AuxiliaryFileCache : IReadableFileCache
     public ResultWithDiagnostic<AuxiliaryFile> Read(Uri uri)
         => fileCache.GetOrAdd(
             uri,
-            uri => {
+            uri =>
+            {
                 var result = fileResolver.TryReadAsBinaryData(uri)
                     .Transform(data => new AuxiliaryFile(uri, data));
 

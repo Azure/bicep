@@ -187,7 +187,7 @@ namespace Bicep.Core.Registry
             try
             {
                 string manifestFileContents = fileSystem.File.ReadAllText(manifestFilePath);
-                var manifest = JsonSerializer.Deserialize(manifestFileContents,  OciManifestSerializationContext.Default.OciManifest);
+                var manifest = JsonSerializer.Deserialize(manifestFileContents, OciManifestSerializationContext.Default.OciManifest);
                 return manifest ?? throw new Exception($"Deserialization of cached manifest \"{manifestFilePath}\" failed");
             }
             catch (Exception ex)
@@ -255,8 +255,8 @@ namespace Bicep.Core.Registry
             {
                 layers.Add(
                     new(
-                        bicepSources, 
-                        BicepModuleMediaTypes.BicepSourceV1Layer, 
+                        bicepSources,
+                        BicepModuleMediaTypes.BicepSourceV1Layer,
                         new OciManifestAnnotationsBuilder().WithTitle("Source files").Build()));
             }
 

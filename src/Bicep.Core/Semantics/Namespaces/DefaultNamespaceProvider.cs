@@ -72,7 +72,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
             Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
             return new(errorBuilder);
         }
-        
+
         return new(x => x.UnrecognizedProvider(descriptor.Name));
     }
 }
