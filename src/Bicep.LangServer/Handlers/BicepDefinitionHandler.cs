@@ -261,6 +261,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 if (syntax is PropertyAccessSyntax propertyAccessSyntax)
                 {
+                    // since we are traversing bottom up, add this access to the beginning of the list
                     propertyAccesses.Insert(0, propertyAccessSyntax.PropertyName);
                     syntax = propertyAccessSyntax.BaseExpression;
 
@@ -269,6 +270,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 if (syntax is TypePropertyAccessSyntax typePropertyAccessSyntax)
                 {
+                    // since we are traversing bottom up, add this access to the beginning of the list
                     propertyAccesses.Insert(0, typePropertyAccessSyntax.PropertyName);
                     syntax = typePropertyAccessSyntax.BaseExpression;
 
@@ -283,12 +285,6 @@ namespace Bicep.LanguageServer.Handlers
                 }
 
                 break;
-            }
-            while (syntax is PropertyAccessSyntax propertyAccessSyntax)
-            {
-                // since we are traversing bottom up, add this access to the beginning of the list
-                propertyAccesses.Insert(0, propertyAccessSyntax.PropertyName);
-                syntax = propertyAccessSyntax.BaseExpression;
             }
 
             if (syntax is VariableAccessSyntax ancestor
