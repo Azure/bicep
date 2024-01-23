@@ -581,10 +581,10 @@ namespace Bicep.Core.PrettyPrintV2
             this.Glue(syntax.BaseExpression, syntax.Dot, syntax.Asterisk);
 
         private IEnumerable<Document> LayoutTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax) =>
-            this.Glue(syntax.BaseExpression, syntax.OpenSquare, syntax.IndexExpression, syntax.OpenSquare);
+            this.Glue(syntax.BaseExpression, syntax.OpenSquare, syntax.IndexExpression, syntax.CloseSquare);
 
         private IEnumerable<Document> LayoutTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax) =>
-            this.Glue(syntax.BaseExpression, syntax.OpenSquare, syntax.Asterisk, syntax.OpenSquare);
+            this.Glue(syntax.BaseExpression, syntax.OpenSquare, syntax.Asterisk, syntax.CloseSquare);
 
         private IEnumerable<Document> LayoutLeadingNodes(IEnumerable<SyntaxBase> leadingNodes) =>
             this.LayoutMany(leadingNodes)

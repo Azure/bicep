@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4990) ProgramExpression
+//@[000:5153) ProgramExpression
 //@[000:0299) ├─DeclaredTypeExpression { Name = foo }
 //@[013:0027) | ├─StringLiteralExpression { Value = The foo type }
 @sealed()
@@ -47,6 +47,12 @@ type foo = {
 //@[013:0016) |       └─TypeAliasReferenceExpression { Name = foo }
 }
 
+type fooProperty = foo.objectProp.intProp
+//@[000:0041) ├─DeclaredTypeExpression { Name = fooProperty }
+//@[019:0041) | └─TypeReferencePropertyAccessExpression { Name = int }
+//@[019:0033) |   └─TypeReferencePropertyAccessExpression { Name = { intProp: int, intArrayArrayProp: int[][] | null } }
+//@[019:0022) |     └─TypeAliasReferenceExpression { Name = foo }
+
 @minLength(3)
 //@[000:0163) ├─DeclaredTypeExpression { Name = bar }
 //@[011:0012) | ├─IntegerLiteralExpression { Value = 3 }
@@ -80,6 +86,11 @@ type bar = int[][][][]
 //@[011:0018) |     └─ArrayTypeExpression { Name = int[][] }
 //@[011:0016) |       └─ArrayTypeExpression { Name = int[] }
 //@[011:0014) |         └─AmbientTypeReferenceExpression { Name = int }
+
+type barElement = bar[*]
+//@[000:0024) ├─DeclaredTypeExpression { Name = barElement }
+//@[018:0024) | └─TypeReferenceItemsAccessExpression { Name = int[][][] }
+//@[018:0021) |   └─TypeAliasReferenceExpression { Name = bar }
 
 type aUnion = 'snap'|'crackle'|'pop'
 //@[000:0036) ├─DeclaredTypeExpression { Name = aUnion }
@@ -219,6 +230,11 @@ type tuple = [
 //@[004:0007) |     └─TypeAliasReferenceExpression { Name = bar }
 ]
 
+type tupleSecondItem = tuple[1]
+//@[000:0031) ├─DeclaredTypeExpression { Name = tupleSecondItem }
+//@[023:0031) | └─TypeReferenceIndexAccessExpression { Name = int[][][][] }
+//@[023:0028) |   └─TypeAliasReferenceExpression { Name = tuple }
+
 type stringStringDictionary = {
 //@[000:0047) ├─DeclaredTypeExpression { Name = stringStringDictionary }
 //@[030:0047) | └─ObjectTypeExpression { Name = { *: string } }
@@ -226,6 +242,11 @@ type stringStringDictionary = {
 //@[004:0013) |   └─ObjectTypeAdditionalPropertiesExpression
 //@[007:0013) |     └─AmbientTypeReferenceExpression { Name = string }
 }
+
+type stringStringDictionaryValue = stringStringDictionary.*
+//@[000:0059) ├─DeclaredTypeExpression { Name = stringStringDictionaryValue }
+//@[035:0059) | └─TypeReferenceAdditionalPropertiesAccessExpression { Name = string }
+//@[035:0057) |   └─TypeAliasReferenceExpression { Name = stringStringDictionary }
 
 @minValue(1)
 //@[000:0052) ├─DeclaredTypeExpression { Name = constrainedInt }

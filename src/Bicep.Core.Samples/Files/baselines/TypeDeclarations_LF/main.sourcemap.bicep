@@ -69,6 +69,11 @@ type foo = {
 //@        }
 }
 
+type fooProperty = foo.objectProp.intProp
+//@    "fooProperty": {
+//@      "$ref": "#/definitions/foo/properties/objectProp/properties/intProp"
+//@    },
+
 @minLength(3)
 //@      "minLength": 3
 @description('An array of array of arrays of arrays of ints')
@@ -120,6 +125,11 @@ type bar = int[][][][]
 //@          }
 //@        }
 //@      },
+//@    },
+
+type barElement = bar[*]
+//@    "barElement": {
+//@      "$ref": "#/definitions/bar/items"
 //@    },
 
 type aUnion = 'snap'|'crackle'|'pop'
@@ -287,6 +297,11 @@ type tuple = [
 //@        }
 ]
 
+type tupleSecondItem = tuple[1]
+//@    "tupleSecondItem": {
+//@      "$ref": "#/definitions/tuple/prefixItems/1"
+//@    },
+
 type stringStringDictionary = {
 //@    "stringStringDictionary": {
 //@      "type": "object",
@@ -296,6 +311,11 @@ type stringStringDictionary = {
 //@        "type": "string"
 //@      }
 }
+
+type stringStringDictionaryValue = stringStringDictionary.*
+//@    "stringStringDictionaryValue": {
+//@      "$ref": "#/definitions/stringStringDictionary/additionalProperties"
+//@    },
 
 @minValue(1)
 //@      "minValue": 1,
