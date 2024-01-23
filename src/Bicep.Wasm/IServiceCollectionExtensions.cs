@@ -15,6 +15,8 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
+using Environment = Bicep.Core.Utils.Environment;
+using BicepConfig = Bicep.Core.Configuration;
 
 namespace Bicep.Wasm;
 
@@ -29,7 +31,7 @@ public static class IServiceCollectionExtensions
         .AddSingleton<IFileResolver, FileResolver>()
         .AddSingleton<IEnvironment, Environment>()
         .AddSingleton<IFileSystem, MockFileSystem>()
-        .AddSingleton<IConfigurationManager, ConfigurationManager>()
+        .AddSingleton<BicepConfig.IConfigurationManager, BicepConfig.ConfigurationManager>()
         .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
         .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
         .AddSingleton<ILinterRulesProvider, LinterRulesProvider>()

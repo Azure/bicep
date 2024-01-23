@@ -14,6 +14,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using Environment = Bicep.Core.Utils.Environment;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {

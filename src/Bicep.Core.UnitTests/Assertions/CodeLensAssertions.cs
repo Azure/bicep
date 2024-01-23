@@ -3,6 +3,7 @@
 using FluentAssertions;
 using FluentAssertions.Primitives;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.Core.UnitTests.Assertions;
 
