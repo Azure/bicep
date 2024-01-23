@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12432202576544985285"
+      "templateHash": "18208490248298158101"
     }
   },
   "definitions": {
@@ -91,6 +91,64 @@
             "value": [
               "asdf",
               "[parameters('name')]"
+            ]
+          }
+        },
+        "person": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "name"
+            },
+            {
+              "type": "int",
+              "name": "age"
+            },
+            {
+              "type": "int",
+              "name": "weight"
+            },
+            {
+              "type": "int",
+              "name": "height"
+            }
+          ],
+          "output": {
+            "type": "array",
+            "value": [
+              "[parameters('name')]",
+              "[parameters('age')]",
+              "[parameters('weight')]",
+              "[parameters('height')]"
+            ]
+          }
+        },
+        "longParameterList": {
+          "parameters": [
+            {
+              "type": "string",
+              "name": "one"
+            },
+            {
+              "type": "string",
+              "name": "two"
+            },
+            {
+              "type": "string",
+              "name": "three"
+            },
+            {
+              "type": "string",
+              "name": "four"
+            }
+          ],
+          "output": {
+            "type": "array",
+            "value": [
+              "[parameters('one')]",
+              "[parameters('two')]",
+              "[parameters('three')]",
+              "[parameters('four')]"
             ]
           }
         },

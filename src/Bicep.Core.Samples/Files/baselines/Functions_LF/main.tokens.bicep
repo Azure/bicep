@@ -147,6 +147,84 @@ func asdf(name string) array => [
 //@[000:001) RightSquare |]|
 //@[001:003) NewLine |\n\n|
 
+func person(name string,
+//@[000:004) Identifier |func|
+//@[005:011) Identifier |person|
+//@[011:012) LeftParen |(|
+//@[012:016) Identifier |name|
+//@[017:023) Identifier |string|
+//@[023:024) Comma |,|
+//@[024:025) NewLine |\n|
+  age int,
+//@[002:005) Identifier |age|
+//@[006:009) Identifier |int|
+//@[009:010) Comma |,|
+//@[010:011) NewLine |\n|
+weight int,
+//@[000:006) Identifier |weight|
+//@[007:010) Identifier |int|
+//@[010:011) Comma |,|
+//@[011:012) NewLine |\n|
+height int) array => [
+//@[000:006) Identifier |height|
+//@[007:010) Identifier |int|
+//@[010:011) RightParen |)|
+//@[012:017) Identifier |array|
+//@[018:020) Arrow |=>|
+//@[021:022) LeftSquare |[|
+//@[022:023) NewLine |\n|
+  name
+//@[002:006) Identifier |name|
+//@[006:007) NewLine |\n|
+  age
+//@[002:005) Identifier |age|
+//@[005:006) NewLine |\n|
+  weight
+//@[002:008) Identifier |weight|
+//@[008:009) NewLine |\n|
+  height
+//@[002:008) Identifier |height|
+//@[008:009) NewLine |\n|
+]
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\n\n|
+
+func longParameterList(one string, two string, three string, /* comment comment comment comment */ four string) array => [
+//@[000:004) Identifier |func|
+//@[005:022) Identifier |longParameterList|
+//@[022:023) LeftParen |(|
+//@[023:026) Identifier |one|
+//@[027:033) Identifier |string|
+//@[033:034) Comma |,|
+//@[035:038) Identifier |two|
+//@[039:045) Identifier |string|
+//@[045:046) Comma |,|
+//@[047:052) Identifier |three|
+//@[053:059) Identifier |string|
+//@[059:060) Comma |,|
+//@[099:103) Identifier |four|
+//@[104:110) Identifier |string|
+//@[110:111) RightParen |)|
+//@[112:117) Identifier |array|
+//@[118:120) Arrow |=>|
+//@[121:122) LeftSquare |[|
+//@[122:123) NewLine |\n|
+  one
+//@[002:005) Identifier |one|
+//@[005:006) NewLine |\n|
+  two
+//@[002:005) Identifier |two|
+//@[005:006) NewLine |\n|
+  three
+//@[002:007) Identifier |three|
+//@[007:008) NewLine |\n|
+  four
+//@[002:006) Identifier |four|
+//@[006:007) NewLine |\n|
+]
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\n\n|
+
 @minValue(0)
 //@[000:001) At |@|
 //@[001:009) Identifier |minValue|

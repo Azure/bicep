@@ -49,9 +49,9 @@ output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not suppo
 //@[07:13) Output hellos. Type: array. Declaration start char: 0, length: 55
 
 func sayHelloBadNewlines(
-//@[25:25) Local <missing>. Type: any. Declaration start char: 25, length: 0
-//@[05:24) Function sayHelloBadNewlines. Type: any => any. Declaration start char: 0, length: 25
+//@[05:24) Function sayHelloBadNewlines. Type: string => string. Declaration start char: 0, length: 64
   name string) string => 'Hi ${name}!'
+//@[02:06) Local name. Type: string. Declaration start char: 2, length: 11
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 //@[05:28) TypeAlias validStringLiteralUnion. Type: Type<'bar' | 'baz' | 'foo'>. Declaration start char: 0, length: 48

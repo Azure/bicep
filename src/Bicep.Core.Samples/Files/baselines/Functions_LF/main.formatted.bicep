@@ -19,6 +19,23 @@ func asdf(name string) array => [
   name
 ]
 
+func person(name string,
+  age int,
+  weight int,
+  height int) array => [
+  name
+  age
+  weight
+  height
+]
+
+func longParameterList(one string, two string, three string, /* comment comment comment comment */ four string) array => [
+  one
+  two
+  three
+  four
+]
+
 @minValue(0)
 type positiveInt = int
 

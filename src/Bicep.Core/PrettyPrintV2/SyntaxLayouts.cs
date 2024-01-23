@@ -142,6 +142,19 @@ namespace Bicep.Core.PrettyPrintV2
 
         private IEnumerable<Document> LayoutLambdaSyntax(LambdaSyntax syntax)
         {
+            // It is really tricky to update the parser to make LambdaSyntax.VariableBlockSyntax newline insensitive, so flattening it.
+            var variableSection = syntax.VariableSection switch
+            {
+                LocalVariableSyntax localVariable => this.LayoutSingle(localVariable),
+                VariableBlockSyntax variableBlock => this.LayoutSingle(variableBlock) switch
+                {
+                    GroupDocument group => group.Flatten().Glue(),
+                    var document => document,
+                },
+
+                _ => throw new NotImplementedException()
+            };
+
             if (syntax.Body is not ObjectSyntax and not ArraySyntax ||
                 syntax.NewlinesBeforeBody.Any(
                     newline => newline.LeadingTrivia.Any(
@@ -151,13 +164,13 @@ namespace Bicep.Core.PrettyPrintV2
                 // Only group "=> <newlines> <body>" if body is not an object or an array,
                 // or there are dangling comments after =>.
                 return this.Spread(
-                    syntax.VariableSection,
+                    variableSection,
                     syntax.Arrow,
                     this.IndentGroup(syntax.NewlinesBeforeBody.Append(syntax.Body)));
             }
 
             return this.Spread(
-                syntax.VariableSection,
+                variableSection,
                 syntax.Arrow,
                 syntax.Body);
         }

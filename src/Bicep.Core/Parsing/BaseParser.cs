@@ -1179,7 +1179,13 @@ namespace Bicep.Core.Parsing
 
         protected SyntaxBase TypedLambda()
         {
-            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => TypedLocalVariable(TokenType.NewLine, TokenType.Comma, TokenType.RightParen));
+            var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
+
+            var variablesAndTokens = HandleFunctionElements(
+                closingTokenType: TokenType.RightParen,
+                parseChildElement: () => TypedLocalVariable(TokenType.NewLine, TokenType.Comma, TokenType.RightParen));
+
+            var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
 
             var returnType = this.WithRecovery(() => Type(allowOptionalResourceType: false), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
             var arrow = this.WithRecovery(() => Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>")), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
@@ -1188,7 +1194,7 @@ namespace Bicep.Core.Parsing
                 ? this.NewLines().ToImmutableArray()
                 : ImmutableArray<Token>.Empty;
             var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
-            var variableBlock = new TypedVariableBlockSyntax(openParen, expressionsOrCommas, closeParen);
+            var variableBlock = new TypedVariableBlockSyntax(openParen, variablesAndTokens, closeParen);
 
             return new TypedLambdaSyntax(variableBlock, returnType, arrow, newlinesBeforeBody, expression);
         }

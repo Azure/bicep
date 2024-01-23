@@ -43,14 +43,7 @@ output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not suppo
 //@[46:54) [BCP063 (Error)] The name "sayHello" is not a parameter, variable, resource or module. (CodeDescription: none) |sayHello|
 
 func sayHelloBadNewlines(
-//@[25:25) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
-//@[25:25) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
-//@[25:25) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
-//@[25:25) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
-//@[25:25) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) ||
-//@[25:25) [BCP018 (Error)] Expected the "=>" character at this location. (CodeDescription: none) ||
   name string) string => 'Hi ${name}!'
-//@[02:06) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |name|
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 func invalidArgs(a validStringLiteralUnion, b string) string => a

@@ -102,6 +102,81 @@ func asdf(name string) array => [
 //@              "[parameters('name')]"
 ]
 
+func person(name string,
+//@        "person": {
+//@          "parameters": [
+//@            {
+//@              "type": "string",
+//@              "name": "name"
+//@            },
+//@            {
+//@              "name": "age"
+//@            },
+//@            {
+//@              "name": "weight"
+//@            },
+//@            {
+//@              "name": "height"
+//@            }
+//@          ],
+//@          "output": {
+//@          }
+//@        },
+  age int,
+//@              "type": "int",
+weight int,
+//@              "type": "int",
+height int) array => [
+//@              "type": "int",
+//@            "type": "array",
+//@            "value": [
+//@            ]
+  name
+//@              "[parameters('name')]",
+  age
+//@              "[parameters('age')]",
+  weight
+//@              "[parameters('weight')]",
+  height
+//@              "[parameters('height')]"
+]
+
+func longParameterList(one string, two string, three string, /* comment comment comment comment */ four string) array => [
+//@        "longParameterList": {
+//@          "parameters": [
+//@            {
+//@              "type": "string",
+//@              "name": "one"
+//@            },
+//@            {
+//@              "type": "string",
+//@              "name": "two"
+//@            },
+//@            {
+//@              "type": "string",
+//@              "name": "three"
+//@            },
+//@            {
+//@              "type": "string",
+//@              "name": "four"
+//@            }
+//@          ],
+//@          "output": {
+//@            "type": "array",
+//@            "value": [
+//@            ]
+//@          }
+//@        },
+  one
+//@              "[parameters('one')]",
+  two
+//@              "[parameters('two')]",
+  three
+//@              "[parameters('three')]",
+  four
+//@              "[parameters('four')]"
+]
+
 @minValue(0)
 //@      "minValue": 0
 type positiveInt = int

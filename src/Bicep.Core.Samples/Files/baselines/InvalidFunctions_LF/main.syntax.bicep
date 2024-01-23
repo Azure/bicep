@@ -345,32 +345,32 @@ output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not suppo
 //@[113:0115) ├─Token(NewLine) |\n\n|
 
 func sayHelloBadNewlines(
-//@[000:0025) ├─FunctionDeclarationSyntax
+//@[000:0064) ├─FunctionDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |func|
 //@[005:0024) | ├─IdentifierSyntax
 //@[005:0024) | | └─Token(Identifier) |sayHelloBadNewlines|
-//@[024:0025) | └─TypedLambdaSyntax
-//@[024:0025) |   ├─TypedVariableBlockSyntax
+//@[024:0064) | └─TypedLambdaSyntax
+//@[024:0040) |   ├─TypedVariableBlockSyntax
 //@[024:0025) |   | ├─Token(LeftParen) |(|
-//@[025:0025) |   | ├─TypedLocalVariableSyntax
-//@[025:0025) |   | | ├─IdentifierSyntax
-//@[025:0025) |   | | | └─SkippedTriviaSyntax
-//@[025:0025) |   | | └─SkippedTriviaSyntax
-//@[025:0025) |   | └─SkippedTriviaSyntax
-//@[025:0025) |   ├─SkippedTriviaSyntax
-//@[025:0025) |   ├─SkippedTriviaSyntax
-//@[025:0025) |   └─SkippedTriviaSyntax
-//@[025:0026) ├─Token(NewLine) |\n|
+//@[025:0026) |   | ├─Token(NewLine) |\n|
   name string) string => 'Hi ${name}!'
-//@[002:0038) ├─SkippedTriviaSyntax
-//@[002:0006) | ├─Token(Identifier) |name|
-//@[007:0013) | ├─Token(Identifier) |string|
-//@[013:0014) | ├─Token(RightParen) |)|
-//@[015:0021) | ├─Token(Identifier) |string|
-//@[022:0024) | ├─Token(Arrow) |=>|
-//@[025:0031) | ├─Token(StringLeftPiece) |'Hi ${|
-//@[031:0035) | ├─Token(Identifier) |name|
-//@[035:0038) | └─Token(StringRightPiece) |}!'|
+//@[002:0013) |   | ├─TypedLocalVariableSyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[007:0013) |   | | └─VariableAccessSyntax
+//@[007:0013) |   | |   └─IdentifierSyntax
+//@[007:0013) |   | |     └─Token(Identifier) |string|
+//@[013:0014) |   | └─Token(RightParen) |)|
+//@[015:0021) |   ├─VariableAccessSyntax
+//@[015:0021) |   | └─IdentifierSyntax
+//@[015:0021) |   |   └─Token(Identifier) |string|
+//@[022:0024) |   ├─Token(Arrow) |=>|
+//@[025:0038) |   └─StringSyntax
+//@[025:0031) |     ├─Token(StringLeftPiece) |'Hi ${|
+//@[031:0035) |     ├─VariableAccessSyntax
+//@[031:0035) |     | └─IdentifierSyntax
+//@[031:0035) |     |   └─Token(Identifier) |name|
+//@[035:0038) |     └─Token(StringRightPiece) |}!'|
 //@[038:0040) ├─Token(NewLine) |\n\n|
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
