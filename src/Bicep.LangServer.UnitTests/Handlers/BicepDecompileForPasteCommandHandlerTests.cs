@@ -1,29 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Mocks;
-using Bicep.LanguageServer;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using SharpYaml.Tokens;
-using static Bicep.LangServer.UnitTests.Handlers.BicepDecompileForPasteCommandHandlerTests;
 using static Bicep.LanguageServer.Handlers.BicepDecompileForPasteCommandHandler;
-using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {

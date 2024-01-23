@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 
-using System;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Utils;
 

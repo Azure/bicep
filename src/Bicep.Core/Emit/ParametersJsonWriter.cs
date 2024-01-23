@@ -1,13 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit;
 

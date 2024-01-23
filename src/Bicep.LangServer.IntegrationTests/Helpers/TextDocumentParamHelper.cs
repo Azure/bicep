@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.IO;
 using Bicep.Core;
 using Bicep.Core.FileSystem;
 using OmniSharp.Extensions.LanguageServer.Protocol;

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-using System.IO;
 
 namespace Bicep.Cli
 {

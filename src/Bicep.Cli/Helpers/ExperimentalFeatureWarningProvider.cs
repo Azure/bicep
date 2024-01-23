@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Features;
 using Bicep.Core.Workspaces;
 

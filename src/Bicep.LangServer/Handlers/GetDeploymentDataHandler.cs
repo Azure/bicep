@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;

@@ -12,7 +12,6 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.Utils;
 using Microsoft.Extensions.DependencyInjection;
 

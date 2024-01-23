@@ -1,8 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-
 namespace Bicep.Core.Semantics
 {
     public class SymbolResultCache<TResult>

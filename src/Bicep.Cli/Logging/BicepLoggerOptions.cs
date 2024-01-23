@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
-
 namespace Bicep.Cli.Logging
 {
     public class BicepLoggerOptions

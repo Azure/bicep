@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.LanguageServer.CompilationManager

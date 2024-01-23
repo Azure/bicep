@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.CommandLine.Builder;
-using System.Linq;
 using Bicep.RegistryModuleTool.Options;
 
 namespace Bicep.RegistryModuleTool.Extensions

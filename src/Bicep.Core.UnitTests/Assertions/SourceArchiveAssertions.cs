@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
 using Bicep.Core.SourceCode;
 using FluentAssertions;
 using FluentAssertions.Execution;

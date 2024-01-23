@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
-using System.Text.Json.Serialization;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;

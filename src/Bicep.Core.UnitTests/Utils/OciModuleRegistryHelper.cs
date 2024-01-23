@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Modules;
@@ -18,7 +13,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Memory;
 using Moq;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.Core.UnitTests.Utils
 {

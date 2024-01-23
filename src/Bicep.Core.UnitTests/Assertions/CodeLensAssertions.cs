@@ -1,8 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Linq;
-using System.Reactive.Subjects;
-using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
 using FluentAssertions.Primitives;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;

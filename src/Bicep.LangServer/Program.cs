@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Diagnostics;
 using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Utils;
 using CommandLine;
 

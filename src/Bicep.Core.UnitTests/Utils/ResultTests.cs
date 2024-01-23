@@ -2,9 +2,6 @@
 // Licensed under the MIT License.
 
 
-using System;
-using System.Dynamic;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

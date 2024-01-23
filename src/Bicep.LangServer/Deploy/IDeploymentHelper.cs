@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
-using System.Threading.Tasks;
 using Azure.ResourceManager;
 using Bicep.LanguageServer.Handlers;
 

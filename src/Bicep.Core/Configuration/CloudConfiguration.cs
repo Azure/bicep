@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.Core;
 using Bicep.Core.Extensions;
-using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Bicep.Core.Configuration
 {

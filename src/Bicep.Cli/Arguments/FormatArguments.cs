@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
-using Bicep.Cli.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.PrettyPrint.Options;
 

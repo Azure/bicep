@@ -1,9 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Bicep.Core.Syntax.Visitors
 {
     public static class SyntaxAggregator

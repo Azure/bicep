@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using FluentAssertions;
-using FluentAssertions.Primitives;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.UnitTests.Assertions;
 

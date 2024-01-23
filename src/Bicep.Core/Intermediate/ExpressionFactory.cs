@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 
