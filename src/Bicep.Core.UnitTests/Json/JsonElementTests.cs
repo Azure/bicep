@@ -11,7 +11,7 @@ using Json.More;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Core.UnitTests;
+namespace Bicep.Core.UnitTests.Json;
 
 [TestClass]
 public class JsonElementTests
