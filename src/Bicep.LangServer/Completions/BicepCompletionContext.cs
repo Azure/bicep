@@ -909,19 +909,6 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<UnionTypeSyntax>(matchingNodes, union => union.Children.LastOrDefault() is SkippedTriviaSyntax) ||
             SyntaxMatcher.IsTailMatch<UnionTypeSyntax, UnionTypeMemberSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, _, token) => token.Type == TokenType.Identifier);
 
-        private static bool IsWithinTypeClause((SyntaxBase? node, int index) topLevelDeclarationInfo, int offset) => topLevelDeclarationInfo.node switch
-        {
-            TypeDeclarationSyntax typeDeclaration => IsWithinSyntaxNode(typeDeclaration.Value, offset),
-            ParameterDeclarationSyntax parameterDeclaration => IsWithinSyntaxNode(parameterDeclaration.Type, offset),
-            OutputDeclarationSyntax outputDeclaration => IsWithinSyntaxNode(outputDeclaration.Type, offset),
-            FunctionDeclarationSyntax functionDeclaration => functionDeclaration.Lambda is TypedLambdaSyntax typedLambda &&
-                (IsWithinSyntaxNode(typedLambda.ReturnType, offset) || typedLambda.GetLocalVariables().Any(local => IsWithinSyntaxNode(local.Type, offset))),
-            _ => false,
-        };
-
-        private static bool IsWithinSyntaxNode(SyntaxBase syntaxNode, int offset)
-            => syntaxNode.Span.Position <= offset && offset <= syntaxNode.Span.GetEndPosition();
-
         private static IndexedSyntaxContext<FunctionCallSyntaxBase>? TryGetFunctionArgumentContext(List<SyntaxBase> matchingNodes, int offset)
         {
             // someFunc(|)

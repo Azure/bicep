@@ -451,10 +451,7 @@ namespace Bicep.Core.TypeSystem
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
 
-                this.VisitNodes(syntax.LeadingNodes);
-                this.Visit(syntax.Name);
-                this.Visit(syntax.Type);
-                this.Visit(syntax.Modifier);
+                base.VisitParameterDeclarationSyntax(syntax);
 
                 if (syntax.Modifier != null)
                 {
@@ -525,9 +522,7 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name).ReservedTypeName(syntax.Name.IdentifierName));
                 }
 
-                this.VisitNodes(syntax.LeadingNodes);
-                this.Visit(syntax.Name);
-                this.Visit(syntax.Value);
+                base.VisitTypeDeclarationSyntax(syntax);
 
                 diagnostics.WriteMultiple(declaredType?.GetDiagnostics() ?? Enumerable.Empty<IDiagnostic>());
 
@@ -989,10 +984,7 @@ namespace Bicep.Core.TypeSystem
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
                 diagnostics.WriteMultiple(GetOutputDeclarationDiagnostics(declaredType, syntax));
 
-                this.VisitNodes(syntax.LeadingNodes);
-                this.Visit(syntax.Name);
-                this.Visit(syntax.Type);
-                this.Visit(syntax.Value);
+                base.VisitOutputDeclarationSyntax(syntax);
 
                 return declaredType;
             });
