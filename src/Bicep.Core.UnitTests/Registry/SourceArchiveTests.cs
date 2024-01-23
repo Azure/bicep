@@ -123,10 +123,15 @@ public class SourceArchiveTests
         }
     }";
 
-    private ISourceFile CreateSourceFile(MockFileSystem fs, Uri projectFolderUri, string relativePath, string sourceKind, string content)
+    private ISourceFile CreateSourceFile(MockFileSystem fs, string path, string sourceKind, string content)
     {
-        projectFolderUri.AbsolutePath.Should().EndWith("/");
-        Uri uri = new(projectFolderUri, relativePath);
+        return CreateSourceFile(fs, null, path, sourceKind, content);
+    }
+
+    private ISourceFile CreateSourceFile(MockFileSystem fs, Uri? projectFolderUri, string relativePath, string sourceKind, string content)
+    {
+        projectFolderUri?.AbsolutePath.Should().EndWith("/");
+        Uri uri = projectFolderUri is null ? PathHelper.FilePathToFileUrl(relativePath) : PathHelper.FilePathToFileUrl(Path.Combine(projectFolderUri.LocalPath, relativePath));
         fs.AddFile(uri.LocalPath, content);
         string actualContents = fs.File.ReadAllText(uri.LocalPath);
         return sourceKind switch
@@ -141,7 +146,7 @@ public class SourceArchiveTests
     [TestMethod]
     public void CanPackAndUnpackSourceFiles()
     {
-        Uri projectFolder = new($"file://{ROOT}my project/my sources/", UriKind.Absolute);
+        Uri projectFolder = PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/");
         var fs = new MockFileSystem();
         fs.AddDirectory(projectFolder.LocalPath);
 
@@ -172,7 +177,7 @@ public class SourceArchiveTests
     [TestMethod]
     public void CanPackAndUnpackDocumentLinks()
     {
-        Uri projectFolder = new($"file://{ROOT}my project/my sources/", UriKind.Absolute);
+        Uri projectFolder = PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/");
         var fs = new MockFileSystem();
         fs.AddDirectory(projectFolder.LocalPath);
         var mainBicep = CreateSourceFile(fs, projectFolder, "main&.bicep", SourceArchive.SourceKind_Bicep, MainDotBicepSource);
@@ -185,21 +190,21 @@ public class SourceArchiveTests
         var linksInput = new Dictionary<Uri, SourceCodeDocumentUriLink[]>()
         {
             {
-                new Uri($"file://{ROOT}my project/my sources/main&.bicep", UriKind.Absolute),
+                PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new(new SourceCodeRange(1, 2, 1, 3), new Uri($"file://{ROOT}my project/my sources/modules/localJsonModule.json", UriKind.Absolute)),
-                    new(new SourceCodeRange(11, 2, 11, 3), new Uri($"file://{ROOT}my project/my sources/modules/localBicepModule.bicep", UriKind.Absolute)),
+                    new(new SourceCodeRange(1, 2, 1, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
+                    new(new SourceCodeRange(11, 2, 11, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localBicepModule.bicep")),
                 }
             },
             {
-                new Uri($"file://{ROOT}my project/my sources/modules/localBicepModule.bicep", UriKind.Absolute),
+                PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localBicepModule.bicep"),
                 new SourceCodeDocumentUriLink[]
                 {
-                    new(new SourceCodeRange(123, 124, 234, 235), new Uri($"file://{ROOT}my project/my sources/main&.bicep", UriKind.Absolute)),
-                    new(new SourceCodeRange(234, 235, 345, 346), new Uri($"file://{ROOT}my project/my sources/main.json", UriKind.Absolute)),
-                    new(new SourceCodeRange(123, 456, 234, 567), new Uri($"file://{ROOT}my project/my sources/main&.bicep", UriKind.Absolute)),
-                    new(new SourceCodeRange(345, 2, 345, 3), new Uri($"file://{ROOT}my project/my sources/modules/localJsonModule.json", UriKind.Absolute)),
+                    new(new SourceCodeRange(123, 124, 234, 235), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
+                    new(new SourceCodeRange(234, 235, 345, 346), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main.json")),
+                    new(new SourceCodeRange(123, 456, 234, 567), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
+                    new(new SourceCodeRange(345, 2, 345, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
                 }
             },
         };
@@ -241,23 +246,25 @@ public class SourceArchiveTests
         new string[] { "my root/my project/my main.bicep", "my other.bicep" },
         new string[] { "files/my root/my project/my main.bicep", "files/my other.bicep" },
         DisplayName = "HandlesPathsCorrectly: spaces")]
+#if WINDOWS_BUILD
     [DataRow(
         new string[] { $"{ROOT}my root\\my project\\my main.bicep", $"{ROOT}my other.bicep" },
         new string[] { "my root/my project/my main.bicep", "my other.bicep" },
         new string[] { "files/my root/my project/my main.bicep", "files/my other.bicep" },
         DisplayName = "HandlesPathsCorrectly: backslashes")]
+#endif
     [DataRow(
-        new string[] { $"{ROOT}my#project\\sub#folder\\my#main.bicep", $"{ROOT}my#project\\my#main.bicep" },
+        new string[] { $"{ROOT}my#project/sub#folder/my#main.bicep", $"{ROOT}my#project/my#main.bicep" },
         new string[] { "sub#folder/my#main.bicep", "my#main.bicep" },
         new string[] { "files/sub_folder/my_main.bicep", "files/my_main.bicep" },
         DisplayName = "HandlesPathsCorrectly: #")]
     [DataRow(
-        new string[] { $"{ROOT}my root\\my project\\my main.bicep", $"{ROOT}my root/my project/sub folder/my other bicep.bicep" },
+        new string[] { $"{ROOT}my root/my project/my main.bicep", $"{ROOT}my root/my project/sub folder/my other bicep.bicep" },
         new string[] { "my main.bicep", "sub folder/my other bicep.bicep" },
         new string[] { "files/my main.bicep", "files/sub folder/my other bicep.bicep" },
         DisplayName = "HandlesPathsCorrectly: subfolder")]
     [DataRow(
-        new string[] { $"{ROOT}my main.bicep", $"{ROOT}sub folder\\my other bicep.bicep" },
+        new string[] { $"{ROOT}my main.bicep", $"{ROOT}sub folder/my other bicep.bicep" },
         new string[] { "my main.bicep", "sub folder/my other bicep.bicep" },
         new string[] { "files/my main.bicep", "files/sub folder/my other bicep.bicep" },
         DisplayName = "HandlesPathsCorrectly: in root")]
@@ -377,10 +384,7 @@ public class SourceArchiveTests
         {
             entrypointFolder += Path.DirectorySeparatorChar;
         }
-        var rootBicepFolder = PathHelper.FilePathToFileUrl(entrypointFolder);
-        fs.AddDirectory(rootBicepFolder.LocalPath);
-
-        var files = inputPaths.Select(path => CreateSourceFile(fs, rootBicepFolder, path, SourceArchive.SourceKind_Bicep, $"// {path}")).ToArray();
+        var files = inputPaths.Select(path => CreateSourceFile(fs, path, SourceArchive.SourceKind_Bicep, $"// {path}")).ToArray();
 
         using var stream = SourceArchive.PackSourcesIntoStream(files[0].FileUri, CacheRoot, files);
         SourceArchive sourceArchive = SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
@@ -408,21 +412,21 @@ public class SourceArchiveTests
         $"{ROOT}my root/my project/my[.bicep", "my[.bicep", "files/my_.bicep(3)",
         DisplayName = "DuplicateNamesAfterMunging_ShouldHaveSeparateEntries: &")]
     [DataRow(
-        $"{ROOT}my root\\my project\\123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\\a.txt",
+        $"{ROOT}my root/my project/123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789/a.txt",
             "123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789/a.txt",
             "files/123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123__path_too_long__.txt",
-        $"{ROOT}my root\\my project\\123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789\\b.txt",
+        $"{ROOT}my root/my project/123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789/b.txt",
             "123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789/b.txt",
             "files/123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123__path_too_long__.txt(2)",
-        $"{ROOT}my root\\my project\\123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 extra characters here that get truncated\\a.txt",
+        $"{ROOT}my root/my project/123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 extra characters here that get truncated/a.txt",
             "123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 extra characters here that get truncated/a.txt",
             "files/123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123__path_too_long__.txt(3)",
         DisplayName = "DuplicateNamesAfterMunging_ShouldHaveSeparateEntries: truncated")]
 #if WINDOWS_BUILD
     [DataRow(
-        "c:/my root/my.bicep", "my.bicep", "files/my.bicep",
-        "d:/my root/my project/parent/m&.bicep", "<root2>/m&.bicep", "files/_root2_/m_.bicep",
-        "d:/my root/my project/parent/m[.bicep", "<root2>/m[.bicep", "files/_root2_/m_.bicep(2)",
+        "c:\\my root\\my.bicep", "my.bicep", "files/my.bicep",
+        "d:\\my root\\my project\\parent\\m&.bicep", "<root2>/m&.bicep", "files/_root2_/m_.bicep",
+        "d:\\my root\\my project/parent\\m[.bicep", "<root2>/m[.bicep", "files/_root2_/m_.bicep(2)",
         DisplayName = "DuplicateNamesAfterMunging_ShouldHaveSeparateEntries: different drives")]
 #endif
     [DataTestMethod]
@@ -435,10 +439,10 @@ public class SourceArchiveTests
         string entrypointPath = $"{ROOT}my root/my project/my entrypoint.bicep";
         var fs = new MockFileSystem();
 
-        var rootBicepFolder = new Uri(Path.GetDirectoryName(entrypointPath)! + "/", UriKind.Absolute);
+        var rootBicepFolder = new Uri(ROOT);
         fs.AddDirectory(rootBicepFolder.LocalPath);
 
-        var entrypointFile = CreateSourceFile(fs, rootBicepFolder, Path.GetFileName(entrypointPath), SourceArchive.SourceKind_Bicep, MainDotBicepSource);
+        var entrypointFile = CreateSourceFile(fs, rootBicepFolder, entrypointPath, SourceArchive.SourceKind_Bicep, MainDotBicepSource);
         var sutFile1 = CreateSourceFile(fs, rootBicepFolder, inputBicepPath1, SourceArchive.SourceKind_Bicep, SecondaryDotBicepSource);
         var sutFile2 = CreateSourceFile(fs, rootBicepFolder, inputBicepPath2, SourceArchive.SourceKind_Bicep, SecondaryDotBicepSource);
         var sutFile3 = inputBicepPath3 is null ? null : CreateSourceFile(fs, rootBicepFolder, inputBicepPath3, SourceArchive.SourceKind_Bicep, SecondaryDotBicepSource);
