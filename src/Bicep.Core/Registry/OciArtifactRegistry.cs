@@ -365,12 +365,11 @@ namespace Bicep.Core.Registry
             if (result is OciModuleArtifactResult moduleArtifact)
             {
                 // write source archive file
-                // TODO: do we need to delete this file if there is no source layer?
                 if (this.features.PublishSourceEnabled && result.TryGetSingleLayerByMediaType(BicepModuleMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
                 {
-                    // TODO: Write all layers as separate binary files instead of separate files for source.tar.gz and provider files.
+                    // CONSIDER: Write all layers as separate binary files instead of separate files for source.tgz and provider files.
                     // We should do this rather than writing individual files we know about,
-                    //   (e.g. "source.tar.gz") because this way we can restore all layers even if we don't know what they're for.
+                    //   (e.g. "source.tgz") because this way we can restore all layers even if we don't know what they're for.
                     //   If an optional layer is added, we don't need to version the cache because all versions have the same complete
                     //   info on disk and can handle the layer data as they want to.
                     // The manifest can be used to determine what's in each layer file.
@@ -485,7 +484,7 @@ namespace Bicep.Core.Registry
                 ArtifactFileType.Manifest => "manifest",
                 ArtifactFileType.Metadata => "metadata",
                 ArtifactFileType.Provider => "types.tgz",
-                ArtifactFileType.Source => "source.tar.gz",
+                ArtifactFileType.Source => "source.tgz",
                 _ => throw new NotImplementedException($"Unexpected artifact file type '{fileType}'.")
             };
 

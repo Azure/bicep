@@ -58,7 +58,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
             if (Subject.HasSourceLayer)
             {
-                expectedFiles.Add("source.tar.gz");
+                expectedFiles.Add("source.tgz");
             }
 
             var files = new DirectoryInfo(Subject.ModuleCacheFolder).EnumerateFiles().Select(file => file.Name).ToImmutableArray();

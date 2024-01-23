@@ -8,7 +8,7 @@ namespace Bicep.Core.SourceCode;
 /// </summary>
 /// <typeparam name="TTarget"></typeparam>
 /// <param name="Range">Span of the origin of this link in the source file (e.g. the module path of a module declaration syntax line)</param>
-/// <param name="Target">The target file for this link (e.g. the path of the source file pointed to by the module path inside the source.tar.gz file)</param>
+/// <param name="Target">The target file for this link (e.g. the path of the source file pointed to by the module path inside the source.tgz file)</param>
 public record SourceCodeDocumentLink<TTarget>(
     SourceCodeRange Range,
     TTarget Target
@@ -24,7 +24,7 @@ public record SourceCodeDocumentUriLink : SourceCodeDocumentLink<Uri>
     { }
 }
 
-// Refers to the target via the relative path used inside a source.tar.gz file
+// Refers to the target via the relative path used inside a source.tgz file
 public record SourceCodeDocumentPathLink : SourceCodeDocumentLink<string>
 {
     public SourceCodeDocumentPathLink(

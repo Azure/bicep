@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Formats.Tar;
 using System.IO.Compression;
 using System.Text;
@@ -9,7 +11,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.SourceCode
 {
@@ -37,7 +42,7 @@ namespace Bicep.Core.SourceCode
         public string FriendlyBicepVersion => InstanceMetadata.BicepVersion ?? "unknown";
 
         // The version of the metadata file format used by this archive instance.
-        public int MetadataVersion => InstanceMetadata.MetadataVersion;
+        public int MetadataVersion => InstanceMetadata.MetadataVersion ?? 0;
 
         public IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]> DocumentLinks => InstanceMetadata.DocumentLinks ?? new Dictionary<string, SourceCodeDocumentPathLink[]>();
 
@@ -49,10 +54,41 @@ namespace Bicep.Core.SourceCode
         public const string SourceKind_ArmTemplate = "armTemplate";
         public const string SourceKind_TemplateSpec = "templateSpec";
 
-        private const string MetadataFileName = "__metadata.json";
+        private const string MetadataFileName = "metadata.json";
+        private const string FilesFolderName = "files";
+
+        private static readonly char[] PathCharsToAvoid = Path.GetInvalidFileNameChars()
+        .Union(Path.GetInvalidPathChars())
+        .Union(new char[] { '"', '*', ':', '&', '<', '>', '?', '\\', '/', '|', '+', '[', ']', '#' })
+        .Where(ch => ch != '/')
+        .ToArray();
+
+        private const int MaxLegalPathLength = 260; // Limit for Windows
+        private const int MaxArchivePathLength = MaxLegalPathLength - 10; // ... this gives us some extra room to deduplicate paths
+
+        /* Example metadata.json:
+        {
+            "metadataVersion": 0,
+            "entryPoint": "my entrypoint.bicep",
+            "bicepVersion": "0.18.19",
+            "sourceFiles": [
+                {
+                    "sourcePath": "my entrypoint.bicep",
+                    "archivePath": "files/my entrypoint.bicep",
+                    "kind": "bicep"
+                },
+                {
+                    "sourcePath": "modules/main.bicep",
+                    "archivePath": "files/modules/main.bicep",
+                    "kind": "bicep"
+                }
+            ],
+            "DocumentLinks": { ... }
+        }
+        */
 
         // NOTE: Only change this value if there is a breaking change such that old versions of Bicep should fail on reading new source archives
-        public const int CurrentMetadataVersion = 0;
+        public const int CurrentMetadataVersion = 1;
         private static readonly string CurrentBicepVersion = ThisAssembly.AssemblyVersion;
 
         #endregion
@@ -61,23 +97,24 @@ namespace Bicep.Core.SourceCode
 
         public partial record SourceFileInfo(
             // Note: Path is also used as the key for source file retrieval
-            string Path,        // the location, relative to the main.bicep file's folder, for the file that will be shown to the end user (required in all Bicep versions)
-            string ArchivePath, // the location (relative to root) of where the file is stored in the archive (munged from Path, e.g. in case Path starts with "../")
-            string Kind,         // kind of source
-            string Contents
+            string Path,        // The location, relative to the main.bicep file's folder or one of the other roots.
+
+            string ArchivePath, // The location (relative to root) of where the file is stored in the archive (munged from Path, e.g. in case Path starts with "../")
+            string Kind,        // Kind of source
+            string Contents     // File contents
         );
 
         [JsonSerializable(typeof(ArchiveMetadata))]
         [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
         private partial class MetadataSerializationContext : JsonSerializerContext { }
 
-        // Metadata for the entire archive (stored in __metadata.json file in archive)
+        // Metadata for the entire archive (stored in metadata.json file in archive)
         [JsonSerializable(typeof(ArchiveMetadata))]
         private record ArchiveMetadata(
-            int MetadataVersion,
+            int? MetadataVersion,
+            string? BicepVersion,
             string EntryPoint, // Path of the entrypoint file
             IEnumerable<SourceFileInfoEntry> SourceFiles,
-            string? BicepVersion = null,
             IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? DocumentLinks = null // Maps source file path -> array of document links inside that file
         );
 
@@ -111,26 +148,19 @@ namespace Bicep.Core.SourceCode
         /// in JSON form) into an archive (as a stream)
         /// </summary>
         /// <returns>A .tar.gz file as a binary stream</returns>
-        public static Stream PackSourcesIntoStream(SourceFileGrouping sourceFileGrouping)
+        public static Stream PackSourcesIntoStream(SourceFileGrouping sourceFileGrouping, string? cacheRoot)
         {
             var documentLinks = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(sourceFileGrouping);
-            return PackSourcesIntoStream(sourceFileGrouping.EntryFileUri, documentLinks, sourceFileGrouping.SourceFiles.ToArray());
+            return PackSourcesIntoStream(sourceFileGrouping.EntryFileUri, cacheRoot, documentLinks, sourceFileGrouping.SourceFiles.ToArray());
         }
 
-        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, params ISourceFile[] sourceFiles)
+        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, params ISourceFile[] sourceFiles)
         {
-            return PackSourcesIntoStream(entrypointFileUri, documentLinks: null, sourceFiles);
+            return PackSourcesIntoStream(entrypointFileUri, cacheRoot, documentLinks: null, sourceFiles);
         }
 
-        // TODO: Toughen this up to handle conflicting paths, ".." paths, etc.
-        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params ISourceFile[] sourceFiles)
+        public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params ISourceFile[] sourceFiles)
         {
-            var baseFolderBuilder = new UriBuilder(entrypointFileUri)
-            {
-                Path = string.Join("", entrypointFileUri.Segments.SkipLast(1))
-            };
-            var baseFolderUri = baseFolderBuilder.Uri;
-
             var stream = new MemoryStream();
             using (var gz = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
             {
@@ -138,6 +168,13 @@ namespace Bicep.Core.SourceCode
                 {
                     var filesMetadata = new List<SourceFileInfoEntry>();
                     string? entryPointPath = null;
+
+                    var paths = sourceFiles.Select(f => GetPath(f.FileUri)).ToArray();
+                    var mapPathToRootPath = SourceCodePathHelper.MapPathsToDistinctRoots(cacheRoot, paths);
+                    var entrypointRootPath = mapPathToRootPath[GetPath(entrypointFileUri)];
+                    var mapRootPathToRootNewName = NameRoots(mapPathToRootPath, entrypointRootPath, cacheRoot);
+
+                    var sourceUriToRelativePathMap = new Dictionary<Uri, string>();
 
                     foreach (var file in sourceFiles)
                     {
@@ -150,19 +187,35 @@ namespace Bicep.Core.SourceCode
                             _ => throw new ArgumentException($"Unexpected source file type {file.GetType().Name}"),
                         };
 
-                        var (location, archivePath) = CalculateFilePathsFromUri(file.FileUri);
-                        WriteNewFileEntry(tarWriter, archivePath, source);
-                        filesMetadata.Add(new SourceFileInfoEntry(location, archivePath, kind));
+                        var path = GetPath(file.FileUri);
+                        var root = mapPathToRootPath[path];
+                        var rootName = mapRootPathToRootNewName[root];
+                        var (relativePath, archivePath) = CalculateRelativeAndArchivePaths(path, root, rootName);
 
-                        if (file.FileUri == entrypointFileUri)
+                        Trace.WriteLine($"Packing source file: {path} -> {relativePath}");
+
+                        if (filesMetadata.Any(f => PathHelper.PathComparer.Equals(f.Path, path)))
+                        {
+                            throw new ArgumentException("Cannot have multiple files in source archive with the same path");
+                        }
+
+                        // Duplicate archive paths are possible after names have been munged
+                        archivePath = UniquifyArchivePath(filesMetadata, archivePath);
+
+                        WriteNewFileEntry(tarWriter, archivePath, source);
+                        filesMetadata.Add(new SourceFileInfoEntry(relativePath, archivePath, kind));
+
+                        if (PathHelper.PathComparer.Equals(file.FileUri, entrypointFileUri))
                         {
                             if (entryPointPath is not null)
                             {
                                 throw new ArgumentException($"{nameof(SourceArchive)}.{nameof(PackSourcesIntoStream)}: Multiple source files with the entrypoint \"{entrypointFileUri.AbsoluteUri}\" were passed in.");
                             }
 
-                            entryPointPath = location;
+                            entryPointPath = relativePath;
                         }
+
+                        sourceUriToRelativePathMap.Add(file.FileUri, relativePath);
                     }
 
                     if (entryPointPath is null)
@@ -170,24 +223,91 @@ namespace Bicep.Core.SourceCode
                         throw new ArgumentException($"{nameof(SourceArchive)}.{nameof(PackSourcesIntoStream)}: No source file with entrypoint \"{entrypointFileUri.AbsoluteUri}\" was passed in.");
                     }
 
-                    // Add the metadata file
-                    var metadataContents = CreateMetadataFileContents(baseFolderUri, entryPointPath, filesMetadata, documentLinks);
+                    // Convert links
+                    var pathBasedLinks = UriDocumentLinksToPathBasedLinks(sourceUriToRelativePathMap, documentLinks);
+
+                    // Create and add the metadata file
+                    var metadataContents = CreateMetadataFileContents(entryPointPath, filesMetadata, pathBasedLinks);
                     WriteNewFileEntry(tarWriter, MetadataFileName, metadataContents);
                 }
             }
 
             stream.Seek(0, SeekOrigin.Begin);
             return stream;
+        }
 
-            (string location, string archivePath) CalculateFilePathsFromUri(Uri uri)
+        private static (string relativePath, string archivePath) CalculateRelativeAndArchivePaths(string path, string root, string rootName)
+        {
+            // Replace root of the path with root's "friendly" name to help avoid unintended
+            //   disclosure of user paths
+            var relativePath = Path.GetRelativePath(root, path);
+            Debug.Assert(!relativePath.StartsWith("../"), $"All paths should be under one of the roots");
+            relativePath = SourceCodePathHelper.NormalizeSlashes($"{rootName}{relativePath}");
+
+            // Handle illegal/problematic file characters in the path we use inside the archive
+            string archivePath = relativePath;
+            foreach (char ch in PathCharsToAvoid)
             {
-                var relativeLocation = CalculateRelativeFilePath(baseFolderUri, uri);
-                return (relativeLocation, relativeLocation);
+                archivePath = archivePath.Replace(ch, '_');
             }
+
+            // Place all sources files under "files/" in the archive
+            archivePath = Path.Join(FilesFolderName, archivePath);
+
+            // Shorten if needed
+            archivePath = SourceCodePathHelper.Shorten(archivePath, MaxArchivePathLength);
+
+            return (SourceCodePathHelper.NormalizeSlashes(relativePath), SourceCodePathHelper.NormalizeSlashes(archivePath));
+        }
+
+        private static string GetPath(Uri uri)
+        {
+            return SourceCodePathHelper.NormalizeSlashes(uri.LocalPath);
+        }
+
+        private static string UniquifyArchivePath(IList<SourceFileInfoEntry> filesMetadata, string archivePath)
+        {
+            int suffix = 1;
+            string tryPath = archivePath;
+
+            while (filesMetadata.Any(f => PathHelper.PathComparer.Equals(f.ArchivePath, tryPath)))
+            {
+                suffix += 1;
+                tryPath = $"{archivePath}({suffix})";
+            }
+
+            return tryPath;
+        }
+
+        private static Dictionary<string, string> NameRoots(IDictionary<string, string> rootsMap, string entrypointRoot, string? cacheRoot)
+        {
+            var rootNamesMap = new Dictionary<string, string>();
+
+            // Entrypoint path is always as the top of the archive path hierarchy
+            rootNamesMap[entrypointRoot] = "";
+
+            // Remaining roots are "<root2>", "<root3>", etc., or <cache> for the module cache root
+            int i = 2;
+            foreach (var root in rootsMap.Values.Distinct().Where(r => r != entrypointRoot))
+            {
+                if (PathHelper.PathComparer.Equals(root, cacheRoot))
+                {
+                    rootNamesMap[root] = "<cache>/";
+                    continue;
+                }
+
+                var rootName = $"<root{i}>/";
+                rootNamesMap.Add(root, rootName);
+                ++i;
+            }
+
+            return rootNamesMap;
         }
 
         public SourceFileInfo FindExpectedSourceFile(string path)
         {
+            // Note: We can use ordinal compare here because even if the module was published from Windows, the paths written into the
+            //   source archive will be consistent in casing
             if (this.SourceFiles.FirstOrDefault(f => 0 == StringComparer.Ordinal.Compare(f.Path, path)) is { } sourceFile)
             {
                 return sourceFile;
@@ -211,11 +331,17 @@ namespace Bicep.Core.SourceCode
             return null;
         }
 
-        private static string CalculateRelativeFilePath(Uri baseFolderUri, Uri uri)
+        private string FindRootForFile(string[] roots, string path)
         {
-            Uri relativeUri = baseFolderUri.MakeRelativeUri(uri);
-            var relativeLocation = Uri.UnescapeDataString(relativeUri.OriginalString);
-            return relativeLocation;
+            foreach (var root in roots)
+            {
+                if (path.StartsWith(root))
+                {
+                    return root;
+                }
+            }
+
+            throw new ArgumentException($"Could not find a root for path \"{path}\"");
         }
 
         private SourceArchive(Stream stream)
@@ -251,38 +377,50 @@ namespace Bicep.Core.SourceCode
         }
 
         private static string CreateMetadataFileContents(
-            Uri baseFolderUri,
             string entrypointPath,
             IEnumerable<SourceFileInfoEntry> files,
-            IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks
+            IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? documentLinks
         )
         {
-            // Add the __metadata.json file
-            var metadata = new ArchiveMetadata(CurrentMetadataVersion, entrypointPath, files, CurrentBicepVersion, UriDocumentLinksToPathBasedLinks(baseFolderUri, documentLinks));
+            var metadata = new ArchiveMetadata(CurrentMetadataVersion, CurrentBicepVersion, entrypointPath, files, documentLinks);
             return JsonSerializer.Serialize(metadata, MetadataSerializationContext.Default.ArchiveMetadata);
         }
 
         private static IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? UriDocumentLinksToPathBasedLinks(
-            Uri baseFolderUri,
+            IReadOnlyDictionary<Uri, string> sourceUriToRelativePathMap,
             IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? uriBasedDocumentLinks
         )
         {
             return uriBasedDocumentLinks?.Select(
                 x => new KeyValuePair<string, SourceCodeDocumentPathLink[]>(
-                    CalculateRelativeFilePath(baseFolderUri, x.Key),
-                    x.Value.Select(link => DocumentPathLinkFromUriLink(baseFolderUri, link)).ToArray()
+                    sourceUriToRelativePathMap[x.Key],
+                    x.Value.Select(link => DocumentPathLinkFromUriLink(sourceUriToRelativePathMap, link)).ToArray()
                 )).ToImmutableDictionary();
         }
 
-        private static SourceCodeDocumentPathLink DocumentPathLinkFromUriLink(Uri baseFolderUri, SourceCodeDocumentUriLink uriBasedLink)
+        private static SourceCodeDocumentPathLink DocumentPathLinkFromUriLink(
+            IReadOnlyDictionary<Uri, string> sourceUriToRelativePathMap,
+            SourceCodeDocumentUriLink uriBasedLink)
         {
             return new SourceCodeDocumentPathLink(
                 uriBasedLink.Range,
-                CalculateRelativeFilePath(baseFolderUri, uriBasedLink.Target));
+                sourceUriToRelativePathMap[uriBasedLink.Target]);
         }
 
         private static void WriteNewFileEntry(TarWriter tarWriter, string archivePath, string contents)
         {
+            Debug.Assert(!archivePath.Contains('\\'), $"Source archive paths should not contain backslashes, only forward slashes: \"{archivePath}\"");
+            Debug.Assert(!archivePath.Contains(':'), $"Source archive paths should not contain drive letters or colons: \"{archivePath}\"");
+            Debug.Assert(!archivePath.Contains("/../") && !archivePath.StartsWith("../"), $"Source archive paths should not contain \"..\" folders: \"{archivePath}\"");
+            Debug.Assert(!archivePath.Contains("/./") && !archivePath.StartsWith("./"), $"Source archive paths should not contain \"/./\" folders: \"{archivePath}\"");
+            Debug.Assert(!Path.IsPathFullyQualified(archivePath)
+                && !Path.IsPathRooted(archivePath), $"Source archive paths must be relative: \"{archivePath}\"");
+            Debug.Assert(archivePath.Length <= MaxLegalPathLength, $"Source archive paths must have length at most {MaxLegalPathLength}");
+            if (archivePath != MetadataFileName)
+            {
+                Debug.Assert(archivePath.StartsWith($"{FilesFolderName}/"), $"Source archive paths should be relative to the \"{FilesFolderName}\" folder");
+            }
+
             var tarEntry = new PaxTarEntry(TarEntryType.RegularFile, archivePath);
             tarEntry.DataStream = new MemoryStream(Encoding.UTF8.GetBytes(contents));
             tarWriter.WriteEntry(tarEntry);
