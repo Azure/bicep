@@ -21,7 +21,7 @@ namespace Bicep.Core.Workspaces
         private readonly IReadOnlyWorkspace workspace;
 
         private readonly Dictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri;
-        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference;
+        private readonly ConcurrentDictionary<BicepSourceFile, Dictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference;
 
         private readonly bool forceRestore;
 
@@ -73,7 +73,7 @@ namespace Bicep.Core.Workspaces
             }
 
             // Rebuild source files that contain external module references restored during the inital build.
-            var sourceFilesToRebuild = current.SourceFiles
+            var sourceFilesToRebuild = current.SourceFiles.OfType<BicepSourceFile>()
                 .Where(sourceFile
                     => GetArtifactReferenceDeclarations(sourceFile)
                         .Any(moduleDeclaration
@@ -261,8 +261,7 @@ namespace Bicep.Core.Workspaces
             _ => Enumerable.Empty<IArtifactReferenceSyntax>(),
         };
 
-        private static IEnumerable<IArtifactReferenceSyntax> GetArtifactReferenceDeclarations(ISourceFile sourceFile) => sourceFile is BicepFile bicepFile
-            ? bicepFile.ProgramSyntax.Declarations.OfType<IArtifactReferenceSyntax>()
-            : Enumerable.Empty<IArtifactReferenceSyntax>();
+        private static IEnumerable<IArtifactReferenceSyntax> GetArtifactReferenceDeclarations(BicepSourceFile sourceFile)
+            => sourceFile.ProgramSyntax.Declarations.OfType<IArtifactReferenceSyntax>();
     }
 }

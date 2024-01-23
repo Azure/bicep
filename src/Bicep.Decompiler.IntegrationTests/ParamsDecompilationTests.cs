@@ -18,8 +18,8 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static BicepparamDecompiler CreateBicepparamDecompiler(IFileResolver fileResolver)
-          => ServiceBuilder.Create(s => s.WithFileResolver(fileResolver)).GetBicepparamDecompiler();
+        private static BicepDecompiler CreateDecompiler(IFileResolver fileResolver)
+          => ServiceBuilder.Create(s => s.WithFileResolver(fileResolver)).GetDecompiler();
 
         [TestMethod]
         public void Decompiler_Decompiles_ValidParametersFile()
@@ -73,9 +73,11 @@ param fourth = {
                 [paramFileUri] = jsonParametersFile
             });
 
-            var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
+            var decompiler = CreateDecompiler(fileResolver);
 
-            var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(paramFileUri, PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), null);
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
+                jsonParametersFile,
+                PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), null);
 
             filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);
         }
@@ -116,10 +118,10 @@ param third = true";
                 [paramFileUri] = jsonParametersFile
             });
 
-            var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
+            var decompiler = CreateDecompiler(fileResolver);
 
-            var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(
-              paramFileUri,
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
+              jsonParametersFile,
               PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
               bicepFileUri);
 
@@ -167,10 +169,10 @@ param dnsLabelPrefix = 'newvm79347a'";
                 [paramFileUri] = jsonParametersFile
             });
 
-            var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
+            var decompiler = CreateDecompiler(fileResolver);
 
-            var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(
-              paramFileUri,
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
+              jsonParametersFile,
               PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
               null);
 
@@ -223,10 +225,10 @@ param regions = [
                 [paramFileUri] = jsonParametersFile
             });
 
-            var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
+            var decompiler = CreateDecompiler(fileResolver);
 
-            var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(
-              paramFileUri,
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
+              jsonParametersFile,
               PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
               null);
 

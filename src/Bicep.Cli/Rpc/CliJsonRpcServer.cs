@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Cli.Helpers;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -55,6 +56,29 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         var success = result.Status == EmitStatus.Succeeded;
 
         return new(success, diagnostics, success ? writer.ToString() : null);
+    }
+
+    public async Task<CompileParamsResponse> CompileParams(CompileParamsRequest request, CancellationToken cancellationToken)
+    {
+        var model = await GetSemanticModel(compiler, request.Path);
+        if (model.SourceFile is not BicepParamFile paramFile)
+        {
+            throw new InvalidOperationException($"Expected a .bicepparam file");
+        }
+
+        paramFile = ParamsFileHelper.ApplyParameterOverrides(paramFile, request.ParameterOverrides);
+
+        var workspace = new Workspace();
+        workspace.UpsertSourceFile(paramFile);
+        var compilation = await compiler.CreateCompilation(paramFile.FileUri, workspace);
+        var paramsResult = compilation.Emitter.Parameters();
+
+        return new(
+            paramsResult.Success,
+            GetDiagnostics(compilation).ToImmutableArray(),
+            paramsResult.Parameters,
+            paramsResult.Template?.Template,
+            paramsResult.TemplateSpecId);
     }
 
     public async Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken)
@@ -178,7 +202,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         return compilation.GetEntrypointSemanticModel();
     }
 
-    private static IEnumerable<CompileResponse.DiagnosticDefinition> GetDiagnostics(Compilation compilation)
+    private static IEnumerable<DiagnosticDefinition> GetDiagnostics(Compilation compilation)
     {
         foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
         {

@@ -51,7 +51,7 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().Contain($"{bicepPath} is not a bicep file");
+            error.Should().Contain($"\"{bicepPath}\" was not recognized as a Bicep file.");
         }
 
         [TestMethod]
@@ -348,6 +348,8 @@ output foo string = foo
             result.Should().Succeed().And.NotHaveStderr();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            // Force consistency for escaped newlines.
+            parametersStdout = parametersStdout with { templateJson = parametersStdout?.templateJson?.ReplaceLineEndings("\n") };
             outputFile.WriteJsonToOutputFolder(parametersStdout);
             outputFile.ShouldHaveExpectedJsonValue();
         }
@@ -386,6 +388,8 @@ output foo string = foo
             result.Should().Succeed().And.NotHaveStderr();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            // Force consistency for escaped newlines.
+            parametersStdout = parametersStdout with { templateJson = parametersStdout?.templateJson?.ReplaceLineEndings("\n") };
             outputFile.WriteJsonToOutputFolder(parametersStdout);
             outputFile.ShouldHaveExpectedJsonValue();
         }

@@ -12,18 +12,21 @@ namespace Bicep.Cli.Commands
     {
         private readonly ILogger logger;
         private readonly IOContext io;
-        private readonly CompilationService compilationService;
-        private readonly DecompilationWriter writer;
+        private readonly IFileResolver fileResolver;
+        private readonly BicepDecompiler decompiler;
+        private readonly OutputWriter writer;
 
         public DecompileParamsCommand(
             ILogger logger,
             IOContext io,
-            CompilationService compilationService,
-            DecompilationWriter writer)
+            IFileResolver fileResolver,
+            BicepDecompiler decompiler,
+            OutputWriter writer)
         {
             this.logger = logger;
             this.io = io;
-            this.compilationService = compilationService;
+            this.fileResolver = fileResolver;
+            this.decompiler = decompiler;
             this.writer = writer;
         }
 
@@ -31,30 +34,34 @@ namespace Bicep.Cli.Commands
         {
             logger.LogWarning(BicepDecompiler.DecompilerDisclaimerMessage);
 
-            var inputPath = PathHelper.ResolvePath(args.InputFile);
-
-            static string DefaultOutputPath(string path) => PathHelper.GetDefaultDecompileparamOutputPath(path);
-
-            var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
+            var inputUri = PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(args.InputFile));
+            var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, PathHelper.GetDefaultDecompileparamOutputPath);
+            var outputUri = PathHelper.FilePathToFileUrl(outputPath);
+            var bicepUri = args.BicepFilePath is { } ? PathHelper.FilePathToFileUrl(args.BicepFilePath) : null;
 
             try
             {
-                var decompilation = compilationService.DecompileParams(inputPath, outputPath, args.BicepFilePath);
+                if (!fileResolver.TryRead(inputUri).IsSuccess(out var jsonContents))
+                {
+                    throw new InvalidOperationException($"Failed to read {inputUri}");
+                }
+                
+                var decompilation = decompiler.DecompileParameters(jsonContents, outputUri, bicepUri);
 
                 if (args.OutputToStdOut)
                 {
-                    writer.ToStdout(decompilation);
+                    writer.DecompileResultToStdout(decompilation);
                 }
                 else
                 {
-                    writer.ToFile(decompilation);
+                    writer.DecompileResultToFile(decompilation);
                 }
 
                 return 0;
             }
             catch (Exception exception)
             {
-                io.Error.WriteLine(string.Format(CliResources.DecompilationFailedFormat, PathHelper.ResolvePath(args.InputFile), exception.Message));
+                io.Error.WriteLine(string.Format(CliResources.DecompilationFailedFormat, inputUri.LocalPath, exception.Message));
                 return 1;
             }
         }

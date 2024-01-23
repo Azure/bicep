@@ -227,8 +227,8 @@ namespace Bicep.Core.UnitTests.Diagnostics
             actualText = actualText.Insert(replacement.Span.Position, replacement.Text);
 
             // Normalize line endings
-            expectedText = expectedText.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
-            actualText = actualText.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
+            expectedText = expectedText.ReplaceLineEndings();
+            actualText = actualText.ReplaceLineEndings();
 
             actualText.Should().Be(expectedText);
         }

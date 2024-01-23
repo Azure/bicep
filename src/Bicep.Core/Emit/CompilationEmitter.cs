@@ -1,0 +1,111 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+using System;
+using System.Collections.Immutable;
+using System.IO;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json;
+
+namespace Bicep.Core.Emit;
+
+public record ParametersResult(
+    bool Success,
+    ImmutableArray<IDiagnostic> Diagnostics,
+    string? Parameters,
+    string? TemplateSpecId,
+    TemplateResult? Template);
+
+public record TemplateResult(
+    bool Success,
+    ImmutableArray<IDiagnostic> Diagnostics,
+    string? Template,
+    string? SourceMap);
+
+public interface ICompilationEmitter
+{
+    TemplateResult Template();
+
+    ParametersResult Parameters();
+}
+
+public class CompilationEmitter : ICompilationEmitter
+{
+    private readonly Compilation compilation;
+
+    public CompilationEmitter(Compilation compilation)
+    {
+        this.compilation = compilation;
+    }
+
+    public ParametersResult Parameters()
+    {
+        var model = compilation.GetEntrypointSemanticModel();
+        if (model.SourceFileKind != Workspaces.BicepSourceFileKind.ParamsFile)
+        {
+            throw new InvalidOperationException($"Entry-point {model.Root.FileUri} is not a parameters file");
+        }
+
+        using var writer = new StringWriter { NewLine = "\n" };
+        var result = new ParametersEmitter(model).Emit(writer);
+        if (result.Status != EmitStatus.Succeeded)
+        {
+            return new(false, result.Diagnostics, null, null, null);
+        }
+
+        var parametersData = writer.ToString();
+        if (!model.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
+        {
+            throw new InvalidOperationException($"Failed to find linked bicep file for parameters file {model.Root.FileUri}");
+        }
+
+        switch (usingModel)
+        {
+            case SemanticModel bicepModel:
+            {
+                var templateResult = Template(bicepModel);
+                return new ParametersResult(true, result.Diagnostics, parametersData, null, templateResult);
+            }
+            case ArmTemplateSemanticModel armTemplateModel:
+            {
+                var template = armTemplateModel.SourceFile.GetOriginalSource();
+                var templateResult = new TemplateResult(true, ImmutableArray<IDiagnostic>.Empty, template, null);
+
+                return new ParametersResult(true, result.Diagnostics, parametersData, null, templateResult);
+            }
+            case TemplateSpecSemanticModel templateSpecModel:
+            {
+                return new ParametersResult(true, result.Diagnostics, parametersData, templateSpecModel.SourceFile.TemplateSpecId, null);
+            }
+        }
+
+        throw new InvalidOperationException($"Invalid semantic model of type {usingModel.GetType()}");
+    }
+
+    public TemplateResult Template()
+    {
+        var model = this.compilation.GetEntrypointSemanticModel();
+        if (model.SourceFileKind != Workspaces.BicepSourceFileKind.BicepFile)
+        {
+            throw new InvalidOperationException($"Entry-point {model.Root.FileUri} is not a bicep file");
+        }
+
+        return Template(model);
+    }
+
+    private TemplateResult Template(SemanticModel model)
+    {
+        using var writer = new StringWriter { NewLine = "\n" };
+        var result = new TemplateEmitter(model).Emit(writer);
+        if (result.Status != EmitStatus.Succeeded)
+        {
+            return new(false, result.Diagnostics, null, null);
+        }
+        
+        var template = writer.ToString();
+        var sourceMap = result.SourceMap is {} ? JsonConvert.SerializeObject(result.SourceMap) : null;
+        
+        return new(true, result.Diagnostics, template, sourceMap);
+    }
+}

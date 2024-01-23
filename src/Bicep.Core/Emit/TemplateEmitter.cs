@@ -12,17 +12,10 @@ namespace Bicep.Core.Emit;
 
 public class TemplateEmitter
 {
-    private readonly Compilation compilation;
     private readonly ISemanticModel model;
 
     public TemplateEmitter(SemanticModel model)
-        : this(model.Compilation, model)
     {
-    }
-
-    public TemplateEmitter(Compilation compilation, ISemanticModel model)
-    {
-        this.compilation = compilation;
         this.model = model;
     }
 

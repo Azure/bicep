@@ -493,8 +493,8 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 insertion.Should().NotBeNull();
                 var newText = JsonEditor.ApplyInsertion(beforeText, insertion!.Value);
 
-                newText = newText.Replace("\r\n", "\n");
-                afterText = afterText.Replace("\r\n", "\n");
+                newText = newText.ReplaceLineEndings("\n");
+                afterText = afterText.ReplaceLineEndings("\n");
                 newText.Should().Be(afterText);
             }
         }

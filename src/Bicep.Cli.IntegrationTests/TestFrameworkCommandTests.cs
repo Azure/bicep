@@ -194,9 +194,9 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Test_WithoutTestFrameworkEnabled_ShouldFail()
         {
-            var settings = new InvocationSettings(new(TestContext, TestFrameworkEnabled: false), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
-
-            var (output, error, result) = await Bicep(settings, "test", "/dev/zero");
+            var (output, error, result) = await Bicep(
+                services => services.WithFeatureOverrides(new(TestFrameworkEnabled: false)),
+                "test", "/dev/zero.bicep");
 
             using (new AssertionScope())
             {

@@ -67,6 +67,19 @@ interface CompileResponse {
   contents?: string;
 }
 
+interface CompileParamsRequest {
+  path: string;
+  parameterOverrides: Record<string, any>;
+}
+
+interface CompileParamsResponse {
+  success: boolean;
+  diagnostics: CompileResponseDiagnostic[];
+  parameters?: string;
+  template?: string;
+  templateSpecId?: string;
+}
+
 interface CompileResponseDiagnostic {
   range: Range;
   level: string;
@@ -112,6 +125,12 @@ export const compileRequestType = new RequestType<
   CompileResponse,
   never
 >("bicep/compile");
+
+export const compileParamsRequestType = new RequestType<
+  CompileParamsRequest,
+  CompileParamsResponse,
+  never
+>("bicep/compileParams");
 
 export const getMetadataRequestType = new RequestType<
   GetMetadataRequest,

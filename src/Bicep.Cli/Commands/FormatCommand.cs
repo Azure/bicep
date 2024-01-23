@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Helpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
@@ -10,6 +11,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.PrettyPrintV2;
+using Microsoft.Diagnostics.Tracing.StackSources;
 using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands;
@@ -42,15 +44,8 @@ public class FormatCommand : ICommand
 
     public int Run(FormatArguments args)
     {
-        var inputPath = PathHelper.ResolvePath(args.InputFile);
-        var inputUri = PathHelper.FilePathToFileUrl(inputPath);
-
-        if (!PathHelper.HasBicepExtension(inputUri) &&
-            !PathHelper.HasBicepparamsExension(inputUri))
-        {
-            logger.LogError(CliResources.UnrecognizedBicepOrBicepparamsFileExtensionMessage, inputPath);
-            return 1;
-        }
+        var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
+        ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
 
         if (!fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
         {
@@ -74,7 +69,7 @@ public class FormatCommand : ICommand
             }
             else
             {
-                var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, path => path);
+                var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, path => path);
                 using var writer = new StreamWriter(outputPath);
 
                 PrettyPrinterV2.PrintTo(writer, printerV2Context);
@@ -99,7 +94,7 @@ public class FormatCommand : ICommand
         else
         {
             static string DefaultOutputPath(string path) => path;
-            var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
+            var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
 
             File.WriteAllText(outputPath, output);
         }

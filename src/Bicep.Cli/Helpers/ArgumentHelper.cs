@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Cli.Arguments;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.Cli.Helpers;
 
@@ -19,5 +21,34 @@ public class ArgumentHelper
         }
 
         throw new ArgumentException($"Unrecognized diagnostics format {format}");
+    }
+
+    [return: NotNullIfNotNull(nameof(filePath))]
+    public static Uri? GetFileUri(string? filePath)
+        => filePath is {} ? PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(filePath)) : null;
+
+    public static void ValidateBicepFile(Uri fileUri)
+    {
+        if (!PathHelper.HasBicepExtension(fileUri))
+        {
+            throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepFileExtensionMessage, fileUri.LocalPath));
+        }
+    }
+
+    public static void ValidateBicepParamFile(Uri fileUri)
+    {
+        if (!PathHelper.HasBicepparamsExension(fileUri))
+        {
+            throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepparamsFileExtensionMessage, fileUri.LocalPath));
+        }
+    }
+
+    public static void ValidateBicepOrBicepParamFile(Uri fileUri)
+    {
+        if (!PathHelper.HasBicepExtension(fileUri) &&
+            !PathHelper.HasBicepparamsExension(fileUri))
+        {
+            throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepOrBicepparamsFileExtensionMessage, fileUri.LocalPath));
+        }
     }
 }

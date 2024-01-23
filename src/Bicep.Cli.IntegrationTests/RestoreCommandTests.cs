@@ -42,8 +42,8 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        [TestMethod]
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method)]
         public async Task Restore_ShouldSucceed(string testName, DataSet dataSet, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -93,7 +93,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        [DynamicData(nameof(GetAllDataSetsWithPublishSource), DynamicDataSourceType.Method)]
         public async Task Restore_ShouldSucceedWithAnonymousClient(string testName, DataSet dataSet, bool publishSource)
         {
             TestContext.WriteLine(testName);
@@ -294,7 +294,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(false)]
         [DataRow(true)]
         public async Task Restore_With_Force_Should_Overwrite_Existing_Cache(bool publishSource)
@@ -472,7 +472,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetTestDisplayName))]
+        [DynamicData(nameof(GetValidDataSetsWithExternalModulesAndPublishSource), DynamicDataSourceType.Method)]
         public async Task Restore_NonExistentModules_ShouldFail(string testName, DataSet dataSet, bool publishSource)
         {
             var clientFactory = dataSet.CreateMockRegistryClients(publishSource);
@@ -603,11 +603,6 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
                 yield return new object[] { $"{ds.Name}, not publishing source", ds, false };
                 yield return new object[] { $"{ds.Name}, publishing source", ds, true };
             }
-        }
-
-        public static string GetTestDisplayName(MethodInfo _, object[] objects)
-        {
-            return (string)objects[0];
         }
     }
 }

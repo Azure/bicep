@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 
 namespace Bicep.Cli.Rpc;
@@ -24,15 +26,25 @@ public record CompileRequest(
 
 public record CompileResponse(
     bool Success,
-    ImmutableArray<CompileResponse.DiagnosticDefinition> Diagnostics,
-    string? Contents)
-{
-    public record DiagnosticDefinition(
-        Range Range,
-        string Level,
-        string Code,
-        string Message);
-}
+    ImmutableArray<DiagnosticDefinition> Diagnostics,
+    string? Contents);
+
+public record CompileParamsRequest(
+    string Path,
+    Dictionary<string, JToken> ParameterOverrides);
+
+public record CompileParamsResponse(
+    bool Success,
+    ImmutableArray<DiagnosticDefinition> Diagnostics,
+    string? Parameters,
+    string? Template,
+    string? TemplateSpecId);
+
+public record DiagnosticDefinition(
+    Range Range,
+    string Level,
+    string Code,
+    string Message);
 
 public record GetFileReferencesRequest(
     string Path);
@@ -89,6 +101,9 @@ public interface ICliJsonRpcProtocol
 
     [JsonRpcMethod("bicep/compile", UseSingleObjectParameterDeserialization = true)]
     Task<CompileResponse> Compile(CompileRequest request, CancellationToken cancellationToken);
+
+    [JsonRpcMethod("bicep/compileParams", UseSingleObjectParameterDeserialization = true)]
+    Task<CompileParamsResponse> CompileParams(CompileParamsRequest request, CancellationToken cancellationToken);
 
     [JsonRpcMethod("bicep/getMetadata", UseSingleObjectParameterDeserialization = true)]
     Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken);

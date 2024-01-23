@@ -46,6 +46,9 @@ namespace Bicep.Cli.IntegrationTests
                 => new Program(new(Output: @out, Error: err), registerAction)
                     .RunAsync(args, cancellationToken));
 
+        protected static Task<CliResult> Bicep(Action<IServiceCollection> registerAction, params string[] args)
+            => Bicep(registerAction, CancellationToken.None, args);
+
         protected static Task<CliResult> Bicep(InvocationSettings settings, params string?[] args /*null args are ignored*/)
             => Bicep(services =>
                 {
