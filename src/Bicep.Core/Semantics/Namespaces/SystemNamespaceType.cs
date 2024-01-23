@@ -1043,7 +1043,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 return new(validateFilePathFailureBuilder);
             }
 
-            if (PathHelper.TryResolveFilePath(binder.FileSymbol.FileUri, filePath) is not {} fileUri)
+            if (PathHelper.TryResolveFilePath(binder.FileSymbol.FileUri, filePath) is not { } fileUri)
             {
                 return new(x => x.FilePathCouldNotBeResolved(filePath, binder.FileSymbol.FileUri.LocalPath));
             }
@@ -1484,48 +1484,48 @@ namespace Bicep.Core.Semantics.Namespaces
                     })
                     .Build();
 
-            yield return new DecoratorBuilder(LanguageConstants.ParameterAllowedPropertyName)
-                .WithDescription("Defines the allowed values of the parameter.")
-                .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
-                {
-                    var parentTypeSyntax = GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder);
-
-                    EmitDiagnosticIfTargetingAlias(decoratorName, decoratorSyntax, parentTypeSyntax, binder, diagnosticWriter);
-                    EmitDiagnosticIfTargetingLiteral(decoratorName, decoratorSyntax, parentTypeSyntax, typeManager, diagnosticWriter);
-
-                    if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Array) &&
-                        SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
-                        allowedValues.Items.All(item => item.Value is not ArraySyntax))
+                yield return new DecoratorBuilder(LanguageConstants.ParameterAllowedPropertyName)
+                    .WithDescription("Defines the allowed values of the parameter.")
+                    .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
+                    .WithFlags(FunctionFlags.ParameterDecorator)
+                    .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, parsingErrorLookup, diagnosticWriter) =>
                     {
-                        /*
-                         * ARM handles array params with allowed values differently. If none of items of
-                         * the allowed values is array, it will check if the parameter value is a subset
-                         * of the allowed values.
-                         */
-                        return;
-                    }
+                        var parentTypeSyntax = GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder);
 
-                    TypeValidator.NarrowTypeAndCollectDiagnostics(
-                        typeManager,
-                        binder,
-                        parsingErrorLookup,
-                        diagnosticWriter,
-                        SingleArgumentSelector(decoratorSyntax),
-                        new TypedArrayType(targetType, TypeSymbolValidationFlags.Default));
-                })
-                .WithEvaluator((functionCall, decorated) =>
-                {
-                    if (decorated is DeclaredParameterExpression declaredParameterExpression &&
-                        functionCall.Parameters.FirstOrDefault() is { } allowedValues)
+                        EmitDiagnosticIfTargetingAlias(decoratorName, decoratorSyntax, parentTypeSyntax, binder, diagnosticWriter);
+                        EmitDiagnosticIfTargetingLiteral(decoratorName, decoratorSyntax, parentTypeSyntax, typeManager, diagnosticWriter);
+
+                        if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Array) &&
+                            SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
+                            allowedValues.Items.All(item => item.Value is not ArraySyntax))
+                        {
+                            /*
+                             * ARM handles array params with allowed values differently. If none of items of
+                             * the allowed values is array, it will check if the parameter value is a subset
+                             * of the allowed values.
+                             */
+                            return;
+                        }
+
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(
+                            typeManager,
+                            binder,
+                            parsingErrorLookup,
+                            diagnosticWriter,
+                            SingleArgumentSelector(decoratorSyntax),
+                            new TypedArrayType(targetType, TypeSymbolValidationFlags.Default));
+                    })
+                    .WithEvaluator((functionCall, decorated) =>
                     {
-                        return declaredParameterExpression with { AllowedValues = allowedValues };
-                    }
+                        if (decorated is DeclaredParameterExpression declaredParameterExpression &&
+                            functionCall.Parameters.FirstOrDefault() is { } allowedValues)
+                        {
+                            return declaredParameterExpression with { AllowedValues = allowedValues };
+                        }
 
-                    return decorated;
-                })
-                .Build();
+                        return decorated;
+                    })
+                    .Build();
 
                 yield return new DecoratorBuilder(LanguageConstants.ParameterMinValuePropertyName)
                     .WithDescription("Defines the minimum value of the parameter.")

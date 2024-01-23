@@ -206,7 +206,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("myModulePath", "myModule:v2", "bicepconfig.json", "BCP213", "The OCI artifact module alias name \"myModulePath\" does not exist in the Bicep configuration \"/bicepconfig.json\".")]
         public void TryParse_AliasNotInConfiguration_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
         {
-            var configuration = BicepTestConstants.CreateMockConfiguration(configFileUri: configurationPath is {} ? new Uri($"file:///{configurationPath}") : null);
+            var configuration = BicepTestConstants.CreateMockConfiguration(configFileUri: configurationPath is { } ? new Uri($"file:///{configurationPath}") : null);
 
             OciArtifactReference.TryParse(ArtifactType.Module, aliasName, referenceValue, configuration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 

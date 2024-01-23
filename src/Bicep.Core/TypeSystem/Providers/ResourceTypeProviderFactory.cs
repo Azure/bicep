@@ -46,10 +46,10 @@ namespace Bicep.Core.TypeSystem.Providers
                     {
                         return new ThirdPartyResourceTypeProvider(
                                     new ThirdPartyResourceTypeLoader(
-                                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)), 
+                                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
                                         providerDescriptor.Version);
                     }
-                    
+
                     return new AzResourceTypeProvider(
                                 new AzResourceTypeLoader(
                                     OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),

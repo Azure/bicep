@@ -129,7 +129,7 @@ namespace Bicep.LangServer.IntegrationTests
                 string.Empty,
                 LanguageServer.Deploy.ParametersFileUpdateOption.None,
                 new List<BicepUpdatedDeploymentParameter>{
-                    new BicepUpdatedDeploymentParameter("foo", "bar", false, null)
+                    new("foo", "bar", false, null)
                 },
                 "https://management.azure.com/",
                 "https://management.core.windows.net/");
