@@ -252,8 +252,8 @@ namespace Bicep.LanguageServer.Completions
         TypeArgument = 1UL << 45,
 
         /// <summary>
-        /// The current location is somewhere within a type clause (e.g., the value of a `type` statement).
+        /// The current location is accessing properties or elements of a type.
         /// </summary>
-        WithinTypeClause = 1UL << 46,
+        TypeMemberAccess = 1UL << 46,
     }
 }

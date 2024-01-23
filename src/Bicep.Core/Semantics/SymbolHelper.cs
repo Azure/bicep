@@ -78,6 +78,13 @@ namespace Bicep.Core.Semantics
 
                         return GetPropertySymbol(baseType, property);
                     }
+                case TypePropertyAccessSyntax typePropertyAccess:
+                    {
+                        var baseType = getDeclaredTypeFunc(typePropertyAccess.BaseExpression);
+                        var property = typePropertyAccess.PropertyName.IdentifierName;
+
+                        return GetPropertySymbol(baseType, property);
+                    }
                 case ObjectPropertySyntax objectProperty:
                     {
                         if (binder.GetParent(objectProperty) is not { } parentSyntax)
