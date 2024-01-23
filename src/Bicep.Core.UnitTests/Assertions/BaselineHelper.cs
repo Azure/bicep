@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using Bicep.Core.FileSystem;

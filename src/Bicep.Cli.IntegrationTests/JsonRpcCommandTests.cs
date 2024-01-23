@@ -1,14 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Pipes;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Cli.Rpc;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;

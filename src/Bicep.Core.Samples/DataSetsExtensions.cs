@@ -1,14 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
@@ -25,7 +19,6 @@ using Bicep.Core.UnitTests.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Newtonsoft.Json;
 
 namespace Bicep.Core.Samples
 {

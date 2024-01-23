@@ -1,13 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
@@ -21,7 +14,6 @@ using Microsoft.CodeAnalysis.Sarif;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.IntegrationTests;
 

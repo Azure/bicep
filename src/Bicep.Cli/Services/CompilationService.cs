@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
-using Bicep.Cli.Logging;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;

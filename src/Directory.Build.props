@@ -3,6 +3,7 @@
     <Deterministic>true</Deterministic>
     <LangVersion>11.0</LangVersion>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- NU5104: A stable release of a package should not have a prerelease dependency -->
     <NoWarn>$(NoWarn);NU5104</NoWarn>

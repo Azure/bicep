@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Json.More;
 using Json.Patch;
 using Json.Pointer;

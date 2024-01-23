@@ -1,13 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.Commands;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;

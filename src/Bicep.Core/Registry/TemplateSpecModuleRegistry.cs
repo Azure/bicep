@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
-using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
@@ -14,7 +10,6 @@ using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
-using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {

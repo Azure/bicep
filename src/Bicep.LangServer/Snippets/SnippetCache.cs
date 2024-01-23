@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Immutable;
-using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Bicep.Core.Resources;

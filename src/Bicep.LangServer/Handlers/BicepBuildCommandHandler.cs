@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.Helpers;
 using Bicep.Core;

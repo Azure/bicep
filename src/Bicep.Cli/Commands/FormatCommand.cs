@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
 using Bicep.Cli.Arguments;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;

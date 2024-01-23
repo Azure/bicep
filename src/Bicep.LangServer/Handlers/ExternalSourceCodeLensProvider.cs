@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceCode;
 using Newtonsoft.Json.Linq;

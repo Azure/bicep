@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
-using Bicep.Core.UnitTests;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

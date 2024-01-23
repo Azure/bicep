@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;

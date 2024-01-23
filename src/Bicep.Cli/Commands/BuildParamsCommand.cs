@@ -1,14 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
@@ -22,12 +16,9 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Rewriters;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
-using Microsoft.Diagnostics.Symbols;
-using Microsoft.Diagnostics.Tracing.Parsers.FrameworkEventSource;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SharpYaml.Tokens;
 
 namespace Bicep.Cli.Commands
 {

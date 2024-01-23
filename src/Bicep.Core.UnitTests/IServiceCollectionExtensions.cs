@@ -1,16 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Reflection;
-using Azure.Bicep.Types.Az;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -21,7 +14,6 @@ using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
-using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
@@ -30,7 +22,6 @@ using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests;

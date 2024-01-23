@@ -1,13 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Formats.Tar;
-using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Assertions;

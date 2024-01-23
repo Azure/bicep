@@ -1,13 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Registry.Oci;

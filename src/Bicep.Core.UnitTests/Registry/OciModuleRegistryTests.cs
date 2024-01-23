@@ -1,13 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Bicep.Core.Features;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
@@ -22,7 +17,7 @@ using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.UnitTests.Registry
 {
-  [TestClass]
+    [TestClass]
   public class OciArtifactRegistryTests
   {
     [NotNull]

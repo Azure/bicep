@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using Bicep.Core.Configuration;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

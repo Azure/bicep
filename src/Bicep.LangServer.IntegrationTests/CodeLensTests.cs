@@ -1,15 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
@@ -21,7 +16,6 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.Registry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;

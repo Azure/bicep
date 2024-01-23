@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Bicep.Core.TypeSystem.Types
 {

@@ -1,28 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Bicep.Core;
-using Bicep.Core.Decompiler.Rewriters;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
-using Bicep.Core.Rewriters;
-using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler.ArmHelpers;
 using Bicep.Decompiler.Exceptions;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler;

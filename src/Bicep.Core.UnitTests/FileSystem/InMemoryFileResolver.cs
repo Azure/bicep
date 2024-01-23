@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 using Bicep.Core.FileSystem;
 using FluentAssertions;
 

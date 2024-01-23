@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.IO;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.FileSystem;
 

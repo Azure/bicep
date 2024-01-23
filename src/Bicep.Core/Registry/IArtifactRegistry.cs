@@ -1,16 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Modules;
-using Bicep.Core.Registry.Providers;
 using Bicep.Core.SourceCode;
-using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {

@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Globalization;
-using System.Linq;
 using Azure.Core.Diagnostics;
 using Bicep.Core.Features;
 

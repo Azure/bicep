@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;

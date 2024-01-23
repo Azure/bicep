@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
 using System.IO.Pipelines;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Tracing;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;

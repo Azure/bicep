@@ -1,23 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
-using Azure.Deployments.Core.Entities;
-using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
-using Azure.Deployments.Expression.Serializers;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Expressions;
 using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.CompileTimeImports;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
