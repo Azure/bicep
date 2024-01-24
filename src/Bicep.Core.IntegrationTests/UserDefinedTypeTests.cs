@@ -1170,7 +1170,7 @@ param myParam string
     // https://github.com/azure/bicep/issues/12920
     [DataTestMethod]
     [DataRow("test.bar", "BCP053", """The type "{ foo: { bar: string } }" does not contain property "bar". Available properties include "foo".""")]
-    [DataRow("{ foo: string }.foo", "BCP391", "Access expressions within type clauses are only allowed if the innermost base expression is a symbolic reference to a type.")]
+    [DataRow("{ foo: string }.foo", "BCP391", "Type member access is only supported on a reference to a named type.")]
     public void Invalid_type_property_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
     {
         var result = CompilationHelper.Compile($$"""
@@ -1274,8 +1274,8 @@ param myParam string
 
     [DataTestMethod]
     [DataRow("test[1]", "BCP311", """The provided index value of "1" is not valid for type "[{ bar: string }]". Indexes for this type must be between 0 and 0.""")]
-    [DataRow("test[-1]", "BCP387", """Indexing into a type requires a natural number or 0. Unary operators are not permitted.""")]
-    [DataRow("[string][0]", "BCP391", "Access expressions within type clauses are only allowed if the innermost base expression is a symbolic reference to a type.")]
+    [DataRow("test[-1]", "BCP387", "Indexing into a type requires an integer greater than or equal to 0.")]
+    [DataRow("[string][0]", "BCP391", "Type member access is only supported on a reference to a named type.")]
     public void Invalid_type_index_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
     {
         var result = CompilationHelper.Compile($$"""
@@ -1344,7 +1344,7 @@ param myParam string
     [DataTestMethod]
     [DataRow("test.*", "BCP389", """The type "{ foo: string }" does not declare an additional properties type.""")]
     [DataRow("object.*", "BCP389", """The type "object" does not declare an additional properties type.""")]
-    [DataRow("{ *: string }.*", "BCP391", "Access expressions within type clauses are only allowed if the innermost base expression is a symbolic reference to a type.")]
+    [DataRow("{ *: string }.*", "BCP391", "Type member access is only supported on a reference to a named type.")]
     public void Invalid_additional_properties_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
     {
         var result = CompilationHelper.Compile($$"""
@@ -1447,10 +1447,10 @@ param myParam string
     }
 
     [DataTestMethod]
-    [DataRow("test[*]", "BCP390", """The type "[{ bar: string }]" does not declare an element type.""")]
-    [DataRow("array[*]", "BCP390", """The type "array" does not declare an element type.""")]
-    [DataRow("test[0][*]", "BCP390", """The type "{ bar: string }" does not declare an element type.""")]
-    [DataRow("string[][*]", "BCP391", "Access expressions within type clauses are only allowed if the innermost base expression is a symbolic reference to a type.")]
+    [DataRow("test[*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
+    [DataRow("array[*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
+    [DataRow("test[0][*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
+    [DataRow("string[][*]", "BCP391", "Type member access is only supported on a reference to a named type.")]
     public void Invalid_type_items_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
     {
         var result = CompilationHelper.Compile($$"""
