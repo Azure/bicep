@@ -74,8 +74,8 @@ public static class ArmTemplateTypeLoader
                 : ImmutableArray<string>.Empty;
 
             return ResourceTypeReference.TryParse(resourceTypeIdentifier) is ResourceTypeReference resourceTypeReference
-                ? new UnboundResourceDerivedType(resourceTypeReference, internalPointerSegments, fallbackType)
-                : new UnloadableResourceDerivedType(resourceTypeIdentifier, fallbackType);
+                ? new UnresolvedResourceDerivedType(resourceTypeReference, internalPointerSegments, fallbackType)
+                : new UnparsableResourceDerivedType(resourceTypeIdentifier, fallbackType);
         }
 
         return null;
@@ -228,8 +228,8 @@ public static class ArmTemplateTypeLoader
             foreach (var mappingEntry in discriminator.Mapping)
             {
                 var variant = TemplateEngine.ResolveSchemaReferences(context, mappingEntry.Value);
-                variants.Add(TryGetResourceDerivedType(context, variant, flags) is UnboundResourceDerivedType resourceDerivedObject
-                    ? new UnboundResourceDerivedPartialObjectType(resourceDerivedObject.TypeReference,
+                variants.Add(TryGetResourceDerivedType(context, variant, flags) is UnresolvedResourceDerivedType resourceDerivedObject
+                    ? new UnresolvedResourceDerivedPartialObjectType(resourceDerivedObject.TypeReference,
                         resourceDerivedObject.PointerSegments,
                         discriminator.PropertyName.Value,
                         mappingEntry.Key)

@@ -26,7 +26,7 @@ public class ResourceDerivedTypeDiagnosticReporter
 
     public IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> ReportResourceDerivedTypeDiagnostics(ITypeReference @ref) => @ref switch
     {
-        UnloadableResourceDerivedType unloadable => ReportResourceDerivedTypeDiagnostics(unloadable),
+        UnparsableResourceDerivedType unloadable => ReportResourceDerivedTypeDiagnostics(unloadable),
         _ => ReportResourceDerivedTypeDiagnostics(@ref.Type),
     };
 
@@ -41,7 +41,7 @@ public class ResourceDerivedTypeDiagnosticReporter
 
         foreach (var diagnostic in typeSymbol switch
         {
-            IUnboundResourceDerivedType resourceDerivedType => ReportResourceDerivedTypeDiagnostics(resourceDerivedType),
+            IUnresolvedResourceDerivedType resourceDerivedType => ReportResourceDerivedTypeDiagnostics(resourceDerivedType),
             TupleType tuple => tuple.Items.SelectMany(ReportResourceDerivedTypeDiagnostics),
             ArrayType array => ReportResourceDerivedTypeDiagnostics(array.Item),
             DiscriminatedObjectType taggedUnion => taggedUnion.UnionMembersByKey.Values.SelectMany(ReportResourceDerivedTypeDiagnostics),
@@ -60,7 +60,7 @@ public class ResourceDerivedTypeDiagnosticReporter
         processing.Pop();
     }
 
-    private IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> ReportResourceDerivedTypeDiagnostics(IUnboundResourceDerivedType unbound)
+    private IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> ReportResourceDerivedTypeDiagnostics(IUnresolvedResourceDerivedType unbound)
     {
         if (!features.ResourceDerivedTypesEnabled)
         {
@@ -135,7 +135,7 @@ public class ResourceDerivedTypeDiagnosticReporter
                 {
                     if (current is not ArrayType array)
                     {
-                        yield return x => x.ExplicitItemsTypeRequiredForAccessThereto(current).WithMaximumDiagnosticLevel(DiagnosticLevel.Warning);
+                        yield return x => x.ExplicitItemsTypeRequiredForAccessThereto().WithMaximumDiagnosticLevel(DiagnosticLevel.Warning);
                         break;
                     }
 
@@ -165,7 +165,7 @@ public class ResourceDerivedTypeDiagnosticReporter
         return null;
     }
 
-    private IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> ReportResourceDerivedTypeDiagnostics(UnloadableResourceDerivedType unloadable)
+    private IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> ReportResourceDerivedTypeDiagnostics(UnparsableResourceDerivedType unloadable)
     {
         if (!features.ResourceDerivedTypesEnabled)
         {

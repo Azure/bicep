@@ -6,9 +6,9 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Types;
 
-public class UnboundResourceDerivedType : TypeSymbol, IUnboundResourceDerivedType
+public class UnresolvedResourceDerivedType : TypeSymbol, IUnresolvedResourceDerivedType
 {
-    public UnboundResourceDerivedType(ResourceTypeReference typeReference, ImmutableArray<string> pointerSegments, TypeSymbol fallbackType)
+    public UnresolvedResourceDerivedType(ResourceTypeReference typeReference, ImmutableArray<string> pointerSegments, TypeSymbol fallbackType)
         : base(typeReference.FormatType())
     {
         TypeReference = typeReference;

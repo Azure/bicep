@@ -2113,7 +2113,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic NegatedTypeIndexSought() => new(
                 TextSpan,
                 "BCP387",
-                "Indexing into a type requires a natural number or 0. Unary operators are not permitted.");
+                "Indexing into a type requires an integer greater than or equal to 0.");
 
             public ErrorDiagnostic TupleRequiredForIndexAccess(TypeSymbol wrongType) => new(
                 TextSpan,
@@ -2125,15 +2125,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP389",
                 $"The type \"{wrongType}\" does not declare an additional properties type.");
 
-            public ErrorDiagnostic ExplicitItemsTypeRequiredForAccessThereto(TypeSymbol wrongType) => new(
+            public ErrorDiagnostic ExplicitItemsTypeRequiredForAccessThereto() => new(
                 TextSpan,
                 "BCP390",
-                $"The type \"{wrongType}\" does not declare an element type.");
+                $"The array item type access operator ('[*]') can only be used with typed arrays.");
 
             public ErrorDiagnostic AccessExpressionForbiddenBase() => new(
                 TextSpan,
                 "BCP391",
-                "Access expressions within type clauses are only allowed if the innermost base expression is a symbolic reference to a type.");
+                "Type member access is only supported on a reference to a named type.");
 
             public Diagnostic InvalidResourceTypeIdentifier(string resourceTypeIdentifier) => new(
                 TextSpan,

@@ -5,11 +5,11 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Types;
 
-public class UnloadableResourceDerivedType : ITypeReference
+public class UnparsableResourceDerivedType : ITypeReference
 {
     private readonly TypeSymbol fallbackType;
 
-    public UnloadableResourceDerivedType(string typeReferenceString, TypeSymbol fallbackType)
+    public UnparsableResourceDerivedType(string typeReferenceString, TypeSymbol fallbackType)
     {
         TypeReferenceString = typeReferenceString;
         this.fallbackType = fallbackType;

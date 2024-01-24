@@ -55,3 +55,11 @@ type typoInPropertyName4 = resource<'Microsoft.Web/customApis@2016-06-01'>.prope
 type typoInPropertyName5 = resource<'Microsoft.Web/customApis@2016-06-01'>.properties.*.connectionParameters.type
 //@[5:24) TypeAlias typoInPropertyName5. Type: error. Declaration start char: 0, length: 113
 
+module mod 'modules/mod.json' = {
+//@[7:10) Module mod. Type: module. Declaration start char: 0, length: 77
+  name: 'mod'
+  params: {
+    foo: {}
+  }
+}
+

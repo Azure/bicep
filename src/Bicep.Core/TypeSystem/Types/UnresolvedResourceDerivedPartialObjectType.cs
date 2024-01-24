@@ -8,11 +8,11 @@ using Bicep.Core.Resources;
 namespace Bicep.Core.TypeSystem.Types;
 
 /// <summary>
-/// An IUnboundResourceDerivedType to use as a branch of a DiscriminatedObjectType
+/// An IUnresolvedResourceDerivedType to use as a branch of a DiscriminatedObjectType
 /// </summary>
-public class UnboundResourceDerivedPartialObjectType : ObjectType, IUnboundResourceDerivedType
+public class UnresolvedResourceDerivedPartialObjectType : ObjectType, IUnresolvedResourceDerivedType
 {
-    public UnboundResourceDerivedPartialObjectType(ResourceTypeReference typeReference, ImmutableArray<string> pointerSegments, string discriminatorName, string discriminatorValue)
+    public UnresolvedResourceDerivedPartialObjectType(ResourceTypeReference typeReference, ImmutableArray<string> pointerSegments, string discriminatorName, string discriminatorValue)
         : base(typeReference.FormatType(),
             TypeSymbolValidationFlags.Default,
             new TypeProperty(discriminatorName, TypeFactory.CreateStringLiteralType(discriminatorValue)).AsEnumerable(),

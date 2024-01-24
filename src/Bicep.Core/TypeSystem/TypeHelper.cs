@@ -458,7 +458,7 @@ namespace Bicep.Core.TypeSystem
                 _ => conditionFunc(typeSymbol),
             };
 
-        public static FunctionOverload OverloadWithBoundTypes(ResourceDerivedTypeBinder binder, ExportedFunctionMetadata exportedFunction)
+        public static FunctionOverload OverloadWithResolvedTypes(ResourceDerivedTypeResolver resolver, ExportedFunctionMetadata exportedFunction)
         {
             FunctionOverloadBuilder builder = new(exportedFunction.Name);
             if (exportedFunction.Description is string description)
@@ -469,11 +469,11 @@ namespace Bicep.Core.TypeSystem
             foreach (var param in exportedFunction.Parameters)
             {
                 builder = builder.WithRequiredParameter(param.Name,
-                    binder.BindResourceDerivedTypes(param.TypeReference.Type),
+                    resolver.ResolveResourceDerivedTypes(param.TypeReference.Type),
                     param.Description ?? string.Empty);
             }
 
-            return builder.WithReturnType(binder.BindResourceDerivedTypes(exportedFunction.Return.TypeReference.Type)).Build();
+            return builder.WithReturnType(resolver.ResolveResourceDerivedTypes(exportedFunction.Return.TypeReference.Type)).Build();
         }
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)

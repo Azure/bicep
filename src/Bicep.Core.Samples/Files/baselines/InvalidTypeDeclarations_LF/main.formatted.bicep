@@ -219,3 +219,23 @@ output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
 
 @discriminator('type')
 output discriminatorOutputBadType2 object = { prop: 'value' }
+
+type strings = string[]
+
+type invalidTupleAccess = strings[0]
+
+type stringTuple = [ string, string ]
+
+type invalidItemTypeAccess = stringTuple[*]
+
+type anObject = {
+  property: string
+}
+
+type invalidAdditionalPropertiesAccess = anObject.*
+
+type stringDict = {
+  *: string
+}
+
+type invalidPropertyAccess = stringDict.property

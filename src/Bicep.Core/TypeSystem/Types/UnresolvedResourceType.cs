@@ -6,14 +6,14 @@ using Bicep.Core.Resources;
 namespace Bicep.Core.TypeSystem.Types
 {
     /// <summary>
-    /// UnboundResourceType represents a resource type that has been specified but not validated.
+    /// UnresolvedResourceType represents a resource type that has been specified but not validated.
     ///
-    /// Generally this means the resource type is used as a parameter or an output of a module. The binding
+    /// Generally this means the resource type is used as a parameter or an output of a module. The resolving
     /// of the type has yet to occur because it must take place in the context of the consuming module.
     /// </summary>
-    public class UnboundResourceType : TypeSymbol
+    public class UnresolvedResourceType : TypeSymbol
     {
-        public UnboundResourceType(ResourceTypeReference typeReference)
+        public UnresolvedResourceType(ResourceTypeReference typeReference)
             : base(typeReference.FormatType())
         {
             TypeReference = typeReference;

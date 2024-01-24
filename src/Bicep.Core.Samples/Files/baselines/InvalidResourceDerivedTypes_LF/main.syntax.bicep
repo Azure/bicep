@@ -1,5 +1,5 @@
 type invalid1 = resource
-//@[000:1523) ProgramSyntax
+//@[000:1602) ProgramSyntax
 //@[000:0024) ├─TypeDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |type|
 //@[005:0013) | ├─IdentifierSyntax
@@ -435,6 +435,49 @@ type typoInPropertyName5 = resource<'Microsoft.Web/customApis@2016-06-01'>.prope
 //@[108:0109) |   ├─Token(Dot) |.|
 //@[109:0113) |   └─IdentifierSyntax
 //@[109:0113) |     └─Token(Identifier) |type|
-//@[113:0114) ├─Token(NewLine) |\n|
+//@[113:0115) ├─Token(NewLine) |\n\n|
+
+module mod 'modules/mod.json' = {
+//@[000:0077) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |mod|
+//@[011:0029) | ├─StringSyntax
+//@[011:0029) | | └─Token(StringComplete) |'modules/mod.json'|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0077) | └─ObjectSyntax
+//@[032:0033) |   ├─Token(LeftBrace) |{|
+//@[033:0034) |   ├─Token(NewLine) |\n|
+  name: 'mod'
+//@[002:0013) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0013) |   | └─StringSyntax
+//@[008:0013) |   |   └─Token(StringComplete) |'mod'|
+//@[013:0014) |   ├─Token(NewLine) |\n|
+  params: {
+//@[002:0027) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0027) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0012) |   |   ├─Token(NewLine) |\n|
+    foo: {}
+//@[004:0011) |   |   ├─ObjectPropertySyntax
+//@[004:0007) |   |   | ├─IdentifierSyntax
+//@[004:0007) |   |   | | └─Token(Identifier) |foo|
+//@[007:0008) |   |   | ├─Token(Colon) |:|
+//@[009:0011) |   |   | └─ObjectSyntax
+//@[009:0010) |   |   |   ├─Token(LeftBrace) |{|
+//@[010:0011) |   |   |   └─Token(RightBrace) |}|
+//@[011:0012) |   |   ├─Token(NewLine) |\n|
+  }
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0004) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0002) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

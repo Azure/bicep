@@ -31,7 +31,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IDiagnosticLookup parsingErrorLookup;
         private readonly IArtifactFileLookup sourceFileLookup;
         private readonly ISemanticModelLookup semanticModelLookup;
-        private readonly ResourceDerivedTypeBinder resourceDerivedTypeBinder;
+        private readonly ResourceDerivedTypeResolver resourceDerivedTypeResolver;
         private readonly ResourceDerivedTypeDiagnosticReporter resourceDerivedTypeDiagnosticReporter;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
@@ -47,7 +47,7 @@ namespace Bicep.Core.TypeSystem
             this.parsingErrorLookup = model.ParsingErrorLookup;
             this.sourceFileLookup = model.Compilation.SourceFileGrouping;
             this.semanticModelLookup = model.Compilation;
-            resourceDerivedTypeBinder = new(binder);
+            resourceDerivedTypeResolver = new(binder);
             resourceDerivedTypeDiagnosticReporter = new(features, binder);
             assignedTypes = new();
             matchedFunctionOverloads = new();
@@ -1038,12 +1038,12 @@ namespace Bicep.Core.TypeSystem
 
                     if (export is ExportedFunctionMetadata exportedFunction)
                     {
-                        nsFunctions.Add(TypeHelper.OverloadWithBoundTypes(resourceDerivedTypeBinder, exportedFunction));
+                        nsFunctions.Add(TypeHelper.OverloadWithResolvedTypes(resourceDerivedTypeResolver, exportedFunction));
                     }
                     else
                     {
                         nsProperties.Add(new(export.Name,
-                            resourceDerivedTypeBinder.BindResourceDerivedTypes(export.TypeReference.Type),
+                            resourceDerivedTypeResolver.ResolveResourceDerivedTypes(export.TypeReference.Type),
                             TypePropertyFlags.ReadOnly | TypePropertyFlags.Required,
                             export.Description));
                     }
@@ -1088,7 +1088,7 @@ namespace Bicep.Core.TypeSystem
 
                 diagnostics.WriteMultiple(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics(exported.TypeReference)
                     .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax))));
-                return resourceDerivedTypeBinder.BindResourceDerivedTypes(exported.TypeReference.Type);
+                return resourceDerivedTypeResolver.ResolveResourceDerivedTypes(exported.TypeReference.Type);
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)

@@ -258,6 +258,36 @@ type typoInPropertyName5 = resource<'Microsoft.Web/customApis@2016-06-01'>.prope
 //@[088:108) Identifier |connectionParameters|
 //@[108:109) Dot |.|
 //@[109:113) Identifier |type|
-//@[113:114) NewLine |\n|
+//@[113:115) NewLine |\n\n|
+
+module mod 'modules/mod.json' = {
+//@[000:006) Identifier |module|
+//@[007:010) Identifier |mod|
+//@[011:029) StringComplete |'modules/mod.json'|
+//@[030:031) Assignment |=|
+//@[032:033) LeftBrace |{|
+//@[033:034) NewLine |\n|
+  name: 'mod'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'mod'|
+//@[013:014) NewLine |\n|
+  params: {
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
+    foo: {}
+//@[004:007) Identifier |foo|
+//@[007:008) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:011) RightBrace |}|
+//@[011:012) NewLine |\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:002) NewLine |\n|
 
 //@[000:000) EndOfFile ||

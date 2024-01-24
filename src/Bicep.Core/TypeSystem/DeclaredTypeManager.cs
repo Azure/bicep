@@ -30,14 +30,14 @@ namespace Bicep.Core.TypeSystem
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IFeatureProvider features;
-        private readonly ResourceDerivedTypeBinder resourceDerivedTypeBinder;
+        private readonly ResourceDerivedTypeResolver resourceDerivedTypeResolver;
 
         public DeclaredTypeManager(TypeManager typeManager, IBinder binder, IFeatureProvider features)
         {
             this.typeManager = typeManager;
             this.binder = binder;
             this.features = features;
-            this.resourceDerivedTypeBinder = new(binder);
+            this.resourceDerivedTypeResolver = new(binder);
         }
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) =>
@@ -1056,7 +1056,7 @@ namespace Bicep.Core.TypeSystem
 
             if (baseType is not TypedArrayType @array)
             {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Asterisk).ExplicitItemsTypeRequiredForAccessThereto(baseType));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare)).ExplicitItemsTypeRequiredForAccessThereto());
             }
 
             return UnwrapType(syntax.Asterisk, @array.Item.Type);
@@ -1945,18 +1945,18 @@ namespace Bicep.Core.TypeSystem
             foreach (var parameter in moduleSemanticModel.Parameters.Values)
             {
                 var type = parameter.TypeReference.Type;
-                if (type is UnboundResourceType unboundType)
+                if (type is UnresolvedResourceType unresolvedType)
                 {
-                    var boundType = GetResourceTypeFromString(module.Span, unboundType.TypeReference.FormatName(), ResourceTypeGenerationFlags.ExistingResource, parentResourceType: null);
+                    var boundType = GetResourceTypeFromString(module.Span, unresolvedType.TypeReference.FormatName(), ResourceTypeGenerationFlags.ExistingResource, parentResourceType: null);
                     if (boundType is ResourceType resourceType)
                     {
                         // We use a special type for Resource type parameters because they have different assignability rules.
-                        type = new ResourceParameterType(resourceType.DeclaringNamespace, unboundType.TypeReference);
+                        type = new ResourceParameterType(resourceType.DeclaringNamespace, unresolvedType.TypeReference);
                     }
                 }
                 else
                 {
-                    type = resourceDerivedTypeBinder.BindResourceDerivedTypes(type);
+                    type = resourceDerivedTypeResolver.ResolveResourceDerivedTypes(type);
                 }
 
                 var flags = parameter.IsRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly;
@@ -1974,13 +1974,13 @@ namespace Bicep.Core.TypeSystem
             foreach (var output in moduleSemanticModel.Outputs)
             {
                 var type = output.TypeReference.Type;
-                if (type is UnboundResourceType unboundType)
+                if (type is UnresolvedResourceType unresolvedType)
                 {
-                    type = GetResourceTypeFromString(module.Span, unboundType.TypeReference.FormatName(), ResourceTypeGenerationFlags.ExistingResource, parentResourceType: null);
+                    type = GetResourceTypeFromString(module.Span, unresolvedType.TypeReference.FormatName(), ResourceTypeGenerationFlags.ExistingResource, parentResourceType: null);
                 }
                 else
                 {
-                    type = resourceDerivedTypeBinder.BindResourceDerivedTypes(type);
+                    type = resourceDerivedTypeResolver.ResolveResourceDerivedTypes(type);
                 }
 
                 outputs.Add(new TypeProperty(output.Name, type, TypePropertyFlags.ReadOnly, output.Description));

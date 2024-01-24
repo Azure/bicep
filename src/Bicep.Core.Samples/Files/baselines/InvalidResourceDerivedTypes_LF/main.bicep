@@ -33,3 +33,10 @@ type typoInPropertyName2 = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.prop
 type typoInPropertyName3 = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties[*].accessPolicies.tenantId
 type typoInPropertyName4 = resource<'Microsoft.Web/customApis@2016-06-01'>.properties.connectionParameters.*.tyype
 type typoInPropertyName5 = resource<'Microsoft.Web/customApis@2016-06-01'>.properties.*.connectionParameters.type
+
+module mod 'modules/mod.json' = {
+  name: 'mod'
+  params: {
+    foo: {}
+  }
+}

@@ -53,9 +53,17 @@ type typoInPropertyName = resource<'Microsoft.Storage/storageAccounts@2023-01-01
 type typoInPropertyName2 = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*].tenatId
 //@[105:112) [BCP083 (Error)] The type "AccessPolicyEntry" does not contain property "tenatId". Did you mean "tenantId"? (CodeDescription: none) |tenatId|
 type typoInPropertyName3 = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties[*].accessPolicies.tenantId
-//@[087:088) [BCP390 (Error)] The type "VaultProperties" does not declare an element type. (CodeDescription: none) |*|
+//@[086:089) [BCP390 (Error)] The array item type access operator ('[*]') can only be used with typed arrays. (CodeDescription: none) |[*]|
 type typoInPropertyName4 = resource<'Microsoft.Web/customApis@2016-06-01'>.properties.connectionParameters.*.tyype
 //@[109:114) [BCP083 (Error)] The type "ConnectionParameter" does not contain property "tyype". Did you mean "type"? (CodeDescription: none) |tyype|
 type typoInPropertyName5 = resource<'Microsoft.Web/customApis@2016-06-01'>.properties.*.connectionParameters.type
 //@[086:087) [BCP389 (Error)] The type "CustomApiPropertiesDefinition" does not declare an additional properties type. (CodeDescription: none) |*|
+
+module mod 'modules/mod.json' = {
+//@[011:029) [BCP392 (Warning)] The supplied resource type identifier "not a valid resource type identifier" was not recognized as a valid resource type name. (CodeDescription: none) |'modules/mod.json'|
+  name: 'mod'
+  params: {
+    foo: {}
+  }
+}
 

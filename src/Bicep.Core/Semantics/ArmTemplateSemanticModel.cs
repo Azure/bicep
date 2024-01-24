@@ -288,7 +288,7 @@ namespace Bicep.Core.Semantics
             {
                 if (ResourceTypeReference.TryParse(resourceTypeRaw) is { } parsed)
                 {
-                    type = new UnboundResourceType(parsed);
+                    type = new UnresolvedResourceType(parsed);
                     return true;
                 }
 
