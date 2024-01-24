@@ -8,7 +8,7 @@ namespace Bicep.Core.Configuration
     /// <summary>
     /// Represents type of credential used for authentication when restoring external modules.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<CredentialType>))]
     public enum CredentialType
     {
         /// <summary>

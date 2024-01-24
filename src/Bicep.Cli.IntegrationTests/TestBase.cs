@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Extensions;
@@ -49,6 +45,9 @@ namespace Bicep.Cli.IntegrationTests
             => TextWriterHelper.InvokeWriterAction((@out, err)
                 => new Program(new(Output: @out, Error: err), registerAction)
                     .RunAsync(args, cancellationToken));
+
+        protected static Task<CliResult> Bicep(Action<IServiceCollection> registerAction, params string[] args)
+            => Bicep(registerAction, CancellationToken.None, args);
 
         protected static Task<CliResult> Bicep(InvocationSettings settings, params string?[] args /*null args are ignored*/)
             => Bicep(services =>

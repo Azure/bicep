@@ -1,14 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.CommandLine;
-using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;

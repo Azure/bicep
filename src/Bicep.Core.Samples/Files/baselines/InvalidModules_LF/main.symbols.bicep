@@ -68,10 +68,9 @@ module './main.bicep' = if
 //@[07:07) Module <missing>. Type: error. Declaration start char: 0, length: 26
 
 module './main.bicep' = if (
-//@[07:07) Module <missing>. Type: error. Declaration start char: 0, length: 28
+//@[07:07) Module <missing>. Type: error. Declaration start char: 0, length: 62
 
 module './main.bicep' = if (true
-//@[07:07) Module <missing>. Type: error. Declaration start char: 0, length: 32
 
 module './main.bicep' = if (true)
 //@[07:07) Module <missing>. Type: error. Declaration start char: 0, length: 33

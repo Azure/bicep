@@ -1,23 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Decompiler;
-using Bicep.Decompiler.Exceptions;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.IntegrationTests
@@ -28,8 +18,8 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static BicepparamDecompiler CreateBicepparamDecompiler(IFileResolver fileResolver)
-          => ServiceBuilder.Create(s => s.WithFileResolver(fileResolver)).GetBicepparamDecompiler();
+        private static BicepDecompiler CreateDecompiler(IFileResolver fileResolver)
+          => ServiceBuilder.Create(s => s.WithFileResolver(fileResolver)).GetDecompiler();
 
         [TestMethod]
         public void Decompiler_Decompiles_ValidParametersFile()
@@ -83,9 +73,11 @@ param fourth = {
                 [paramFileUri] = jsonParametersFile
             });
 
-            var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
+            var decompiler = CreateDecompiler(fileResolver);
 
-            var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(paramFileUri, PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), null);
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
+                jsonParametersFile,
+                PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), null);
 
             filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);
         }
@@ -126,10 +118,10 @@ param third = true";
                 [paramFileUri] = jsonParametersFile
             });
 
-            var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
+            var decompiler = CreateDecompiler(fileResolver);
 
-            var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(
-              paramFileUri,
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
+              jsonParametersFile,
               PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
               bicepFileUri);
 
@@ -177,10 +169,10 @@ param dnsLabelPrefix = 'newvm79347a'";
                 [paramFileUri] = jsonParametersFile
             });
 
-            var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
+            var decompiler = CreateDecompiler(fileResolver);
 
-            var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(
-              paramFileUri,
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
+              jsonParametersFile,
               PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
               null);
 
@@ -233,10 +225,10 @@ param regions = [
                 [paramFileUri] = jsonParametersFile
             });
 
-            var bicepparamDecompiler = CreateBicepparamDecompiler(fileResolver);
+            var decompiler = CreateDecompiler(fileResolver);
 
-            var (entryPointUri, filesToSave) = bicepparamDecompiler.Decompile(
-              paramFileUri,
+            var (entryPointUri, filesToSave) = decompiler.DecompileParameters(
+              jsonParametersFile,
               PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
               null);
 

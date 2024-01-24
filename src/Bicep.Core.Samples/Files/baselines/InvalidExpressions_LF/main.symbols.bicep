@@ -380,9 +380,8 @@ var twoElements = (1, 2)
 var threeElements = (1, 2, 3)
 //@[4:17) Variable threeElements. Type: error. Declaration start char: 0, length: 29
 var unterminated1 = (
-//@[4:17) Variable unterminated1. Type: error. Declaration start char: 0, length: 21
+//@[4:17) Variable unterminated1. Type: error. Declaration start char: 0, length: 44
 var unterminated2 = (,
-//@[4:17) Variable unterminated2. Type: error. Declaration start char: 0, length: 22
 
 // trailing decorator with no declaration
 @minLength()

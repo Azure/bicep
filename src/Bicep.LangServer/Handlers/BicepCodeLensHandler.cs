@@ -1,14 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Bicep.Core;
 using Bicep.Core.Registry;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;

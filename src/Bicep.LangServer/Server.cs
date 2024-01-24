@@ -1,26 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics;
 using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Features;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Tracing;
-using Bicep.Core.Workspaces;
-using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Completions;
-using Bicep.LanguageServer.Configuration;
-using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Settings;
-using Bicep.LanguageServer.Snippets;
-using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;

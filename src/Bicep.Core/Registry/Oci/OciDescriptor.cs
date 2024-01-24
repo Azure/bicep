@@ -1,12 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json.Serialization;
 
 namespace Bicep.Core.Registry.Oci
@@ -40,7 +36,7 @@ namespace Bicep.Core.Registry.Oci
         }
 
         [JsonIgnore]
-        public BinaryData? Data {get;}
+        public BinaryData? Data { get; }
         public string MediaType { get; }
         public string Digest { get; }
         public long Size { get; }

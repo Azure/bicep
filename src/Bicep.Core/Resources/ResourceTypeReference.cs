@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text.RegularExpressions;
-using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Resources
 {

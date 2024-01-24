@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Linq;
 using System.Text;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;

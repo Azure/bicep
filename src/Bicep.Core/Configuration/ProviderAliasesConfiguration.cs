@@ -1,16 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
@@ -34,14 +29,14 @@ namespace Bicep.Core.Configuration
 
     public partial class ProviderAliasesConfiguration : ConfigurationSection<ProviderAliases>
     {
-        private readonly string? configurationPath;
+        private readonly Uri? configFileUri;
 
-        private ProviderAliasesConfiguration(ProviderAliases data, string? configurationPath)
+        private ProviderAliasesConfiguration(ProviderAliases data, Uri? configFileUri)
             : base(data)
         {
-            this.configurationPath = configurationPath;
+            this.configFileUri = configFileUri;
         }
-        public static ProviderAliasesConfiguration Bind(JsonElement element, string? configurationPath) => new(element.ToNonNullObject<ProviderAliases>(), configurationPath);
+        public static ProviderAliasesConfiguration Bind(JsonElement element, Uri? configFileUri) => new(element.ToNonNullObject<ProviderAliases>(), configFileUri);
 
         public ImmutableSortedDictionary<string, OciArtifactProviderAlias> GetOciArtifactProviderAliases()
         {
@@ -57,12 +52,12 @@ namespace Bicep.Core.Configuration
 
             if (!this.Data.OciArtifactProviderAliases.TryGetValue(aliasName, out var alias))
             {
-                return new(x => x.OciArtifactProviderAliasNameDoesNotExistInConfiguration(aliasName, this.configurationPath));
+                return new(x => x.OciArtifactProviderAliasNameDoesNotExistInConfiguration(aliasName, configFileUri));
             }
 
             if (alias.Registry is null)
             {
-                return new(x => x.InvalidOciArtifactProviderAliasRegistryNullOrUndefined(aliasName, this.configurationPath));
+                return new(x => x.InvalidOciArtifactProviderAliasRegistryNullOrUndefined(aliasName, configFileUri));
             }
 
             return new(alias);

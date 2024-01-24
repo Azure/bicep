@@ -1,21 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Azure.Core;
 using Azure.ResourceManager;
-using Bicep.Core;
-using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Handlers;
@@ -25,11 +18,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Moq;
 using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using TextRange = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -139,7 +129,7 @@ namespace Bicep.LangServer.IntegrationTests
                 string.Empty,
                 LanguageServer.Deploy.ParametersFileUpdateOption.None,
                 new List<BicepUpdatedDeploymentParameter>{
-                    new BicepUpdatedDeploymentParameter("foo", "bar", false, null)
+                    new("foo", "bar", false, null)
                 },
                 "https://management.azure.com/",
                 "https://management.core.windows.net/");

@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO.Abstractions;
-using Azure.Core.Pipeline;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
@@ -15,10 +12,7 @@ using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.TypeSystem.Providers.Az;
-using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -98,7 +92,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
 
-        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
+        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, Uri? configFileUri = null)
         {
             var configurationData = new Dictionary<string, object>
             {
@@ -128,7 +122,7 @@ namespace Bicep.Core.UnitTests
                 element = element.SetPropertyByPath(path, value);
             }
 
-            return RootConfiguration.Bind(element, configurationPath);
+            return RootConfiguration.Bind(element, configFileUri);
         }
 
         public static ConfigurationManager CreateFilesystemConfigurationManager() => new(new IOFileSystem());

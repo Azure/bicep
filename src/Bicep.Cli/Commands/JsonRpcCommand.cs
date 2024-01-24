@@ -1,16 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
+using System.Diagnostics;
 using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Rpc;
 using Bicep.Core;
-using Bicep.Core.Registry.Auth;
+using Bicep.Core.Features;
 using StreamJsonRpc;
 
 namespace Bicep.Cli.Commands;
@@ -40,9 +38,7 @@ public class JsonRpcCommand : ICommand
             using var clientPipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
 
             await clientPipe.ConnectAsync(cancellationToken);
-
-            using var rpc = new JsonRpc(CliJsonRpcServer.CreateMessageHandler(clientPipe, clientPipe));
-            await RunServer(rpc, cancellationToken);
+            await RunServer(clientPipe, clientPipe, cancellationToken);
         }
         else if (args.Socket is { } port)
         {
@@ -50,21 +46,25 @@ public class JsonRpcCommand : ICommand
 
             await tcpClient.ConnectAsync(IPAddress.Loopback, port, cancellationToken);
             using var tcpStream = tcpClient.GetStream();
-
-            using var rpc = new JsonRpc(CliJsonRpcServer.CreateMessageHandler(tcpStream, tcpStream));
-            await RunServer(rpc, cancellationToken);
+            await RunServer(tcpStream, tcpStream, cancellationToken);
         }
         else
         {
-            using var rpc = new JsonRpc(CliJsonRpcServer.CreateMessageHandler(Console.OpenStandardOutput(), Console.OpenStandardInput()));
-            await RunServer(rpc, cancellationToken);
+            await RunServer(Console.OpenStandardOutput(), Console.OpenStandardInput(), cancellationToken);
         }
 
         return 0;
     }
 
-    private async Task RunServer(JsonRpc jsonRpc, CancellationToken cancellationToken)
+    private async Task RunServer(Stream inputStream, Stream outputStream, CancellationToken cancellationToken)
     {
+        using var jsonRpc = new JsonRpc(CliJsonRpcServer.CreateMessageHandler(inputStream, outputStream));
+        if (FeatureProvider.TracingEnabled)
+        {
+            jsonRpc.TraceSource = new TraceSource("JsonRpc", SourceLevels.Verbose);
+            jsonRpc.TraceSource.Listeners.AddRange(Trace.Listeners);
+        }
+
         var server = new CliJsonRpcServer(compiler);
         jsonRpc.AddLocalRpcTarget<ICliJsonRpcProtocol>(server, null);
 

@@ -1,12 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Threading.Tasks;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
@@ -18,8 +11,6 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.Utils
@@ -90,9 +81,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Where(x => PathHelper.HasBicepExtension(x) || PathHelper.HasArmTemplateLikeExtension(x))
                 .ToDictionary(x => x, x => fileResolver.TryRead(x).IsSuccess(out var fileContents) ? fileContents : throw new InvalidOperationException($"Failed to find file {x}"));
 
-#pragma warning disable VSTHRD002
-            var compilation = compiler.CreateCompilation(entryUri, skipRestore: true).GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002
+            var compilation = compiler.CreateCompilationWithoutRestore(entryUri);
             return GetCompilationResult(compilation);
         }
 

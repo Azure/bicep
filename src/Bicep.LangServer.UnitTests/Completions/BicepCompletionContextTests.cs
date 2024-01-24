@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Linq;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Completions;
@@ -50,9 +48,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
     a == '1' ? a == '2' ? |
     a == '1' ? a == '2' ? : |
     a == '1' ? a == '2' ? | : aResource : aResource
-    a == '1' ? (a == '2' ? |
     a == '1' ? (a == '2' ? |)
-    (a == '1' ? aResource : |
     (a == '1' ? aResource : |)
     (a == '1' ? (|))
     (a == '1' ? (|) :)
@@ -65,7 +61,7 @@ resource foo 'Microsoft.Foo/bar@2020-01-01' = {
             var (file, cursors) = ParserHelper.GetFileWithCursors(text, '|');
             var compilation = Services.BuildCompilation(file);
 
-            cursors.Should().HaveCount(17);
+            cursors.Should().HaveCount(15);
             var cursorTuples = cursors.Select((cursor, cursorIndex) => (BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursor), cursor, cursorIndex));
             foreach (var (context, cursor, cursorIndex) in cursorTuples)
             {

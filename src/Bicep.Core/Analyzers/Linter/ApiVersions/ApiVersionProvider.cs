@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using ResourceScope = Bicep.Core.TypeSystem.ResourceScope;

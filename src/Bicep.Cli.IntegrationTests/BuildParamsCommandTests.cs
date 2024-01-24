@@ -1,16 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Cli.Models;
@@ -19,10 +9,8 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
-using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -63,7 +51,7 @@ namespace Bicep.Cli.IntegrationTests
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().Contain($"{bicepPath} is not a bicep file");
+            error.Should().Contain($"\"{bicepPath}\" was not recognized as a Bicep file.");
         }
 
         [TestMethod]
@@ -360,6 +348,8 @@ output foo string = foo
             result.Should().Succeed().And.NotHaveStderr();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            // Force consistency for escaped newlines.
+            parametersStdout = parametersStdout with { templateJson = parametersStdout?.templateJson?.ReplaceLineEndings("\n") };
             outputFile.WriteJsonToOutputFolder(parametersStdout);
             outputFile.ShouldHaveExpectedJsonValue();
         }
@@ -398,6 +388,8 @@ output foo string = foo
             result.Should().Succeed().And.NotHaveStderr();
 
             var parametersStdout = result.Stdout.FromJson<BuildParamsStdout>();
+            // Force consistency for escaped newlines.
+            parametersStdout = parametersStdout with { templateJson = parametersStdout?.templateJson?.ReplaceLineEndings("\n") };
             outputFile.WriteJsonToOutputFolder(parametersStdout);
             outputFile.ShouldHaveExpectedJsonValue();
         }

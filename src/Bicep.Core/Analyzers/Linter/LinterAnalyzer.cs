@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -77,7 +74,7 @@ namespace Bicep.Core.Analyzers.Linter
                         TextSpan.TextDocumentStart,
                         DiagnosticLevel.Info,
                         "Linter Disabled",
-                        string.Format(CoreResources.LinterDisabledFormatMessage, semanticModel.Configuration.ConfigurationPath ?? IConfigurationManager.BuiltInConfigurationResourceName)));
+                        string.Format(CoreResources.LinterDisabledFormatMessage, semanticModel.Configuration.ConfigFileUri?.LocalPath ?? IConfigurationManager.BuiltInConfigurationResourceName)));
                 }
             }
 
@@ -88,7 +85,7 @@ namespace Bicep.Core.Analyzers.Linter
         {
             var configMessage = model.Configuration.IsBuiltIn
                 ? CoreResources.BicepConfigNoCustomSettingsMessage
-                : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, model.Configuration.ConfigurationPath);
+                : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, model.Configuration.ConfigFileUri?.LocalPath);
 
             return new AnalyzerDiagnostic(
                 AnalyzerName,

@@ -1,33 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.Options;
-using Bicep.Core.PrettyPrint;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
 
 public class TemplateEmitter
 {
-    private readonly Compilation compilation;
     private readonly ISemanticModel model;
 
     public TemplateEmitter(SemanticModel model)
-        : this(model.Compilation, model)
     {
-    }
-
-    public TemplateEmitter(Compilation compilation, ISemanticModel model)
-    {
-        this.compilation = compilation;
         this.model = model;
     }
 

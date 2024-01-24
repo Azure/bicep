@@ -1,17 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
@@ -343,7 +335,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var client = StrictMock.Of<ContainerRegistryContentClient>();
             client
-                .Setup(m => m.UploadBlobAsync(It.IsAny<BinaryData>()  , It.IsAny<CancellationToken>()))
+                .Setup(m => m.UploadBlobAsync(It.IsAny<BinaryData>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
             client
                 .Setup(m => m.GetManifestAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -464,7 +456,7 @@ namespace Bicep.Cli.IntegrationTests
 
             await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
 
-            var manifest = blobClient.Manifests.Single().Value.ToObjectFromJson<OciManifest>(new JsonSerializerOptions{PropertyNamingPolicy = JsonNamingPolicy.CamelCase});
+            var manifest = blobClient.Manifests.Single().Value.ToObjectFromJson<OciManifest>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 
             if (expectedDescription is null)
             {
@@ -491,15 +483,6 @@ namespace Bicep.Cli.IntegrationTests
             .AllDataSets
             .Where(ds => ds.IsValid == true)
             .ToDynamicTestData();
-
-        private static IEnumerable<object[]> GetValidDataSetsWithPublishSources()
-        {
-            foreach (var ds in DataSets.AllDataSets.Where(ds => ds.IsValid))
-            {
-                yield return new object[] { $"{ds.Name}, not publishing source", ds, false };
-                yield return new object[] { $"{ds.Name}, publishing source", ds, true };
-            }
-        }
 
         private static IEnumerable<object[]> GetValidDataSetsWithDocUriAndPublishSource()
         {

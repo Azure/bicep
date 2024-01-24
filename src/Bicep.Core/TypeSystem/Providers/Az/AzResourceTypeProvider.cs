@@ -1,13 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using Azure.Bicep.Types.Az;
-using Azure.Deployments.Core.Comparers;
 using Bicep.Core.Emit;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;

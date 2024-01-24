@@ -1,25 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
-using Azure.Core;
 using Azure.Identity;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
-using Bicep.Core.Json;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -121,7 +109,7 @@ namespace Bicep.Core.Registry
              */
 
             var manifest = new OciManifest(2, mediaType, artifactType, config, layerDescriptors.ToImmutableArray(), annotations.Build());
-           
+
             var manifestBinaryData = BinaryData.FromObjectAsJson(manifest, OciManifestSerializationContext.Default.Options);
             _ = await blobClient.SetManifestAsync(manifestBinaryData, artifactReference.Tag, mediaType: ManifestMediaType.OciImageManifest);
         }

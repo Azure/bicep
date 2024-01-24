@@ -1,5 +1,5 @@
 func useRuntimeFunction() string => reference('foo').bar
-//@[000:1091) ProgramSyntax
+//@[000:1360) ProgramSyntax
 //@[000:0056) ├─FunctionDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |func|
 //@[005:0023) | ├─IdentifierSyntax
@@ -345,32 +345,32 @@ output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not suppo
 //@[113:0115) ├─Token(NewLine) |\n\n|
 
 func sayHelloBadNewlines(
-//@[000:0025) ├─FunctionDeclarationSyntax
+//@[000:0064) ├─FunctionDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |func|
 //@[005:0024) | ├─IdentifierSyntax
 //@[005:0024) | | └─Token(Identifier) |sayHelloBadNewlines|
-//@[024:0025) | └─TypedLambdaSyntax
-//@[024:0025) |   ├─TypedVariableBlockSyntax
+//@[024:0064) | └─TypedLambdaSyntax
+//@[024:0040) |   ├─TypedVariableBlockSyntax
 //@[024:0025) |   | ├─Token(LeftParen) |(|
-//@[025:0025) |   | ├─TypedLocalVariableSyntax
-//@[025:0025) |   | | ├─IdentifierSyntax
-//@[025:0025) |   | | | └─SkippedTriviaSyntax
-//@[025:0025) |   | | └─SkippedTriviaSyntax
-//@[025:0025) |   | └─SkippedTriviaSyntax
-//@[025:0025) |   ├─SkippedTriviaSyntax
-//@[025:0025) |   ├─SkippedTriviaSyntax
-//@[025:0025) |   └─SkippedTriviaSyntax
-//@[025:0026) ├─Token(NewLine) |\n|
+//@[025:0026) |   | ├─Token(NewLine) |\n|
   name string) string => 'Hi ${name}!'
-//@[002:0038) ├─SkippedTriviaSyntax
-//@[002:0006) | ├─Token(Identifier) |name|
-//@[007:0013) | ├─Token(Identifier) |string|
-//@[013:0014) | ├─Token(RightParen) |)|
-//@[015:0021) | ├─Token(Identifier) |string|
-//@[022:0024) | ├─Token(Arrow) |=>|
-//@[025:0031) | ├─Token(StringLeftPiece) |'Hi ${|
-//@[031:0035) | ├─Token(Identifier) |name|
-//@[035:0038) | └─Token(StringRightPiece) |}!'|
+//@[002:0013) |   | ├─TypedLocalVariableSyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[007:0013) |   | | └─VariableAccessSyntax
+//@[007:0013) |   | |   └─IdentifierSyntax
+//@[007:0013) |   | |     └─Token(Identifier) |string|
+//@[013:0014) |   | └─Token(RightParen) |)|
+//@[015:0021) |   ├─VariableAccessSyntax
+//@[015:0021) |   | └─IdentifierSyntax
+//@[015:0021) |   |   └─Token(Identifier) |string|
+//@[022:0024) |   ├─Token(Arrow) |=>|
+//@[025:0038) |   └─StringSyntax
+//@[025:0031) |     ├─Token(StringLeftPiece) |'Hi ${|
+//@[031:0035) |     ├─VariableAccessSyntax
+//@[031:0035) |     | └─IdentifierSyntax
+//@[031:0035) |     |   └─Token(Identifier) |name|
+//@[035:0038) |     └─Token(StringRightPiece) |}!'|
 //@[038:0040) ├─Token(NewLine) |\n\n|
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
@@ -496,6 +496,149 @@ func recursiveB() string => recursiveA()
 //@[028:0038) |     | └─Token(Identifier) |recursiveA|
 //@[038:0039) |     ├─Token(LeftParen) |(|
 //@[039:0040) |     └─Token(RightParen) |)|
-//@[040:0041) ├─Token(NewLine) |\n|
+//@[040:0042) ├─Token(NewLine) |\n\n|
+
+func onlyComma(,) string => 'foo'
+//@[000:0033) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0014) | ├─IdentifierSyntax
+//@[005:0014) | | └─Token(Identifier) |onlyComma|
+//@[014:0033) | └─TypedLambdaSyntax
+//@[014:0017) |   ├─TypedVariableBlockSyntax
+//@[014:0015) |   | ├─Token(LeftParen) |(|
+//@[015:0015) |   | ├─TypedLocalVariableSyntax
+//@[015:0015) |   | | ├─IdentifierSyntax
+//@[015:0015) |   | | | └─SkippedTriviaSyntax
+//@[015:0015) |   | | └─SkippedTriviaSyntax
+//@[015:0016) |   | ├─Token(Comma) |,|
+//@[016:0017) |   | └─Token(RightParen) |)|
+//@[018:0024) |   ├─VariableAccessSyntax
+//@[018:0024) |   | └─IdentifierSyntax
+//@[018:0024) |   |   └─Token(Identifier) |string|
+//@[025:0027) |   ├─Token(Arrow) |=>|
+//@[028:0033) |   └─StringSyntax
+//@[028:0033) |     └─Token(StringComplete) |'foo'|
+//@[033:0034) ├─Token(NewLine) |\n|
+func trailingCommas(a string,,) string => 'foo'
+//@[000:0047) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0019) | ├─IdentifierSyntax
+//@[005:0019) | | └─Token(Identifier) |trailingCommas|
+//@[019:0047) | └─TypedLambdaSyntax
+//@[019:0031) |   ├─TypedVariableBlockSyntax
+//@[019:0020) |   | ├─Token(LeftParen) |(|
+//@[020:0028) |   | ├─TypedLocalVariableSyntax
+//@[020:0021) |   | | ├─IdentifierSyntax
+//@[020:0021) |   | | | └─Token(Identifier) |a|
+//@[022:0028) |   | | └─VariableAccessSyntax
+//@[022:0028) |   | |   └─IdentifierSyntax
+//@[022:0028) |   | |     └─Token(Identifier) |string|
+//@[028:0029) |   | ├─Token(Comma) |,|
+//@[029:0029) |   | ├─TypedLocalVariableSyntax
+//@[029:0029) |   | | ├─IdentifierSyntax
+//@[029:0029) |   | | | └─SkippedTriviaSyntax
+//@[029:0029) |   | | └─SkippedTriviaSyntax
+//@[029:0030) |   | ├─Token(Comma) |,|
+//@[030:0031) |   | └─Token(RightParen) |)|
+//@[032:0038) |   ├─VariableAccessSyntax
+//@[032:0038) |   | └─IdentifierSyntax
+//@[032:0038) |   |   └─Token(Identifier) |string|
+//@[039:0041) |   ├─Token(Arrow) |=>|
+//@[042:0047) |   └─StringSyntax
+//@[042:0047) |     └─Token(StringComplete) |'foo'|
+//@[047:0048) ├─Token(NewLine) |\n|
+func multiLineOnly(
+//@[000:0058) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0018) | ├─IdentifierSyntax
+//@[005:0018) | | └─Token(Identifier) |multiLineOnly|
+//@[018:0058) | └─TypedLambdaSyntax
+//@[018:0058) |   ├─TypedVariableBlockSyntax
+//@[018:0019) |   | ├─Token(LeftParen) |(|
+//@[019:0020) |   | ├─Token(NewLine) |\n|
+  a string
+//@[002:0010) |   | ├─TypedLocalVariableSyntax
+//@[002:0003) |   | | ├─IdentifierSyntax
+//@[002:0003) |   | | | └─Token(Identifier) |a|
+//@[004:0010) |   | | └─VariableAccessSyntax
+//@[004:0010) |   | |   └─IdentifierSyntax
+//@[004:0010) |   | |     └─Token(Identifier) |string|
+//@[010:0011) |   | ├─Token(NewLine) |\n|
+  b string) string => 'foo'
+//@[002:0027) |   | └─SkippedTriviaSyntax
+//@[002:0003) |   |   ├─Token(Identifier) |b|
+//@[004:0010) |   |   ├─Token(Identifier) |string|
+//@[010:0011) |   |   ├─Token(RightParen) |)|
+//@[012:0018) |   |   ├─Token(Identifier) |string|
+//@[019:0021) |   |   ├─Token(Arrow) |=>|
+//@[022:0027) |   |   └─Token(StringComplete) |'foo'|
+//@[027:0027) |   ├─SkippedTriviaSyntax
+//@[027:0027) |   ├─SkippedTriviaSyntax
+//@[027:0027) |   └─SkippedTriviaSyntax
+//@[027:0029) ├─Token(NewLine) |\n\n|
+
+func multiLineTrailingCommas(
+//@[000:0062) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0028) | ├─IdentifierSyntax
+//@[005:0028) | | └─Token(Identifier) |multiLineTrailingCommas|
+//@[028:0062) | └─TypedLambdaSyntax
+//@[028:0046) |   ├─TypedVariableBlockSyntax
+//@[028:0029) |   | ├─Token(LeftParen) |(|
+//@[029:0030) |   | ├─Token(NewLine) |\n|
+  a string,
+//@[002:0010) |   | ├─TypedLocalVariableSyntax
+//@[002:0003) |   | | ├─IdentifierSyntax
+//@[002:0003) |   | | | └─Token(Identifier) |a|
+//@[004:0010) |   | | └─VariableAccessSyntax
+//@[004:0010) |   | |   └─IdentifierSyntax
+//@[004:0010) |   | |     └─Token(Identifier) |string|
+//@[010:0011) |   | ├─Token(Comma) |,|
+//@[011:0012) |   | ├─Token(NewLine) |\n|
+  ,) string => 'foo'
+//@[002:0002) |   | ├─TypedLocalVariableSyntax
+//@[002:0002) |   | | ├─IdentifierSyntax
+//@[002:0002) |   | | | └─SkippedTriviaSyntax
+//@[002:0002) |   | | └─SkippedTriviaSyntax
+//@[002:0003) |   | ├─Token(Comma) |,|
+//@[003:0004) |   | └─Token(RightParen) |)|
+//@[005:0011) |   ├─VariableAccessSyntax
+//@[005:0011) |   | └─IdentifierSyntax
+//@[005:0011) |   |   └─Token(Identifier) |string|
+//@[012:0014) |   ├─Token(Arrow) |=>|
+//@[015:0020) |   └─StringSyntax
+//@[015:0020) |     └─Token(StringComplete) |'foo'|
+//@[020:0022) ├─Token(NewLine) |\n\n|
+
+func lineBeforeComma(
+//@[000:0061) ├─FunctionDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |func|
+//@[005:0020) | ├─IdentifierSyntax
+//@[005:0020) | | └─Token(Identifier) |lineBeforeComma|
+//@[020:0061) | └─TypedLambdaSyntax
+//@[020:0061) |   ├─TypedVariableBlockSyntax
+//@[020:0021) |   | ├─Token(LeftParen) |(|
+//@[021:0022) |   | ├─Token(NewLine) |\n|
+  a string
+//@[002:0010) |   | ├─TypedLocalVariableSyntax
+//@[002:0003) |   | | ├─IdentifierSyntax
+//@[002:0003) |   | | | └─Token(Identifier) |a|
+//@[004:0010) |   | | └─VariableAccessSyntax
+//@[004:0010) |   | |   └─IdentifierSyntax
+//@[004:0010) |   | |     └─Token(Identifier) |string|
+//@[010:0011) |   | ├─Token(NewLine) |\n|
+  ,b string) string => 'foo'
+//@[002:0028) |   | └─SkippedTriviaSyntax
+//@[002:0003) |   |   ├─Token(Comma) |,|
+//@[003:0004) |   |   ├─Token(Identifier) |b|
+//@[005:0011) |   |   ├─Token(Identifier) |string|
+//@[011:0012) |   |   ├─Token(RightParen) |)|
+//@[013:0019) |   |   ├─Token(Identifier) |string|
+//@[020:0022) |   |   ├─Token(Arrow) |=>|
+//@[023:0028) |   |   └─Token(StringComplete) |'foo'|
+//@[028:0028) |   ├─SkippedTriviaSyntax
+//@[028:0028) |   ├─SkippedTriviaSyntax
+//@[028:0028) |   └─SkippedTriviaSyntax
+//@[028:0029) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

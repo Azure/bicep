@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Threading.Tasks;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
@@ -18,7 +13,6 @@ using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.Workspaces;
-using FluentAssertions.Common;
 
 namespace Bicep.Core.UnitTests.Utils;
 
@@ -81,11 +75,7 @@ public static class ServiceBuilderExtensions
         var compiler = services.Build().GetCompiler();
         var workspace = CompilationHelper.CreateWorkspace(fileContentsByUri);
 
-        var compilationTask = compiler.CreateCompilation(entryFileUri, workspace, skipRestore: true);
-
-#pragma warning disable VSTHRD002
-        return compilationTask.GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002
+        return compiler.CreateCompilationWithoutRestore(entryFileUri, workspace);
     }
 
     public static Compilation BuildCompilation(this ServiceBuilder services, string text)

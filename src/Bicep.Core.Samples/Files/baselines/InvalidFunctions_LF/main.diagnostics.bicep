@@ -43,14 +43,7 @@ output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not suppo
 //@[46:54) [BCP063 (Error)] The name "sayHello" is not a parameter, variable, resource or module. (CodeDescription: none) |sayHello|
 
 func sayHelloBadNewlines(
-//@[25:25) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
-//@[25:25) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
-//@[25:25) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
-//@[25:25) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
-//@[25:25) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) ||
-//@[25:25) [BCP018 (Error)] Expected the "=>" character at this location. (CodeDescription: none) ||
   name string) string => 'Hi ${name}!'
-//@[02:06) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |name|
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 func invalidArgs(a validStringLiteralUnion, b string) string => a
@@ -63,4 +56,32 @@ func recursiveA() string => recursiveB()
 //@[28:40) [BCP080 (Error)] The expression is involved in a cycle ("recursiveB" -> "recursiveA"). (CodeDescription: none) |recursiveB()|
 func recursiveB() string => recursiveA()
 //@[28:40) [BCP080 (Error)] The expression is involved in a cycle ("recursiveA" -> "recursiveB"). (CodeDescription: none) |recursiveA()|
+
+func onlyComma(,) string => 'foo'
+//@[15:15) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
+//@[15:16) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |,|
+func trailingCommas(a string,,) string => 'foo'
+//@[29:29) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
+//@[29:30) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |,|
+func multiLineOnly(
+  a string
+  b string) string => 'foo'
+//@[02:03) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) |b|
+//@[27:27) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+//@[27:27) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[27:27) [BCP018 (Error)] Expected the "=>" character at this location. (CodeDescription: none) ||
+
+func multiLineTrailingCommas(
+  a string,
+  ,) string => 'foo'
+//@[02:02) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
+//@[02:03) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |,|
+
+func lineBeforeComma(
+  a string
+  ,b string) string => 'foo'
+//@[02:03) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) |,|
+//@[28:28) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+//@[28:28) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[28:28) [BCP018 (Error)] Expected the "=>" character at this location. (CodeDescription: none) ||
 

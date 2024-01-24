@@ -13,10 +13,10 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers;
-using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
+using Environment = Bicep.Core.Utils.Environment;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Cli.Helpers;
@@ -74,7 +74,4 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepDecompiler>();
-
-    public static IServiceCollection AddBicepparamDecompiler(this IServiceCollection services) => services
-        .AddSingleton<BicepparamDecompiler>();
 }

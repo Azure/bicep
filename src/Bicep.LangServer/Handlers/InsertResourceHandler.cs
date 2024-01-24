@@ -1,18 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure.Deployments.Core.Comparers;
 using Azure.Deployments.Core.Definitions.Identifiers;
-using Bicep.Core;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
@@ -24,7 +18,6 @@ using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;

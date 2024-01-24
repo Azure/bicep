@@ -1,21 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.ServiceModel.Syndication;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
-using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.Syntax

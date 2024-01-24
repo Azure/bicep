@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Security;
 using System.Text.Json;
@@ -104,7 +101,7 @@ namespace Bicep.Core.Configuration
                     configuration.CacheRootDirectory,
                     configuration.ExperimentalFeaturesEnabled,
                     configuration.Formatting,
-                    configuration.ConfigurationPath,
+                    configuration.ConfigFileUri,
                     diagnostics);
             }
 
@@ -120,7 +117,7 @@ namespace Bicep.Core.Configuration
                 using var stream = fileSystem.FileStream.New(configurationUri.LocalPath, FileMode.Open, FileAccess.Read);
                 var element = IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElementFromStream(stream));
 
-                return (RootConfiguration.Bind(element, configurationUri.LocalPath), null);
+                return (RootConfiguration.Bind(element, configurationUri), null);
             }
             catch (ConfigurationException exception)
             {

@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Bicep.Core.Extensions
 {
@@ -16,7 +13,7 @@ namespace Bicep.Core.Extensions
         public static IEnumerable<TSource> Concat<TSource>(this IEnumerable<TSource> first, params TSource[] second)
             => first.Concat((IEnumerable<TSource>)second);
 
-        public static IEnumerable<IGrouping<TKey, TSource>> GroupByExcludingNull<TKey, TSource>(this IEnumerable<TSource> source, Func<TSource, TKey?> keySelector, IEqualityComparer<TKey> comparer)
+        public static IEnumerable<IGrouping<TKey, TSource>> GroupByExcludingNull<TKey, TSource>(this IEnumerable<TSource> source, Func<TSource, TKey?> keySelector, IEqualityComparer<TKey>? comparer = null)
             where TKey : class
             => source.Where(x => keySelector(x) != null).GroupBy(x => keySelector(x)!, comparer);
 
@@ -28,12 +25,12 @@ namespace Bicep.Core.Extensions
             where TKey : class
             => source.Where(x => keySelector(x) != null).ToImmutableDictionary(x => keySelector(x)!, elementSelector, keyComparer);
 
-        public static ImmutableDictionary<TKey, TSource> ToImmutableDictionaryExcludingNullValues<TSource, TKey>(this IEnumerable<TSource?> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey> keyComparer)
+        public static ImmutableDictionary<TKey, TSource> ToImmutableDictionaryExcludingNullValues<TSource, TKey>(this IEnumerable<TSource?> source, Func<TSource, TKey> keySelector, IEqualityComparer<TKey>? keyComparer = null)
             where TKey : notnull
             where TSource : class
             => source.WhereNotNull().ToImmutableDictionary(x => keySelector(x), x => x, keyComparer);
 
-        public static ImmutableDictionary<TKey, TValue> ToImmutableDictionaryExcludingNullValues<TSource, TKey, TValue>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue?> elementSelector, IEqualityComparer<TKey> keyComparer)
+        public static ImmutableDictionary<TKey, TValue> ToImmutableDictionaryExcludingNullValues<TSource, TKey, TValue>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue?> elementSelector, IEqualityComparer<TKey>? keyComparer = null)
             where TKey : notnull
             where TValue : class
             => source.Select(x => (key: keySelector(x), value: elementSelector(x))).Where(x => x.value != null).ToImmutableDictionary(

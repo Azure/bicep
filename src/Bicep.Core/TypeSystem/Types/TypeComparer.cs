@@ -1,8 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
-
 namespace Bicep.Core.TypeSystem.Types;
 
 internal class TypeComparer : IComparer<TypeSymbol>

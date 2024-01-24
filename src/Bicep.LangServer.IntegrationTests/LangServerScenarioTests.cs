@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using FluentAssertions;

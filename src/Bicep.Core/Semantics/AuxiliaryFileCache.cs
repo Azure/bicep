@@ -1,15 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Utils;
-using System.Diagnostics;
-using System.Linq;
-using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Semantics;
 
@@ -38,7 +34,8 @@ public class AuxiliaryFileCache : IReadableFileCache
     public ResultWithDiagnostic<AuxiliaryFile> Read(Uri uri)
         => fileCache.GetOrAdd(
             uri,
-            uri => {
+            uri =>
+            {
                 var result = fileResolver.TryReadAsBinaryData(uri)
                     .Transform(data => new AuxiliaryFile(uri, data));
 

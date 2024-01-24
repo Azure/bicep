@@ -78,12 +78,10 @@ module './main.bicep' = if
 module './main.bicep' = if (
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
 //@[007:021) [BCP094 (Error)] This module references itself, which is not allowed. (CodeDescription: none) |'./main.bicep'|
-//@[028:028) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+//@[028:036) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |\n\nmodule|
 
 module './main.bicep' = if (true
-//@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
-//@[007:021) [BCP094 (Error)] This module references itself, which is not allowed. (CodeDescription: none) |'./main.bicep'|
-//@[032:032) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) ||
+//@[007:021) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) |'./main.bicep'|
 
 module './main.bicep' = if (true)
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|

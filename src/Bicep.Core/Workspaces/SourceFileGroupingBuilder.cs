@@ -1,18 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
@@ -26,7 +21,7 @@ namespace Bicep.Core.Workspaces
         private readonly IReadOnlyWorkspace workspace;
 
         private readonly Dictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri;
-        private readonly ConcurrentDictionary<ISourceFile, Dictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference;
+        private readonly ConcurrentDictionary<BicepSourceFile, Dictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference;
 
         private readonly bool forceRestore;
 
@@ -78,7 +73,7 @@ namespace Bicep.Core.Workspaces
             }
 
             // Rebuild source files that contain external module references restored during the inital build.
-            var sourceFilesToRebuild = current.SourceFiles
+            var sourceFilesToRebuild = current.SourceFiles.OfType<BicepSourceFile>()
                 .Where(sourceFile
                     => GetArtifactReferenceDeclarations(sourceFile)
                         .Any(moduleDeclaration
@@ -266,8 +261,7 @@ namespace Bicep.Core.Workspaces
             _ => Enumerable.Empty<IArtifactReferenceSyntax>(),
         };
 
-        private static IEnumerable<IArtifactReferenceSyntax> GetArtifactReferenceDeclarations(ISourceFile sourceFile) => sourceFile is BicepFile bicepFile
-            ? bicepFile.ProgramSyntax.Declarations.OfType<IArtifactReferenceSyntax>()
-            : Enumerable.Empty<IArtifactReferenceSyntax>();
+        private static IEnumerable<IArtifactReferenceSyntax> GetArtifactReferenceDeclarations(BicepSourceFile sourceFile)
+            => sourceFile.ProgramSyntax.Declarations.OfType<IArtifactReferenceSyntax>();
     }
 }

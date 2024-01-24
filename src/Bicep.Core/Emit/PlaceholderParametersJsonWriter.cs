@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
-using System.Linq;
 using Bicep.Core.Emit.Options;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;

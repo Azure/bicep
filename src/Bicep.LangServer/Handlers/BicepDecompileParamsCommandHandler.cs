@@ -1,21 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Immutable;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
 using Bicep.Decompiler;
-using Bicep.LanguageServer.Telemetry;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
@@ -37,14 +26,17 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDecompileParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileParamsCommandParams, BicepDecompileParamsCommandResult>
     {
-        private readonly BicepparamDecompiler bicepparamDecompiler;
+        private readonly IFileResolver fileResolver;
+        private readonly BicepDecompiler decompiler;
 
         public BicepDecompileParamsCommandHandler(
+            IFileResolver fileResolver,
             ISerializer serializer,
-            BicepparamDecompiler bicepparamDecompiler)
+            BicepDecompiler decompiler)
             : base(LangServerConstants.DecompileParamsCommand, serializer)
         {
-            this.bicepparamDecompiler = bicepparamDecompiler;
+            this.fileResolver = fileResolver;
+            this.decompiler = decompiler;
         }
 
         public override async Task<BicepDecompileParamsCommandResult> Handle(BicepDecompileParamsCommandParams parameters, CancellationToken cancellationToken)
@@ -54,8 +46,12 @@ namespace Bicep.LanguageServer.Handlers
             {
                 var jsonUri = parameters.jsonUri.ToUriEncoded();
                 var bicepUri = parameters.bicepUri?.ToUriEncoded();
+                if (!fileResolver.TryRead(jsonUri).IsSuccess(out var jsonContents))
+                {
+                    throw new InvalidOperationException($"Failed to read {jsonUri}");
+                }
 
-                var (entryUri, filesToSave) = bicepparamDecompiler.Decompile(jsonUri, PathHelper.ChangeToBicepparamExtension(jsonUri), bicepUri);
+                var (entryUri, filesToSave) = decompiler.DecompileParameters(jsonContents, PathHelper.ChangeToBicepparamExtension(jsonUri), bicepUri);
 
                 return new(new(filesToSave[entryUri], entryUri), null);
             }

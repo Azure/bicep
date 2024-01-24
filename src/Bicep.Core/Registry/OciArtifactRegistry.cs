@@ -1,16 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Bicep.Core.Configuration;
@@ -22,8 +15,6 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
-using Bicep.Core.Utils;
-using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Core.Registry
@@ -196,7 +187,7 @@ namespace Bicep.Core.Registry
             try
             {
                 string manifestFileContents = fileSystem.File.ReadAllText(manifestFilePath);
-                var manifest = JsonSerializer.Deserialize(manifestFileContents,  OciManifestSerializationContext.Default.OciManifest);
+                var manifest = JsonSerializer.Deserialize(manifestFileContents, OciManifestSerializationContext.Default.OciManifest);
                 return manifest ?? throw new Exception($"Deserialization of cached manifest \"{manifestFilePath}\" failed");
             }
             catch (Exception ex)
@@ -264,8 +255,8 @@ namespace Bicep.Core.Registry
             {
                 layers.Add(
                     new(
-                        bicepSources, 
-                        BicepModuleMediaTypes.BicepSourceV1Layer, 
+                        bicepSources,
+                        BicepModuleMediaTypes.BicepSourceV1Layer,
                         new OciManifestAnnotationsBuilder().WithTitle("Source files").Build()));
             }
 

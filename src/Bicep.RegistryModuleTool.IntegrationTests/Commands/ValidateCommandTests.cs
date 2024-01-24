@@ -3,7 +3,6 @@
 
 using System.CommandLine;
 using System.IO.Abstractions;
-using System.Threading.Tasks;
 using Bicep.RegistryModuleTool.Commands;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.TestFixtures.Extensions;

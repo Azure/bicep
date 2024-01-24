@@ -1,12 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
@@ -355,7 +352,7 @@ namespace Bicep.Core.Parsing
 
         private SyntaxBase ForVariableBlock()
         {
-            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => Expression(ExpressionFlags.None));
+            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => Expression(ExpressionFlags.None), permitNewLines: false);
 
             var variableBlock = GetVariableBlock(openParen, expressionsOrCommas, closeParen);
 
@@ -1098,22 +1095,31 @@ namespace Bicep.Core.Parsing
 
         private SyntaxBase ParenthesizedExpression(ExpressionFlags expressionFlags)
         {
-            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => Expression(expressionFlags));
+            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => Expression(expressionFlags), permitNewLines: true);
 
             return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
         }
 
         private SyntaxBase ParenthesizedTypeExpression()
         {
-            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(TypeExpression);
+            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(TypeExpression, permitNewLines: false);
 
             return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
         }
 
-        private (Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen) ParenthesizedExpressionList(Func<SyntaxBase> expressionParser)
+        private (Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen) ParenthesizedExpressionList(Func<SyntaxBase> expressionParser, bool permitNewLines)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
-            var expressionsOrCommas = new List<SyntaxBase>();
+            var itemsOrTokens = new List<SyntaxBase>();
+
+            void parseNewLines() {
+                if (permitNewLines)
+                {
+                    itemsOrTokens.AddRange(NewLines());
+                }
+            }
+
+            parseNewLines();
             while (!this.Check(TokenType.RightParen))
             {
                 var expression = this.WithRecovery(
@@ -1125,33 +1131,35 @@ namespace Bicep.Core.Parsing
                     TokenType.RightSquare,
                     TokenType.NewLine,
                     TokenType.Comma);
-                expressionsOrCommas.Add(expression);
+                itemsOrTokens.Add(expression);
 
                 if (this.Check(TokenType.Comma))
                 {
                     var comma = this.Expect(TokenType.Comma, b => b.ExpectedCharacter(","));
-                    expressionsOrCommas.Add(comma);
+                    itemsOrTokens.Add(comma);
+                    parseNewLines();
                 }
                 else
                 {
+                    parseNewLines();
                     break;
                 }
             }
 
             var closeParen = this.WithRecovery(
                 () => this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")")),
-                expressionsOrCommas.Any() ? GetSuppressionFlag(expressionsOrCommas.Last()) : RecoveryFlags.None,
+                itemsOrTokens.Any() ? GetSuppressionFlag(itemsOrTokens.Last()) : RecoveryFlags.None,
                 TokenType.StringRightPiece,
                 TokenType.RightBrace,
                 TokenType.RightSquare,
                 TokenType.NewLine);
 
-            return (openParen, expressionsOrCommas.ToImmutableArray(), closeParen);
+            return (openParen, itemsOrTokens.ToImmutableArray(), closeParen);
         }
 
         private SyntaxBase ParenthesizedExpressionOrLambda(ExpressionFlags expressionFlags)
         {
-            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => Expression(expressionFlags));
+            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => Expression(expressionFlags), permitNewLines: true);
 
             if (Check(TokenType.Arrow))
             {
@@ -1179,7 +1187,7 @@ namespace Bicep.Core.Parsing
 
         protected SyntaxBase TypedLambda()
         {
-            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => TypedLocalVariable(TokenType.NewLine, TokenType.Comma, TokenType.RightParen));
+            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(() => TypedLocalVariable(TokenType.NewLine, TokenType.Comma, TokenType.RightParen), permitNewLines: true);
 
             var returnType = this.WithRecovery(() => Type(allowOptionalResourceType: false), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
             var arrow = this.WithRecovery(() => Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>")), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);

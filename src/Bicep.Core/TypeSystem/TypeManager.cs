@@ -1,14 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
 {

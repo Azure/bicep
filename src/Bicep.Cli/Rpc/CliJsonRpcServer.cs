@@ -1,38 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
-using Azure;
-using Azure.ResourceManager;
-using Azure.ResourceManager.Resources;
-using Azure.ResourceManager.Resources.Models;
+using Bicep.Cli.Helpers;
 using Bicep.Core;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Json;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
-using Bicep.Core.Tracing;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using StreamJsonRpc;
 
@@ -77,21 +58,93 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         return new(success, diagnostics, success ? writer.ToString() : null);
     }
 
+    public async Task<CompileParamsResponse> CompileParams(CompileParamsRequest request, CancellationToken cancellationToken)
+    {
+        var model = await GetSemanticModel(compiler, request.Path);
+        if (model.SourceFile is not BicepParamFile paramFile)
+        {
+            throw new InvalidOperationException($"Expected a .bicepparam file");
+        }
+
+        paramFile = ParamsFileHelper.ApplyParameterOverrides(paramFile, request.ParameterOverrides);
+
+        var workspace = new Workspace();
+        workspace.UpsertSourceFile(paramFile);
+        var compilation = await compiler.CreateCompilation(paramFile.FileUri, workspace);
+        var paramsResult = compilation.Emitter.Parameters();
+
+        return new(
+            paramsResult.Success,
+            GetDiagnostics(compilation).ToImmutableArray(),
+            paramsResult.Parameters,
+            paramsResult.Template?.Template,
+            paramsResult.TemplateSpecId);
+    }
+
+    public async Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken)
+    {
+        var model = await GetSemanticModel(compiler, request.Path);
+        var diagnostics = GetDiagnostics(model.Compilation).ToImmutableArray();
+
+        var fileUris = new HashSet<Uri>();
+        foreach (var otherModel in model.Compilation.GetAllBicepModels())
+        {
+            fileUris.Add(otherModel.SourceFile.FileUri);
+            fileUris.UnionWith(otherModel.GetAuxiliaryFileReferences());
+            if (otherModel.Configuration.ConfigFileUri is { } configFileUri)
+            {
+                fileUris.Add(configFileUri);
+            }
+        }
+
+        return new(
+            fileUris.Select(x => x.LocalPath).OrderBy(x => x).ToImmutableArray());
+    }
+
     public async Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken)
     {
         var model = await GetSemanticModel(compiler, request.Path);
 
         var metadata = GetModelMetadata(model).ToImmutableArray();
-
-        var parameters = model.Root.ParameterDeclarations
-            .Select(x => new GetMetadataResponse.SymbolDefinition(GetRange(model.SourceFile, x.DeclaringSyntax), x.Name, x.TryGetDescriptionFromDecorator()))
-            .ToImmutableArray();
-
-        var outputs = model.Root.OutputDeclarations
-            .Select(x => new GetMetadataResponse.SymbolDefinition(GetRange(model.SourceFile, x.DeclaringSyntax), x.Name, x.TryGetDescriptionFromDecorator()))
-            .ToImmutableArray();
+        var parameters = model.Root.ParameterDeclarations.Select(x => GetSymbolDefinition(model, x)).ToImmutableArray();
+        var outputs = model.Root.OutputDeclarations.Select(x => GetSymbolDefinition(model, x)).ToImmutableArray();
 
         return new(metadata, parameters, outputs);
+    }
+
+    private static GetMetadataResponse.SymbolDefinition GetSymbolDefinition(SemanticModel model, DeclaredSymbol symbol)
+    {
+        var typeSyntax = symbol switch
+        {
+            ParameterSymbol x => x.DeclaringParameter.Type,
+            OutputSymbol x => x.DeclaringOutput.Type,
+            _ => null,
+        };
+
+        GetMetadataResponse.TypeDefinition? getTypeInfo()
+        {
+            if (typeSyntax is { } &&
+                model.GetSymbolInfo(typeSyntax) is DeclaredSymbol typeSymbol)
+            {
+                return new(
+                    GetRange(model.SourceFile, typeSymbol.DeclaringSyntax),
+                    typeSymbol.Name);
+            }
+
+            if (typeSyntax is { } &&
+                model.GetDeclaredType(symbol.DeclaringSyntax) is { } type)
+            {
+                return new(null, type.Name);
+            }
+
+            return null;
+        }
+
+        return new(
+            GetRange(model.SourceFile, symbol.DeclaringSyntax),
+            symbol.Name,
+            getTypeInfo(),
+            symbol.TryGetDescriptionFromDecorator());
     }
 
     public async Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken)
@@ -151,7 +204,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         return compilation.GetEntrypointSemanticModel();
     }
 
-    private static IEnumerable<CompileResponse.DiagnosticDefinition> GetDiagnostics(Compilation compilation)
+    private static IEnumerable<DiagnosticDefinition> GetDiagnostics(Compilation compilation)
     {
         foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
         {

@@ -1,14 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using Azure.Bicep.Types;
-using Azure.Bicep.Types.K8s;
 using Bicep.Core.Resources;
-using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 {

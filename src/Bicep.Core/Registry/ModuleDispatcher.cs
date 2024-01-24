@@ -1,14 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
@@ -16,7 +11,6 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
-using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
@@ -141,7 +135,7 @@ namespace Bicep.Core.Registry
             return registry.TryGetLocalArtifactEntryPointUri(artifactReference);
         }
 
-        public async Task<bool> RestoreModules(IEnumerable<ArtifactReference> references, bool forceRestore = false)
+        public async Task<bool> RestoreModules(IEnumerable<ArtifactReference> references, bool forceRestore)
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 

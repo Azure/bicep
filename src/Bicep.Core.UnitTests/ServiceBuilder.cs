@@ -1,15 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Immutable;
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Configuration;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,9 +19,6 @@ public static class IDependencyHelperExtensions
 
     public static BicepDecompiler GetDecompiler(this IDependencyHelper helper)
         => helper.Construct<BicepDecompiler>();
-
-    public static BicepparamDecompiler GetBicepparamDecompiler(this IDependencyHelper helper)
-        => helper.Construct<BicepparamDecompiler>();
 }
 
 public class ServiceBuilder
@@ -43,7 +30,6 @@ public class ServiceBuilder
         this.services = new ServiceCollection()
             .AddBicepCore()
             .AddBicepDecompiler()
-            .AddBicepparamDecompiler()
             .WithWorkspace(new Workspace());
     }
 

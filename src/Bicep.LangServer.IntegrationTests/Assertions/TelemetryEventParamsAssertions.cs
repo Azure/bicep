@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using FluentAssertions.Collections;

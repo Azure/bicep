@@ -1,14 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO.Abstractions;
-using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
@@ -55,6 +51,7 @@ namespace Bicep.Core.Semantics
                         TemplateSpecFile templateSpecFile => new TemplateSpecSemanticModel(templateSpecFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
+            this.Emitter = new CompilationEmitter(this);
         }
 
         public SourceFileGrouping SourceFileGrouping { get; }
@@ -72,6 +69,8 @@ namespace Bicep.Core.Semantics
         public IConfigurationManager ConfigurationManager { get; }
 
         public IFeatureProviderFactory FeatureProviderFactory { get; }
+
+        public ICompilationEmitter Emitter { get; }
 
         public SemanticModel GetEntrypointSemanticModel()
             // entry point semantic models are guaranteed to cast successfully

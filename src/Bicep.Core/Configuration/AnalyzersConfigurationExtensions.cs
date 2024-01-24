@@ -31,7 +31,7 @@ namespace Bicep.Core.Configuration
                 analyzersConfiguration.CacheRootDirectory,
                 analyzersConfiguration.ExperimentalFeaturesEnabled,
                 analyzersConfiguration.Formatting,
-                analyzersConfiguration.ConfigurationPath,
+                analyzersConfiguration.ConfigFileUri,
                 analyzersConfiguration.DiagnosticBuilders);
         }
 
@@ -45,7 +45,7 @@ namespace Bicep.Core.Configuration
                 analyzersConfiguration.CacheRootDirectory,
                 analyzersConfiguration.ExperimentalFeaturesEnabled,
                 analyzersConfiguration.Formatting,
-                analyzersConfiguration.ConfigurationPath,
+                analyzersConfiguration.ConfigFileUri,
                 analyzersConfiguration.DiagnosticBuilders);
         }
     }

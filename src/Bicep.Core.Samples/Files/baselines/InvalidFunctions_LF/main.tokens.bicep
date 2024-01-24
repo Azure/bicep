@@ -267,6 +267,84 @@ func recursiveB() string => recursiveA()
 //@[028:038) Identifier |recursiveA|
 //@[038:039) LeftParen |(|
 //@[039:040) RightParen |)|
-//@[040:041) NewLine |\n|
+//@[040:042) NewLine |\n\n|
+
+func onlyComma(,) string => 'foo'
+//@[000:004) Identifier |func|
+//@[005:014) Identifier |onlyComma|
+//@[014:015) LeftParen |(|
+//@[015:016) Comma |,|
+//@[016:017) RightParen |)|
+//@[018:024) Identifier |string|
+//@[025:027) Arrow |=>|
+//@[028:033) StringComplete |'foo'|
+//@[033:034) NewLine |\n|
+func trailingCommas(a string,,) string => 'foo'
+//@[000:004) Identifier |func|
+//@[005:019) Identifier |trailingCommas|
+//@[019:020) LeftParen |(|
+//@[020:021) Identifier |a|
+//@[022:028) Identifier |string|
+//@[028:029) Comma |,|
+//@[029:030) Comma |,|
+//@[030:031) RightParen |)|
+//@[032:038) Identifier |string|
+//@[039:041) Arrow |=>|
+//@[042:047) StringComplete |'foo'|
+//@[047:048) NewLine |\n|
+func multiLineOnly(
+//@[000:004) Identifier |func|
+//@[005:018) Identifier |multiLineOnly|
+//@[018:019) LeftParen |(|
+//@[019:020) NewLine |\n|
+  a string
+//@[002:003) Identifier |a|
+//@[004:010) Identifier |string|
+//@[010:011) NewLine |\n|
+  b string) string => 'foo'
+//@[002:003) Identifier |b|
+//@[004:010) Identifier |string|
+//@[010:011) RightParen |)|
+//@[012:018) Identifier |string|
+//@[019:021) Arrow |=>|
+//@[022:027) StringComplete |'foo'|
+//@[027:029) NewLine |\n\n|
+
+func multiLineTrailingCommas(
+//@[000:004) Identifier |func|
+//@[005:028) Identifier |multiLineTrailingCommas|
+//@[028:029) LeftParen |(|
+//@[029:030) NewLine |\n|
+  a string,
+//@[002:003) Identifier |a|
+//@[004:010) Identifier |string|
+//@[010:011) Comma |,|
+//@[011:012) NewLine |\n|
+  ,) string => 'foo'
+//@[002:003) Comma |,|
+//@[003:004) RightParen |)|
+//@[005:011) Identifier |string|
+//@[012:014) Arrow |=>|
+//@[015:020) StringComplete |'foo'|
+//@[020:022) NewLine |\n\n|
+
+func lineBeforeComma(
+//@[000:004) Identifier |func|
+//@[005:020) Identifier |lineBeforeComma|
+//@[020:021) LeftParen |(|
+//@[021:022) NewLine |\n|
+  a string
+//@[002:003) Identifier |a|
+//@[004:010) Identifier |string|
+//@[010:011) NewLine |\n|
+  ,b string) string => 'foo'
+//@[002:003) Comma |,|
+//@[003:004) Identifier |b|
+//@[005:011) Identifier |string|
+//@[011:012) RightParen |)|
+//@[013:019) Identifier |string|
+//@[020:022) Arrow |=>|
+//@[023:028) StringComplete |'foo'|
+//@[028:029) NewLine |\n|
 
 //@[000:000) EndOfFile ||

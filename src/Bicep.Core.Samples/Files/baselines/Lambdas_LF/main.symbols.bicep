@@ -171,3 +171,11 @@ var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
   isGreaterThan4: (i > 4)
 })
 
+var multiLine = reduce(['abc', 'def', 'ghi'], '', (
+//@[004:013) Variable multiLine. Type: string. Declaration start char: 0, length: 89
+  cur,
+//@[002:005) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 2, length: 3
+  next
+//@[002:006) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 2, length: 4
+) => concat(cur, next))
+

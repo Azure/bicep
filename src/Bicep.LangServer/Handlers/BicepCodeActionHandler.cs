@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Analyzers;
 using Bicep.Core.CodeAction;
@@ -116,7 +111,7 @@ namespace Bicep.LanguageServer.Handlers
                         analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
                         (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
                     .OfType<AnalyzerDiagnostic>()
-                    .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, semanticModel.Configuration.ConfigurationPath));
+                    .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, semanticModel.Configuration.ConfigFileUri?.LocalPath));
                 commandOrCodeActions.AddRange(editLinterRuleActions);
             }
 

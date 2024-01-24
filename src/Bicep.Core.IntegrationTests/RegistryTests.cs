@@ -1,31 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.IO.Abstractions;
-using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Threading.Tasks;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.FileSystem;
-using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using static Bicep.Core.Samples.DataSet;
 
 namespace Bicep.Core.IntegrationTests
@@ -198,7 +185,7 @@ namespace Bicep.Core.IntegrationTests
             var tasks = new List<Task<bool>>();
             for (int i = 0; i < ConcurrentTasks; i++)
             {
-                tasks.Add(Task.Run(() => dispatcher.RestoreModules(moduleReferences)));
+                tasks.Add(Task.Run(() => dispatcher.RestoreModules(moduleReferences, forceRestore: false)));
             }
 
             var result = await Task.WhenAll(tasks);
@@ -268,7 +255,7 @@ namespace Bicep.Core.IntegrationTests
             // let's try to restore a module while holding a lock
             using (@lock)
             {
-                (await dispatcher.RestoreModules(moduleReferences)).Should().BeTrue();
+                (await dispatcher.RestoreModules(moduleReferences, forceRestore: false)).Should().BeTrue();
             }
 
             // the first module should have failed due to a timeout

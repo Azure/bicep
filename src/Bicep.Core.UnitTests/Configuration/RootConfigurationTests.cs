@@ -1,10 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using Bicep.Core.Configuration;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -26,7 +22,7 @@ public class RootConfigurationTests
                 cacheRootDirectory,
                 BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesEnabled,
                 BicepTestConstants.BuiltInConfiguration.Formatting,
-                BicepTestConstants.BuiltInConfiguration.ConfigurationPath,
+                BicepTestConstants.BuiltInConfiguration.ConfigFileUri,
                 BicepTestConstants.BuiltInConfiguration.DiagnosticBuilders);
 
         configuration.CacheRootDirectory.Should().Be(expectedExpandedDirectory);

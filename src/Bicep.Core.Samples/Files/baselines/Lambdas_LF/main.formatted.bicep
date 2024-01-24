@@ -88,3 +88,8 @@ var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
     isEven: (i % 2) == 0
     isGreaterThan4: (i > 4)
   })
+
+var multiLine = reduce([ 'abc', 'def', 'ghi' ], '', ( 
+      cur,  
+      next 
+    ) => concat(cur, next))

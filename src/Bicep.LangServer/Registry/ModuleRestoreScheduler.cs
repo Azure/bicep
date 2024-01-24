@@ -1,12 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Registry;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -75,7 +71,7 @@ namespace Bicep.LanguageServer.Registry
                 if (this.consumerTask is not null)
                 {
                     // signal cancellation first
-                    this.cancellationTokenSource.Cancel();
+                    await this.cancellationTokenSource.CancelAsync();
 
                     lock (this.queue)
                     {
@@ -124,7 +120,7 @@ namespace Bicep.LanguageServer.Registry
                 foreach (var item in items)
                 {
                     token.ThrowIfCancellationRequested();
-                    if (!await this.moduleDispatcher.RestoreModules(item.ModuleReferences))
+                    if (!await this.moduleDispatcher.RestoreModules(item.ModuleReferences, forceRestore: false))
                     {
                         // nothing needed to be restored
                         // no need to notify about completion

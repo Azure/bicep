@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core;
 using Bicep.Core.Syntax;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Bicep.Core.UnitTests.Syntax;
 
 [TestClass]
 public class ImportSpecificationTests

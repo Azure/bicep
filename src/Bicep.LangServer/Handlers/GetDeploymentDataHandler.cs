@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
@@ -42,36 +39,28 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var semanticModel = context.Compilation.GetEntrypointSemanticModel();
-            ISemanticModel bicepModel = semanticModel;
-
-            string? paramsFile = null;
             if (semanticModel.Root.FileKind == BicepSourceFileKind.ParamsFile)
             {
-                var paramsStringWriter = new StringWriter();
-                var paramsResult = new ParametersEmitter(semanticModel).Emit(paramsStringWriter);
+                var result = context.Compilation.Emitter.Parameters();
 
-                if (paramsResult.Status == EmitStatus.Failed)
+                if (result.Parameters is null ||
+                    result.Template?.Template is null)
                 {
                     return new(ErrorMessage: $"Bicep compilation failed. The Bicep parameters file contains errors.");
                 }
 
-                paramsFile = paramsStringWriter.ToString();
-                if (!semanticModel.Root.TryGetBicepFileSemanticModelViaUsing().IsSuccess(out var usingModel))
-                {
-                    return new(ErrorMessage: $"Bicep compilation failed. The Bicep parameters file contains errors.");
-                }
-
-                bicepModel = usingModel;
+                return new(TemplateJson: result.Template.Template, ParametersJson: result.Parameters);
             }
-
-            using var templateStringWriter = new StringWriter();
-            var result = new TemplateEmitter(context.Compilation, bicepModel).Emit(templateStringWriter);
-            if (result.Status == EmitStatus.Failed)
+            else 
             {
-                return new(ErrorMessage: $"Bicep compilation failed. The Bicep file contains errors.");
-            }
+                var result = context.Compilation.Emitter.Template();
+                if (result.Template is null)
+                {
+                    return new(ErrorMessage: $"Bicep compilation failed. The Bicep file contains errors.");
+                }
 
-            return new(TemplateJson: templateStringWriter.ToString(), ParametersJson: paramsFile);
+                return new(TemplateJson: result.Template);
+            }
         }
     }
 }

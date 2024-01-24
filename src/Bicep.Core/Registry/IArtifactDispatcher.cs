@@ -1,14 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceCode;
-using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
@@ -20,7 +14,7 @@ namespace Bicep.Core.Registry
 
         ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
 
-        Task<bool> RestoreModules(IEnumerable<ArtifactReference> references, bool forceRestore = false);
+        Task<bool> RestoreModules(IEnumerable<ArtifactReference> references, bool forceRestore);
 
         Task<bool> CheckModuleExists(ArtifactReference reference);
 

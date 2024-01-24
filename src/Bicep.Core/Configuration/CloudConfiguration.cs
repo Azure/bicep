@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Azure.Core;
 using Bicep.Core.Extensions;
-using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Bicep.Core.Configuration
 {
@@ -54,16 +51,16 @@ namespace Bicep.Core.Configuration
         // this does not work with regional ARM endpoints
         public string ResourceManagerAudience => ResourceManagerEndpointUri.AbsoluteUri.TrimEnd('/');
 
-        public static CloudConfiguration Bind(JsonElement element, string? configurationPath)
+        public static CloudConfiguration Bind(JsonElement element)
         {
             var cloud = element.ToNonNullObject<Cloud>();
-            var (endpointUri, authorityUri) = ValidateCurrentProfile(cloud, configurationPath);
-            ValidateCredentialOptions(cloud, configurationPath);
+            var (endpointUri, authorityUri) = ValidateCurrentProfile(cloud);
+            ValidateCredentialOptions(cloud);
 
             return new(cloud, endpointUri, authorityUri);
         }
 
-        private static void ValidateCredentialOptions(Cloud cloud, string? configurationPath)
+        private static void ValidateCredentialOptions(Cloud cloud)
         {
             if (cloud.CredentialOptions is null ||
                 cloud.CredentialOptions.ManagedIdentity is null ||
@@ -96,7 +93,7 @@ namespace Bicep.Core.Configuration
             }
         }
 
-        private static (Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri) ValidateCurrentProfile(Cloud cloud, string? configurationPath)
+        private static (Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri) ValidateCurrentProfile(Cloud cloud)
         {
             static string ToCamelCase(string name) => char.ToLowerInvariant(name[0]) + name[1..];
 

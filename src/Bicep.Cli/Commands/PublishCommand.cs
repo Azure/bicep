@@ -1,15 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Abstractions;
-using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
-using Bicep.Cli.Services;
+using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
@@ -23,8 +20,7 @@ namespace Bicep.Cli.Commands
     public class PublishCommand : ICommand
     {
         private readonly DiagnosticLogger diagnosticLogger;
-        private readonly CompilationService compilationService;
-        private readonly CompilationWriter compilationWriter;
+        private readonly BicepCompiler compiler;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFileSystem fileSystem;
         private readonly IFeatureProviderFactory featureProviderFactory;
@@ -33,17 +29,15 @@ namespace Bicep.Cli.Commands
 
         public PublishCommand(
             DiagnosticLogger diagnosticLogger,
-            CompilationService compilationService,
+            BicepCompiler compiler,
             IOContext ioContext,
             ILogger logger,
-            CompilationWriter compilationWriter,
             IModuleDispatcher moduleDispatcher,
             IFileSystem fileSystem,
             IFeatureProviderFactory featureProviderFactory)
         {
             this.diagnosticLogger = diagnosticLogger;
-            this.compilationService = compilationService;
-            this.compilationWriter = compilationWriter;
+            this.compiler = compiler;
             this.moduleDispatcher = moduleDispatcher;
             this.fileSystem = fileSystem;
             this.featureProviderFactory = featureProviderFactory;
@@ -54,9 +48,8 @@ namespace Bicep.Cli.Commands
         public async Task<int> RunAsync(PublishArguments args)
         {
             const string PublishSourceFeatureName = "publishSource";
-            var inputPath = PathHelper.ResolvePath(args.InputFile);
-            var inputUri = PathHelper.FilePathToFileUrl(inputPath);
-            var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
+            var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
+            var features = featureProviderFactory.GetFeatureProvider(inputUri);
             var documentationUri = args.DocumentationUri;
             var moduleReference = ValidateReference(args.TargetModuleReference, inputUri);
             var overwriteIfExists = args.Force;
@@ -71,25 +64,21 @@ namespace Bicep.Cli.Commands
                 }
 
                 // Publishing an ARM template file.
-                using var armTemplateStream = this.fileSystem.FileStream.New(inputPath, FileMode.Open, FileAccess.Read);
+                using var armTemplateStream = this.fileSystem.FileStream.New(inputUri.LocalPath, FileMode.Open, FileAccess.Read);
                 await this.PublishModuleAsync(moduleReference, BinaryData.FromStream(armTemplateStream), null, documentationUri, overwriteIfExists);
 
                 return 0;
             }
 
-            var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
+            var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
 
             var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
 
-            if (summary.HasErrors)
+            if (compilation.Emitter.Template().Template is not {} compiledArmTemplate)
             {
                 // can't publish if we can't compile
                 return 1;
             }
-
-            var compiledArmTemplateStream = new MemoryStream();
-            compilationWriter.ToStream(compilation, compiledArmTemplateStream);
-            compiledArmTemplateStream.Position = 0;
 
             // Handle publishing source
             Stream? sourcesStream = null;
@@ -118,7 +107,7 @@ namespace Bicep.Cli.Commands
             {
                 Trace.WriteLine(sourcesStream is { } ? "Publishing Bicep module with source" : "Publishing Bicep module without source");
                 var sourcesPayload = sourcesStream is { } ? BinaryData.FromStream(sourcesStream) : null;
-                await this.PublishModuleAsync(moduleReference, BinaryData.FromStream(compiledArmTemplateStream), sourcesPayload, documentationUri, overwriteIfExists);
+                await this.PublishModuleAsync(moduleReference, BinaryData.FromString(compiledArmTemplate), sourcesPayload, documentationUri, overwriteIfExists);
             }
 
             return 0;

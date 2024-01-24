@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using System.Text.Json;
@@ -35,7 +33,7 @@ namespace Bicep.Core.Configuration
             string? cacheRootDirectory,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
             FormattingConfiguration formatting,
-            string? configurationPath,
+            Uri? configFileUri,
             IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
         {
             this.Cloud = cloud;
@@ -45,21 +43,21 @@ namespace Bicep.Core.Configuration
             this.CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
             this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
             this.Formatting = formatting;
-            this.ConfigurationPath = configurationPath;
+            this.ConfigFileUri = configFileUri;
             this.DiagnosticBuilders = diagnosticBuilders?.ToImmutableArray() ?? ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate>.Empty;
         }
 
-        public static RootConfiguration Bind(JsonElement element, string? configurationPath = null, IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders = null)
+        public static RootConfiguration Bind(JsonElement element, Uri? configFileUri = null, IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders = null)
         {
-            var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey), configurationPath);
-            var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configurationPath);
-            var providerAliases = ProviderAliasesConfiguration.Bind(element.GetProperty(ProviderAliasesKey), configurationPath);
+            var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey));
+            var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileUri);
+            var providerAliases = ProviderAliasesConfiguration.Bind(element.GetProperty(ProviderAliasesKey), configFileUri);
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
             var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
             var formatting = FormattingConfiguration.Bind(element.GetProperty(FormattingKey));
 
-            return new(cloud, moduleAliases, providerAliases, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configurationPath, diagnosticBuilders);
+            return new(cloud, moduleAliases, providerAliases, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configFileUri, diagnosticBuilders);
         }
 
         public CloudConfiguration Cloud { get; }
@@ -76,11 +74,11 @@ namespace Bicep.Core.Configuration
 
         public FormattingConfiguration Formatting { get; }
 
-        public string? ConfigurationPath { get; }
+        public Uri? ConfigFileUri { get; }
 
         public ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate> DiagnosticBuilders { get; }
 
-        public bool IsBuiltIn => ConfigurationPath is null;
+        public bool IsBuiltIn => ConfigFileUri is null;
 
         public string ToUtf8Json()
         {

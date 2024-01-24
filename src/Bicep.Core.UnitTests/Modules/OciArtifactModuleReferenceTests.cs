@@ -1,23 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Reflection;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Assertions;
-using CommandLine;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static Bicep.Core.UnitTests.Modules.ArtifactAddressComponentsTests;
 
 namespace Bicep.Core.UnitTests.Modules
 {
@@ -210,10 +203,10 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataTestMethod]
         [DataRow("myRegistry", "path/to/module:v1", null, "BCP213", "The OCI artifact module alias name \"myRegistry\" does not exist in the built-in Bicep configuration.")]
-        [DataRow("myModulePath", "myModule:v2", "bicepconfig.json", "BCP213", "The OCI artifact module alias name \"myModulePath\" does not exist in the Bicep configuration \"bicepconfig.json\".")]
+        [DataRow("myModulePath", "myModule:v2", "bicepconfig.json", "BCP213", "The OCI artifact module alias name \"myModulePath\" does not exist in the Bicep configuration \"/bicepconfig.json\".")]
         public void TryParse_AliasNotInConfiguration_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
         {
-            var configuration = BicepTestConstants.CreateMockConfiguration(configurationPath: configurationPath);
+            var configuration = BicepTestConstants.CreateMockConfiguration(configFileUri: configurationPath is { } ? new Uri($"file:///{configurationPath}") : null);
 
             OciArtifactReference.TryParse(ArtifactType.Module, aliasName, referenceValue, configuration, RandomFileUri()).IsSuccess(out var reference, out var errorBuilder).Should().BeFalse();
 
@@ -290,9 +283,9 @@ namespace Bicep.Core.UnitTests.Modules
                     {
                         ["moduleAliases.br.myModulePath2.modulePath"] = "path2",
                     },
-                    "bicepconfig.json"),
+                    new Uri("file:///bicepconfig.json")),
                 "BCP216",
-                "The OCI artifact module alias \"myModulePath2\" in the Bicep configuration \"bicepconfig.json\" is invalid. The \"registry\" property cannot be null or undefined.",
+                "The OCI artifact module alias \"myModulePath2\" in the Bicep configuration \"/bicepconfig.json\" is invalid. The \"registry\" property cannot be null or undefined.",
             };
         }
 
@@ -321,7 +314,7 @@ namespace Bicep.Core.UnitTests.Modules
                         ["moduleAliases.br.myModulePath2.registry"] = "localhost:8000",
                         ["moduleAliases.br.myModulePath2.modulePath"] = "root/parent",
                     },
-                    "bicepconfig.json"),
+                    new Uri("file:///bicepconfig.json")),
             };
         }
 

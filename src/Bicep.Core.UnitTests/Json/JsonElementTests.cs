@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Linq;
-using System.Threading.Tasks;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.Core.UnitTests.Assertions;
@@ -11,7 +9,7 @@ using Json.More;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
-namespace Bicep.Core.UnitTests;
+namespace Bicep.Core.UnitTests.Json;
 
 [TestClass]
 public class JsonElementTests

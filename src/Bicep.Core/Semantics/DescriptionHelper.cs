@@ -1,17 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Core.Semantics
 {
@@ -90,7 +85,7 @@ namespace Bicep.Core.Semantics
             return root.TryGetPropertyByPath($"metadata.{LanguageConstants.MetadataDescriptionPropertyName}")?.GetString();
         }
 
-        public static string? TryGetFromArmTemplate(BinaryData jsonArmTemplateContents) 
+        public static string? TryGetFromArmTemplate(BinaryData jsonArmTemplateContents)
             => TryGetFromArmTemplate(jsonArmTemplateContents.ToStream());
 
         /// <summary>

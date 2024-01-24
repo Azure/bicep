@@ -1,24 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics;
-using System.IO;
 using System.Runtime;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.Tracing;
 using Bicep.Core.Utils;
-using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -163,14 +157,11 @@ namespace Bicep.Cli
             => new ServiceCollection()
                 .AddBicepCore()
                 .AddBicepDecompiler()
-                .AddBicepparamDecompiler()
                 .AddCommands()
                 .AddSingleton(CreateLoggerFactory(io).CreateLogger("bicep"))
                 .AddSingleton<DiagnosticLogger>()
-                .AddSingleton<DecompilationWriter>()
-                .AddSingleton<CompilationWriter>()
+                .AddSingleton<OutputWriter>()
                 .AddSingleton<PlaceholderParametersWriter>()
-                .AddSingleton<CompilationService>()
                 .AddSingleton(io);
     }
 }

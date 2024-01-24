@@ -84,12 +84,10 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[056:056) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+//@[056:068) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |\r\n\r\nresource|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
-//@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[060:060) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) ||
+//@[009:012) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) |foo|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|

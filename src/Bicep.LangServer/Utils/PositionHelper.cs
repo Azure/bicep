@@ -6,6 +6,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Utils
 {

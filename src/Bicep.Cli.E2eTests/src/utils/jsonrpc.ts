@@ -39,6 +39,14 @@ interface GetDeploymentGraphResponseEdge {
   target: string;
 }
 
+interface GetFileReferencesRequest {
+  path: string;
+}
+
+interface GetFileReferencesResponse {
+  filePaths: string[];
+}
+
 interface Position {
   line: number;
   char: number;
@@ -57,6 +65,19 @@ interface CompileResponse {
   success: boolean;
   diagnostics: CompileResponseDiagnostic[];
   contents?: string;
+}
+
+interface CompileParamsRequest {
+  path: string;
+  parameterOverrides: Record<string, any>;
+}
+
+interface CompileParamsResponse {
+  success: boolean;
+  diagnostics: CompileResponseDiagnostic[];
+  parameters?: string;
+  template?: string;
+  templateSpecId?: string;
 }
 
 interface CompileResponseDiagnostic {
@@ -84,7 +105,13 @@ interface MetadataDefinition {
 interface ParamDefinition {
   range: Range;
   name: string;
+  type?: TypeDefinition;
   description?: string;
+}
+
+interface TypeDefinition {
+  range?: Range;
+  name: string;
 }
 
 export const versionRequestType = new RequestType<
@@ -99,6 +126,12 @@ export const compileRequestType = new RequestType<
   never
 >("bicep/compile");
 
+export const compileParamsRequestType = new RequestType<
+  CompileParamsRequest,
+  CompileParamsResponse,
+  never
+>("bicep/compileParams");
+
 export const getMetadataRequestType = new RequestType<
   GetMetadataRequest,
   GetMetadataResponse,
@@ -110,6 +143,12 @@ export const getDeploymentGraphRequestType = new RequestType<
   GetDeploymentGraphResponse,
   never
 >("bicep/getDeploymentGraph");
+
+export const getFileReferencesRequestType = new RequestType<
+  GetFileReferencesRequest,
+  GetFileReferencesResponse,
+  never
+>("bicep/getFileReferences");
 
 function generateRandomPipeName(): string {
   const randomSuffix = randomBytes(21).toString("hex");

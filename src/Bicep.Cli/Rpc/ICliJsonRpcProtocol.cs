@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 
 namespace Bicep.Cli.Rpc;
@@ -28,15 +26,31 @@ public record CompileRequest(
 
 public record CompileResponse(
     bool Success,
-    ImmutableArray<CompileResponse.DiagnosticDefinition> Diagnostics,
-    string? Contents)
-{
-    public record DiagnosticDefinition(
-        Range Range,
-        string Level,
-        string Code,
-        string Message);
-}
+    ImmutableArray<DiagnosticDefinition> Diagnostics,
+    string? Contents);
+
+public record CompileParamsRequest(
+    string Path,
+    Dictionary<string, JToken> ParameterOverrides);
+
+public record CompileParamsResponse(
+    bool Success,
+    ImmutableArray<DiagnosticDefinition> Diagnostics,
+    string? Parameters,
+    string? Template,
+    string? TemplateSpecId);
+
+public record DiagnosticDefinition(
+    Range Range,
+    string Level,
+    string Code,
+    string Message);
+
+public record GetFileReferencesRequest(
+    string Path);
+
+public record GetFileReferencesResponse(
+    ImmutableArray<string> FilePaths);
 
 public record GetMetadataRequest(
     string Path);
@@ -49,7 +63,12 @@ public record GetMetadataResponse(
     public record SymbolDefinition(
         Range Range,
         string Name,
+        TypeDefinition? Type,
         string? Description);
+
+    public record TypeDefinition(
+        Range? Range,
+        string Name);
 
     public record MetadataDefinition(
         string Name,
@@ -83,9 +102,15 @@ public interface ICliJsonRpcProtocol
     [JsonRpcMethod("bicep/compile", UseSingleObjectParameterDeserialization = true)]
     Task<CompileResponse> Compile(CompileRequest request, CancellationToken cancellationToken);
 
+    [JsonRpcMethod("bicep/compileParams", UseSingleObjectParameterDeserialization = true)]
+    Task<CompileParamsResponse> CompileParams(CompileParamsRequest request, CancellationToken cancellationToken);
+
     [JsonRpcMethod("bicep/getMetadata", UseSingleObjectParameterDeserialization = true)]
     Task<GetMetadataResponse> GetMetadata(GetMetadataRequest request, CancellationToken cancellationToken);
 
     [JsonRpcMethod("bicep/getDeploymentGraph", UseSingleObjectParameterDeserialization = true)]
     Task<GetDeploymentGraphResponse> GetDeploymentGraph(GetDeploymentGraphRequest request, CancellationToken cancellationToken);
+
+    [JsonRpcMethod("bicep/getFileReferences", UseSingleObjectParameterDeserialization = true)]
+    Task<GetFileReferencesResponse> GetFileReferences(GetFileReferencesRequest request, CancellationToken cancellationToken);
 }

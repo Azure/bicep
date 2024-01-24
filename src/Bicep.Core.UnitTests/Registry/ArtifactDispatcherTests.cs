@@ -1,12 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
@@ -155,7 +150,7 @@ namespace Bicep.Core.UnitTests.Registry
             @uri.Should().Be(new Uri("untitled://validRef3"));
             entryPointBuilder3!.Should().BeNull();
 
-            (await dispatcher.RestoreModules(new[] { validRef, validRef3 })).Should().BeTrue();
+            (await dispatcher.RestoreModules(new[] { validRef, validRef3 }, false)).Should().BeTrue();
 
             dispatcher.GetArtifactRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ArtifactRestoreStatus.Failed);
             goodAvailabilityBuilder3AfterRestore!.Should().HaveCode("RegFail");
@@ -189,7 +184,7 @@ namespace Bicep.Core.UnitTests.Registry
             var dispatcher = CreateDispatcher(configManagerMock.Object, registryMock.Object);
             var configuration = BicepTestConstants.CreateMockConfiguration();
 
-            await dispatcher.RestoreModules(new[] { badReference });
+            await dispatcher.RestoreModules(new[] { badReference }, false);
 
             // Act.
             var status = dispatcher.GetArtifactRestoreStatus(badReference, out _);

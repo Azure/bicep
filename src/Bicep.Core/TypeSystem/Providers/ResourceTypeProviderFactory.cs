@@ -1,21 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.IO.Abstractions;
-using System.Reflection;
-using System.Text.Json;
-using Azure.Bicep.Types;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Providers.ThirdParty;
@@ -56,10 +46,10 @@ namespace Bicep.Core.TypeSystem.Providers
                     {
                         return new ThirdPartyResourceTypeProvider(
                                     new ThirdPartyResourceTypeLoader(
-                                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)), 
+                                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
                                         providerDescriptor.Version);
                     }
-                    
+
                     return new AzResourceTypeProvider(
                                 new AzResourceTypeLoader(
                                     OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
