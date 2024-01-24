@@ -9,7 +9,7 @@
 
 import { MessageConnection } from "vscode-jsonrpc";
 import { pathToExampleFile, writeTempFile } from "./utils/fs";
-import { compileRequestType, getDeploymentGraphRequestType, getFileReferencesRequestType, getMetadataRequestType, openConnection, versionRequestType } from "./utils/jsonrpc";
+import { compileParamsRequestType, compileRequestType, getDeploymentGraphRequestType, getFileReferencesRequestType, getMetadataRequestType, openConnection, versionRequestType } from "./utils/jsonrpc";
 import path from "path";
 
 let connection: MessageConnection;
@@ -31,6 +31,20 @@ describe("bicep jsonrpc", () => {
 
     expect(result.success).toBeTruthy();
     expect(result.contents?.length).toBeGreaterThan(0);
+  });
+
+  it("should build a bicepparam file", async () => {
+    const result = await compileParams(
+      connection,
+      pathToExampleFile("bicepparam", "main.bicepparam"),
+      {
+        foo: "OVERIDDEN",
+      }
+    );
+    
+    expect(result.success).toBeTruthy();
+    expect(result.parameters?.length).toBeGreaterThan(0);
+    expect(JSON.parse(result.parameters!).parameters.foo.value).toBe('OVERIDDEN');
   });
 
   it("should return a deployment graph", async () => {
@@ -129,6 +143,13 @@ async function version(connection: MessageConnection) {
 async function compile(connection: MessageConnection, bicepFile: string) {
   return await connection.sendRequest(compileRequestType, {
     path: bicepFile,
+  });
+}
+
+async function compileParams(connection: MessageConnection, filePath: string, parameterOverrides: Record<string, any>) {
+  return await connection.sendRequest(compileParamsRequestType, {
+    path: filePath,
+    parameterOverrides,
   });
 }
 

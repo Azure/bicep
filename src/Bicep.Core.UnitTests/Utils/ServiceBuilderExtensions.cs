@@ -75,11 +75,7 @@ public static class ServiceBuilderExtensions
         var compiler = services.Build().GetCompiler();
         var workspace = CompilationHelper.CreateWorkspace(fileContentsByUri);
 
-        var compilationTask = compiler.CreateCompilation(entryFileUri, workspace, skipRestore: true);
-
-#pragma warning disable VSTHRD002
-        return compilationTask.GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002
+        return compiler.CreateCompilationWithoutRestore(entryFileUri, workspace);
     }
 
     public static Compilation BuildCompilation(this ServiceBuilder services, string text)

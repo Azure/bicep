@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
@@ -13,11 +15,9 @@ namespace Bicep.Cli.Commands
     public class TestCommand : ICommand
     {
         private readonly ILogger logger;
-        private readonly TextWriter outputWriter;
-        private readonly TextWriter errorWriter;
+        private readonly IOContext io;
         private readonly DiagnosticLogger diagnosticLogger;
-        private readonly CompilationService compilationService;
-        private readonly CompilationWriter writer;
+        private readonly BicepCompiler compiler;
         private readonly IFeatureProviderFactory featureProviderFactory;
         private const string SuccessSymbol = "[✓]";
         private const string FailureSymbol = "[✗]";
@@ -27,85 +27,76 @@ namespace Bicep.Cli.Commands
             IOContext io,
             ILogger logger,
             DiagnosticLogger diagnosticLogger,
-            CompilationService compilationService,
-            CompilationWriter writer,
+            BicepCompiler compiler,
             IFeatureProviderFactory featureProviderFactory)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
-            this.compilationService = compilationService;
-            this.writer = writer;
+            this.compiler = compiler;
             this.featureProviderFactory = featureProviderFactory;
-            this.outputWriter = io.Output;
-            this.errorWriter = io.Error;
+            this.io = io;
         }
 
         public async Task<int> RunAsync(TestArguments args)
         {
-            var inputPath = PathHelper.ResolvePath(args.InputFile);
-            var features = featureProviderFactory.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
+            var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
+            ArgumentHelper.ValidateBicepFile(inputUri);
+            var features = featureProviderFactory.GetFeatureProvider(inputUri);
 
             if (!features.TestFrameworkEnabled)
             {
-                await errorWriter.WriteLineAsync("TestFrameWork not enabled");
+                await io.Error.WriteLineAsync("TestFrameWork not enabled");
 
                 return 1;
             }
 
             logger.LogWarning(string.Format(CliResources.ExperimentalFeaturesDisclaimerMessage, "TestFramework"));
 
-            if (IsBicepFile(inputPath))
-            {
-                var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
+            var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
 
-                var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), compilation);
+            var summary = diagnosticLogger.LogDiagnostics(GetDiagnosticOptions(args), compilation);
 
-                var semanticModel = compilation.GetEntrypointSemanticModel();
+            var semanticModel = compilation.GetEntrypointSemanticModel();
 
-                var declarations = semanticModel.Root.TestDeclarations;
-                var testResults = TestRunner.Run(declarations);
+            var declarations = semanticModel.Root.TestDeclarations;
+            var testResults = TestRunner.Run(declarations);
 
-                LogResults(testResults);
+            LogResults(testResults);
 
-                // return non-zero exit code on errors
-                return testResults.Success ? 0 : 1;
-            }
-
-            await errorWriter.WriteLineAsync(string.Format(CliResources.UnrecognizedBicepFileExtensionMessage, inputPath));
-            return 1;
+            // return non-zero exit code on errors
+            return testResults.Success ? 0 : 1;
         }
 
-        private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
         private void LogResults(TestResults testResults)
         {
             foreach (var (testDeclaration, evaluation) in testResults.Results)
             {
                 if (evaluation.Success)
                 {
-                    outputWriter.WriteLine($"{SuccessSymbol} Evaluation {testDeclaration.Name} Passed!");
+                    io.Output.WriteLine($"{SuccessSymbol} Evaluation {testDeclaration.Name} Passed!");
                 }
                 else if (evaluation.Skip)
                 {
-                    errorWriter.WriteLine($"{SkippedSymbol} Evaluation {testDeclaration.Name} Skipped!");
-                    errorWriter.WriteLine($"Reason: {evaluation.Error}");
+                    io.Error.WriteLine($"{SkippedSymbol} Evaluation {testDeclaration.Name} Skipped!");
+                    io.Error.WriteLine($"Reason: {evaluation.Error}");
                 }
                 else
                 {
-                    errorWriter.WriteLine($"{FailureSymbol} Evaluation {testDeclaration.Name} Failed at {evaluation.FailedAssertions.Length} / {evaluation.AllAssertions.Length} assertions!");
+                    io.Error.WriteLine($"{FailureSymbol} Evaluation {testDeclaration.Name} Failed at {evaluation.FailedAssertions.Length} / {evaluation.AllAssertions.Length} assertions!");
                     foreach (var (assertion, _) in evaluation.FailedAssertions)
                     {
-                        errorWriter.WriteLine($"\t{FailureSymbol} Assertion {assertion} failed!");
+                        io.Error.WriteLine($"\t{FailureSymbol} Assertion {assertion} failed!");
                     }
                 }
             }
             if (testResults.Success)
             {
-                outputWriter.WriteLine($"All {testResults.TotalEvaluations} evaluations passed!");
+                io.Output.WriteLine($"All {testResults.TotalEvaluations} evaluations passed!");
             }
             else
             {
-                errorWriter.WriteLine($"Evaluation Summary: Failure!");
-                errorWriter.WriteLine($"Total: {testResults.TotalEvaluations} - Success: {testResults.SuccessfullEvaluations} - Skipped: {testResults.SkippedEvaluations} - Failed: {testResults.FailedEvaluations}");
+                io.Error.WriteLine($"Evaluation Summary: Failure!");
+                io.Error.WriteLine($"Total: {testResults.TotalEvaluations} - Success: {testResults.SuccessfullEvaluations} - Skipped: {testResults.SkippedEvaluations} - Failed: {testResults.FailedEvaluations}");
             }
         }
 

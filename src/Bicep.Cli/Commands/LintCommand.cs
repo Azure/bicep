@@ -5,6 +5,7 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
@@ -15,34 +16,27 @@ public class LintCommand : ICommand
 {
     private readonly ILogger logger;
     private readonly DiagnosticLogger diagnosticLogger;
-    private readonly CompilationService compilationService;
+    private readonly BicepCompiler compiler;
     private readonly IFeatureProviderFactory featureProviderFactory;
 
     public LintCommand(
         ILogger logger,
         DiagnosticLogger diagnosticLogger,
-        CompilationService compilationService,
+        BicepCompiler compiler,
         IFeatureProviderFactory featureProviderFactory)
     {
         this.logger = logger;
         this.diagnosticLogger = diagnosticLogger;
-        this.compilationService = compilationService;
+        this.compiler = compiler;
         this.featureProviderFactory = featureProviderFactory;
     }
 
     public async Task<int> RunAsync(LintArguments args)
     {
-        var inputPath = PathHelper.ResolvePath(args.InputFile);
-        var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+        var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
+        ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
 
-        if (!PathHelper.HasBicepExtension(inputUri) &&
-            !PathHelper.HasBicepparamsExension(inputUri))
-        {
-            logger.LogError(CliResources.UnrecognizedBicepOrBicepparamsFileExtensionMessage, inputPath);
-            return 1;
-        }
-
-        var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
+        var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
 
         if (ExperimentalFeatureWarningProvider.TryGetEnabledExperimentalFeatureWarningMessage(compilation.SourceFileGrouping, featureProviderFactory) is { } warningMessage)
         {

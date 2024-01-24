@@ -179,23 +179,15 @@ namespace Bicep.LanguageServer.Handlers
             var documentUri = DocumentUri.FromFileSystemPath(parametersFilePath);
             var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetRefreshedCompilation(documentUri);
 
-            var paramsModel = compilation.GetEntrypointSemanticModel();
+            var paramsResult = compilation.Emitter.Parameters();
 
-            var paramsOutputBuffer = new StringBuilder();
-            using var paramsOutputWriter = new StringWriter(paramsOutputBuffer);
-
-            var paramsEmitter = new ParametersEmitter(paramsModel);
-            var paramsResult = paramsEmitter.Emit(paramsOutputWriter);
-
-            if (paramsResult.Status == EmitStatus.Failed)
+            if (paramsResult.Parameters is null)
             {
                 var fileDiagnosticPair = KeyValuePair.Create(compilation.SourceFileGrouping.EntryPoint, ImmutableArray.Create(paramsResult.Diagnostics.ToArray()));
                 return new BicepparamCompilationResult(false, DiagnosticsHelper.GetDiagnosticsMessage(fileDiagnosticPair));
             }
 
-            await paramsOutputWriter.FlushAsync();
-
-            return new BicepparamCompilationResult(true, paramsOutputBuffer.ToString());
+            return new BicepparamCompilationResult(true, paramsResult.Parameters);
         }
 
         public string ExtractParametersObjectValue(string JsonParametersContent)

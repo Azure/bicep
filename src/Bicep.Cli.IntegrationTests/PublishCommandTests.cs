@@ -484,15 +484,6 @@ namespace Bicep.Cli.IntegrationTests
             .Where(ds => ds.IsValid == true)
             .ToDynamicTestData();
 
-        private static IEnumerable<object[]> GetValidDataSetsWithPublishSources()
-        {
-            foreach (var ds in DataSets.AllDataSets.Where(ds => ds.IsValid))
-            {
-                yield return new object[] { $"{ds.Name}, not publishing source", ds, false };
-                yield return new object[] { $"{ds.Name}, publishing source", ds, true };
-            }
-        }
-
         private static IEnumerable<object[]> GetValidDataSetsWithDocUriAndPublishSource()
         {
             foreach (var ds in DataSets.AllDataSets.Where(ds => ds.IsValid))

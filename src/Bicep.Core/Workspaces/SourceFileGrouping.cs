@@ -11,7 +11,7 @@ namespace Bicep.Core.Workspaces;
 
 public record ArtifactResolutionInfo(
     IArtifactReferenceSyntax DeclarationSyntax,
-    ISourceFile ParentTemplateFile);
+    BicepSourceFile SourceFile);
 
 public record UriResolutionError(
     DiagnosticBuilder.ErrorBuilderDelegate ErrorBuilder,
@@ -22,7 +22,7 @@ public class SourceFileGrouping : IArtifactFileLookup
     public SourceFileGrouping(IFileResolver fileResolver,
         Uri entryFileUri,
         ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri,
-        ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference,
+        ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference,
         ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup)
     {
         FileResolver = fileResolver;
@@ -38,7 +38,7 @@ public class SourceFileGrouping : IArtifactFileLookup
 
     public ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> FileResultByUri { get; }
 
-    public ImmutableDictionary<ISourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> FileUriResultByArtifactReference { get; }
+    public ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> FileUriResultByArtifactReference { get; }
 
     public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; }
 

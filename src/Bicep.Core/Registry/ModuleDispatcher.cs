@@ -134,7 +134,7 @@ namespace Bicep.Core.Registry
             return registry.TryGetLocalArtifactEntryPointUri(artifactReference);
         }
 
-        public async Task<bool> RestoreModules(IEnumerable<ArtifactReference> references, bool forceRestore = false)
+        public async Task<bool> RestoreModules(IEnumerable<ArtifactReference> references, bool forceRestore)
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 

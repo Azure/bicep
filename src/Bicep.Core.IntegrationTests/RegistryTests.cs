@@ -185,7 +185,7 @@ namespace Bicep.Core.IntegrationTests
             var tasks = new List<Task<bool>>();
             for (int i = 0; i < ConcurrentTasks; i++)
             {
-                tasks.Add(Task.Run(() => dispatcher.RestoreModules(moduleReferences)));
+                tasks.Add(Task.Run(() => dispatcher.RestoreModules(moduleReferences, forceRestore: false)));
             }
 
             var result = await Task.WhenAll(tasks);
@@ -255,7 +255,7 @@ namespace Bicep.Core.IntegrationTests
             // let's try to restore a module while holding a lock
             using (@lock)
             {
-                (await dispatcher.RestoreModules(moduleReferences)).Should().BeTrue();
+                (await dispatcher.RestoreModules(moduleReferences, forceRestore: false)).Should().BeTrue();
             }
 
             // the first module should have failed due to a timeout

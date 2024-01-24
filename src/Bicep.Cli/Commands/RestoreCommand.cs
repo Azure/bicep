@@ -2,29 +2,33 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core;
 using Bicep.Core.FileSystem;
 
 namespace Bicep.Cli.Commands
 {
     public class RestoreCommand : ICommand
     {
-        private readonly CompilationService compilationService;
+        private readonly BicepCompiler compiler;
         private readonly DiagnosticLogger diagnosticLogger;
 
-        public RestoreCommand(CompilationService compilationService, DiagnosticLogger diagnosticLogger)
+        public RestoreCommand(BicepCompiler compiler, DiagnosticLogger diagnosticLogger)
         {
-            this.compilationService = compilationService;
+            this.compiler = compiler;
             this.diagnosticLogger = diagnosticLogger;
         }
 
         public async Task<int> RunAsync(RestoreArguments args)
         {
-            var inputPath = PathHelper.ResolvePath(args.InputFile);
-            var diagnostics = await this.compilationService.RestoreAsync(inputPath, args.ForceModulesRestore);
+            var inputUri = ArgumentHelper.GetFileUri(args.InputFile);
 
-            var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, diagnostics);
+            var compilation = compiler.CreateCompilationWithoutRestore(inputUri, markAllForRestore: args.ForceModulesRestore);
+            var restoreDiagnostics = await this.compiler.Restore(compilation, force: args.ForceModulesRestore);
+
+            var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, restoreDiagnostics);
 
             // return non-zero exit code on errors
             return summary.HasErrors ? 1 : 0;

@@ -120,7 +120,7 @@ namespace Bicep.LanguageServer.Registry
                 foreach (var item in items)
                 {
                     token.ThrowIfCancellationRequested();
-                    if (!await this.moduleDispatcher.RestoreModules(item.ModuleReferences))
+                    if (!await this.moduleDispatcher.RestoreModules(item.ModuleReferences, forceRestore: false))
                     {
                         // nothing needed to be restored
                         // no need to notify about completion

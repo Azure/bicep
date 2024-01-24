@@ -50,13 +50,9 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection AddBicepDecompiler(this IServiceCollection services) => services
         .AddSingleton<BicepDecompiler>();
 
-    public static IServiceCollection AddBicepparamDecompiler(this IServiceCollection services) => services
-        .AddSingleton<BicepparamDecompiler>();
-
     public static IServiceCollection AddServerDependencies(this IServiceCollection services) => services
         .AddBicepCore()
         .AddBicepDecompiler()
-        .AddBicepparamDecompiler()
         .AddSingleton<IWorkspace, Workspace>()
         .AddSingleton<ISnippetsProvider, SnippetsProvider>()
         .AddSingleton<ITelemetryProvider, TelemetryProvider>()

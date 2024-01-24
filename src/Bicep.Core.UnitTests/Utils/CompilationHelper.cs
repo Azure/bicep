@@ -81,9 +81,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Where(x => PathHelper.HasBicepExtension(x) || PathHelper.HasArmTemplateLikeExtension(x))
                 .ToDictionary(x => x, x => fileResolver.TryRead(x).IsSuccess(out var fileContents) ? fileContents : throw new InvalidOperationException($"Failed to find file {x}"));
 
-#pragma warning disable VSTHRD002
-            var compilation = compiler.CreateCompilation(entryUri, skipRestore: true).GetAwaiter().GetResult();
-#pragma warning restore VSTHRD002
+            var compilation = compiler.CreateCompilationWithoutRestore(entryUri);
             return GetCompilationResult(compilation);
         }
 
