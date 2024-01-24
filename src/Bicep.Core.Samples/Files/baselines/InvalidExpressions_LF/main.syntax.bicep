@@ -2640,29 +2640,24 @@ var threeElements = (1, 2, 3)
 //@[28:0029) |   └─Token(RightParen) |)|
 //@[29:0030) ├─Token(NewLine) |\n|
 var unterminated1 = (
-//@[00:0021) ├─VariableDeclarationSyntax
+//@[00:0044) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0017) | ├─IdentifierSyntax
 //@[04:0017) | | └─Token(Identifier) |unterminated1|
 //@[18:0019) | ├─Token(Assignment) |=|
-//@[20:0021) | └─ParenthesizedExpressionSyntax
+//@[20:0044) | └─ParenthesizedExpressionSyntax
 //@[20:0021) |   ├─Token(LeftParen) |(|
-//@[21:0021) |   ├─SkippedTriviaSyntax
-//@[21:0021) |   └─SkippedTriviaSyntax
-//@[21:0022) ├─Token(NewLine) |\n|
+//@[21:0025) |   ├─SkippedTriviaSyntax
+//@[21:0022) |   | ├─Token(NewLine) |\n|
 var unterminated2 = (,
-//@[00:0022) ├─VariableDeclarationSyntax
-//@[00:0003) | ├─Token(Identifier) |var|
-//@[04:0017) | ├─IdentifierSyntax
-//@[04:0017) | | └─Token(Identifier) |unterminated2|
-//@[18:0019) | ├─Token(Assignment) |=|
-//@[20:0022) | └─ParenthesizedExpressionSyntax
-//@[20:0021) |   ├─Token(LeftParen) |(|
-//@[21:0022) |   ├─SkippedTriviaSyntax
-//@[21:0021) |   | ├─SkippedTriviaSyntax
-//@[21:0022) |   | ├─Token(Comma) |,|
-//@[22:0022) |   | └─SkippedTriviaSyntax
-//@[22:0022) |   └─SkippedTriviaSyntax
+//@[00:0003) |   | └─VariableAccessSyntax
+//@[00:0003) |   |   └─IdentifierSyntax
+//@[00:0003) |   |     └─Token(Identifier) |var|
+//@[04:0022) |   └─SkippedTriviaSyntax
+//@[04:0017) |     ├─Token(Identifier) |unterminated2|
+//@[18:0019) |     ├─Token(Assignment) |=|
+//@[20:0021) |     ├─Token(LeftParen) |(|
+//@[21:0022) |     └─Token(Comma) |,|
 //@[22:0024) ├─Token(NewLine) |\n\n|
 
 // trailing decorator with no declaration

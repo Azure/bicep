@@ -111,3 +111,9 @@ var objectMap6 = toObject(
       isGreaterThan4: (i > 4)
     }
 )
+
+var multiLine = reduce(
+  ['abc', 'def', 'ghi'],
+  '',
+  (, cur, , next, ) => concat(cur, next)
+)

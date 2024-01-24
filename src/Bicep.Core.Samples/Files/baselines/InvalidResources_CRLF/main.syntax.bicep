@@ -268,37 +268,31 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
 //@[054:00058) ├─Token(NewLine) |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
-//@[000:00056) ├─ResourceDeclarationSyntax
+//@[000:00120) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00012) | ├─IdentifierSyntax
 //@[009:00012) | | └─Token(Identifier) |foo|
 //@[013:00050) | ├─StringSyntax
 //@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
 //@[050:00051) | ├─Token(Assignment) |=|
-//@[052:00056) | └─IfConditionSyntax
+//@[052:00120) | └─IfConditionSyntax
 //@[052:00054) |   ├─Token(Identifier) |if|
-//@[055:00056) |   ├─ParenthesizedExpressionSyntax
+//@[055:00120) |   ├─ParenthesizedExpressionSyntax
 //@[055:00056) |   | ├─Token(LeftParen) |(|
-//@[056:00056) |   | ├─SkippedTriviaSyntax
-//@[056:00056) |   | └─SkippedTriviaSyntax
-//@[056:00056) |   └─SkippedTriviaSyntax
-//@[056:00060) ├─Token(NewLine) |\r\n\r\n|
+//@[056:00068) |   | ├─SkippedTriviaSyntax
+//@[056:00060) |   | | ├─Token(NewLine) |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
-//@[000:00060) ├─ResourceDeclarationSyntax
-//@[000:00008) | ├─Token(Identifier) |resource|
-//@[009:00012) | ├─IdentifierSyntax
-//@[009:00012) | | └─Token(Identifier) |foo|
-//@[013:00050) | ├─StringSyntax
-//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[050:00051) | ├─Token(Assignment) |=|
-//@[052:00060) | └─IfConditionSyntax
-//@[052:00054) |   ├─Token(Identifier) |if|
-//@[055:00060) |   ├─ParenthesizedExpressionSyntax
-//@[055:00056) |   | ├─Token(LeftParen) |(|
-//@[056:00060) |   | ├─BooleanLiteralSyntax
-//@[056:00060) |   | | └─Token(TrueKeyword) |true|
-//@[060:00060) |   | └─SkippedTriviaSyntax
+//@[000:00008) |   | | └─VariableAccessSyntax
+//@[000:00008) |   | |   └─IdentifierSyntax
+//@[000:00008) |   | |     └─Token(Identifier) |resource|
+//@[009:00060) |   | └─SkippedTriviaSyntax
+//@[009:00012) |   |   ├─Token(Identifier) |foo|
+//@[013:00050) |   |   ├─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) |   |   ├─Token(Assignment) |=|
+//@[052:00054) |   |   ├─Token(Identifier) |if|
+//@[055:00056) |   |   ├─Token(LeftParen) |(|
+//@[056:00060) |   |   └─Token(TrueKeyword) |true|
 //@[060:00060) |   └─SkippedTriviaSyntax
 //@[060:00064) ├─Token(NewLine) |\r\n\r\n|
 

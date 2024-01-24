@@ -3248,8 +3248,8 @@ resource foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     ((|))
     notAResource == 'test' ? |
     notAResource == 'test' ? aResource : |
-    notAResource == 'test' ? (|
     notAResource == 'test' ? (true ? aResource : |) : aResource
+    notAResource == 'test' ? (|
   ]
 }";
 
@@ -3385,8 +3385,8 @@ module foo 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     ((|))
     notAResource == 'test' ? |
     notAResource == 'test' ? aResource : |
-    notAResource == 'test' ? (|
     notAResource == 'test' ? (true ? aResource : |) : aResource
+    notAResource == 'test' ? (|
   ]
 }";
 

@@ -269,6 +269,85 @@ func test4() string => loadFileAsBase64('./repro-data.json')
 //@[039:040) LeftParen |(|
 //@[040:059) StringComplete |'./repro-data.json'|
 //@[059:060) RightParen |)|
-//@[060:061) NewLine |\n|
+//@[060:062) NewLine |\n\n|
+
+// validate formatter works (https://github.com/Azure/bicep/issues/12913)
+//@[073:074) NewLine |\n|
+func a(____________________________________________________________________________________________ string) string => 'a'
+//@[000:004) Identifier |func|
+//@[005:006) Identifier |a|
+//@[006:007) LeftParen |(|
+//@[007:099) Identifier |____________________________________________________________________________________________|
+//@[100:106) Identifier |string|
+//@[106:107) RightParen |)|
+//@[108:114) Identifier |string|
+//@[115:117) Arrow |=>|
+//@[118:121) StringComplete |'a'|
+//@[121:122) NewLine |\n|
+func b(longParameterName1 string, longParameterName2 string, longParameterName3 string, longParameterName4 string) string => 'b'
+//@[000:004) Identifier |func|
+//@[005:006) Identifier |b|
+//@[006:007) LeftParen |(|
+//@[007:025) Identifier |longParameterName1|
+//@[026:032) Identifier |string|
+//@[032:033) Comma |,|
+//@[034:052) Identifier |longParameterName2|
+//@[053:059) Identifier |string|
+//@[059:060) Comma |,|
+//@[061:079) Identifier |longParameterName3|
+//@[080:086) Identifier |string|
+//@[086:087) Comma |,|
+//@[088:106) Identifier |longParameterName4|
+//@[107:113) Identifier |string|
+//@[113:114) RightParen |)|
+//@[115:121) Identifier |string|
+//@[122:124) Arrow |=>|
+//@[125:128) StringComplete |'b'|
+//@[128:130) NewLine |\n\n|
+
+func buildUrlMultiLine(
+//@[000:004) Identifier |func|
+//@[005:022) Identifier |buildUrlMultiLine|
+//@[022:023) LeftParen |(|
+//@[023:024) NewLine |\n|
+  https bool,
+//@[002:007) Identifier |https|
+//@[008:012) Identifier |bool|
+//@[012:013) Comma |,|
+//@[013:014) NewLine |\n|
+  hostname string,
+//@[002:010) Identifier |hostname|
+//@[011:017) Identifier |string|
+//@[017:018) Comma |,|
+//@[018:019) NewLine |\n|
+  path string
+//@[002:006) Identifier |path|
+//@[007:013) Identifier |string|
+//@[013:014) NewLine |\n|
+) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+//@[000:001) RightParen |)|
+//@[002:008) Identifier |string|
+//@[009:011) Arrow |=>|
+//@[012:015) StringLeftPiece |'${|
+//@[015:020) Identifier |https|
+//@[021:022) Question |?|
+//@[023:030) StringComplete |'https'|
+//@[031:032) Colon |:|
+//@[033:039) StringComplete |'http'|
+//@[039:045) StringMiddlePiece |}://${|
+//@[045:053) Identifier |hostname|
+//@[053:056) StringMiddlePiece |}${|
+//@[056:061) Identifier |empty|
+//@[061:062) LeftParen |(|
+//@[062:066) Identifier |path|
+//@[066:067) RightParen |)|
+//@[068:069) Question |?|
+//@[070:072) StringComplete |''|
+//@[073:074) Colon |:|
+//@[075:079) StringLeftPiece |'/${|
+//@[079:083) Identifier |path|
+//@[083:085) StringRightPiece |}'|
+//@[085:087) StringRightPiece |}'|
+//@[087:088) NewLine |\n|
 
 //@[000:000) EndOfFile ||

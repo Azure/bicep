@@ -1,5 +1,5 @@
 var doggos = [
-//@[000:2847) ProgramSyntax
+//@[000:2938) ProgramSyntax
 //@[000:0054) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0010) | ├─IdentifierSyntax
@@ -1835,6 +1835,75 @@ var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
 })
 //@[000:0001) |   |     └─Token(RightBrace) |}|
 //@[001:0002) |   └─Token(RightParen) |)|
-//@[002:0003) ├─Token(NewLine) |\n|
+//@[002:0004) ├─Token(NewLine) |\n\n|
+
+var multiLine = reduce(['abc', 'def', 'ghi'], '', (
+//@[000:0089) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |multiLine|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0089) | └─FunctionCallSyntax
+//@[016:0022) |   ├─IdentifierSyntax
+//@[016:0022) |   | └─Token(Identifier) |reduce|
+//@[022:0023) |   ├─Token(LeftParen) |(|
+//@[023:0044) |   ├─FunctionArgumentSyntax
+//@[023:0044) |   | └─ArraySyntax
+//@[023:0024) |   |   ├─Token(LeftSquare) |[|
+//@[024:0029) |   |   ├─ArrayItemSyntax
+//@[024:0029) |   |   | └─StringSyntax
+//@[024:0029) |   |   |   └─Token(StringComplete) |'abc'|
+//@[029:0030) |   |   ├─Token(Comma) |,|
+//@[031:0036) |   |   ├─ArrayItemSyntax
+//@[031:0036) |   |   | └─StringSyntax
+//@[031:0036) |   |   |   └─Token(StringComplete) |'def'|
+//@[036:0037) |   |   ├─Token(Comma) |,|
+//@[038:0043) |   |   ├─ArrayItemSyntax
+//@[038:0043) |   |   | └─StringSyntax
+//@[038:0043) |   |   |   └─Token(StringComplete) |'ghi'|
+//@[043:0044) |   |   └─Token(RightSquare) |]|
+//@[044:0045) |   ├─Token(Comma) |,|
+//@[046:0048) |   ├─FunctionArgumentSyntax
+//@[046:0048) |   | └─StringSyntax
+//@[046:0048) |   |   └─Token(StringComplete) |''|
+//@[048:0049) |   ├─Token(Comma) |,|
+//@[050:0088) |   ├─FunctionArgumentSyntax
+//@[050:0088) |   | └─LambdaSyntax
+//@[050:0067) |   |   ├─VariableBlockSyntax
+//@[050:0051) |   |   | ├─Token(LeftParen) |(|
+//@[051:0052) |   |   | ├─SkippedTriviaSyntax
+//@[051:0052) |   |   | | └─Token(NewLine) |\n|
+  cur,
+//@[002:0005) |   |   | ├─LocalVariableSyntax
+//@[002:0005) |   |   | | └─IdentifierSyntax
+//@[002:0005) |   |   | |   └─Token(Identifier) |cur|
+//@[005:0006) |   |   | ├─Token(Comma) |,|
+//@[006:0007) |   |   | ├─SkippedTriviaSyntax
+//@[006:0007) |   |   | | └─Token(NewLine) |\n|
+  next
+//@[002:0006) |   |   | ├─LocalVariableSyntax
+//@[002:0006) |   |   | | └─IdentifierSyntax
+//@[002:0006) |   |   | |   └─Token(Identifier) |next|
+//@[006:0007) |   |   | ├─SkippedTriviaSyntax
+//@[006:0007) |   |   | | └─Token(NewLine) |\n|
+) => concat(cur, next))
+//@[000:0001) |   |   | └─Token(RightParen) |)|
+//@[002:0004) |   |   ├─Token(Arrow) |=>|
+//@[005:0022) |   |   └─FunctionCallSyntax
+//@[005:0011) |   |     ├─IdentifierSyntax
+//@[005:0011) |   |     | └─Token(Identifier) |concat|
+//@[011:0012) |   |     ├─Token(LeftParen) |(|
+//@[012:0015) |   |     ├─FunctionArgumentSyntax
+//@[012:0015) |   |     | └─VariableAccessSyntax
+//@[012:0015) |   |     |   └─IdentifierSyntax
+//@[012:0015) |   |     |     └─Token(Identifier) |cur|
+//@[015:0016) |   |     ├─Token(Comma) |,|
+//@[017:0021) |   |     ├─FunctionArgumentSyntax
+//@[017:0021) |   |     | └─VariableAccessSyntax
+//@[017:0021) |   |     |   └─IdentifierSyntax
+//@[017:0021) |   |     |     └─Token(Identifier) |next|
+//@[021:0022) |   |     └─Token(RightParen) |)|
+//@[022:0023) |   └─Token(RightParen) |)|
+//@[023:0024) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

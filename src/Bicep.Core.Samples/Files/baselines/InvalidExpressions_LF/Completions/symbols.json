@@ -2776,20 +2776,6 @@
     }
   },
   {
-    "label": "unterminated2",
-    "kind": "variable",
-    "detail": "unterminated2",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_unterminated2",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "unterminated2"
-    }
-  },
-  {
     "label": "uri",
     "kind": "function",
     "documentation": {

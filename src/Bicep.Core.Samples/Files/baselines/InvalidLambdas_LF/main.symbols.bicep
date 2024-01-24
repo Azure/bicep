@@ -152,3 +152,25 @@ output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
 //@[43:44) Local i. Type: int. Declaration start char: 43, length: 1
 //@[07:17) Output modOutputs. Type: array. Declaration start char: 0, length: 71
 
+var onlyComma = map([0], (,) => 'foo')
+//@[04:13) Variable onlyComma. Type: error. Declaration start char: 0, length: 38
+var trailingCommas = map([0], (a,,) => 'foo')
+//@[31:32) Local a. Type: 0. Declaration start char: 31, length: 1
+//@[04:18) Variable trailingCommas. Type: 'foo'[]. Declaration start char: 0, length: 45
+var multiLineOnly = map([0], (
+//@[04:17) Variable multiLineOnly. Type: any. Declaration start char: 0, length: 51
+  a
+  b) => 'foo')
+)
+
+var multiLineTrailingCommas = map([0], (
+//@[04:27) Variable multiLineTrailingCommas. Type: 'foo'[]. Declaration start char: 0, length: 60
+  a,
+//@[02:03) Local a. Type: 0. Declaration start char: 2, length: 1
+  ,) => 'foo')
+
+var lineBeforeComma = map([0], (
+//@[04:19) Variable lineBeforeComma. Type: error. Declaration start char: 0, length: 53
+  a
+  ,b) => 'foo')
+

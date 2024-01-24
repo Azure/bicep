@@ -56,10 +56,9 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 54
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
-//@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 56
+//@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 120
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
-//@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 60
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
 //@[009:012) Resource foo. Type: Microsoft.Foo/foos@2020-02-02-alpha. Declaration start char: 0, length: 61

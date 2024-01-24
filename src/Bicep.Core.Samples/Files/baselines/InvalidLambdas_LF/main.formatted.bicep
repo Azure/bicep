@@ -73,3 +73,18 @@ module modLoop './empty.bicep' = [for item in range(0, 5): {
 
 var modLoopNames = map(modLoop, i => i.name)
 output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
+
+var onlyComma = map([ 0 ], (,) => 'foo')
+var trailingCommas = map([ 0 ], (a,,) => 'foo')
+var multiLineOnly = map([ 0 ], (
+  a
+  b) => 'foo')
+)
+
+var multiLineTrailingCommas = map([ 0 ], (
+  a,
+  ,) => 'foo')
+
+var lineBeforeComma = map([0], (
+  a
+  ,b) => 'foo')

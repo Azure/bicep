@@ -183,5 +183,71 @@ func test4() string => loadFileAsBase64('./repro-data.json')
 //@            "type": "string",
 //@            "value": "e30="
 //@          }
+//@        },
+
+// validate formatter works (https://github.com/Azure/bicep/issues/12913)
+func a(____________________________________________________________________________________________ string) string => 'a'
+//@        "a": {
+//@          "parameters": [
+//@            {
+//@              "type": "string",
+//@              "name": "____________________________________________________________________________________________"
+//@            }
+//@          ],
+//@          "output": {
+//@            "type": "string",
+//@            "value": "a"
+//@          }
+//@        },
+func b(longParameterName1 string, longParameterName2 string, longParameterName3 string, longParameterName4 string) string => 'b'
+//@        "b": {
+//@          "parameters": [
+//@            {
+//@              "type": "string",
+//@              "name": "longParameterName1"
+//@            },
+//@            {
+//@              "type": "string",
+//@              "name": "longParameterName2"
+//@            },
+//@            {
+//@              "type": "string",
+//@              "name": "longParameterName3"
+//@            },
+//@            {
+//@              "type": "string",
+//@              "name": "longParameterName4"
+//@            }
+//@          ],
+//@          "output": {
+//@            "type": "string",
+//@            "value": "b"
+//@          }
+//@        },
+
+func buildUrlMultiLine(
+//@        "buildUrlMultiLine": {
+//@          "parameters": [
+//@            {
+//@              "name": "https"
+//@            },
+//@            {
+//@              "name": "hostname"
+//@            },
+//@            {
+//@              "name": "path"
+//@            }
+//@          ],
+//@          "output": {
+//@          }
 //@        }
+  https bool,
+//@              "type": "bool",
+  hostname string,
+//@              "type": "string",
+  path string
+//@              "type": "string",
+) string => '${https ? 'https' : 'http'}://${hostname}${empty(path) ? '' : '/${path}'}'
+//@            "type": "string",
+//@            "value": "[format('{0}://{1}{2}', if(parameters('https'), 'https', 'http'), parameters('hostname'), if(empty(parameters('path')), '', format('/{0}', parameters('path'))))]"
 

@@ -35,3 +35,17 @@ func recursive() string => recursive()
 
 func recursiveA() string => recursiveB()
 func recursiveB() string => recursiveA()
+
+func onlyComma(,) string => 'foo'
+func trailingCommas(a string,,) string => 'foo'
+func multiLineOnly(
+  a string
+  b string) string => 'foo'
+
+func multiLineTrailingCommas(
+  a string,
+  ,) string => 'foo'
+
+func lineBeforeComma(
+  a string
+  ,b string) string => 'foo'

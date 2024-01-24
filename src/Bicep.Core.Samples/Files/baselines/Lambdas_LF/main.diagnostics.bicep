@@ -119,3 +119,10 @@ var objectMap6 = toObject(range(0, 10), i => '${i}', i => // comment
   isGreaterThan4: (i > 4)
 })
 
+var multiLine = reduce(['abc', 'def', 'ghi'], '', (
+//@[04:13) [no-unused-vars (Warning)] Variable "multiLine" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |multiLine|
+  cur,
+  next
+) => concat(cur, next))
+//@[05:22) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(cur, next)|
+
