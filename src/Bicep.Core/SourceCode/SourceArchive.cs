@@ -54,7 +54,7 @@ namespace Bicep.Core.SourceCode
         public const string SourceKind_ArmTemplate = "armTemplate";
         public const string SourceKind_TemplateSpec = "templateSpec";
 
-        private const string MetadataFileName = "metadata.json";
+        private const string MetadataFileName = "__metadata.json";
         private const string FilesFolderName = "files";
 
         private static readonly ImmutableHashSet<char> PathCharsToAvoid = Path.GetInvalidFileNameChars()
@@ -66,7 +66,7 @@ namespace Bicep.Core.SourceCode
         private const int MaxLegalPathLength = 260; // Limit for Windows
         private const int MaxArchivePathLength = MaxLegalPathLength - 10; // ... this gives us some extra room to deduplicate paths
 
-        /* Example metadata.json:
+        /* Example __metadata.json:
         {
             "metadataVersion": 0,
             "entryPoint": "my entrypoint.bicep",
@@ -108,7 +108,7 @@ namespace Bicep.Core.SourceCode
         [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
         private partial class MetadataSerializationContext : JsonSerializerContext { }
 
-        // Metadata for the entire archive (stored in metadata.json file in archive)
+        // Metadata for the entire archive (stored in __metadata.json file in archive)
         private record ArchiveMetadata(
             int MetadataVersion,
             string? BicepVersion,

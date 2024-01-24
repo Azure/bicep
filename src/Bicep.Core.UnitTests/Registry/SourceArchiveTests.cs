@@ -482,7 +482,7 @@ public class SourceArchiveTests
     {
         var zip = CreateGzippedTarredFileStream(
             (
-                "metadata.json",
+                "__metadata.json",
                 @"
                 {
                   ""metadataVersion"": 1,
@@ -520,7 +520,7 @@ public class SourceArchiveTests
         // OLD FILE VERSIONS WITH MINIMAL DATA
         var zip = CreateGzippedTarredFileStream(
             (
-                "metadata.json",
+                "__metadata.json",
                 @"
                 {
                   ""entryPoint"": ""main.bicep"",
@@ -554,7 +554,7 @@ public class SourceArchiveTests
     {
         var zip = CreateGzippedTarredFileStream(
             (
-                "metadata.json",
+                "__metadata.json",
                 @"
                 {
                   ""entryPoint"": ""main.bicep"",
@@ -598,7 +598,7 @@ public class SourceArchiveTests
     {
         var zip = CreateGzippedTarredFileStream(
             (
-                "metadata.json",
+                "__metadata.json",
                 @"
                 {
                   ""entryPoint"": ""file:///main.bicep"",
@@ -630,7 +630,7 @@ public class SourceArchiveTests
     {
         var zip = CreateGzippedTarredFileStream(
             (
-                "metadata.json",
+                "__metadata.json",
                 @"
                 {
                   ""entryPoint"": ""file:///main.bicep"",
