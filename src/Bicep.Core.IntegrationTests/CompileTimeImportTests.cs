@@ -2196,4 +2196,79 @@ INVALID FILE
             ("BCP081", DiagnosticLevel.Warning, """Resource type "Microsoft.Foo/bars@2022-09-01" does not have types available."""),
         });
     }
+
+    // https://github.com/Azure/bicep/issues/12981
+    [TestMethod]
+    public void Copy_index_argument_in_imported_copy_variables_is_replaced()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import * as vars from 'shared.bicep'
+                """),
+            ("shared.bicep", """
+                @export()
+                var identityPrefix = '10.150.3.0/24'
+
+                @export()
+                var domainControllerIPs = [for i in range(0, 2): cidrHost(identityPrefix, (3 + i))]
+
+                @export()
+                var domainController = cidrHost(identityPrefix, 3)
+
+                @export()
+                var test = 'test'
+                """));
+
+        result.Diagnostics.Should().BeEmpty();
+        result.Template.Should().NotBeNull();
+        result.Template.Should().HaveValueAtPath("variables.copy[?(@.name == '_1.domainControllerIPs')].input", "[cidrHost(variables('_1.identityPrefix'), add(3, range(0, 2)[copyIndex('_1.domainControllerIPs')]))]");
+    }
+
+    [TestMethod]
+    public void Copy_index_argument_in_copy_variables_imported_from_json_is_replaced()
+    {
+        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+            ("main.bicep", """
+                import * as foo from 'mod.json'
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "foo",
+                                "description": "A lengthy, florid description"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "fooCount": "[add(2, 3)]",
+                        "copy": [
+                            {
+                                "name": "foo",
+                                "count": "[variables('fooCount')]",
+                                "input": "[copyIndex('foo', 1)]"
+                            }
+                        ]
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("variables", JToken.Parse($$"""
+            {
+                "_1.fooCount": "[add(2, 3)]",
+                "copy": [
+                    {
+                        "name": "_1.foo",
+                        "count": "[length(range(0, variables('_1.fooCount')))]",
+                        "input": "[add(copyIndex('_1.foo'), 1)]"
+                    }
+                ]
+            }
+            """));
+    }
 }

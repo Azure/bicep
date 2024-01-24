@@ -14,6 +14,7 @@ internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
     private readonly ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames;
     private readonly ImmutableDictionary<string, string> synthesizedVariableNames;
     private readonly SyntaxBase? sourceSyntax;
+    private string? currentCopyLoopName;
 
     public ImportedSymbolDeclarationMigrator(SemanticModel sourceModel,
         ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames,
@@ -49,14 +50,30 @@ internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
         Exported = null,
     };
 
-    public override Expression ReplaceDeclaredVariableExpression(DeclaredVariableExpression expression) => expression with
+    public override Expression ReplaceDeclaredVariableExpression(DeclaredVariableExpression expression)
     {
-        SourceSyntax = sourceSyntax,
-        Name = declaredSymbolNames[LookupVariableByName(expression.Name)],
-        Value = RewriteForMigration(expression.Value),
-        // An imported variable is never automatically re-exported
-        Exported = null,
-    };
+        var newVariableName = declaredSymbolNames[LookupVariableByName(expression.Name)];
+        var previousCopyLoopName = currentCopyLoopName;
+        currentCopyLoopName = newVariableName;
+
+        try {
+            return expression with
+            {
+                SourceSyntax = sourceSyntax,
+                Name = newVariableName,
+                Value = RewriteForMigration(expression.Value),
+                // An imported variable is never automatically re-exported
+                Exported = null,
+            };
+        }
+        finally
+        {
+            currentCopyLoopName = previousCopyLoopName;
+        }
+    }
+
+    public override Expression ReplaceCopyIndexExpression(CopyIndexExpression expression)
+        => expression with { Name = currentCopyLoopName };
 
     public override Expression ReplaceDeclaredFunctionExpression(DeclaredFunctionExpression expression)
     {
