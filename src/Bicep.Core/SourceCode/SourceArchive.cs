@@ -42,7 +42,7 @@ namespace Bicep.Core.SourceCode
         public string FriendlyBicepVersion => InstanceMetadata.BicepVersion ?? "unknown";
 
         // The version of the metadata file format used by this archive instance.
-        public int MetadataVersion => InstanceMetadata.MetadataVersion ?? 0;
+        public int MetadataVersion => InstanceMetadata.MetadataVersion;
 
         public IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]> DocumentLinks => InstanceMetadata.DocumentLinks ?? new Dictionary<string, SourceCodeDocumentPathLink[]>();
 
@@ -57,11 +57,11 @@ namespace Bicep.Core.SourceCode
         private const string MetadataFileName = "metadata.json";
         private const string FilesFolderName = "files";
 
-        private static readonly char[] PathCharsToAvoid = Path.GetInvalidFileNameChars()
-        .Union(Path.GetInvalidPathChars())
-        .Union(new char[] { '"', '*', ':', '&', '<', '>', '?', '\\', '/', '|', '+', '[', ']', '#' })
-        .Where(ch => ch != '/')
-        .ToArray();
+        private static readonly ImmutableHashSet<char> PathCharsToAvoid = Path.GetInvalidFileNameChars()
+            .Union(Path.GetInvalidPathChars())
+            .Union(new char[] { '"', '*', ':', '&', '<', '>', '?', '\\', '/', '|', '+', '[', ']', '#' })
+            .Where(ch => ch != '/')
+            .ToImmutableHashSet();
 
         private const int MaxLegalPathLength = 260; // Limit for Windows
         private const int MaxArchivePathLength = MaxLegalPathLength - 10; // ... this gives us some extra room to deduplicate paths
@@ -109,16 +109,14 @@ namespace Bicep.Core.SourceCode
         private partial class MetadataSerializationContext : JsonSerializerContext { }
 
         // Metadata for the entire archive (stored in metadata.json file in archive)
-        [JsonSerializable(typeof(ArchiveMetadata))]
         private record ArchiveMetadata(
-            int? MetadataVersion,
+            int MetadataVersion,
             string? BicepVersion,
             string EntryPoint, // Path of the entrypoint file
             IEnumerable<SourceFileInfoEntry> SourceFiles,
             IReadOnlyDictionary<string, SourceCodeDocumentPathLink[]>? DocumentLinks = null // Maps source file path -> array of document links inside that file
         );
 
-        [JsonSerializable(typeof(SourceFileInfoEntry))]
         private partial record SourceFileInfoEntry(
             // IF ADDING TO THIS: Remember both forwards and backwards compatibility.
             // E.g., previous versions must be able to deal with unrecognized source kinds.
@@ -245,11 +243,7 @@ namespace Bicep.Core.SourceCode
             relativePath = SourceCodePathHelper.NormalizeSlashes($"{rootName}{relativePath}");
 
             // Handle illegal/problematic file characters in the path we use inside the archive
-            string archivePath = relativePath;
-            foreach (char ch in PathCharsToAvoid)
-            {
-                archivePath = archivePath.Replace(ch, '_');
-            }
+            var archivePath = new string(relativePath.Select(ch => PathCharsToAvoid.Contains(ch) ? '_' : ch).ToArray());
 
             // Place all sources files under "files/" in the archive
             archivePath = Path.Join(FilesFolderName, archivePath);
