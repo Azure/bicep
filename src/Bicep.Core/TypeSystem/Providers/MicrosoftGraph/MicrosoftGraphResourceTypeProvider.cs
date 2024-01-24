@@ -12,7 +12,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
 {
     public class MicrosoftGraphResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
     {
-        public const string NamePropertyName = "name";
+        public const string UniqueNamePropertyName = "uniqueName";
         public const string AppIdPropertyName = "appId";
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
@@ -23,7 +23,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
 
         public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
         {
-            NamePropertyName,
+            UniqueNamePropertyName,
             AppIdPropertyName,
         }.ToImmutableHashSet();
 
@@ -33,7 +33,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
          */
         public static readonly ImmutableSortedSet<string> ReadWriteDeployTimeConstantPropertyNames
             = ImmutableSortedSet.Create(LanguageConstants.IdentifierComparer,
-                NamePropertyName);
+                UniqueNamePropertyName);
 
         public MicrosoftGraphResourceTypeProvider(MicrosoftGraphResourceTypeLoader resourceTypeLoader)
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
@@ -50,16 +50,16 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
-                    if (bodyObjectType.Properties.TryGetValue(NamePropertyName, out var nameProperty) &&
+                    if (bodyObjectType.Properties.TryGetValue(UniqueNamePropertyName, out var nameProperty) &&
                         nameProperty.TypeReference.Type is not StringType)
                     {
-                        // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
+                        // The 'uniqueName' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
                         // Best we can do is return a regular 'string' field for it as we have no good way to reliably evaluate complex expressions (e.g. to check whether it terminates with '/<constantType>').
                         // Keep it simple for now - we eventually plan to phase out the 'top-level child' syntax.
                         bodyObjectType = new ObjectType(
                             bodyObjectType.Name,
                             bodyObjectType.ValidationFlags,
-                            bodyObjectType.Properties.SetItem(NamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
+                            bodyObjectType.Properties.SetItem(UniqueNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
                             bodyObjectType.AdditionalPropertiesType,
                             bodyObjectType.AdditionalPropertiesFlags,
                             bodyObjectType.MethodResolver.CopyToObject);
@@ -98,10 +98,10 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
             }
 
             // add the loop variant flag to the name property (if it exists)
-            if (properties.TryGetValue(NamePropertyName, out var nameProperty))
+            if (properties.TryGetValue(UniqueNamePropertyName, out var nameProperty))
             {
                 // TODO apply this to all unique properties
-                properties = properties.SetItem(NamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
+                properties = properties.SetItem(UniqueNamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
             }
 
             foreach (var identifier in ReadWriteDeployTimeConstantPropertyNames)
@@ -125,7 +125,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
         {
             foreach (var property in properties)
             {
-                // "name", "scope" & "parent" can be set for existing resources - everything else should be read-only
+                // "uniqueName", "scope" & "parent" can be set for existing resources - everything else should be read-only
                 if (UniqueIdentifierProperties.Contains(property.Name))
                 {
                     yield return property;
