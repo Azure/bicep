@@ -71,10 +71,11 @@ namespace Bicep.Cli.Commands
             }
 
             var compilation = await compiler.CreateCompilation(inputUri, skipRestore: args.NoRestore);
+            var result = compilation.Emitter.Template();
 
-            var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, compilation);
+            var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, result.Diagnostics);
 
-            if (compilation.Emitter.Template().Template is not {} compiledArmTemplate)
+            if (result.Template is not {} compiledArmTemplate)
             {
                 // can't publish if we can't compile
                 return 1;

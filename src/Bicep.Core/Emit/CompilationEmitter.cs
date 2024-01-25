@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.IO;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 
@@ -12,14 +13,14 @@ namespace Bicep.Core.Emit;
 
 public record ParametersResult(
     bool Success,
-    ImmutableArray<IDiagnostic> Diagnostics,
+    ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> Diagnostics,
     string? Parameters,
     string? TemplateSpecId,
     TemplateResult? Template);
 
 public record TemplateResult(
     bool Success,
-    ImmutableArray<IDiagnostic> Diagnostics,
+    ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>> Diagnostics,
     string? Template,
     string? SourceMap);
 
@@ -47,11 +48,13 @@ public class CompilationEmitter : ICompilationEmitter
             throw new InvalidOperationException($"Entry-point {model.Root.FileUri} is not a parameters file");
         }
 
+        var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
+
         using var writer = new StringWriter { NewLine = "\n" };
         var result = new ParametersEmitter(model).Emit(writer);
         if (result.Status != EmitStatus.Succeeded)
         {
-            return new(false, result.Diagnostics, null, null, null);
+            return new(false, diagnostics, null, null, null);
         }
 
         var parametersData = writer.ToString();
@@ -65,18 +68,18 @@ public class CompilationEmitter : ICompilationEmitter
             case SemanticModel bicepModel:
             {
                 var templateResult = Template(bicepModel);
-                return new ParametersResult(true, result.Diagnostics, parametersData, null, templateResult);
+                return new ParametersResult(true, diagnostics, parametersData, null, templateResult);
             }
             case ArmTemplateSemanticModel armTemplateModel:
             {
                 var template = armTemplateModel.SourceFile.GetOriginalSource();
-                var templateResult = new TemplateResult(true, ImmutableArray<IDiagnostic>.Empty, template, null);
+                var templateResult = new TemplateResult(true, ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>.Empty, template, null);
 
-                return new ParametersResult(true, result.Diagnostics, parametersData, null, templateResult);
+                return new ParametersResult(true, diagnostics, parametersData, null, templateResult);
             }
             case TemplateSpecSemanticModel templateSpecModel:
             {
-                return new ParametersResult(true, result.Diagnostics, parametersData, templateSpecModel.SourceFile.TemplateSpecId, null);
+                return new ParametersResult(true, diagnostics, parametersData, templateSpecModel.SourceFile.TemplateSpecId, null);
             }
         }
 
@@ -96,16 +99,18 @@ public class CompilationEmitter : ICompilationEmitter
 
     private TemplateResult Template(SemanticModel model)
     {
+        var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
+
         using var writer = new StringWriter { NewLine = "\n" };
         var result = new TemplateEmitter(model).Emit(writer);
         if (result.Status != EmitStatus.Succeeded)
         {
-            return new(false, result.Diagnostics, null, null);
+            return new(false, diagnostics, null, null);
         }
         
         var template = writer.ToString();
         var sourceMap = result.SourceMap is {} ? JsonConvert.SerializeObject(result.SourceMap) : null;
         
-        return new(true, result.Diagnostics, template, sourceMap);
+        return new(true, diagnostics, template, sourceMap);
     }
 }

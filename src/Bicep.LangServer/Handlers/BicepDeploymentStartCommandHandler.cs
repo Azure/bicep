@@ -183,7 +183,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (paramsResult.Parameters is null)
             {
-                var fileDiagnosticPair = KeyValuePair.Create(compilation.SourceFileGrouping.EntryPoint, ImmutableArray.Create(paramsResult.Diagnostics.ToArray()));
+                var fileDiagnosticPair = KeyValuePair.Create(compilation.SourceFileGrouping.EntryPoint, paramsResult.Diagnostics[compilation.SourceFileGrouping.EntryPoint]);
                 return new BicepparamCompilationResult(false, DiagnosticsHelper.GetDiagnosticsMessage(fileDiagnosticPair));
             }
 
