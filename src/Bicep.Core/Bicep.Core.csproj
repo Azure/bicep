@@ -33,7 +33,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Graph.Bicep.Types" Version="0.1.1-preview" />
+    <PackageReference Include="Microsoft.Graph.Bicep.Types" Version="0.1.2-preview" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SharpYaml" Version="2.1.0" />
     <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />

@@ -480,8 +480,8 @@
       },
       "Microsoft.Graph.Bicep.Types": {
         "type": "Transitive",
-        "resolved": "0.1.1-preview",
-        "contentHash": "PBUH2KmCkJdFYD7DgcDuAUZ/iOMzBZRe8uKG/V8v6mmc1kBr5c9+5cQ0Zd559DQzkT+41OuNZNoFS7uzxpW/4w==",
+        "resolved": "0.1.2-preview",
+        "contentHash": "K47L051GXYs9y5OdKt8+wcobJOn6dLGQjsBiegoZN9BdbCQtP0gI/PP8HxP9iO+Yx1K0LnDLgK9qZUO0WbLApQ==",
         "dependencies": {
           "Azure.Bicep.Types": "0.4.1"
         }
@@ -2123,7 +2123,7 @@
           "Microsoft.Extensions.Configuration.Binder": "[8.0.0, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
           "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
-          "Microsoft.Graph.Bicep.Types": "[0.1.1-preview, )",
+          "Microsoft.Graph.Bicep.Types": "[0.1.2-preview, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "SharpYaml": "[2.1.0, )",
           "System.Collections.Immutable": "[8.0.0, )",
