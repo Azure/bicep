@@ -156,22 +156,19 @@ namespace Bicep.Core.Semantics
             => auxiliaryFileCache.ContainsKey(uri);
 
         private IEnumerable<ExportMetadata> FindExportedTypes() => Root.TypeDeclarations
-            .Where(t => IsExported(t.DeclaringType))
+            .Where(t => t.IsExported())
             .Select(t => new ExportedTypeMetadata(t.Name, t.Type, DescriptionHelper.TryGetFromDecorator(this, t.DeclaringType)));
 
         private IEnumerable<ExportMetadata> FindExportedVariables() => Root.VariableDeclarations
-            .Where(v => IsExported(v.DeclaringVariable))
+            .Where(v => v.IsExported())
             .Select(v => new ExportedVariableMetadata(v.Name, v.Type, DescriptionHelper.TryGetFromDecorator(this, v.DeclaringVariable)));
 
         private IEnumerable<ExportMetadata> FindExportedFunctions() => Root.FunctionDeclarations
-            .Where(f => IsExported(f.DeclaringFunction))
+            .Where(f => f.IsExported())
             .Select(f => new ExportedFunctionMetadata(f.Name,
                 f.Overload.FixedParameters.Select(p => new ExportedFunctionParameterMetadata(p.Name, p.Type, p.Description)).ToImmutableArray(),
                 new(f.Overload.TypeSignatureSymbol, null),
                 DescriptionHelper.TryGetFromDecorator(this, f.DeclaringFunction)));
-
-        private bool IsExported(DecorableSyntax syntax)
-            => SemanticModelHelper.TryGetDecoratorInNamespace(this, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is not null;
 
         private static void TraceBuildOperation(BicepSourceFile sourceFile, IFeatureProvider features, RootConfiguration configuration)
         {

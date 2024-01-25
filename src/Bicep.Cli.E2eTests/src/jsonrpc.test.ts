@@ -12,11 +12,11 @@ import { pathToExampleFile, writeTempFile } from "./utils/fs";
 import { compileParamsRequestType, compileRequestType, getDeploymentGraphRequestType, getFileReferencesRequestType, getMetadataRequestType, openConnection, versionRequestType } from "./utils/jsonrpc";
 import path from "path";
 
-let connection: MessageConnection;
-beforeAll(async () => (connection = await openConnection()));
-afterAll(() => connection.dispose());
-
 describe("bicep jsonrpc", () => {
+  let connection: MessageConnection;
+  beforeAll(async () => (connection = await openConnection()));
+  afterAll(() => connection.dispose());
+
   it("should return a version number", async () => {
     const result = await version(connection);
 
@@ -41,23 +41,23 @@ describe("bicep jsonrpc", () => {
         foo: "OVERIDDEN",
       }
     );
-    
+
     expect(result.success).toBeTruthy();
     expect(result.parameters?.length).toBeGreaterThan(0);
     expect(JSON.parse(result.parameters!).parameters.foo.value).toBe('OVERIDDEN');
   });
 
   it("should return a deployment graph", async () => {
-    const bicepPath = writeTempFile("jsonrpc", "metadata.bicep", `
+    const bicepPath = writeTempFile("jsonrpc-graph", "metadata.bicep", `
     resource foo 'My.Rp/foo@2020-01-01' = {
       name: 'foo'
     }
-    
+
     resource bar 'My.Rp/foo@2020-01-01' existing = {
       name: 'bar'
       dependsOn: [foo]
     }
-    
+
     resource baz 'My.Rp/foo@2020-01-01' = {
       name: 'baz'
       dependsOn: [bar]
@@ -71,25 +71,38 @@ describe("bicep jsonrpc", () => {
   });
 
   it("should return diagnostics if the bicep file has errors", async () => {
-    const result = await compile(
-      connection,
-      pathToExampleFile("101", "aks.prod", "flawed.bicep"),
-    );
+    const filePath = pathToExampleFile("101", "aks.prod", "flawed.bicep");
+    const result = await compile(connection, filePath);
 
     expect(result.success).toBeFalsy();
     expect(result.contents).toBeUndefined();
+
     const error = result.diagnostics.filter(x => x.level === 'Error')[0];
-    expect(error.code).toBe('BCP057')
-    expect(error.message).toBe('The name "osDiskSizeGb" does not exist in the current context.');
+    expect(error).toEqual({
+      source: filePath,
+      range: { end: { char: 34, line: 32 }, start: { char: 22, line: 32 } },
+      level: 'Error',
+      code: 'BCP057',
+      message: 'The name "osDiskSizeGb" does not exist in the current context.',
+    });
   });
 
   it("should return metadata for a bicep file", async () => {
-    const bicepPath = writeTempFile("jsonrpc", "metadata.bicep", `
+    writeTempFile("jsonrpc-metadata", "bicepconfig.json", `{
+      "experimentalFeaturesEnabled": {
+        "compileTimeImports": true
+      }
+    }`);
+    const bicepPath = writeTempFile("jsonrpc-metadata", "metadata.bicep", `
     metadata description = 'my file'
+
+    @export()
+    @description('baz type')
+    type baz = {}
 
     @description('foo param')
     param foo string
-    
+
     @description('bar output')
     output bar string = foo
     `);
@@ -99,32 +112,45 @@ describe("bicep jsonrpc", () => {
       bicepPath);
 
     expect(result.metadata.filter(x => x.name === 'description')[0].value).toEqual('my file');
-    expect(result.parameters.filter(x => x.name === 'foo')[0].description).toEqual('foo param');
-    expect(result.outputs.filter(x => x.name === 'bar')[0].description).toEqual('bar output');
+    expect(result.parameters.filter(x => x.name === 'foo')[0]).toEqual({
+      description: "foo param",
+      name: "foo",
+      range: {end: {char: 20, line: 8}, start: {char: 4, line: 7}},
+      type: {name: "string"}});
+    expect(result.outputs.filter(x => x.name === 'bar')[0]).toEqual({
+      description: "bar output",
+      name: "bar",
+      range: {end: {char: 27, line: 11}, start: {char: 4, line: 10}},
+      type: {name: "string"}});
+    expect(result.exports.filter(x => x.name === 'baz')[0]).toEqual({
+      description: "baz type",
+      kind: "TypeAlias",
+      name: "baz",
+      range: {end: {char: 17, line: 5}, start: {char: 4, line: 3}}});
   });
 
   it("should return file references for a bicep file", async () => {
-    const bicepParamPath = writeTempFile("jsonrpc", "main.bicepparam", `
+    const bicepParamPath = writeTempFile("jsonrpc-refs", "main.bicepparam", `
 using 'main.bicep'
 
 param foo = 'foo'
 `);
-    writeTempFile("jsonrpc", "main.bicep", `
+    writeTempFile("jsonrpc-refs", "main.bicep", `
 param foo string
 
 var test = loadTextContent('invalid.txt')
 var test2 = loadTextContent('valid.txt')
 `);
-    writeTempFile("jsonrpc", "valid.txt", `
+    writeTempFile("jsonrpc-refs", "valid.txt", `
 hello!
 `);
-    writeTempFile("jsonrpc", "bicepconfig.json", `
+    writeTempFile("jsonrpc-refs", "bicepconfig.json", `
 {}
 `);
 
     const result = await getFileReferences(
       connection,
-      bicepParamPath); 
+      bicepParamPath);
 
     expect(result.filePaths).toEqual([
       path.join(bicepParamPath, '../bicepconfig.json'),

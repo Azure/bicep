@@ -81,6 +81,7 @@ interface CompileParamsResponse {
 }
 
 interface CompileResponseDiagnostic {
+  source: string;
   range: Range;
   level: string;
   code: string;
@@ -93,8 +94,9 @@ interface GetMetadataRequest {
 
 interface GetMetadataResponse {
   metadata: MetadataDefinition[];
-  parameters: ParamDefinition[];
-  outputs: ParamDefinition[];
+  parameters: SymbolDefinition[];
+  outputs: SymbolDefinition[];
+  exports: ExportDefinition[];
 }
 
 interface MetadataDefinition {
@@ -102,10 +104,17 @@ interface MetadataDefinition {
   value: string;
 }
 
-interface ParamDefinition {
+interface SymbolDefinition {
   range: Range;
   name: string;
   type?: TypeDefinition;
+  description?: string;
+}
+
+interface ExportDefinition {
+  range: Range;
+  name: string;
+  kind: string;
   description?: string;
 }
 

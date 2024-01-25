@@ -116,6 +116,8 @@ param inlineType {
 
 param declaredType asdf
 
+@export()
+@description('asdf type')
 type asdf = {
   foo: string
 }
@@ -126,7 +128,7 @@ output bar string = foo
         });
 
         await RunServerTest(
-            services => services.WithFileSystem(fileSystem),
+            services => services.WithFileSystem(fileSystem).WithFeatureOverrides(new(CompileTimeImportsEnabled: true)),
             async (client, token) =>
             {
                 var response = await client.GetMetadata(new("/main.bicep"), token);
@@ -136,10 +138,13 @@ output bar string = foo
                 response.Parameters.Should().Equal(new GetMetadataResponse.SymbolDefinition[] {
                     new(new(new(2, 0), new(3, 16)), "foo", new(null, "string"), "foo param"),
                     new(new(new(5, 0), new(7, 1)), "inlineType", new(null, "{ sdf: string }"), null),
-                    new(new(new(9, 0), new(9, 23)), "declaredType", new(new(new(11, 0), new(13, 1)), "asdf"), null),
+                    new(new(new(9, 0), new(9, 23)), "declaredType", new(new(new(11, 0), new(15, 1)), "asdf"), null),
                 });
                 response.Outputs.Should().Equal(new GetMetadataResponse.SymbolDefinition[] {
-                    new(new(new(15, 0), new(16, 23)), "bar", new(null, "string"), "bar output"),
+                    new(new(new(17, 0), new(18, 23)), "bar", new(null, "string"), "bar output"),
+                });
+                response.Exports.Should().Equal(new GetMetadataResponse.ExportDefinition[] {
+                    new(new(new(11, 0), new(15, 1)), "asdf", "TypeAlias", "asdf type"),
                 });
             });
     }

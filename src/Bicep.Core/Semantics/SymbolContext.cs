@@ -24,6 +24,8 @@ namespace Bicep.Core.Semantics
 
         public BicepSourceFile SourceFile => WithLockCheck(() => this.semanticModel.SourceFile);
 
+        public SemanticModel SemanticModel => WithLockCheck(() => this.semanticModel);
+
         public void Unlock() => this.unlocked = true;
 
         private T WithLockCheck<T>(Func<T> getFunc)
