@@ -19,9 +19,9 @@
       },
       "JsonSchema.Net": {
         "type": "Direct",
-        "requested": "[5.4.2, )",
-        "resolved": "5.4.2",
-        "contentHash": "NJyauE2/u877WaRCe01OkX7IIAStYrFmoVwAj4nPqaMwxXzu+vdbXB/ZzEYaLh5dVdJfB28N0txTI+RGQWYolA==",
+        "requested": "[5.5.1, )",
+        "resolved": "5.5.1",
+        "contentHash": "vAsyJf7r3Hi+elc0Cf4lZ93puqluLPhN4m3pH5r3UiP42n63jfmSVFFsRHD52hK25INqnFh/dXpF38cPIMgotA==",
         "dependencies": {
           "JetBrains.Annotations": "2021.2.0",
           "Json.More.Net": "1.9.0",
