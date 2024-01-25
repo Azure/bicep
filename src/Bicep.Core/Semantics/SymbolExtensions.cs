@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using static Bicep.Core.Semantics.FunctionOverloadBuilder;
@@ -89,5 +90,13 @@ namespace Bicep.Core.Semantics
 
         public static string? TryGetDescriptionFromDecorator(this DeclaredSymbol symbol)
             => symbol.DeclaringSyntax is DecorableSyntax decorableSyntax ? DescriptionHelper.TryGetFromDecorator(symbol.Context.Compilation.GetSemanticModel(symbol.Context.SourceFile), decorableSyntax) : null;
+
+        public static DecoratorSyntax? TryGetDecorator(this Symbol symbol, string @namespace, string decoratorName)
+            => symbol is DeclaredSymbol declaredSymbol && declaredSymbol.DeclaringSyntax is DecorableSyntax decorableSyntax ?
+                SemanticModelHelper.TryGetDecoratorInNamespace(declaredSymbol.Context.SemanticModel, decorableSyntax, @namespace, decoratorName) :
+                null;
+
+        public static bool IsExported(this Symbol symbol)
+            => TryGetDecorator(symbol, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is {};
     }
 }

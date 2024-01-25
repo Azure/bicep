@@ -41,6 +41,7 @@ public record CompileParamsResponse(
     string? TemplateSpecId);
 
 public record DiagnosticDefinition(
+    string Source,
     Range Range,
     string Level,
     string Code,
@@ -58,12 +59,19 @@ public record GetMetadataRequest(
 public record GetMetadataResponse(
     ImmutableArray<GetMetadataResponse.MetadataDefinition> Metadata,
     ImmutableArray<GetMetadataResponse.SymbolDefinition> Parameters,
-    ImmutableArray<GetMetadataResponse.SymbolDefinition> Outputs)
+    ImmutableArray<GetMetadataResponse.SymbolDefinition> Outputs,
+    ImmutableArray<GetMetadataResponse.ExportDefinition> Exports)
 {
     public record SymbolDefinition(
         Range Range,
         string Name,
         TypeDefinition? Type,
+        string? Description);
+
+    public record ExportDefinition(
+        Range Range,
+        string Name,
+        string Kind,
         string? Description);
 
     public record TypeDefinition(

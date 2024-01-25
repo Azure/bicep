@@ -10,6 +10,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
@@ -108,9 +109,17 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         var metadata = GetModelMetadata(model).ToImmutableArray();
         var parameters = model.Root.ParameterDeclarations.Select(x => GetSymbolDefinition(model, x)).ToImmutableArray();
         var outputs = model.Root.OutputDeclarations.Select(x => GetSymbolDefinition(model, x)).ToImmutableArray();
+        var exports = model.Root.Declarations.Where(x => x.IsExported()).Select(x => GetExportDefinition(model, x)).ToImmutableArray();
 
-        return new(metadata, parameters, outputs);
+        return new(metadata, parameters, outputs, exports);
     }
+
+    private static GetMetadataResponse.ExportDefinition GetExportDefinition(SemanticModel model, DeclaredSymbol symbol)
+        => new(
+            GetRange(model.SourceFile, symbol.DeclaringSyntax),
+            symbol.Name,
+            symbol.Kind.ToString(),
+            symbol.TryGetDescriptionFromDecorator());
 
     private static GetMetadataResponse.SymbolDefinition GetSymbolDefinition(SemanticModel model, DeclaredSymbol symbol)
     {
@@ -210,7 +219,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         {
             foreach (var diagnostic in diagnostics)
             {
-                yield return new(GetRange(bicepFile, diagnostic), diagnostic.Level.ToString(), diagnostic.Code, diagnostic.Message);
+                yield return new(bicepFile.FileUri.LocalPath, GetRange(bicepFile, diagnostic), diagnostic.Level.ToString(), diagnostic.Code, diagnostic.Message);
             }
         }
     }
