@@ -7,9 +7,7 @@ using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Configuration;
 
-public record ProvidersConfigurationSection(ImmutableSortedDictionary<string, ProviderDescriptor> Providers) { }
-
-public record ProviderDescriptor(bool IsDefaultImport, ProviderSource? Source) { }
+public record ProvidersConfigurationSection(ImmutableSortedDictionary<string, ProviderSource> Providers) { }
 
 public record ProviderSource(bool Builtin, string? Registry, string? Version) { }
 
@@ -17,8 +15,7 @@ public partial class ProvidersConfiguration : ConfigurationSection<ProvidersConf
 {
     private readonly string? configurationPath;
 
-    private ProvidersConfiguration(ProvidersConfigurationSection data, string? configurationPath)
-                : base(data)
+    private ProvidersConfiguration(ProvidersConfigurationSection data, string? configurationPath): base(data)
     {
         this.configurationPath = configurationPath;
     }
