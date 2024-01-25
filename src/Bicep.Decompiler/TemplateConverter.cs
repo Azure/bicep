@@ -1419,13 +1419,27 @@ namespace Bicep.Decompiler
             }
         }
 
+        private JObject ExpectObject(JToken jToken)
+        {
+            if (jToken is JObject jObject)
+            {
+                return jObject;
+            }
+            else if (jToken is JValue jValue && jValue.Type == JTokenType.String && (jValue.Value as string ?? string.Empty).StartsWith("["))
+            {
+                throw new ConversionFailedException($"Expected to find an object, but found an expression. This is not currently supported by the decompiler.", jValue);
+            }
+
+            throw new ConversionFailedException($"Expected to find an object, but found: {jToken}", jToken);
+        }
+
         private ObjectSyntax ProcessModuleBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource)
         {
             var parameters = (resource["properties"]?["parameters"] as JObject)?.Properties() ?? Enumerable.Empty<JProperty>();
             var paramProperties = new List<ObjectPropertySyntax>();
             foreach (var param in parameters)
             {
-                if (param.Value["reference"] is { } referenceValue)
+                if (ExpectObject(param.Value)["reference"] is { } referenceValue)
                 {
                     throw new ConversionFailedException($"Failed to convert parameter \"{param.Name}\": KeyVault secret references are not currently supported by the decompiler.", referenceValue);
                 }

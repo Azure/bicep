@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Primary location for all resources e.g. eastus"
+      }
+    }
+  },
+  "variables": {
+    "$fxv#0": {
+      "networkVirtualNetworks": "vnet-",
+      "networkVirtualNetworksSubnets": "snet-",
+      "networkConnections": "con-",
+      "devcenter": "dc-",
+      "devcenterProject": "dcprj-",
+      "devcenterNetworkingResourceGroup": "ni-",
+      "keyvault": "kv-",
+      "computeGalleries": "gal",
+      "managedIdentityUserAssignedIdentities": "id-"
+    },
+    "networkSubnetName": "default",
+    "abbrs": "[variables('$fxv#0')]",
+    "resourceToken": "[toLower(uniqueString(resourceGroup().id, parameters('location')))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "vnet",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "subnetName": "[if(not(empty(variables('networkSubnetName'))), createObject('value', variables('networkSubnetName')), createObject('value', format('{0}{1}', variables('abbrs'), variables('resourceToken'))))]"
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"
+        }
+      }
+    }
+  ]
+}
