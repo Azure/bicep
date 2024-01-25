@@ -4,11 +4,11 @@
     "net8.0": {
       "BenchmarkDotNet": {
         "type": "Direct",
-        "requested": "[0.13.11, )",
-        "resolved": "0.13.11",
-        "contentHash": "BSsrfesUFgrjy/MtlupiUrZKgcBCCKmFXmNaVQLrBCs0/2iE/qH1puN7lskTE9zM0+MdiCr09zKk6MXKmwmwxw==",
+        "requested": "[0.13.12, )",
+        "resolved": "0.13.12",
+        "contentHash": "aKnzpUZJJfLBHG7zcfQZhCexZQKcJgElC8qcFUTXPMYFlVauJBobuOmtRnmrapqC2j7EjjZCsPxa3yLvFLx5/Q==",
         "dependencies": {
-          "BenchmarkDotNet.Annotations": "0.13.11",
+          "BenchmarkDotNet.Annotations": "0.13.12",
           "CommandLineParser": "2.9.1",
           "Gee.External.Capstone": "2.3.0",
           "Iced": "1.17.0",
@@ -173,8 +173,8 @@
       },
       "BenchmarkDotNet.Annotations": {
         "type": "Transitive",
-        "resolved": "0.13.11",
-        "contentHash": "JOX+Bhp+PNnAtu/er9iGiN8QRIrYzilxUcJbwrF8VYyTNE8r4jlewa17/FbW1G7Jp2JUZwVS1A8a0bGILKhikw=="
+        "resolved": "0.13.12",
+        "contentHash": "4zmFOOJqW1GrEP/t5XKgh97LH9r6zixGy2IA0JAaoTNNnZ8kPBt9u/XagsGNyV0e7rglOpFcWc6wI5EjefKpKA=="
       },
       "Castle.Core": {
         "type": "Transitive",
