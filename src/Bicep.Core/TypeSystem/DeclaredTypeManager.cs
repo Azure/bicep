@@ -367,7 +367,8 @@ namespace Bicep.Core.TypeSystem
                 return errorType;
             }
 
-            return TypeFactory.CreateStringType(minLength, maxLength, validationFlags);
+            // TODO regex/pattern validation is still experimental in ARM and not yet implemented for user-defined types in Bicep
+            return TypeFactory.CreateStringType(minLength, maxLength, pattern: null, validationFlags);
         }
 
         private bool GetLengthModifiers(DecorableSyntax syntax, long? defaultMinLength, long? defaultMaxLength, out long? minLength, out long? maxLength, [NotNullWhen(false)] out ErrorType? error)

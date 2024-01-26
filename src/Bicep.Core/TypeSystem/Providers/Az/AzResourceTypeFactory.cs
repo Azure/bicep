@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Text;
+using System.Text.RegularExpressions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
@@ -19,7 +22,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         public ResourceTypeComponents GetResourceType(Azure.Bicep.Types.Concrete.ResourceType resourceType, IEnumerable<FunctionOverload> resourceFunctions)
         {
             var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
-            var bodyType = GetTypeSymbol(resourceType.Body.Type, isResourceBodyType: true, isResourceBodyTopLevelPropertyType: false);
+            var bodyType = GetResourceBodyType(resourceType, resourceTypeReference);
             var assertsProperty = new TypeProperty(LanguageConstants.ResourceAssertPropertyName, AzResourceTypeProvider.ResourceAsserts);
             // DeclaredResourceMetadata.TypeReference.FormatType()
             if (bodyType is ObjectType objectType)
@@ -67,6 +70,54 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             return new TypeProperty(name, GetTypeReference(input.Type, isResourceBodyType: false, isResourceBodyTopLevelPropertyType), GetTypePropertyFlags(input), input.Description);
         }
 
+        private TypeSymbol GetResourceBodyType(Azure.Bicep.Types.Concrete.ResourceType resourceType, ResourceTypeReference resourceTypeReference)
+        {
+            var bodyType = resourceType.Body.Type;
+
+            // ARM and Bicep allow for hierarchical names ("<parent name>/<resource name>"), but the pattern provided in the RP swagger (if any)
+            // will only reflect the expected pattern for the last segment of such a name.
+            if (resourceTypeReference.TypeSegments.Length > 2 &&
+                bodyType is Azure.Bicep.Types.Concrete.ObjectType bodyObject &&
+                bodyObject.Properties.TryGetValue("name", out var nameProperty) &&
+                nameProperty.Type.Type is Azure.Bicep.Types.Concrete.StringType nameStringType &&
+                nameStringType.Pattern is not null)
+            {
+                var (patternString, prependStartAnchor) = nameStringType.Pattern.FirstOrDefault() switch
+                {
+                    '^' => (nameStringType.Pattern[1..], true),
+                    _ => (nameStringType.Pattern, false),
+                };
+                StringBuilder patternBuilder = new();
+                if (prependStartAnchor)
+                {
+                    patternBuilder.Append('^');
+                }
+                patternBuilder.Append("(?:");
+                for (int i = 2; i < resourceTypeReference.TypeSegments.Length; i++)
+                {
+                    patternBuilder.Append("[^/]+/");
+                }
+                patternBuilder.Append(")?").Append(patternString);
+
+                bodyType = new Azure.Bicep.Types.Concrete.ObjectType(bodyObject.Name,
+                    bodyObject.Properties.Where(p => !p.Key.Equals("name"))
+                        .Append(new("name", new(
+                            new ConcreteTypeReference(new Azure.Bicep.Types.Concrete.StringType(nameStringType.Sensitive,
+                                nameStringType.MinLength,
+                                nameStringType.MaxLength,
+                                patternBuilder.ToString())),
+                            nameProperty.Flags,
+                            nameProperty.Description)))
+                        .ToDictionary(p => p.Key, p => p.Value),
+                    bodyObject.AdditionalProperties,
+                    bodyObject.Sensitive);
+            }
+
+            return GetTypeSymbol(bodyType, isResourceBodyType: true, isResourceBodyTopLevelPropertyType: false);
+        }
+
+        private record ConcreteTypeReference(Azure.Bicep.Types.Concrete.TypeBase Type) : Azure.Bicep.Types.Concrete.ITypeReference;
+
         private static TypePropertyFlags GetTypePropertyFlags(Azure.Bicep.Types.Concrete.ObjectTypeProperty input)
         {
             var flags = TypePropertyFlags.None;
@@ -113,6 +164,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 case Azure.Bicep.Types.Concrete.StringType @string:
                     return TypeFactory.CreateStringType(@string.MinLength,
                         @string.MaxLength,
+                        GetPatternRegex(@string),
                         GetValidationFlags(isResourceBodyType, isResourceBodyTopLevelPropertyType));
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
                     return builtInType.Kind switch
@@ -226,6 +278,23 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             }
 
             return flags;
+        }
+
+        private static Regex? GetPatternRegex(Azure.Bicep.Types.Concrete.StringType @string)
+        {
+            if (@string.Pattern is string pattern)
+            {
+                if (TypeHelper.TryGetRegexForPattern(pattern) is Regex parsed)
+                {
+                    return parsed;
+                }
+                else
+                {
+                    Trace.WriteLine($"Unable to parse provider-supplied regular expression '{pattern}'. Does this pattern use regex features incompatible with a non-backtracking engine?");
+                }
+            }
+
+            return null;
         }
 
         private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceFlags input)

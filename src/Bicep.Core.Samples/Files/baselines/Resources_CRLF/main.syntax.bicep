@@ -1,5 +1,5 @@
 
-//@[000:13313) ProgramSyntax
+//@[000:13491) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 @sys.description('this is basicStorage')
 //@[000:00225) ├─ResourceDeclarationSyntax
@@ -2146,8 +2146,8 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
-//@[003:00005) ├─Token(NewLine) |\r\n|
+*/
+//@[002:00004) ├─Token(NewLine) |\r\n|
 var storageAccounts = [
 //@[000:00129) ├─VariableDeclarationSyntax
 //@[000:00003) | ├─Token(Identifier) |var|
@@ -2422,7 +2422,7 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 // basic nested loop
 //@[020:00022) ├─Token(NewLine) |\r\n|
 @sys.description('this is just a basic nested loop')
-//@[000:00399) ├─ResourceDeclarationSyntax
+//@[000:00394) ├─ResourceDeclarationSyntax
 //@[000:00052) | ├─DecoratorSyntax
 //@[000:00001) | | ├─Token(At) |@|
 //@[001:00052) | | └─InstanceFunctionCallSyntax
@@ -2445,7 +2445,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[014:00060) | ├─StringSyntax
 //@[014:00060) | | └─Token(StringComplete) |'Microsoft.Network/virtualNetworks@2020-06-01'|
 //@[061:00062) | ├─Token(Assignment) |=|
-//@[063:00345) | └─ForSyntax
+//@[063:00340) | └─ForSyntax
 //@[063:00064) |   ├─Token(LeftSquare) |[|
 //@[064:00067) |   ├─Token(Identifier) |for|
 //@[068:00069) |   ├─LocalVariableSyntax
@@ -2465,7 +2465,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[082:00083) |   | |   └─Token(Integer) |3|
 //@[083:00084) |   | └─Token(RightParen) |)|
 //@[084:00085) |   ├─Token(Colon) |:|
-//@[086:00344) |   ├─ObjectSyntax
+//@[086:00339) |   ├─ObjectSyntax
 //@[086:00087) |   | ├─Token(LeftBrace) |{|
 //@[087:00089) |   | ├─Token(NewLine) |\r\n|
   name: 'vnet-${i}'
@@ -2481,19 +2481,19 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[017:00019) |   | |   └─Token(StringRightPiece) |}'|
 //@[019:00021) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[002:00231) |   | ├─ObjectPropertySyntax
+//@[002:00226) |   | ├─ObjectPropertySyntax
 //@[002:00012) |   | | ├─IdentifierSyntax
 //@[002:00012) |   | | | └─Token(Identifier) |properties|
 //@[012:00013) |   | | ├─Token(Colon) |:|
-//@[014:00231) |   | | └─ObjectSyntax
+//@[014:00226) |   | | └─ObjectSyntax
 //@[014:00015) |   | |   ├─Token(LeftBrace) |{|
 //@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     subnets: [for j in range(0, 4): {
-//@[004:00209) |   | |   ├─ObjectPropertySyntax
+//@[004:00204) |   | |   ├─ObjectPropertySyntax
 //@[004:00011) |   | |   | ├─IdentifierSyntax
 //@[004:00011) |   | |   | | └─Token(Identifier) |subnets|
 //@[011:00012) |   | |   | ├─Token(Colon) |:|
-//@[013:00209) |   | |   | └─ForSyntax
+//@[013:00204) |   | |   | └─ForSyntax
 //@[013:00014) |   | |   |   ├─Token(LeftSquare) |[|
 //@[014:00017) |   | |   |   ├─Token(Identifier) |for|
 //@[018:00019) |   | |   |   ├─LocalVariableSyntax
@@ -2513,13 +2513,12 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[032:00033) |   | |   |   | |   └─Token(Integer) |4|
 //@[033:00034) |   | |   |   | └─Token(RightParen) |)|
 //@[034:00035) |   | |   |   ├─Token(Colon) |:|
-//@[036:00208) |   | |   |   ├─ObjectSyntax
+//@[036:00203) |   | |   |   ├─ObjectSyntax
 //@[036:00037) |   | |   |   | ├─Token(LeftBrace) |{|
 //@[037:00039) |   | |   |   | ├─Token(NewLine) |\r\n|
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-//@[062:00064) |   | |   |   | ├─Token(NewLine) |\r\n|
-     
-//@[005:00007) |   | |   |   | ├─Token(NewLine) |\r\n|
+//@[062:00066) |   | |   |   | ├─Token(NewLine) |\r\n\r\n|
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
 //@[059:00061) |   | |   |   | ├─Token(NewLine) |\r\n|
       name: 'subnet-${i}-${j}'
@@ -4061,4 +4060,64 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
-//@[001:00001) └─Token(EndOfFile) ||
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
+
+resource withInvalidName 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+//@[000:00178) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00024) | ├─IdentifierSyntax
+//@[009:00024) | | └─Token(Identifier) |withInvalidName|
+//@[025:00071) | ├─StringSyntax
+//@[025:00071) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[072:00073) | ├─Token(Assignment) |=|
+//@[074:00178) | └─ObjectSyntax
+//@[074:00075) |   ├─Token(LeftBrace) |{|
+//@[075:00077) |   ├─Token(NewLine) |\r\n|
+  name: 'a-b'
+//@[002:00013) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00013) |   | └─StringSyntax
+//@[008:00013) |   |   └─Token(StringComplete) |'a-b'|
+//@[013:00015) |   ├─Token(NewLine) |\r\n|
+  location: 'eastus2'
+//@[002:00021) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00021) |   | └─StringSyntax
+//@[012:00021) |   |   └─Token(StringComplete) |'eastus2'|
+//@[021:00023) |   ├─Token(NewLine) |\r\n|
+  kind: 'StorageV2'
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00019) |   | └─StringSyntax
+//@[008:00019) |   |   └─Token(StringComplete) |'StorageV2'|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
+  sku: {
+//@[002:00039) |   ├─ObjectPropertySyntax
+//@[002:00005) |   | ├─IdentifierSyntax
+//@[002:00005) |   | | └─Token(Identifier) |sku|
+//@[005:00006) |   | ├─Token(Colon) |:|
+//@[007:00039) |   | └─ObjectSyntax
+//@[007:00008) |   |   ├─Token(LeftBrace) |{|
+//@[008:00010) |   |   ├─Token(NewLine) |\r\n|
+    name: 'Standard_LRS'
+//@[004:00024) |   |   ├─ObjectPropertySyntax
+//@[004:00008) |   |   | ├─IdentifierSyntax
+//@[004:00008) |   |   | | └─Token(Identifier) |name|
+//@[008:00009) |   |   | ├─Token(Colon) |:|
+//@[010:00024) |   |   | └─StringSyntax
+//@[010:00024) |   |   |   └─Token(StringComplete) |'Standard_LRS'|
+//@[024:00026) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
+
+//@[000:00000) └─Token(EndOfFile) ||

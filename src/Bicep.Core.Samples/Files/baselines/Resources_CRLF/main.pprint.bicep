@@ -533,3 +533,12 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
     location: 'polandcentral'
   }
 }
+
+resource withInvalidName 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'a-b'
+  location: 'eastus2'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}

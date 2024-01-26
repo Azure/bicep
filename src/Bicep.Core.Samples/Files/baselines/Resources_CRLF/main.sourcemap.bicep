@@ -619,7 +619,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
 //@    "storageAccounts": [
 //@    ],
@@ -726,7 +726,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@            }
 //@          }
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
 //@              "name": "[format('subnet-{0}-{1}', range(0, 3)[copyIndex()], range(0, 4)[copyIndex('subnets')])]"
@@ -1151,7 +1151,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@      "type": "Microsoft.Sql/servers",
 //@      "apiVersion": "2021-11-01",
 //@      "name": "sql-server-name",
-//@    }
+//@    },
   name: 'sql-server-name'
   location: 'polandcentral'
 //@      "location": "polandcentral"
@@ -1199,3 +1199,23 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@      "location": "polandcentral",
   }
 }
+
+resource withInvalidName 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+//@    {
+//@      "type": "Microsoft.Storage/storageAccounts",
+//@      "apiVersion": "2023-01-01",
+//@      "name": "a-b",
+//@    }
+  name: 'a-b'
+  location: 'eastus2'
+//@      "location": "eastus2",
+  kind: 'StorageV2'
+//@      "kind": "StorageV2",
+  sku: {
+//@      "sku": {
+//@      }
+    name: 'Standard_LRS'
+//@        "name": "Standard_LRS"
+  }
+}
+

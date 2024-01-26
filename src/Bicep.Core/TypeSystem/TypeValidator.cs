@@ -535,6 +535,12 @@ namespace Bicep.Core.TypeSystem
                             long.MaxValue => null,
                             long otherwise => otherwise,
                         },
+                        // TODO while it is theoretically possible to determine if two regular expression constraints are disjoint and/or narrow them, it's not
+                        // easy. Like with validation flags, prefer whatever is set on the (string-typed) target, falling back to whatever is set on the source
+                        // if the target has no pattern constraint. Determining which of two regular expressions is more restrictive and/or calculating the
+                        // overlap between them is left as an exercise for future contributors. (See https://www.microsoft.com/en-us/research/wp-content/uploads/2010/04/rex-ICST.pdf
+                        // (DOI 10.1109/ICST.2010.15) for a discussion of how this might be done.)
+                        pattern: targetType.Pattern ?? expressionString.Pattern,
                         validationFlags: targetType.ValidationFlags);
                 case StringLiteralType expressionStringLiteral:
                     if (targetType.MaxLength.HasValue && expressionStringLiteral.RawStringValue.Length > targetType.MaxLength.Value)
@@ -550,6 +556,14 @@ namespace Bicep.Core.TypeSystem
                             shouldWarn,
                             expressionStringLiteral.RawStringValue.Length,
                             targetType.MinLength.Value));
+                    }
+
+                    if (targetType.Pattern is not null && !targetType.Pattern.IsMatch(expressionStringLiteral.RawStringValue))
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(expression).ExpressionDoesNotMatchTargetRegex(
+                            shouldWarn,
+                            expressionStringLiteral.RawStringValue,
+                            targetType.Pattern.ToString()));
                     }
 
                     // if a literal was assignable to a string-typed target, the literal will always be the most narrow type

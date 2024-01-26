@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
 using Bicep.Core.TypeSystem.Types;
 
@@ -78,17 +79,20 @@ internal static class TypeCollapser
         {
             private readonly RefinementSpanCollapser spanCollapser = new();
             private readonly HashSet<StringLiteralType> stringLiterals = new();
+            private Regex? pattern;
             private bool nullable;
 
             internal StringCollapse(StringLiteralType stringLiteral, bool nullable)
             {
                 stringLiterals.Add(stringLiteral);
+                this.pattern = null;
                 this.nullable = nullable;
             }
 
             internal StringCollapse(StringType @string, bool nullable)
             {
                 spanCollapser.PushSpan(RefinementSpan.For(@string));
+                this.pattern = @string.Pattern;
                 this.nullable = nullable;
             }
 
@@ -107,6 +111,7 @@ internal static class TypeCollapser
                             long.MaxValue => null,
                             long otherwise => otherwise,
                         },
+                        pattern,
                         span.Flags))),
                 nullable);
 
@@ -116,9 +121,11 @@ internal static class TypeCollapser
                 {
                     case StringLiteralType literal:
                         stringLiterals.Add(literal);
+                        this.pattern = null;
                         return this;
                     case StringType @string:
                         spanCollapser.PushSpan(RefinementSpan.For(@string));
+                        this.pattern = null;
                         return this;
                     case NullType:
                         nullable = true;

@@ -1,5 +1,5 @@
 
-//@[000:13313) ProgramExpression
+//@[000:13491) ProgramExpression
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -800,7 +800,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
 //@[000:00129) ├─DeclaredVariableExpression { Name = storageAccounts }
 //@[022:00129) | └─ArrayExpression
@@ -892,35 +892,35 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 
 // basic nested loop
 @sys.description('this is just a basic nested loop')
-//@[000:00399) ├─DeclaredResourceExpression
+//@[000:00394) ├─DeclaredResourceExpression
 //@[017:00051) | ├─StringLiteralExpression { Value = this is just a basic nested loop }
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[063:00345) | └─ForLoopExpression
+//@[063:00340) | └─ForLoopExpression
 //@[073:00084) |   ├─FunctionCallExpression { Name = range }
 //@[079:00080) |   | ├─IntegerLiteralExpression { Value = 0 }
 //@[082:00083) |   | └─IntegerLiteralExpression { Value = 3 }
-//@[086:00344) |   └─ObjectExpression
+//@[086:00339) |   └─ObjectExpression
 //@[073:00084) |                   | └─FunctionCallExpression { Name = range }
 //@[079:00080) |                   |   ├─IntegerLiteralExpression { Value = 0 }
 //@[082:00083) |                   |   └─IntegerLiteralExpression { Value = 3 }
   name: 'vnet-${i}'
   properties: {
-//@[002:00231) |     └─ObjectPropertyExpression
+//@[002:00226) |     └─ObjectPropertyExpression
 //@[002:00012) |       ├─StringLiteralExpression { Value = properties }
-//@[014:00231) |       └─ObjectExpression
+//@[014:00226) |       └─ObjectExpression
     subnets: [for j in range(0, 4): {
-//@[004:00209) |         └─ObjectPropertyExpression
+//@[004:00204) |         └─ObjectPropertyExpression
 //@[004:00011) |           ├─StringLiteralExpression { Value = subnets }
-//@[013:00209) |           └─ForLoopExpression
+//@[013:00204) |           └─ForLoopExpression
 //@[023:00034) |             ├─FunctionCallExpression { Name = range }
 //@[029:00030) |             | ├─IntegerLiteralExpression { Value = 0 }
 //@[032:00033) |             | └─IntegerLiteralExpression { Value = 4 }
-//@[036:00208) |             └─ObjectExpression
+//@[036:00203) |             └─ObjectExpression
 //@[023:00034) |                     └─FunctionCallExpression { Name = range }
 //@[029:00030) |                       ├─IntegerLiteralExpression { Value = 0 }
 //@[032:00033) |                       └─IntegerLiteralExpression { Value = 4 }
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
 //@[006:00030) |               └─ObjectPropertyExpression
@@ -1378,3 +1378,27 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[014:00029) | |   └─StringLiteralExpression { Value = polandcentral }
   }
 }
+
+resource withInvalidName 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+//@[000:00178) ├─DeclaredResourceExpression
+//@[074:00178) | └─ObjectExpression
+  name: 'a-b'
+  location: 'eastus2'
+//@[002:00021) |   ├─ObjectPropertyExpression
+//@[002:00010) |   | ├─StringLiteralExpression { Value = location }
+//@[012:00021) |   | └─StringLiteralExpression { Value = eastus2 }
+  kind: 'StorageV2'
+//@[002:00019) |   ├─ObjectPropertyExpression
+//@[002:00006) |   | ├─StringLiteralExpression { Value = kind }
+//@[008:00019) |   | └─StringLiteralExpression { Value = StorageV2 }
+  sku: {
+//@[002:00039) |   └─ObjectPropertyExpression
+//@[002:00005) |     ├─StringLiteralExpression { Value = sku }
+//@[007:00039) |     └─ObjectExpression
+    name: 'Standard_LRS'
+//@[004:00024) |       └─ObjectPropertyExpression
+//@[004:00008) |         ├─StringLiteralExpression { Value = name }
+//@[010:00024) |         └─StringLiteralExpression { Value = Standard_LRS }
+  }
+}
+

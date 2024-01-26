@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
@@ -474,6 +475,22 @@ namespace Bicep.Core.TypeSystem
             }
 
             return builder.WithReturnType(resolver.ResolveResourceDerivedTypes(exportedFunction.Return.TypeReference.Type)).Build();
+        }
+
+        public static Regex? TryGetRegexForPattern(string pattern)
+        {
+            try
+            {
+                // we use RegexOptions.NonBacktracking to ensure consistent performance and avoid catastrophic backtracking, but this evaluation mode does not
+                // support all regular expression features. If the supplied pattern uses backreferences, atomic groups, lookarounds, conditionals, or other
+                // features not supported by a DFA-based regex engine, the constructor will throw an ArgumentException.
+                // see https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-options#nonbacktracking-mode
+                return new Regex(pattern, RegexOptions.NonBacktracking);
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
         }
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)

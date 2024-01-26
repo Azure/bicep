@@ -331,7 +331,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
 //@[04:019) Variable storageAccounts. Type: [object, object]. Declaration start char: 0, length: 129
   {
@@ -375,13 +375,13 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 @sys.description('this is just a basic nested loop')
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[68:069) Local i. Type: int. Declaration start char: 68, length: 1
-//@[09:013) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 399
+//@[09:013) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 394
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
 //@[18:019) Local j. Type: int. Declaration start char: 18, length: 1
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]
@@ -612,3 +612,14 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
     location: 'polandcentral'
   }
 }
+
+resource withInvalidName 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+//@[09:024) Resource withInvalidName. Type: Microsoft.Storage/storageAccounts@2023-01-01. Declaration start char: 0, length: 178
+  name: 'a-b'
+  location: 'eastus2'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+

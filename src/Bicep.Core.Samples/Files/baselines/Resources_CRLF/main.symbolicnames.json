@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5796807527518784233"
+      "templateHash": "11379178888970584044"
     }
   },
   "parameters": {
@@ -679,6 +679,16 @@
       "apiVersion": "2021-11-01",
       "name": "sql-server-name",
       "location": "polandcentral"
+    },
+    "withInvalidName": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2023-01-01",
+      "name": "a-b",
+      "location": "eastus2",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
     }
   },
   "outputs": {

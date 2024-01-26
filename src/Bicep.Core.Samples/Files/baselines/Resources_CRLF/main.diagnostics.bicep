@@ -318,7 +318,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
   {
     name: 'one'
@@ -360,7 +360,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
   properties: {
     subnets: [for j in range(0, 4): {
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]
@@ -554,3 +554,15 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[14:29) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'polandcentral' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'polandcentral'|
   }
 }
+
+resource withInvalidName 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'a-b'
+//@[08:13) [BCP394 (Warning)] The supplied value "a-b" does not match the expected regular expression pattern "^[a-z0-9]+$". (CodeDescription: none) |'a-b'|
+  location: 'eastus2'
+//@[12:21) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus2' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus2'|
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+

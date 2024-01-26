@@ -2146,6 +2146,12 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP393",
                 $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
+
+            public Diagnostic ExpressionDoesNotMatchTargetRegex(bool shouldWarn, string suppliedValue, string targetPattern) => new(
+                TextSpan,
+                shouldWarn ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                "BCP394",
+                $"""The supplied value "{suppliedValue}" does not match the expected regular expression pattern "{targetPattern}".""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

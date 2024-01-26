@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Definitions;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
@@ -88,7 +89,11 @@ public static class ArmTemplateTypeLoader
             return TryGetLiteralUnionType(jArray, t => t.IsTextBasedJTokenType(), b => b.InvalidUnionTypeMember(LanguageConstants.TypeNameString));
         }
 
-        return TypeFactory.CreateStringType(schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value, flags);
+        // Regex validation is still experimental in ARM, so pattern will only be set if an experimental language mode is in use. The working assumption is that
+        // the .NET regex implementation with RegexOptions.NonBacktracking enabled matches the behavior used in the ARM engine, but this has not been fully validated.
+        var pattern = schemaNode.Pattern?.Value is string regexString ? TypeHelper.TryGetRegexForPattern(regexString) : null;
+
+        return TypeFactory.CreateStringType(schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value, pattern, flags);
     }
 
     private static TypeSymbol TryGetLiteralUnionType(JArray allowedValues, Func<JToken, bool> validator, DiagnosticBuilder.ErrorBuilderDelegate diagnosticOnMismatch)

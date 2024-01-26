@@ -289,7 +289,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
   {
     name: 'one'
@@ -330,7 +330,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
   properties: {
     subnets: [for j in range(0, 4): {
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]
@@ -508,5 +508,14 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   resource primaryDb 'databases' = {
     name: 'primary-db'
     location: 'polandcentral'
+  }
+}
+
+resource withInvalidName 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: 'a-b'
+  location: 'eastus2'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
   }
 }

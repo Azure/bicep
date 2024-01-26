@@ -1365,8 +1365,8 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
-//@[003:005) NewLine |\r\n|
+*/
+//@[002:004) NewLine |\r\n|
 var storageAccounts = [
 //@[000:003) Identifier |var|
 //@[004:019) Identifier |storageAccounts|
@@ -1597,9 +1597,8 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[036:037) LeftBrace |{|
 //@[037:039) NewLine |\r\n|
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-//@[062:064) NewLine |\r\n|
-     
-//@[005:007) NewLine |\r\n|
+//@[062:066) NewLine |\r\n\r\n|
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
 //@[059:061) NewLine |\r\n|
       name: 'subnet-${i}-${j}'
@@ -2571,4 +2570,45 @@ resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
 //@[003:005) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:001) EndOfFile ||
+//@[001:005) NewLine |\r\n\r\n|
+
+resource withInvalidName 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+//@[000:008) Identifier |resource|
+//@[009:024) Identifier |withInvalidName|
+//@[025:071) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[072:073) Assignment |=|
+//@[074:075) LeftBrace |{|
+//@[075:077) NewLine |\r\n|
+  name: 'a-b'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'a-b'|
+//@[013:015) NewLine |\r\n|
+  location: 'eastus2'
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:021) StringComplete |'eastus2'|
+//@[021:023) NewLine |\r\n|
+  kind: 'StorageV2'
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'StorageV2'|
+//@[019:021) NewLine |\r\n|
+  sku: {
+//@[002:005) Identifier |sku|
+//@[005:006) Colon |:|
+//@[007:008) LeftBrace |{|
+//@[008:010) NewLine |\r\n|
+    name: 'Standard_LRS'
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:024) StringComplete |'Standard_LRS'|
+//@[024:026) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
+
+//@[000:000) EndOfFile ||
