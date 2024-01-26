@@ -158,10 +158,11 @@ namespace Bicep.Core.Samples
             var result = CompilationHelper.Compile(moduleSource);
             if (result.Template is null)
             {
-                throw new InvalidOperationException($"Module {moduleName} failed to procuce a template.");
+                throw new InvalidOperationException($"Module {moduleName} failed to produce a template.");
             }
 
-            BinaryData? sourcesStream = publishSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(result.Compilation.SourceFileGrouping)) : null;
+            var features = featureProviderFactory.GetFeatureProvider(result.BicepFile.FileUri);
+            BinaryData? sourcesStream = publishSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
             await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, documentationUri);
         }
 

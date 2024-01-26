@@ -84,7 +84,7 @@ public record CachedModule(
 
     public ResultWithException<SourceArchive> TryGetSource()
     {
-        var sourceArchivePath = Path.Combine(ModuleCacheFolder, $"source.tar.gz");
+        var sourceArchivePath = Path.Combine(ModuleCacheFolder, $"source.tgz");
         if (File.Exists(sourceArchivePath))
         {
             return SourceArchive.UnpackFromStream(File.OpenRead(sourceArchivePath));

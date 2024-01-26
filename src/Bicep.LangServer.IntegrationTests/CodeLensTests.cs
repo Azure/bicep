@@ -33,6 +33,12 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+#if WINDOWS_BUILD
+    private const string ROOT = "c:\\";
+#else
+        private const string ROOT = "/";
+#endif
+
         public static string GetDisplayName(MethodInfo info, object[] row)
         {
             row.Should().HaveCount(3);
@@ -50,7 +56,7 @@ namespace Bicep.LangServer.IntegrationTests
             if (bicepModuleEntrypoint is not null && entrypointSource is not null)
             {
                 BicepFile moduleEntrypointFile = SourceFileFactory.CreateBicepFile(bicepModuleEntrypoint, entrypointSource);
-                sourceArchiveResult ??= SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(moduleEntrypointFile.FileUri, moduleEntrypointFile));
+                sourceArchiveResult ??= SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(moduleEntrypointFile.FileUri, cacheRoot: null , moduleEntrypointFile));
             }
             sourceArchiveResult ??= new(new SourceNotAvailableException());
             moduleRegistry.Setup(m => m.TryGetSource(It.IsAny<ArtifactReference>())).Returns(sourceArchiveResult);
@@ -79,13 +85,13 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [DataTestMethod]
-        [DataRow("file://path/to/localfile.bicep")]
-        [DataRow("file://path/to/localfile.json")]
-        [DataRow("file://path/to/localfile.bicepparam")]
+        [DataRow($"file://{ROOT}path/to/localfile.bicep")]
+        [DataRow($"file://{ROOT}path/to/localfile.json")]
+        [DataRow($"file://{ROOT}path/to/localfile.bicepparam")]
         [DataRow("untitled:Untitled-1")]
         public async Task DisplayingLocalFile_NotExtSourceScheme_ShouldNotHaveCodeLens(string fileName)
         {
-            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
+            var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
 
             await using var server = CreateServer(null, null);
             var helper = await server.GetAsync();
@@ -101,8 +107,8 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task DisplayingExternalModuleSource_EntrypointFile_ShouldHaveCodeLens_ToShowModuleCompiledJson()
         {
-            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"/module entrypoint.bicep");
+            var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
+            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
 
             await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint");
             var helper = await server.GetAsync();
@@ -123,8 +129,8 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task DisplayingExternalModuleSource_BicepButNotEntrypointFile_ShouldHaveCodeLens_ToShowModuleCompiledJson()
         {
-            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"/module entrypoint.bicep");
+            var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
+            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
 
             await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint");
             var helper = await server.GetAsync();
@@ -145,8 +151,8 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task DisplayingExternalModuleSource_JsonFileThatIsIncludedInSources_ShouldHaveCodeLens_ToShowCompiledJson_ForTheWholeModule()
         {
-            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"/module entrypoint.bicep");
+            var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
+            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
 
             await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint");
             var helper = await server.GetAsync();
@@ -167,8 +173,8 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task DisplayingModuleCompiledJsonFile_AndSourceIsAvailable_ShouldHaveCodeLens_ToShowBicepEntrypointFile()
         {
-            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"/module entrypoint.bicep");
+            var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
+            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
 
             await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint");
             var helper = await server.GetAsync();
@@ -190,8 +196,8 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task DisplayingModuleCompiledJsonFile_AndSourceNotAvailable_ShouldHaveCodeLens_ToExplainWhyNoSources()
         {
-            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"/module entrypoint.bicep");
+            var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
+            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
 
             await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), null);
             var helper = await server.GetAsync();
@@ -211,8 +217,8 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task HasBadUri_ShouldHaveCodeLens_ToExplainError()
         {
-            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"/module entrypoint.bicep");
+            var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
+            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
 
             await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint");
             var helper = await server.GetAsync();
@@ -232,8 +238,8 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task SourceArchiveHasError_ShouldHaveCodeLensWithError()
         {
-            var uri = DocumentUri.From($"/{this.TestContext.TestName}");
-            var moduleEntrypointUri = DocumentUri.From($"/module entrypoint.bicep");
+            var uri = DocumentUri.From($"{ROOT}{this.TestContext.TestName}");
+            var moduleEntrypointUri = DocumentUri.From($"{ROOT}module entrypoint.bicep");
 
             var sourceArchiveResult = new ResultWithException<SourceArchive>(new Exception("Source archive is incompatible with this version of Bicep."));
             await using var server = CreateServer(moduleEntrypointUri.ToUriEncoded(), "// module entrypoint", sourceArchiveResult);

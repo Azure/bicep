@@ -662,7 +662,7 @@ namespace Bicep.Core.UnitTests.Registry
             if (publishSource)
             {
                 var uri = new Uri("file://path/to/bicep.bicep", UriKind.Absolute);
-                var stream = SourceArchive.PackSourcesIntoStream(uri, new ISourceFile[] { SourceFileFactory.CreateBicepFile(uri, "// contents") });
+                var stream = SourceArchive.PackSourcesIntoStream(uri, cacheRoot: null, new ISourceFile[] { SourceFileFactory.CreateBicepFile(uri, "// contents") });
                 sources = BinaryData.FromStream(stream);
             }
 
@@ -684,8 +684,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             if (sources is { })
             {
-                actualSourceResult.TryUnwrap().Should().NotBeNull();
-                actualSourceResult.Unwrap().Should().BeEquivalentTo(SourceArchive.UnpackFromStream(sources.ToStream()).Unwrap());
+                actualSourceResult.UnwrapOrThrow().Should().BeEquivalentTo(SourceArchive.UnpackFromStream(sources.ToStream()).UnwrapOrThrow());
             }
             else
             {
