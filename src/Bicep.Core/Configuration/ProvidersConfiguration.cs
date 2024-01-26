@@ -2,22 +2,31 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Configuration;
 
 public record ProvidersConfigurationSection(ImmutableSortedDictionary<string, ProviderSource> Providers) { }
 
-public record ProviderSource(bool Builtin, string? Registry, string? Version)
-{
-    public bool IsImplicit;
+public record ProviderSource{
+    public bool Builtin { get; }
+    public string? Registry { get; }
+    public string? Version { get; }
+    // public bool IsImplicit { get; set;}
+    
+    public ProviderSource(bool builtin, string? registry, string? version) 
+    {
+        Builtin = builtin;
+        Registry = registry;
+        Version = version;
+        if (Builtin && (Registry != null || Version != null))
+        {
+            throw new ArgumentException("The 'builtin' property is mutually exclusive with 'registry' and 'version'.");
+        }
+    }    
 }
-
-
 
 public partial class ProvidersConfiguration : ConfigurationSection<ProvidersConfigurationSection>
 {
