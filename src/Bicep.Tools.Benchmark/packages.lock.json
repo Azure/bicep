@@ -4,11 +4,11 @@
     "net8.0": {
       "BenchmarkDotNet": {
         "type": "Direct",
-        "requested": "[0.13.11, )",
-        "resolved": "0.13.11",
-        "contentHash": "BSsrfesUFgrjy/MtlupiUrZKgcBCCKmFXmNaVQLrBCs0/2iE/qH1puN7lskTE9zM0+MdiCr09zKk6MXKmwmwxw==",
+        "requested": "[0.13.12, )",
+        "resolved": "0.13.12",
+        "contentHash": "aKnzpUZJJfLBHG7zcfQZhCexZQKcJgElC8qcFUTXPMYFlVauJBobuOmtRnmrapqC2j7EjjZCsPxa3yLvFLx5/Q==",
         "dependencies": {
-          "BenchmarkDotNet.Annotations": "0.13.11",
+          "BenchmarkDotNet.Annotations": "0.13.12",
           "CommandLineParser": "2.9.1",
           "Gee.External.Capstone": "2.3.0",
           "Iced": "1.17.0",
@@ -173,8 +173,8 @@
       },
       "BenchmarkDotNet.Annotations": {
         "type": "Transitive",
-        "resolved": "0.13.11",
-        "contentHash": "JOX+Bhp+PNnAtu/er9iGiN8QRIrYzilxUcJbwrF8VYyTNE8r4jlewa17/FbW1G7Jp2JUZwVS1A8a0bGILKhikw=="
+        "resolved": "0.13.12",
+        "contentHash": "4zmFOOJqW1GrEP/t5XKgh97LH9r6zixGy2IA0JAaoTNNnZ8kPBt9u/XagsGNyV0e7rglOpFcWc6wI5EjefKpKA=="
       },
       "Castle.Core": {
         "type": "Transitive",
@@ -515,8 +515,8 @@
       },
       "Microsoft.Graph.Bicep.Types": {
         "type": "Transitive",
-        "resolved": "0.1.1-preview",
-        "contentHash": "PBUH2KmCkJdFYD7DgcDuAUZ/iOMzBZRe8uKG/V8v6mmc1kBr5c9+5cQ0Zd559DQzkT+41OuNZNoFS7uzxpW/4w==",
+        "resolved": "0.1.2-preview",
+        "contentHash": "K47L051GXYs9y5OdKt8+wcobJOn6dLGQjsBiegoZN9BdbCQtP0gI/PP8HxP9iO+Yx1K0LnDLgK9qZUO0WbLApQ==",
         "dependencies": {
           "Azure.Bicep.Types": "0.4.1"
         }
@@ -2161,7 +2161,7 @@
           "Microsoft.Extensions.Configuration.Binder": "[8.0.0, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
           "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
-          "Microsoft.Graph.Bicep.Types": "[0.1.1-preview, )",
+          "Microsoft.Graph.Bicep.Types": "[0.1.2-preview, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "SharpYaml": "[2.1.0, )",
           "System.Collections.Immutable": "[8.0.0, )",

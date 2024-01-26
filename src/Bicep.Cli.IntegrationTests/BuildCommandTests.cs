@@ -1,6 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
@@ -14,6 +21,7 @@ using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json.Linq;
@@ -128,30 +136,30 @@ namespace Bicep.Cli.IntegrationTests
             }
 
             // 3. create a main.bicep and save it to a output directory
-            var bicepFile = $@"
-            import '{providerDeclarationSyntax}@2.0.0'
-            ";
+            var bicepFile = $"""
+                provider '{providerDeclarationSyntax}@2.0.0'
+                """;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
             var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
             File.WriteAllText(bicepFilePath, bicepFile);
 
             var bicepConfigFile = $$"""
-            {
-                "providerAliases" : {
-                    "br": {
-                        "contoso": {
-                            "registry": "contoso.azurecr.io",
-                            "providerPath": "bicep/providers"
-                        },
-                        "mcr": {
-                            "registry": "mcr.microsoft.com",
-                            "providerPath": "bicep/providers"
+                {
+                    "providerAliases" : {
+                        "br": {
+                            "contoso": {
+                                "registry": "contoso.azurecr.io",
+                                "providerPath": "bicep/providers"
+                            },
+                            "mcr": {
+                                "registry": "mcr.microsoft.com",
+                                "providerPath": "bicep/providers"
+                            }
                         }
                     }
                 }
-            }
-            """;
+                """;
             var bicepConfigPath = Path.Combine(tempDirectory, "bicepconfig.json");
             File.WriteAllText(bicepConfigPath, bicepConfigFile);
 
@@ -160,7 +168,21 @@ namespace Bicep.Cli.IntegrationTests
 
             // TEST
             // 5. run bicep build
-            var (output, error, result) = await Bicep(settings, "build", bicepFilePath);
+            var (output, error, result) = await TextWriterHelper.InvokeWriterAction((@out, err)
+                => new Program(new(Output: @out, Error: err), services
+                    => {
+                        if (settings.FeatureOverrides is {})
+                        {
+                            services.WithFeatureOverrides(settings.FeatureOverrides);
+                        }
+
+                        services
+                            .WithEmptyAzResources()
+                            .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
+                            .AddSingleton(settings.ClientFactory)
+                            .AddSingleton(settings.TemplateSpecRepositoryFactory);
+                    })
+                    .RunAsync(new[] { "build", bicepFilePath }, CancellationToken.None));
 
             // ASSERT
             // 6. assert 'bicep build' completed successfully

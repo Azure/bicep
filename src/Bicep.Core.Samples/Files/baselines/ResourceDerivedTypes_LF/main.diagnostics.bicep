@@ -40,3 +40,7 @@ output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31
   location: 'eastus'
 }
 
+type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+

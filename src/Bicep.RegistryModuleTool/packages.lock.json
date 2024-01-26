@@ -19,9 +19,9 @@
       },
       "JsonSchema.Net": {
         "type": "Direct",
-        "requested": "[5.4.2, )",
-        "resolved": "5.4.2",
-        "contentHash": "NJyauE2/u877WaRCe01OkX7IIAStYrFmoVwAj4nPqaMwxXzu+vdbXB/ZzEYaLh5dVdJfB28N0txTI+RGQWYolA==",
+        "requested": "[5.5.1, )",
+        "resolved": "5.5.1",
+        "contentHash": "vAsyJf7r3Hi+elc0Cf4lZ93puqluLPhN4m3pH5r3UiP42n63jfmSVFFsRHD52hK25INqnFh/dXpF38cPIMgotA==",
         "dependencies": {
           "JetBrains.Annotations": "2021.2.0",
           "Json.More.Net": "1.9.0",
@@ -30,9 +30,9 @@
       },
       "Markdig": {
         "type": "Direct",
-        "requested": "[0.33.0, )",
-        "resolved": "0.33.0",
-        "contentHash": "wwjLxuVZyzOUpQkwMnP2eVOgCZzjHqSNsTOWxLQ1S9J5UIk43vsrgwyUBg1x7AX1MlxWH65Uyfsojm4LBwN6iw=="
+        "requested": "[0.34.0, )",
+        "resolved": "0.34.0",
+        "contentHash": "kUS8Y/oW2Cshwq3kv08Lz5hpMjt9MuAaDIGxv86d0RtEUUe4xKKXxdZYS7bV0ZXRfeAAOfjYIrt7zybcIOYvmg=="
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
@@ -592,8 +592,8 @@
       },
       "Microsoft.Graph.Bicep.Types": {
         "type": "Transitive",
-        "resolved": "0.1.1-preview",
-        "contentHash": "PBUH2KmCkJdFYD7DgcDuAUZ/iOMzBZRe8uKG/V8v6mmc1kBr5c9+5cQ0Zd559DQzkT+41OuNZNoFS7uzxpW/4w==",
+        "resolved": "0.1.2-preview",
+        "contentHash": "K47L051GXYs9y5OdKt8+wcobJOn6dLGQjsBiegoZN9BdbCQtP0gI/PP8HxP9iO+Yx1K0LnDLgK9qZUO0WbLApQ==",
         "dependencies": {
           "Azure.Bicep.Types": "0.4.1"
         }
@@ -2048,7 +2048,7 @@
           "Microsoft.Extensions.Configuration.Binder": "[8.0.0, )",
           "Microsoft.Extensions.Configuration.Json": "[8.0.0, )",
           "Microsoft.Extensions.DependencyInjection": "[8.0.0, )",
-          "Microsoft.Graph.Bicep.Types": "[0.1.1-preview, )",
+          "Microsoft.Graph.Bicep.Types": "[0.1.2-preview, )",
           "Newtonsoft.Json": "[13.0.3, )",
           "SharpYaml": "[2.1.0, )",
           "System.Collections.Immutable": "[8.0.0, )",

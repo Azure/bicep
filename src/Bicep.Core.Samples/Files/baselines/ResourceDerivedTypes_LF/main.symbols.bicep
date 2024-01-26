@@ -45,3 +45,10 @@ output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31
   location: 'eastus'
 }
 
+type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[5:23) TypeAlias storageAccountName. Type: Type<string>. Declaration start char: 0, length: 87
+type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+//@[5:17) TypeAlias accessPolicy. Type: Type<AccessPolicyEntry>. Declaration start char: 0, length: 97
+type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+//@[5:08) TypeAlias tag. Type: Type<string>. Declaration start char: 0, length: 76
+

@@ -18,13 +18,13 @@ namespace Bicep.Core.TypeSystem;
 
 public static class ArmTemplateTypeLoader
 {
-    public static TypeSymbol ToTypeSymbol(SchemaValidationContext context, ITemplateSchemaNode armTemplateSchemaNode, TypeSymbolValidationFlags flags = TypeSymbolValidationFlags.Default)
+    public static ITypeReference ToTypeReference(SchemaValidationContext context, ITemplateSchemaNode armTemplateSchemaNode, TypeSymbolValidationFlags flags = TypeSymbolValidationFlags.Default)
     {
         try
         {
             var resolved = TemplateEngine.ResolveSchemaReferences(context, armTemplateSchemaNode);
 
-            if (TryGetResourceDerivedType(context, resolved, flags) is TypeSymbol resourceDerivedType)
+            if (TryGetResourceDerivedType(context, resolved, flags) is ITypeReference resourceDerivedType)
             {
                 return resourceDerivedType;
             }
@@ -59,14 +59,23 @@ public static class ArmTemplateTypeLoader
         }
     }
 
-    private static UnboundResourceDerivedType? TryGetResourceDerivedType(SchemaValidationContext context, ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags flags)
+    private static ITypeReference? TryGetResourceDerivedType(SchemaValidationContext context, ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags flags)
     {
         if (schemaNode.Metadata?.Value is JObject metadataObject &&
             metadataObject.TryGetValue(LanguageConstants.MetadataResourceDerivedTypePropertyName, out var resourceType) &&
-            resourceType is JValue { Value: string resourceTypeString } &&
-            ResourceTypeReference.TryParse(resourceTypeString) is ResourceTypeReference resourceTypeReference)
+            resourceType is JValue { Value: string resourceTypeString })
         {
-            return new UnboundResourceDerivedType(resourceTypeReference, ToTypeSymbol(context, new SansMetadata(schemaNode), flags));
+            var fallbackType = ToTypeReference(context, new SansMetadata(schemaNode), flags).Type;
+
+            var resourceTypeStringParts = resourceTypeString.Split('#', 2);
+            var resourceTypeIdentifier = resourceTypeStringParts[0];
+            var internalPointerSegments = resourceTypeStringParts.Length > 1
+                ? resourceTypeStringParts[1].Split('/').Select(Bicep.Core.Extensions.StringExtensions.Rfc6901Decode).ToImmutableArray()
+                : ImmutableArray<string>.Empty;
+
+            return ResourceTypeReference.TryParse(resourceTypeIdentifier) is ResourceTypeReference resourceTypeReference
+                ? new UnresolvedResourceDerivedType(resourceTypeReference, internalPointerSegments, fallbackType)
+                : new UnparsableResourceDerivedType(resourceTypeIdentifier, fallbackType);
         }
 
         return null;
@@ -154,7 +163,7 @@ public static class ArmTemplateTypeLoader
                 return new TypedArrayType($"{typeName}[]", type, default, schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
             }
 
-            return new TypedArrayType(ToTypeSymbol(context, items), default, schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
+            return new TypedArrayType(ToTypeReference(context, items), default, schemaNode.MinLength?.Value, schemaNode.MaxLength?.Value);
         }
 
         // TODO it's possible to encounter an array with a defined prefix and either a schema or a boolean for "items."
@@ -202,8 +211,8 @@ public static class ArmTemplateTypeLoader
     private static (ITypeReference type, string typeName) GetDeferrableTypeInfo(SchemaValidationContext context, ITemplateSchemaNode schemaNode)
         => schemaNode.Ref?.Value switch
         {
-            string @ref => (new DeferredTypeReference(() => ToTypeSymbol(context, schemaNode)), @ref.Replace("#/definitions/", "")),
-            _ => ToTypeSymbol(context, schemaNode) switch { TypeSymbol concreteType => (concreteType, concreteType.Name) },
+            string @ref => (new DeferredTypeReference(() => ToTypeReference(context, schemaNode).Type), @ref.Replace("#/definitions/", "")),
+            _ => ToTypeReference(context, schemaNode).Type switch { TypeSymbol concreteType => (concreteType, concreteType.Name) },
         };
 
     private static TypeSymbol GetObjectType(SchemaValidationContext context, ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags flags)
@@ -219,8 +228,9 @@ public static class ArmTemplateTypeLoader
             foreach (var mappingEntry in discriminator.Mapping)
             {
                 var variant = TemplateEngine.ResolveSchemaReferences(context, mappingEntry.Value);
-                variants.Add(TryGetResourceDerivedType(context, variant, flags) is { } resourceDerivedObject
-                    ? new UnboundResourceDerivedPartialObjectType(resourceDerivedObject.TypeReference,
+                variants.Add(TryGetResourceDerivedType(context, variant, flags) is UnresolvedResourceDerivedType resourceDerivedObject
+                    ? new UnresolvedResourceDerivedPartialObjectType(resourceDerivedObject.TypeReference,
+                        resourceDerivedObject.PointerSegments,
                         discriminator.PropertyName.Value,
                         mappingEntry.Key)
                     : GetObjectType(

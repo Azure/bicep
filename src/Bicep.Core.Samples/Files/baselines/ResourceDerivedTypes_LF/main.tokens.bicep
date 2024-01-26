@@ -183,6 +183,49 @@ output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31
 //@[20:21) NewLine |\n|
 }
 //@[00:01) RightBrace |}|
-//@[01:02) NewLine |\n|
+//@[01:03) NewLine |\n\n|
+
+type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[00:04) Identifier |type|
+//@[05:23) Identifier |storageAccountName|
+//@[24:25) Assignment |=|
+//@[26:34) Identifier |resource|
+//@[34:35) LeftChevron |<|
+//@[35:81) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
+//@[81:82) RightChevron |>|
+//@[82:83) Dot |.|
+//@[83:87) Identifier |name|
+//@[87:88) NewLine |\n|
+type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+//@[00:04) Identifier |type|
+//@[05:17) Identifier |accessPolicy|
+//@[18:19) Assignment |=|
+//@[20:28) Identifier |resource|
+//@[28:29) LeftChevron |<|
+//@[29:67) StringComplete |'Microsoft.KeyVault/vaults@2022-07-01'|
+//@[67:68) RightChevron |>|
+//@[68:69) Dot |.|
+//@[69:79) Identifier |properties|
+//@[79:80) Dot |.|
+//@[80:94) Identifier |accessPolicies|
+//@[94:95) LeftSquare |[|
+//@[95:96) Asterisk |*|
+//@[96:97) RightSquare |]|
+//@[97:98) NewLine |\n|
+type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+//@[00:04) Identifier |type|
+//@[05:08) Identifier |tag|
+//@[09:10) Assignment |=|
+//@[11:19) Identifier |resource|
+//@[19:20) LeftChevron |<|
+//@[20:57) StringComplete |'Microsoft.Resources/tags@2022-09-01'|
+//@[57:58) RightChevron |>|
+//@[58:59) Dot |.|
+//@[59:69) Identifier |properties|
+//@[69:70) Dot |.|
+//@[70:74) Identifier |tags|
+//@[74:75) Dot |.|
+//@[75:76) Asterisk |*|
+//@[76:77) NewLine |\n|
 
 //@[00:00) EndOfFile ||

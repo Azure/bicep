@@ -14,5 +14,7 @@ namespace Bicep.Core.Semantics
         IBinder Binder { get; }
 
         BicepSourceFile SourceFile { get; }
+
+        SemanticModel SemanticModel { get; }
     }
 }

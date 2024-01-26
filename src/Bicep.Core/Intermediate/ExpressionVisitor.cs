@@ -370,6 +370,26 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
+    public virtual void VisitTypeReferencePropertyAccessExpression(TypeReferencePropertyAccessExpression expression)
+    {
+        Visit(expression.BaseExpression);
+    }
+
+    public virtual void VisitTypeReferenceAdditionalPropertiesAccessExpression(TypeReferenceAdditionalPropertiesAccessExpression expression)
+    {
+        Visit(expression.BaseExpression);
+    }
+
+    public virtual void VisitTypeReferenceIndexAccessExpression(TypeReferenceIndexAccessExpression expression)
+    {
+        Visit(expression.BaseExpression);
+    }
+
+    public virtual void VisitTypeReferenceItemsAccessExpression(TypeReferenceItemsAccessExpression expression)
+    {
+        Visit(expression.BaseExpression);
+    }
+
     public virtual void VisitProgramExpression(ProgramExpression expression)
     {
         Visit(expression.Metadata);

@@ -21,6 +21,9 @@ type foo = {
   recursion: foo?
 }
 
+type fooProperty = foo.objectProp.intProp
+//@[5:16) TypeAlias fooProperty. Type: Type<int>. Declaration start char: 0, length: 41
+
 @minLength(3)
 @description('An array of array of arrays of arrays of ints')
 @metadata({
@@ -30,6 +33,9 @@ type foo = {
 })
 type bar = int[][][][]
 //@[5:08) TypeAlias bar. Type: Type<int[][][][]>. Declaration start char: 0, length: 163
+
+type barElement = bar[*]
+//@[5:15) TypeAlias barElement. Type: Type<int[][][]>. Declaration start char: 0, length: 24
 
 type aUnion = 'snap'|'crackle'|'pop'
 //@[5:11) TypeAlias aUnion. Type: Type<'crackle' | 'pop' | 'snap'>. Declaration start char: 0, length: 36
@@ -80,10 +86,16 @@ type tuple = [
     bar
 ]
 
+type tupleSecondItem = tuple[1]
+//@[5:20) TypeAlias tupleSecondItem. Type: Type<int[][][][]>. Declaration start char: 0, length: 31
+
 type stringStringDictionary = {
 //@[5:27) TypeAlias stringStringDictionary. Type: Type<{ *: string }>. Declaration start char: 0, length: 47
     *: string
 }
+
+type stringStringDictionaryValue = stringStringDictionary.*
+//@[5:32) TypeAlias stringStringDictionaryValue. Type: Type<string>. Declaration start char: 0, length: 59
 
 @minValue(1)
 @maxValue(10)

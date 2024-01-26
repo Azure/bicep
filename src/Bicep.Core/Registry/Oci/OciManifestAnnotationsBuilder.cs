@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Registry.Oci;
 

@@ -4,7 +4,7 @@ param appRoleId string = 'bc76c90e-eb7f-4a29-943b-49e88762d09d'
 param scopeId string = 'f761933c-643b-424f-a169-f9313d23a913'
 
 resource resourceApp 'Microsoft.Graph/applications@beta' = {
-  name: 'resourceApp'
+  uniqueName: 'resourceApp'
   displayName: 'My Resource App'
   appRoles: [
     {
@@ -35,7 +35,7 @@ resource resourceSp 'Microsoft.Graph/servicePrincipals@beta' = {
 }
 
 resource clientApp 'Microsoft.Graph/applications@beta' = {
-  name: 'clientApp'
+  uniqueName: 'clientApp'
   displayName: 'My Client App'
 }
 
@@ -57,7 +57,7 @@ resource appRoleAssignedTo 'Microsoft.Graph/appRoleAssignedTo@beta' = {
 }
 
 resource group 'Microsoft.Graph/groups@beta' = {
-  name: 'myGroup'
+  uniqueName: 'myGroup'
   displayName: 'My Group'
   mailEnabled: false
   mailNickname: 'myGroupMailNickname'

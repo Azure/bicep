@@ -44,3 +44,22 @@ type hello = {
   bar: resource<'Astronomer.Astro/organizations@2023-08-01-preview'>
 }
 
+type typoInPropertyName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.nom
+//@[5:23) TypeAlias typoInPropertyName. Type: error. Declaration start char: 0, length: 86
+type typoInPropertyName2 = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*].tenatId
+//@[5:24) TypeAlias typoInPropertyName2. Type: error. Declaration start char: 0, length: 112
+type typoInPropertyName3 = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties[*].accessPolicies.tenantId
+//@[5:24) TypeAlias typoInPropertyName3. Type: error. Declaration start char: 0, length: 113
+type typoInPropertyName4 = resource<'Microsoft.Web/customApis@2016-06-01'>.properties.connectionParameters.*.tyype
+//@[5:24) TypeAlias typoInPropertyName4. Type: error. Declaration start char: 0, length: 114
+type typoInPropertyName5 = resource<'Microsoft.Web/customApis@2016-06-01'>.properties.*.connectionParameters.type
+//@[5:24) TypeAlias typoInPropertyName5. Type: error. Declaration start char: 0, length: 113
+
+module mod 'modules/mod.json' = {
+//@[7:10) Module mod. Type: module. Declaration start char: 0, length: 77
+  name: 'mod'
+  params: {
+    foo: {}
+  }
+}
+

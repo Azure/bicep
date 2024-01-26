@@ -61,6 +61,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetDeclarationTypeCompletions(model, context))
                 .Concat(GetObjectPropertyNameCompletions(model, context))
                 .Concat(GetMemberAccessCompletions(compilation, context))
+                .Concat(GetTypeMemberAccessCompletions(compilation, context))
                 .Concat(GetResourceAccessCompletions(compilation, context))
                 .Concat(GetArrayIndexCompletions(compilation, context))
                 .Concat(GetPropertyValueCompletions(model, context))
@@ -1186,9 +1187,47 @@ namespace Bicep.LanguageServer.Completions
 
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-                .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange))
+                .Select(p => CreatePropertyAccessCompletion(p,
+                    compilation.SourceFileGrouping.EntryPoint,
+                    context.PropertyAccess.IsSafeAccess,
+                    context.PropertyAccess.Dot,
+                    context.ReplacementRange))
                 .Concat(GetMethods(declaredType)
                 .Select(m => CreateSymbolCompletion(m, context.ReplacementRange, model)));
+        }
+
+        private IEnumerable<CompletionItem> GetTypeMemberAccessCompletions(Compilation compilation, BicepCompletionContext context)
+        {
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.TypeMemberAccess) || context.TypePropertyAccess is null)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            var declaredType = compilation.GetEntrypointSemanticModel().GetDeclaredType(context.TypePropertyAccess.BaseExpression);
+
+            if (declaredType is not null && TypeHelper.TryRemoveNullability(declaredType) is TypeSymbol nonNullable)
+            {
+                declaredType = nonNullable;
+            }
+
+            if (declaredType is TypeType typeType)
+            {
+                declaredType = typeType.Unwrapped;
+            }
+
+            var completions = GetProperties(declaredType)
+                .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, isSafeAccess: false, context.TypePropertyAccess.Dot, context.ReplacementRange));
+
+            if (GetAdditionalPropertiesType(declaredType) is not null)
+            {
+                completions = completions.Append(CompletionItemBuilder.Create(CompletionItemKind.Property, "*")
+                    .WithPlainTextEdit(context.ReplacementRange, "*")
+                    .WithCommitCharacters(PropertyAccessCommitChars)
+                    .WithSortText(GetSortText("*", CompletionPriority.Low))
+                    .Build());
+            }
+
+            return completions;
         }
 
         private IEnumerable<CompletionItem> GetResourceAccessCompletions(Compilation compilation, BicepCompletionContext context)
@@ -1265,6 +1304,16 @@ namespace Bicep.LanguageServer.Completions
                 _ => Enumerable.Empty<TypeProperty>(),
             }).Where(p => !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty));
         }
+
+        private static TypeSymbol? GetAdditionalPropertiesType(TypeSymbol? type) => type switch
+        {
+            ResourceType resourceType => GetAdditionalPropertiesType(resourceType.Body.Type),
+            ModuleType moduleType => GetAdditionalPropertiesType(moduleType.Body.Type),
+            TestType testType => GetAdditionalPropertiesType(testType.Body.Type),
+            ObjectType objectType when objectType.AdditionalPropertiesType is not null && !objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)
+                => objectType.AdditionalPropertiesType.Type,
+            _ => null,
+        };
 
         private static IEnumerable<FunctionSymbol> GetMethods(TypeSymbol? type) => type switch
         {
@@ -1679,7 +1728,7 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, BicepSourceFile tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, BicepSourceFile tree, bool isSafeAccess, Token dot, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
             var item = CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
                 .WithCommitCharacters(PropertyAccessCommitChars)
@@ -1694,7 +1743,7 @@ namespace Bicep.LanguageServer.Completions
                 // if we update the main edit of the completion, vs code will not show such a completion at all
                 // thus we will append additional text edits to replace the . with a [ and to insert the closing ]
                 var edit = new StringBuilder("[");
-                if (propertyAccess.IsSafeAccess)
+                if (isSafeAccess)
                 {
                     edit.Append('?');
                 }
@@ -1706,7 +1755,7 @@ namespace Bicep.LanguageServer.Completions
                         new TextEdit
                         {
                             NewText = string.Empty,
-                            Range = propertyAccess.Dot.ToRange(tree.LineStarts)
+                            Range = dot.ToRange(tree.LineStarts)
                         }));
             }
             else

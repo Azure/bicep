@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "foo": {
+      "type": "object",
+      "metadata": {
+        "__bicep_resource_derived_type!": "not a valid resource type identifier"
+      }
+    }
+  },
+  "resources": []
+}

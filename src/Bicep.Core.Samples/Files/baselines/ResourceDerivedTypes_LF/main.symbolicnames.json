@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2406575907779073888"
+      "templateHash": "2731586199777586135"
     }
   },
   "definitions": {
@@ -70,6 +70,24 @@
       "metadata": {
         "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview",
         "description": "I love space(s)"
+      }
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+      }
+    },
+    "accessPolicy": {
+      "type": "object",
+      "metadata": {
+        "__bicep_resource_derived_type!": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items"
+      }
+    },
+    "tag": {
+      "type": "string",
+      "metadata": {
+        "__bicep_resource_derived_type!": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
       }
     }
   },

@@ -20,6 +20,8 @@ type foo = {
   recursion: foo?
 }
 
+type fooProperty = foo.objectProp.intProp
+
 @minLength(3)
 @description('An array of array of arrays of arrays of ints')
 @metadata(
@@ -28,6 +30,8 @@ type foo = {
   }
 )
 type bar = int[][][][]
+
+type barElement = bar[*]
 
 type aUnion = 'snap' | 'crackle' | 'pop'
 
@@ -78,9 +82,13 @@ type tuple = [
   bar
 ]
 
+type tupleSecondItem = tuple[1]
+
 type stringStringDictionary = {
   *: string
 }
+
+type stringStringDictionaryValue = stringStringDictionary.*
 
 @minValue(1)
 @maxValue(10)

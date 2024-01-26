@@ -247,9 +247,9 @@ public class ExpressionBuilder
         {
             VariableAccessSyntax variableAccess => Context.SemanticModel.Binder.GetSymbolInfo(syntax) switch
             {
-                AmbientTypeSymbol ambientType => new AmbientTypeReferenceExpression(syntax, ambientType.Name, ambientType.Type),
-                TypeAliasSymbol typeAlias => new TypeAliasReferenceExpression(syntax, typeAlias, typeAlias.Type),
-                ImportedTypeSymbol importedSymbol => new ImportedTypeReferenceExpression(syntax, importedSymbol, importedSymbol.Type),
+                AmbientTypeSymbol ambientType => new AmbientTypeReferenceExpression(syntax, ambientType.Name, UnwrapType(ambientType.Type)),
+                TypeAliasSymbol typeAlias => new TypeAliasReferenceExpression(syntax, typeAlias, UnwrapType(typeAlias.Type)),
+                ImportedTypeSymbol importedSymbol => new ImportedTypeReferenceExpression(syntax, importedSymbol, UnwrapType(importedSymbol.Type)),
                 Symbol otherwise => throw new ArgumentException($"Encountered unexpected symbol of type {otherwise.GetType()} in a type expression."),
                 _ => throw new ArgumentException($"Unable to locate symbol for name '{variableAccess.Name.IdentifierName}'.")
             },
@@ -295,8 +295,10 @@ public class ExpressionBuilder
             },
             ParenthesizedExpressionSyntax parenthesizedExpression => ConvertTypeWithoutLowering(parenthesizedExpression.Expression),
             NonNullAssertionSyntax nonNullAssertion => new NonNullableTypeExpression(nonNullAssertion, ConvertTypeWithoutLowering(nonNullAssertion.BaseExpression)),
-            PropertyAccessSyntax propertyAccess => ConvertPropertyAccessInTypeExpression(propertyAccess),
-            ArrayAccessSyntax arrayAccess => ConvertPropertyAccessInTypeExpression(arrayAccess),
+            TypePropertyAccessSyntax propertyAccess => ConvertTypePropertyAccess(propertyAccess),
+            TypeAdditionalPropertiesAccessSyntax additionalPropertiesAccess => ConvertTypeAdditionalPropertiesAccess(additionalPropertiesAccess),
+            TypeArrayAccessSyntax arrayAccess => ConvertTypeArrayAccess(arrayAccess),
+            TypeItemsAccessSyntax itemsAccess => ConvertTypeItemsAccess(itemsAccess),
             ParameterizedTypeInstantiationSyntaxBase parameterizedTypeInstantiation
                 => Context.SemanticModel.TypeManager.TryGetReifiedType(parameterizedTypeInstantiation) is TypeExpression reified
                     ? reified
@@ -304,23 +306,81 @@ public class ExpressionBuilder
             _ => throw new ArgumentException($"Failed to convert syntax of type {syntax.GetType()}"),
         };
 
-    private TypeExpression ConvertPropertyAccessInTypeExpression(PropertyAccessSyntax syntax)
-        => ConvertPropertyAccessInTypeExpression(syntax, syntax.PropertyName.IdentifierName);
+    private static TypeSymbol UnwrapType(TypeSymbol type) => type switch
+    {
+        TypeType tt => tt.Unwrapped,
+        _ => type,
+    };
 
-    private TypeExpression ConvertPropertyAccessInTypeExpression(ArrayAccessSyntax syntax)
-        => Context.SemanticModel.GetTypeInfo(syntax.IndexExpression) is StringLiteralType @string
-            ? ConvertPropertyAccessInTypeExpression(syntax, @string.RawStringValue)
-            : throw new ArgumentException("Array access syntax is not permitted in type expressions unless the indexing expression can be folded to a constant string at compile time.");
+    private TypeExpression ConvertTypePropertyAccess(TypePropertyAccessSyntax syntax)
+        => ConvertTypePropertyAccess(syntax, syntax.BaseExpression, syntax.PropertyName.IdentifierName);
 
-    private TypeExpression ConvertPropertyAccessInTypeExpression(AccessExpressionSyntax syntax, string propertyName)
-        => Context.SemanticModel.GetSymbolInfo(syntax.BaseExpression) switch
+    private TypeExpression ConvertTypePropertyAccess(SyntaxBase syntax, SyntaxBase baseExpression, string propertyName)
+        => Context.SemanticModel.GetSymbolInfo(baseExpression) switch
         {
-            BuiltInNamespaceSymbol builtIn when TryGetPropertyType(builtIn, propertyName) is TypeType typeType
-                => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, typeType),
-            WildcardImportSymbol wildcardImport when TryGetPropertyType(wildcardImport, propertyName) is TypeType typeType
-                => new WildcardImportTypePropertyReferenceExpression(syntax, wildcardImport, propertyName, typeType),
-            var otherwise => throw new ArgumentException($"Failed to convert property access on symbol of type {otherwise?.GetType()}"),
+            BuiltInNamespaceSymbol builtIn => TryGetPropertyType(builtIn, propertyName) switch
+            {
+                TypeType typeType => new FullyQualifiedAmbientTypeReferenceExpression(syntax, builtIn.Type.ProviderName, propertyName, typeType.Unwrapped),
+                _ => throw new ArgumentException($"Property '{propertyName}' of symbol '{builtIn.Name}' was not found or was not valid."),
+            },
+            WildcardImportSymbol wildcardImport => TryGetPropertyType(wildcardImport, propertyName) switch
+            {
+                TypeType typeType => new WildcardImportTypePropertyReferenceExpression(syntax, wildcardImport, propertyName, typeType.Unwrapped),
+                _ => throw new ArgumentException($"Property '{propertyName}' of symbol '{wildcardImport.Name}' was not found or was not valid."),
+            },
+            _ => ConvertTypePropertyAccess(syntax, ConvertTypeWithoutLowering(baseExpression), propertyName),
         };
+
+    private static TypeReferencePropertyAccessExpression ConvertTypePropertyAccess(SyntaxBase syntax, TypeExpression baseExpression, string propertyName)
+    {
+        if (baseExpression.ExpressedType is not ObjectType baseObject || !baseObject.Properties.TryGetValue(propertyName, out var typeProperty))
+        {
+            throw new ArgumentException($"Property '{propertyName}' of type '{baseExpression.ExpressedType.Name}' was not found or was not valid.");
+        }
+
+        return new TypeReferencePropertyAccessExpression(syntax, baseExpression, propertyName, typeProperty.TypeReference.Type);
+    }
+
+    private TypeExpression ConvertTypeArrayAccess(TypeArrayAccessSyntax syntax) => Context.SemanticModel.GetTypeInfo(syntax.IndexExpression) switch
+    {
+        StringLiteralType @string => ConvertTypePropertyAccess(syntax, syntax.BaseExpression, @string.RawStringValue),
+        IntegerLiteralType @int => ConvertTypeArrayAccess(syntax, ConvertTypeWithoutLowering(syntax.BaseExpression), @int.Value),
+        _ => throw new ArgumentException("Array access syntax is not permitted in type expressions unless the indexing expression can be folded to a constant string or integer at compile time."),
+    };
+
+    private static TypeReferenceIndexAccessExpression ConvertTypeArrayAccess(TypeArrayAccessSyntax syntax, TypeExpression baseExpression, long index)
+    {
+        if (baseExpression.ExpressedType is not TupleType baseTuple || index < 0 || baseTuple.Items.Length <= index)
+        {
+            throw new ArgumentException($"Index {index} of type '{baseExpression.ExpressedType.Name}' was not found or was not valid.");
+        }
+
+        return new TypeReferenceIndexAccessExpression(syntax, baseExpression, index, baseTuple.Items[(int)index].Type);
+    }
+
+    private TypeReferenceAdditionalPropertiesAccessExpression ConvertTypeAdditionalPropertiesAccess(TypeAdditionalPropertiesAccessSyntax syntax)
+    {
+        var baseExpression = ConvertTypeWithoutLowering(syntax.BaseExpression);
+
+        if (baseExpression.ExpressedType is not ObjectType objectType || objectType.AdditionalPropertiesType is null || !objectType.HasExplicitAdditionalPropertiesType)
+        {
+            throw new ArgumentException($"The additional properties type of type '{baseExpression.ExpressedType.Name}' was not found or was not valid.");
+        }
+
+        return new TypeReferenceAdditionalPropertiesAccessExpression(syntax, baseExpression, objectType.AdditionalPropertiesType.Type);
+    }
+
+    private TypeReferenceItemsAccessExpression ConvertTypeItemsAccess(TypeItemsAccessSyntax syntax)
+    {
+        var baseExpression = ConvertTypeWithoutLowering(syntax.BaseExpression);
+
+        if (baseExpression.ExpressedType is not TypedArrayType arrayType)
+        {
+            throw new ArgumentException($"The element type of type '{baseExpression.ExpressedType.Name}' was not found or was not valid.");
+        }
+
+        return new TypeReferenceItemsAccessExpression(syntax, baseExpression, arrayType.Item.Type);
+    }
 
     private TypeSymbol? TryGetPropertyType(INamespaceSymbol namespaceSymbol, string propertyName)
         => namespaceSymbol.TryGetNamespaceType() is NamespaceType type && type.Properties.TryGetValue(propertyName, out var property)

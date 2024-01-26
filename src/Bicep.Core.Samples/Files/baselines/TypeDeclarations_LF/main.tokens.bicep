@@ -98,6 +98,17 @@ type foo = {
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
 
+type fooProperty = foo.objectProp.intProp
+//@[000:004) Identifier |type|
+//@[005:016) Identifier |fooProperty|
+//@[017:018) Assignment |=|
+//@[019:022) Identifier |foo|
+//@[022:023) Dot |.|
+//@[023:033) Identifier |objectProp|
+//@[033:034) Dot |.|
+//@[034:041) Identifier |intProp|
+//@[041:043) NewLine |\n\n|
+
 @minLength(3)
 //@[000:001) At |@|
 //@[001:010) Identifier |minLength|
@@ -171,6 +182,16 @@ type bar = int[][][][]
 //@[020:021) LeftSquare |[|
 //@[021:022) RightSquare |]|
 //@[022:024) NewLine |\n\n|
+
+type barElement = bar[*]
+//@[000:004) Identifier |type|
+//@[005:015) Identifier |barElement|
+//@[016:017) Assignment |=|
+//@[018:021) Identifier |bar|
+//@[021:022) LeftSquare |[|
+//@[022:023) Asterisk |*|
+//@[023:024) RightSquare |]|
+//@[024:026) NewLine |\n\n|
 
 type aUnion = 'snap'|'crackle'|'pop'
 //@[000:004) Identifier |type|
@@ -398,6 +419,16 @@ type tuple = [
 //@[000:001) RightSquare |]|
 //@[001:003) NewLine |\n\n|
 
+type tupleSecondItem = tuple[1]
+//@[000:004) Identifier |type|
+//@[005:020) Identifier |tupleSecondItem|
+//@[021:022) Assignment |=|
+//@[023:028) Identifier |tuple|
+//@[028:029) LeftSquare |[|
+//@[029:030) Integer |1|
+//@[030:031) RightSquare |]|
+//@[031:033) NewLine |\n\n|
+
 type stringStringDictionary = {
 //@[000:004) Identifier |type|
 //@[005:027) Identifier |stringStringDictionary|
@@ -412,6 +443,15 @@ type stringStringDictionary = {
 }
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
+
+type stringStringDictionaryValue = stringStringDictionary.*
+//@[000:004) Identifier |type|
+//@[005:032) Identifier |stringStringDictionaryValue|
+//@[033:034) Assignment |=|
+//@[035:057) Identifier |stringStringDictionary|
+//@[057:058) Dot |.|
+//@[058:059) Asterisk |*|
+//@[059:061) NewLine |\n\n|
 
 @minValue(1)
 //@[000:001) At |@|

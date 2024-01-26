@@ -563,6 +563,18 @@ namespace Bicep.Core.PrettyPrintV2
                     padding: LineOrEmpty,
                     forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any()));
 
+        private IEnumerable<Document> LayoutTypePropertyAccessSyntax(TypePropertyAccessSyntax syntax) =>
+            this.Glue(syntax.BaseExpression, syntax.Dot, syntax.PropertyName);
+
+        private IEnumerable<Document> LayoutTypeAdditionalPropertiesAccessSyntax(TypeAdditionalPropertiesAccessSyntax syntax) =>
+            this.Glue(syntax.BaseExpression, syntax.Dot, syntax.Asterisk);
+
+        private IEnumerable<Document> LayoutTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax) =>
+            this.Glue(syntax.BaseExpression, syntax.OpenSquare, syntax.IndexExpression, syntax.CloseSquare);
+
+        private IEnumerable<Document> LayoutTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax) =>
+            this.Glue(syntax.BaseExpression, syntax.OpenSquare, syntax.Asterisk, syntax.CloseSquare);
+
         private IEnumerable<Document> LayoutLeadingNodes(IEnumerable<SyntaxBase> leadingNodes) =>
             this.LayoutMany(leadingNodes)
                 .Where(x => x != HardLine); // Remove empty lines between decorators.

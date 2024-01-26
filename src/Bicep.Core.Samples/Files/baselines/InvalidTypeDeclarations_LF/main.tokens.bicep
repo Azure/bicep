@@ -1085,6 +1085,94 @@ output discriminatorOutputBadType2 object = { prop: 'value' }
 //@[050:051) Colon |:|
 //@[052:059) StringComplete |'value'|
 //@[060:061) RightBrace |}|
-//@[061:062) NewLine |\n|
+//@[061:063) NewLine |\n\n|
+
+type strings = string[]
+//@[000:004) Identifier |type|
+//@[005:012) Identifier |strings|
+//@[013:014) Assignment |=|
+//@[015:021) Identifier |string|
+//@[021:022) LeftSquare |[|
+//@[022:023) RightSquare |]|
+//@[023:025) NewLine |\n\n|
+
+type invalidTupleAccess = strings[0]
+//@[000:004) Identifier |type|
+//@[005:023) Identifier |invalidTupleAccess|
+//@[024:025) Assignment |=|
+//@[026:033) Identifier |strings|
+//@[033:034) LeftSquare |[|
+//@[034:035) Integer |0|
+//@[035:036) RightSquare |]|
+//@[036:038) NewLine |\n\n|
+
+type stringTuple = [string, string]
+//@[000:004) Identifier |type|
+//@[005:016) Identifier |stringTuple|
+//@[017:018) Assignment |=|
+//@[019:020) LeftSquare |[|
+//@[020:026) Identifier |string|
+//@[026:027) Comma |,|
+//@[028:034) Identifier |string|
+//@[034:035) RightSquare |]|
+//@[035:037) NewLine |\n\n|
+
+type invalidItemTypeAccess = stringTuple[*]
+//@[000:004) Identifier |type|
+//@[005:026) Identifier |invalidItemTypeAccess|
+//@[027:028) Assignment |=|
+//@[029:040) Identifier |stringTuple|
+//@[040:041) LeftSquare |[|
+//@[041:042) Asterisk |*|
+//@[042:043) RightSquare |]|
+//@[043:045) NewLine |\n\n|
+
+type anObject = {
+//@[000:004) Identifier |type|
+//@[005:013) Identifier |anObject|
+//@[014:015) Assignment |=|
+//@[016:017) LeftBrace |{|
+//@[017:018) NewLine |\n|
+  property: string
+//@[002:010) Identifier |property|
+//@[010:011) Colon |:|
+//@[012:018) Identifier |string|
+//@[018:019) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+type invalidAdditionalPropertiesAccess = anObject.*
+//@[000:004) Identifier |type|
+//@[005:038) Identifier |invalidAdditionalPropertiesAccess|
+//@[039:040) Assignment |=|
+//@[041:049) Identifier |anObject|
+//@[049:050) Dot |.|
+//@[050:051) Asterisk |*|
+//@[051:053) NewLine |\n\n|
+
+type stringDict = {
+//@[000:004) Identifier |type|
+//@[005:015) Identifier |stringDict|
+//@[016:017) Assignment |=|
+//@[018:019) LeftBrace |{|
+//@[019:020) NewLine |\n|
+  *: string
+//@[002:003) Asterisk |*|
+//@[003:004) Colon |:|
+//@[005:011) Identifier |string|
+//@[011:012) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+type invalidPropertyAccess = stringDict.property
+//@[000:004) Identifier |type|
+//@[005:026) Identifier |invalidPropertyAccess|
+//@[027:028) Assignment |=|
+//@[029:039) Identifier |stringDict|
+//@[039:040) Dot |.|
+//@[040:048) Identifier |property|
+//@[048:049) NewLine |\n|
 
 //@[000:000) EndOfFile ||

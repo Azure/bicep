@@ -12,7 +12,7 @@ public class WildcardImportInstanceFunctionSymbol : Symbol, IFunctionSymbol
         : base(name)
     {
         BaseSymbol = baseSymbol;
-        Overloads = ImmutableArray.Create(TypeHelper.OverloadWithBoundTypes(new(baseSymbol.Context.Binder), exportMetadata));
+        Overloads = ImmutableArray.Create(TypeHelper.OverloadWithResolvedTypes(new(baseSymbol.Context.Binder), exportMetadata));
     }
 
     public override void Accept(SymbolVisitor visitor) => visitor.VisitWildcardImportInstanceFunctionSymbol(this);

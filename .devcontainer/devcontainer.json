@@ -10,7 +10,8 @@
         "ms-dotnettools.csharp",
         "ms-azuretools.vscode-docker",
         "editorconfig.editorconfig",
-        "github.vscode-pull-request-github"
+        "github.vscode-pull-request-github",
+        "ms-dotnettools.csdevkit"
       ]
     }
   },
