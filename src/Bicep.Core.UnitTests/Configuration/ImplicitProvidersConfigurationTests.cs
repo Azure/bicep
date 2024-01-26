@@ -10,18 +10,21 @@ namespace Bicep.Core.UnitTests.Configuration
     [TestClass]
     public class ImplicitProvidersTests
     {
-        [TestMethod]
-        public void ImplicitProvidersConfiguration_Bind_Null()
+        [DataTestMethod]
+        [DataRow(new string[] { "provider1", "provider2" }, 2)]
+        [DataRow(new string[] { "provider1" }, 1)]
+        [DataRow(new string[] { }, 0)]
+        public void ImplicitProvidersConfiguration_Bind_Array(string[] providers, int expectedCount)
         {
-            var element = JsonElementFactory.CreateElement("""
+            var json = $$"""
             {
-                "implicitProviders": []
+                "implicitProviders": [{{string.Join(", ", providers.Select(p => $"\"{p}\""))}}]
             }
-            """);
-            var configuration = ImplicitProvidersConfiguration.Bind(element.GetProperty("implicitProviders"));
+            """;
+            var element = JsonElementFactory.CreateElement(json);
+            var configuration = ImplicitProvidersConfiguration.Bind(element.GetProperty(RootConfiguration.ImplicitProvidersConfigurationKey));
 
-            Assert.AreEqual(0, configuration.GetImplicitProviderNames().Count());
+            Assert.AreEqual(expectedCount, configuration.GetImplicitProviderNames().Count());
         }
     }
-
 }

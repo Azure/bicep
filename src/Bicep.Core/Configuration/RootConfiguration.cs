@@ -11,23 +11,17 @@ namespace Bicep.Core.Configuration
 {
     public class RootConfiguration
     {
-        private const string CloudKey = "cloud";
+        public const string CloudKey = "cloud";
 
-        private const string ModuleAliasesKey = "moduleAliases";
+        public const string ModuleAliasesKey = "moduleAliases";
 
-        private const string ProviderAliasesKey = "providerAliases";
-
-        private const string ProvidersConfigurationKey = "providers";
-
-        private const string ImplicitProvidersConfigurationKey = "implicitProviders";
-
-        private const string AnalyzersKey = "analyzers";
-
-        private const string CacheRootDirectoryKey = "cacheRootDirectory";
-
-        private const string ExperimentalFeaturesEnabledKey = "experimentalFeaturesEnabled";
-
-        private const string FormattingKey = "formatting";
+        public const string ProviderAliasesKey = "providerAliases";
+        public const string ProvidersConfigurationKey = "providers";
+        public const string ImplicitProvidersConfigurationKey = "implicitProviders";
+        public const string AnalyzersKey = "analyzers";
+        public const string CacheRootDirectoryKey = "cacheRootDirectory";
+        public const string ExperimentalFeaturesEnabledKey = "experimentalFeaturesEnabled";
+        public const string FormattingKey = "formatting";
 
         public RootConfiguration(
             CloudConfiguration cloud,
