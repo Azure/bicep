@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
+using System.IO.Abstractions.TestingHelpers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bicep.Core.Configuration;
@@ -27,7 +29,7 @@ public class ProvidersConfigurationTests
         {
             "providers": {
                 "az": {
-                    "registry": "mcr.microsoft.com/bicep/providers/az",
+                    "source": "mcr.microsoft.com/bicep/providers/az",
                     "version": "0.2.3"
                 },
                 "kubernetes": {
@@ -37,19 +39,20 @@ public class ProvidersConfigurationTests
         }
         """);
 
-        var res = JsonSerializer.Deserialize<ProvidersConfigurationSection>(data, DefaultDeserializeOptions);
+        var res = JsonSerializer.Deserialize<ImmutableDictionary<string, ProviderSource>>(data.GetProperty("providers"), DefaultDeserializeOptions);
         res.Should().NotBeNull();
-        res!.Providers.Should().NotBeNull();
-        res.Providers.Count.Should().Be(2);
+        var providers = res!;
+        providers.Should().NotBeNull();
+        providers["az"].Should().NotBeNull();
+        // // verifies that 'registry' and 'version' are valid properties for 'source'
+        var azProvider = providers["az"];
+        azProvider.Source.Should().Be("mcr.microsoft.com/bicep/providers/az");
+        azProvider.Version.Should().Be("0.2.3");
 
-        res.Providers["az"].Should().NotBeNull();
-        // verifies that 'registry' and 'version' are valid properties for 'source'
-        res.Providers["az"].Registry.Should().Be("mcr.microsoft.com/bicep/providers/az");
-        res.Providers["az"].Version.Should().Be("0.2.3");
-
-        res.Providers["kubernetes"].Should().NotBeNull();
-        // verifies that 'builtin' is a valid property for 'source'
-        res.Providers["kubernetes"].Builtin.Should().BeTrue();
+        var k8sProvider = providers["kubernetes"];
+        k8sProvider.Should().NotBeNull();
+        // // verifies that 'builtin' is a valid property for 'source'
+        k8sProvider.Builtin.Should().BeTrue();
     }
 
     [TestMethod]
@@ -59,7 +62,7 @@ public class ProvidersConfigurationTests
         {
             "providers": {
                 "az": {
-                    "registry": "mcr.microsoft.com/bicep/providers",
+                    "source": "mcr.microsoft.com/bicep/providers",
                     "version": "0.2.3",
                     "builtin": true
                 }
@@ -67,7 +70,50 @@ public class ProvidersConfigurationTests
         }
         """);
 
-        Action deserializeFn = () => JsonSerializer.Deserialize<ProvidersConfigurationSection>(data, DefaultDeserializeOptions);
+        Action deserializeFn = () => JsonSerializer.Deserialize<ImmutableDictionary<string, ProviderSource>>(data.GetProperty("providers"), DefaultDeserializeOptions);
         deserializeFn.Should().Throw<ArgumentException>().WithMessage("The 'builtin' property is mutually exclusive with 'registry' and 'version'.");
+    }
+
+    [TestMethod]
+    public void ProviderConfiguration_user_provided_configuration_overrides_default_configuration()
+    {
+         var localConfigFilePath = "bicepconfig.json";
+            var fs = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                [localConfigFilePath] = new("""
+                {
+                    "providers": {
+                        "foo": {
+                            "source": "example.azurecr.io/some/fake/path",
+                            "version": "1.0.0"
+                        },
+                        "az": {
+                            "source": "mcr.microsoft.com/bicep/providers/az",
+                            "version": "0.2.3"
+                        }
+                    }
+                }
+                """)
+            });
+
+            var configManager = new ConfigurationManager(fs);
+            var config = configManager.GetConfiguration(new(fs.Path.GetFullPath(localConfigFilePath)));
+
+            config.Should().NotBeNull();
+            config!.ProvidersConfig.Should().NotBeNull();
+
+            // verifies that 'source' and 'version' are valid properties for 'foo'
+            config.ProvidersConfig!.TryGetProviderSource("foo").IsSuccess(out var fooProvider).Should().BeTrue();
+            fooProvider!.Source.Should().Be("example.azurecr.io/some/fake/path");
+            fooProvider!.Version.Should().Be("1.0.0");
+
+            // verifies that 'az' provider properties are overridden by the user provided configuration
+            config.ProvidersConfig!.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
+            azProvider!.Source.Should().Be("mcr.microsoft.com/bicep/providers/az");
+            azProvider!.Version.Should().Be("0.2.3");
+
+
+            // verifies that 'sys' is not present in the merged configuration
+            config.ProvidersConfig!.TryGetProviderSource("sys").IsSuccess().Should().BeFalse();
     }
 }
