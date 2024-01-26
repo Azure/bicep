@@ -13,7 +13,12 @@
       "title": "Diagnostic Level",
       "description": "Type of diagnostic to display, most rules default to warning",
       "type": "string",
-      "enum": ["off", "info", "warning", "error"]
+      "enum": [
+        "off",
+        "info",
+        "warning",
+        "error"
+      ]
     },
     "rule-def-level-warning": {
       "type": "object",
@@ -25,7 +30,9 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": ["level"]
+      "required": [
+        "level"
+      ]
     },
     "rule-def-level-error": {
       "type": "object",
@@ -37,7 +44,9 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": ["level"]
+      "required": [
+        "level"
+      ]
     },
     "rule-def-level-off": {
       "type": "object",
@@ -49,12 +58,17 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": ["level"]
+      "required": [
+        "level"
+      ]
     },
     "cloudProfile": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["resourceManagerEndpoint", "activeDirectoryAuthority"],
+      "required": [
+        "resourceManagerEndpoint",
+        "activeDirectoryAuthority"
+      ],
       "properties": {
         "resourceManagerEndpoint": {
           "title": "Resource Manager Endpoint",
@@ -84,7 +98,10 @@
     "templateSpecModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["subscription", "resourceGroup"],
+      "required": [
+        "subscription",
+        "resourceGroup"
+      ],
       "properties": {
         "subscription": {
           "title": "Subscription ID",
@@ -105,7 +122,9 @@
     "bicepRegistryModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["registry"],
+      "required": [
+        "registry"
+      ],
       "properties": {
         "registry": {
           "title": "Registry",
@@ -125,7 +144,9 @@
     "bicepRegistryProviderAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["registry"],
+      "required": [
+        "registry"
+      ],
       "properties": {
         "registry": {
           "title": "Registry",
@@ -150,14 +171,20 @@
       "title": "Cloud",
       "type": "object",
       "additionalProperties": false,
-      "required": ["currentProfile"],
+      "required": [
+        "currentProfile"
+      ],
       "properties": {
         "currentProfile": {
           "title": "Current Profile",
           "description": "The current cloud profile",
           "anyOf": [
             {
-              "enum": ["AzureCloud", "AzureChinaCloud", "AzureUSGovernment"]
+              "enum": [
+                "AzureCloud",
+                "AzureChinaCloud",
+                "AzureUSGovernment"
+              ]
             },
             {
               "type": "string"
@@ -199,7 +226,10 @@
                   "title": "Managed Identity Type",
                   "description": "The managed identity type",
                   "type": "string",
-                  "enum": ["SystemAssigned", "UserAssigned"],
+                  "enum": [
+                    "SystemAssigned",
+                    "UserAssigned"
+                  ],
                   "default": "SystemAssigned",
                   "enumDescriptions": [
                     "Use a system-assigned managed identity",
@@ -441,7 +471,9 @@
                         "excludedhosts": {
                           "description": "Customize the list of hosts to allow even if they contain an excluded host as a substring",
                           "type": "array",
-                          "default": ["schema.management.azure.com"],
+                          "default": [
+                            "schema.management.azure.com"
+                          ],
                           "items": {
                             "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/excludedhosts/items",
                             "title": "Items",
@@ -697,9 +729,16 @@
       "description": "The directory in which Bicep may cache templates downloaded from remote registries"
     },
     "experimentalFeaturesEnabled": {
+      "_comment": "Documentation for these features can be found at https://github.com/Azure/bicep/blob/main/docs/experimental-features.md",
       "type": "object",
       "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file",
       "properties": {
+        "microsoftGraphPreview": {
+          "type": "boolean"
+        },
+        "assertions": {
+          "type": "boolean"
+        },
         "symbolicNameCodegen": {
           "type": "boolean"
         },
@@ -752,12 +791,19 @@
         "indentKind": {
           "type": "string",
           "description": "The indentation kind",
-          "enum": ["Space", "Tab"]
+          "enum": [
+            "Space",
+            "Tab"
+          ]
         },
         "newlineKind": {
           "type": "string",
           "description": "The newline kind",
-          "enum": ["LF", "CRLF", "CR"]
+          "enum": [
+            "LF",
+            "CRLF",
+            "CR"
+          ]
         },
         "indentSize": {
           "type": "integer",
