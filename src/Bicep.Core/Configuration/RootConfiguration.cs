@@ -19,6 +19,8 @@ namespace Bicep.Core.Configuration
 
         private const string ProvidersConfigurationKey = "providers";
 
+        private const string ImplicitProvidersConfigurationKey = "implicitProviders";
+
         private const string AnalyzersKey = "analyzers";
 
         private const string CacheRootDirectoryKey = "cacheRootDirectory";
@@ -32,6 +34,7 @@ namespace Bicep.Core.Configuration
             ModuleAliasesConfiguration moduleAliases,
             ProviderAliasesConfiguration providerAliases,
             ProvidersConfiguration providersConfig,
+            ImplicitProvidersConfiguration implicitProvidersConfig,
             AnalyzersConfiguration analyzers,
             string? cacheRootDirectory,
             ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
@@ -43,6 +46,7 @@ namespace Bicep.Core.Configuration
             this.ModuleAliases = moduleAliases;
             this.ProviderAliases = providerAliases;
             this.ProvidersConfig = providersConfig;
+            this.ImplicitProvidersConfig = implicitProvidersConfig;
             this.Analyzers = analyzers;
             this.CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
             this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
@@ -57,6 +61,7 @@ namespace Bicep.Core.Configuration
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileUri);
             var providerAliases = ProviderAliasesConfiguration.Bind(element.GetProperty(ProviderAliasesKey), configFileUri);
             var providersConfig = ProvidersConfiguration.Bind(element.GetProperty(ProvidersConfigurationKey), configFileUri);
+            var implicitProvidersConfig = ImplicitProvidersConfiguration.Bind(element.GetProperty(ImplicitProvidersConfigurationKey));
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
             var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
@@ -67,6 +72,7 @@ namespace Bicep.Core.Configuration
                 moduleAliases,
                 providerAliases,
                 providersConfig,
+                implicitProvidersConfig,
                 analyzers,
                 cacheRootDirectory,
                 experimentalFeaturesEnabled,
@@ -82,7 +88,7 @@ namespace Bicep.Core.Configuration
         public ProviderAliasesConfiguration ProviderAliases { get; }
 
         public ProvidersConfiguration ProvidersConfig { get; }
-        
+        public ImplicitProvidersConfiguration ImplicitProvidersConfig { get; }
         public AnalyzersConfiguration Analyzers { get; }
 
         public string? CacheRootDirectory { get; }

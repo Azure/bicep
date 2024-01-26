@@ -98,6 +98,7 @@ namespace Bicep.Core.Configuration
                     configuration.ModuleAliases,
                     configuration.ProviderAliases,
                     configuration.ProvidersConfig,
+                    configuration.ImplicitProvidersConfig,
                     configuration.Analyzers,
                     configuration.CacheRootDirectory,
                     configuration.ExperimentalFeaturesEnabled,
