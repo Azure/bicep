@@ -1,5 +1,5 @@
 type 44
-//@[000:4579) ProgramSyntax
+//@[000:4902) ProgramSyntax
 //@[000:0007) ├─TypeDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |type|
 //@[005:0007) | ├─IdentifierSyntax
@@ -1857,6 +1857,144 @@ output discriminatorOutputBadType2 object = { prop: 'value' }
 //@[052:0059) |   | └─StringSyntax
 //@[052:0059) |   |   └─Token(StringComplete) |'value'|
 //@[060:0061) |   └─Token(RightBrace) |}|
-//@[061:0062) ├─Token(NewLine) |\n|
+//@[061:0063) ├─Token(NewLine) |\n\n|
+
+type strings = string[]
+//@[000:0023) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0012) | ├─IdentifierSyntax
+//@[005:0012) | | └─Token(Identifier) |strings|
+//@[013:0014) | ├─Token(Assignment) |=|
+//@[015:0023) | └─ArrayTypeSyntax
+//@[015:0021) |   ├─ArrayTypeMemberSyntax
+//@[015:0021) |   | └─VariableAccessSyntax
+//@[015:0021) |   |   └─IdentifierSyntax
+//@[015:0021) |   |     └─Token(Identifier) |string|
+//@[021:0022) |   ├─Token(LeftSquare) |[|
+//@[022:0023) |   └─Token(RightSquare) |]|
+//@[023:0025) ├─Token(NewLine) |\n\n|
+
+type invalidTupleAccess = strings[0]
+//@[000:0036) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0023) | ├─IdentifierSyntax
+//@[005:0023) | | └─Token(Identifier) |invalidTupleAccess|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0036) | └─TypeArrayAccessSyntax
+//@[026:0033) |   ├─VariableAccessSyntax
+//@[026:0033) |   | └─IdentifierSyntax
+//@[026:0033) |   |   └─Token(Identifier) |strings|
+//@[033:0034) |   ├─Token(LeftSquare) |[|
+//@[034:0035) |   ├─IntegerLiteralSyntax
+//@[034:0035) |   | └─Token(Integer) |0|
+//@[035:0036) |   └─Token(RightSquare) |]|
+//@[036:0038) ├─Token(NewLine) |\n\n|
+
+type stringTuple = [string, string]
+//@[000:0035) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0016) | ├─IdentifierSyntax
+//@[005:0016) | | └─Token(Identifier) |stringTuple|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0035) | └─TupleTypeSyntax
+//@[019:0020) |   ├─Token(LeftSquare) |[|
+//@[020:0026) |   ├─TupleTypeItemSyntax
+//@[020:0026) |   | └─VariableAccessSyntax
+//@[020:0026) |   |   └─IdentifierSyntax
+//@[020:0026) |   |     └─Token(Identifier) |string|
+//@[026:0027) |   ├─Token(Comma) |,|
+//@[028:0034) |   ├─TupleTypeItemSyntax
+//@[028:0034) |   | └─VariableAccessSyntax
+//@[028:0034) |   |   └─IdentifierSyntax
+//@[028:0034) |   |     └─Token(Identifier) |string|
+//@[034:0035) |   └─Token(RightSquare) |]|
+//@[035:0037) ├─Token(NewLine) |\n\n|
+
+type invalidItemTypeAccess = stringTuple[*]
+//@[000:0043) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0026) | ├─IdentifierSyntax
+//@[005:0026) | | └─Token(Identifier) |invalidItemTypeAccess|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0043) | └─TypeItemsAccessSyntax
+//@[029:0040) |   ├─VariableAccessSyntax
+//@[029:0040) |   | └─IdentifierSyntax
+//@[029:0040) |   |   └─Token(Identifier) |stringTuple|
+//@[040:0041) |   ├─Token(LeftSquare) |[|
+//@[041:0042) |   ├─Token(Asterisk) |*|
+//@[042:0043) |   └─Token(RightSquare) |]|
+//@[043:0045) ├─Token(NewLine) |\n\n|
+
+type anObject = {
+//@[000:0038) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0013) | ├─IdentifierSyntax
+//@[005:0013) | | └─Token(Identifier) |anObject|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0038) | └─ObjectTypeSyntax
+//@[016:0017) |   ├─Token(LeftBrace) |{|
+//@[017:0018) |   ├─Token(NewLine) |\n|
+  property: string
+//@[002:0018) |   ├─ObjectTypePropertySyntax
+//@[002:0010) |   | ├─IdentifierSyntax
+//@[002:0010) |   | | └─Token(Identifier) |property|
+//@[010:0011) |   | ├─Token(Colon) |:|
+//@[012:0018) |   | └─VariableAccessSyntax
+//@[012:0018) |   |   └─IdentifierSyntax
+//@[012:0018) |   |     └─Token(Identifier) |string|
+//@[018:0019) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+type invalidAdditionalPropertiesAccess = anObject.*
+//@[000:0051) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0038) | ├─IdentifierSyntax
+//@[005:0038) | | └─Token(Identifier) |invalidAdditionalPropertiesAccess|
+//@[039:0040) | ├─Token(Assignment) |=|
+//@[041:0051) | └─TypeAdditionalPropertiesAccessSyntax
+//@[041:0049) |   ├─VariableAccessSyntax
+//@[041:0049) |   | └─IdentifierSyntax
+//@[041:0049) |   |   └─Token(Identifier) |anObject|
+//@[049:0050) |   ├─Token(Dot) |.|
+//@[050:0051) |   └─Token(Asterisk) |*|
+//@[051:0053) ├─Token(NewLine) |\n\n|
+
+type stringDict = {
+//@[000:0033) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0015) | ├─IdentifierSyntax
+//@[005:0015) | | └─Token(Identifier) |stringDict|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0033) | └─ObjectTypeSyntax
+//@[018:0019) |   ├─Token(LeftBrace) |{|
+//@[019:0020) |   ├─Token(NewLine) |\n|
+  *: string
+//@[002:0011) |   ├─ObjectTypeAdditionalPropertiesSyntax
+//@[002:0003) |   | ├─Token(Asterisk) |*|
+//@[003:0004) |   | ├─Token(Colon) |:|
+//@[005:0011) |   | └─VariableAccessSyntax
+//@[005:0011) |   |   └─IdentifierSyntax
+//@[005:0011) |   |     └─Token(Identifier) |string|
+//@[011:0012) |   ├─Token(NewLine) |\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+type invalidPropertyAccess = stringDict.property
+//@[000:0048) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0026) | ├─IdentifierSyntax
+//@[005:0026) | | └─Token(Identifier) |invalidPropertyAccess|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0048) | └─TypePropertyAccessSyntax
+//@[029:0039) |   ├─VariableAccessSyntax
+//@[029:0039) |   | └─IdentifierSyntax
+//@[029:0039) |   |   └─Token(Identifier) |stringDict|
+//@[039:0040) |   ├─Token(Dot) |.|
+//@[040:0048) |   └─IdentifierSyntax
+//@[040:0048) |     └─Token(Identifier) |property|
+//@[048:0049) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

@@ -942,12 +942,18 @@ namespace Bicep.Core.Parsing
                         Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
                         current = new ArrayTypeSyntax(new ArrayTypeMemberSyntax(current), openSquare, closeSquare);
                     }
+                    else if (this.Check(TokenType.Asterisk))
+                    {
+                        Token asterisk = this.Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*"));
+                        Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
+                        current = new TypeItemsAccessSyntax(current, openSquare, asterisk, closeSquare);
+                    }
                     else
                     {
                         SyntaxBase indexExpression = this.Expression(ExpressionFlags.None);
                         Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
-                        current = new ArrayAccessSyntax(current, openSquare, null, indexExpression, closeSquare);
+                        current = new TypeArrayAccessSyntax(current, openSquare, indexExpression, closeSquare);
                     }
 
                     continue;
@@ -958,11 +964,19 @@ namespace Bicep.Core.Parsing
                     // dot operator
                     Token dot = this.reader.Read();
 
+                    if (this.Check(TokenType.Asterisk))
+                    {
+                        Token asterisk = this.Expect(TokenType.Asterisk, b => b.ExpectedCharacter("*"));
+                        current = new TypeAdditionalPropertiesAccessSyntax(current, dot, asterisk);
+
+                        continue;
+                    }
+
                     IdentifierSyntax identifier = this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName());
 
-                    if (Check(TokenType.LeftChevron))
+                    if (this.Check(TokenType.LeftChevron))
                     {
-                        var parameterizedType = ParameterizedTypeInstantiation(identifier);
+                        var parameterizedType = this.ParameterizedTypeInstantiation(identifier);
 
                         current = new InstanceParameterizedTypeInstantiationSyntax(
                             current,
@@ -974,7 +988,7 @@ namespace Bicep.Core.Parsing
                     }
                     else
                     {
-                        current = new PropertyAccessSyntax(current, dot, null, identifier);
+                        current = new TypePropertyAccessSyntax(current, dot, identifier);
                     }
 
                     continue;

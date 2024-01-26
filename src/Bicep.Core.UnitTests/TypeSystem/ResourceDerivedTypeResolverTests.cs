@@ -21,14 +21,14 @@ using Moq;
 namespace Bicep.Core.UnitTests.TypeSystem;
 
 [TestClass]
-public class ResourceDerivedTypeBinderTests
+public class ResourceDerivedTypeResolverTests
 {
     [DataTestMethod]
     [DynamicData(nameof(GetTypesNotInNeedOfBinding), DynamicDataSourceType.Method)]
     public void Returns_input_if_no_unbound_types_are_enclosed(TypeSymbol type)
     {
-        ResourceDerivedTypeBinder sut = new(StrictMock.Of<IBinder>().Object);
-        sut.BindResourceDerivedTypes(type).Should().BeSameAs(type);
+        ResourceDerivedTypeResolver sut = new(StrictMock.Of<IBinder>().Object);
+        sut.ResolveResourceDerivedTypes(type).Should().BeSameAs(type);
     }
 
     private static IEnumerable<object[]> GetTypesNotInNeedOfBinding()
@@ -59,10 +59,10 @@ public class ResourceDerivedTypeBinderTests
     public void Hydrates_array_item_types()
     {
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
-        var (sut, unhydratedTypeRef) = SetupBinder(hydrated);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnbound = TypeFactory.CreateArrayType(new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any));
-        sut.BindResourceDerivedTypes(containsUnbound).Should().BeOfType<TypedArrayType>()
+        var containsUnresolved = TypeFactory.CreateArrayType(new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any));
+        sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<TypedArrayType>()
             .Subject.Item.Should().BeSameAs(hydrated);
     }
 
@@ -70,11 +70,11 @@ public class ResourceDerivedTypeBinderTests
     public void Hydrates_tuple_item_types()
     {
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
-        var (sut, unhydratedTypeRef) = SetupBinder(hydrated);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnbound = new TupleType(ImmutableArray.Create<ITypeReference>(new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any)),
+        var containsUnresolved = new TupleType(ImmutableArray.Create<ITypeReference>(new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any)),
             TypeSymbolValidationFlags.Default);
-        sut.BindResourceDerivedTypes(containsUnbound).Should().BeOfType<TupleType>()
+        sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<TupleType>()
             .Subject.Items.First().Should().BeSameAs(hydrated);
     }
 
@@ -85,21 +85,21 @@ public class ResourceDerivedTypeBinderTests
             TypeSymbolValidationFlags.Default,
             new TypeProperty("property", TypeFactory.CreateStringLiteralType("foo")).AsEnumerable(),
             null);
-        var (sut, unhydratedTypeRef) = SetupBinder(hydrated);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnbound = new DiscriminatedObjectType("discriminatedObject",
+        var containsUnresolved = new DiscriminatedObjectType("discriminatedObject",
             TypeSymbolValidationFlags.Default,
             "property",
             new ITypeReference[]
             {
-                new UnboundResourceDerivedPartialObjectType(unhydratedTypeRef, "property", "foo"),
+                new UnresolvedResourceDerivedPartialObjectType(unhydratedTypeRef, ImmutableArray<string>.Empty, "property", "foo"),
                 new ObjectType("bar",
                     TypeSymbolValidationFlags.Default,
                     new TypeProperty("property", TypeFactory.CreateStringLiteralType("bar")).AsEnumerable(),
                     null)
             });
 
-        sut.BindResourceDerivedTypes(containsUnbound).Should().BeOfType<DiscriminatedObjectType>()
+        sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<DiscriminatedObjectType>()
             .Subject.UnionMembersByKey["'foo'"].Should().BeSameAs(hydrated);
     }
 
@@ -107,14 +107,14 @@ public class ResourceDerivedTypeBinderTests
     public void Hydrates_object_property_types()
     {
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
-        var (sut, unhydratedTypeRef) = SetupBinder(hydrated);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnbound = new ObjectType("object",
+        var containsUnresolved = new ObjectType("object",
             TypeSymbolValidationFlags.Default,
-            new TypeProperty("property", new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any)).AsEnumerable(),
+            new TypeProperty("property", new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any)).AsEnumerable(),
             null);
 
-        sut.BindResourceDerivedTypes(containsUnbound).Should().BeOfType<ObjectType>()
+        sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<ObjectType>()
             .Subject.Properties["property"].TypeReference.Type.Should().BeSameAs(hydrated);
     }
 
@@ -122,14 +122,14 @@ public class ResourceDerivedTypeBinderTests
     public void Hydrates_object_additinalProperties_types()
     {
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
-        var (sut, unhydratedTypeRef) = SetupBinder(hydrated);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnbound = new ObjectType("object",
+        var containsUnresolved = new ObjectType("object",
             TypeSymbolValidationFlags.Default,
             ImmutableArray<TypeProperty>.Empty,
-            new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any));
+            new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any));
 
-        var hydratedContainer = sut.BindResourceDerivedTypes(containsUnbound).Should().BeOfType<ObjectType>().Subject;
+        var hydratedContainer = sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<ObjectType>().Subject;
         hydratedContainer.AdditionalPropertiesType.Should().NotBeNull();
         hydratedContainer.AdditionalPropertiesType!.Type.Should().BeSameAs(hydrated);
     }
@@ -138,12 +138,12 @@ public class ResourceDerivedTypeBinderTests
     public void Hydrates_union_member_types()
     {
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
-        var (sut, unhydratedTypeRef) = SetupBinder(hydrated);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnbound = TypeHelper.CreateTypeUnion(LanguageConstants.String,
-            new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any));
+        var containsUnresolved = TypeHelper.CreateTypeUnion(LanguageConstants.String,
+            new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any));
 
-        sut.BindResourceDerivedTypes(containsUnbound).Should().BeOfType<UnionType>()
+        sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<UnionType>()
             .Subject.Members.Should().Contain(hydrated);
     }
 
@@ -151,11 +151,11 @@ public class ResourceDerivedTypeBinderTests
     public void Hydrates_wrapped_types()
     {
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
-        var (sut, unhydratedTypeRef) = SetupBinder(hydrated);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnbound = new TypeType(new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any));
+        var containsUnresolved = new TypeType(new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any));
 
-        sut.BindResourceDerivedTypes(containsUnbound).Should().BeOfType<TypeType>()
+        sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<TypeType>()
             .Subject.Unwrapped.Should().BeSameAs(hydrated);
     }
 
@@ -163,22 +163,22 @@ public class ResourceDerivedTypeBinderTests
     public void Hydrates_lambda_types()
     {
         var hydrated = TypeFactory.CreateBooleanLiteralType(false);
-        var (sut, unhydratedTypeRef) = SetupBinder(hydrated);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
 
-        var containsUnbound = new LambdaType(
+        var containsUnresolved = new LambdaType(
             ImmutableArray.Create<ITypeReference>(
-                TypeFactory.CreateArrayType(new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any)),
-                new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any)),
-            new UnboundResourceDerivedType(unhydratedTypeRef, LanguageConstants.Any));
+                TypeFactory.CreateArrayType(new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any)),
+                new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any)),
+            new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, LanguageConstants.Any));
 
-        var bound = sut.BindResourceDerivedTypes(containsUnbound).Should().BeOfType<LambdaType>().Subject;
+        var bound = sut.ResolveResourceDerivedTypes(containsUnresolved).Should().BeOfType<LambdaType>().Subject;
         bound.ArgumentTypes.Should().SatisfyRespectively(
             arg => arg.Type.Should().BeOfType<TypedArrayType>().Subject.Item.Type.Should().BeSameAs(hydrated),
             arg => arg.Type.Should().BeSameAs(hydrated));
         bound.ReturnType.Should().BeSameAs(hydrated);
     }
 
-    private static (ResourceDerivedTypeBinder sut, ResourceTypeReference unhydratedTypeRef) SetupBinder(TypeSymbol hydratedType)
+    private static (ResourceDerivedTypeResolver sut, ResourceTypeReference unhydratedTypeRef) SetupResolver(TypeSymbol hydratedType)
     {
         var unhydratedTypeRef = new ResourceTypeReference("type", "version");
         var resourceTypeProviderMock = StrictMock.Of<IResourceTypeProvider>();
@@ -272,12 +272,36 @@ public class ResourceDerivedTypeBinderTests
         var binderMock = StrictMock.Of<IBinder>();
         binderMock.Setup(x => x.NamespaceResolver).Returns(resolver);
 
-        ResourceDerivedTypeBinder sut = new(binderMock.Object);
+        ResourceDerivedTypeResolver sut = new(binderMock.Object);
         var fallbackType = LanguageConstants.SecureString;
 
-        sut.BindResourceDerivedTypes(new UnboundResourceDerivedType(unhydratedTypeRef, fallbackType)).Should().BeSameAs(fallbackType);
+        sut.ResolveResourceDerivedTypes(new UnresolvedResourceDerivedType(unhydratedTypeRef, ImmutableArray<string>.Empty, fallbackType)).Should().BeSameAs(fallbackType);
 
         resourceTypeProviderMock.Verify(x => x.TryGetDefinedType(stubbedNamespaceType, unhydratedTypeRef, ResourceTypeGenerationFlags.None), Times.Once());
         resourceTypeProviderMock.Verify(x => x.TryGenerateFallbackType(stubbedNamespaceType, unhydratedTypeRef, ResourceTypeGenerationFlags.None), Times.Once());
+    }
+
+    [TestMethod]
+    public void Supports_pointers_to_partial_resource_body_types()
+    {
+        var targetType = TypeFactory.CreateBooleanLiteralType(false);
+        var hydrated = new ObjectType("object",
+            TypeSymbolValidationFlags.Default,
+            ImmutableArray.Create(new TypeProperty("property",
+                new TupleType(
+                    ImmutableArray.Create<ITypeReference>(new ObjectType("dictionary",
+                        TypeSymbolValidationFlags.Default,
+                        ImmutableArray<TypeProperty>.Empty,
+                        TypeFactory.CreateArrayType(targetType))),
+                    TypeSymbolValidationFlags.Default))),
+            null);
+        var (sut, unhydratedTypeRef) = SetupResolver(hydrated);
+
+        UnresolvedResourceDerivedType unresolved = new(unhydratedTypeRef,
+            ImmutableArray.Create("properties", "property", "prefixItems", "0", "additionalProperties", "items"),
+            LanguageConstants.Any);
+
+        var bound = sut.ResolveResourceDerivedTypes(unresolved);
+        bound.Should().BeSameAs(targetType);
     }
 }

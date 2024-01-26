@@ -80,7 +80,7 @@ type test2 = resource<
 //@      "metadata": {
 //@        "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview",
 //@      }
-//@    }
+//@    },
 
      'Astronomer.Astro/organizations@2023-08-01-preview'
 
@@ -125,4 +125,26 @@ output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31
   location: 'eastus'
 //@        "location": "eastus"
 }
+
+type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@    "storageAccountName": {
+//@      "type": "string",
+//@      "metadata": {
+//@        "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
+//@      }
+//@    },
+type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+//@    "accessPolicy": {
+//@      "type": "object",
+//@      "metadata": {
+//@        "__bicep_resource_derived_type!": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items"
+//@      }
+//@    },
+type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+//@    "tag": {
+//@      "type": "string",
+//@      "metadata": {
+//@        "__bicep_resource_derived_type!": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
+//@      }
+//@    }
 

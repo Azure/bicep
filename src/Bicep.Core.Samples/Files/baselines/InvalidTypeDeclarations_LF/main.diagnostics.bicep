@@ -305,3 +305,27 @@ output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
 //@[00:022) [BCP363 (Error)] The "discriminator" decorator can only be applied to object-only union types with unique member types. (CodeDescription: none) |@discriminator('type')|
 output discriminatorOutputBadType2 object = { prop: 'value' }
 
+type strings = string[]
+
+type invalidTupleAccess = strings[0]
+//@[34:035) [BCP388 (Error)] Cannot access elements of type "string[]" by index. An tuple type is required. (CodeDescription: none) |0|
+
+type stringTuple = [string, string]
+
+type invalidItemTypeAccess = stringTuple[*]
+//@[40:043) [BCP390 (Error)] The array item type access operator ('[*]') can only be used with typed arrays. (CodeDescription: none) |[*]|
+
+type anObject = {
+  property: string
+}
+
+type invalidAdditionalPropertiesAccess = anObject.*
+//@[50:051) [BCP389 (Error)] The type "{ property: string }" does not declare an additional properties type. (CodeDescription: none) |*|
+
+type stringDict = {
+  *: string
+}
+
+type invalidPropertyAccess = stringDict.property
+//@[40:048) [BCP052 (Error)] The type "{ *: string }" does not contain property "property". (CodeDescription: none) |property|
+

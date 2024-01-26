@@ -257,11 +257,34 @@ namespace Bicep.LanguageServer.Handlers
             // Find the underlying VariableSyntax being accessed
             var syntax = result.Origin;
             var propertyAccesses = new List<IdentifierSyntax>();
-            while (syntax is PropertyAccessSyntax propertyAccessSyntax)
+            while (true)
             {
-                // since we are traversing bottom up, add this access to the beginning of the list
-                propertyAccesses.Insert(0, propertyAccessSyntax.PropertyName);
-                syntax = propertyAccessSyntax.BaseExpression;
+                if (syntax is PropertyAccessSyntax propertyAccessSyntax)
+                {
+                    // since we are traversing bottom up, add this access to the beginning of the list
+                    propertyAccesses.Insert(0, propertyAccessSyntax.PropertyName);
+                    syntax = propertyAccessSyntax.BaseExpression;
+
+                    continue;
+                }
+
+                if (syntax is TypePropertyAccessSyntax typePropertyAccessSyntax)
+                {
+                    // since we are traversing bottom up, add this access to the beginning of the list
+                    propertyAccesses.Insert(0, typePropertyAccessSyntax.PropertyName);
+                    syntax = typePropertyAccessSyntax.BaseExpression;
+
+                    continue;
+                }
+
+                if (syntax is ParenthesizedExpressionSyntax parenthesized)
+                {
+                    syntax = parenthesized.Expression;
+
+                    continue;
+                }
+
+                break;
             }
 
             if (syntax is VariableAccessSyntax ancestor

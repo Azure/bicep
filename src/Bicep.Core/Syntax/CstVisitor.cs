@@ -539,5 +539,35 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Expression);
         }
+
+        public override void VisitTypePropertyAccessSyntax(TypePropertyAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.Dot);
+            this.Visit(syntax.PropertyName);
+        }
+
+        public override void VisitTypeAdditionalPropertiesAccessSyntax(TypeAdditionalPropertiesAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.Dot);
+            this.Visit(syntax.Asterisk);
+        }
+
+        public override void VisitTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.OpenSquare);
+            this.Visit(syntax.IndexExpression);
+            this.Visit(syntax.CloseSquare);
+        }
+
+        public override void VisitTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax)
+        {
+            this.Visit(syntax.BaseExpression);
+            this.Visit(syntax.OpenSquare);
+            this.Visit(syntax.Asterisk);
+            this.Visit(syntax.CloseSquare);
+        }
     }
 }

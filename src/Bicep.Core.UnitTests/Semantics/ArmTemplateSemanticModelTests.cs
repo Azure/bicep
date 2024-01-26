@@ -460,7 +460,7 @@ public class ArmTemplateSemanticModelTests
             "arrayOfStorageAccounts");
 
         var typedArrayParameterType = parameterType.Should().BeOfType<TypedArrayType>().Subject;
-        var itemType = typedArrayParameterType.Item.Should().BeOfType<UnboundResourceDerivedType>().Subject;
+        var itemType = typedArrayParameterType.Item.Should().BeOfType<UnresolvedResourceDerivedType>().Subject;
 
         itemType.TypeReference.Type.Should().Be("Microsoft.Storage/storageAccounts");
         itemType.TypeReference.ApiVersion.Should().Be("2022-09-01");
@@ -506,7 +506,7 @@ public class ArmTemplateSemanticModelTests
             "taggedUnion");
 
         var typedArrayParameterType = parameterType.Should().BeOfType<DiscriminatedObjectType>().Subject;
-        var itemType = typedArrayParameterType.UnionMembersByKey["'default'"].Should().BeOfType<UnboundResourceDerivedPartialObjectType>().Subject;
+        var itemType = typedArrayParameterType.UnionMembersByKey["'default'"].Should().BeOfType<UnresolvedResourceDerivedPartialObjectType>().Subject;
 
         itemType.TypeReference.Type.Should().Be("Microsoft.Resources/tags");
         itemType.TypeReference.ApiVersion.Should().Be("2022-09-01");

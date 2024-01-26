@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4990) ProgramExpression
+//@[000:5153) ProgramExpression
 //@[000:0299) ├─DeclaredTypeExpression { Name = foo }
 //@[013:0027) | ├─StringLiteralExpression { Value = The foo type }
 @sealed()
@@ -43,9 +43,15 @@ type foo = {
 
   recursion: foo?
 //@[002:0017) |   └─ObjectTypePropertyExpression
-//@[013:0017) |     └─NullableTypeExpression { Name = Type<{ stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] | null }, typeRefProp: bar, literalProp: 'literal', recursion: foo? }> | null }
+//@[013:0017) |     └─NullableTypeExpression { Name = null | { stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] | null }, typeRefProp: bar, literalProp: 'literal', recursion: foo? } }
 //@[013:0016) |       └─TypeAliasReferenceExpression { Name = foo }
 }
+
+type fooProperty = foo.objectProp.intProp
+//@[000:0041) ├─DeclaredTypeExpression { Name = fooProperty }
+//@[019:0041) | └─TypeReferencePropertyAccessExpression { Name = int }
+//@[019:0033) |   └─TypeReferencePropertyAccessExpression { Name = { intProp: int, intArrayArrayProp: int[][] | null } }
+//@[019:0022) |     └─TypeAliasReferenceExpression { Name = foo }
 
 @minLength(3)
 //@[000:0163) ├─DeclaredTypeExpression { Name = bar }
@@ -80,6 +86,11 @@ type bar = int[][][][]
 //@[011:0018) |     └─ArrayTypeExpression { Name = int[][] }
 //@[011:0016) |       └─ArrayTypeExpression { Name = int[] }
 //@[011:0014) |         └─AmbientTypeReferenceExpression { Name = int }
+
+type barElement = bar[*]
+//@[000:0024) ├─DeclaredTypeExpression { Name = barElement }
+//@[018:0024) | └─TypeReferenceItemsAccessExpression { Name = int[][][] }
+//@[018:0021) |   └─TypeAliasReferenceExpression { Name = bar }
 
 type aUnion = 'snap'|'crackle'|'pop'
 //@[000:0036) ├─DeclaredTypeExpression { Name = aUnion }
@@ -219,6 +230,11 @@ type tuple = [
 //@[004:0007) |     └─TypeAliasReferenceExpression { Name = bar }
 ]
 
+type tupleSecondItem = tuple[1]
+//@[000:0031) ├─DeclaredTypeExpression { Name = tupleSecondItem }
+//@[023:0031) | └─TypeReferenceIndexAccessExpression { Name = int[][][][] }
+//@[023:0028) |   └─TypeAliasReferenceExpression { Name = tuple }
+
 type stringStringDictionary = {
 //@[000:0047) ├─DeclaredTypeExpression { Name = stringStringDictionary }
 //@[030:0047) | └─ObjectTypeExpression { Name = { *: string } }
@@ -226,6 +242,11 @@ type stringStringDictionary = {
 //@[004:0013) |   └─ObjectTypeAdditionalPropertiesExpression
 //@[007:0013) |     └─AmbientTypeReferenceExpression { Name = string }
 }
+
+type stringStringDictionaryValue = stringStringDictionary.*
+//@[000:0059) ├─DeclaredTypeExpression { Name = stringStringDictionaryValue }
+//@[035:0059) | └─TypeReferenceAdditionalPropertiesAccessExpression { Name = string }
+//@[035:0057) |   └─TypeAliasReferenceExpression { Name = stringStringDictionary }
 
 @minValue(1)
 //@[000:0052) ├─DeclaredTypeExpression { Name = constrainedInt }
@@ -273,18 +294,18 @@ var maybeNull2 = mightIncludeNull[0][?'key']
 
 output maybeNull string? = maybeNull
 //@[000:0036) ├─DeclaredOutputExpression { Name = maybeNull }
-//@[017:0024) | ├─NullableTypeExpression { Name = Type<string> | null }
+//@[017:0024) | ├─NullableTypeExpression { Name = null | string }
 //@[017:0023) | | └─AmbientTypeReferenceExpression { Name = string }
 //@[027:0036) | └─VariableReferenceExpression { Variable = maybeNull }
 
 type nullable = string?
 //@[000:0023) ├─DeclaredTypeExpression { Name = nullable }
-//@[016:0023) | └─NullableTypeExpression { Name = Type<string> | null }
+//@[016:0023) | └─NullableTypeExpression { Name = null | string }
 //@[016:0022) |   └─AmbientTypeReferenceExpression { Name = string }
 
 type nonNullable = nullable!
 //@[000:0028) ├─DeclaredTypeExpression { Name = nonNullable }
-//@[019:0028) | └─NonNullableTypeExpression { Name = Type<null | string> }
+//@[019:0028) | └─NonNullableTypeExpression { Name = null | string }
 //@[019:0027) |   └─TypeAliasReferenceExpression { Name = nullable }
 
 type typeA = {
@@ -543,7 +564,7 @@ type discriminatorInnerSelfOptionalCycle1 = typeA | {
 //@[008:0011) |     | └─StringLiteralTypeExpression { Name = 'b' }
   value: discriminatorInnerSelfOptionalCycle1?
 //@[002:0046) |     └─ObjectTypePropertyExpression
-//@[009:0046) |       └─NullableTypeExpression { Name = Type<{ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfOptionalCycle1? }> | null }
+//@[009:0046) |       └─NullableTypeExpression { Name = null | ({ type: 'a', value: string } | { type: 'b', value: discriminatorInnerSelfOptionalCycle1? }) }
 //@[009:0045) |         └─TypeAliasReferenceExpression { Name = discriminatorInnerSelfOptionalCycle1 }
 }
 

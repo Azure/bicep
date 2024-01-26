@@ -31,7 +31,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IDiagnosticLookup parsingErrorLookup;
         private readonly IArtifactFileLookup sourceFileLookup;
         private readonly ISemanticModelLookup semanticModelLookup;
-        private readonly ResourceDerivedTypeBinder resourceDerivedTypeBinder;
+        private readonly ResourceDerivedTypeResolver resourceDerivedTypeResolver;
         private readonly ResourceDerivedTypeDiagnosticReporter resourceDerivedTypeDiagnosticReporter;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
@@ -47,7 +47,7 @@ namespace Bicep.Core.TypeSystem
             this.parsingErrorLookup = model.ParsingErrorLookup;
             this.sourceFileLookup = model.Compilation.SourceFileGrouping;
             this.semanticModelLookup = model.Compilation;
-            resourceDerivedTypeBinder = new(binder);
+            resourceDerivedTypeResolver = new(binder);
             resourceDerivedTypeDiagnosticReporter = new(features, binder);
             assignedTypes = new();
             matchedFunctionOverloads = new();
@@ -432,8 +432,8 @@ namespace Bicep.Core.TypeSystem
                             : DiagnosticBuilder.ForPosition(syntax.Path).ReferencedModuleHasErrors());
                     }
 
-                    diagnostics.WriteMultiple(moduleSemanticModel.Parameters.Values.Select(md => md.TypeReference.Type)
-                        .Concat(moduleSemanticModel.Outputs.Select(md => md.TypeReference.Type))
+                    diagnostics.WriteMultiple(moduleSemanticModel.Parameters.Values.Select(md => md.TypeReference)
+                        .Concat(moduleSemanticModel.Outputs.Select(md => md.TypeReference))
                         .SelectMany(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics)
                         .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax.Path))));
                 }
@@ -706,7 +706,7 @@ namespace Bicep.Core.TypeSystem
             => TypeHelper.IsLiteralType(memberType) ? null : DiagnosticBuilder.ForPosition(memberSyntax).NonLiteralUnionMember();
 
         public override void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax)
-            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            => AssignType(syntax, () =>
             {
                 var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
 
@@ -729,6 +729,60 @@ namespace Bicep.Core.TypeSystem
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(explicitResourceType).ResourceTypesUnavailable(resourceType.TypeReference));
                 }
+
+                return declaredType;
+            });
+
+        public override void VisitParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.TryGetReifiedType(syntax)?.ExpressedType;
+                if (declaredType is null)
+                {
+                    return ErrorType.Empty();
+                }
+
+                diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+
+                return declaredType;
+            });
+
+        public override void VisitTypePropertyAccessSyntax(TypePropertyAccessSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitTypePropertyAccessSyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitTypeAdditionalPropertiesAccessSyntax(TypeAdditionalPropertiesAccessSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitTypeAdditionalPropertiesAccessSyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitTypeArrayAccessSyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax)
+            => AssignType(syntax, () =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+
+                base.VisitTypeItemsAccessSyntax(syntax);
 
                 return declaredType;
             });
@@ -979,17 +1033,17 @@ namespace Bicep.Core.TypeSystem
                 List<FunctionOverload> nsFunctions = new();
                 foreach (var export in importedModel.Exports.Values)
                 {
-                    diagnostics.WriteMultiple(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics(export.TypeReference.Type)
+                    diagnostics.WriteMultiple(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics(export.TypeReference)
                         .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax.Wildcard))));
 
                     if (export is ExportedFunctionMetadata exportedFunction)
                     {
-                        nsFunctions.Add(TypeHelper.OverloadWithBoundTypes(resourceDerivedTypeBinder, exportedFunction));
+                        nsFunctions.Add(TypeHelper.OverloadWithResolvedTypes(resourceDerivedTypeResolver, exportedFunction));
                     }
                     else
                     {
                         nsProperties.Add(new(export.Name,
-                            resourceDerivedTypeBinder.BindResourceDerivedTypes(export.TypeReference.Type),
+                            resourceDerivedTypeResolver.ResolveResourceDerivedTypes(export.TypeReference.Type),
                             TypePropertyFlags.ReadOnly | TypePropertyFlags.Required,
                             export.Description));
                     }
@@ -1032,9 +1086,9 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                diagnostics.WriteMultiple(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics(exported.TypeReference.Type)
+                diagnostics.WriteMultiple(resourceDerivedTypeDiagnosticReporter.ReportResourceDerivedTypeDiagnostics(exported.TypeReference)
                     .Select(builder => builder(DiagnosticBuilder.ForPosition(syntax))));
-                return resourceDerivedTypeBinder.BindResourceDerivedTypes(exported.TypeReference.Type);
+                return resourceDerivedTypeResolver.ResolveResourceDerivedTypes(exported.TypeReference.Type);
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
@@ -1457,7 +1511,11 @@ namespace Bicep.Core.TypeSystem
                             if (indexType is StringLiteralType literalIndex)
                             {
                                 // indexing using a string literal so we know the name of the property
-                                return TypeHelper.GetNamedPropertyType(baseObject, syntax.IndexExpression, literalIndex.RawStringValue, syntax.IsSafeAccess || TypeValidator.ShouldWarn(baseObject), diagnostics);
+                                return TypeHelper.GetNamedPropertyType(baseObject,
+                                    syntax.IndexExpression,
+                                    literalIndex.RawStringValue,
+                                    syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(baseObject),
+                                    diagnostics);
                             }
 
                             // the property name is itself an expression
@@ -1567,7 +1625,11 @@ namespace Bicep.Core.TypeSystem
             // there's already a parse error for it, so we don't need to add a type error as well
             ObjectType when !syntax.PropertyName.IsValid => ErrorType.Empty(),
 
-            ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, syntax.IsSafeAccess || TypeValidator.ShouldWarn(objectType), diagnostics),
+            ObjectType objectType => TypeHelper.GetNamedPropertyType(objectType,
+                syntax.PropertyName,
+                syntax.PropertyName.IdentifierName,
+                syntax.IsSafeAccess || TypeValidator.ShouldWarnForPropertyMismatch(objectType),
+                diagnostics),
 
             // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
             DiscriminatedObjectType => LanguageConstants.Any,

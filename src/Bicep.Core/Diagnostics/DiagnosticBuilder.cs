@@ -2109,6 +2109,43 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP386",
                 $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a resource-derived type.");
+
+            public ErrorDiagnostic NegatedTypeIndexSought() => new(
+                TextSpan,
+                "BCP387",
+                "Indexing into a type requires an integer greater than or equal to 0.");
+
+            public ErrorDiagnostic TupleRequiredForIndexAccess(TypeSymbol wrongType) => new(
+                TextSpan,
+                "BCP388",
+                $"Cannot access elements of type \"{wrongType}\" by index. An tuple type is required.");
+
+            public ErrorDiagnostic ExplicitAdditionalPropertiesTypeRequiredForAccessThereto(TypeSymbol wrongType) => new(
+                TextSpan,
+                "BCP389",
+                $"The type \"{wrongType}\" does not declare an additional properties type.");
+
+            public ErrorDiagnostic ExplicitItemsTypeRequiredForAccessThereto() => new(
+                TextSpan,
+                "BCP390",
+                $"The array item type access operator ('[*]') can only be used with typed arrays.");
+
+            public ErrorDiagnostic AccessExpressionForbiddenBase() => new(
+                TextSpan,
+                "BCP391",
+                "Type member access is only supported on a reference to a named type.");
+
+            public Diagnostic InvalidResourceTypeIdentifier(string resourceTypeIdentifier) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP392",
+                $"""The supplied resource type identifier "{resourceTypeIdentifier}" was not recognized as a valid resource type name.""");
+
+            public Diagnostic UnrecognizedResourceDerivedTypePointerSegment(string unrecognizedSegment) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP393",
+                $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

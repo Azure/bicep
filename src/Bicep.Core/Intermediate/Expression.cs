@@ -706,6 +706,53 @@ public record ImportedTypeReferenceExpression(
     protected override object? GetDebugAttributes() => new { Symbol.Name };
 }
 
+public interface ITypeReferenceAccessExpression
+{
+    TypeExpression BaseExpression { get; }
+}
+
+public record TypeReferencePropertyAccessExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression,
+    string PropertyName,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType), ITypeReferenceAccessExpression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTypeReferencePropertyAccessExpression(this);
+}
+
+public record TypeReferenceAdditionalPropertiesAccessExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType), ITypeReferenceAccessExpression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTypeReferenceAdditionalPropertiesAccessExpression(this);
+}
+
+public record TypeReferenceIndexAccessExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression,
+    long Index,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType), ITypeReferenceAccessExpression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTypeReferenceIndexAccessExpression(this);
+}
+
+public record TypeReferenceItemsAccessExpression(
+    SyntaxBase? SourceSyntax,
+    TypeExpression BaseExpression,
+    TypeSymbol ExpressedType
+) : TypeExpression(SourceSyntax, ExpressedType), ITypeReferenceAccessExpression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitTypeReferenceItemsAccessExpression(this);
+}
+
 public record WildcardImportTypePropertyReferenceExpression(
     SyntaxBase? SourceSyntax,
     WildcardImportSymbol ImportSymbol,
@@ -904,9 +951,8 @@ public record ParameterKeyVaultReferenceExpression(
 
 public record ResourceDerivedTypeExpression(
     SyntaxBase? SourceSyntax,
-    ResourceType RootResourceType,
-    TypeSymbol ExpressedType
-) : TypeExpression(SourceSyntax, ExpressedType)
+    ResourceType RootResourceType
+) : TypeExpression(SourceSyntax, RootResourceType.Body.Type)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitResourceDerivedTypeExpression(this);

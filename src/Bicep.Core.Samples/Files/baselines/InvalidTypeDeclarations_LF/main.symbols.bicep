@@ -290,3 +290,31 @@ output discriminatorOutputBadType1 typeA = { type: 'a', value: 'a' }
 output discriminatorOutputBadType2 object = { prop: 'value' }
 //@[7:34) Output discriminatorOutputBadType2. Type: object. Declaration start char: 0, length: 84
 
+type strings = string[]
+//@[5:12) TypeAlias strings. Type: Type<string[]>. Declaration start char: 0, length: 23
+
+type invalidTupleAccess = strings[0]
+//@[5:23) TypeAlias invalidTupleAccess. Type: error. Declaration start char: 0, length: 36
+
+type stringTuple = [string, string]
+//@[5:16) TypeAlias stringTuple. Type: Type<[string, string]>. Declaration start char: 0, length: 35
+
+type invalidItemTypeAccess = stringTuple[*]
+//@[5:26) TypeAlias invalidItemTypeAccess. Type: error. Declaration start char: 0, length: 43
+
+type anObject = {
+//@[5:13) TypeAlias anObject. Type: Type<{ property: string }>. Declaration start char: 0, length: 38
+  property: string
+}
+
+type invalidAdditionalPropertiesAccess = anObject.*
+//@[5:38) TypeAlias invalidAdditionalPropertiesAccess. Type: error. Declaration start char: 0, length: 51
+
+type stringDict = {
+//@[5:15) TypeAlias stringDict. Type: Type<{ *: string }>. Declaration start char: 0, length: 33
+  *: string
+}
+
+type invalidPropertyAccess = stringDict.property
+//@[5:26) TypeAlias invalidPropertyAccess. Type: error. Declaration start char: 0, length: 48
+

@@ -1433,8 +1433,11 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static bool RefersToTypeAlias(SyntaxBase? typeSyntax, IBinder binder) => UnwrapNullableSyntax(typeSyntax) switch
             {
-                VariableAccessSyntax variableAccess => binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol or ImportedTypeSymbol,
-                AccessExpressionSyntax accessExpression => binder.GetSymbolInfo(accessExpression.BaseExpression) is WildcardImportSymbol,
+                VariableAccessSyntax variableAccess => binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol or ImportedTypeSymbol or WildcardImportSymbol,
+                TypePropertyAccessSyntax typePropertyAccess => RefersToTypeAlias(typePropertyAccess.BaseExpression, binder),
+                TypeAdditionalPropertiesAccessSyntax typeAdditionalPropertiesAccess => RefersToTypeAlias(typeAdditionalPropertiesAccess.BaseExpression, binder),
+                TypeArrayAccessSyntax typeArrayAccess => RefersToTypeAlias(typeArrayAccess.BaseExpression, binder) || RefersToTypeAlias(typeArrayAccess.IndexExpression, binder),
+                TypeItemsAccessSyntax typeItemsAccess => RefersToTypeAlias(typeItemsAccess.BaseExpression, binder),
                 _ => false,
             };
 
@@ -1822,7 +1825,7 @@ namespace Bicep.Core.Semantics.Namespaces
                                 return new(errorBuilder(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(0))));
                             }
 
-                            return new(new ResourceDerivedTypeExpression(syntax, resourceType, resourceType.Body.Type));
+                            return new(new ResourceDerivedTypeExpression(syntax, resourceType));
                         }),
                     description: """
                         Use the type definition of the body of a specific resource rather than a user-defined type.

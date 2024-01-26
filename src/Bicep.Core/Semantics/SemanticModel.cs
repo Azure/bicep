@@ -106,7 +106,7 @@ namespace Bicep.Core.Semantics
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated
                         // type so we can compare differently for assignment.
-                        var type = new UnboundResourceType(resourceType.TypeReference);
+                        var type = new UnresolvedResourceType(resourceType.TypeReference);
                         parameters.Add(param.Name, new ParameterMetadata(param.Name, type, isRequired, description));
                     }
                     else
@@ -133,7 +133,7 @@ namespace Bicep.Core.Semantics
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated
                         // type so we can compare differently for assignment and code generation.
-                        var type = new UnboundResourceType(resourceType.TypeReference);
+                        var type = new UnresolvedResourceType(resourceType.TypeReference);
                         outputs.Add(new OutputMetadata(output.Name, type, description));
                     }
                     else

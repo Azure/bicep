@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[000:4990) ProgramSyntax
+//@[000:5153) ProgramSyntax
 //@[000:0299) ├─TypeDeclarationSyntax
 //@[000:0028) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
@@ -162,6 +162,25 @@ type foo = {
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
+type fooProperty = foo.objectProp.intProp
+//@[000:0041) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0016) | ├─IdentifierSyntax
+//@[005:0016) | | └─Token(Identifier) |fooProperty|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0041) | └─TypePropertyAccessSyntax
+//@[019:0033) |   ├─TypePropertyAccessSyntax
+//@[019:0022) |   | ├─VariableAccessSyntax
+//@[019:0022) |   | | └─IdentifierSyntax
+//@[019:0022) |   | |   └─Token(Identifier) |foo|
+//@[022:0023) |   | ├─Token(Dot) |.|
+//@[023:0033) |   | └─IdentifierSyntax
+//@[023:0033) |   |   └─Token(Identifier) |objectProp|
+//@[033:0034) |   ├─Token(Dot) |.|
+//@[034:0041) |   └─IdentifierSyntax
+//@[034:0041) |     └─Token(Identifier) |intProp|
+//@[041:0043) ├─Token(NewLine) |\n\n|
+
 @minLength(3)
 //@[000:0163) ├─TypeDeclarationSyntax
 //@[000:0013) | ├─DecoratorSyntax
@@ -291,6 +310,21 @@ type bar = int[][][][]
 //@[020:0021) |   ├─Token(LeftSquare) |[|
 //@[021:0022) |   └─Token(RightSquare) |]|
 //@[022:0024) ├─Token(NewLine) |\n\n|
+
+type barElement = bar[*]
+//@[000:0024) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0015) | ├─IdentifierSyntax
+//@[005:0015) | | └─Token(Identifier) |barElement|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0024) | └─TypeItemsAccessSyntax
+//@[018:0021) |   ├─VariableAccessSyntax
+//@[018:0021) |   | └─IdentifierSyntax
+//@[018:0021) |   |   └─Token(Identifier) |bar|
+//@[021:0022) |   ├─Token(LeftSquare) |[|
+//@[022:0023) |   ├─Token(Asterisk) |*|
+//@[023:0024) |   └─Token(RightSquare) |]|
+//@[024:0026) ├─Token(NewLine) |\n\n|
 
 type aUnion = 'snap'|'crackle'|'pop'
 //@[000:0036) ├─TypeDeclarationSyntax
@@ -530,7 +564,7 @@ param inlineObjectParam {
 //@[002:0005) | | | ├─IdentifierSyntax
 //@[002:0005) | | | | └─Token(Identifier) |baz|
 //@[005:0006) | | | ├─Token(Colon) |:|
-//@[007:0015) | | | └─PropertyAccessSyntax
+//@[007:0015) | | | └─TypePropertyAccessSyntax
 //@[007:0010) | | |   ├─VariableAccessSyntax
 //@[007:0010) | | |   | └─IdentifierSyntax
 //@[007:0010) | | |   |   └─Token(Identifier) |sys|
@@ -687,6 +721,22 @@ type tuple = [
 //@[000:0001) |   └─Token(RightSquare) |]|
 //@[001:0003) ├─Token(NewLine) |\n\n|
 
+type tupleSecondItem = tuple[1]
+//@[000:0031) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0020) | ├─IdentifierSyntax
+//@[005:0020) | | └─Token(Identifier) |tupleSecondItem|
+//@[021:0022) | ├─Token(Assignment) |=|
+//@[023:0031) | └─TypeArrayAccessSyntax
+//@[023:0028) |   ├─VariableAccessSyntax
+//@[023:0028) |   | └─IdentifierSyntax
+//@[023:0028) |   |   └─Token(Identifier) |tuple|
+//@[028:0029) |   ├─Token(LeftSquare) |[|
+//@[029:0030) |   ├─IntegerLiteralSyntax
+//@[029:0030) |   | └─Token(Integer) |1|
+//@[030:0031) |   └─Token(RightSquare) |]|
+//@[031:0033) ├─Token(NewLine) |\n\n|
+
 type stringStringDictionary = {
 //@[000:0047) ├─TypeDeclarationSyntax
 //@[000:0004) | ├─Token(Identifier) |type|
@@ -707,6 +757,20 @@ type stringStringDictionary = {
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\n\n|
+
+type stringStringDictionaryValue = stringStringDictionary.*
+//@[000:0059) ├─TypeDeclarationSyntax
+//@[000:0004) | ├─Token(Identifier) |type|
+//@[005:0032) | ├─IdentifierSyntax
+//@[005:0032) | | └─Token(Identifier) |stringStringDictionaryValue|
+//@[033:0034) | ├─Token(Assignment) |=|
+//@[035:0059) | └─TypeAdditionalPropertiesAccessSyntax
+//@[035:0057) |   ├─VariableAccessSyntax
+//@[035:0057) |   | └─IdentifierSyntax
+//@[035:0057) |   |   └─Token(Identifier) |stringStringDictionary|
+//@[057:0058) |   ├─Token(Dot) |.|
+//@[058:0059) |   └─Token(Asterisk) |*|
+//@[059:0061) ├─Token(NewLine) |\n\n|
 
 @minValue(1)
 //@[000:0052) ├─TypeDeclarationSyntax

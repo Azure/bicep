@@ -14,7 +14,7 @@ public class ImportedFunctionSymbol : ImportedSymbol<ExportedFunctionMetadata>, 
     public ImportedFunctionSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, ExportedFunctionMetadata exportedFunctionMetadata)
         : base(context, declaringSyntax, enclosingDeclartion, sourceModel, exportedFunctionMetadata)
     {
-        overloadLazy = new(() => TypeHelper.OverloadWithBoundTypes(new(context.Binder), exportedFunctionMetadata));
+        overloadLazy = new(() => TypeHelper.OverloadWithResolvedTypes(new(context.Binder), exportedFunctionMetadata));
     }
 
     public override SymbolKind Kind => SymbolKind.Function;

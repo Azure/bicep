@@ -147,5 +147,13 @@ namespace Bicep.Core.Syntax
         void VisitInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax);
 
         void VisitParameterizedTypeArgumentSyntax(ParameterizedTypeArgumentSyntax syntax);
+
+        void VisitTypePropertyAccessSyntax(TypePropertyAccessSyntax syntax);
+
+        void VisitTypeAdditionalPropertiesAccessSyntax(TypeAdditionalPropertiesAccessSyntax syntax);
+
+        void VisitTypeArrayAccessSyntax(TypeArrayAccessSyntax syntax);
+
+        void VisitTypeItemsAccessSyntax(TypeItemsAccessSyntax syntax);
     }
 }

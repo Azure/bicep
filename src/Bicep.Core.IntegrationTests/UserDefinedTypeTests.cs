@@ -3,6 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -844,7 +845,7 @@ param myParam string
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
         {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-            ("BCP289", DiagnosticLevel.Error, "The type definition is not valid."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
         });
     }
 
@@ -956,6 +957,62 @@ param myParam string
     }
 
     [TestMethod]
+    public void Param_with_resource_derived_type_property_can_be_loaded()
+    {
+        var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            ("main.bicep", """
+                @minLength(2)
+                param saName string
+
+                module mod 'mod.json' = {
+                    name: 'mod'
+                    params: {
+                        saName: saName
+                        connectionParameterType: 'sting'
+                        ipRuleAction: 'Deny'
+                    }
+                }
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "languageVersion": "2.0",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "saName": {
+                            "type": "string",
+                            "metadata": {
+                                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+                            }
+                        },
+                        "connectionParameterType": {
+                            "type": "string",
+                            "metadata": {
+                                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Web/customApis@2016-06-01#properties/properties/properties/connectionParameters/additionalProperties/properties/type"
+                            }
+                        },
+                        "ipRuleAction": {
+                            "type": "string",
+                            "metadata": {
+                                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/properties/properties/networkAcls/properties/ipRules/items/properties/action"
+                            }
+                        }
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP334", DiagnosticLevel.Warning, "The provided value can have a length as small as 2 and may be too short to assign to a target with a configured minimum length of 3."),
+            ("BCP088", DiagnosticLevel.Warning, """The property "connectionParameterType" expected a value of type "'array' | 'bool' | 'connection' | 'int' | 'oauthSetting' | 'object' | 'secureobject' | 'securestring' | 'string'" but the provided value is of type "'sting'". Did you mean "'string'"?"""),
+            ("BCP036", DiagnosticLevel.Warning, """The property "ipRuleAction" expected a value of type "'Allow'" but the provided value is of type "'Deny'"."""),
+        });
+
+    }
+
+    [TestMethod]
     public void Output_with_resource_derived_type_can_be_loaded()
     {
         var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
@@ -992,5 +1049,490 @@ param myParam string
         {
             ("BCP053", DiagnosticLevel.Warning, """The type "StorageAccountPropertiesCreateParametersOrStorageAccountProperties" does not contain property "unknownProperty". Available properties include "accessTier", "allowBlobPublicAccess", "allowCrossTenantReplication", "allowedCopyScope", "allowSharedKeyAccess", "azureFilesIdentityBasedAuthentication", "blobRestoreStatus", "creationTime", "customDomain", "defaultToOAuthAuthentication", "dnsEndpointType", "encryption", "failoverInProgress", "geoReplicationStats", "immutableStorageWithVersioning", "isHnsEnabled", "isLocalUserEnabled", "isNfsV3Enabled", "isSftpEnabled", "keyCreationTime", "keyPolicy", "largeFileSharesState", "lastGeoFailoverTime", "minimumTlsVersion", "networkAcls", "primaryEndpoints", "primaryLocation", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "routingPreference", "sasPolicy", "secondaryEndpoints", "secondaryLocation", "statusOfPrimary", "statusOfSecondary", "storageAccountSkuConversionStatus", "supportsHttpsTrafficOnly"."""),
         });
+    }
+
+    // https://github.com/azure/bicep/issues/12920
+    [TestMethod]
+    public void Type_property_access_is_valid_type()
+    {
+        var result = CompilationHelper.Compile("""
+            type test2 = {
+              foo: {
+                bar: string
+              }
+            }
+
+            type test3 = test2.foo
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
+            {
+              "$ref": "#/definitions/test2/properties/foo"
+            }
+            """));
+    }
+
+    // cf https://www.rfc-editor.org/rfc/rfc6901#section-6
+    [TestMethod]
+    public void Type_property_access_is_escaped_correctly()
+    {
+        var result = CompilationHelper.Compile("""
+            type test = {
+              '': string
+              'a/b': int
+              'c%d': bool
+              'e^f': string
+              'g|h': int
+              'i\\j': bool
+              'k"l': string
+              ' ': int
+              'm~n': bool
+            }
+
+            type test1 = test['']
+            type test2 = test['a/b']
+            type test3 = test['c%d']
+            type test4 = test['e^f']
+            type test5 = test['g|h']
+            type test6 = test['i\\j']
+            type test7 = test['k"l']
+            type test8 = test[' ']
+            type test9 = test['m~n']
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions", JToken.Parse("""
+            {
+              "test": {
+                "type": "object",
+                "properties": {
+                  "": {
+                    "type": "string"
+                  },
+                  "a/b": {
+                    "type": "int"
+                  },
+                  "c%d": {
+                    "type": "bool"
+                  },
+                  "e^f": {
+                    "type": "string"
+                  },
+                  "g|h": {
+                    "type": "int"
+                  },
+                  "i\\j": {
+                    "type": "bool"
+                  },
+                  "k\"l": {
+                    "type": "string"
+                  },
+                  " ": {
+                    "type": "int"
+                  },
+                  "m~n": {
+                    "type": "bool"
+                  }
+                }
+              },
+              "test1": {
+                "$ref": "#/definitions/test/properties/"
+              },
+              "test2": {
+                "$ref": "#/definitions/test/properties/a~1b"
+              },
+              "test3": {
+                "$ref": "#/definitions/test/properties/c%25d"
+              },
+              "test4": {
+                "$ref": "#/definitions/test/properties/e%5Ef"
+              },
+              "test5": {
+                "$ref": "#/definitions/test/properties/g%7Ch"
+              },
+              "test6": {
+                "$ref": "#/definitions/test/properties/i%5Cj"
+              },
+              "test7": {
+                "$ref": "#/definitions/test/properties/k%22l"
+              },
+              "test8": {
+                "$ref": "#/definitions/test/properties/%20"
+              },
+              "test9": {
+                "$ref": "#/definitions/test/properties/m~0n"
+              }
+            }
+            """));
+    }
+
+    // https://github.com/azure/bicep/issues/12920
+    [DataTestMethod]
+    [DataRow("test.bar", "BCP053", """The type "{ foo: { bar: string } }" does not contain property "bar". Available properties include "foo".""")]
+    [DataRow("{ foo: string }.foo", "BCP391", "Type member access is only supported on a reference to a named type.")]
+    public void Invalid_type_property_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
+    {
+        var result = CompilationHelper.Compile($$"""
+            type test = {
+              foo: {
+                bar: string
+              }
+            }
+
+            type test2 = {{accessExpression}}
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
+        });
+    }
+
+    [TestMethod]
+    public void Type_property_access_can_be_used_on_resource_derived_types()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            ("main.bicep", """
+                type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.storageAccountName", JToken.Parse($$"""
+            {
+                "type": "string",
+                "metadata": {
+                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
+                }
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Type_property_access_resolves_refs_and_traverses_imports()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, ResourceDerivedTypesEnabled: true)),
+            ("types.bicep", """
+                @export()
+                type myObject = {
+                  quux: int
+                  saSku: resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.sku
+                }
+                """),
+            ("main.bicep", """
+                import * as types from 'types.bicep'
+
+                type test = {
+                  baz: types.myObject
+                }
+
+                type test2 = {
+                  foo: {
+                    bar: test
+                  }
+                }
+
+                type test3 = test2.foo.bar.baz.quux
+                type test4 = test2.foo.bar.baz.saSku.name
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
+            {
+              "$ref": "#/definitions/_1.myObject/properties/quux"
+            }
+            """));
+        result.Template.Should().HaveValueAtPath("definitions.test4", JToken.Parse($$"""
+            {
+              "type": "string",
+              "metadata": {
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/sku/properties/name"
+              }
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Type_index_access_is_valid_type()
+    {
+        var result = CompilationHelper.Compile("""
+            type test = [
+              { bar: string }
+            ]
+
+            type test2 = test[0]
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test2", JToken.Parse("""
+            {
+              "$ref": "#/definitions/test/prefixItems/0"
+            }
+            """));
+    }
+
+    [DataTestMethod]
+    [DataRow("test[1]", "BCP311", """The provided index value of "1" is not valid for type "[{ bar: string }]". Indexes for this type must be between 0 and 0.""")]
+    [DataRow("test[-1]", "BCP387", "Indexing into a type requires an integer greater than or equal to 0.")]
+    [DataRow("[string][0]", "BCP391", "Type member access is only supported on a reference to a named type.")]
+    public void Invalid_type_index_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
+    {
+        var result = CompilationHelper.Compile($$"""
+            type test = [
+              { bar: string }
+            ]
+
+            type test2 = {{accessExpression}}
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
+        });
+    }
+
+    [TestMethod]
+    public void Type_index_access_resolves_refs_and_traverses_imports()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+            ("types.bicep", """
+                @export()
+                type myTuple = [int, string]
+                """),
+            ("main.bicep", """
+                import * as types from 'types.bicep'
+
+                type test = [
+                  types.myTuple
+                ]
+
+                type test2 = [string, bool, test]
+
+                type test3 = test2[2][0][1]
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
+            {
+              "$ref": "#/definitions/_1.myTuple/prefixItems/1"
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Type_additional_properties_access_is_valid_type()
+    {
+        var result = CompilationHelper.Compile("""
+            type test = {
+              foo: string
+              bar: string
+              *: int
+            }
+
+            type test2 = test.*
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test2", JToken.Parse("""
+            {
+              "$ref": "#/definitions/test/additionalProperties"
+            }
+            """));
+    }
+
+    [DataTestMethod]
+    [DataRow("test.*", "BCP389", """The type "{ foo: string }" does not declare an additional properties type.""")]
+    [DataRow("object.*", "BCP389", """The type "object" does not declare an additional properties type.""")]
+    [DataRow("{ *: string }.*", "BCP391", "Type member access is only supported on a reference to a named type.")]
+    public void Invalid_additional_properties_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
+    {
+        var result = CompilationHelper.Compile($$"""
+            type test = {
+              foo: string
+            }
+
+            type test2 = {{accessExpression}}
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
+        });
+    }
+
+    [TestMethod]
+    public void Type_additional_properties_access_can_be_used_on_resource_derived_types()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            ("main.bicep", """
+                type tag = resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags.*
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.tag", JToken.Parse($$"""
+            {
+                "type": "string",
+                "metadata": {
+                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
+                }
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Type_additional_properties_access_resolves_refs_and_traverses_imports()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, ResourceDerivedTypesEnabled: true)),
+            ("types.bicep", """
+                type tagsDict = {
+                  *: resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags
+                }
+
+                @export()
+                type myObject = {
+                  namedTagBags: tagsDict
+                  *: int
+                }
+                """),
+            ("main.bicep", """
+                import * as types from 'types.bicep'
+
+                type test = {
+                  *: types.myObject
+                }
+
+                type test2 = {
+                  *: {
+                    *: test
+                  }
+                }
+
+                type test3 = test2.*.*.*.*
+                type test4 = test2.*.*.*.namedTagBags.*.*
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
+            {
+              "$ref": "#/definitions/_1.myObject/additionalProperties"
+            }
+            """));
+        result.Template.Should().HaveValueAtPath("definitions.test4", JToken.Parse($$"""
+            {
+              "type": "string",
+              "metadata": {
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Resources/tags@2022-09-01#properties/properties/properties/tags/additionalProperties"
+              }
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Type_element_access_is_valid_type()
+    {
+        var result = CompilationHelper.Compile("""
+            type test = string[]
+
+            type test2 = test[*]
+            """);
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test2", JToken.Parse("""
+            {
+              "$ref": "#/definitions/test/items"
+            }
+            """));
+    }
+
+    [DataTestMethod]
+    [DataRow("test[*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
+    [DataRow("array[*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
+    [DataRow("test[0][*]", "BCP390", "The array item type access operator ('[*]') can only be used with typed arrays.")]
+    [DataRow("string[][*]", "BCP391", "Type member access is only supported on a reference to a named type.")]
+    public void Invalid_type_items_access_raises_diagnostic(string accessExpression, string expectedErrorCode, string expectedErrorMessage)
+    {
+        var result = CompilationHelper.Compile($$"""
+            type test = [
+              { bar: string }
+            ]
+
+            type test2 = {{accessExpression}}
+            """);
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            (expectedErrorCode, DiagnosticLevel.Error, expectedErrorMessage),
+        });
+    }
+
+    [TestMethod]
+    public void Type_element_access_can_be_used_on_resource_derived_types()
+    {
+        var result = CompilationHelper.Compile(
+            new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            ("main.bicep", """
+                type storageAccountName = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.storageAccountName", JToken.Parse($$"""
+            {
+                "type": "object",
+                "metadata": {
+                    "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items"
+                }
+            }
+            """));
+    }
+
+    [TestMethod]
+    public void Type_element_access_resolves_refs_and_traverses_imports()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, ResourceDerivedTypesEnabled: true)),
+            ("types.bicep", """
+                @export()
+                type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+
+                @export()
+                type strings = string[]
+                """),
+            ("main.bicep", """
+                import * as types from 'types.bicep'
+
+                type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]
+
+                type test = types.strings[]
+
+                type test2 = test[]
+
+                type test3 = test2[*][*][*]
+                type test4 = accessPolicy.permissions.keys[*]
+                type test5 = types.accessPolicy.permissions.keys[*]
+                """));
+
+        result.Should().NotHaveAnyCompilationBlockingDiagnostics();
+        result.Template.Should().HaveValueAtPath("definitions.test3", JToken.Parse("""
+            {
+              "$ref": "#/definitions/_1.strings/items"
+            }
+            """));
+        result.Template.Should().HaveValueAtPath("definitions.test4", JToken.Parse($$"""
+            {
+              "type": "string",
+              "metadata": {
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items/properties/permissions/properties/keys/items"
+              }
+            }
+            """));
+        result.Template.Should().HaveValueAtPath("definitions.test5", JToken.Parse($$"""
+            {
+              "type": "string",
+              "metadata": {
+                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.KeyVault/vaults@2022-07-01#properties/properties/properties/accessPolicies/items/properties/permissions/properties/keys/items"
+              }
+            }
+            """));
     }
 }
