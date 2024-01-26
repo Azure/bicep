@@ -18,10 +18,7 @@
         "activeDirectoryAuthority": "https://login.microsoftonline.us"
       }
     },
-    "credentialPrecedence": [
-      "AzureCLI",
-      "AzurePowerShell"
-    ]
+    "credentialPrecedence": ["AzureCLI", "AzurePowerShell"]
   },
   "moduleAliases": {
     "ts": {},
@@ -40,6 +37,18 @@
       }
     }
   },
+  "providers": {
+    "az": {
+      "builtIn": true
+    },
+    "kubernetes": {
+      "builtIn": true
+    },
+    "microsoftGraph": {
+      "builtIn": true
+    }
+  },
+  "implicitProviders": ["az"],
   "analyzers": {
     "core": {
       "verbose": false,
@@ -64,9 +73,7 @@
             "trafficmanager.net",
             "vault.azure.net"
           ],
-          "excludedhosts": [
-            "schema.management.azure.com"
-          ]
+          "excludedhosts": ["schema.management.azure.com"]
         }
       }
     }

@@ -10,8 +10,9 @@ using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Schema;
 
-namespace Bicep.Core.UnitTests.Diagnostics
+namespace Bicep.Core.UnitTests.Configuration
 {
     // Tests the src/vscode-bicep/schemas/bicepconfig.schema.json file
 
@@ -24,20 +25,24 @@ namespace Bicep.Core.UnitTests.Diagnostics
         private const string BicepRootConfigFilePath = "src/Bicep.Core/Configuration/bicepconfig.json";
         private const string BicepConfigSchemaFilePath = "src/vscode-bicep/schemas/bicepconfig.schema.json";
 
+        private static string GetBicepConfigSchemaContents()
+        {
+            var configStream = typeof(BicepConfigSchemaTests).Assembly.GetManifestResourceStream(
+           $"{typeof(BicepConfigSchemaTests).Assembly.GetName().Name}.bicepconfig.schema.json");
+            Assert.IsNotNull(configStream);
+            var configContents = new StreamReader(configStream).ReadToEnd();
+            Assert.IsNotNull(configContents);
+            return configContents;
+        }
+        private static JSchema GetConfigSchema() => JSchema.Parse(GetBicepConfigSchemaContents());
+
         private (IBicepAnalyzerRule[] rules, JObject configSchema) GetRulesAndSchema()
         {
             var linter = new LinterAnalyzer();
             var ruleSet = linter.GetRuleSet();
             ruleSet.Should().NotBeEmpty();
 
-            var configStream = typeof(BicepConfigSchemaTests).Assembly.GetManifestResourceStream(
-                $"{typeof(BicepConfigSchemaTests).Assembly.GetName().Name}.bicepconfig.schema.json");
-            Assert.IsNotNull(configStream);
-            var configContents = new StreamReader(configStream).ReadToEnd();
-            Assert.IsNotNull(configContents);
-            var configSchema = JObject.Parse(configContents);
-
-            return (ruleSet.ToArray(), configSchema);
+            return (ruleSet.ToArray(), JObject.Parse(GetBicepConfigSchemaContents()));
         }
 
         private IEnumerable<JProperty> GetRuleCustomConfigurationProperties(JObject ruleConfigSchema)
@@ -181,6 +186,21 @@ namespace Bicep.Core.UnitTests.Diagnostics
             excludedHostsInSchema.Should().BeEquivalentTo(excludedHostsInConfig, $"default of no-hardcoded-env-urls.excluded should be the same in {BicepRootConfigFilePath} and {BicepConfigSchemaFilePath}");
             excludedHostsInSchema.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.excluded should be in alphabetical order in {BicepConfigSchemaFilePath}");
             excludedHostsInConfig.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.excluded should be in alphabetical order in {BicepRootConfigFilePath}");
+        }
+
+        [TestMethod]
+        public void DefaultConfig_ShouldValidateAgainstSchema()
+        {
+            // Arrange
+            var builtinConfig = IConfigurationManager.GetBuiltInConfiguration().ToUtf8Json();
+            builtinConfig.Should().NotBeNull();
+            var bicepConfigJson = JObject.Parse(builtinConfig!);
+            var schema = GetConfigSchema();
+
+            // Act & Assert
+            bool isValid = bicepConfigJson.IsValid(schema, out IList<ValidationError> errors);
+            errors.Should().BeEmpty();
+            isValid.Should().BeTrue();
         }
     }
 }
