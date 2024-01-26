@@ -21,6 +21,7 @@ public static class ProviderAliasesConfigurationExtensions
             rootConfiguration.Cloud,
             rootConfiguration.ModuleAliases,
             rootConfiguration.ProviderAliases.WithProviderAlias(payload),
+            rootConfiguration.ProvidersConfig,
             rootConfiguration.Analyzers,
             rootConfiguration.CacheRootDirectory,
             rootConfiguration.ExperimentalFeaturesEnabled,

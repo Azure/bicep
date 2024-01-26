@@ -2109,6 +2109,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP386",
                 $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a resource-derived type.");
+
+            public ErrorDiagnostic ProviderNameDoesNotExistInConfiguration(string providerName, Uri? configurationPath) => new(
+                TextSpan,
+                "BCP387",
+                $"The provider name \"{providerName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
