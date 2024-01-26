@@ -704,9 +704,6 @@
         "microsoftGraphPreview": {
           "type": "boolean"
         },
-        "assertions": {
-          "type": "boolean"
-        },
         "symbolicNameCodegen": {
           "type": "boolean"
         },
@@ -728,7 +725,7 @@
         "testFramework": {
           "type": "boolean"
         },
-        "asserts": {
+        "assertions": {
           "type": "boolean"
         },
         "dynamicTypeLoading": {
