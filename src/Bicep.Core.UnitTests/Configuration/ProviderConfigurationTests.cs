@@ -102,18 +102,17 @@ public class ProvidersConfigurationTests
             config.Should().NotBeNull();
             config!.ProvidersConfig.Should().NotBeNull();
 
-            // verifies that 'source' and 'version' are valid properties for 'foo'
+            // assert 'source' and 'version' are valid properties for 'foo'
             config.ProvidersConfig!.TryGetProviderSource("foo").IsSuccess(out var fooProvider).Should().BeTrue();
             fooProvider!.Source.Should().Be("example.azurecr.io/some/fake/path");
             fooProvider!.Version.Should().Be("1.0.0");
 
-            // verifies that 'az' provider properties are overridden by the user provided configuration
+            // assert 'az' provider properties are overridden by the user provided configuration
             config.ProvidersConfig!.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
             azProvider!.Source.Should().Be("mcr.microsoft.com/bicep/providers/az");
             azProvider!.Version.Should().Be("0.2.3");
 
-
-            // verifies that 'sys' is not present in the merged configuration
+            // assert that 'sys' is not present in the merged configuration
             config.ProvidersConfig!.TryGetProviderSource("sys").IsSuccess().Should().BeFalse();
     }
 }
