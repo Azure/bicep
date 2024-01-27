@@ -7,6 +7,7 @@ using Bicep.Core.Json;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.Core.UnitTests.Configuration;
 
@@ -60,7 +61,7 @@ public class ProvidersConfigurationTests
         {
             "providers": {
                 "az": {
-                    "source": "mcr.microsoft.com/bicep/providers",
+                    "source": "mcr.microsoft.com/bicep/providers/az",
                     "version": "0.2.3",
                     "builtIn": true
                 }
@@ -68,8 +69,12 @@ public class ProvidersConfigurationTests
         }
         """);
 
-        Action deserializeFn = () => ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ProvidersConfigurationKey), fakeBicepConfigUri);
-        deserializeFn.Should().Throw<ArgumentException>().WithMessage("The 'builtin' property is mutually exclusive with 'registry' and 'version'.");
+        var providers = ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ProvidersConfigurationKey), fakeBicepConfigUri);
+        providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
+        azProvider!.BuiltIn.Should().BeFalse(); // because we must coerce the value for example of a result of a merge
+        azProvider.Source.Should().Be("mcr.microsoft.com/bicep/providers/az");
+        azProvider.Version.Should().Be("0.2.3");
+
     }
 
     [TestMethod]
@@ -99,26 +104,25 @@ public class ProvidersConfigurationTests
         var fs = new MockFileSystem(new Dictionary<string, MockFileData>
         {
             [bicepConfigFileName] = new("""
-                {
-                    "providers": {
-                        "foo": {
-                            "source": "example.azurecr.io/some/fake/path",
-                            "version": "1.0.0"
-                        },
-                        "az": {
-                            "source": "mcr.microsoft.com/bicep/providers/az",
-                            "version": "0.2.3",
-                            "builtIn": true
-                        }
+            {
+                "providers": {
+                    "foo": {
+                        "source": "example.azurecr.io/some/fake/path",
+                        "version": "1.0.0"
+                    },
+                    "az": {
+                        "source": "mcr.microsoft.com/bicep/providers/az",
+                        "version": "0.2.3"
                     }
                 }
-                """)
+            }
+            """)
         });
 
         var configManager = new ConfigurationManager(fs);
         var testFilePath = fs.Path.GetFullPath(bicepConfigFileName);
-        var config = configManager.GetConfiguration(new($"file:///{testFilePath}"));
-     config.DiagnosticBuilders.Should().BeEmpty();
+        var config = configManager.GetConfiguration(PathHelper.FilePathToFileUrl(testFilePath));
+        config.DiagnosticBuilders.Should().BeEmpty();
         config.Should().NotBeNull();
         config!.ProvidersConfig.Should().NotBeNull();
 

@@ -19,9 +19,8 @@ public record ProviderSource
         BuiltIn = builtIn;
         Source = source;
         Version = version;
-        if (BuiltIn && (Source != null || Version != null))
-        {
-            throw new ArgumentException("The 'builtin' property is mutually exclusive with 'registry' and 'version'.");
+        if(source is not null && version is not null && builtIn){
+            BuiltIn = false;
         }
     }
 }
