@@ -14,7 +14,7 @@ namespace Bicep.Core.UnitTests.Configuration
         [DataRow(new string[] { "provider1", "provider2" }, 2)]
         [DataRow(new string[] { "provider1" }, 1)]
         [DataRow(new string[] { }, 0)]
-        public void ImplicitProvidersConfiguration_Bind_Array(string[] providers, int expectedCount)
+        public void ImplicitProvidersConfiguration_deserialization_happy_path_succeeds(string[] providers, int expectedCount)
         {
             var json = $$"""
             {
