@@ -10,17 +10,16 @@ namespace Bicep.Core.Configuration;
 
 public record ProviderSource
 {
-    public bool Builtin { get; }
+    public bool BuiltIn { get; }
     public string? Source { get; }
     public string? Version { get; }
-    // public bool IsImplicit { get; set;}
 
-    public ProviderSource(bool builtin, string? source, string? version)
+    public ProviderSource(bool builtIn, string? source, string? version)
     {
-        Builtin = builtin;
+        BuiltIn = builtIn;
         Source = source;
         Version = version;
-        if (Builtin && (Source != null || Version != null))
+        if (BuiltIn && (Source != null || Version != null))
         {
             throw new ArgumentException("The 'builtin' property is mutually exclusive with 'registry' and 'version'.");
         }
