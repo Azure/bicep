@@ -1,11 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
-using System.Text;
 using Azure.ResourceManager;
 using Bicep.Core;
-using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Tracing;

@@ -56,7 +56,8 @@ internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
         var previousCopyLoopName = currentCopyLoopName;
         currentCopyLoopName = newVariableName;
 
-        try {
+        try
+        {
             return expression with
             {
                 SourceSyntax = sourceSyntax,

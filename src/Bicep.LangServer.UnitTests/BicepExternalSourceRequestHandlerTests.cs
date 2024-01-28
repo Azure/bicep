@@ -487,6 +487,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
             }
         }
 
-#endregion
+        #endregion
     }
 }
