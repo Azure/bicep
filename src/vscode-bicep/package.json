@@ -783,7 +783,7 @@
     "react-test-renderer": "^18.2.0",
     "rimraf": "^5.0.5",
     "semver": "^7.5.2",
-    "style-loader": "^3.3.1",
+    "style-loader": "^3.3.4",
     "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "5.3.10",
     "ts-jest": "^29.1.1",
