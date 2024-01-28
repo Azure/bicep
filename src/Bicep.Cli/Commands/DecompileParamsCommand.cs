@@ -45,7 +45,7 @@ namespace Bicep.Cli.Commands
                 {
                     throw new InvalidOperationException($"Failed to read {inputUri}");
                 }
-                
+
                 var decompilation = decompiler.DecompileParameters(jsonContents, outputUri, bicepUri);
 
                 if (args.OutputToStdOut)

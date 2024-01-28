@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.IO.Abstractions;
 using Bicep.Cli.Models;
 using Bicep.Core.Emit;

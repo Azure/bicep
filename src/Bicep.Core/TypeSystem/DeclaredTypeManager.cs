@@ -981,13 +981,13 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression).TupleRequiredForIndexAccess(baseType));
             }
 
-            if (index >= (uint) tupleType.Items.Length)
+            if (index >= (uint)tupleType.Items.Length)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.IndexExpression)
-                    .IndexOutOfBounds(baseType.Name, tupleType.Items.Length, index <= long.MaxValue ? (long) index : long.MaxValue));
+                    .IndexOutOfBounds(baseType.Name, tupleType.Items.Length, index <= long.MaxValue ? (long)index : long.MaxValue));
             }
 
-            return UnwrapType(syntax.IndexExpression, tupleType.Items[(int) index].Type);
+            return UnwrapType(syntax.IndexExpression, tupleType.Items[(int)index].Type);
         }
 
         private ITypeReference ConvertTypeExpressionToType(TypeAdditionalPropertiesAccessSyntax syntax)

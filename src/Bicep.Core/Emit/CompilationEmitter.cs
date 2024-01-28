@@ -1,12 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Immutable;
-using System.IO;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
@@ -66,21 +63,21 @@ public class CompilationEmitter : ICompilationEmitter
         switch (usingModel)
         {
             case SemanticModel bicepModel:
-            {
-                var templateResult = Template(bicepModel);
-                return new ParametersResult(true, diagnostics, parametersData, null, templateResult);
-            }
+                {
+                    var templateResult = Template(bicepModel);
+                    return new ParametersResult(true, diagnostics, parametersData, null, templateResult);
+                }
             case ArmTemplateSemanticModel armTemplateModel:
-            {
-                var template = armTemplateModel.SourceFile.GetOriginalSource();
-                var templateResult = new TemplateResult(true, ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>.Empty, template, null);
+                {
+                    var template = armTemplateModel.SourceFile.GetOriginalSource();
+                    var templateResult = new TemplateResult(true, ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>.Empty, template, null);
 
-                return new ParametersResult(true, diagnostics, parametersData, null, templateResult);
-            }
+                    return new ParametersResult(true, diagnostics, parametersData, null, templateResult);
+                }
             case TemplateSpecSemanticModel templateSpecModel:
-            {
-                return new ParametersResult(true, diagnostics, parametersData, templateSpecModel.SourceFile.TemplateSpecId, null);
-            }
+                {
+                    return new ParametersResult(true, diagnostics, parametersData, templateSpecModel.SourceFile.TemplateSpecId, null);
+                }
         }
 
         throw new InvalidOperationException($"Invalid semantic model of type {usingModel.GetType()}");
@@ -107,10 +104,10 @@ public class CompilationEmitter : ICompilationEmitter
         {
             return new(false, diagnostics, null, null);
         }
-        
+
         var template = writer.ToString();
-        var sourceMap = result.SourceMap is {} ? JsonConvert.SerializeObject(result.SourceMap) : null;
-        
+        var sourceMap = result.SourceMap is { } ? JsonConvert.SerializeObject(result.SourceMap) : null;
+
         return new(true, diagnostics, template, sourceMap);
     }
 }

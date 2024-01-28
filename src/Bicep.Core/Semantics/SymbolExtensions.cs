@@ -97,6 +97,6 @@ namespace Bicep.Core.Semantics
                 null;
 
         public static bool IsExported(this Symbol symbol)
-            => TryGetDecorator(symbol, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is {};
+            => TryGetDecorator(symbol, SystemNamespaceType.BuiltInName, LanguageConstants.ExportPropertyName) is { };
     }
 }

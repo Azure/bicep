@@ -13,8 +13,6 @@ using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using static Microsoft.SRM.DecisionTree;
 
 namespace Bicep.Core.UnitTests.SourceCode;
 

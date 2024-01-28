@@ -25,7 +25,7 @@ public class ArgumentHelper
 
     [return: NotNullIfNotNull(nameof(filePath))]
     public static Uri? GetFileUri(string? filePath)
-        => filePath is {} ? PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(filePath)) : null;
+        => filePath is { } ? PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(filePath)) : null;
 
     public static void ValidateBicepFile(Uri fileUri)
     {
