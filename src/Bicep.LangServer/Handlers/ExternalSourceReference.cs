@@ -16,19 +16,8 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Represents a URI to request displaying a source file from an external module
     /// </summary>
-    public class ExternalSourceReference
+    public partial class ExternalSourceReference
     {
-        // e.g. matches <cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json
-        private Regex externalModulePath = new("""
-            \<cache\>\/br\/
-            .*
-            \$(?<repoName>[^\/\$]+)
-            \/(?<tag>[^\/\$]+)\$[^\/\$]*
-            \/(?<filename>[^\/]+)$            
-            """,
-
-            RegexOptions.IgnorePatternWhitespace);
-
         // The title to display for the document's tab,
         //   e.g. "br:myregistry.azurecr.io/myrepo/module:v1/main.json (module:v1)" or something similar.
         // VSCode will display everything after the last slash in the document's tab (interpreting it as
@@ -54,6 +43,9 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         public bool IsRequestingCompiledJson => RequestedFile is null;
+
+        // e.g. matches <cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json
+        private Regex externalModulePathRegex = ExternalModulePathRegex();
 
         public ExternalSourceReference(DocumentUri uri)
         : this(uri.Path, uri.Query, uri.Fragment) { }
@@ -180,7 +172,7 @@ namespace Bicep.LanguageServer.Handlers
             var repoAndTag = $"{Path.GetFileName(Components.Repository)}{version}";
 
             string shortTitle;
-            if (RequestedFile is not null && externalModulePath.Match(RequestedFile) is Match match && match.Success)
+            if (RequestedFile is not null && externalModulePathRegex.Match(RequestedFile) is Match match && match.Success)
             {
                 // We're display a nested external module's source. Show both its info and the info of the module that references it.
                 var externalRepoAndTag = $"{match.Groups["repoName"].Value}:{match.Groups["tag"].Value}";
@@ -193,5 +185,14 @@ namespace Bicep.LanguageServer.Handlers
 
             return shortTitle;
         }
+
+        [GeneratedRegex("""
+            \<cache\>\/br\/
+            .*
+            \$(?<repoName>[^\/\$]+)
+            \/(?<tag>[^\/\$]+)\$[^\/\$]*
+            \/(?<filename>[^\/]+)$            
+            """, RegexOptions.IgnorePatternWhitespace)]
+        private static partial Regex ExternalModulePathRegex();
     }
 }
