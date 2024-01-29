@@ -1792,8 +1792,8 @@
       },
       "System.Text.Json": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "OdrZO2WjkiEG6ajEFRABTRCi/wuXQPxeV6g8xvUJqdxMvvuCCEk86zPla8UiIQJz3durtUEbNyY/3lIhS0yZvQ==",
+        "resolved": "8.0.1",
+        "contentHash": "7AWk2za1hSEJBppe/Lg+uDcam2TrDqwIKa9XcPssSwyjC2xa39EKEGul3CO5RWNF+hMuZG4zlBDrvhBdDTg4lg==",
         "dependencies": {
           "System.Text.Encodings.Web": "8.0.0"
         }
@@ -1952,7 +1952,7 @@
           "SharpYaml": "[2.1.0, )",
           "System.Collections.Immutable": "[8.0.0, )",
           "System.IO.Abstractions": "[20.0.4, )",
-          "System.Text.Json": "[8.0.0, )"
+          "System.Text.Json": "[8.0.1, )"
         }
       },
       "Azure.Bicep.Decompiler": {
