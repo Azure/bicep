@@ -215,7 +215,12 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsTypedLocalVariableTypeContext(matchingNodes, offset), BicepCompletionContextKind.TypedLocalVariableType) |
                        ConvertFlag(IsTypedLambdaOutputTypeContext(matchingNodes, offset), BicepCompletionContextKind.TypedLambdaOutputType) |
                        ConvertFlag(typeArgumentContext is not null, BicepCompletionContextKind.TypeArgument) |
-                       ConvertFlag(IsTypeMemberAccessContext(matchingNodes, typePropertyAccessInfo, offset), BicepCompletionContextKind.TypeMemberAccess);
+                       ConvertFlag(IsTypeMemberAccessContext(matchingNodes, typePropertyAccessInfo, offset), BicepCompletionContextKind.TypeMemberAccess) |
+                       ConvertFlag(IsImportIdentifierContext(matchingNodes, offset), BicepCompletionContextKind.ImportIdentifier) |
+                       ConvertFlag(IsImportedSymbolListItemContext(matchingNodes, offset), BicepCompletionContextKind.ImportedSymbolIdentifier) |
+                       ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportAsKeyword) |
+                       ConvertFlag(ExpectingContextualFromKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportFromKeyword) |
+                       ConvertFlag(IsImportTargetContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath);
 
             if (featureProvider.ExtensibilityEnabled)
             {
@@ -225,15 +230,6 @@ namespace Bicep.LanguageServer.Completions
                     ConvertFlag(ExpectingImportWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportWithOrAsKeyword) |
                     ConvertFlag(ExpectingImportConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportConfig) |
                     ConvertFlag(ExpectingImportAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportAsKeyword);
-            }
-
-            if (featureProvider.CompileTimeImportsEnabled)
-            {
-                kind |= ConvertFlag(IsImportIdentifierContext(matchingNodes, offset), BicepCompletionContextKind.ImportIdentifier) |
-                    ConvertFlag(IsImportedSymbolListItemContext(matchingNodes, offset), BicepCompletionContextKind.ImportedSymbolIdentifier) |
-                    ConvertFlag(ExpectingContextualAsKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportAsKeyword) |
-                    ConvertFlag(ExpectingContextualFromKeyword(matchingNodes, offset), BicepCompletionContextKind.ExpectingImportFromKeyword) |
-                    ConvertFlag(IsImportTargetContext(matchingNodes, offset), BicepCompletionContextKind.ModulePath);
             }
 
             if (featureProvider.AssertsEnabled)

@@ -19,5 +19,22 @@
       "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
+  },
+  {
+    "label": "export",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nexport(): any\n\n```  \n  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_export",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "export()$0"
+    }
   }
 ]

@@ -1,5 +1,19 @@
 [
   {
+    "label": "import",
+    "kind": "keyword",
+    "detail": "Import keyword",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_import",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "import"
+    }
+  },
+  {
     "label": "metadata",
     "kind": "keyword",
     "detail": "Metadata keyword",
