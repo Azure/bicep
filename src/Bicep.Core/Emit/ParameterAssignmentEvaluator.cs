@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using Azure.Deployments.Core.Definitions.Schema;
+using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Expressions;
@@ -298,7 +299,15 @@ public class ParameterAssignmentEvaluator
             };
             var (template, _) = new TemplateWriter(model).GetTemplate(writer);
 
-            TemplateEngine.ProcessTemplateLanguageExpressions(null, null, null, template, TemplateWriter.NestedDeploymentResourceApiVersion, null);
+            TemplateEngine.ProcessTemplateLanguageExpressions(
+                managementGroupName: null,
+                subscriptionId: null,
+                resourceGroupName: null,
+                template: template,
+                apiVersion: TemplateWriter.NestedDeploymentResourceApiVersion,
+                inputParameters: new(),
+                metadata: new(),
+                diagnostics: TemplateDiagnosticsWriter.Create());
 
             return new(template);
         }
