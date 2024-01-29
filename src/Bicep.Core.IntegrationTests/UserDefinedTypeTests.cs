@@ -1212,7 +1212,7 @@ param myParam string
     [TestMethod]
     public void Type_property_access_resolves_refs_and_traverses_imports()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("types.bicep", """
                 @export()
                 type myObject = {
@@ -1295,7 +1295,7 @@ param myParam string
     [TestMethod]
     public void Type_index_access_resolves_refs_and_traverses_imports()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+        var result = CompilationHelper.Compile(
             ("types.bicep", """
                 @export()
                 type myTuple = [int, string]
@@ -1384,7 +1384,7 @@ param myParam string
     [TestMethod]
     public void Type_additional_properties_access_resolves_refs_and_traverses_imports()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("types.bicep", """
                 type tagsDict = {
                   *: resource<'Microsoft.Resources/tags@2022-09-01'>.properties.tags
@@ -1490,7 +1490,7 @@ param myParam string
     [TestMethod]
     public void Type_element_access_resolves_refs_and_traverses_imports()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, ResourceDerivedTypesEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("types.bicep", """
                 @export()
                 type accessPolicy = resource<'Microsoft.KeyVault/vaults@2022-07-01'>.properties.accessPolicies[*]

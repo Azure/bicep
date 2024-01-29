@@ -283,8 +283,7 @@ param |foo| string
         [TestMethod]
         public async Task Goto_definition_works_with_import_statement()
         {
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("""
@@ -308,8 +307,7 @@ param |foo| string
         [TestMethod]
         public async Task Goto_definition_works_with_wildcard_import_statements()
         {
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursors) = ParserHelper.GetFileWithCursors("""
@@ -336,8 +334,7 @@ param |foo| string
         [TestMethod]
         public async Task Goto_definition_works_with_wildcard_import_references()
         {
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursors) = ParserHelper.GetFileWithCursors("""
@@ -366,8 +363,7 @@ param |foo| string
         [TestMethod]
         public async Task Goto_definition_works_with_wildcard_import_property_references()
         {
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursors) = ParserHelper.GetFileWithCursors("""
@@ -399,8 +395,7 @@ param |foo| string
         [TestMethod]
         public async Task Goto_definition_works_with_cherrypick_import_statements_and_references()
         {
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext,
-                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
+            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext);
             var helper = new ServerRequestHelper(TestContext, server);
 
             var (contents, cursors) = ParserHelper.GetFileWithCursors("""
@@ -461,7 +456,6 @@ param |foo| string
                 """);
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},
@@ -512,7 +506,6 @@ param |foo| string
                 """);
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},
@@ -558,7 +551,6 @@ param |foo| string
                 """);
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},
@@ -610,7 +602,6 @@ param |foo| string
                 """);
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},
@@ -662,7 +653,6 @@ param |foo| string
                 """);
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},
@@ -715,7 +705,7 @@ param |foo| string
                 """);
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedFunctionsEnabled: true))
+                .WithFeatureOverrides(new(TestContext, UserDefinedFunctionsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},
@@ -768,7 +758,7 @@ param |foo| string
                 """);
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedFunctionsEnabled: true))
+                .WithFeatureOverrides(new(TestContext, UserDefinedFunctionsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},

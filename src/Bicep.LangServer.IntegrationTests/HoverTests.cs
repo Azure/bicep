@@ -911,8 +911,7 @@ param foo|bar = true
                 [moduleFile.FileUri] = moduleText
             };
 
-            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, mainFile.FileUri,
-                services => services.WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)));
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, mainFile.FileUri);
             var client = helper.Client;
 
             var hovers = await RequestHovers(client, mainFile, cursors);

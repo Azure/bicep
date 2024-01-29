@@ -19,7 +19,6 @@ public record ExperimentalFeaturesEnabled(
     bool DynamicTypeLoading,
     bool ProviderRegistry,
     bool MicrosoftGraphPreview,
-    bool CompileTimeImports,
     bool PublishSource,
     bool OptionalModuleNames,
     bool ResourceDerivedTypes)

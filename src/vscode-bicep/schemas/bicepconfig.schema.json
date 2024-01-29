@@ -734,9 +734,6 @@
         "providerRegistry": {
           "type": "boolean"
         },
-        "compileTimeImports": {
-          "type": "boolean"
-        },
         "publishSource": {
           "type": "boolean"
         },

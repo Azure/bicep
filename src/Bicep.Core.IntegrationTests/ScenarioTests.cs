@@ -5448,7 +5448,7 @@ func test4() string => loadFileAsBase64('./repro-data.json')
     {
 
         var result = CompilationHelper.Compile(
-            Services.WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true, CompileTimeImportsEnabled: true)),
+            Services.WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true)),
             ("main.bicep", """
 import { MyFunction } from 'export.bicep'
 
@@ -5601,7 +5601,7 @@ param foo {
     [TestMethod]
     public void Test_Issue12908()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true)),
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import { varSecureType } from 'types.bicep'
                 import * as types from 'types.bicep'

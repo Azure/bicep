@@ -128,7 +128,7 @@ output bar string = foo
         });
 
         await RunServerTest(
-            services => services.WithFileSystem(fileSystem).WithFeatureOverrides(new(CompileTimeImportsEnabled: true)),
+            services => services.WithFileSystem(fileSystem),
             async (client, token) =>
             {
                 var response = await client.GetMetadata(new("/main.bicep"), token);
