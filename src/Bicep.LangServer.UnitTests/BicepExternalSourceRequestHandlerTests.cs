@@ -310,11 +310,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             Uri resultWithSource = GetExternalSourceLinkUri(new ExternalSourceLinkTestData(), defaultToDisplayingBicep: false);
             DecodeExternalSourceUri(resultWithSource).IsRequestingCompiledJson.Should().BeTrue();
-            DecodeExternalSourceUri(resultWithSource).Title.Should().Contain("main.json");
+            DecodeExternalSourceUri(resultWithSource).FullTitle.Should().Contain("main.json");
 
             Uri resultWithoutSource = GetExternalSourceLinkUri(new ExternalSourceLinkTestData(), defaultToDisplayingBicep: false);
             DecodeExternalSourceUri(resultWithoutSource).IsRequestingCompiledJson.Should().BeTrue();
-            DecodeExternalSourceUri(resultWithoutSource).Title.Should().Contain("main.json");
+            DecodeExternalSourceUri(resultWithoutSource).FullTitle.Should().Contain("main.json");
         }
 
         [TestMethod]
@@ -333,14 +333,32 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         [DataTestMethod]
         [DynamicData(nameof(GetExternalSourceLinkTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExternalSourceLinkTestData))]
-        public void GetExternalSourceLinkUri_TitleShouldBeCorrect(ExternalSourceLinkTestData testData)
+        public void GetExternalSourceLinkUri_TitlesShouldBeCorrect(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
 
             // Source archive entrypoints are always relative to the source root folder, so remove paths
-            var expectedEntrypoint = Path.GetFileName(testData.sourceEntrypoint ?? "main.json");
+            var expectedEntrypointFilename = Path.GetFileName(testData.sourceEntrypoint ?? "main.json");
 
-            DecodeExternalSourceUri(result).Title.Should().Be($"br:{testData.registry}/{testData.repository}{testData.tagOrDigest}/{expectedEntrypoint} ({Path.GetFileName(testData.repository)}{testData.tagOrDigest})");
+            DecodeExternalSourceUri(result).GetShortTitle().Should().Be($"{expectedEntrypointFilename} ({Path.GetFileName(testData.repository)}{testData.tagOrDigest})");
+            DecodeExternalSourceUri(result).FullTitle.Should().Be($"br:{testData.registry}/{testData.repository}{testData.tagOrDigest}/{expectedEntrypointFilename} ({Path.GetFileName(testData.repository)}{testData.tagOrDigest})");
+        }
+
+        [TestMethod]
+        public void GetExternalSourceLinkUri_WithExternalModuleFromCache_TitlesShouldBeCorrect()
+        {
+            var reference = OciArtifactReference.TryParse(
+                ArtifactType.Module,
+                null,
+                "myregistry.azurecr.io/myrepo/bicep/module1:v1",
+                BicepTestConstants.BuiltInConfiguration,
+                new Uri("http://no-parent", UriKind.Absolute))
+            .Unwrap();
+            var ext = new ExternalSourceReference(reference, new SourceArchiveBuilder().Build())
+                .WithRequestForSourceFile("<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json");
+
+            ext.GetShortTitle().Should().Be("main.json (module1:v1->storage-account:1.0.1)");
+            ext.FullTitle.Should().Be("br:myregistry.azurecr.io/myrepo/bicep/module1:v1/main.json (module1:v1->storage-account:1.0.1)");
         }
 
         [DataTestMethod]
@@ -381,7 +399,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public void GetExternalSourceLinkUri_ShouldBeFormedCorrectly(ExternalSourceLinkTestData testData)
         {
             Uri result = GetExternalSourceLinkUri(testData);
-            result.ToString().Should().MatchRegex("^(?<title>[^#]+)#(?<module_ref>[^#]+)(?<optional_requested_source_file>%23[^#]+)?$", "external link should have one # and optionally an encoded # after that");
+            result.ToString().Should().MatchRegex("^(?<fullTitle>[^#]+)#(?<module_ref>[^#]+)(?<optional_requested_source_file>%23[^#]+)?$", "external link should have one # and optionally an encoded # after that");
         }
 
         [DataTestMethod]
@@ -428,7 +446,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
             string moduleReference = Uri.UnescapeDataString(TrimFirstCharacter(uri.Query)); // skip '?'
             string? requestedSourceFile = Uri.UnescapeDataString(TrimFirstCharacter(uri.Fragment)); // skip '#'
 
-            return new ExternalSourceReference(title, moduleReference, requestedSourceFile);
+            var reference = new ExternalSourceReference(title, moduleReference, requestedSourceFile);
+
+            reference.FullTitle.Should().Be(title);
+            reference.FullTitle.Should().EndWith(reference.GetShortTitle());
+
+            return reference;
         }
 
         public record ExternalSourceLinkTestData(
