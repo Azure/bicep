@@ -45,7 +45,7 @@ namespace Bicep.LanguageServer.Handlers
         public bool IsRequestingCompiledJson => RequestedFile is null;
 
         // e.g. matches <cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json
-        private Regex externalModulePathRegex = ExternalModulePathRegex();
+        private static Regex externalModulePathRegex = ExternalModulePathRegex();
 
         public ExternalSourceReference(DocumentUri uri)
         : this(uri.Path, uri.Query, uri.Fragment) { }
