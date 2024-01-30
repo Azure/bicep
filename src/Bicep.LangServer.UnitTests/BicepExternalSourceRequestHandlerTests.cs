@@ -15,6 +15,7 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -37,6 +38,23 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(MockFileSystem);
 
+        private class TelemetryProviderMock
+        {
+            public Mock<ITelemetryProvider> Mock { get; }
+            public BicepTelemetryEvent? Event;
+            public ITelemetryProvider Object => Mock.Object;
+
+            public TelemetryProviderMock()
+            {
+                Mock = new(MockBehavior.Strict);
+                Mock.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()))
+                    .Callback((BicepTelemetryEvent e) =>
+                    {
+                        Event = e;
+                    });
+            }
+        }
+
         [TestMethod]
         public async Task InvalidModuleReferenceShouldThrow()
         {
@@ -44,17 +62,23 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
             dispatcher.Setup(m => m.TryGetArtifactReference(ArtifactType.Module, ModuleRefStr, It.IsAny<Uri>())).Returns(ResultHelper.Create(null as ArtifactReference, x => x.ArtifactRestoreFailed("blah")));
+            var telemetryProviderMock = new TelemetryProviderMock();
 
             var resolver = StrictMock.Of<IFileResolver>();
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
 
+            // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
             (await FluentActions
                 .Awaiting(() => handler.Handle(@params, default))
                 .Should()
                 .ThrowAsync<InvalidOperationException>())
                 .WithMessage($"The client specified an invalid module reference '{ModuleRefStr}'.");
+
+            telemetryProviderMock.Event.Should().NotBeNull();
+            telemetryProviderMock.Event!.EventName.Should().Be(TelemetryConstants.EventNames.ExternalSourceRequestFailure);
+            telemetryProviderMock.Event.Properties.Should().Contain(new Dictionary<string, string> { { "failureType", "TryGetArtifactReference" } });
         }
 
         [TestMethod]
@@ -62,6 +86,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
             DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
+            var telemetryProviderMock = new TelemetryProviderMock();
 
             const string ModuleRefStr = "./hello.bicep";
             LocalModuleReference.TryParse(ModuleRefStr, new Uri("fake:///not/real.bicep")).IsSuccess(out var localRef).Should().BeTrue();
@@ -72,14 +97,19 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var resolver = StrictMock.Of<IFileResolver>();
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
 
+            // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
             (await FluentActions
                 .Awaiting(() => handler.Handle(@params, default))
                 .Should()
                 .ThrowAsync<InvalidOperationException>())
                 .WithMessage($"The specified module reference '{ModuleRefStr}' refers to a local module which is not supported by {BicepExternalSourceRequestHandler.BicepExternalSourceLspMethodName} requests.");
+
+            telemetryProviderMock.Event.Should().NotBeNull();
+            telemetryProviderMock.Event!.EventName.Should().Be(TelemetryConstants.EventNames.ExternalSourceRequestFailure);
+            telemetryProviderMock.Event.Properties.Should().Contain(new Dictionary<string, string> { { "failureType", "localNotSupported" } });
         }
 
         [TestMethod]
@@ -87,6 +117,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
             DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
+            var telemetryProviderMock = new TelemetryProviderMock();
 
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
@@ -103,14 +134,19 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var resolver = StrictMock.Of<IFileResolver>();
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
 
+            // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
             (await FluentActions
                 .Awaiting(() => handler.Handle(@params, default))
                 .Should()
                 .ThrowAsync<InvalidOperationException>())
                 .WithMessage($"The module '{ModuleRefStr}' has not yet been successfully restored.");
+
+            telemetryProviderMock.Event.Should().NotBeNull();
+            telemetryProviderMock.Event!.EventName.Should().Be(TelemetryConstants.EventNames.ExternalSourceRequestFailure);
+            telemetryProviderMock.Event.Properties.Should().Contain(new Dictionary<string, string> { { "failureType", "notRestored" } });
         }
 
         [TestMethod]
@@ -118,6 +154,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
             DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
+            var telemetryProviderMock = new TelemetryProviderMock();
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
@@ -134,14 +171,19 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var resolver = StrictMock.Of<IFileResolver>();
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
 
+            // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
             (await FluentActions
                 .Awaiting(() => handler.Handle(@params, default))
                 .Should()
                 .ThrowAsync<InvalidOperationException>())
                 .WithMessage($"Unable to obtain the entry point URI for module '{ModuleRefStr}'.");
+
+            telemetryProviderMock.Event.Should().NotBeNull();
+            telemetryProviderMock.Event!.EventName.Should().Be(TelemetryConstants.EventNames.ExternalSourceRequestFailure);
+            telemetryProviderMock.Event.Properties.Should().Contain(new Dictionary<string, string> { { "failureType", "TryGetLocalArtifactEntryPointUri" } });
         }
 
         [TestMethod]
@@ -171,8 +213,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create((string?)null, readFailureBuilder));
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, BicepTestConstants.CreateMockTelemetryProvider().Object);
 
+            // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
             (await FluentActions
                 .Awaiting(() => handler.Handle(@params, default))
@@ -185,6 +228,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public async Task RestoredValidModule_WithNoSources_ShouldReturnJsonContents()
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
+            var telemetryProviderMock = new TelemetryProviderMock();
 
             // needed for mocking out parameters
             DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
@@ -210,19 +254,30 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
 
+            // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
             var response = await handler.Handle(@params, default);
 
             response.Should().NotBeNull();
             response.Content.Should().Be(compiledJsonContents);
+
+            telemetryProviderMock.Event.Should().NotBeNull();
+            telemetryProviderMock.Event!.EventName.Should().Be(TelemetryConstants.EventNames.ExternalSourceRequestSuccess);
+            telemetryProviderMock.Event.Properties.Should().Contain(new Dictionary<string, string> {
+                        { "hasSource", "false"},
+                        { "archiveFilesCount", "0" },
+                        { "fileExtension",".json" },
+                        { "requestType", "CompiledJson" }
+                    });
         }
 
         [TestMethod]
         public async Task RestoredValidModule_WithSource_RequestingBicepFile_ShouldReturnBicepContents()
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
+            var telemetryProviderMock = new TelemetryProviderMock();
 
             // needed for mocking out parameters
             DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
@@ -246,25 +301,35 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = PathHelper.FilePathToFileUrl(Root("foo/bar/entrypoint.bicep"));
             var sourceArchive = SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(bicepUri, cacheRoot: null, new Core.Workspaces.ISourceFile[] {
-                SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
+                        SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
 
+            // act
             var @params = new BicepExternalSourceParams(ModuleRefStr, Path.GetFileName(bicepUri.AbsoluteUri));
             var response = await handler.Handle(@params, default);
 
             response.Should().NotBeNull();
             response.Content.Should().Be(bicepSource);
+            telemetryProviderMock.Event.Should().NotBeNull();
+            telemetryProviderMock.Event!.EventName.Should().Be(TelemetryConstants.EventNames.ExternalSourceRequestSuccess);
+            telemetryProviderMock.Event.Properties.Should().Contain(new Dictionary<string, string> {
+                        { "hasSource", "true"},
+                        { "archiveFilesCount","1" },
+                        { "fileExtension", ".bicep" },
+                        { "requestType", "BicepEntrypoint"}
+                    });
         }
 
         [TestMethod]
         public async Task RestoredValidModule_WithSource_RequestingCompiledJson_ShouldReturnMainJsonContents()
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
+            var telemetryProviderMock = new TelemetryProviderMock();
 
             // needed for mocking out parameters
             DiagnosticBuilder.ErrorBuilderDelegate? nullBuilder = null;
@@ -288,19 +353,28 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = PathHelper.FilePathToFileUrl(Root("foo/bar/entrypoint.bicep"));
             var sourceArchive = SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(bicepUri, cacheRoot: null, new Core.Workspaces.ISourceFile[] {
-                SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
+                        SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
             dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
 
-            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object);
+            var handler = new BicepExternalSourceRequestHandler(dispatcher.Object, resolver.Object, telemetryProviderMock.Object);
 
+            // act
             var @params = new BicepExternalSourceParams(ModuleRefStr);
             var response = await handler.Handle(@params, default);
 
             response.Should().NotBeNull();
             response.Content.Should().Be(compiledJsonContents);
+            telemetryProviderMock.Event.Should().NotBeNull();
+            telemetryProviderMock.Event!.EventName.Should().Be(TelemetryConstants.EventNames.ExternalSourceRequestSuccess);
+            telemetryProviderMock.Event.Properties.Should().Contain(new Dictionary<string, string> {
+                        { "hasSource", "true"},
+                        { "archiveFilesCount","1" },
+                        { "fileExtension",".json" },
+                        { "requestType","CompiledJson"}
+                    });
         }
 
         #region GetExternalSourceLinkUri tests
@@ -409,7 +483,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     entrypointUri,
                     cacheRoot: null,
                     new ISourceFile[] {
-                        SourceFileFactory.CreateBicepFile(entrypointUri, "metadata description = 'bicep module'")
+                                SourceFileFactory.CreateBicepFile(entrypointUri, "metadata description = 'bicep module'")
                     })).TryUnwrap()
                 : null;
 
@@ -436,7 +510,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 #if WINDOWS_BUILD
                 "c:\\entrypoint.bicep", // Use null to indicate no source code is available
 #else
-                "/entrypoint.bicep", // Use null to indicate no source code is available
+                        "/entrypoint.bicep", // Use null to indicate no source code is available
 #endif
             string registry = "myregistry.azurecr.io",
             string repository = "myrepo/bicep/module1",
