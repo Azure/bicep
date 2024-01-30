@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Formats.Tar;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -157,6 +158,16 @@ namespace Bicep.Core.SourceCode
 
         public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, IReadOnlyDictionary<Uri, SourceCodeDocumentUriLink[]>? documentLinks, params ISourceFile[] sourceFiles)
         {
+            // Don't package template spec files - they don't appear in the compiled JSON so we shouldn't expose them
+            sourceFiles = sourceFiles.Where(sf => sf is not TemplateSpecFile).ToArray();
+
+            // Filter out any links where the source or target is not in our list of files to package
+            var sourceFileUris = sourceFiles.Select(sf => sf.FileUri).ToArray();
+            documentLinks = documentLinks?
+                .Where(kvp => sourceFileUris.Contains( kvp.Key))
+                .Select(uriAndLink => (uriAndLink.Key, uriAndLink.Value.Where(link => sourceFileUris.Contains(link.Target)).ToArray()))
+                .ToDictionary();
+
             var stream = new MemoryStream();
             using (var gz = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
             {

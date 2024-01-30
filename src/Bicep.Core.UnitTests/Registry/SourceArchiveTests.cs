@@ -151,10 +151,13 @@ public class SourceArchiveTests
         var mainBicep = CreateSourceFile(fs, projectFolder, "main.bicep", SourceArchive.SourceKind_Bicep, MainDotBicepSource);
         var mainJson = CreateSourceFile(fs, projectFolder, "main.json", SourceArchive.SourceKind_ArmTemplate, MainDotJsonSource);
         var standaloneJson = CreateSourceFile(fs, projectFolder, "standalone.json", SourceArchive.SourceKind_ArmTemplate, StandaloneJsonSource);
-        var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "Main template.json", SourceArchive.SourceKind_TemplateSpec, TemplateSpecJsonSource);
+        var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "Template spec 1.json", SourceArchive.SourceKind_TemplateSpec, TemplateSpecJsonSource);
         var localModuleJson = CreateSourceFile(fs, projectFolder, "localModule.json", SourceArchive.SourceKind_ArmTemplate, LocalModuleDotJsonSource);
+        var templateSpecMainJson2 = CreateSourceFile(fs, projectFolder, "folder/template spec 2.json", SourceArchive.SourceKind_TemplateSpec, TemplateSpecJsonSource);
 
-        using var stream = SourceArchive.PackSourcesIntoStream(mainBicep.FileUri, CacheRoot, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson);
+        using var stream = SourceArchive.PackSourcesIntoStream(
+            mainBicep.FileUri,
+            CacheRoot, mainBicep, mainJson, standaloneJson, templateSpecMainJson, localModuleJson, templateSpecMainJson2);
         stream.Length.Should().BeGreaterThan(0);
 
         SourceArchive? sourceArchive = SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
@@ -164,10 +167,10 @@ public class SourceArchiveTests
         var archivedFiles = sourceArchive.SourceFiles.ToArray();
         archivedFiles.Should().BeEquivalentTo(
             new SourceArchive.SourceFileInfo[] {
+                // Note: the template spec files will be filtered out
                 new ("main.bicep", "files/main.bicep", SourceArchive.SourceKind_Bicep, MainDotBicepSource),
                 new ("main.json", "files/main.json", SourceArchive.SourceKind_ArmTemplate, MainDotJsonSource ),
                 new ("standalone.json", "files/standalone.json", SourceArchive.SourceKind_ArmTemplate, StandaloneJsonSource),
-                new ("Main template.json", "files/Main template.json", SourceArchive.SourceKind_TemplateSpec,  TemplateSpecJsonSource),
                 new ("localModule.json", "files/localModule.json", SourceArchive.SourceKind_ArmTemplate,  LocalModuleDotJsonSource),
             });
     }
@@ -181,7 +184,7 @@ public class SourceArchiveTests
         var mainBicep = CreateSourceFile(fs, projectFolder, "main&.bicep", SourceArchive.SourceKind_Bicep, MainDotBicepSource);
         var mainJson = CreateSourceFile(fs, projectFolder, "main.json", SourceArchive.SourceKind_ArmTemplate, MainDotJsonSource);
         var standaloneJson = CreateSourceFile(fs, projectFolder, "standalone.json", SourceArchive.SourceKind_ArmTemplate, StandaloneJsonSource);
-        var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "Main template.json", SourceArchive.SourceKind_TemplateSpec, TemplateSpecJsonSource);
+        var templateSpecMainJson = CreateSourceFile(fs, projectFolder, "cache/wherever/template spec 1.json", SourceArchive.SourceKind_TemplateSpec, TemplateSpecJsonSource);
         var localModuleJson = CreateSourceFile(fs, projectFolder, "modules/localJsonModule.json", SourceArchive.SourceKind_ArmTemplate, LocalModuleDotJsonSource);
         var localModuleBicep = CreateSourceFile(fs, projectFolder, "modules/localBicepModule.bicep", SourceArchive.SourceKind_ArmTemplate, LocalModuleDotJsonSource);
 
@@ -202,7 +205,22 @@ public class SourceArchiveTests
                     new(new SourceCodeRange(123, 124, 234, 235), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
                     new(new SourceCodeRange(234, 235, 345, 346), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main.json")),
                     new(new SourceCodeRange(123, 456, 234, 567), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
+                    new(new SourceCodeRange(1234, 4567, 2345, 5678), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json")),
                     new(new SourceCodeRange(345, 2, 345, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
+                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json")),
+                }
+            },
+            {
+                // Shouldn't be possible to hav a template spec file as the source, but still test that it's filtered out
+                PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/wherever/template spec 1.json"),
+                new SourceCodeDocumentUriLink[]
+                {
+                    new(new SourceCodeRange(123, 124, 234, 235), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
+                    new(new SourceCodeRange(234, 235, 345, 346), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main.json")),
+                    new(new SourceCodeRange(123, 456, 234, 567), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/main&.bicep")),
+                    new(new SourceCodeRange(1234, 4567, 2345, 5678), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/cache/wherever/template spec 1.json")),
+                    new(new SourceCodeRange(345, 2, 345, 3), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/modules/localJsonModule.json")),
+                    new(new SourceCodeRange(12, 45, 23, 56), PathHelper.FilePathToFileUrl($"{ROOT}my project/my sources/cache/wherever/template spec 1.json")),
                 }
             },
         };
@@ -216,6 +234,7 @@ public class SourceArchiveTests
 
         var expected = new Dictionary<string, SourceCodeDocumentPathLink[]>()
         {
+            // Note: the template spec files will be filtered out
             {
                 "main&.bicep",
                 new SourceCodeDocumentPathLink[]
