@@ -144,15 +144,11 @@ namespace Bicep.LanguageServer.Completions
                         yield return CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
                         yield return CreateKeywordCompletion(LanguageConstants.TypeKeyword, "Type keyword", context.ReplacementRange);
+                        yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
 
                         if (model.Features.ExtensibilityEnabled)
                         {
                             yield return CreateKeywordCompletion(LanguageConstants.ProviderKeyword, "Provider keyword", context.ReplacementRange);
-                        }
-
-                        if (model.Features.CompileTimeImportsEnabled)
-                        {
-                            yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
                         }
 
                         if (model.Features.TestFrameworkEnabled)

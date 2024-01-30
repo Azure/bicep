@@ -20,32 +20,16 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class CompileTimeImportTests
 {
-    private ServiceBuilder ServicesWithCompileTimeTypeImports => new ServiceBuilder()
-        .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true));
-
-    private ServiceBuilder ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions => new ServiceBuilder()
-        .WithFeatureOverrides(new(TestContext, CompileTimeImportsEnabled: true, UserDefinedFunctionsEnabled: true));
+    private ServiceBuilder ServicesWithUserDefinedFunctions => new ServiceBuilder()
+        .WithFeatureOverrides(new(TestContext, UserDefinedFunctionsEnabled: true));
 
     [NotNull]
     public TestContext? TestContext { get; set; }
 
     [TestMethod]
-    public void Compile_time_imports_are_disabled_unless_feature_is_enabled()
-    {
-        var result = CompilationHelper.Compile("""
-            import * as foo from 'bar.bicep'
-            """);
-
-        result.Should().HaveDiagnostics(new[]
-        {
-            ("BCP357", DiagnosticLevel.Error, "Using compile-time import statements requires enabling EXPERIMENTAL feature \"CompileTimeImports\"."),
-        });
-    }
-
-    [TestMethod]
     public void Importing_unexported_symbol_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo, bar} from 'mod.bicep'
                 """),
@@ -64,7 +48,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_variable_cannot_be_used_in_a_type_expression()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {bar} from 'mod.bicep'
 
@@ -84,7 +68,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_type_cannot_be_used_in_a_value_expression()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.bicep'
 
@@ -104,7 +88,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Dereferencing_unexported_or_unknown_symbol_from_wildcard_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import * as bar from 'mod.bicep'
                 param baz bar.foo
@@ -122,7 +106,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Exporting_type_property_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports, """
+        var result = CompilationHelper.Compile("""
             type foo = {
                 @export()
                 property: string
@@ -138,7 +122,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Importing_non_template_should_not_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {} from 'main.bicepparam'
                 """),
@@ -159,7 +143,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_type_symbols_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.bicep'
                 """),
@@ -189,7 +173,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_variable_symbols_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.bicep'
                 """),
@@ -210,7 +194,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_function_symbols_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
             ("main.bicep", """
                 import {greet} from 'mod.bicep'
                 """),
@@ -257,10 +241,10 @@ public class CompileTimeImportTests
         var defaultFeatures = new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration());
         featureProviderFactory
             .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("main.bicep"))))
-            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(CompileTimeImportsEnabled: true)));
+            .Returns(defaultFeatures);
         featureProviderFactory
             .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("mod.bicep"))))
-            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(CompileTimeImportsEnabled: true, UserDefinedFunctionsEnabled: true)));
+            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(UserDefinedFunctionsEnabled: true)));
 
         var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureProviderFactory(featureProviderFactory.Object),
             ("main.bicep", """
@@ -285,10 +269,10 @@ public class CompileTimeImportTests
         var defaultFeatures = new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration());
         featureProviderFactory
             .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("main.bicep"))))
-            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(CompileTimeImportsEnabled: true)));
+            .Returns(defaultFeatures);
         featureProviderFactory
             .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("mod.bicep"))))
-            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(CompileTimeImportsEnabled: true, UserDefinedFunctionsEnabled: true)));
+            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(UserDefinedFunctionsEnabled: true)));
 
         var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureProviderFactory(featureProviderFactory.Object),
             ("main.bicep", """
@@ -311,7 +295,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Type_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.json'
                 """),
@@ -367,7 +351,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Variable_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.json'
                 """),
@@ -407,7 +391,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Function_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
             ("main.bicep", """
                 import {greet, 'ns.cow_say' as cowSay} from 'mod.json'
                 """),
@@ -567,7 +551,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Funky_ARM_allowedValues_survive_symbol_import_and_injection()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo as fizz, bar as buzz} from 'mod.json'
                 """),
@@ -626,7 +610,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Symbols_imported_via_wildcard_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
             ("main.bicep", """
                 import * as foo from 'mod.bicep'
                 """),
@@ -695,7 +679,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_symbol_closure_is_deduplicated_in_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import * as bar from 'mod.bicep'
                 import {foo} from 'mod.bicep'
@@ -743,7 +727,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_type_symbols_with_a_lengthy_reference_chain_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.bicep'
                 """),
@@ -879,7 +863,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_variable_symbols_with_a_lengthy_reference_chain_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.bicep'
                 """),
@@ -949,7 +933,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_function_symbols_with_a_lengthy_reference_chain_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
             ("main.bicep", """
                 import {foo} from 'mod.bicep'
 
@@ -1168,7 +1152,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Importing_the_same_symbol_under_two_separate_names_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.bicep'
                 import {foo as fizz} from 'mod.bicep'
@@ -1188,7 +1172,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Importing_the_same_symbol_from_json_template_under_two_separate_names_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.json'
                 import {foo as fizz} from 'mod.json'
@@ -1220,7 +1204,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Exporting_a_variable_that_references_a_parameter_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports, """
+        var result = CompilationHelper.Compile( """
             param foo string
             var bar = 'x${foo}x'
             var baz = bar
@@ -1238,7 +1222,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Exporting_a_variable_that_references_a_resource_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports, """
+        var result = CompilationHelper.Compile( """
             resource foo 'Microsoft.Network/virtualNetworks@2020-06-01' = {
                 location: 'westus'
                 name: 'myVNet'
@@ -1268,7 +1252,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Exporting_a_variable_that_references_a_local_variable_should_not_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports, """
+        var result = CompilationHelper.Compile("""
             @export()
             var foo = map(range(1, 10), x => x * x)
             """);
@@ -1279,7 +1263,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Importing_a_name_that_refers_to_mulitple_exports_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.json'
                 """),
@@ -1320,7 +1304,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Wildcard_importing_a_target_with_multiple_exports_using_the_same_name_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import * as everything from 'mod.json'
                 """),
@@ -1361,7 +1345,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Copy_variable_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.json'
                 """),
@@ -1409,7 +1393,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Copy_variable_symbols_imported_from_ARM_json_as_part_of_import_closure_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {bar} from 'mod.json'
                 """),
@@ -1458,7 +1442,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Named_import_can_identify_target_by_quoted_string()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {'a-b' as ab} from 'mod.json'
                 """),
@@ -1488,7 +1472,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Named_import_by_quoted_string_should_block_interpolation()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {'${originalSymbolName}' as ab} from 'mod.json'
 
@@ -1521,7 +1505,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Named_import_by_quoted_string_without_alias_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {'foo'} from 'mod.json'
                 """),
@@ -1554,7 +1538,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Named_import_with_invalid_original_symbol_name_syntax_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {1 as foo} from 'mod.bicep'
                 """),
@@ -1569,7 +1553,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Importing_type_results_in_ARM_language_version_2()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.bicep'
                 """),
@@ -1585,7 +1569,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Importing_variable_results_in_ARM_language_version_2()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {bar} from 'mod.bicep'
                 """),
@@ -1604,7 +1588,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Named_imports_into_bicepparam_file_are_supported()
     {
-        var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.CompileParams(
             ("main.bicep", """
                 param intParam int
                 """),
@@ -1633,7 +1617,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Wildcard_imports_into_bicepparam_file_are_supported()
     {
-        var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.CompileParams(
             ("main.bicep", """
                 param intParam int
                 """),
@@ -1662,7 +1646,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Importing_types_is_blocked_in_bicepparam_files()
     {
-        var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.CompileParams(
             ("parameters.bicepparam", """
                 using 'main.bicep'
 
@@ -1684,7 +1668,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void References_to_variable_properties_of_wildcard_imports_generate_references_to_synthesized_variables()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("vars.bicep", """
                 @export()
                 var obj = {
@@ -1722,7 +1706,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Test_Issue12052()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {Foo} from 'types.bicep'
 
@@ -1750,7 +1734,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Test_Issue12396()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import { _helloWorld } from 'types.bicep'
 
@@ -1775,7 +1759,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Symbolic_name_target_is_used_when_function_import_closure_includes_a_user_defined_type()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
             ("main.bicep", """
                 import { capitalizer } from 'function.bicep'
                 """),
@@ -1795,7 +1779,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Test_12464()
     {
-        var result = CompilationHelper.CompileParams(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.CompileParams(
             ("bicepconfig.json", """
                 {
                     "experimentalFeaturesEnabled": {
@@ -1833,7 +1817,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_variable_symbols_that_use_compile_time_functions_should_have_synthesized_variable_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {fizzBuzz} from 'mod.bicep'
                 """),
@@ -1896,7 +1880,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void User_defined_function_calls_parameters_to_other_user_defined_function_calls_are_migrated_during_import()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
             ("main.bicep", """
                 import {getSubnetNumber, isWindows} from 'types.bicep'
 
@@ -1938,7 +1922,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_objects_can_be_used_in_object_type_narrowing()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {obj} from 'mod.bicep'
 
@@ -1960,7 +1944,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_objects_can_be_used_in_discriminated_object_type_narrowing()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {obj} from 'mod.bicep'
 
@@ -1982,7 +1966,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void LanguageVersion_2_should_be_used_if_types_imported_via_wildcard()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
             ("main.bicep", """
                 import * as types from 'types.bicep'
                 """),
@@ -2027,7 +2011,7 @@ INVALID FILE
     [TestMethod]
     public void LanguageVersion_2_should_be_used_if_types_imported_via_closure()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImportsAndUserDefinedFunctions,
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
             ("main.bicep", """
                 import {a} from 'shared.bicep'
                 """),
@@ -2046,7 +2030,7 @@ INVALID FILE
     [TestMethod]
     public void Resource_derived_types_are_bound_when_imported_from_ARM_JSON_models()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true, CompileTimeImportsEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("main.bicep", """
                 import {foo} from 'mod.json'
 
@@ -2100,7 +2084,7 @@ INVALID FILE
     [TestMethod]
     public void Resource_derived_typed_compile_time_imports_raise_diagnostic_when_imported_from_ARM_JSON_models_without_feature_flag_set()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.json'
 
@@ -2150,7 +2134,7 @@ INVALID FILE
     [TestMethod]
     public void Resource_derived_typed_compile_time_imports_raise_diagnostic_when_imported_from_ARM_JSON_models_with_unrecognized_resource()
     {
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true, CompileTimeImportsEnabled: true)),
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             ("main.bicep", """
                 import {foo} from 'mod.json'
 
@@ -2201,7 +2185,7 @@ INVALID FILE
     [TestMethod]
     public void Copy_index_argument_in_imported_copy_variables_is_replaced()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import * as vars from 'shared.bicep'
                 """),
@@ -2227,7 +2211,7 @@ INVALID FILE
     [TestMethod]
     public void Copy_index_argument_in_copy_variables_imported_from_json_is_replaced()
     {
-        var result = CompilationHelper.Compile(ServicesWithCompileTimeTypeImports,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import * as foo from 'mod.json'
                 """),

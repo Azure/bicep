@@ -40,8 +40,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ProviderRegistryEnabled => overrides.ProviderRegistry ?? features.ProviderRegistryEnabled;
 
-    public bool CompileTimeImportsEnabled => overrides.CompileTimeImportsEnabled ?? features.CompileTimeImportsEnabled;
-
     public bool MicrosoftGraphPreviewEnabled => overrides.MicrosoftGraphPreviewEnabled ?? features.MicrosoftGraphPreviewEnabled;
 
     public bool PublishSourceEnabled => overrides.PublishSourceEnabled ?? features.PublishSourceEnabled;
