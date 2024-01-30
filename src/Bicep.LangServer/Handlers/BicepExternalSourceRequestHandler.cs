@@ -1,13 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
+using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
+using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -29,11 +32,16 @@ namespace Bicep.LanguageServer.Handlers
 
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IFileResolver fileResolver;
+        private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepExternalSourceRequestHandler(IModuleDispatcher moduleDispatcher, IFileResolver fileResolver)
+        public BicepExternalSourceRequestHandler(
+            IModuleDispatcher moduleDispatcher,
+            IFileResolver fileResolver,
+            ITelemetryProvider telemetryProvider)
         {
             this.moduleDispatcher = moduleDispatcher;
             this.fileResolver = fileResolver;
+            this.telemetryProvider = telemetryProvider;
         }
 
         public Task<BicepExternalSourceResponse> Handle(BicepExternalSourceParams request, CancellationToken cancellationToken)
@@ -44,49 +52,64 @@ namespace Bicep.LanguageServer.Handlers
 
             if (!moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, request.Target, new Uri("file:///no-parent-file-is-available.bicep")).IsSuccess(out var moduleReference))
             {
+                telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetArtifactReference)));
                 throw new InvalidOperationException(
                     $"The client specified an invalid module reference '{request.Target}'.");
             }
 
             if (!moduleReference.IsExternal)
             {
+                telemetryProvider.PostEvent(ExternalSourceRequestFailure("localNotSupported"));
                 throw new InvalidOperationException(
                     $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests.");
             }
 
             if (this.moduleDispatcher.GetArtifactRestoreStatus(moduleReference, out _) != ArtifactRestoreStatus.Succeeded)
             {
+                telemetryProvider.PostEvent(ExternalSourceRequestFailure("notRestored"));
                 throw new InvalidOperationException(
                     $"The module '{moduleReference.FullyQualifiedReference}' has not yet been successfully restored.");
             }
 
             if (!moduleDispatcher.TryGetLocalArtifactEntryPointUri(moduleReference).IsSuccess(out var compiledJsonUri))
             {
+                telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetLocalArtifactEntryPointUri)));
                 throw new InvalidOperationException(
                     $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
             }
 
+            var success = moduleDispatcher.TryGetModuleSources(moduleReference).IsSuccess(out var sourceArchive, out var ex);
+
             if (request.requestedSourceFile is { })
             {
-                if (moduleDispatcher.TryGetModuleSources(moduleReference).IsSuccess(out var sourceArchive, out var ex))
+                if (success)
                 {
+                    Debug.Assert(sourceArchive is { });
                     var requestedFile = sourceArchive.FindExpectedSourceFile(request.requestedSourceFile);
+                    telemetryProvider.PostEvent(CreateSuccessTelemetry(sourceArchive, request.requestedSourceFile));
                     return Task.FromResult(new BicepExternalSourceResponse(requestedFile.Contents));
                 }
-                else if (ex is not SourceNotAvailableException)
+                else if (ex is SourceNotAvailableException)
                 {
+                    // Fall through
+                }
+                else
+                {
+                    Debug.Assert(ex is { });
+                    telemetryProvider.PostEvent(ExternalSourceRequestFailure($"TryGetModuleSources: {ex.GetType().Name}"));
                     return Task.FromResult(new BicepExternalSourceResponse(null, ex.Message));
                 }
             }
 
-            // No sources available, or specifically requesting the compiled main.json (requestedSourceFile=null), or there was an error retrieving sources.
-            // Just show the compiled JSON
+            // No sources available, or specifically requesting the compiled main.json (requestedSourceFile=null).
+            // Return the compiled JSON (main.json).
             if (!this.fileResolver.TryRead(compiledJsonUri).IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
                 throw new InvalidOperationException($"Unable to read file '{compiledJsonUri}'. {message}");
             }
 
+            telemetryProvider.PostEvent(CreateSuccessTelemetry(sourceArchive, request.requestedSourceFile));
             return Task.FromResult(new BicepExternalSourceResponse(contents));
         }
 
@@ -100,6 +123,23 @@ namespace Bicep.LanguageServer.Handlers
         public static Uri GetExternalSourceLinkUri(OciArtifactReference reference, SourceArchive? sourceArchive, bool defaultToDisplayingBicep = true)
         {
             return new ExternalSourceReference(reference, sourceArchive, defaultToDisplayingBicep: defaultToDisplayingBicep).ToUri();
+        }
+
+        private BicepTelemetryEvent CreateSuccessTelemetry(SourceArchive? sourceArchive, string? requestedSourceFile)
+        {
+            return ExternalSourceRequestSuccess(
+                hasSource: sourceArchive is not null,
+                archiveFilesCount: sourceArchive?.SourceFiles.Length ?? 0,
+                fileExtension: Path.GetExtension(requestedSourceFile) ?? (requestedSourceFile is null ? ".json" : string.Empty),
+                requestType: requestedSourceFile switch
+                {
+                    null => ExternalSourceRequestType.CompiledJson,
+                    string when sourceArchive is null => ExternalSourceRequestType.Unknown, // shouldn't happen
+                    string file when StringComparer.Ordinal.Equals(file, sourceArchive.EntrypointRelativePath) => ExternalSourceRequestType.BicepEntrypoint,
+                    string file when file.Contains("<root>") => ExternalSourceRequestType.NestedExternal,
+                    _ => ExternalSourceRequestType.Local
+                }
+            );
         }
     }
 }

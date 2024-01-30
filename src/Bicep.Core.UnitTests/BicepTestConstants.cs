@@ -64,7 +64,7 @@ namespace Bicep.Core.UnitTests
             MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion,
             isImplicitImport: true);
 
-        // Linter rules added to this list will be automtically disabled for most tests.
+        // Linter rules added to this list will be automatically disabled for most tests.
         // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
         public static readonly string[] AnalyzerRulesToDisableInTests = Array.Empty<string>();
 
