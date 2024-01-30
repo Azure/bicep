@@ -26,7 +26,7 @@ namespace Bicep.Core.TypeSystem.Providers
             this.fileSystem = fileSystem;
         }
 
-        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProviderFromFilePath(ResourceTypesProviderDescriptor providerDescriptor)
+        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProviderFromFilePath(ProviderDescriptor providerDescriptor)
         {
 
 

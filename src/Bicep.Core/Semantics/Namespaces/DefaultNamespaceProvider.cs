@@ -16,7 +16,7 @@ namespace Bicep.Core.Semantics.Namespaces;
 public class DefaultNamespaceProvider : INamespaceProvider
 {
     private delegate NamespaceType GetNamespaceDelegate(
-        ResourceTypesProviderDescriptor descriptor,
+        ProviderDescriptor descriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
         BicepSourceFileKind sourceFileKind);
@@ -37,7 +37,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
     }
 
     public ResultWithDiagnostic<NamespaceType> TryGetNamespace(
-        ResourceTypesProviderDescriptor descriptor,
+        ProviderDescriptor descriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
         BicepSourceFileKind sourceFileKind)

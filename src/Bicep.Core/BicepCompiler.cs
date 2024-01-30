@@ -48,7 +48,7 @@ public class BicepCompiler
     public Compilation CreateCompilationWithoutRestore(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false)
     {
         workspace ??= new Workspace();
-        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, bicepUri, featureProviderFactory, markAllForRestore);
+        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, configurationManager, workspace, bicepUri, featureProviderFactory, markAllForRestore);
 
         return Create(sourceFileGrouping);
     }
@@ -71,7 +71,7 @@ public class BicepCompiler
         if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.GetArtifactsToRestore()), forceRestore: forceRestore))
         {
             // modules had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, workspace, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, configurationManager, workspace, sourceFileGrouping);
         }
 
         return Create(sourceFileGrouping);
@@ -85,7 +85,7 @@ public class BicepCompiler
         if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(originalModulesToRestore), force))
         {
             // modules had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, workspace, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, configurationManager, workspace, sourceFileGrouping);
         }
 
         return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceModulesRestore: force);

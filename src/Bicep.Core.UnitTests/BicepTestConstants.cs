@@ -49,17 +49,17 @@ namespace Bicep.Core.UnitTests
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
-        public static ResourceTypesProviderDescriptor BuiltInAzProviderDescriptor { get; } = new(
+        public static ProviderDescriptor BuiltInAzProviderDescriptor { get; } = new(
             AzNamespaceType.BuiltInName,
             AzNamespaceType.Settings.ArmTemplateProviderVersion,
             isImplicitImport: true);
 
-        public static ResourceTypesProviderDescriptor BuiltInSysProviderDescriptor { get; } = new(
+        public static ProviderDescriptor BuiltInSysProviderDescriptor { get; } = new(
             SystemNamespaceType.BuiltInName,
             SystemNamespaceType.Settings.ArmTemplateProviderVersion,
             isImplicitImport: true);
 
-        public static ResourceTypesProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = new(
+        public static ProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = new(
             MicrosoftGraphNamespaceType.BuiltInName,
             MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion,
             isImplicitImport: true);

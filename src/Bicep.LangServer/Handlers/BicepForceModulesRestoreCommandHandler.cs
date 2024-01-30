@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text;
+using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -19,6 +20,7 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IConfigurationManager configurationManager;
         private readonly IWorkspace workspace;
         private readonly IFeatureProviderFactory featureProviderFactory;
 
@@ -26,12 +28,14 @@ namespace Bicep.LanguageServer.Handlers
             ISerializer serializer,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
+            IConfigurationManager configurationManager,
             IWorkspace workspace,
             IFeatureProviderFactory featureProviderFactory)
             : base(LangServerConstants.ForceModulesRestoreCommand, serializer)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
+            this.configurationManager = configurationManager;
             this.workspace = workspace;
             this.featureProviderFactory = featureProviderFactory;
         }
@@ -56,6 +60,7 @@ namespace Bicep.LanguageServer.Handlers
             SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 this.fileResolver,
                 this.moduleDispatcher,
+                this.configurationManager,
                 workspace,
                 fileUri,
                 featureProviderFactory);

@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics.Namespaces;
@@ -20,7 +21,7 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
     }
 
     public ResultWithDiagnostic<NamespaceType> TryGetNamespace(
-        ResourceTypesProviderDescriptor providerDescriptor,
+        ProviderDescriptor providerDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider featureProvider,
         BicepSourceFileKind sourceFileKind)

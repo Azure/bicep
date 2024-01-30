@@ -3,9 +3,9 @@
 
 namespace Bicep.Core.TypeSystem.Providers;
 
-public record ResourceTypesProviderDescriptor
+public record ProviderDescriptor
 {
-    public ResourceTypesProviderDescriptor(
+    public ProviderDescriptor(
         string namespaceIdentifier,
         string? version,
         bool isImplicitImport,

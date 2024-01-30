@@ -13,7 +13,7 @@ namespace Bicep.Core.Semantics.Namespaces;
 public interface INamespaceProvider
 {
     ResultWithDiagnostic<NamespaceType> TryGetNamespace(
-        ResourceTypesProviderDescriptor providerDescriptor,
+        ProviderDescriptor providerDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider features,
         BicepSourceFileKind sourceFileKind);

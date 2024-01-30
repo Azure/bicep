@@ -202,7 +202,7 @@ namespace Bicep.Core.Semantics
                 return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
             }
 
-            ResourceTypesProviderDescriptor providerDescriptor = new(
+            ProviderDescriptor providerDescriptor = new(
                 namespaceIdentifier: syntax.Specification.Identifier,
                 version: syntax.Specification.Version,
                 isImplicitImport: false,

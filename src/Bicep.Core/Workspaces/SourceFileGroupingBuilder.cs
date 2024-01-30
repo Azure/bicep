@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -19,15 +20,17 @@ namespace Bicep.Core.Workspaces
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher dispatcher;
         private readonly IReadOnlyWorkspace workspace;
+        private readonly IConfigurationManager configurationManager;
 
         private readonly Dictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri;
         private readonly ConcurrentDictionary<BicepSourceFile, Dictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference;
-
+        private readonly ConcurrentDictionary<BicepSourceFile, ProviderDescriptorBundleBuilder> providerDescriptorBundleBuilderBySourceFile;
         private readonly bool forceRestore;
 
         private SourceFileGroupingBuilder(
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
+            IConfigurationManager configurationManager,
             IReadOnlyWorkspace workspace,
             bool forceModulesRestore = false)
         {
@@ -35,13 +38,16 @@ namespace Bicep.Core.Workspaces
             this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
             this.fileUriResultByArtifactReference = new();
+            this.providerDescriptorBundleBuilderBySourceFile = new();
             this.fileResultByUri = new();
             this.forceRestore = forceModulesRestore;
+            this.configurationManager = configurationManager;
         }
 
         private SourceFileGroupingBuilder(
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
+            IConfigurationManager configurationManager,
             IReadOnlyWorkspace workspace,
             SourceFileGrouping current,
             bool forceArtifactRestore = false)
@@ -50,20 +56,34 @@ namespace Bicep.Core.Workspaces
             this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
             this.fileUriResultByArtifactReference = new(current.FileUriResultByArtifactReference.Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToDictionary(p => p.Key, p => p.Value))));
+            this.providerDescriptorBundleBuilderBySourceFile = new(current.ProvidersToRestoreByFileResult.Select(kvp => KeyValuePair.Create(kvp.Key, new ProviderDescriptorBundleBuilder(kvp.Value.ImplicitProviders, kvp.Value.ExplicitProviderLookup))));
             this.fileResultByUri = current.FileResultByUri.Where(x => x.Value.TryUnwrap() is not null).ToDictionary(x => x.Key, x => x.Value);
             this.forceRestore = forceArtifactRestore;
+            this.configurationManager = configurationManager;
         }
 
-        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, IFeatureProviderFactory featuresFactory, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(
+            IFileResolver fileResolver,
+            IModuleDispatcher moduleDispatcher,
+            IConfigurationManager configurationManager,
+            IReadOnlyWorkspace workspace,
+            Uri entryFileUri,
+            IFeatureProviderFactory featuresFactory,
+            bool forceModulesRestore = false)
         {
-            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, forceModulesRestore);
+            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, configurationManager, workspace, forceModulesRestore);
 
-            return builder.Build(entryFileUri, featuresFactory);
+            return builder.Build(entryFileUri, featuresFactory, configurationManager);
         }
 
-        public static SourceFileGrouping Rebuild(IFeatureProviderFactory featuresFactory, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(
+            IFeatureProviderFactory featuresFactory,
+            IModuleDispatcher moduleDispatcher,
+            IConfigurationManager configurationManager,
+            IReadOnlyWorkspace workspace,
+            SourceFileGrouping current)
         {
-            var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current);
+            var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, configurationManager, workspace, current);
             var isParamsFile = current.EntryPoint is BicepParamFile;
             var artifactsToRestore = current.GetArtifactsToRestore().ToHashSet();
 
@@ -82,10 +102,14 @@ namespace Bicep.Core.Workspaces
                 .SelectMany(sourceFile => current.GetFilesDependingOn(sourceFile))
                 .ToImmutableHashSet();
 
-            return builder.Build(current.EntryPoint.FileUri, featuresFactory, sourceFilesToRebuild);
+            return builder.Build(current.EntryPoint.FileUri, featuresFactory, configurationManager, sourceFilesToRebuild);
         }
 
-        private SourceFileGrouping Build(Uri entryFileUri, IFeatureProviderFactory featuresFactory, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild = null)
+        private SourceFileGrouping Build(
+            Uri entryFileUri,
+            IFeatureProviderFactory featuresFactory,
+            IConfigurationManager configurationManager,
+            ImmutableHashSet<ISourceFile>? sourceFilesToRebuild = null)
         {
             var fileResult = this.PopulateRecursive(entryFileUri, null, sourceFilesToRebuild, featuresFactory);
 
@@ -102,6 +126,7 @@ namespace Bicep.Core.Workspaces
                 fileResolver,
                 entryFileUri,
                 fileResultByUri.ToImmutableDictionary(),
+                providerDescriptorBundleBuilderBySourceFile.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.Build()),
                 fileUriResultByArtifactReference.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutableDictionary()),
                 sourceFileDependencies.InvertLookup().ToImmutableDictionary());
         }
@@ -150,7 +175,7 @@ namespace Bicep.Core.Workspaces
             foreach (var restorable in file.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>())
             {
                 var (childArtifactReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
-                
+
                 fileUriResultByArtifactReference.GetOrAdd(file, f => new())[restorable] = uriResult;
 
                 if (!uriResult.IsSuccess(out var artifactUri))

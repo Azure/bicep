@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <Deterministic>true</Deterministic>
-    <LangVersion>11.0</LangVersion>
+    <LangVersion>12.0</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

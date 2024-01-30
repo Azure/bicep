@@ -17,30 +17,24 @@ public record UriResolutionError(
     DiagnosticBuilder.ErrorBuilderDelegate ErrorBuilder,
     bool RequiresRestore);
 
-public class SourceFileGrouping : IArtifactFileLookup
+public class SourceFileGrouping(IFileResolver fileResolver,
+    Uri entryFileUri,
+    ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri,
+    ImmutableDictionary<BicepSourceFile, ProviderDescriptorBundle> providerDescriptorBundleBySourceFile,
+    ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference,
+    ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup) : IArtifactFileLookup
 {
-    public SourceFileGrouping(IFileResolver fileResolver,
-        Uri entryFileUri,
-        ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri,
-        ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference,
-        ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup)
-    {
-        FileResolver = fileResolver;
-        EntryFileUri = entryFileUri;
-        FileResultByUri = fileResultByUri;
-        FileUriResultByArtifactReference = fileUriResultByArtifactReference;
-        SourceFileParentLookup = sourceFileParentLookup;
-    }
+    public IFileResolver FileResolver { get; } = fileResolver;
 
-    public IFileResolver FileResolver { get; }
+    public Uri EntryFileUri { get; } = entryFileUri;
 
-    public Uri EntryFileUri { get; }
+    public ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> FileResultByUri { get; } = fileResultByUri;
 
-    public ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> FileResultByUri { get; }
+    public ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> FileUriResultByArtifactReference { get; } = fileUriResultByArtifactReference;
 
-    public ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> FileUriResultByArtifactReference { get; }
+    public ImmutableDictionary<BicepSourceFile, ProviderDescriptorBundle> ProvidersToRestoreByFileResult { get; } = providerDescriptorBundleBySourceFile;
 
-    public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; }
+    public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; } = sourceFileParentLookup;
 
     public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore()
     {
