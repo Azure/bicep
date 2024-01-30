@@ -150,6 +150,7 @@ namespace Bicep.Core.Workspaces
             foreach (var restorable in file.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>())
             {
                 var (childArtifactReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
+                
                 fileUriResultByArtifactReference.GetOrAdd(file, f => new())[restorable] = uriResult;
 
                 if (!uriResult.IsSuccess(out var artifactUri))

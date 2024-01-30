@@ -83,12 +83,12 @@ namespace Bicep.Core.Registry
         public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactReferenceSyntax, Uri parentModuleUri)
         {
             var config = configurationManager.GetConfiguration(parentModuleUri);
-            if (!artifactReferenceSyntax.ResolveArtifactPath(config).IsSuccess(out var artifactReference, out var failureBuilder))
+            if (!artifactReferenceSyntax.ResolveArtifactPath(config).IsSuccess(out var artifactPath, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
-            
-            return this.TryGetArtifactReference(artifactReferenceSyntax.GetArtifactType(), artifactReference, parentModuleUri);
+
+            return this.TryGetArtifactReference(artifactReferenceSyntax.GetArtifactType(), artifactPath, parentModuleUri);
         }
 
         public RegistryCapabilities GetRegistryCapabilities(ArtifactReference artifactReference)

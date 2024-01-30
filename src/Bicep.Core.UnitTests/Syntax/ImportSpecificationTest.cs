@@ -30,11 +30,11 @@ public class ImportSpecificationTests
         // Arrange
         var syntax = SyntaxFactory.CreateStringLiteral(input);
         // Act
-        var got = ImportSpecification.From(syntax);
+        var got = ProviderSpecificationFactory.FromSyntax(syntax);
         // Assert
         if (isValidDeclaration)
         {
-            got.Name.Should().Be(expectedName);
+            got.Identifier.Should().Be(expectedName);
         }
         got.IsValid.Should().Be(isValidDeclaration);
     }

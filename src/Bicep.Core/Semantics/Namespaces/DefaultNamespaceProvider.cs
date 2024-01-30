@@ -43,21 +43,21 @@ public class DefaultNamespaceProvider : INamespaceProvider
         BicepSourceFileKind sourceFileKind)
     {
         // If we don't have a types path, we're loading a 'built-in' type
-        if (descriptor.TypesBaseUri is null &&
-            builtInNamespaceLookup.TryGetValue(descriptor.Name) is { } getProviderFn)
+        if (descriptor.TypesDataUri is null &&
+            builtInNamespaceLookup.TryGetValue(descriptor.NamespaceIdentifier) is { } getProviderFn)
         {
             return new(getProviderFn(descriptor, resourceScope, features, sourceFileKind));
         }
 
         // Special-case the 'az' provider being loaded from registry - we need add-on functionality delivered via the namespace provider
-        if (descriptor.Name == AzNamespaceType.BuiltInName)
+        if (descriptor.NamespaceIdentifier == AzNamespaceType.BuiltInName)
         {
             if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
                 return new(AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind));
             }
 
-            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
+            Trace.WriteLine($"Failed to load types from {descriptor.TypesDataUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
             return new(errorBuilder);
         }
 
@@ -66,13 +66,13 @@ public class DefaultNamespaceProvider : INamespaceProvider
         {
             if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
-                return new(ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider));
+                return new(ThirdPartyNamespaceType.Create(descriptor.NamespaceIdentifier, descriptor.Alias, dynamicallyLoadedProvider));
             }
 
-            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
+            Trace.WriteLine($"Failed to load types from {descriptor.TypesDataUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
             return new(errorBuilder);
         }
 
-        return new(x => x.UnrecognizedProvider(descriptor.Name));
+        return new(x => x.UnrecognizedProvider(descriptor.NamespaceIdentifier));
     }
 }

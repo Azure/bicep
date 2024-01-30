@@ -10,7 +10,7 @@ namespace Bicep.Core.Semantics
     public class ProviderNamespaceSymbol : DeclaredSymbol, INamespaceSymbol
     {
         public ProviderNamespaceSymbol(ISymbolContext context, ProviderDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
-            : base(context, declaringSyntax.Alias?.IdentifierName ?? declaringSyntax.Specification.Name, declaringSyntax, declaringSyntax.Alias as ISymbolNameSource ?? declaringSyntax.Specification)
+            : base(context, declaringSyntax.Alias?.IdentifierName ?? declaringSyntax.Specification.Identifier, declaringSyntax, declaringSyntax.Alias as ISymbolNameSource ?? declaringSyntax.Specification)
         {
             this.DeclaredType = declaredType;
         }

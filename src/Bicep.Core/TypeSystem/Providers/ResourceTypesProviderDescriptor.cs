@@ -6,26 +6,29 @@ namespace Bicep.Core.TypeSystem.Providers;
 public record ResourceTypesProviderDescriptor
 {
     public ResourceTypesProviderDescriptor(
-        string name,
-        string version,
+        string namespaceIdentifier,
+        string? version,
         bool isImplicitImport,
         string? alias = null,
-        string? artifactRef = null,
-        Uri? typesBaseUri = null)
+        string? registryAddress = null,
+        Uri? typesDataUri = null,
+        Uri? parentModuleUri = null)
     {
-
-        Name = name;
-        Alias = alias ?? name;
-        ArtifactReference = artifactRef ?? (isImplicitImport ? name : $"{name}@{version}");
-        Version = version;
-        TypesBaseUri = typesBaseUri;
+        NamespaceIdentifier = namespaceIdentifier;
+        Version = version ?? "TODO(asilverman): Get the version from the config file somehow";
+        Alias = alias ?? namespaceIdentifier;
+        ArtifactReference = registryAddress ?? (isImplicitImport ? namespaceIdentifier : $"{namespaceIdentifier}@{version}");
+        TypesDataUri = typesDataUri;
+        this.parentModuleUri = parentModuleUri;
     }
 
-    public string Name { get; }
+    private Uri? parentModuleUri;
+
+    public string NamespaceIdentifier { get; }
 
     public string Alias { get; }
 
-    public Uri? TypesBaseUri { get; }
+    public Uri? TypesDataUri { get; }
 
     public string Version { get; }
 

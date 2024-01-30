@@ -199,12 +199,12 @@ public class ResourceDerivedTypeResolverTests
                 ImmutableHashSet<string>.Empty));
 
         var namespaceProviderMock = StrictMock.Of<INamespaceProvider>();
-        namespaceProviderMock.Setup(x => x.TryGetNamespace(It.Is<ResourceTypesProviderDescriptor>(x => x.Name == AzNamespaceType.BuiltInName),
+        namespaceProviderMock.Setup(x => x.TryGetNamespace(It.Is<ResourceTypesProviderDescriptor>(x => x.NamespaceIdentifier == AzNamespaceType.BuiltInName),
             It.IsAny<ResourceScope>(),
             It.IsAny<IFeatureProvider>(),
             It.IsAny<BicepSourceFileKind>()))
             .Returns(new ResultWithDiagnostic<NamespaceType>(stubbedNamespaceType));
-        namespaceProviderMock.Setup(x => x.TryGetNamespace(It.Is<ResourceTypesProviderDescriptor>(x => x.Name != AzNamespaceType.BuiltInName),
+        namespaceProviderMock.Setup(x => x.TryGetNamespace(It.Is<ResourceTypesProviderDescriptor>(x => x.NamespaceIdentifier != AzNamespaceType.BuiltInName),
             It.IsAny<ResourceScope>(),
             It.IsAny<IFeatureProvider>(),
             It.IsAny<BicepSourceFileKind>()))
@@ -251,7 +251,7 @@ public class ResourceDerivedTypeResolverTests
             It.IsAny<IFeatureProvider>(),
             It.IsAny<BicepSourceFileKind>()))
             .Returns(new ResultWithDiagnostic<NamespaceType>(stubbedNamespaceType));
-        namespaceProviderMock.Setup(x => x.TryGetNamespace(It.Is<ResourceTypesProviderDescriptor>(x => x.Name != AzNamespaceType.BuiltInName),
+        namespaceProviderMock.Setup(x => x.TryGetNamespace(It.Is<ResourceTypesProviderDescriptor>(x => x.NamespaceIdentifier != AzNamespaceType.BuiltInName),
             It.IsAny<ResourceScope>(),
             It.IsAny<IFeatureProvider>(),
             It.IsAny<BicepSourceFileKind>()))

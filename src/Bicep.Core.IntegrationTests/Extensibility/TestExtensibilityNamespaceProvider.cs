@@ -25,7 +25,7 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
         IFeatureProvider featureProvider,
         BicepSourceFileKind sourceFileKind)
     {
-        return providerDescriptor.Name switch
+        return providerDescriptor.NamespaceIdentifier switch
         {
             FooNamespaceType.BuiltInName => new(FooNamespaceType.Create(providerDescriptor.Alias)),
             BarNamespaceType.BuiltInName => new(BarNamespaceType.Create(providerDescriptor.Alias)),

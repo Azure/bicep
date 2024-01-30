@@ -11,7 +11,7 @@ namespace Bicep.Core.Syntax
 {
     public class ProviderDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
-        private readonly Lazy<ImportSpecification> lazySpecification;
+        private readonly Lazy<IProviderSpecification> lazySpecification;
 
         public ProviderDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase specificationString, SyntaxBase withClause, SyntaxBase asClause)
             : base(leadingNodes)
@@ -24,7 +24,7 @@ namespace Bicep.Core.Syntax
             this.WithClause = withClause;
             this.AsClause = asClause;
 
-            this.lazySpecification = new(() => ImportSpecification.From(specificationString));
+            this.lazySpecification = new(() => ProviderSpecificationFactory.FromSyntax(specificationString));
         }
 
         public Token Keyword { get; }
@@ -35,7 +35,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase AsClause { get; }
 
-        public ImportSpecification Specification => lazySpecification.Value;
+        public IProviderSpecification Specification => lazySpecification.Value;
 
         public ObjectSyntax? Config => (this.WithClause as ProviderWithClauseSyntax)?.Config as ObjectSyntax;
 
@@ -49,11 +49,18 @@ namespace Bicep.Core.Syntax
 
         public ArtifactType GetArtifactType() => ArtifactType.Provider;
 
-        public SyntaxBase? Path => this.Specification.BicepRegistryAddress is { } registryAddress ? SyntaxFactory.CreateStringLiteral(registryAddress) : null;
+        // if the provider specification is inlined return a value otherwise return null
+        public SyntaxBase? Path => this.Specification is InlinedProviderSpecification spec ? SyntaxFactory.CreateStringLiteral(spec.UnexpandedArtifactAddress) : null;
 
         public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration config)
         {
-            throw new NotImplementedException();
+            if (!config.ProvidersConfig.TryGetProviderSource(this.Specification.Identifier).IsSuccess(out var providerSource, out var errorBuilder))
+            {
+                return new(errorBuilder);
+            }
+
+
+            return new($"br:{providerSource.Source}:{providerSource.Version}");
         }
     }
 }

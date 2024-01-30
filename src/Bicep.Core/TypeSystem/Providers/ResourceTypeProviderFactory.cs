@@ -31,28 +31,28 @@ namespace Bicep.Core.TypeSystem.Providers
 
 
 
-            var key = new ResourceTypeLoaderKey(providerDescriptor.Name, providerDescriptor.Version);
+            var key = new ResourceTypeLoaderKey(providerDescriptor.NamespaceIdentifier, providerDescriptor.Version);
             IResourceTypeProvider result;
             try
             {
                 result = cachedResourceTypeLoaders.GetOrAdd(key, _ =>
                 {
 
-                    if (providerDescriptor.TypesBaseUri is null)
+                    if (providerDescriptor.TypesDataUri is null)
                     {
-                        throw new ArgumentException($"Provider {providerDescriptor.Name} requires a types base URI.");
+                        throw new ArgumentException($"Provider {providerDescriptor.NamespaceIdentifier} requires a types base URI.");
                     }
-                    if (providerDescriptor.Name != AzNamespaceType.BuiltInName)
+                    if (providerDescriptor.NamespaceIdentifier != AzNamespaceType.BuiltInName)
                     {
                         return new ThirdPartyResourceTypeProvider(
                                     new ThirdPartyResourceTypeLoader(
-                                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
+                                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesDataUri)),
                                         providerDescriptor.Version);
                     }
 
                     return new AzResourceTypeProvider(
                                 new AzResourceTypeLoader(
-                                    OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
+                                    OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesDataUri)),
                                     providerDescriptor.Version);
                 });
             }

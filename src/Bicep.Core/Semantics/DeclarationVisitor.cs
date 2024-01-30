@@ -184,31 +184,30 @@ namespace Bicep.Core.Semantics
             }
 
             // Check if the MSGraph provider is recognized and enabled
-            if (syntax.Specification.Name == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled)
+            if (syntax.Specification.Identifier == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled)
             {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Identifier));
             }
 
             // Check if the Az provider is recognized and enabled
-            if (syntax.Specification.Name == AzNamespaceType.BuiltInName && !features.DynamicTypeLoadingEnabled)
+            if (syntax.Specification.Identifier == AzNamespaceType.BuiltInName && !features.DynamicTypeLoadingEnabled)
             {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Identifier));
             }
 
-            Uri? typesBaseUri = null;
+            Uri? typesDataUri = null;
             if (syntax.Path is not null &&
-                !this.artifactFileLookup.TryGetResourceTypesFileUri(syntax).IsSuccess(out typesBaseUri, out var errorBuilder))
+                !this.artifactFileLookup.TryGetResourceTypesFileUri(syntax).IsSuccess(out typesDataUri, out var errorBuilder))
             {
                 return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
             }
 
             ResourceTypesProviderDescriptor providerDescriptor = new(
-                syntax.Specification.Name,
-                syntax.Specification.Version,
+                namespaceIdentifier: syntax.Specification.Identifier,
+                version: syntax.Specification.Version,
                 isImplicitImport: false,
-                syntax.Alias?.IdentifierName,
-                syntax.Specification.BicepRegistryAddress,
-                typesBaseUri);
+                alias: syntax.Alias?.IdentifierName,
+                typesDataUri: typesDataUri);
 
             if (!namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind).IsSuccess(out var namespaceType, out errorBuilder))
             {
