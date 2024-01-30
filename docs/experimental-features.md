@@ -29,6 +29,9 @@ Should be enabled in tandem with `assertions` experimental feature flag for expe
 ### `userDefinedFunctions`
 Allows you to define your own custom functions. See [User-defined functions in Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/user-defined-functions).
 
+### `optionalModuleNames`
+Enabling this feature makes the `name` property in the body of `module` declarations optional. When a `module` omits the `name` property with the feature enabled, the Bicep compiler will automatically generate an expression for the name of the resulting nested deployment in the JSON. If you specify the `name` property, the compiler will use the specified expression in the resulting JSON. For more information, see [Added optional module names as an experimental feature](https://github.com/Azure/bicep/pull/12600).
+
 ## Other experimental functionality
 
 ### `publish-provider` CLI Command
