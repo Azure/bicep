@@ -68,7 +68,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure("notRestored"));
                 throw new InvalidOperationException(
-                    $"The module '{moduleReference.FullyQualifiedReference}' has not yet been successfully restored."); //asdfg test
+                    $"The module '{moduleReference.FullyQualifiedReference}' has not yet been successfully restored.");
             }
 
             if (!moduleDispatcher.TryGetLocalArtifactEntryPointUri(moduleReference).IsSuccess(out var compiledJsonUri))
