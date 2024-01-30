@@ -351,7 +351,7 @@ namespace Bicep.Core.Registry
             // NOTE(asilverman): currently the only difference in the processing is the filename written to disk
             // but this may change in the future if we chose to publish providers in multiple layers.
             // TODO: IsArtifactRestoreRequired assumes there must be a ModuleMain file, which isn't true for provider artifacts
-            // NOTE(stephenWeatherford): That can be solved by only writing layer data files only (see code under features.PublishSourceEnabled)
+            // NOTE(stephenWeatherford): That can be solved by only writing layer data files only (see below CONSIDER)
             //   and not main.json directly (https://github.com/Azure/bicep/issues/11900)
             var moduleFileType = result switch
             {
@@ -365,7 +365,7 @@ namespace Bicep.Core.Registry
             if (result is OciModuleArtifactResult moduleArtifact)
             {
                 // write source archive file
-                if (this.features.PublishSourceEnabled && result.TryGetSingleLayerByMediaType(BicepModuleMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
+                if (result.TryGetSingleLayerByMediaType(BicepModuleMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
                 {
                     // CONSIDER: Write all layers as separate binary files instead of separate files for source.tgz and provider files.
                     // We should do this rather than writing individual files we know about,
