@@ -66,7 +66,7 @@ namespace Bicep.LanguageServer.Handlers
                 featureProviderFactory);
 
             // Ignore modules to restore logic, include all modules to be restored
-            var artifactsToRestore = sourceFileGrouping.FileUriResultByArtifactReference
+            var artifactsToRestore = sourceFileGrouping.FileUriResultByBicepSourceFileByArtifactReferenceSyntax
                 .SelectMany(kvp => kvp.Value.Keys.Where(x => x is ModuleDeclarationSyntax or UsingDeclarationSyntax).Select(mds => new ArtifactResolutionInfo(mds, kvp.Key)));
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging

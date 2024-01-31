@@ -371,7 +371,7 @@ namespace Bicep.LanguageServer
                         }
 
                         // this completes immediately
-                        this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.GetArtifactsToRestore().OfType<ArtifactResolutionInfo>());
+                        this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.GetExplicitArtifactsToRestore().OfType<ArtifactResolutionInfo>());
 
                         var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;
                         var output = workspace.UpsertSourceFiles(sourceFiles);

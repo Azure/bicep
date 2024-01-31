@@ -56,7 +56,7 @@ namespace Bicep.Core.TypeSystem.Providers
             catch (Exception ex)
             {
                 var invalidArtifactException = ex as InvalidArtifactException ?? new InvalidArtifactException(ex.Message, ex, InvalidArtifactExceptionKind.NotSpecified);
-                return new(x => x.ArtifactRestoreFailedWithMessage(providerDescriptor.ArtifactReference, invalidArtifactException.Message));
+                return new(x => x.ArtifactRestoreFailedWithMessage(providerDescriptor.ArtifactReference?.FullyQualifiedReference ?? string.Empty, invalidArtifactException.Message));
             }
             return new(result);
         }

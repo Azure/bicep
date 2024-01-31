@@ -51,17 +51,14 @@ namespace Bicep.Core.UnitTests
 
         public static ProviderDescriptor BuiltInAzProviderDescriptor { get; } = new(
             AzNamespaceType.BuiltInName,
-            AzNamespaceType.Settings.ArmTemplateProviderVersion,
             new Uri("file:///dev/null"));
 
         public static ProviderDescriptor BuiltInSysProviderDescriptor { get; } = new(
             SystemNamespaceType.BuiltInName,
-            SystemNamespaceType.Settings.ArmTemplateProviderVersion,
             new Uri("file:///dev/null"));
 
         public static ProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = new(
             MicrosoftGraphNamespaceType.BuiltInName,
-            MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion,
             new Uri("file:///dev/null"));
 
         // Linter rules added to this list will be automtically disabled for most tests.

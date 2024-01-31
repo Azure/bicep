@@ -5,6 +5,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
+using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
@@ -23,30 +24,40 @@ public class SourceFileGrouping(IFileResolver fileResolver,
     Uri entryFileUri,
     ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri,
     ImmutableDictionary<BicepSourceFile, ProviderDescriptorBundle> providerDescriptorBundleBySourceFile,
-    ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference,
+    ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReferenceSyntax,
+    ImmutableDictionary<BicepSourceFile, ImmutableDictionary<ArtifactReference, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference,
     ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup) : IArtifactFileLookup
 {
     public IFileResolver FileResolver { get; } = fileResolver;
-
     public Uri EntryFileUri { get; } = entryFileUri;
-
     public ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> FileResultByUri { get; } = fileResultByUri;
-
-    public ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> FileUriResultByArtifactReference { get; } = fileUriResultByArtifactReference;
-
+    public ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> FileUriResultByBicepSourceFileByArtifactReferenceSyntax { get; } = fileUriResultByArtifactReferenceSyntax;
+    public ImmutableDictionary<BicepSourceFile, ImmutableDictionary<ArtifactReference, Result<Uri, UriResolutionError>>> FileUriResultByBicepSourceFileByArtifactReference { get; } = fileUriResultByArtifactReference;
     public ImmutableDictionary<BicepSourceFile, ProviderDescriptorBundle> ProvidersToRestoreByFileResult { get; } = providerDescriptorBundleBySourceFile;
-
     public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; } = sourceFileParentLookup;
 
-    public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore()
+    public IEnumerable<ArtifactResolutionInfo> GetExplicitArtifactsToRestore()
     {
-        foreach (var (sourceFile, artifactResults) in FileUriResultByArtifactReference)
+        foreach (var (sourceFile, artifactResults) in FileUriResultByBicepSourceFileByArtifactReferenceSyntax)
         {
             foreach (var (syntax, result) in artifactResults)
             {
                 if (!result.IsSuccess(out _, out var failure) && failure.RequiresRestore)
                 {
                     yield return new(syntax, sourceFile);
+                }
+            }
+        }
+    }
+
+    public IEnumerable<ArtifactReference> GetImplicitArtifactsToRestore(){
+        foreach (var (sourceFile, artifactResults) in FileUriResultByBicepSourceFileByArtifactReference)
+        {
+            foreach (var (artifactReference, result) in artifactResults)
+            {
+                if (!result.IsSuccess(out _, out var failure) && failure.RequiresRestore)
+                {
+                    yield return artifactReference;
                 }
             }
         }
@@ -59,7 +70,7 @@ public class SourceFileGrouping(IFileResolver fileResolver,
 
     public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference)
     {
-        var uriResult = FileUriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
+        var uriResult = FileUriResultByBicepSourceFileByArtifactReferenceSyntax.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
         if (!uriResult.IsSuccess(out var fileUri, out var errorBuilder))
         {
             return new(errorBuilder.ErrorBuilder);

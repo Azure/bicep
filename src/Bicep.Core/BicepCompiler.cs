@@ -9,6 +9,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -68,12 +69,14 @@ public class BicepCompiler
         // however we still want to surface as many errors as we can for the module refs that are valid
         // so we will try to restore modules with valid refs and skip everything else
         // (the diagnostics will be collected during compilation)
-        if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.GetArtifactsToRestore()), forceRestore: forceRestore))
+        var artifactsToRestore = moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.GetExplicitArtifactsToRestore())
+                                    .Concat(sourceFileGrouping.GetImplicitArtifactsToRestore());
+
+        if (await moduleDispatcher.RestoreModules(artifactsToRestore, forceRestore: forceRestore))
         {
             // modules had to be restored - recompile
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, configurationManager, workspace, sourceFileGrouping);
         }
-
         return Create(sourceFileGrouping);
     }
 
@@ -81,7 +84,7 @@ public class BicepCompiler
     {
         var workspace = new Workspace();
         var sourceFileGrouping = compilation.SourceFileGrouping;
-        var originalModulesToRestore = sourceFileGrouping.GetArtifactsToRestore().ToImmutableHashSet();
+        var originalModulesToRestore = sourceFileGrouping.GetExplicitArtifactsToRestore().ToImmutableHashSet();
         if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(originalModulesToRestore), force))
         {
             // modules had to be restored - recompile
