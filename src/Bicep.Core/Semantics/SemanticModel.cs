@@ -63,7 +63,7 @@ namespace Bicep.Core.Semantics
             // This allows the binder to create the right kind of symbol for compile-time imports.
             var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(compilation, sourceFile);
             this.SymbolContext = symbolContext;
-            this.Binder = new Binder(compilation.NamespaceProvider, Features, compilation.SourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext, compilation.ArtifactReferenceFactory);
+            this.Binder = new Binder(compilation.NamespaceProvider, Features, compilation.SourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext);
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(Features, this.Binder.NamespaceResolver.GetAvailableResourceTypes()));
             this.TypeManager = new TypeManager(this, this.Binder);
 

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -9,7 +10,10 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
@@ -92,7 +96,7 @@ namespace Bicep.Core.Workspaces
                 builder.fileUriResultByArtifactReference[sourceFile].Remove(module);
             }
 
-            // Rebuild source files that contain external module references restored during the inital build.
+            // Rebuild source files that contain external module references restored during the initial build.
             var sourceFilesToRebuild = current.SourceFiles.OfType<BicepSourceFile>()
                 .Where(sourceFile
                     => GetArtifactReferenceDeclarations(sourceFile)
@@ -172,6 +176,17 @@ namespace Bicep.Core.Workspaces
 
         private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild)
         {
+            if (!this.providerDescriptorBundleBuilderBySourceFile.TryGetValue(file, out var providerBundleBuilder))
+            {
+                this.providerDescriptorBundleBuilderBySourceFile[file] = providerBundleBuilder = new ProviderDescriptorBundleBuilder();
+                providerBundleBuilder.AddImplicitProvider(new(new ProviderDescriptor(
+                    SystemNamespaceType.BuiltInName,
+                    SystemNamespaceType.Settings.ArmTemplateProviderVersion,
+                    file.FileUri
+                )));
+            }
+            ProcessAllImplicitProviderDeclarations(file, providerBundleBuilder);
+
             foreach (var restorable in file.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>())
             {
                 var (childArtifactReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
@@ -194,6 +209,69 @@ namespace Bicep.Core.Workspaces
                     fileResultByUri[artifactUri] = childResult;
                 }
             }
+        }
+
+        private void ProcessAllImplicitProviderDeclarations(BicepSourceFile file, ProviderDescriptorBundleBuilder providerBundleBuilder)
+        {
+            var config = configurationManager.GetConfiguration(file.FileUri);
+            foreach (var providerName in config.ImplicitProvidersConfig.GetImplicitProviderNames())
+            {
+                try
+                {
+                    ProcessSingleImplicitProviderDeclaration(providerName, providerBundleBuilder, file);
+                }
+                catch (Exception ex)
+                {
+                    this.providerDescriptorBundleBuilderBySourceFile[file].AddImplicitProvider(new(x => x.ArtifactRestoreFailedWithMessage(providerName, ex.Message)));
+                }
+            }
+        }
+
+        private void ProcessSingleImplicitProviderDeclaration(string providerName, ProviderDescriptorBundleBuilder providerBundleBuilder, BicepSourceFile file)
+        {
+            var config = configurationManager.GetConfiguration(file.FileUri);
+            if (!config.ProvidersConfig.TryGetProviderSource(providerName).IsSuccess(out var providerEntry, out var errorBuilder))
+            {
+                providerBundleBuilder.AddImplicitProvider(new(errorBuilder));
+                return;
+            }
+            if (providerEntry.BuiltIn)
+            {
+                var descriptor = new ProviderDescriptor(
+                    providerName,
+                    providerName switch
+                    {
+                        AzNamespaceType.BuiltInName => AzNamespaceType.Settings.ArmTemplateProviderVersion,
+                        K8sNamespaceType.BuiltInName => K8sNamespaceType.Settings.ArmTemplateProviderVersion,
+                        MicrosoftGraphNamespaceType.BuiltInName => MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion,
+                        _ => throw new NotImplementedException($"Built-in provider {providerName} is not supported.")
+                    },
+                    file.FileUri
+                );
+                providerBundleBuilder.AddImplicitProvider(new(descriptor));
+                return;
+            }
+
+            var artifactAddress = $"br:{providerEntry.Source}:{providerEntry.Version}";
+            if (!OciArtifactReference.TryParse(ArtifactType.Provider, null, artifactAddress, config, file.FileUri).IsSuccess(out var artifactReference, out errorBuilder))
+            {
+                providerBundleBuilder.AddImplicitProvider(new(errorBuilder));
+                return;
+            }
+
+            if (!dispatcher.TryGetLocalArtifactEntryPointUri(artifactReference).IsSuccess(out var artifactFileUri, out var artifactGetPathFailureBuilder))
+            {
+                providerBundleBuilder.AddImplicitProvider(new(artifactGetPathFailureBuilder));
+                return;
+            }
+            providerBundleBuilder.AddImplicitProvider(new(
+                new ProviderDescriptor(
+                    providerEntry.Source?.Split('/')[^1] ?? throw new UnreachableException("provider source is validated during artifact creation"),
+                    providerEntry.Version ?? throw new UnreachableException("provider version is validated during artifact creation"),
+                    file.FileUri,
+                    providerName,
+                    artifactFileUri,
+                    artifactAddress)));
         }
 
         private (ArtifactReference? reference, Result<Uri, UriResolutionError> result) GetArtifactRestoreResult(Uri parentFileUri, IArtifactReferenceSyntax referenceSyntax)

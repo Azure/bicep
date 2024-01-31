@@ -28,6 +28,8 @@ public class ProviderDescriptorBundleBuilder
         }
     }
 
+    public ProviderDescriptorBundleBuilder() { }
+
     private readonly HashSet<ResultWithDiagnostic<ProviderDescriptor>> implicitProviders = [];
 
     private readonly ConcurrentDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ProviderDescriptor>> explicitProviderLookup = new();

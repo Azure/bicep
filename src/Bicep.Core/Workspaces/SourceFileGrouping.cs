@@ -5,6 +5,8 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
+using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.Workspaces;
@@ -56,17 +58,23 @@ public class SourceFileGrouping(IFileResolver fileResolver,
     public IEnumerable<ISourceFile> SourceFiles => FileResultByUri.Values.Select(x => x.IsSuccess(out var success) ? success : null).WhereNotNull();
 
     public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference)
-        => TryGetResourceTypesFileUri(foreignTemplateReference).IsSuccess(out var fileUri, out var errorBuilder) ? FileResultByUri[fileUri] : new(errorBuilder);
-
-    public ResultWithDiagnostic<Uri> TryGetResourceTypesFileUri(IArtifactReferenceSyntax foreignTemplateReference)
     {
         var uriResult = FileUriResultByArtifactReference.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
-        if (!uriResult.IsSuccess(out var fileUri, out var error))
+        if (!uriResult.IsSuccess(out var fileUri, out var errorBuilder))
         {
-            return new(error.ErrorBuilder);
+            return new(errorBuilder.ErrorBuilder);
         }
+        return FileResultByUri[fileUri];
+    }
 
-        return new(fileUri);
+    public ResultWithDiagnostic<ProviderDescriptor> TryGetProviderDescriptor(BicepSourceFile file, ProviderDeclarationSyntax providerDeclarationSyntax)
+    {
+        var result = ProvidersToRestoreByFileResult[file].ExplicitProviderLookup[providerDeclarationSyntax];
+        if (!result.IsSuccess(out var providerDescriptor, out var errorBuilder))
+        {
+            return new(errorBuilder);
+        }
+        return new(providerDescriptor);
     }
 
     public ImmutableHashSet<ISourceFile> GetFilesDependingOn(ISourceFile sourceFile)

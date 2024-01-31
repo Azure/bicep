@@ -52,17 +52,17 @@ namespace Bicep.Core.UnitTests
         public static ProviderDescriptor BuiltInAzProviderDescriptor { get; } = new(
             AzNamespaceType.BuiltInName,
             AzNamespaceType.Settings.ArmTemplateProviderVersion,
-            isImplicitImport: true);
+            new Uri("file:///dev/null"));
 
         public static ProviderDescriptor BuiltInSysProviderDescriptor { get; } = new(
             SystemNamespaceType.BuiltInName,
             SystemNamespaceType.Settings.ArmTemplateProviderVersion,
-            isImplicitImport: true);
+            new Uri("file:///dev/null"));
 
         public static ProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = new(
             MicrosoftGraphNamespaceType.BuiltInName,
             MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion,
-            isImplicitImport: true);
+            new Uri("file:///dev/null"));
 
         // Linter rules added to this list will be automtically disabled for most tests.
         // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
