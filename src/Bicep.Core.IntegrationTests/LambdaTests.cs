@@ -362,8 +362,7 @@ resource stg2 'Microsoft.Storage/storageAccounts@2021-09-01' = {
         [TestMethod]
         public void Function_recursion_is_blocked()
         {
-            var services = new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides with { UserDefinedFunctionsEnabled = true });
-            var result = CompilationHelper.Compile(services, @"
+            var result = CompilationHelper.Compile(@"
 func recursive() string => recursive()
 
 func recursiveA() string => recursiveB()

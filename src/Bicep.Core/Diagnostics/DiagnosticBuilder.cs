@@ -1896,11 +1896,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP342",
                 $"""User-defined types are not supported in user-defined function parameters or outputs.""");
 
-            public ErrorDiagnostic FuncDeclarationStatementsUnsupported() => new(
-                TextSpan,
-                "BCP343",
-                $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
-
             public ErrorDiagnostic ExpectedAssertIdentifier() => new(
                 TextSpan,
                 "BCP344",

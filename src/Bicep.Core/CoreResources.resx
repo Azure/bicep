@@ -470,9 +470,6 @@
   <data name="ExperimentalFeatureNames_SourceMapping" xml:space="preserve">
     <value>Source mapping</value>
   </data>
-  <data name="ExperimentalFeatureNames_UserDefinedFunctions" xml:space="preserve">
-    <value>User-defined functions</value>
-  </data>
   <data name="ExperimentalFeatureNames_SymbolicNameCodegen" xml:space="preserve">
     <value>Symbolic name code generation</value>
   </data>

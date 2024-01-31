@@ -12,7 +12,6 @@ public record ExperimentalFeaturesEnabled(
     bool Extensibility,
     bool ResourceTypedParamsAndOutputs,
     bool SourceMapping,
-    bool UserDefinedFunctions,
     bool LegacyFormatter,
     bool TestFramework,
     bool Assertions,

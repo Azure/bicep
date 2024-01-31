@@ -719,10 +719,6 @@
           "type": "boolean",
           "description": "Enables basic source mapping to map an error location returned in the ARM template layer back to the relevant location in the Bicep file. See https://aka.ms/bicep/experimental-features#sourcemapping"
         },
-        "userDefinedFunctions": {
-          "type": "boolean",
-          "description": "Allows you to define your own custom functions. See https://aka.ms/bicep/experimental-features#userdefinedfunctions"
-        },
         "legacyFormatter": {
           "type": "boolean",
           "description": "Enables code formatting using the legacy formatter. See https://aka.ms/bicep/experimental-features#legacyformatter"

@@ -705,7 +705,6 @@ param |foo| string
                 """);
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFeatureOverrides(new(TestContext, UserDefinedFunctionsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},
@@ -758,7 +757,6 @@ param |foo| string
                 """);
 
             using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services
-                .WithFeatureOverrides(new(TestContext, UserDefinedFunctionsEnabled: true))
                 .WithFileResolver(new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     {new("file:///mod.json"), moduleContents},
