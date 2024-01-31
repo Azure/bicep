@@ -234,7 +234,18 @@ namespace Bicep.Core.Emit
 
             if (expression is ModuleOutputPropertyAccessExpression)
             {
-                properties = properties.Append(new JTokenExpression("value"));
+                if (safeAccess)
+                {
+                    // there are two scenarios we want to handle in this case:
+                    //   - conditional outputs (where the accessed property will be omitted from the `outputs` object)
+                    //   - outputs with a null value (where the accessed property will be present in the `outputs` object, but its `value` property will be omitted)
+                    @base = CreateFunction("tryGet", @base.AsEnumerable().Concat(properties));
+                    properties = new[] { new JTokenExpression("value") };
+                }
+                else
+                {
+                    properties = properties.Append(new JTokenExpression("value"));
+                }
             }
 
             return (@base, properties, safeAccess);

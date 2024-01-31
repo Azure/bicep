@@ -183,43 +183,43 @@ output outputData object = {
     public void Safe_dereference_of_module_output_properties_converts_correctly()
     {
         var result = CompilationHelper.Compile(ServicesWithResourceTypedParamsAndOutputsEnabled,
-            ("mod.bicep", @"
-output outputData object = {
-  key: 'value'
-  nested: {
-    key: 'value'
-  }
-}
-"),
-            ("main.bicep", @"
-module mod './mod.bicep' = {
-  name: 'mod'
-}
+            ("mod.bicep", """
+                output outputData object? = {
+                  key: 'value'
+                  nested: {
+                    key: 'value'
+                  }
+                }
+                """),
+            ("main.bicep", """
+                module mod './mod.bicep' = {
+                  name: 'mod'
+                }
 
-output outputData object = {
-  output: mod.outputs.outputData
-  maybeOutput: mod.outputs.?outputData
-  topLevelProperty: mod.outputs.outputData.key
-  maybeTopLevelProperty: mod.outputs.outputData.?key
-  maybeOutputTopLevelProperty: mod.outputs.?outputData.key
-  maybeOutputMaybeTopLevelProperty: mod.outputs.?outputData.?key
-  nestedProperty: mod.outputs.outputData.nested.key
-  maybeNestedProperty: mod.outputs.outputData.?nested.key
-  maybeOutputNestedProperty: mod.outputs.?outputData.nested.key
-}
-"));
+                output outputData object = {
+                  output: mod.outputs.outputData
+                  maybeOutput: mod.outputs.?outputData
+                  topLevelProperty: mod.outputs.outputData.key
+                  maybeTopLevelProperty: mod.outputs.outputData.?key
+                  maybeOutputTopLevelProperty: mod.outputs.?outputData.key
+                  maybeOutputMaybeTopLevelProperty: mod.outputs.?outputData.?key
+                  nestedProperty: mod.outputs.outputData.nested.key
+                  maybeNestedProperty: mod.outputs.outputData.?nested.key
+                  maybeOutputNestedProperty: mod.outputs.?outputData.nested.key
+                }
+                """));
         var compiledOutputData = result.Template?["outputs"]?["outputData"]?["value"];
         compiledOutputData.Should().NotBeNull();
 
         compiledOutputData!["output"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.outputData.value]");
-        compiledOutputData!["maybeOutput"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData', 'value')]");
+        compiledOutputData!["maybeOutput"].Should().DeepEqual("[tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData'), 'value')]");
         compiledOutputData!["topLevelProperty"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.outputData.value.key]");
         compiledOutputData!["maybeTopLevelProperty"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.outputData.value, 'key')]");
-        compiledOutputData!["maybeOutputTopLevelProperty"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData', 'value', 'key')]");
-        compiledOutputData!["maybeOutputMaybeTopLevelProperty"].Should().DeepEqual("[tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData', 'value'), 'key')]");
+        compiledOutputData!["maybeOutputTopLevelProperty"].Should().DeepEqual("[tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData'), 'value', 'key')]");
+        compiledOutputData!["maybeOutputMaybeTopLevelProperty"].Should().DeepEqual("[tryGet(tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData'), 'value'), 'key')]");
         compiledOutputData!["nestedProperty"].Should().DeepEqual("[reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.outputData.value.nested.key]");
         compiledOutputData!["maybeNestedProperty"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs.outputData.value, 'nested', 'key')]");
-        compiledOutputData!["maybeOutputNestedProperty"].Should().DeepEqual("[tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData', 'value', 'nested', 'key')]");
+        compiledOutputData!["maybeOutputNestedProperty"].Should().DeepEqual("[tryGet(tryGet(reference(resourceId('Microsoft.Resources/deployments', 'mod'), '2022-09-01').outputs, 'outputData'), 'value', 'nested', 'key')]");
     }
 
     [TestMethod]
