@@ -16,7 +16,7 @@ using Moq;
 
 namespace Bicep.Core.UnitTests.Utils
 {
-    public static class OciArtifactRegistryHelper
+    public static class OciRegistryHelper
     {
         public static OciArtifactReference CreateModuleReferenceMock(string registry, string repository, Uri parentModuleUri, string? digest, string? tag)
             => new(ArtifactType.Module, registry, repository, tag, digest, parentModuleUri);
