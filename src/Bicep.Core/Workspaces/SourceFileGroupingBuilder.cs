@@ -193,7 +193,22 @@ namespace Bicep.Core.Workspaces
 
                 uriResultByBicepSourceFileByArtifactReferenceSyntax.GetOrAdd(file, f => new())[restorable] = uriResult;
 
-                if (!uriResult.IsSuccess(out var artifactUri) || restorable is ProviderDeclarationSyntax)
+                if (restorable is ProviderDeclarationSyntax { } providerDeclarationSyntax)
+                {
+                    var providerDescriptor =
+                    new ProviderDescriptor(
+                        providerDeclarationSyntax.Specification.Identifier,
+                        file.FileUri,
+                        providerDeclarationSyntax.Specification.Version,
+                        null,
+                        childArtifactReference,
+                        uriResult);
+
+
+                    providerBundleBuilder.AddExplicitProvider(providerDeclarationSyntax, new(providerDescriptor));
+                    continue;
+                }
+                if (!uriResult.IsSuccess(out var artifactUri))
                 {
                     continue;
                 }
@@ -260,7 +275,7 @@ namespace Bicep.Core.Workspaces
                     providerEntry.Version ?? throw new UnreachableException("provider version is validated during artifact creation"),
                     providerName,
                     artifactReference,
-                    artifactFileUri)));
+                    new(artifactFileUri))));
         }
 
 

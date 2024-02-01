@@ -7,8 +7,9 @@ namespace Bicep.Core.TypeSystem.Providers
 {
     public interface IResourceTypeProviderFactory
     {
-        ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProviderFromFilePath(ProviderDescriptor providerDescriptor);
+        ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ProviderDescriptor providerDescriptor);
 
         IResourceTypeProvider GetBuiltInAzResourceTypesProvider();
+
     }
 }

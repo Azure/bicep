@@ -18,7 +18,7 @@ public class ProviderDescriptor
         string? Version = null,
         string? Alias = null,
         ArtifactReference? ArtifactReference = null,
-        Uri? TypesDataUri = null)
+        Result<Uri, UriResolutionError>? TypesDataUri = null)
     {
         this.NamespaceIdentifier = NamespaceIdentifier;
         this.ParentModuleUri = ParentModuleUri;
@@ -40,6 +40,7 @@ public class ProviderDescriptor
         }
         this.Alias = Alias ?? NamespaceIdentifier;
         this.ArtifactReference = ArtifactReference;
+        this.TypesDataUri = TypesDataUri;
     }
 
     public ArtifactReference? ArtifactReference { get; }
@@ -48,5 +49,5 @@ public class ProviderDescriptor
     public string NamespaceIdentifier { get; }
     public Uri ParentModuleUri { get; }
     public string Version { get; }
-    public Uri? TypesDataUri { get; }
+    public Result<Uri, UriResolutionError>? TypesDataUri { get; }
 };

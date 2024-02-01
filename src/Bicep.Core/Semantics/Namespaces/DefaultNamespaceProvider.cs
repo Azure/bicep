@@ -52,7 +52,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
         // Special-case the 'az' provider being loaded from registry - we need add-on functionality delivered via the namespace provider
         if (descriptor.NamespaceIdentifier == AzNamespaceType.BuiltInName)
         {
-            if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+            if (resourceTypeLoaderFactory.GetResourceTypeProvider(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
                 return new(AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind));
             }
@@ -64,7 +64,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
         // If the feature is enabled, try to load a third-party provider
         if (features.ProviderRegistryEnabled)
         {
-            if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+            if (resourceTypeLoaderFactory.GetResourceTypeProvider(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
                 return new(ThirdPartyNamespaceType.Create(descriptor.NamespaceIdentifier, descriptor.Alias, dynamicallyLoadedProvider));
             }

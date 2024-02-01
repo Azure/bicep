@@ -2,23 +2,25 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO.Abstractions;
 using Azure.Bicep.Types.Az;
+using Azure.Bicep.Types.K8s;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Providers.Az;
+using Bicep.Core.TypeSystem.Providers.K8s;
+using Bicep.Core.TypeSystem.Providers.MicrosoftGraph;
 using Bicep.Core.TypeSystem.Providers.ThirdParty;
 
 namespace Bicep.Core.TypeSystem.Providers
 {
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
-        private static readonly Lazy<IResourceTypeProvider> azResourceTypeProviderLazy
-            = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), AzNamespaceType.Settings.ArmTemplateProviderVersion));
-
+        private static readonly Lazy<IResourceTypeProvider> azResourceTypeProviderLazy = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), AzNamespaceType.Settings.ArmTemplateProviderVersion));
         private record ResourceTypeLoaderKey(string Name, string Version);
-        private readonly ConcurrentDictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders = new();
+        private readonly ConcurrentDictionary<ResourceTypeLoaderKey, ResultWithDiagnostic<IResourceTypeProvider>> cachedResourceTypeLoaders = new();
         private readonly IFileSystem fileSystem;
 
         public ResourceTypeProviderFactory(IFileSystem fileSystem)
@@ -26,42 +28,45 @@ namespace Bicep.Core.TypeSystem.Providers
             this.fileSystem = fileSystem;
         }
 
-        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProviderFromFilePath(ProviderDescriptor providerDescriptor)
+        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ProviderDescriptor providerDescriptor)
         {
             var key = new ResourceTypeLoaderKey(providerDescriptor.NamespaceIdentifier, providerDescriptor.Version);
-            IResourceTypeProvider result;
-            try
+            return cachedResourceTypeLoaders.GetOrAdd(key, _ =>
             {
-                result = cachedResourceTypeLoaders.GetOrAdd(key, _ =>
+                try
                 {
-
-                    if (providerDescriptor.TypesDataUri is null)
-                    {
-                        throw new ArgumentException($"Provider {providerDescriptor.NamespaceIdentifier} requires a types base URI.");
-                    }
-                    if (providerDescriptor.NamespaceIdentifier != AzNamespaceType.BuiltInName)
-                    {
-                        return new ThirdPartyResourceTypeProvider(
-                                    new ThirdPartyResourceTypeLoader(
-                                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesDataUri)),
-                                        providerDescriptor.Version);
-                    }
-
-                    return new AzResourceTypeProvider(
-                                new AzResourceTypeLoader(
-                                    OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesDataUri)),
-                                    providerDescriptor.Version);
-                });
-            }
-            catch (Exception ex)
-            {
-                var invalidArtifactException = ex as InvalidArtifactException ?? new InvalidArtifactException(ex.Message, ex, InvalidArtifactExceptionKind.NotSpecified);
-                return new(x => x.ArtifactRestoreFailedWithMessage(providerDescriptor.ArtifactReference?.FullyQualifiedReference ?? string.Empty, invalidArtifactException.Message));
-            }
-            return new(result);
+                    return GetDynamicallyLoadedResourceTypesProvider(providerDescriptor);
+                }
+                catch (Exception ex)
+                {
+                    var fullyQualifiedArtifactReference = providerDescriptor.ArtifactReference?.FullyQualifiedReference ?? throw new UnreachableException($"the reference is validated prior to a call to {nameof(this.GetResourceTypeProvider)}");
+                    var invalidArtifactException = ex as InvalidArtifactException ?? new InvalidArtifactException(ex.Message, ex, InvalidArtifactExceptionKind.NotSpecified);
+                    return new(x => x.ArtifactRestoreFailedWithMessage(fullyQualifiedArtifactReference, invalidArtifactException.Message));
+                }
+            });
         }
-
         public IResourceTypeProvider GetBuiltInAzResourceTypesProvider()
-            => azResourceTypeProviderLazy.Value;
+           => azResourceTypeProviderLazy.Value;
+        private ResultWithDiagnostic<IResourceTypeProvider> GetDynamicallyLoadedResourceTypesProvider(ProviderDescriptor providerDescriptor)
+        {
+            var fullyQualifiedArtifactReference = providerDescriptor.ArtifactReference?.FullyQualifiedReference ?? throw new UnreachableException($"the reference is validated prior to a call to {nameof(this.GetResourceTypeProvider)}");
+            if (providerDescriptor.TypesDataUri is null)
+            {
+                return new(x => x.ArtifactRestoreFailedWithMessage(
+                    fullyQualifiedArtifactReference,
+                    $"Provider {providerDescriptor.NamespaceIdentifier} requires a types base URI."));
+            }
+            if (!providerDescriptor.TypesDataUri.IsSuccess(out var typesDataUri, out var uriResolutionError))
+            {
+                return new(uriResolutionError.ErrorBuilder);
+            }
+
+            var typesLoader = OciTypeLoader.FromDisk(fileSystem, typesDataUri);
+            if (providerDescriptor.NamespaceIdentifier == AzNamespaceType.BuiltInName)
+            {
+                return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typesLoader), providerDescriptor.Version));
+            }
+            return new(new ThirdPartyResourceTypeProvider(new ThirdPartyResourceTypeLoader(typesLoader), providerDescriptor.Version));
+        }
     }
 }
