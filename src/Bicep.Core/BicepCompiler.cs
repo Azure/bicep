@@ -9,7 +9,6 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -49,7 +48,14 @@ public class BicepCompiler
     public Compilation CreateCompilationWithoutRestore(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false)
     {
         workspace ??= new Workspace();
-        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, configurationManager, workspace, bicepUri, featureProviderFactory, markAllForRestore);
+        var sourceFileGrouping = SourceFileGroupingBuilder.Build(
+            fileResolver,
+            moduleDispatcher,
+            configurationManager,
+            workspace,
+            bicepUri,
+            featureProviderFactory,
+            markAllForRestore);
 
         return Create(sourceFileGrouping);
     }
@@ -69,8 +75,9 @@ public class BicepCompiler
         // however we still want to surface as many errors as we can for the module refs that are valid
         // so we will try to restore modules with valid refs and skip everything else
         // (the diagnostics will be collected during compilation)
-        var artifactsToRestore = moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.GetExplicitArtifactsToRestore())
-                                    .Concat(sourceFileGrouping.GetImplicitArtifactsToRestore());
+        var artifactsToRestore = moduleDispatcher.GetValidModuleReferences(
+            sourceFileGrouping.GetExplicitArtifactsToRestore()).Concat(
+                sourceFileGrouping.GetImplicitArtifactsToRestore());
 
         if (await moduleDispatcher.RestoreModules(artifactsToRestore, forceRestore: forceRestore))
         {

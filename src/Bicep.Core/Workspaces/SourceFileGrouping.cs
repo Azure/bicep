@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -20,21 +21,21 @@ public record UriResolutionError(
     DiagnosticBuilder.ErrorBuilderDelegate ErrorBuilder,
     bool RequiresRestore);
 
-public class SourceFileGrouping(IFileResolver fileResolver,
-    Uri entryFileUri,
-    ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri,
-    ImmutableDictionary<BicepSourceFile, ProviderDescriptorBundle> providerDescriptorBundleBySourceFile,
-    ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReferenceSyntax,
-    ImmutableDictionary<BicepSourceFile, ImmutableDictionary<ArtifactReference, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference,
-    ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup) : IArtifactFileLookup
+public class SourceFileGrouping : IArtifactFileLookup
 {
-    public IFileResolver FileResolver { get; } = fileResolver;
-    public Uri EntryFileUri { get; } = entryFileUri;
-    public ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> FileResultByUri { get; } = fileResultByUri;
-    public ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> FileUriResultByBicepSourceFileByArtifactReferenceSyntax { get; } = fileUriResultByArtifactReferenceSyntax;
-    public ImmutableDictionary<BicepSourceFile, ImmutableDictionary<ArtifactReference, Result<Uri, UriResolutionError>>> FileUriResultByBicepSourceFileByArtifactReference { get; } = fileUriResultByArtifactReference;
-    public ImmutableDictionary<BicepSourceFile, ProviderDescriptorBundle> ProvidersToRestoreByFileResult { get; } = providerDescriptorBundleBySourceFile;
-    public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; } = sourceFileParentLookup;
+    public IFileResolver FileResolver { get; }
+
+    public Uri EntryFileUri { get; }
+
+    public ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> FileResultByUri { get; }
+
+    public ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> FileUriResultByBicepSourceFileByArtifactReferenceSyntax { get; }
+
+    public ImmutableDictionary<BicepSourceFile, ImmutableDictionary<ArtifactReference, Result<Uri, UriResolutionError>>> FileUriResultByBicepSourceFileByArtifactReference { get; }
+
+    public ImmutableDictionary<BicepSourceFile, ProviderDescriptorBundle> ProvidersToRestoreByFileResult { get; }
+
+    public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; }
 
     public IEnumerable<ArtifactResolutionInfo> GetExplicitArtifactsToRestore()
     {
@@ -68,6 +69,23 @@ public class SourceFileGrouping(IFileResolver fileResolver,
 
     public IEnumerable<ISourceFile> SourceFiles => FileResultByUri.Values.Select(x => x.IsSuccess(out var success) ? success : null).WhereNotNull();
 
+    public SourceFileGrouping(IFileResolver fileResolver,
+        Uri entryFileUri,
+        ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri,
+        ImmutableDictionary<BicepSourceFile, ProviderDescriptorBundle> providerDescriptorBundleBySourceFile,
+        ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReferenceSyntax,
+        ImmutableDictionary<BicepSourceFile, ImmutableDictionary<ArtifactReference, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference,
+        ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup)
+    {
+        FileResolver = fileResolver;
+        EntryFileUri = entryFileUri;
+        FileResultByUri = fileResultByUri;
+        FileUriResultByBicepSourceFileByArtifactReferenceSyntax = fileUriResultByArtifactReferenceSyntax;
+        FileUriResultByBicepSourceFileByArtifactReference = fileUriResultByArtifactReference;
+        ProvidersToRestoreByFileResult = providerDescriptorBundleBySourceFile;
+        SourceFileParentLookup = sourceFileParentLookup;
+    }
+
     public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference)
     {
         var uriResult = FileUriResultByBicepSourceFileByArtifactReferenceSyntax.Values.Select(d => d.TryGetValue(foreignTemplateReference, out var result) ? result : null).WhereNotNull().First();
@@ -78,7 +96,7 @@ public class SourceFileGrouping(IFileResolver fileResolver,
         return FileResultByUri[fileUri];
     }
 
-    public ResultWithDiagnostic<ProviderDescriptor> TryGetProviderDescriptor(BicepSourceFile file, ProviderDeclarationSyntax providerDeclarationSyntax)
+    public ResultWithDiagnostic<ResourceTypesProviderDescriptor> TryGetProviderDescriptor(BicepSourceFile file, ProviderDeclarationSyntax providerDeclarationSyntax)
     {
         var result = ProvidersToRestoreByFileResult[file].ExplicitProviderLookup[providerDeclarationSyntax];
         if (!result.IsSuccess(out var providerDescriptor, out var errorBuilder))

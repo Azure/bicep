@@ -8,10 +8,9 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem.Providers;
 
-public class ProviderDescriptor
+public class ResourceTypesProviderDescriptor
 {
-
-    public ProviderDescriptor(
+    public ResourceTypesProviderDescriptor(
         string NamespaceIdentifier,
         Uri ParentModuleUri,
         string? Version = null,

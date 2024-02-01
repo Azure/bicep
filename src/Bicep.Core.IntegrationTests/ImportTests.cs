@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Diagnostics;
@@ -44,9 +45,9 @@ namespace Bicep.Core.IntegrationTests
             return services;
         }
 
-        private class TestNamespaceProvider(Dictionary<string, Func<string, NamespaceType>> builderDict) : INamespaceProvider
+        private class TestNamespaceProvider : INamespaceProvider
         {
-            private readonly ImmutableDictionary<string, Func<string, NamespaceType>> builderDict = builderDict.ToImmutableDictionary();
+            private readonly ImmutableDictionary<string, Func<string, NamespaceType>> builderDict;
 
             private readonly HashSet<string> builtInNamespacesNames = new(){
                 SystemNamespaceType.BuiltInName,
@@ -55,7 +56,12 @@ namespace Bicep.Core.IntegrationTests
                 K8sNamespaceType.BuiltInName,
             };
 
-            public ResultWithDiagnostic<NamespaceType> TryGetNamespace(ProviderDescriptor providerDescriptor, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
+            public TestNamespaceProvider(Dictionary<string, Func<string, NamespaceType>> builderDict)
+            {
+                this.builderDict = builderDict.ToImmutableDictionary();
+            }
+
+            public ResultWithDiagnostic<NamespaceType> TryGetNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
             {
                 if (builtInNamespacesNames.Contains(providerDescriptor.NamespaceIdentifier))
                 {

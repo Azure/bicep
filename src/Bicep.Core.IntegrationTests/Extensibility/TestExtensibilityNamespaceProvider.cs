@@ -21,7 +21,7 @@ public class TestExtensibilityNamespaceProvider : INamespaceProvider
     }
 
     public ResultWithDiagnostic<NamespaceType> TryGetNamespace(
-        ProviderDescriptor providerDescriptor,
+        ResourceTypesProviderDescriptor providerDescriptor,
         ResourceScope resourceScope,
         IFeatureProvider featureProvider,
         BicepSourceFileKind sourceFileKind)

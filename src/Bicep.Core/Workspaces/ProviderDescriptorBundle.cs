@@ -10,12 +10,12 @@ using System.Collections.Immutable;
 namespace Bicep.Core.Workspaces;
 
 public record ProviderDescriptorBundle(
-    IEnumerable<ResultWithDiagnostic<ProviderDescriptor>> ImplicitProviders,
-    ImmutableDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ProviderDescriptor>> ExplicitProviderLookup);
+    IEnumerable<ResultWithDiagnostic<ResourceTypesProviderDescriptor>> ImplicitProviders,
+    ImmutableDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ResourceTypesProviderDescriptor>> ExplicitProviderLookup);
 
 public class ProviderDescriptorBundleBuilder
 {
-    public ProviderDescriptorBundleBuilder(IEnumerable<ResultWithDiagnostic<ProviderDescriptor>> builtInProviders, ImmutableDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ProviderDescriptor>> explicitProviderLookup)
+    public ProviderDescriptorBundleBuilder(IEnumerable<ResultWithDiagnostic<ResourceTypesProviderDescriptor>> builtInProviders, ImmutableDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ResourceTypesProviderDescriptor>> explicitProviderLookup)
     {
         foreach (var provider in builtInProviders)
         {
@@ -30,16 +30,16 @@ public class ProviderDescriptorBundleBuilder
 
     public ProviderDescriptorBundleBuilder() { }
 
-    private readonly HashSet<ResultWithDiagnostic<ProviderDescriptor>> implicitProviders = [];
+    private readonly HashSet<ResultWithDiagnostic<ResourceTypesProviderDescriptor>> implicitProviders = [];
 
-    private readonly ConcurrentDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ProviderDescriptor>> explicitProviderLookup = new();
+    private readonly ConcurrentDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ResourceTypesProviderDescriptor>> explicitProviderLookup = new();
 
-    public void AddImplicitProvider(ResultWithDiagnostic<ProviderDescriptor> descriptor)
+    public void AddImplicitProvider(ResultWithDiagnostic<ResourceTypesProviderDescriptor> descriptor)
     {
         implicitProviders.Add(descriptor);
     }
 
-    public void AddExplicitProvider(ProviderDeclarationSyntax providerDeclaration, ResultWithDiagnostic<ProviderDescriptor> descriptor)
+    public void AddExplicitProvider(ProviderDeclarationSyntax providerDeclaration, ResultWithDiagnostic<ResourceTypesProviderDescriptor> descriptor)
     {
         explicitProviderLookup.TryAdd(providerDeclaration, descriptor);
     }

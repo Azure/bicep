@@ -183,7 +183,7 @@ namespace Bicep.Core.Workspaces
             if (!this.providerDescriptorBundleBuilderBySourceFile.TryGetValue(file, out var providerBundleBuilder))
             {
                 this.providerDescriptorBundleBuilderBySourceFile[file] = providerBundleBuilder = new ProviderDescriptorBundleBuilder();
-                providerBundleBuilder.AddImplicitProvider(new(new ProviderDescriptor(SystemNamespaceType.BuiltInName, file.FileUri)));
+                providerBundleBuilder.AddImplicitProvider(new(new ResourceTypesProviderDescriptor(SystemNamespaceType.BuiltInName, file.FileUri)));
             }
             ProcessAllImplicitProviderDeclarations(file, providerBundleBuilder);
 
@@ -195,15 +195,13 @@ namespace Bicep.Core.Workspaces
 
                 if (restorable is ProviderDeclarationSyntax { } providerDeclarationSyntax)
                 {
-                    var providerDescriptor =
-                    new ProviderDescriptor(
+                    var providerDescriptor = new ResourceTypesProviderDescriptor(
                         providerDeclarationSyntax.Specification.Identifier,
                         file.FileUri,
                         providerDeclarationSyntax.Specification.Version,
                         null,
                         childArtifactReference,
                         uriResult);
-
 
                     providerBundleBuilder.AddExplicitProvider(providerDeclarationSyntax, new(providerDescriptor));
                     continue;
@@ -249,7 +247,7 @@ namespace Bicep.Core.Workspaces
             }
             if (providerEntry.BuiltIn)
             {
-                providerBundleBuilder.AddImplicitProvider(new(new ProviderDescriptor(providerName, file.FileUri)));
+                providerBundleBuilder.AddImplicitProvider(new(new ResourceTypesProviderDescriptor(providerName, file.FileUri)));
                 return;
             }
 
@@ -269,7 +267,7 @@ namespace Bicep.Core.Workspaces
             }
 
             providerBundleBuilder.AddImplicitProvider(new(
-                new ProviderDescriptor(
+                new ResourceTypesProviderDescriptor(
                     providerEntry.Source?.Split('/')[^1] ?? throw new UnreachableException("provider source is validated during artifact creation"),
                     file.FileUri,
                     providerEntry.Version ?? throw new UnreachableException("provider version is validated during artifact creation"),
@@ -325,7 +323,9 @@ namespace Bicep.Core.Workspaces
                 .Select(x => x.TryUnwrap())
                 .WhereNotNull()
                 .SelectMany(sourceFile => GetReferenceSourceNodes(sourceFile)
-                    .SelectMany(moduleDeclaration => this.uriResultByBicepSourceFileByArtifactReferenceSyntax.Values.Select(f => f.TryGetValue(moduleDeclaration)?.TryUnwrap()))
+                    .SelectMany(moduleDeclaration
+                        => this.uriResultByBicepSourceFileByArtifactReferenceSyntax.Values.Select(
+                            f => f.TryGetValue(moduleDeclaration)?.TryUnwrap()))
                     .WhereNotNull()
                     .Select(fileUri => this.fileResultByUri[fileUri].TryUnwrap())
                     .WhereNotNull()
