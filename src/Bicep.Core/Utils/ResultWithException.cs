@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Utils;
-
-namespace Bicep.Core.Diagnostics;
+namespace Bicep.Core.Utils;
 
 public class ResultWithException<TSuccess> : Result<TSuccess, Exception>
     where TSuccess : class

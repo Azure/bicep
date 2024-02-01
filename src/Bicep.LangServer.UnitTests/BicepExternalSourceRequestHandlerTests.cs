@@ -13,6 +13,7 @@ using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Telemetry;
