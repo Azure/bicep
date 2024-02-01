@@ -202,7 +202,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
     {
         var fileUri = PathHelper.FilePathToFileUrl(filePath);
         if (!PathHelper.HasBicepExtension(fileUri) &&
-            !PathHelper.HasBicepparamsExension(fileUri))
+            !PathHelper.HasBicepparamsExtension(fileUri))
         {
             throw new InvalidOperationException($"Invalid file path: {fileUri}");
         }

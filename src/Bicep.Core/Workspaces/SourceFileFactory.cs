@@ -53,7 +53,7 @@ namespace Bicep.Core.Workspaces
                 return CreateBicepFile(fileUri, fileContents);
             }
 
-            if (PathHelper.HasBicepparamsExension(fileUri))
+            if (PathHelper.HasBicepparamsExtension(fileUri))
             {
                 return CreateBicepParamFile(fileUri, fileContents);
             }
