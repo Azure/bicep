@@ -700,14 +700,6 @@
           "Newtonsoft.Json": "13.0.3"
         }
       },
-      "Newtonsoft.Json.Schema": {
-        "type": "Transitive",
-        "resolved": "3.0.15",
-        "contentHash": "O/RBoXYm93pJy/JF3vRJxISALxup8CxKrBGXAyd/pFGrCa9hnSeHq/rQqkTnnpOcvtQwcEDfMZ+R5h871XEO5A==",
-        "dependencies": {
-          "Newtonsoft.Json": "13.0.3"
-        }
-      },
       "NuGet.Frameworks": {
         "type": "Transitive",
         "resolved": "6.5.0",
@@ -2096,7 +2088,7 @@
           "Microsoft.NET.Test.Sdk": "[17.8.0, )",
           "Moq": "[4.18.4, )",
           "Newtonsoft.Json.Schema": "[3.0.15, )",
-          "System.IO.Abstractions.TestingHelpers": "[20.0.4, )"
+          "System.IO.Abstractions.TestingHelpers": "[20.0.15, )"
         }
       },
       "bicep.langserver": {
