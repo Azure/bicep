@@ -6,22 +6,22 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public interface IProviderSpecification : ISymbolNameSource
+public interface IResourceTypesProviderSpecification : ISymbolNameSource
 {
-    string Identifier { get; }
-    string? Version {get;}
+    string NamespaceIdentifier { get; }
+    string? Version { get; }
 }
 
-public record InlinedProviderSpecification(string Identifier, string Version, string UnexpandedArtifactAddress, bool IsValid, TextSpan Span) : IProviderSpecification;
-public record ConfigManagedProviderSpecification(string Identifier, bool IsValid, TextSpan Span) : IProviderSpecification
+public record InlinedResourceTypesProviderSpecification(string NamespaceIdentifier, string Version, string UnexpandedArtifactAddress, bool IsValid, TextSpan Span) : IResourceTypesProviderSpecification;
+public record ConfigurationManagedResourceTypesProviderSpecification(string NamespaceIdentifier, bool IsValid, TextSpan Span) : IResourceTypesProviderSpecification
 {
     public string? Version => null;
-    
+
 };
 
-public record TriviaProviderSpecification(TextSpan Span) : IProviderSpecification
+public record ResourceTypesProviderSpecificationTrivia(TextSpan Span) : IResourceTypesProviderSpecification
 {
-    public string Identifier => LanguageConstants.ErrorName;
+    public string NamespaceIdentifier => LanguageConstants.ErrorName;
     public bool IsValid => false;
     public string? Version => null;
 };
@@ -47,7 +47,7 @@ public static partial class ProviderSpecificationFactory
     [GeneratedRegex(@"^\S*[:\/](?<name>\S+)$", RegexOptions.ECMAScript | RegexOptions.Compiled)]
     private static partial Regex RepositoryNamePattern();
 
-    public static IProviderSpecification FromSyntax(SyntaxBase syntax)
+    public static IResourceTypesProviderSpecification FromSyntax(SyntaxBase syntax)
     {
         if (syntax is StringSyntax stringSyntax &&
             stringSyntax.TryGetLiteralValue() is { } value &&
@@ -56,16 +56,16 @@ public static partial class ProviderSpecificationFactory
             return specification;
         }
 
-        return new TriviaProviderSpecification(syntax.Span);
+        return new ResourceTypesProviderSpecificationTrivia(syntax.Span);
     }
 
-    private static IProviderSpecification? TryCreateFromStringSyntax(StringSyntax stringSyntax, string value)
+    private static IResourceTypesProviderSpecification? TryCreateFromStringSyntax(StringSyntax stringSyntax, string value)
     {
         if (ConfigManagedSpecificationPattern().Match(value) is { } builtInMatch && builtInMatch.Success)
         {
             var name = builtInMatch.Groups["name"].Value;
             var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
-            return new ConfigManagedProviderSpecification(name, IsValid: true, span);
+            return new ConfigurationManagedResourceTypesProviderSpecification(name, IsValid: true, span);
         }
 
         if (InlinedSpecificationPattern().Match(value) is { } registryMatch && registryMatch.Success)
@@ -79,7 +79,7 @@ public static partial class ProviderSpecificationFactory
             var unexpandedArtifactAddress = $"{address}:{version}";
             var name = RepositoryNamePattern().Match(address).Groups["name"].Value;
 
-            return new InlinedProviderSpecification(name, version, unexpandedArtifactAddress, IsValid: true, span);
+            return new InlinedResourceTypesProviderSpecification(name, version, unexpandedArtifactAddress, IsValid: true, span);
         }
 
         return null;

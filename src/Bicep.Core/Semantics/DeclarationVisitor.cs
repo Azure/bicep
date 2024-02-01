@@ -48,11 +48,26 @@ namespace Bicep.Core.Semantics
         }
 
         // Returns the list of top level declarations as well as top level scopes.
-        public static LocalScope GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, BicepSourceFile sourceFile, ISymbolContext symbolContext)
+        public static LocalScope GetDeclarations(
+            INamespaceProvider namespaceProvider,
+            IFeatureProvider features,
+            IArtifactFileLookup sourceFileLookup,
+            ISemanticModelLookup modelLookup,
+            ResourceScope targetScope,
+            BicepSourceFile sourceFile,
+            ISymbolContext symbolContext)
         {
             // collect declarations
             var localScopes = new List<ScopeInfo>();
-            var declarationVisitor = new DeclarationVisitor(namespaceProvider, features, sourceFileLookup, modelLookup, targetScope, symbolContext, localScopes, sourceFile.FileKind);
+            var declarationVisitor = new DeclarationVisitor(
+                namespaceProvider,
+                features,
+                sourceFileLookup,
+                modelLookup,
+                targetScope,
+                symbolContext,
+                localScopes,
+                sourceFile.FileKind);
             declarationVisitor.Visit(sourceFile.ProgramSyntax);
 
             return MakeImmutable(localScopes.Single());
@@ -61,7 +76,13 @@ namespace Bicep.Core.Semantics
         public override void VisitProgramSyntax(ProgramSyntax syntax)
         {
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, syntax, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.GlobalsOnly);
+            var scope = new LocalScope(
+                string.Empty,
+                syntax,
+                syntax,
+                ImmutableArray<DeclaredSymbol>.Empty,
+                ImmutableArray<LocalScope>.Empty,
+                ScopeResolution.GlobalsOnly);
             this.PushScope(scope);
 
             base.VisitProgramSyntax(syntax);
@@ -190,15 +211,15 @@ namespace Bicep.Core.Semantics
             }
 
             // Check if the MSGraph provider is recognized and enabled
-            if (syntax.Specification.Identifier == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled)
+            if (syntax.Specification.NamespaceIdentifier == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled)
             {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Identifier));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.NamespaceIdentifier));
             }
 
             // Check if the Az provider is recognized and enabled
-            if (syntax.Specification.Identifier == AzNamespaceType.BuiltInName && !features.DynamicTypeLoadingEnabled)
+            if (syntax.Specification.NamespaceIdentifier == AzNamespaceType.BuiltInName && !features.DynamicTypeLoadingEnabled)
             {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Identifier));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.NamespaceIdentifier));
             }
 
             if (!this.artifactFileLookup.TryGetProviderDescriptor(context.SourceFile, syntax).IsSuccess(out var providerDescriptor, out var errorBuilder))

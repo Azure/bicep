@@ -23,6 +23,23 @@ public record UriResolutionError(
 
 public class SourceFileGrouping : IArtifactFileLookup
 {
+    public SourceFileGrouping(IFileResolver fileResolver,
+        Uri entryFileUri,
+        ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri,
+        ImmutableDictionary<BicepSourceFile, ProviderDescriptorBundle> providerDescriptorBundleBySourceFile,
+        ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReferenceSyntax,
+        ImmutableDictionary<BicepSourceFile, ImmutableDictionary<ArtifactReference, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference,
+        ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup)
+    {
+        FileResolver = fileResolver;
+        EntryFileUri = entryFileUri;
+        FileResultByUri = fileResultByUri;
+        FileUriResultByBicepSourceFileByArtifactReferenceSyntax = fileUriResultByArtifactReferenceSyntax;
+        FileUriResultByBicepSourceFileByArtifactReference = fileUriResultByArtifactReference;
+        ProvidersToRestoreByFileResult = providerDescriptorBundleBySourceFile;
+        SourceFileParentLookup = sourceFileParentLookup;
+    }
+
     public IFileResolver FileResolver { get; }
 
     public Uri EntryFileUri { get; }
@@ -68,23 +85,6 @@ public class SourceFileGrouping : IArtifactFileLookup
         => (FileResultByUri[EntryFileUri].TryUnwrap() as BicepSourceFile) ?? throw new InvalidOperationException($"{nameof(EntryFileUri)} is not a Bicep source file!");
 
     public IEnumerable<ISourceFile> SourceFiles => FileResultByUri.Values.Select(x => x.IsSuccess(out var success) ? success : null).WhereNotNull();
-
-    public SourceFileGrouping(IFileResolver fileResolver,
-        Uri entryFileUri,
-        ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri,
-        ImmutableDictionary<BicepSourceFile, ProviderDescriptorBundle> providerDescriptorBundleBySourceFile,
-        ImmutableDictionary<BicepSourceFile, ImmutableDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReferenceSyntax,
-        ImmutableDictionary<BicepSourceFile, ImmutableDictionary<ArtifactReference, Result<Uri, UriResolutionError>>> fileUriResultByArtifactReference,
-        ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup)
-    {
-        FileResolver = fileResolver;
-        EntryFileUri = entryFileUri;
-        FileResultByUri = fileResultByUri;
-        FileUriResultByBicepSourceFileByArtifactReferenceSyntax = fileUriResultByArtifactReferenceSyntax;
-        FileUriResultByBicepSourceFileByArtifactReference = fileUriResultByArtifactReference;
-        ProvidersToRestoreByFileResult = providerDescriptorBundleBySourceFile;
-        SourceFileParentLookup = sourceFileParentLookup;
-    }
 
     public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference)
     {

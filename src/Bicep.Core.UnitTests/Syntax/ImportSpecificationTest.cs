@@ -34,7 +34,7 @@ public class ImportSpecificationTests
         // Assert
         if (isValidDeclaration)
         {
-            got.Identifier.Should().Be(expectedName);
+            got.NamespaceIdentifier.Should().Be(expectedName);
         }
         got.IsValid.Should().Be(isValidDeclaration);
     }

@@ -11,7 +11,7 @@ namespace Bicep.Core.Syntax
 {
     public class ProviderDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
-        private readonly Lazy<IProviderSpecification> lazySpecification;
+        private readonly Lazy<IResourceTypesProviderSpecification> lazySpecification;
 
         public ProviderDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase specificationString, SyntaxBase withClause, SyntaxBase asClause)
             : base(leadingNodes)
@@ -35,7 +35,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase AsClause { get; }
 
-        public IProviderSpecification Specification => lazySpecification.Value;
+        public IResourceTypesProviderSpecification Specification => lazySpecification.Value;
 
         public ObjectSyntax? Config => (this.WithClause as ProviderWithClauseSyntax)?.Config as ObjectSyntax;
 
@@ -50,11 +50,11 @@ namespace Bicep.Core.Syntax
         public ArtifactType GetArtifactType() => ArtifactType.Provider;
 
         // if the provider specification is inlined return a value otherwise return null
-        public SyntaxBase? Path => this.Specification is InlinedProviderSpecification spec ? SyntaxFactory.CreateStringLiteral(spec.UnexpandedArtifactAddress) : null;
+        public SyntaxBase? Path => this.Specification is InlinedResourceTypesProviderSpecification spec ? SyntaxFactory.CreateStringLiteral(spec.UnexpandedArtifactAddress) : null;
 
         public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration config)
         {
-            if (!config.ProvidersConfig.TryGetProviderSource(this.Specification.Identifier).IsSuccess(out var providerSource, out var errorBuilder))
+            if (!config.ProvidersConfig.TryGetProviderSource(this.Specification.NamespaceIdentifier).IsSuccess(out var providerSource, out var errorBuilder))
             {
                 return new(errorBuilder);
             }

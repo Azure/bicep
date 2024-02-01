@@ -10,6 +10,5 @@ namespace Bicep.Core.TypeSystem.Providers
         ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ResourceTypesProviderDescriptor providerDescriptor);
 
         IResourceTypeProvider GetBuiltInAzResourceTypesProvider();
-
     }
 }

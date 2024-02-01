@@ -102,7 +102,7 @@ namespace Bicep.Core.Workspaces
                 builder.uriResultByBicepSourceFileByArtifactReferenceSyntax[sourceFile].Remove(module);
             }
 
-            // Rebuild source files that contain external module references restored during the initial build.
+            // Rebuild source files that contain external artifact references restored during the initial build.
             var sourceFilesToRebuild = current.SourceFiles.OfType<BicepSourceFile>()
                 .Where(sourceFile
                     => GetArtifactReferenceDeclarations(sourceFile)
@@ -199,7 +199,7 @@ namespace Bicep.Core.Workspaces
                 if (restorable is ProviderDeclarationSyntax { } providerDeclarationSyntax)
                 {
                     var providerDescriptor = new ResourceTypesProviderDescriptor(
-                        providerDeclarationSyntax.Specification.Identifier,
+                        providerDeclarationSyntax.Specification.NamespaceIdentifier,
                         file.FileUri,
                         providerDeclarationSyntax.Specification.Version,
                         null,
