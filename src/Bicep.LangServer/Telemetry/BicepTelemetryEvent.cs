@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Telemetry
@@ -270,6 +271,35 @@ namespace Bicep.LanguageServer.Telemetry
                 properties: new()
                 {
                     ["moduleRegistryType"] = moduleRegistryType
+                }
+            );
+
+        public enum ExternalSourceRequestType {
+            CompiledJson, // main.json
+            BicepEntrypoint,
+            Local, // A file included with the compilation group
+            NestedExternal, // An external module
+            Unknown,
+        }
+
+        public static BicepTelemetryEvent ExternalSourceRequestSuccess(bool hasSource, int archiveFilesCount, string fileExtension, ExternalSourceRequestType requestType)
+            => new(
+                eventName: TelemetryConstants.EventNames.ExternalSourceRequestSuccess,
+                properties: new()
+                {
+                    ["hasSource"] = ToTrueFalse(hasSource),
+                    ["archiveFilesCount"] = archiveFilesCount.ToString(),
+                    ["fileExtension"] = fileExtension,
+                    ["requestType"] = Enum.GetName(typeof(ExternalSourceRequestType), requestType) ?? string.Empty,
+                }
+            );
+
+        public static BicepTelemetryEvent ExternalSourceRequestFailure(string failureType)
+            => new(
+                eventName: TelemetryConstants.EventNames.ExternalSourceRequestFailure,
+                properties: new()
+                {
+                    ["failureType"] = failureType,
                 }
             );
     }

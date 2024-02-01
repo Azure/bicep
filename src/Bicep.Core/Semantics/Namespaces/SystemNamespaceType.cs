@@ -50,6 +50,7 @@ namespace Bicep.Core.Semantics.Namespaces
             ArmTemplateProviderVersion: "1.0.0");
 
         private delegate bool VisibilityDelegate(IFeatureProvider featureProvider, BicepSourceFileKind sourceFileKind);
+
         private record NamespaceValue<T>(T Value, VisibilityDelegate IsVisible);
 
         private static readonly ImmutableArray<NamespaceValue<FunctionOverload>> Overloads = GetSystemOverloads().ToImmutableArray();
@@ -1471,6 +1472,25 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static IEnumerable<Decorator> GetAlwaysPermittedDecorators()
             {
+                yield return new DecoratorBuilder(LanguageConstants.MetadataDescriptionPropertyName)
+                    .WithDescription("Describes the parameter.")
+                    .WithRequiredParameter("text", LanguageConstants.String, "The description.")
+                    .WithFlags(FunctionFlags.AnyDecorator)
+                    .WithEvaluator((functionCall, decorated) =>
+                    {
+                        if (decorated is DescribableExpression describable &&
+                            functionCall.Parameters.FirstOrDefault() is { } description)
+                        {
+                            return describable with { Description = description };
+                        }
+
+                        return decorated;
+                    })
+                    .Build();
+            }
+
+            static IEnumerable<Decorator> GetBicepTemplateDecorators()
+            {
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                     .WithDescription("Makes the parameter a secure parameter.")
                     .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
@@ -1620,22 +1640,6 @@ namespace Bicep.Core.Semantics.Namespaces
                     })
                     .Build();
 
-                yield return new DecoratorBuilder(LanguageConstants.MetadataDescriptionPropertyName)
-                    .WithDescription("Describes the parameter.")
-                    .WithRequiredParameter("text", LanguageConstants.String, "The description.")
-                    .WithFlags(FunctionFlags.AnyDecorator)
-                    .WithEvaluator((functionCall, decorated) =>
-                    {
-                        if (decorated is DescribableExpression describable &&
-                            functionCall.Parameters.FirstOrDefault() is { } description)
-                        {
-                            return describable with { Description = description };
-                        }
-
-                        return decorated;
-                    })
-                    .Build();
-
                 yield return new DecoratorBuilder(LanguageConstants.BatchSizePropertyName)
                     .WithDescription("Causes the resource or module for-expression to be run in sequential batches of specified size instead of the default behavior where all the resources or modules are deployed in parallel.")
                     .WithRequiredParameter(LanguageConstants.BatchSizePropertyName, LanguageConstants.Int, "The size of the batch")
@@ -1701,10 +1705,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithValidator(ValidateTypeDiscriminator)
                     .WithAttachableType(LanguageConstants.Object)
                     .Build();
-            }
 
-            static IEnumerable<Decorator> GetCompileTimeImportsDecorators()
-            {
                 yield return new DecoratorBuilder(LanguageConstants.ExportPropertyName)
                     .WithDescription("Allows a type, variable, or function to be imported into other Bicep files.")
                     .WithFlags(FunctionFlags.TypeVariableOrFunctionDecorator)
@@ -1751,9 +1752,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 yield return new(decorator, (_, _) => true);
             }
 
-            foreach (var decorator in GetCompileTimeImportsDecorators())
+            foreach (var decorator in GetBicepTemplateDecorators())
             {
-                yield return new(decorator, (features, sfk) => features.CompileTimeImportsEnabled && sfk == BicepSourceFileKind.BicepFile);
+                yield return new(decorator, (_, sfk) => sfk == BicepSourceFileKind.BicepFile);
             }
         }
 

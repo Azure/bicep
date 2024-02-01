@@ -758,13 +758,10 @@
       "description": "The directory in which Bicep may cache templates downloaded from remote registries"
     },
     "experimentalFeaturesEnabled": {
-      "_comment": "https://github.com/Azure/bicep/blob/main/docs/experimental-features.md",
+      "_comment": "Documentation for these features can be found at https://github.com/Azure/bicep/blob/main/docs/experimental-features.md",
       "type": "object",
       "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file",
       "properties": {
-        "assertions": {
-          "type": "boolean"
-        },
         "microsoftGraphPreview": {
           "type": "boolean"
         },
@@ -789,16 +786,13 @@
         "testFramework": {
           "type": "boolean"
         },
-        "asserts": {
+        "assertions": {
           "type": "boolean"
         },
         "dynamicTypeLoading": {
           "type": "boolean"
         },
         "providerRegistry": {
-          "type": "boolean"
-        },
-        "compileTimeImports": {
           "type": "boolean"
         },
         "publishSource": {

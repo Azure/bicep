@@ -84,6 +84,8 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("Files/NonWorking/invalid-schema.json", "[2:98]: $schema value \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\" did not match any of the known ARM template deployment schemas.")]
         [DataRow("Files/NonWorking/keyvault-secret-reference.json", "[25:38]: Failed to convert parameter \"mySecret\": KeyVault secret references are not currently supported by the decompiler.")]
         [DataRow("Files/NonWorking/symbolic-names.json", "[19:16]: Decompilation of symbolic name templates is not currently supported")]
+        [DataRow("Files/NonWorking/parameter-value-as-expression.json", "[39:218]: Expected to find an object, but found an expression. This is not currently supported by the decompiler.")]
+        [DataRow("Files/NonWorking/parameter-value-as-string.json", "[14:43]: Expected to find an object, but found: This is incorrect")]
         public async Task Decompiler_raises_errors_for_unsupported_features(string resourcePath, string expectedMessage)
         {
             Func<Task> onDecompile = async () =>

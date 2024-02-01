@@ -14,15 +14,15 @@
   },
   "private": true,
   "devDependencies": {
-    "@types/node": "^20.10.7",
+    "@types/node": "^20.11.10",
     "@types/pako": "^2.0.3",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
-    "@typescript-eslint/parser": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.1",
     "copy-webpack-plugin": "^12.0.2",
-    "css-loader": "^6.9.0",
+    "css-loader": "^6.9.1",
     "eslint": "^8.56.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^27.6.3",
@@ -33,7 +33,7 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
-    "webpack": "^5.89.0",
+    "webpack": "^5.90.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
   },
@@ -43,7 +43,7 @@
     "monaco-editor": "^0.45.0",
     "pako": "^2.1.0",
     "react": "^18.2.0",
-    "react-bootstrap": "^2.9.2",
+    "react-bootstrap": "^2.10.0",
     "react-dom": "^18.2.0"
   }
 }

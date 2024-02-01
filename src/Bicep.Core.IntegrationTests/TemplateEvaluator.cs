@@ -3,10 +3,12 @@
 using System.Collections.Immutable;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions.Schema;
+using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Engines;
+using Bicep.Core.Emit;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
@@ -194,14 +196,21 @@ namespace Bicep.Core.IntegrationTests
                 var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
                 var parameters = ParseParametersFile(parametersJToken);
 
-                TemplateEngine.ValidateTemplate(template, "2020-10-01", deploymentScope);
-                TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(parameters), metadata, null, new InsensitiveDictionary<JToken>());
+                TemplateEngine.ValidateTemplate(template, TemplateWriter.NestedDeploymentResourceApiVersion, deploymentScope);
 
-                TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-10-01", null);
+                TemplateEngine.ProcessTemplateLanguageExpressions(
+                    managementGroupName: config.ManagementGroup,
+                    subscriptionId: config.SubscriptionId,
+                    resourceGroupName: config.ResourceGroup,
+                    template: template,
+                    apiVersion: TemplateWriter.NestedDeploymentResourceApiVersion,
+                    inputParameters: new(parameters),
+                    metadata: metadata,
+                    diagnostics: TemplateDiagnosticsWriter.Create());
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
 
-                TemplateEngine.ValidateProcessedTemplate(template, "2020-10-01", deploymentScope);
+                TemplateEngine.ValidateProcessedTemplate(template, TemplateWriter.NestedDeploymentResourceApiVersion, deploymentScope);
 
                 return template.ToJToken();
             }

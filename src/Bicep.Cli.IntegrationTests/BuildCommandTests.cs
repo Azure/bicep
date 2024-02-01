@@ -1,12 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Cli.UnitTests;
 using Bicep.Core;
 using Bicep.Core.Configuration;
@@ -170,18 +164,19 @@ namespace Bicep.Cli.IntegrationTests
             // 5. run bicep build
             var (output, error, result) = await TextWriterHelper.InvokeWriterAction((@out, err)
                 => new Program(new(Output: @out, Error: err), services
-                    => {
-                        if (settings.FeatureOverrides is {})
-                        {
-                            services.WithFeatureOverrides(settings.FeatureOverrides);
-                        }
+                    =>
+                {
+                    if (settings.FeatureOverrides is { })
+                    {
+                        services.WithFeatureOverrides(settings.FeatureOverrides);
+                    }
 
-                        services
-                            .WithEmptyAzResources()
-                            .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
-                            .AddSingleton(settings.ClientFactory)
-                            .AddSingleton(settings.TemplateSpecRepositoryFactory);
-                    })
+                    services
+                        .WithEmptyAzResources()
+                        .AddSingleton(settings.Environment ?? BicepTestConstants.EmptyEnvironment)
+                        .AddSingleton(settings.ClientFactory)
+                        .AddSingleton(settings.TemplateSpecRepositoryFactory);
+                })
                     .RunAsync(new[] { "build", bicepFilePath }, CancellationToken.None));
 
             // ASSERT

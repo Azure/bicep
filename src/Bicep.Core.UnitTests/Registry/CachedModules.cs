@@ -7,6 +7,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Utils;
 using FluentAssertions;
 
 namespace Bicep.Core.UnitTests.Registry;
@@ -84,7 +85,7 @@ public record CachedModule(
 
     public ResultWithException<SourceArchive> TryGetSource()
     {
-        var sourceArchivePath = Path.Combine(ModuleCacheFolder, $"source.tar.gz");
+        var sourceArchivePath = Path.Combine(ModuleCacheFolder, $"source.tgz");
         if (File.Exists(sourceArchivePath))
         {
             return SourceArchive.UnpackFromStream(File.OpenRead(sourceArchivePath));

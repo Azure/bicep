@@ -75,7 +75,7 @@ namespace Bicep.Cli.Commands
 
             var summary = diagnosticLogger.LogDiagnostics(DiagnosticOptions.Default, result.Diagnostics);
 
-            if (result.Template is not {} compiledArmTemplate)
+            if (result.Template is not { } compiledArmTemplate)
             {
                 // can't publish if we can't compile
                 return 1;
@@ -93,7 +93,7 @@ namespace Bicep.Cli.Commands
 
                 await ioContext.Output.WriteLineAsync(string.Format(CliResources.ExperimentalFeaturesDisclaimerMessage, PublishSourceFeatureName));
 
-                sourcesStream = SourceArchive.PackSourcesIntoStream(compilation.SourceFileGrouping);
+                sourcesStream = SourceArchive.PackSourcesIntoStream(compilation.SourceFileGrouping, features.CacheRootDirectory);
                 Trace.WriteLine("Publishing Bicep module with source");
             }
             else

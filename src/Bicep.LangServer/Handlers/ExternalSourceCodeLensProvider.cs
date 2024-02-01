@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -70,9 +71,11 @@ namespace Bicep.LanguageServer.Handlers
                             if (sourceArchiveResult.IsSuccess(out var _, out var ex))
                             {
                                 // We're displaying some source file other than the compiled JSON for the module. Allow user to switch to the compiled JSON.
+                                var moduleName = Path.GetFileName(externalReference.Components.Repository);
+                                var artifactId = externalReference.Components.ArtifactId;
                                 yield return CreateCodeLens(
                                     DocumentStart,
-                                    "Show compiled JSON",
+                                    $"Show compiled JSON for module {moduleName} ({OciArtifactReferenceFacts.Scheme}:{artifactId})",
                                     "bicep.internal.showModuleSourceFile",
                                     new ExternalSourceReference(request.TextDocument.Uri).WithRequestForCompiledJson().ToUri().ToString());
                             }

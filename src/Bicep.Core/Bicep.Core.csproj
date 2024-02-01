@@ -37,14 +37,15 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="SharpYaml" Version="2.1.0" />
     <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
-    <PackageReference Include="Azure.Deployments.Core" Version="1.0.1103" />
-    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.1103" />
-    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.1103" />
+    <PackageReference Include="Azure.Deployments.Core" Version="1.0.1158" />
+    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.1158" />
+    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.1158" />
+    <PackageReference Include="Microsoft.PowerPlatform.ResourceStack" Version="6.0.0.1485" />
     <PackageReference Include="Azure.Bicep.Types" Version="0.4.1" />
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.661" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.504" />
     <PackageReference Include="System.IO.Abstractions" Version="20.0.4" />
-    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.1" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.32" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
   </ItemGroup>

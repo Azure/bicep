@@ -3,6 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceCode;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {

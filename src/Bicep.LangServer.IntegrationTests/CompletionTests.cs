@@ -61,8 +61,6 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static readonly SharedLanguageHelperManager ServerWithResourceTypedParamsEnabled = new();
 
-        private static readonly SharedLanguageHelperManager ServerWithCompileTimeImportsEnabled = new();
-
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -109,11 +107,6 @@ namespace Bicep.LangServer.IntegrationTests
                     testContext,
                     services => services.WithFeatureOverrides(new(testContext, ResourceTypedParamsAndOutputsEnabled: true))
                         .WithNamespaceProvider(BuiltInTestTypes.Create())));
-
-            ServerWithCompileTimeImportsEnabled.Initialize(
-                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
-                    testContext,
-                    services => services.WithFeatureOverrides(new(testContext, CompileTimeImportsEnabled: true))));
         }
 
         [ClassCleanup]
@@ -125,7 +118,6 @@ namespace Bicep.LangServer.IntegrationTests
             await ServerWithExtensibilityEnabled.DisposeAsync();
             await ServerWithBuiltInTypes.DisposeAsync();
             await ServerWithResourceTypedParamsEnabled.DisposeAsync();
-            await ServerWithCompileTimeImportsEnabled.DisposeAsync();
         }
 
         [TestMethod]
@@ -4103,8 +4095,7 @@ var arr6 = [
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+                bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletion(cursors[0]);
@@ -4126,7 +4117,7 @@ var arr6 = [
               """;
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-            var file = await new ServerRequestHelper(TestContext, ServerWithCompileTimeImportsEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "{}");
@@ -4141,7 +4132,7 @@ var arr6 = [
               """;
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-            var file = await new ServerRequestHelper(TestContext, ServerWithCompileTimeImportsEnabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, DefaultServer).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "as");
@@ -4184,8 +4175,7 @@ var arr6 = [
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+                bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4229,8 +4219,7 @@ var arr6 = [
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+                bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4278,8 +4267,7 @@ var arr6 = [
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+                bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4341,8 +4329,7 @@ var arr6 = [
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+                bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4409,8 +4396,7 @@ var arr6 = [
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+                bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4464,8 +4450,7 @@ var arr6 = [
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+                bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 
@@ -4521,8 +4506,7 @@ var arr6 = [
             using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 files,
-                bicepFile.FileUri,
-                services => services.WithFeatureOverrides(new(CompileTimeImportsEnabled: true)));
+                bicepFile.FileUri);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
 

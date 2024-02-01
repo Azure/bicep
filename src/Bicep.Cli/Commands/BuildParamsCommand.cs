@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
-using System.Globalization;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
@@ -11,10 +9,7 @@ using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
-using Bicep.Core.Syntax.Rewriters;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Microsoft.Extensions.Logging;

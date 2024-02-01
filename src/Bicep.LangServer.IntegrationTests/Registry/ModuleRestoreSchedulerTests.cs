@@ -11,6 +11,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Registry;

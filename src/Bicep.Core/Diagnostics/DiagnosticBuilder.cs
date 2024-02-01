@@ -1966,11 +1966,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP356",
                 "Expected a valid namespace identifier at this location.");
 
-            public ErrorDiagnostic CompileTimeImportsNotSupported() => new(
-                TextSpan,
-                "BCP357",
-                $@"Using compile-time import statements requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.CompileTimeImports)}"".");
-
             public ErrorDiagnostic PathHasNotBeenSpecified() => new(
                 TextSpan,
                 "BCP358",

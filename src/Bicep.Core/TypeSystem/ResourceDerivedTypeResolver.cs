@@ -71,18 +71,18 @@ public class ResourceDerivedTypeResolver
                 {
                     case "properties" when current is ObjectType @object &&
                         TryGetNamedProperty(@object, unresolved.PointerSegments[++i]) is TypeProperty namedProperty:
-                            current = namedProperty.TypeReference.Type;
-                            continue;
+                        current = namedProperty.TypeReference.Type;
+                        continue;
                     case "additionalproperties" when current is ObjectType @object &&
                         @object.AdditionalPropertiesType is not null:
-                            current = @object.AdditionalPropertiesType.Type;
-                            continue;
+                        current = @object.AdditionalPropertiesType.Type;
+                        continue;
                     case "prefixitems" when current is TupleType tuple &&
                         int.TryParse(unresolved.PointerSegments[++i], out int index) &&
                         0 <= index &&
                         index < tuple.Items.Length:
-                            current = tuple.Items[index].Type;
-                            continue;
+                        current = tuple.Items[index].Type;
+                        continue;
                     case "items" when current is ArrayType array:
                         current = array.Item.Type;
                         continue;

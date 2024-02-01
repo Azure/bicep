@@ -459,7 +459,7 @@ namespace Bicep.Core.Emit
         private record ResourceDerivedTypeResolution(ResourceTypeReference RootResourceTypeReference, ImmutableArray<string> PointerSegments, TypeSymbol DerivedType) : ITypeReferenceExpressionResolution
         {
             internal ResourceDerivedTypeResolution(ResourceDerivedTypeExpression expression)
-                : this(expression.RootResourceType.TypeReference, ImmutableArray<string>.Empty, expression.RootResourceType.Body.Type) {}
+                : this(expression.RootResourceType.TypeReference, ImmutableArray<string>.Empty, expression.RootResourceType.Body.Type) { }
 
             public ObjectExpression GetTypePropertiesForResolvedReferenceExpression(SyntaxBase? sourceSyntax)
                 => ExpressionFactory.CreateObject(new[]
@@ -619,7 +619,7 @@ namespace Bicep.Core.Emit
                 {
                     return new ResolvedInternalReference(
                         currentResolution.SegmentsForIndex(indexAccess.Index),
-                        tuple.ItemExpressions[(int) indexAccess.Index].Value);
+                        tuple.ItemExpressions[(int)indexAccess.Index].Value);
                 }
 
                 currentResolution = ResolveTypeReferenceExpression(@ref.Declaration);

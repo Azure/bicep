@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Emit;
-using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using MediatR;
@@ -51,7 +49,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 return new(TemplateJson: result.Template.Template, ParametersJson: result.Parameters);
             }
-            else 
+            else
             {
                 var result = context.Compilation.Emitter.Template();
                 if (result.Template is null)

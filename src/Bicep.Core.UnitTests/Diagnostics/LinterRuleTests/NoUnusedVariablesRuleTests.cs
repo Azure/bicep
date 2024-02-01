@@ -86,7 +86,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 @export()
                 var foo = 'foo'
                 """,
-                new Options(OnCompileErrors.IncludeErrors, FeatureOverrides: new(CompileTimeImportsEnabled: true)));
+                new Options(OnCompileErrors.IncludeErrors));
         }
 
         [DataRow(@"

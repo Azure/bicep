@@ -11,6 +11,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {

@@ -1126,7 +1126,8 @@ namespace Bicep.Core.Parsing
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
             var itemsOrTokens = new List<SyntaxBase>();
 
-            void parseNewLines() {
+            void parseNewLines()
+            {
                 if (permitNewLines)
                 {
                     itemsOrTokens.AddRange(NewLines());
