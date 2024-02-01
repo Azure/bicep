@@ -27,7 +27,7 @@ namespace Bicep.Core.TypeSystem.Providers
 
         public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ResourceTypesProviderDescriptor providerDescriptor)
         {
-            var key = new ResourceTypeLoaderKey(providerDescriptor.NamespaceIdentifier, providerDescriptor.Version);
+            var key = new ResourceTypeLoaderKey(providerDescriptor.Name, providerDescriptor.Version);
             return cachedResourceTypeLoaders.GetOrAdd(key, _ =>
             {
                 try
@@ -51,7 +51,7 @@ namespace Bicep.Core.TypeSystem.Providers
             {
                 return new(x => x.ArtifactRestoreFailedWithMessage(
                     fullyQualifiedArtifactReference,
-                    $"Provider {providerDescriptor.NamespaceIdentifier} requires a types base URI."));
+                    $"Provider {providerDescriptor.Name} requires a types base URI."));
             }
             if (!providerDescriptor.TypesDataUri.IsSuccess(out var typesDataUri, out var uriResolutionError))
             {
@@ -59,7 +59,7 @@ namespace Bicep.Core.TypeSystem.Providers
             }
 
             var typesLoader = OciTypeLoader.FromDisk(fileSystem, typesDataUri);
-            if (providerDescriptor.NamespaceIdentifier == AzNamespaceType.BuiltInName)
+            if (providerDescriptor.Name == AzNamespaceType.BuiltInName)
             {
                 return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typesLoader), providerDescriptor.Version));
             }

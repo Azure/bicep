@@ -18,7 +18,7 @@ public class ResourceTypesProviderDescriptor
         ArtifactReference? ArtifactReference = null,
         Result<Uri, UriResolutionError>? TypesDataUri = null)
     {
-        this.NamespaceIdentifier = NamespaceIdentifier;
+        this.Name = NamespaceIdentifier;
         this.ParentModuleUri = ParentModuleUri;
         if (Version is not null)
         {
@@ -44,7 +44,7 @@ public class ResourceTypesProviderDescriptor
     public ArtifactReference? ArtifactReference { get; }
     public bool IsBuiltIn { get; }
     public string Alias { get; }
-    public string NamespaceIdentifier { get; }
+    public string Name { get; }
     public Uri ParentModuleUri { get; }
     public string Version { get; }
     public Result<Uri, UriResolutionError>? TypesDataUri { get; }

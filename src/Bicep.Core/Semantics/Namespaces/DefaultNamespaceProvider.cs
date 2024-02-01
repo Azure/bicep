@@ -44,13 +44,13 @@ public class DefaultNamespaceProvider : INamespaceProvider
     {
         // If we don't have a types path, we're loading a 'built-in' type
         if (descriptor.TypesDataUri is null &&
-            builtInNamespaceLookup.TryGetValue(descriptor.NamespaceIdentifier) is { } getProviderFn)
+            builtInNamespaceLookup.TryGetValue(descriptor.Name) is { } getProviderFn)
         {
             return new(getProviderFn(descriptor, resourceScope, features, sourceFileKind));
         }
 
         // Special-case the 'az' provider being loaded from registry - we need add-on functionality delivered via the namespace provider
-        if (descriptor.NamespaceIdentifier == AzNamespaceType.BuiltInName)
+        if (descriptor.Name == AzNamespaceType.BuiltInName)
         {
             if (resourceTypeLoaderFactory.GetResourceTypeProvider(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
@@ -66,13 +66,13 @@ public class DefaultNamespaceProvider : INamespaceProvider
         {
             if (resourceTypeLoaderFactory.GetResourceTypeProvider(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
-                return new(ThirdPartyNamespaceType.Create(descriptor.NamespaceIdentifier, descriptor.Alias, dynamicallyLoadedProvider));
+                return new(ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider));
             }
 
             Trace.WriteLine($"Failed to load types from {descriptor.TypesDataUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart())}");
             return new(errorBuilder);
         }
 
-        return new(x => x.UnrecognizedProvider(descriptor.NamespaceIdentifier));
+        return new(x => x.UnrecognizedProvider(descriptor.Name));
     }
 }

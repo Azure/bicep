@@ -63,11 +63,11 @@ namespace Bicep.Core.IntegrationTests
 
             public ResultWithDiagnostic<NamespaceType> TryGetNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
             {
-                if (builtInNamespacesNames.Contains(providerDescriptor.NamespaceIdentifier))
+                if (builtInNamespacesNames.Contains(providerDescriptor.Name))
                 {
                     return new(TestTypeHelper.GetBuiltInNamespaceType(providerDescriptor));
                 }
-                var namespaceBuilderFn = builderDict[providerDescriptor.NamespaceIdentifier];
+                var namespaceBuilderFn = builderDict[providerDescriptor.Name];
                 return new(namespaceBuilderFn(providerDescriptor.Alias));
             }
         }
