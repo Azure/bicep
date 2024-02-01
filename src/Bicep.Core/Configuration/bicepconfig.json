@@ -18,7 +18,10 @@
         "activeDirectoryAuthority": "https://login.microsoftonline.us"
       }
     },
-    "credentialPrecedence": ["AzureCLI", "AzurePowerShell"]
+    "credentialPrecedence": [
+      "AzureCLI",
+      "AzurePowerShell"
+    ]
   },
   "moduleAliases": {
     "ts": {},
@@ -73,7 +76,9 @@
             "trafficmanager.net",
             "vault.azure.net"
           ],
-          "excludedhosts": ["schema.management.azure.com"]
+          "excludedhosts": [
+            "schema.management.azure.com"
+          ]
         }
       }
     }

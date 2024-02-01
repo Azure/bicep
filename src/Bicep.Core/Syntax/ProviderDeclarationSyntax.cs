@@ -58,8 +58,6 @@ namespace Bicep.Core.Syntax
             {
                 return new(errorBuilder);
             }
-
-
             return new($"br:{providerSource.Source}:{providerSource.Version}");
         }
     }

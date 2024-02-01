@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using System.Text.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using ProvidersDictionary = System.Collections.Immutable.ImmutableDictionary<string, Bicep.Core.Configuration.ProviderConfigEntry>;
 
 namespace Bicep.Core.Configuration;
 
@@ -26,22 +26,23 @@ public record ProviderConfigEntry
     }
 }
 
-public partial class ProvidersConfiguration : ConfigurationSection<ProvidersDictionary>
+public partial class ProvidersConfiguration : ConfigurationSection<ImmutableDictionary<string, ProviderConfigEntry>>
 {
     private readonly Uri? configurationPath;
 
-    private ProvidersConfiguration(ProvidersDictionary data, Uri? configurationPath) : base(data)
+    private ProvidersConfiguration(ImmutableDictionary<string, ProviderConfigEntry> data, Uri? configurationPath) : base(data)
     {
         this.configurationPath = configurationPath;
     }
 
-    public static ProvidersConfiguration Bind(JsonElement element, Uri? configurationPath) => new(element.ToNonNullObject<ProvidersDictionary>(), configurationPath);
+    public static ProvidersConfiguration Bind(JsonElement element, Uri? configurationPath)
+        => new(element.ToNonNullObject<ImmutableDictionary<string, ProviderConfigEntry>>(), configurationPath);
 
     public ResultWithDiagnostic<ProviderConfigEntry> TryGetProviderSource(string providerName)
     {
         if (!this.Data.TryGetValue(providerName, out var providerConfigEntry))
         {
-            return new(x => x.ProviderNameDoesNotExistInConfiguration(providerName, configurationPath));
+            return new(x => x.ProviderNotFoundInConfiguration(providerName, configurationPath));
         }
         return new(providerConfigEntry);
     }
