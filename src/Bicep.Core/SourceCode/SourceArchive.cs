@@ -5,13 +5,13 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Formats.Tar;
 using System.IO.Compression;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 

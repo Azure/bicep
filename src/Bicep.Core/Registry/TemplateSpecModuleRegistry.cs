@@ -10,6 +10,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
+using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {

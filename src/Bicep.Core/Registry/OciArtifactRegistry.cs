@@ -15,6 +15,7 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Tracing;
+using Bicep.Core.Utils;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Core.Registry
