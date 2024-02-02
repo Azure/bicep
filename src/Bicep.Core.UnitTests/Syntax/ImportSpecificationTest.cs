@@ -19,6 +19,7 @@ public class ImportSpecificationTests
     [DataRow("br:mcr.microsoft.com/bicep/providers/az@1.0.0+build.123", true, "az")] // valid build metadata
     [DataRow("br:mcr.microsoft.com/bicep/providers/az@1.0.0-beta+build.123", true, "az")] // valid prerelease version and build metadata
     [DataRow("br:mcr.microsoft.com/bicep/providers/kubernetes@1.0.0", true, "kubernetes")] // other provider
+    [DataRow("sys", true, "sys")] // no version
     // Negative cases
     [DataRow("az@1.0.0", false)] // 'az@1.0.0' is not a valid provider declaration statement
     [DataRow("br/public:az", false)] // is not a valid provider declaration statement, it lacks a version

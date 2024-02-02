@@ -23,7 +23,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.IntegrationTests
 {
     [TestClass]
-    public class ImportTests : TestBase
+    public class ProviderImportTests : TestBase
     {
         private static readonly Lazy<IResourceTypeLoader> azTypeLoaderLazy = new(() => new AzResourceTypeLoader(new AzTypeLoader()));
 

@@ -33,6 +33,7 @@ public class ResourceTypesProviderDescriptor
                 AzNamespaceType.BuiltInName => AzNamespaceType.Settings.ArmTemplateProviderVersion,
                 K8sNamespaceType.BuiltInName => K8sNamespaceType.Settings.ArmTemplateProviderVersion,
                 MicrosoftGraphNamespaceType.BuiltInName => MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion,
+                SystemNamespaceType.BuiltInName => SystemNamespaceType.Settings.ArmTemplateProviderVersion,
                 _ => throw new NotImplementedException($"Built-in provider {NamespaceIdentifier} is not supported.")
             };
         }
