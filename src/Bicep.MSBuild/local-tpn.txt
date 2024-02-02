@@ -18,91 +18,47 @@ General Public License.
 
 ---------------------------------------------------------
 
-System.Buffers 4.5.1 - MIT
+Microsoft.Win32.Registry 5.0.0 - MIT
 
 
-(c) Microsoft Corporation.
-Copyright (c) 2011, Google Inc.
-(c) 1997-2005 Sean Eron Anderson.
-Copyright (c) 1991-2017 Unicode, Inc.
-Portions (c) International Organization
-Copyright (c) 2015 The Chromium Authors.
-Copyright (c) 2004-2006 Intel Corporation
-Copyright (c) .NET Foundation Contributors
-Copyright (c) .NET Foundation and Contributors
-Copyright (c) 2011 Novell, Inc (http://www.novell.com)
-Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
-Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
-Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
-Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
-
-The MIT License (MIT)
-
-Copyright (c) .NET Foundation and Contributors
-
-All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Collections.Immutable 5.0.0 - MIT
-
-
-(c) Microsoft Corporation.
+(c) Microsoft Corporation
 Copyright (c) Andrew Arnott
 Copyright 2018 Daniel Lemire
-Copyright 2012 the V8 project
-Copyright (c) .NET Foundation.
+Copyright (c) .NET Foundation
 Copyright (c) 2011, Google Inc.
+Copyright (c) 2020 Dan Shechter
+(c) 1997-2005 Sean Eron Anderson
 Copyright (c) 1998 Microsoft. To
-(c) 1997-2005 Sean Eron Anderson.
 Copyright (c) 2017 Yoshifumi Kawai
 Copyright (c) Microsoft Corporation
 Copyright (c) 2007 James Newton-King
 Copyright (c) 2012-2014, Yann Collet
+Copyright (c) 1991-2020 Unicode, Inc.
 Copyright (c) 2013-2017, Alfred Klomp
+Copyright 2012 the V8 project authors
+Copyright (c) 2011-2020 Microsoft Corp
 Copyright (c) 2015-2017, Wojciech Mula
 Copyright (c) 2005-2007, Nick Galbreath
+Copyright (c) 2015 The Chromium Authors
 Copyright (c) 2018 Alexander Chermyanin
+Copyright (c) The Internet Society 1997
 Portions (c) International Organization
-Copyright (c) 2015 The Chromium Authors.
-Copyright (c) The Internet Society 1997.
 Copyright (c) 2004-2006 Intel Corporation
 Copyright (c) 2013-2017, Milosz Krajewski
 Copyright (c) 2016-2017, Matthieu Darbois
+Copyright (c) The Internet Society (2003)
 Copyright (c) .NET Foundation Contributors
-Copyright (c) The Internet Society (2003).
 Copyright (c) .NET Foundation and Contributors
 Copyright (c) 2011 Novell, Inc (http://www.novell.com)
 Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
 Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
-Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors
 Copyright (c) 2014 Ryan Juckett http://www.ryanjuckett.com
 Copyright (c) 1990- 1993, 1996 Open Software Foundation, Inc.
-Copyright (c) 2015 THL A29 Limited, a Tencent company, and Milo Yip.
-Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
-Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The Regents of the University of California.
-Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass.
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers
+Copyright (c) 2015 THL A29 Limited, a Tencent company, and Milo Yip
+Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The Regents of the University of California
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass
 Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass. To
 
 The MIT License (MIT)
@@ -134,29 +90,23 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-System.Configuration.ConfigurationManager 4.7.0 - MIT
+System.Buffers 4.5.1 - MIT
 
 
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation.
+(c) Microsoft Corporation
 Copyright (c) 2011, Google Inc.
-(c) 1997-2005 Sean Eron Anderson.
-Copyright (c) 2007 James Newton-King
+(c) 1997-2005 Sean Eron Anderson
 Copyright (c) 1991-2017 Unicode, Inc.
-Copyright (c) 2013-2017, Alfred Klomp
-Copyright (c) 2015-2017, Wojciech Mula
-Copyright (c) 2005-2007, Nick Galbreath
+Copyright (c) 2015 The Chromium Authors
 Portions (c) International Organization
-Copyright (c) 2015 The Chromium Authors.
 Copyright (c) 2004-2006 Intel Corporation
-Copyright (c) 2016-2017, Matthieu Darbois
 Copyright (c) .NET Foundation Contributors
 Copyright (c) .NET Foundation and Contributors
 Copyright (c) 2011 Novell, Inc (http://www.novell.com)
 Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
 Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
-Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
-Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers
 
 The MIT License (MIT)
 
@@ -187,23 +137,186 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-System.Memory 4.5.4 - MIT
+System.Collections.Immutable 7.0.0 - MIT
 
 
-(c) Microsoft Corporation.
+(c) Microsoft Corporation
+Copyright (c) Andrew Arnott
+Copyright 2019 LLVM Project
+Copyright 2018 Daniel Lemire
+Copyright (c) .NET Foundation
 Copyright (c) 2011, Google Inc.
-(c) 1997-2005 Sean Eron Anderson.
-Copyright (c) 1991-2017 Unicode, Inc.
+Copyright (c) 2020 Dan Shechter
+(c) 1997-2005 Sean Eron Anderson
+Copyright (c) 1998 Microsoft. To
+Copyright (c) 2017 Yoshifumi Kawai
+Copyright (c) 2005-2020 Rich Felker
+Copyright (c) Microsoft Corporation
+Copyright (c) 2007 James Newton-King
+Copyright (c) 2012-2014, Yann Collet
+Copyright (c) 1991-2022 Unicode, Inc.
+Copyright (c) 2013-2017, Alfred Klomp
+Copyright 2012 the V8 project authors
+Copyright (c) 1999 Lucent Technologies
+Copyright (c) 2008-2016, Wojciech Mula
+Copyright (c) 2011-2020 Microsoft Corp
+Copyright (c) 2015-2017, Wojciech Mula
+Copyright (c) 2021 csFastFloat authors
+Copyright (c) 2005-2007, Nick Galbreath
+Copyright (c) 2015 The Chromium Authors
+Copyright (c) 2018 Alexander Chermyanin
+Copyright (c) The Internet Society 1997
 Portions (c) International Organization
-Copyright (c) 2015 The Chromium Authors.
+Copyright (c) 2004-2006 Intel Corporation
+Copyright (c) 2013-2017, Milosz Krajewski
+Copyright (c) 2016-2017, Matthieu Darbois
+Copyright (c) The Internet Society (2003)
+Copyright (c) .NET Foundation Contributors
+Copyright (c) 2020 Mara Bos <m-ou.se@m-ou.se>
+Copyright (c) .NET Foundation and Contributors
+Copyright (c) 2008-2020 Advanced Micro Devices, Inc.
+Copyright (c) 2019 Microsoft Corporation, Daan Leijen
+Copyright (c) 2011 Novell, Inc (http://www.novell.com)
+Copyright (c) 1995-2022 Jean-loup Gailly and Mark Adler
+Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors
+Copyright (c) 2014 Ryan Juckett http://www.ryanjuckett.com
+Copyright (c) 1990- 1993, 1996 Open Software Foundation, Inc.
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers
+Copyright (c) 2015 THL A29 Limited, a Tencent company, and Milo Yip
+Copyright (c) 1980, 1986, 1993 The Regents of the University of California
+Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The Regents of the University of California
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass. To
+
+The MIT License (MIT)
+
+Copyright (c) .NET Foundation and Contributors
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+System.Configuration.ConfigurationManager 7.0.0 - MIT
+
+
+(c) Microsoft Corporation
+Copyright (c) Andrew Arnott
+Copyright 2019 LLVM Project
+Copyright 2018 Daniel Lemire
+Copyright (c) .NET Foundation
+Copyright (c) 2011, Google Inc.
+Copyright (c) 2020 Dan Shechter
+(c) 1997-2005 Sean Eron Anderson
+Copyright (c) 1998 Microsoft. To
+Copyright (c) 2017 Yoshifumi Kawai
+Copyright (c) 2005-2020 Rich Felker
+Copyright (c) Microsoft Corporation
+Copyright (c) 2007 James Newton-King
+Copyright (c) 2012-2014, Yann Collet
+Copyright (c) 1991-2022 Unicode, Inc.
+Copyright (c) 2013-2017, Alfred Klomp
+Copyright 2012 the V8 project authors
+Copyright (c) 1999 Lucent Technologies
+Copyright (c) 2008-2016, Wojciech Mula
+Copyright (c) 2011-2020 Microsoft Corp
+Copyright (c) 2015-2017, Wojciech Mula
+Copyright (c) 2021 csFastFloat authors
+Copyright (c) 2005-2007, Nick Galbreath
+Copyright (c) 2015 The Chromium Authors
+Copyright (c) 2018 Alexander Chermyanin
+Copyright (c) The Internet Society 1997
+Portions (c) International Organization
+Copyright (c) 2004-2006 Intel Corporation
+Copyright (c) 2013-2017, Milosz Krajewski
+Copyright (c) 2016-2017, Matthieu Darbois
+Copyright (c) The Internet Society (2003)
+Copyright (c) .NET Foundation Contributors
+Copyright (c) 2020 Mara Bos <m-ou.se@m-ou.se>
+Copyright (c) .NET Foundation and Contributors
+Copyright (c) 2008-2020 Advanced Micro Devices, Inc.
+Copyright (c) 2019 Microsoft Corporation, Daan Leijen
+Copyright (c) 2011 Novell, Inc (http://www.novell.com)
+Copyright (c) 1995-2022 Jean-loup Gailly and Mark Adler
+Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors
+Copyright (c) 2014 Ryan Juckett http://www.ryanjuckett.com
+Copyright (c) 1990- 1993, 1996 Open Software Foundation, Inc.
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers
+Copyright (c) 2015 THL A29 Limited, a Tencent company, and Milo Yip
+Copyright (c) 1980, 1986, 1993 The Regents of the University of California
+Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The Regents of the University of California
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass. To
+
+The MIT License (MIT)
+
+Copyright (c) .NET Foundation and Contributors
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+System.Memory 4.5.5 - MIT
+
+
+(c) 2022 GitHub, Inc.
+(c) Microsoft Corporation
+Copyright (c) 2011, Google Inc.
+(c) 1997-2005 Sean Eron Anderson
+Copyright (c) 1991-2017 Unicode, Inc.
+Copyright (c) 2015 The Chromium Authors
+Portions (c) International Organization
 Copyright (c) 2004-2006 Intel Corporation
 Copyright (c) .NET Foundation Contributors
 Copyright (c) .NET Foundation and Contributors
 Copyright (c) 2011 Novell, Inc (http://www.novell.com)
 Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
 Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
-Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
-Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers
 
 The MIT License (MIT)
 
@@ -278,7 +391,309 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-System.Runtime.CompilerServices.Unsafe 5.0.0 - MIT
+System.Runtime.CompilerServices.Unsafe 6.0.0 - MIT
+
+
+(c) Microsoft Corporation.
+Copyright (c) Andrew Arnott
+Copyright 2018 Daniel Lemire
+Copyright 2012 the V8 project
+Copyright (c) .NET Foundation.
+Copyright (c) 2011, Google Inc.
+Copyright (c) 1998 Microsoft. To
+(c) 1997-2005 Sean Eron Anderson.
+Copyright (c) 2017 Yoshifumi Kawai
+Copyright (c) Microsoft Corporation
+Copyright (c) 2007 James Newton-King
+Copyright (c) 2012-2014, Yann Collet
+Copyright (c) 2013-2017, Alfred Klomp
+Copyright (c) 2015-2017, Wojciech Mula
+Copyright (c) 2005-2007, Nick Galbreath
+Copyright (c) 2018 Alexander Chermyanin
+Portions (c) International Organization
+Copyright (c) 2015 The Chromium Authors.
+Copyright (c) The Internet Society 1997.
+Copyright (c) 2004-2006 Intel Corporation
+Copyright (c) 2013-2017, Milosz Krajewski
+Copyright (c) 2016-2017, Matthieu Darbois
+Copyright (c) .NET Foundation Contributors
+Copyright (c) The Internet Society (2003).
+Copyright (c) .NET Foundation and Contributors
+Copyright (c) 2019 Microsoft Corporation, Daan Leijen
+Copyright (c) 2011 Novell, Inc (http://www.novell.com)
+Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
+Copyright (c) 2014 Ryan Juckett http://www.ryanjuckett.com
+Copyright (c) 1990- 1993, 1996 Open Software Foundation, Inc.
+Copyright (c) 2015 THL A29 Limited, a Tencent company, and Milo Yip.
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
+Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The Regents of the University of California.
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass.
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass. To
+
+The MIT License (MIT)
+
+Copyright (c) .NET Foundation and Contributors
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+System.Security.AccessControl 6.0.0 - MIT
+
+
+(c) Microsoft Corporation.
+Copyright (c) Andrew Arnott
+Copyright 2018 Daniel Lemire
+Copyright 2012 the V8 project
+Copyright (c) .NET Foundation.
+Copyright (c) 2011, Google Inc.
+Copyright (c) 1998 Microsoft. To
+(c) 1997-2005 Sean Eron Anderson.
+Copyright (c) 2017 Yoshifumi Kawai
+Copyright (c) Microsoft Corporation
+Copyright (c) 2007 James Newton-King
+Copyright (c) 2012-2014, Yann Collet
+Copyright (c) 2013-2017, Alfred Klomp
+Copyright (c) 2015-2017, Wojciech Mula
+Copyright (c) 2005-2007, Nick Galbreath
+Copyright (c) 2018 Alexander Chermyanin
+Portions (c) International Organization
+Copyright (c) 2015 The Chromium Authors.
+Copyright (c) The Internet Society 1997.
+Copyright (c) 2004-2006 Intel Corporation
+Copyright (c) 2013-2017, Milosz Krajewski
+Copyright (c) 2016-2017, Matthieu Darbois
+Copyright (c) .NET Foundation Contributors
+Copyright (c) The Internet Society (2003).
+Copyright (c) .NET Foundation and Contributors
+Copyright (c) 2019 Microsoft Corporation, Daan Leijen
+Copyright (c) 2011 Novell, Inc (http://www.novell.com)
+Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
+Copyright (c) 2014 Ryan Juckett http://www.ryanjuckett.com
+Copyright (c) 1990- 1993, 1996 Open Software Foundation, Inc.
+Copyright (c) 2015 THL A29 Limited, a Tencent company, and Milo Yip.
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
+Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The Regents of the University of California.
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass.
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass. To
+
+The MIT License (MIT)
+
+Copyright (c) .NET Foundation and Contributors
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+System.Security.Cryptography.ProtectedData 7.0.0 - MIT
+
+
+(c) Microsoft Corporation
+Copyright (c) Andrew Arnott
+Copyright 2019 LLVM Project
+Copyright 2018 Daniel Lemire
+Copyright (c) .NET Foundation
+Copyright (c) 2011, Google Inc.
+Copyright (c) 2020 Dan Shechter
+(c) 1997-2005 Sean Eron Anderson
+Copyright (c) 1998 Microsoft. To
+Copyright (c) 2017 Yoshifumi Kawai
+Copyright (c) 2005-2020 Rich Felker
+Copyright (c) Microsoft Corporation
+Copyright (c) 2007 James Newton-King
+Copyright (c) 2012-2014, Yann Collet
+Copyright (c) 1991-2022 Unicode, Inc.
+Copyright (c) 2013-2017, Alfred Klomp
+Copyright 2012 the V8 project authors
+Copyright (c) 1999 Lucent Technologies
+Copyright (c) 2008-2016, Wojciech Mula
+Copyright (c) 2011-2020 Microsoft Corp
+Copyright (c) 2015-2017, Wojciech Mula
+Copyright (c) 2021 csFastFloat authors
+Copyright (c) 2005-2007, Nick Galbreath
+Copyright (c) 2015 The Chromium Authors
+Copyright (c) 2018 Alexander Chermyanin
+Copyright (c) The Internet Society 1997
+Portions (c) International Organization
+Copyright (c) 2004-2006 Intel Corporation
+Copyright (c) 2013-2017, Milosz Krajewski
+Copyright (c) 2016-2017, Matthieu Darbois
+Copyright (c) The Internet Society (2003)
+Copyright (c) .NET Foundation Contributors
+Copyright (c) 2020 Mara Bos <m-ou.se@m-ou.se>
+Copyright (c) .NET Foundation and Contributors
+Copyright (c) 2008-2020 Advanced Micro Devices, Inc.
+Copyright (c) 2019 Microsoft Corporation, Daan Leijen
+Copyright (c) 2011 Novell, Inc (http://www.novell.com)
+Copyright (c) 1995-2022 Jean-loup Gailly and Mark Adler
+Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors
+Copyright (c) 2014 Ryan Juckett http://www.ryanjuckett.com
+Copyright (c) 1990- 1993, 1996 Open Software Foundation, Inc.
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers
+Copyright (c) 2015 THL A29 Limited, a Tencent company, and Milo Yip
+Copyright (c) 1980, 1986, 1993 The Regents of the University of California
+Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The Regents of the University of California
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass. To
+
+The MIT License (MIT)
+
+Copyright (c) .NET Foundation and Contributors
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+System.Security.Permissions 7.0.0 - MIT
+
+
+(c) Microsoft Corporation
+Copyright (c) Andrew Arnott
+Copyright 2019 LLVM Project
+Copyright 2018 Daniel Lemire
+Copyright (c) .NET Foundation
+Copyright (c) 2011, Google Inc.
+Copyright (c) 2020 Dan Shechter
+(c) 1997-2005 Sean Eron Anderson
+Copyright (c) 1998 Microsoft. To
+Copyright (c) 2017 Yoshifumi Kawai
+Copyright (c) 2005-2020 Rich Felker
+Copyright (c) Microsoft Corporation
+Copyright (c) 2007 James Newton-King
+Copyright (c) 2012-2014, Yann Collet
+Copyright (c) 1991-2022 Unicode, Inc.
+Copyright (c) 2013-2017, Alfred Klomp
+Copyright 2012 the V8 project authors
+Copyright (c) 1999 Lucent Technologies
+Copyright (c) 2008-2016, Wojciech Mula
+Copyright (c) 2011-2020 Microsoft Corp
+Copyright (c) 2015-2017, Wojciech Mula
+Copyright (c) 2021 csFastFloat authors
+Copyright (c) 2005-2007, Nick Galbreath
+Copyright (c) 2015 The Chromium Authors
+Copyright (c) 2018 Alexander Chermyanin
+Copyright (c) The Internet Society 1997
+Portions (c) International Organization
+Copyright (c) 2004-2006 Intel Corporation
+Copyright (c) 2013-2017, Milosz Krajewski
+Copyright (c) 2016-2017, Matthieu Darbois
+Copyright (c) The Internet Society (2003)
+Copyright (c) .NET Foundation Contributors
+Copyright (c) 2020 Mara Bos <m-ou.se@m-ou.se>
+Copyright (c) .NET Foundation and Contributors
+Copyright (c) 2008-2020 Advanced Micro Devices, Inc.
+Copyright (c) 2019 Microsoft Corporation, Daan Leijen
+Copyright (c) 2011 Novell, Inc (http://www.novell.com)
+Copyright (c) 1995-2022 Jean-loup Gailly and Mark Adler
+Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors
+Copyright (c) 2014 Ryan Juckett http://www.ryanjuckett.com
+Copyright (c) 1990- 1993, 1996 Open Software Foundation, Inc.
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers
+Copyright (c) 2015 THL A29 Limited, a Tencent company, and Milo Yip
+Copyright (c) 1980, 1986, 1993 The Regents of the University of California
+Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The Regents of the University of California
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass. To
+
+The MIT License (MIT)
+
+Copyright (c) .NET Foundation and Contributors
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+System.Security.Principal.Windows 5.0.0 - MIT
 
 
 (c) Microsoft Corporation.
@@ -347,188 +762,57 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-System.Security.AccessControl 4.7.0 - MIT
+System.Text.Encoding.CodePages 7.0.0 - MIT
 
 
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation.
+(c) Microsoft Corporation
+Copyright (c) Andrew Arnott
+Copyright 2019 LLVM Project
+Copyright 2018 Daniel Lemire
+Copyright (c) .NET Foundation
 Copyright (c) 2011, Google Inc.
-(c) 1997-2005 Sean Eron Anderson.
+Copyright (c) 2020 Dan Shechter
+(c) 1997-2005 Sean Eron Anderson
+Copyright (c) 1998 Microsoft. To
+Copyright (c) 2017 Yoshifumi Kawai
+Copyright (c) 2005-2020 Rich Felker
+Copyright (c) Microsoft Corporation
 Copyright (c) 2007 James Newton-King
-Copyright (c) 1991-2017 Unicode, Inc.
+Copyright (c) 2012-2014, Yann Collet
+Copyright (c) 1991-2022 Unicode, Inc.
 Copyright (c) 2013-2017, Alfred Klomp
+Copyright 2012 the V8 project authors
+Copyright (c) 1999 Lucent Technologies
+Copyright (c) 2008-2016, Wojciech Mula
+Copyright (c) 2011-2020 Microsoft Corp
 Copyright (c) 2015-2017, Wojciech Mula
+Copyright (c) 2021 csFastFloat authors
 Copyright (c) 2005-2007, Nick Galbreath
+Copyright (c) 2015 The Chromium Authors
+Copyright (c) 2018 Alexander Chermyanin
+Copyright (c) The Internet Society 1997
 Portions (c) International Organization
-Copyright (c) 2015 The Chromium Authors.
 Copyright (c) 2004-2006 Intel Corporation
+Copyright (c) 2013-2017, Milosz Krajewski
 Copyright (c) 2016-2017, Matthieu Darbois
+Copyright (c) The Internet Society (2003)
 Copyright (c) .NET Foundation Contributors
+Copyright (c) 2020 Mara Bos <m-ou.se@m-ou.se>
 Copyright (c) .NET Foundation and Contributors
+Copyright (c) 2008-2020 Advanced Micro Devices, Inc.
+Copyright (c) 2019 Microsoft Corporation, Daan Leijen
 Copyright (c) 2011 Novell, Inc (http://www.novell.com)
-Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (c) 1995-2022 Jean-loup Gailly and Mark Adler
 Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
-Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
-Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
-
-The MIT License (MIT)
-
-Copyright (c) .NET Foundation and Contributors
-
-All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Security.Cryptography.ProtectedData 4.7.0 - MIT
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation.
-Copyright (c) 2011, Google Inc.
-(c) 1997-2005 Sean Eron Anderson.
-Copyright (c) 2007 James Newton-King
-Copyright (c) 1991-2017 Unicode, Inc.
-Copyright (c) 2013-2017, Alfred Klomp
-Copyright (c) 2015-2017, Wojciech Mula
-Copyright (c) 2005-2007, Nick Galbreath
-Portions (c) International Organization
-Copyright (c) 2015 The Chromium Authors.
-Copyright (c) 2004-2006 Intel Corporation
-Copyright (c) 2016-2017, Matthieu Darbois
-Copyright (c) .NET Foundation Contributors
-Copyright (c) .NET Foundation and Contributors
-Copyright (c) 2011 Novell, Inc (http://www.novell.com)
-Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
-Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
-Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
-Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
-
-The MIT License (MIT)
-
-Copyright (c) .NET Foundation and Contributors
-
-All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Security.Permissions 4.7.0 - MIT
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation.
-Copyright (c) 2011, Google Inc.
-(c) 1997-2005 Sean Eron Anderson.
-Copyright (c) 2007 James Newton-King
-Copyright (c) 1991-2017 Unicode, Inc.
-Copyright (c) 2013-2017, Alfred Klomp
-Copyright (c) 2015-2017, Wojciech Mula
-Copyright (c) 2005-2007, Nick Galbreath
-Portions (c) International Organization
-Copyright (c) 2015 The Chromium Authors.
-Copyright (c) 2004-2006 Intel Corporation
-Copyright (c) 2016-2017, Matthieu Darbois
-Copyright (c) .NET Foundation Contributors
-Copyright (c) .NET Foundation and Contributors
-Copyright (c) 2011 Novell, Inc (http://www.novell.com)
-Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
-Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
-Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
-Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
-
-The MIT License (MIT)
-
-Copyright (c) .NET Foundation and Contributors
-
-All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Security.Principal.Windows 4.7.0 - MIT
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation.
-Copyright (c) 2011, Google Inc.
-(c) 1997-2005 Sean Eron Anderson.
-Copyright (c) 2007 James Newton-King
-Copyright (c) 1991-2017 Unicode, Inc.
-Copyright (c) 2013-2017, Alfred Klomp
-Copyright (c) 2015-2017, Wojciech Mula
-Copyright (c) 2005-2007, Nick Galbreath
-Portions (c) International Organization
-Copyright (c) 2015 The Chromium Authors.
-Copyright (c) 2004-2006 Intel Corporation
-Copyright (c) 2016-2017, Matthieu Darbois
-Copyright (c) .NET Foundation Contributors
-Copyright (c) .NET Foundation and Contributors
-Copyright (c) 2011 Novell, Inc (http://www.novell.com)
-Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
-Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
-Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
-Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors
+Copyright (c) 2014 Ryan Juckett http://www.ryanjuckett.com
+Copyright (c) 1990- 1993, 1996 Open Software Foundation, Inc.
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers
+Copyright (c) 2015 THL A29 Limited, a Tencent company, and Milo Yip
+Copyright (c) 1980, 1986, 1993 The Regents of the University of California
+Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The Regents of the University of California
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass. To
 
 The MIT License (MIT)
 
@@ -638,28 +922,12 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Microsoft.Build.Framework 16.10.0 - MIT
+Microsoft.Build.Framework 17.8.3 - MIT
 
 
-
-MIT License
-
-Copyright (c) <year> <copyright holders>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-Microsoft.Build.Tasks.Git 1.1.1 - MIT
-
-
-(c) Microsoft Corporation.
+(c) Microsoft Corporation
+Copyright (c) 2015 Christian Klutz
+Copyright (c) .NET Foundation and Contributors
 
 MIT License
 
@@ -675,9 +943,31 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Microsoft.Build.Utilities.Core 16.10.0 - MIT
+Microsoft.Build.Tasks.Git 8.0.0 - MIT
 
 
+(c) Microsoft Corporation
+
+MIT License
+
+Copyright (c) <year> <copyright holders>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+Microsoft.Build.Utilities.Core 17.8.3 - MIT
+
+
+(c) Microsoft Corporation
+Copyright (c) 2015 Christian Klutz
+Copyright (c) .NET Foundation and Contributors
 
 MIT License
 
@@ -716,10 +1006,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Microsoft.NET.StringTools 1.0.0 - MIT
+Microsoft.NET.StringTools 17.8.3 - MIT
 
 
-(c) Microsoft Corporation.
+(c) Microsoft Corporation
 Copyright (c) 2015 Christian Klutz
 Copyright (c) .NET Foundation and Contributors
 
@@ -737,10 +1027,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Microsoft.SourceLink.Common 1.1.1 - MIT
+Microsoft.SourceLink.Common 8.0.0 - MIT
 
 
-(c) Microsoft Corporation.
+(c) Microsoft Corporation
 
 MIT License
 
@@ -756,10 +1046,128 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Microsoft.SourceLink.GitHub 1.1.1 - MIT
+Microsoft.SourceLink.GitHub 8.0.0 - MIT
 
 
-(c) Microsoft Corporation.
+(c) Microsoft Corporation
+
+MIT License
+
+Copyright (c) <year> <copyright holders>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+Microsoft.VisualStudio.Threading.Analyzers 17.8.14 - MIT
+
+
+(c) Andrew Arnott
+copyright company
+(c) 2019 GitHub, Inc.
+(c) 2023 GitHub, Inc.
+(c) Microsoft Corporation
+Copyright (c) Manuel Romer
+Copyright (c) Andrew Arnott
+Copyright 2019 LLVM Project
+Copyright 2018 Daniel Lemire
+Copyright (c) .NET Foundation
+Copyright 2012 the V8 project
+Copyright 1995-2017 Mark Adler
+Copyright (c) 2011, Google Inc.
+Copyright (c) 2020 Dan Shechter
+Copyright 2020 Aaron R Robinson
+Copyright 2023 Aaron R Robinson
+(c) 1997-2005 Sean Eron Anderson
+Copyright (c) 1998 Microsoft. To
+Copyright (c) Rackspace, US Inc.
+Copyright James Newton-King 2008
+Copyright (c) 2013 Scott Kirkland
+Copyright (c) 2014, Karlis Gangis
+Copyright (c) 2015 Dennis Fischer
+Copyright 2012-2017 Mehdi Khalili
+Copyright (c) 2015 .NET Foundation
+Copyright (c) 2015 Christian Klutz
+Copyright (c) 2017 Marcos Lopez C.
+Copyright (c) 2017 Yoshifumi Kawai
+Copyright (c) 2005-2020 Rich Felker
+Copyright (c) Microsoft Corporation
+Copyright (c) Outercurve Foundation
+Copyright LibGit2Sharp contributors
+(c) Yoshifumi Kawai and contributors
+Copyright (c) 2007 James Newton-King
+Copyright (c) 2012-2014, Yann Collet
+Copyright (c) James Newton-King 2008
+Copyright (c) 1991-2017 Unicode, Inc.
+Copyright (c) 1991-2020 Unicode, Inc.
+Copyright (c) 1991-2022 Unicode, Inc.
+Copyright (c) 2012-2014 Mehdi Khalili
+Copyright (c) 2013-2014 Omar Khudeira
+Copyright (c) 2013-2017, Alfred Klomp
+Copyright (c) 1999 Lucent Technologies
+Copyright (c) 2008-2016, Wojciech Mula
+Copyright (c) 2011-2020 Microsoft Corp
+Copyright (c) 2015-2017, Wojciech Mula
+Copyright (c) 2021 csFastFloat authors
+Copyright (c) .NET Foundation xUnit.net
+Copyright (c) 2005-2007, Nick Galbreath
+Copyright (c) 2015 The Chromium Authors
+Copyright (c) 2018 Alexander Chermyanin
+Copyright (c) The Internet Society 1997
+Portions (c) International Organization
+Copyright (c) .NET Foundation 0xUnit.net
+Copyright (c) 2004-2006 Intel Corporation
+Copyright (c) 2013-2017, Milosz Krajewski
+Copyright (c) 2016-2017, Matthieu Darbois
+Copyright (c) The Internet Society (2003)
+Copyright James Newton-King 2008 Json.NET
+Copyright (c) .NET Foundation Contributors
+Copyright .NET Foundation and Contributors
+Copyright 1995-2017 Mark Adler +3 CScs DEFG
+Copyright 2012-2016 (c) 2008 VeriSign, Inc.
+Copyright 2014 Giovanni Bassi and Elemar Jr
+Copyright (c) 2020 Mara Bos <m-ou.se@m-ou.se>
+(c) Antoine Aubry and contributors 2008 - 2019
+Copyright (c) .NET Foundation and Contributors
+Copyright (c) Tunnel Vision Laboratories, LLC.
+Copyright Tunnel Vision Laboratories, LLC 2015
+Copyright (c) Copyright (c) 2015 Dennis Fischer
+Copyright AssemblyCompany AssemblyConfiguration
+copyright tag should contain a non-empty company
+Copyright (c) 2017 Yoshifumi Kawai and contributors
+Copyright 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (c) 2008-2020 Advanced Micro Devices, Inc.
+Copyright (c) 2019 Microsoft Corporation, Daan Leijen
+Copyright 2012-2016 Copyright 2012-2017 Mehdi Khalili
+Copyright (c) .NET Foundation xUnit.net Runner Utility
+Copyright (c) 2011 Novell, Inc (http://www.novell.com)
+Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (c) 1995-2022 Jean-loup Gailly and Mark Adler
+Copyright (c) .NET Foundation xUnit.net Runner Reporters
+Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
+Copyright (c) Antoine Aubry and contributors 2008 - 2019
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors
+Copyright (c) 2014 Ryan Juckett http://www.ryanjuckett.com
+Copyright (c) 1990- 1993, 1996 Open Software Foundation, Inc.
+Copyright (c) Outercurve Foundation WrapNonExceptionThrows RSDS
+Copyright (c) .NET Foundation and Contributors. Visual Studio 2019
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers
+Copyright (c) 2015 THL A29 Limited, a Tencent company, and Milo Yip
+Copyright (c) 1980, 1986, 1993 The Regents of the University of California
+Copyright (c) .NET Foundation xunit.analyzers, analyzers, roslyn, xunit, xunit.net
+Copyright (c) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Antoine Aubry and contributors
+Copyright 2015 Tunnel Vision Laboratories, LLC StyleCop DotNetAnalyzers Roslyn Diagnostic Analyzer
+Copyright Tunnel Vision Laboratories, LLC 2018 1Copyright Tunnel Vision Laboratories, LLC 2018 NAn
+Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 The Regents of the University of California
+Copyright 2018 Tunnel Vision Laboratories, LLC Documentation DotNetAnalyzers Roslyn Diagnostic Analyzer
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass
+Copyright (c) 1989 by Hewlett-Packard Company, Palo Alto, Ca. & Digital Equipment Corporation, Maynard, Mass. To
 
 MIT License
 
@@ -835,518 +1243,6 @@ SOFTWARE.
 ---------------------------------------------------------
 
 Microsoft.NETCore.Platforms 1.1.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-Microsoft.NETCore.Targets 1.1.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-Microsoft.Win32.Registry 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.any.System.Collections 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.any.System.Globalization 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.any.System.IO 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.any.System.Reflection 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.any.System.Reflection.Primitives 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.any.System.Resources.ResourceManager 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.any.System.Runtime 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.any.System.Runtime.Handles 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.any.System.Runtime.InteropServices 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.any.System.Text.Encoding 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.any.System.Threading.Tasks 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
-
-
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.fedora.24-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.native.System 4.3.0 - OTHER
-
-
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.opensuse.13.2-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.opensuse.42.1-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.osx.10.10-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.rhel.7-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.ubuntu.14.04-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.ubuntu.16.04-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.unix.System.Private.Uri 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.unix.System.Runtime.Extensions 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.win.System.Runtime.Extensions 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Collections 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Globalization 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.IO 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Private.Uri 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Reflection 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Reflection.Primitives 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Resources.ResourceManager 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Runtime 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-copyright' Ban Quan Xin Xi
-copyright' Die Informationen
-copyright' Zhu Zuo Quan Zi Xun
-copyright' Zhu Zuo Quan Qing Bao
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Runtime.Extensions 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Runtime.Handles 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Runtime.InteropServices 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Text.Encoding 4.3.0 - OTHER
-
-
-(c) Microsoft Corporation.
-Copyright (c) .NET Foundation and Contributors
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Text.Encoding.CodePages 4.0.1 - OTHER
-
-
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Threading 4.0.11 - OTHER
-
-
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-System.Threading.Tasks 4.3.0 - OTHER
 
 
 (c) Microsoft Corporation.
