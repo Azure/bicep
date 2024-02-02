@@ -147,7 +147,7 @@ namespace Bicep.Cli.IntegrationTests
                                 "providerPath": "bicep/providers"
                             },
                             "mcr": {
-                                "registry": "mcr.microsoft.com",
+                                "registry": "{{LanguageConstants.BicepPublicMcrRegistry}}",
                                 "providerPath": "bicep/providers"
                             }
                         }

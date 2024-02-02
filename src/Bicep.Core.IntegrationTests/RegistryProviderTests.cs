@@ -186,8 +186,8 @@ public class RegistryProviderTests : TestBase
         var services = new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: false));
 
-        var result = await CompilationHelper.RestoreAndCompile(services, @"
-        provider 'br:mcr.microsoft.com/bicep/provider/az@0.0.0'
+        var result = await CompilationHelper.RestoreAndCompile(services, @$"
+        provider 'br:{LanguageConstants.BicepPublicMcrRegistry}/bicep/provider/az@0.0.0'
         ");
         result.Should().NotGenerateATemplate();
         result.Should().HaveDiagnostics(new[]{
