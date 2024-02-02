@@ -286,11 +286,27 @@ namespace Bicep.Core.Parsing
 
         private ProviderDeclarationSyntax ProviderImportDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
         {
-            var providerSpecification = this.WithRecovery(
-                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification()),
-                RecoveryFlags.None,
-                TokenType.Assignment,
-                TokenType.NewLine);
+            var providerSpecification = reader.Peek().Type switch
+            {
+                TokenType.Identifier => this.WithRecovery(
+                    () => IdentifierOrSkip( b => b.ExpectedProviderAliasName()),
+                    RecoveryFlags.None,
+                    TokenType.Assignment,
+                    TokenType.NewLine),
+                TokenType.StringLeftPiece or
+                TokenType.StringComplete => this.WithRecovery(
+                    () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification()),
+                    RecoveryFlags.None,
+                    TokenType.Assignment,
+                    TokenType.NewLine),
+                _ => throw new ExpectedTokenException(reader.Peek(), b => b.ExpectedProviderSpecification()),
+            };
+
+            // var providerSpecification = this.WithRecovery(
+            //     () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification()),
+            //     RecoveryFlags.None,
+            //     TokenType.Assignment,
+            //     TokenType.NewLine);
 
             var withClause = this.reader.Peek().Type switch
             {

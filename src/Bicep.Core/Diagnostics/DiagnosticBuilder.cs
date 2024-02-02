@@ -1219,8 +1219,8 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedProviderSpecification() => new(
                 TextSpan,
                 "BCP201",
-                "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location.");
-
+                "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location.");
+// Expected a provider identifier at this location.
             public ErrorDiagnostic ExpectedProviderAliasName() => new(
                 TextSpan,
                 "BCP202",

@@ -48,16 +48,20 @@ public static partial class ProviderSpecificationFactory
     private static partial Regex RepositoryNamePattern();
 
     public static IResourceTypesProviderSpecification FromSyntax(SyntaxBase syntax)
-    {
-        if (syntax is StringSyntax stringSyntax &&
-            stringSyntax.TryGetLiteralValue() is { } value &&
-            TryCreateFromStringSyntax(stringSyntax, value) is { } specification)
-        {
-            return specification;
-        }
+     => syntax switch
+     {
+         StringSyntax stringSyntax when stringSyntax.TryGetLiteralValue() is { } value &&
+                                       TryCreateFromStringSyntax(stringSyntax, value) is { } specification
+             => specification,
 
-        return new ResourceTypesProviderSpecificationTrivia(syntax.Span);
-    }
+         IdentifierSyntax identifierSyntax
+             => new ConfigurationManagedResourceTypesProviderSpecification(
+                 identifierSyntax.IdentifierName,
+                 IsValid: true,
+                 identifierSyntax.Span),
+
+         _ => new ResourceTypesProviderSpecificationTrivia(syntax.Span)
+     };
 
     private static IResourceTypesProviderSpecification? TryCreateFromStringSyntax(StringSyntax stringSyntax, string value)
     {

@@ -43,7 +43,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
         BicepSourceFileKind sourceFileKind)
     {
         // If we don't have a types path, we're loading a 'built-in' type
-        if (descriptor.TypesDataUri is null &&
+        if (descriptor.IsBuiltIn &&
             builtInNamespaceLookup.TryGetValue(descriptor.Name) is { } getProviderFn)
         {
             return new(getProviderFn(descriptor, resourceScope, features, sourceFileKind));

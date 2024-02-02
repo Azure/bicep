@@ -12,5 +12,5 @@ public interface IArtifactFileLookup
 {
     public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference);
 
-    public ResultWithDiagnostic<ResourceTypesProviderDescriptor> TryGetProviderDescriptor(BicepSourceFile file, ProviderDeclarationSyntax providerDeclarationSyntax);
+    public ResultWithDiagnostic<ResourceTypesProviderDescriptor> TryGetProviderDescriptor(ProviderDeclarationSyntax providerDeclarationSyntax);
 }

@@ -222,7 +222,7 @@ namespace Bicep.Core.Semantics
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.NamespaceIdentifier));
             }
 
-            if (!this.artifactFileLookup.TryGetProviderDescriptor(context.SourceFile, syntax).IsSuccess(out var providerDescriptor, out var errorBuilder))
+            if (!this.artifactFileLookup.TryGetProviderDescriptor(syntax).IsSuccess(out var providerDescriptor, out var errorBuilder))
             {
                 return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
             }

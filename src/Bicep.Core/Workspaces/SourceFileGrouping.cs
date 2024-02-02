@@ -68,7 +68,8 @@ public class SourceFileGrouping : IArtifactFileLookup
         }
     }
 
-    public IEnumerable<ArtifactReference> GetImplicitArtifactsToRestore(){
+    public IEnumerable<ArtifactReference> GetImplicitArtifactsToRestore()
+    {
         foreach (var (sourceFile, artifactResults) in FileUriResultByBicepSourceFileByArtifactReference)
         {
             foreach (var (artifactReference, result) in artifactResults)
@@ -96,10 +97,10 @@ public class SourceFileGrouping : IArtifactFileLookup
         return FileResultByUri[fileUri];
     }
 
-    public ResultWithDiagnostic<ResourceTypesProviderDescriptor> TryGetProviderDescriptor(BicepSourceFile file, ProviderDeclarationSyntax providerDeclarationSyntax)
+    public ResultWithDiagnostic<ResourceTypesProviderDescriptor> TryGetProviderDescriptor(ProviderDeclarationSyntax providerDeclarationSyntax)
     {
-        var result = ProvidersToRestoreByFileResult[file].ExplicitProviderLookup[providerDeclarationSyntax];
-        if (!result.IsSuccess(out var providerDescriptor, out var errorBuilder))
+        var providerDescriptorResult = ProvidersToRestoreByFileResult.Values.Select(d => d.ExplicitProviderLookup.TryGetValue(providerDeclarationSyntax, out var providerDescriptor) ? providerDescriptor : null).WhereNotNull().First();
+        if (!providerDescriptorResult.IsSuccess(out var providerDescriptor, out var errorBuilder))
         {
             return new(errorBuilder);
         }
