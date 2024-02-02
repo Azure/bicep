@@ -14,13 +14,20 @@ namespace Bicep.Core.IntegrationTests;
 public class CentralizedProviderVersionManagementTests : TestBase
 {
     private ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
+            .WithFeatureOverrides(new(
+                ExtensibilityEnabled: true,
+                DynamicTypeLoadingEnabled: true,
+                MicrosoftGraphPreviewEnabled: true));
 
+    [DataRow("sys")]
+    [DataRow("microsoftGraph")]
+    [DataRow("az")]
+    [DataRow("kubernetes")]
     [TestMethod]
-    public void ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax()
+    public void ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsBuiltIn(string providerIdentifier)
     {
-        var result = CompilationHelper.Compile(Services, @"
-        provider sys
+        var result = CompilationHelper.Compile(Services, @$"
+        provider {providerIdentifier}
         ");
 
         result.Should().NotHaveAnyDiagnostics();
