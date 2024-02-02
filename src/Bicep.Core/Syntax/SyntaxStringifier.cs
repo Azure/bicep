@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Parsing;
-using Bicep.Core.Syntax;
 
-namespace Bicep.Core.PrettyPrintV2
+namespace Bicep.Core.Syntax
 {
     public class SyntaxStringifier : CstVisitor
     {
@@ -12,9 +11,9 @@ namespace Bicep.Core.PrettyPrintV2
 
         private readonly string? newlineReplacement;
 
-        private SyntaxStringifier(TextWriter buffer, string? newlineReplacement)
+        private SyntaxStringifier(TextWriter writer, string? newlineReplacement)
         {
-            this.writer = buffer;
+            this.writer = writer;
             this.newlineReplacement = newlineReplacement;
         }
 

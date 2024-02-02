@@ -254,7 +254,7 @@ namespace Bicep.Core.Diagnostics
                         showTypeInaccuracy ? TypeInaccuracyLink : null);
                 }
 
-                var codeFix = new CodeFix("Add required properties", true, CodeFixKind.QuickFix, new CodeReplacement(objectSyntax.Span, newSyntax.ToTextPreserveFormatting()));
+                var codeFix = new CodeFix("Add required properties", true, CodeFixKind.QuickFix, new CodeReplacement(objectSyntax.Span, newSyntax.ToString()));
 
                 return new FixableDiagnostic(
                     TextSpan,
@@ -1760,14 +1760,14 @@ namespace Bicep.Core.Diagnostics
                     "If you do not know whether the value will be null and the template would handle a null value for the overall expression, use a `.?` (safe dereference) operator to short-circuit the access expression if the base expression's value is null",
                     true,
                     CodeFixKind.QuickFix,
-                    new(accessExpression.Span, accessExpression.AsSafeAccess().ToTextPreserveFormatting())),
+                    new(accessExpression.Span, accessExpression.AsSafeAccess().ToString())),
                 AsNonNullable(accessExpression.BaseExpression));
 
             private static CodeFix AsNonNullable(SyntaxBase expression) => new(
                 "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
                 false,
                 CodeFixKind.QuickFix,
-                new(expression.Span, SyntaxFactory.AsNonNullable(expression).ToTextPreserveFormatting()));
+                new(expression.Span, SyntaxFactory.AsNonNullable(expression).ToString()));
 
             public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
                 TextSpan,

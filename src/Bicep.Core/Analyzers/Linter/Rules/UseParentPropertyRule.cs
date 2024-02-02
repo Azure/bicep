@@ -200,7 +200,7 @@ public sealed class UseParentPropertyRule : LinterRuleBase
             return null;
         }
 
-        var codeReplacement = new CodeReplacement(body.Span, updatedBody.ToTextPreserveFormatting());
+        var codeReplacement = new CodeReplacement(body.Span, updatedBody.ToString());
 
         return CreateFixableDiagnosticForSpan(
             diagnosticLevel,

@@ -135,7 +135,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                     foreach (Failure failure in visitor.Failures)
                     {
-                        var propertyName = failure.Property.Key.ToText();
+                        var propertyName = failure.Property.Key.ToString();
                         var paths = failure.PathToExpression.Any() ?
                             (new string[] { propertyName }).Concat(failure.PathToExpression.Select(s => s.Name)) :
                             Enumerable.Empty<string>();
@@ -143,7 +143,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         yield return CreateDiagnosticForSpan(
                             diagnosticLevel,
                             failure.Property.Key.Span,
-                            failure.Property.Key.ToText(),
+                            propertyName,
                             path);
                     }
                 }

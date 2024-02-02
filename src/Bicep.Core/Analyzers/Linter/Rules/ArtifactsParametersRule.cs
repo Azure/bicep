@@ -6,12 +6,13 @@ using System.Text.RegularExpressions;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class ArtifactsParametersRule : LocationRuleBase
+    public sealed partial class ArtifactsParametersRule : LocationRuleBase
     {
         public new const string Code = "artifacts-parameters";
 
@@ -91,7 +92,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
 
             // Verify default values
-            foreach (var diag in VerifyDefaultValues(diagnosticLevel, artifactsLocationParam, artifactsSasParam))
+            foreach (var diag in VerifyDefaultValues(model, diagnosticLevel, artifactsLocationParam, artifactsSasParam))
             {
                 yield return diag;
             }
@@ -143,6 +144,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         }
 
         private IEnumerable<IDiagnostic> VerifyDefaultValues(
+            SemanticModel model,
             DiagnosticLevel diagnosticLevel,
             ParameterSymbol artifactsLocationParam,
             ParameterSymbol artifactsSasParam)
@@ -176,8 +178,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 else
                 {
                     // We're not worried about an exact match.
-                    string syntaxString = artifactsLocationDefaultValue.ToText();
-                    if (Regex.Matches(syntaxString, "deployment\\(.*\\.templatelink", RegexOptions.IgnoreCase).Any())
+                    string defaultValueString = artifactsLocationDefaultValue.ToString();
+                    if (TemplateLinkReferencePattern().Match(defaultValueString).Success)
                     {
                         pass = true;
                     }
@@ -265,5 +267,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             return null;
         }
+
+        [GeneratedRegex(@"deployment\(.*\.templatelink", RegexOptions.IgnoreCase)]
+        private static partial Regex TemplateLinkReferencePattern();
     }
 }

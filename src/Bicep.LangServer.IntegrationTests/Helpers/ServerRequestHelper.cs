@@ -143,7 +143,7 @@ namespace Bicep.LangServer.IntegrationTests
                     throw new InvalidOperationException();
             }
 
-            var originalFile = bicepFile.ProgramSyntax.ToTextPreserveFormatting();
+            var originalFile = bicepFile.ProgramSyntax.ToString();
             var replaced = originalFile.Substring(0, start) + textToInsert + originalFile.Substring(end);
 
             return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);
@@ -158,7 +158,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var changes = edit.Changes![bicepFile.FileUri];
 
-            var replaced = bicepFile.ProgramSyntax.ToTextPreserveFormatting();
+            var replaced = bicepFile.ProgramSyntax.ToString();
             var offset = 0;
 
             foreach (var change in changes)

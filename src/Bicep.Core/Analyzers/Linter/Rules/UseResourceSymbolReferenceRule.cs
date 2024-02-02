@@ -152,7 +152,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
             newSyntax = SyntaxFactory.CreatePropertyAccess(newSyntax, "properties");
         }
 
-        var codeReplacement = new CodeReplacement(functionCall.Span, newSyntax.ToTextPreserveFormatting());
+        var codeReplacement = new CodeReplacement(functionCall.Span, newSyntax.ToString());
 
         return CreateFixableDiagnosticForSpan(
             diagnosticLevel,
@@ -188,7 +188,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
             functionCall.Name.IdentifierName,
             newArgs);
 
-        var codeReplacement = new CodeReplacement(functionCall.Span, newFunctionCall.ToTextPreserveFormatting());
+        var codeReplacement = new CodeReplacement(functionCall.Span, newFunctionCall.ToString());
 
         return CreateFixableDiagnosticForSpan(
             diagnosticLevel,

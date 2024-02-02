@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Text.RegularExpressions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -88,13 +87,13 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
             if (resourcesAndNames.Any())
             {
-                string formattedSearchName = resourceNameExpression.ToText();
+                string searchName = resourceNameExpression.ToString();
                 string? evaluatedSearchNameLiteral = TryGetEvaluatedStringLiteral(model, resourceNameExpression)?.stringValue;
 
                 foreach (var (resource, resourceName) in resourcesAndNames)
                 {
-                    // First try a formatted expression match
-                    if (resourceName.ToText().EqualsOrdinally(formattedSearchName))
+                    // First try a expression text match
+                    if (resourceName.ToString().EqualsOrdinally(searchName))
                     {
                         yield return resource;
                     }

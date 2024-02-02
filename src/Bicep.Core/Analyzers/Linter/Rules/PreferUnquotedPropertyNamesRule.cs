@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -54,7 +53,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (TryGetValidIdentifierToken(syntax.IndexExpression, out string? literal))
                 {
                     var replacement = $".{literal}";
-                    var message = string.Format(CoreResources.PreferUnquotedPropertyNames_DereferenceFixTitle, $"{syntax.BaseExpression.ToText()}{replacement}");
+                    var message = string.Format(CoreResources.PreferUnquotedPropertyNames_DereferenceFixTitle, $"{syntax.BaseExpression}{replacement}");
                     AddCodeFix(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare), replacement, message);
                 }
 

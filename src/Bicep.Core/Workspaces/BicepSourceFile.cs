@@ -38,7 +38,7 @@ namespace Bicep.Core.Workspaces
 
         public Uri FileUri { get; }
 
-        public string GetOriginalSource() => ProgramSyntax.ToTextPreserveFormatting();
+        public string GetOriginalSource() => ProgramSyntax.ToString();
 
         public abstract BicepSourceFileKind FileKind { get; }
 

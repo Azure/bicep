@@ -703,7 +703,7 @@ module mod 'mod.bicep' = {
             var completions = await file.RequestCompletions(cursors);
             completions.Count().Should().Be(1);
 
-            var withRequiredProps = file.ApplyCompletion(completions.Single(), "required-properties").ProgramSyntax.ToTextPreserveFormatting();
+            var withRequiredProps = file.ApplyCompletion(completions.Single(), "required-properties").ProgramSyntax.ToString();
             withRequiredProps.Should().Contain("requiredProperty");
             withRequiredProps.Should().NotContain("optionalProperty");
         }

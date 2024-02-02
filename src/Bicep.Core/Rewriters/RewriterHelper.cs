@@ -22,7 +22,7 @@ namespace Bicep.Core.Rewriters
                 return (bicepFile, false);
             }
 
-            bicepFile = SourceFileFactory.CreateBicepFile(bicepFile.FileUri, newProgramSyntax.ToTextPreserveFormatting());
+            bicepFile = SourceFileFactory.CreateBicepFile(bicepFile.FileUri, newProgramSyntax.ToString());
             return (bicepFile, true);
         }
 

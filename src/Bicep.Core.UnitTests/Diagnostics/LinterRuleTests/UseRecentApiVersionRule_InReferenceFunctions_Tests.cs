@@ -51,7 +51,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     var actual = UseRecentApiVersionRule.GetFunctionCallInfos(result.Compilation.GetEntrypointSemanticModel());
                     actual.Should().HaveCount(1, "Expecting a single function call per test");
                     var typedActual = new ExpectedFunctionInfo(
-                            actual.First().FunctionCallSyntax.ToText(),
+                            actual.First().FunctionCallSyntax.ToString(),
                             actual.First().ResourceType,
                             actual.First().ApiVersion?.Formatted);
 
@@ -187,7 +187,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     var lbPublicIPName = 'lbPublicIPName'
                     output o string = reference(resourceId('Fake.Network/publicIPAddresses', lbPublicIPName),'2420-08-01').dnsSettings.fqdn
                 ",
-                "reference(resourceId('Fake.Network/publicIPAddresses', lbPublicIPName), '2420-08-01')",
+                "reference(resourceId('Fake.Network/publicIPAddresses', lbPublicIPName),'2420-08-01')",
                 "Fake.Network/publicIPAddresses",
                 "2420-08-01"
             )]

@@ -77,5 +77,10 @@ namespace Bicep.Core.Syntax
                 throw new ArgumentException($"{parameterName} is of an unexpected type {syntaxType.Name}. Expected types: {expectedTypes.Select(t => t.Name).ConcatString(", ")}");
             }
         }
+
+        /// <summary>
+        /// Returns a string that mirrors the original text of the syntax node.
+        /// </summary>
+        public override string ToString() => SyntaxStringifier.Stringify(this);
     }
 }

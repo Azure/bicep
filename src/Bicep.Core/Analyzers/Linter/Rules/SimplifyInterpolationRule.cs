@@ -4,7 +4,6 @@
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -95,7 +94,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     var type = model.GetTypeInfo(expression);
                     if (type.IsString())
                     {
-                        AddCodeFix(valueSyntax.Span, expression.ToText());
+                        AddCodeFix(valueSyntax.Span, expression.ToString());
                     }
                 }
                 return null;
