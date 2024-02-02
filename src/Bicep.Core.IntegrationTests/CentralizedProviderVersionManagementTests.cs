@@ -22,7 +22,7 @@ public class CentralizedProviderVersionManagementTests : TestBase
     [DataRow("sys")]
     [DataRow("microsoftGraph")]
     [DataRow("az")]
-    [DataRow("kubernetes")]
+    [DataRow("kubernetes")] //TODO: This one should fail because 'with' is necessary
     [TestMethod]
     public void ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsBuiltIn(string providerIdentifier)
     {
