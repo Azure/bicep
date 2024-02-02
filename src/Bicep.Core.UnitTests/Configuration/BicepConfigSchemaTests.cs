@@ -25,6 +25,15 @@ namespace Bicep.Core.UnitTests.Configuration
         private const string BicepRootConfigFilePath = "src/Bicep.Core/Configuration/bicepconfig.json";
         private const string BicepConfigSchemaFilePath = "src/vscode-bicep/schemas/bicepconfig.schema.json";
 
+        private const string HelpFileName = "experimental-features.md";
+
+        // TODO: Remove these when they're fixed
+        private readonly string[] GrandfatheredFeaturesNeedingHelpOrDescription = {
+                "dynamicTypeLoading",
+                "microsoftGraphPreview",
+                "providerRegistry",
+            };
+
         private static string GetBicepConfigSchemaContents()
         {
             var configStream = typeof(BicepConfigSchemaTests).Assembly.GetManifestResourceStream(
@@ -51,6 +60,27 @@ namespace Bicep.Core.UnitTests.Configuration
             return properties ?? Enumerable.Empty<JProperty>();
         }
 
+        private string GetExperimentalFeaturesHelpContents()
+        {
+            var helpStream = typeof(BicepConfigSchemaTests).Assembly.GetManifestResourceStream(
+                               $"{typeof(BicepConfigSchemaTests).Assembly.GetName().Name}.Configuration.Links.{HelpFileName}");
+            Assert.IsNotNull(helpStream);
+            var helpContents = new StreamReader(helpStream).ReadToEnd();
+            Assert.IsNotNull(helpContents);
+            return helpContents;
+        }
+
+        private string[] GetExperimentalFeatureIdsFromHelpContents()
+        {
+            var helpContents = GetExperimentalFeaturesHelpContents();
+
+            var experimentalFeaturesSection = new Regex("## List of feature(.*?)^## ", RegexOptions.Multiline | RegexOptions.Singleline).Match(helpContents).Groups[1].Value;
+            experimentalFeaturesSection.Should().NotBeNullOrWhiteSpace();
+
+            var featureIds = new Regex(@"^### `(?<fragment>[a-zA-Z]+)`", RegexOptions.Multiline).Matches(experimentalFeaturesSection!).Select(match => match.Groups["fragment"].Value).ToArray();
+            return featureIds;
+        }
+
         [TestMethod]
         public void Config_ShouldIncludeCurrentAllCoreRules()
         {
@@ -63,6 +93,8 @@ namespace Bicep.Core.UnitTests.Configuration
         [TestMethod]
         public void RuleConfigs_ShouldBeCorrectlyDefined()
         {
+            var a = GetExperimentalFeaturesHelpContents();
+
             var (rules, schema) = GetRulesAndSchema();
             var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
             Assert.IsNotNull(ruleConfigs);
@@ -111,7 +143,7 @@ namespace Bicep.Core.UnitTests.Configuration
             Assert.IsNotNull(ruleConfigs);
             foreach (var (key, rule) in ruleConfigs)
             {
-                key.Should().MatchRegex("^[a-z][a-z-]*[a-z]$", "all rule keys should be lower-cased with hyphens, and not start or end with hyphen");
+                key.Should().BeInKebabCasing("all rule keys should be lower-cased with hyphens, and not start or end with hyphen");
                 key.Should().HaveLengthLessThanOrEqualTo(36, "rule ids should have a reasonable length");
             }
         }
@@ -130,7 +162,7 @@ namespace Bicep.Core.UnitTests.Configuration
                     string rulePropertyName = rulePropertyConfig.Name;
                     string rulePlusPropertyName = $"{key} -> {rulePropertyConfig.Name}";
 
-                    rulePropertyConfig.Name.Should().MatchRegex("^[a-z][a-zA-Z]*$", $"all rule custom configuration property names should be mixed case with no hyphens ({rulePlusPropertyName})");
+                    rulePropertyConfig.Name.Should().BeInCamelCasing($"all rule custom configuration property names should be mixed case with no hyphens ({rulePlusPropertyName})");
                     rulePropertyConfig.Name.Should().HaveLengthLessThanOrEqualTo(25, $"all rule custom configuration property names should have a reasonable length {rulePlusPropertyName})");
                 }
             }
@@ -186,6 +218,121 @@ namespace Bicep.Core.UnitTests.Configuration
             excludedHostsInSchema.Should().BeEquivalentTo(excludedHostsInConfig, $"default of no-hardcoded-env-urls.excluded should be the same in {BicepRootConfigFilePath} and {BicepConfigSchemaFilePath}");
             excludedHostsInSchema.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.excluded should be in alphabetical order in {BicepConfigSchemaFilePath}");
             excludedHostsInConfig.Should().BeInAscendingOrder($"default of no-hardcoded-env-urls.excluded should be in alphabetical order in {BicepRootConfigFilePath}");
+        }
+
+        private ICollection<string> GetExperimentalFeatureIdsFromSchema()
+        {
+            IDictionary<string, JObject>? experimentalFeatures = GetExperimentalFeaturesFromSchema();
+            return experimentalFeatures.Keys;
+        }
+
+        [TestMethod]
+        public void ExperimentalFeatures_ShouldHaveDescription()
+        {
+            // From schema
+            IDictionary<string, JObject>? experimentalFeatures = GetExperimentalFeaturesFromSchema();
+
+            foreach (var (featureName, featureValue) in experimentalFeatures)
+            {
+                /* Example:
+                 
+                    "publishSource": {
+                        "type": "boolean",
+                        "description": "Enables publishing source code with modules using the bicep publish `--with-source` option. See https://aka.ms/bicep/experimental-features#publishsource"
+                    },
+
+                */
+
+                featureValue.SelectToken("type")!.ToString().Should().Be("boolean", $"all experimental feature values should be of type boolean: {featureName}");
+
+                var descriptionProp = featureValue.SelectToken("description");
+
+                if (descriptionProp is null)
+                {
+                    if (GrandfatheredFeaturesNeedingHelpOrDescription.Contains(featureName))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        descriptionProp.Should().NotBeNull($"all experimental feature values should have a description: {featureName}");
+                    }
+                }
+                else if (GrandfatheredFeaturesNeedingHelpOrDescription.Contains(featureName))
+                {
+                    GrandfatheredFeaturesNeedingHelpOrDescription.Should().NotContain(featureName, $"grandfathered experimental features should be removed from {nameof(GrandfatheredFeaturesNeedingHelpOrDescription)} when they have descriptions added");
+                }
+
+                descriptionProp.Should().NotBeNull($"all experimental feature values should have a description: {featureName}");
+
+                string? description = featureValue.SelectToken("description")?.ToString();
+                description.Should().NotBeNullOrWhiteSpace($"all experimental feature descriptions should not be empty: {featureName}");
+                description.Should().MatchRegex($"^[A-Z]", "all feature descriptions should start with a capital letter: {featureName}");
+                description.Should().NotContain($"\"", "use single quotes instead of double quotes in feature descriptions: {featureName}");
+
+                description.Should().NotContainAny(new[] { "don't", "do not" }, "Use \"Should\" type of language generally (less impolite)");
+            }
+        }
+
+        private IDictionary<string, JObject> GetExperimentalFeaturesFromSchema()
+        {
+            var (rules, schema) = GetRulesAndSchema();
+            IDictionary<string, JObject>? experimentalFeatures = schema.SelectToken("properties.experimentalFeaturesEnabled.properties")!.ToObject<IDictionary<string, JObject>>();
+            Assert.IsNotNull(experimentalFeatures);
+            return experimentalFeatures;
+        }
+
+        [TestMethod]
+        public void ExperimentalFeatures_DescriptionsShouldEndWithLinkToHelpPage()
+        {
+            // From schema
+            IDictionary<string, JObject>? experimentalFeatures = GetExperimentalFeaturesFromSchema();
+
+            foreach (var (featureName, featureValue) in experimentalFeatures)
+            {
+                /* Example:
+                 
+                    "publishSource": {
+                        "type": "boolean",
+                        "description": "Enables publishing source code with modules using the bicep publish `--with-source` option. See https://aka.ms/bicep/experimental-features#publishsource"
+                    },
+
+                */
+
+                var description = featureValue.SelectToken("description")?.ToString();
+                if (description is { })
+                {
+                    string regex = ".* See https://aka.ms/bicep/experimental-features#([a-zA-Z]+)$";
+                    description.Should().MatchRegex(regex, $"all experimental feature descriptions should end with a link to the feature's documentation (with a fragment): {featureName}");
+                    var experimentalFeatureIdInLink = new Regex(regex).Match(description).Groups[1].Value;
+                    experimentalFeatureIdInLink.Should().Be(featureName.ToLower(), $"Fragment in experimental feature description link should match the feature's id, but in lowercase: {featureName}");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void ExperimentalFeatures_ShouldBeDocumentedInHelpFile()
+        {
+            // From schema
+            var experimentalFeaturesIdsFromSchema = GetExperimentalFeatureIdsFromSchema();
+
+            // From help
+            var experimentalFeatureIdsFromHelp = GetExperimentalFeatureIdsFromHelpContents().OrderBy(s => s).ToArray();
+
+            GrandfatheredFeaturesNeedingHelpOrDescription.Should().NotContainAny(experimentalFeatureIdsFromHelp, $"grandfathered experimental features should be removed from {nameof(GrandfatheredFeaturesNeedingHelpOrDescription)} when they are documented in help");
+
+            foreach (var featureId in experimentalFeaturesIdsFromSchema.Where(id => !GrandfatheredFeaturesNeedingHelpOrDescription.Contains(id)))
+            {
+                experimentalFeatureIdsFromHelp.Should().Contain(featureId, $"all experimental features in the schema should be documented in the help file {HelpFileName}");
+            }
+        }
+
+        [TestMethod]
+        public void ExperimentalFeatures_ShouldBeSortedInHelpFile()
+        {
+            var experimentalFeatureIdsFromHelp = GetExperimentalFeatureIdsFromHelpContents();
+
+            experimentalFeatureIdsFromHelp.Should().BeInAscendingOrder($"experimental feature ids in the help file {HelpFileName} should be in alphabetical order");
         }
 
         [TestMethod]
