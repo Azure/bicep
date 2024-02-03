@@ -14,6 +14,9 @@ Should be enabled in tandem with `testFramework` experimental feature flag for e
 ### `extensibility`
 Allows Bicep to use a provider model to deploy non-ARM resources. Currently, we only support a Kubernetes provider. See [Bicep extensibility Kubernetes provider](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-extensibility-kubernetes-provider).
 
+### `prettyPrinting`
+Activates a formatting mode that utilizes an advanced pretty-printing algorithm described in [A Prettier Printer](https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf). This algorithm is designed to enhance code structure and intelligently adjust line breaks in accordance with a fixed line width to improve code readability. Users can customize the line width by adjusting the `formatting.width` setting in `bicepconfig.json`.
+
 ### `sourceMapping`
 Enables basic source mapping to map an error location returned in the ARM template layer back to the relevant location in the Bicep file.
 
