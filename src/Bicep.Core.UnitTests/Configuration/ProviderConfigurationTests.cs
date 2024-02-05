@@ -51,7 +51,7 @@ public class ProvidersConfigurationTests
         provider.Should().BeNull();
         errorBuilder!.Should().NotBeNull();
         errorBuilder!.Should().HaveCode("BCP394");
-        errorBuilder!.Should().HaveMessage(@$"The provider name ""unspecified"" does not exist in the Bicep configuration ""{fakeBicepConfigUri.LocalPath}"".");
+        errorBuilder!.Should().HaveMessage(@$"The provider ""unspecified"" could not be found in Bicep configuration ""{fakeBicepConfigUri.LocalPath}"".");
     }
 
     [TestMethod]
@@ -142,6 +142,6 @@ public class ProvidersConfigurationTests
         provider.Should().BeNull();
         errorBuilder!.Should().NotBeNull();
         errorBuilder!.Should().HaveCode("BCP394");
-        errorBuilder!.Should().HaveMessage(@$"The provider name ""sys"" does not exist in the Bicep configuration ""{testFilePath}"".");
+        errorBuilder!.Should().HaveMessage(@$"The provider ""sys"" could not be found in Bicep configuration ""{testFilePath}"".");
     }
 }
