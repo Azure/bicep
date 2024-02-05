@@ -250,7 +250,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         public async Task<FileRequestHelper> OpenFile(Uri fileUri, string text)
         {
-            BicepSourceFile bicepFile = PathHelper.HasBicepparamsExension(fileUri) ?
+            BicepSourceFile bicepFile = PathHelper.HasBicepparamsExtension(fileUri) ?
                 SourceFileFactory.CreateBicepParamFile(fileUri, text) :
                 SourceFileFactory.CreateBicepFile(fileUri, text);
 
