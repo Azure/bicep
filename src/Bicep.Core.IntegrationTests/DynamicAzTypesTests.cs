@@ -40,6 +40,29 @@ namespace Bicep.Core.IntegrationTests
             return services;
         }
 
+        private async Task<ServiceBuilder> ServicesWithTestProviderArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
+        {
+
+            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
+
+            (_, var client) = blobClients.First();
+            var blobResult = await client.UploadBlobAsync(artifactPayload);
+            var manifest = BicepTestConstants.GetBicepProviderManifest(
+                            blobResult.Value.Digest,
+                            blobResult.Value.SizeInBytes);
+            await client.SetManifestAsync(manifest, artifactRegistryAddress.ProviderVersion);
+
+            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(cacheRoot);
+
+            return new ServiceBuilder()
+                .WithFeatureOverrides(new(
+                    ExtensibilityEnabled: true,
+                    DynamicTypeLoadingEnabled: true,
+                    CacheRootDirectory: cacheRoot))
+           .WithContainerRegistryClientFactory(clientFactory);
+        }
+
         [TestMethod]
         public async Task Az_namespace_can_be_used_without_configuration()
         {
@@ -159,36 +182,20 @@ namespace Bicep.Core.IntegrationTests
             string innerErrorMessage)
         {
             // ARRANGE
-            var testArtifact = new ArtifactRegistryAddress("biceptestdf.azurecr.io", "bicep/providers/az", "0.0.0-corruptpng");
-            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(testArtifact.ClientDescriptor());
+            var testArtifactAddress = new ArtifactRegistryAddress("biceptestdf.azurecr.io", "bicep/providers/az", "0.0.0-corruptpng");
 
-            (_, var client) = blobClients.First();
-            var blobResult = await client.UploadBlobAsync(payload);
-            var manifest = BicepTestConstants.GetBicepProviderManifest(
-                            blobResult.Value.Digest,
-                            blobResult.Value.SizeInBytes);
-            await client.SetManifestAsync(manifest, testArtifact.ProviderVersion);
-
-            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
-            Directory.CreateDirectory(cacheRoot);
-
-            var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(
-                    ExtensibilityEnabled: true,
-                    DynamicTypeLoadingEnabled: true,
-                    CacheRootDirectory: cacheRoot))
-           .WithContainerRegistryClientFactory(clientFactory);
+            var services = await ServicesWithTestProviderArtifact(testArtifactAddress, payload);
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider '{testArtifact.ToSpecificationString('@')}'
+            provider '{testArtifactAddress.ToSpecificationString('@')}'
             ");
 
             // ASSERT
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP192", DiagnosticLevel.Error, $"Unable to restore the artifact with reference \"{testArtifact.ToSpecificationString(':')}\": The OCI artifact is not a valid Bicep artifact. {innerErrorMessage}"),
+                ("BCP192", DiagnosticLevel.Error, $"Unable to restore the artifact with reference \"{testArtifactAddress.ToSpecificationString(':')}\": The OCI artifact is not a valid Bicep artifact. {innerErrorMessage}"),
                 ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
             });
 
@@ -320,6 +327,34 @@ namespace Bicep.Core.IntegrationTests
                     ("index.json", """{ "UnexpectedMember": false}""")),
                 "Value cannot be null. (Parameter 'source')"
             };
+        }
+
+        [TestMethod]
+        public async Task Az_namespace_can_be_used_with_configuration()
+        {
+            //ARRANGE
+            var artifactRegistryAddress = new ArtifactRegistryAddress(
+                "fake.azurecr.io",
+                "fake/path/az",
+                "1.0.0");
+            var services = await ServicesWithTestProviderArtifact(
+                artifactRegistryAddress,
+                GetTypesTgzBytesFromFiles(("index.json", """{"Resources": {}, "Functions": {}}""")));
+            services = services.WithConfigurationPatch(c => c.WithProvidersConfiguration($$"""
+            {
+                "az": {
+                    "source": "fake.azurecr.io/fake/path/az",
+                    "version": "1.0.0"
+                }
+            }
+            """));
+            //ACT
+            var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
+            provider az
+            "));
+            //ASSERT
+            result.Should().GenerateATemplate();
+            result.Template.Should().NotBeNull();
         }
     }
 }

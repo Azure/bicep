@@ -7,6 +7,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Configuration;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -33,7 +34,6 @@ namespace Bicep.Core.IntegrationTests
                 return;
             }
             result.Should().HaveDiagnostics(expectedDiagnostics);
-
         }
 
         public static IEnumerable<object[]> ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsBuiltIn_TestCases
@@ -41,12 +41,29 @@ namespace Bicep.Core.IntegrationTests
             get
             {
                 var emptyDiagnostics = Array.Empty<(string, DiagnosticLevel, string)>();
-                yield return new object[] { "sys", true, emptyDiagnostics };
-                yield return new object[] { "microsoftGraph", true, emptyDiagnostics };
-                yield return new object[] { "az", true, emptyDiagnostics };
-                yield return new object[] { "kubernetes", false, new (string, DiagnosticLevel, string)[] {
+                yield return new object[] {
+                    "sys",
+                    true,
+                    emptyDiagnostics };
+                yield return new object[] {
+                    "microsoftGraph",
+                    true,
+                    emptyDiagnostics };
+                yield return new object[] {
+                    "az",
+                    true,
+                    emptyDiagnostics };
+                yield return new object[] {
+                    "kubernetes",
+                    false,
+                    new (string, DiagnosticLevel, string)[] {
                      ("BCP206", DiagnosticLevel.Error, "Provider namespace \"kubernetes\" requires configuration, but none was provided.") } };
             }
+        }
+
+        public void ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsExternal()
+        {
+
         }
     }
 }

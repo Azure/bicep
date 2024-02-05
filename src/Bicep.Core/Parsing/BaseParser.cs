@@ -1359,7 +1359,7 @@ namespace Bicep.Core.Parsing
 
             var errors = flags.HasFlag(RecoveryFlags.SuppressDiagnostics)
                 ? ImmutableArray<ErrorDiagnostic>.Empty
-                : ImmutableArray.Create(errorFunc(DiagnosticBuilder.ForPosition(errorSpan)));
+                : [errorFunc(DiagnosticBuilder.ForPosition(errorSpan))];
 
             return new SkippedTriviaSyntax(skippedSpan, skippedTokens, errors);
         }

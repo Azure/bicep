@@ -133,7 +133,7 @@ namespace Bicep.Core.UnitTests.Utils
         public static CompilationResult GetCompilationResult(Compilation compilation)
         {
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+            var emitter = new TemplateEmitter(semanticModel);
 
             var diagnostics = semanticModel.GetAllDiagnostics();
 

@@ -24,7 +24,7 @@ public class ProviderDescriptorBundleBuilder
 
         foreach (var (providerDeclaration, providerDescriptor) in explicitProviderLookup)
         {
-            AddExplicitProvider(providerDeclaration, providerDescriptor);
+            AddOrUpdateExplicitProvider(providerDeclaration, providerDescriptor);
         }
     }
 
@@ -39,9 +39,9 @@ public class ProviderDescriptorBundleBuilder
         implicitProviders.Add(descriptor);
     }
 
-    public void AddExplicitProvider(ProviderDeclarationSyntax providerDeclaration, ResultWithDiagnostic<ResourceTypesProviderDescriptor> descriptor)
+    public void AddOrUpdateExplicitProvider(ProviderDeclarationSyntax providerDeclaration, ResultWithDiagnostic<ResourceTypesProviderDescriptor> descriptor)
     {
-        explicitProviderLookup.TryAdd(providerDeclaration, descriptor);
+        explicitProviderLookup.AddOrUpdate(providerDeclaration, descriptor, (_, _) => descriptor);
     }
 
     public ProviderDescriptorBundle Build()

@@ -176,7 +176,7 @@ namespace Bicep.Core.Registry
                     this.SetRestoreFailure(failedReference, configurationManager.GetConfiguration(failedReference.ParentModuleUri), failureBuilder);
                 }
             }
-
+            
             return true;
         }
 

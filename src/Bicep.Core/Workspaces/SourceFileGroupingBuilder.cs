@@ -109,7 +109,7 @@ namespace Bicep.Core.Workspaces
                         .Any(moduleDeclaration
                             => artifactsToRestore.Contains(new ArtifactResolutionInfo(moduleDeclaration, sourceFile))))
                 .ToImmutableHashSet()
-                .SelectMany(sourceFile => current.GetFilesDependingOn(sourceFile))
+                .SelectMany(current.GetFilesDependingOn)
                 .ToImmutableHashSet();
 
             return builder.Build(current.EntryPoint.FileUri, featuresFactory, configurationManager, sourceFilesToRebuild);
@@ -198,17 +198,17 @@ namespace Bicep.Core.Workspaces
 
                 if (restorable is ProviderDeclarationSyntax { } providerDeclarationSyntax)
                 {
-                    var providerDescriptor = new ResourceTypesProviderDescriptor(
-                        providerDeclarationSyntax.Specification.NamespaceIdentifier,
-                        file.FileUri,
-                        providerDeclarationSyntax.Specification.Version,
-                        null,
-                        childArtifactReference,
-                        uriResult);
-
-                    providerBundleBuilder.AddExplicitProvider(providerDeclarationSyntax, new(providerDescriptor));
+                    providerBundleBuilder.AddOrUpdateExplicitProvider(
+                        providerDeclarationSyntax,
+                        ResolveProviderDescriptor(
+                            providerDeclarationSyntax,
+                            childArtifactReference,
+                            uriResult,
+                            featureProviderFactory.GetFeatureProvider(file.FileUri),
+                            file));
                     continue;
                 }
+
                 if (!uriResult.IsSuccess(out var artifactUri))
                 {
                     continue;
@@ -222,6 +222,56 @@ namespace Bicep.Core.Workspaces
                 }
                 fileResultByUri[artifactUri] = childResult;
             }
+        }
+
+        private ResultWithDiagnostic<ResourceTypesProviderDescriptor> ResolveProviderDescriptor(
+            ProviderDeclarationSyntax providerDeclarationSyntax,
+            ArtifactReference? artifactReference,
+            Result<Uri, UriResolutionError> uriResult,
+            IFeatureProvider featureProvider,
+            BicepSourceFile file)
+        {
+            if (providerDeclarationSyntax.Specification is InlinedResourceTypesProviderSpecification { } inlinedSpecification)
+            {
+                return new(new ResourceTypesProviderDescriptor(
+                               inlinedSpecification.NamespaceIdentifier,
+                               file.FileUri,
+                               inlinedSpecification.Version,
+                               providerDeclarationSyntax.Alias?.IdentifierName ?? inlinedSpecification.NamespaceIdentifier,
+                               artifactReference,
+                               uriResult));
+            }
+
+            var config = configurationManager.GetConfiguration(file.FileUri);
+            if (!config.ProvidersConfig.TryGetProviderSource(providerDeclarationSyntax.Specification.NamespaceIdentifier).IsSuccess(out var providerEntry, out var errorBuilder))
+            {
+                return new(errorBuilder);
+            }
+
+            var providersConfigEntryName = providerDeclarationSyntax.Specification.NamespaceIdentifier;
+            if (!featureProvider.ExtensibilityEnabled)
+            {
+                return new(x => x.ProvidersAreDisabled());
+            }
+
+            if (providerEntry.BuiltIn)
+            {
+                return new(new ResourceTypesProviderDescriptor(providersConfigEntryName, file.FileUri));
+            }
+
+            if (!featureProvider.DynamicTypeLoadingEnabled)
+            {
+                return new(x => x.UnrecognizedProvider(providersConfigEntryName));
+            }
+            var unreachableException = new UnreachableException("artifact path is validated during artifact creation so Source & Version must cannot be null");
+            var providerNamespaceIdentifier = providerEntry.Source?.Split('/')[^1] ?? throw unreachableException;
+            return new(new ResourceTypesProviderDescriptor(
+                providerNamespaceIdentifier,
+                file.FileUri,
+                providerEntry.Version ?? throw unreachableException,
+                providerDeclarationSyntax.Alias?.IdentifierName ?? providersConfigEntryName,
+                artifactReference,
+                uriResult));
         }
 
         private void ProcessAllImplicitProviderDeclarations(BicepSourceFile file, ProviderDescriptorBundleBuilder providerBundleBuilder)
