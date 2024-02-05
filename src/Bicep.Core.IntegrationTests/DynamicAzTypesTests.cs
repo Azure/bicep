@@ -329,8 +329,25 @@ namespace Bicep.Core.IntegrationTests
             };
         }
 
+        public async Task BuiltIn_Az_namespace_can_be_loaded_from_configuration(){
+            var services = await GetServices();
+            services = services.WithConfigurationPatch(c => c.WithProvidersConfiguration($$"""
+            {
+                "az": {
+                    "source": "{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/providers/az",
+                    "version": "{{BicepTestConstants.BuiltinAzProviderVersion}}"
+                }
+            }
+            """));
+            var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
+            provider az
+            "));
+
+            result.Should().GenerateATemplate();
+        }
+
         [TestMethod]
-        public async Task Az_namespace_can_be_used_with_configuration()
+        public async Task Az_namespace_can_be_loaded_dynamically_using_provider_configuration()
         {
             //ARRANGE
             var artifactRegistryAddress = new ArtifactRegistryAddress(
