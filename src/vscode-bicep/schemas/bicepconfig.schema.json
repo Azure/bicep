@@ -724,7 +724,7 @@
         "testFramework": {
           "type": "boolean"
         },
-        "assertions2": {
+        "assertions": {
           "type": "boolean"
         },
         "dynamicTypeLoading": {
