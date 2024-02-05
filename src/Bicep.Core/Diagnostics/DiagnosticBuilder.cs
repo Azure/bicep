@@ -2141,6 +2141,7 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP393",
                 $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
+
             public ErrorDiagnostic ProviderNotFoundInConfiguration(string providerName, Uri? configurationPath) => new(
                 TextSpan,
                 "BCP394",

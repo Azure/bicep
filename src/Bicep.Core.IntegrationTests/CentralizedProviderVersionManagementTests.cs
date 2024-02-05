@@ -40,7 +40,7 @@ namespace Bicep.Core.IntegrationTests
         {
             get
             {
-                var emptyDiagnostics = Array.Empty<(string, DiagnosticLevel, string)>();
+                (string, DiagnosticLevel, string)[] emptyDiagnostics = [];
                 yield return new object[] {
                     "sys",
                     true,
