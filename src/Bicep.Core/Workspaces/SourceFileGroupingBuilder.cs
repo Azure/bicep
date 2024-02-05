@@ -233,6 +233,11 @@ namespace Bicep.Core.Workspaces
         {
             if (providerDeclarationSyntax.Specification is InlinedResourceTypesProviderSpecification { } inlinedSpecification)
             {
+                if (artifactReference is null && !uriResult.IsSuccess(out _, out var builder))
+                {
+                    // This happens when the artifact reference is not valid because the provider alias doesn't exist in the configuration
+                    return new(builder.ErrorBuilder);
+                }
                 return new(new ResourceTypesProviderDescriptor(
                                inlinedSpecification.NamespaceIdentifier,
                                file.FileUri,

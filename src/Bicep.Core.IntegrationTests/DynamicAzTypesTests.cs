@@ -144,6 +144,26 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Inlined_Az_namespace_alias_is_not_specified_in_config_yields_diagnostic()
+        {
+            var services = new ServiceBuilder()
+               .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
+
+            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            provider 'br/notFound:az@0.2.661'
+            ");
+
+            result.Should().GenerateATemplate();
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(
+                new[] {
+                    ("BCP379", DiagnosticLevel.Error, "The OCI artifact provider alias name \"notFound\" does not exist in the built-in Bicep configuration."),
+                    //TODO(asilverman) Fix BCP084, it should not be thrown by this test because az is implicitly loaded
+            });
+
+        }
+
+        [TestMethod]
         public async Task Bicep_module_artifact_specified_in_provider_declaration_syntax_yields_diagnostic()
         {
             // ARRANGE
