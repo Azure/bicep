@@ -11,6 +11,9 @@ jobs:
   main:
     name: Reformat code
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
 
     env:
       # don't print dotnet logo
@@ -28,8 +31,8 @@ jobs:
         uses: actions/setup-dotnet@v4
 
       - name: Format
-        run: dotnet format 
-      
+        run: dotnet format
+
       - name: Remove unnecessary using directives (IDE0005)
         run: dotnet format style --diagnostics IDE0005 --severity info
 
