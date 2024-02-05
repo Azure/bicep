@@ -243,12 +243,17 @@ namespace Bicep.Core.Workspaces
             }
 
             var config = configurationManager.GetConfiguration(file.FileUri);
-            if (!config.ProvidersConfig.TryGetProviderSource(providerDeclarationSyntax.Specification.NamespaceIdentifier).IsSuccess(out var providerEntry, out var errorBuilder))
+            var providersConfigEntryName = providerDeclarationSyntax.Specification.NamespaceIdentifier;
+            if (!config.ProvidersConfig.TryGetProviderSource(providersConfigEntryName).IsSuccess(out var providerEntry, out var errorBuilder))
             {
+                // special case the "sys" provider for backwards compatibility
+                if (providersConfigEntryName == SystemNamespaceType.BuiltInName)
+                {
+                    return new(new ResourceTypesProviderDescriptor(SystemNamespaceType.BuiltInName, file.FileUri));
+                }
                 return new(errorBuilder);
             }
 
-            var providersConfigEntryName = providerDeclarationSyntax.Specification.NamespaceIdentifier;
             if (!featureProvider.ExtensibilityEnabled)
             {
                 return new(x => x.ProvidersAreDisabled());
@@ -292,6 +297,11 @@ namespace Bicep.Core.Workspaces
 
         private void ProcessSingleImplicitProviderDeclaration(string providerName, ProviderDescriptorBundleBuilder providerBundleBuilder, BicepSourceFile file)
         {
+            // if (providerName == SystemNamespaceType.BuiltInName)
+            // {
+            //     providerBundleBuilder.AddImplicitProvider(new(new ResourceTypesProviderDescriptor(SystemNamespaceType.BuiltInName, file.FileUri)));
+            //     return;
+            // }
             var config = configurationManager.GetConfiguration(file.FileUri);
             if (!config.ProvidersConfig.TryGetProviderSource(providerName).IsSuccess(out var providerEntry, out var errorBuilder))
             {
