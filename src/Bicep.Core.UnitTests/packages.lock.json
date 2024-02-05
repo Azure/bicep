@@ -109,6 +109,16 @@
           "TestableIO.System.IO.Abstractions.TestingHelpers": "20.0.15"
         }
       },
+      "SystemTextJson.JsonDiffPatch.MSTest": {
+        "type": "Direct",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "StuTlgtQI/2QVAe+ieer3ECBDbqj79n+6CIYe4JTdSJ7476wC3VvollkRIlT2EUGqAE4gWFV6Uacjl+pQ/YJAg==",
+        "dependencies": {
+          "MSTest.TestFramework": "2.1.2",
+          "SystemTextJson.JsonDiffPatch": "2.0.0"
+        }
+      },
       "Azure.Bicep.Types": {
         "type": "Transitive",
         "resolved": "0.4.1",
@@ -2014,6 +2024,14 @@
           "System.Text.Encoding": "4.3.0",
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.3.0"
+        }
+      },
+      "SystemTextJson.JsonDiffPatch": {
+        "type": "Transitive",
+        "resolved": "2.0.0",
+        "contentHash": "77lUHCNLQGAIi6lKQBOV1spvZJuENh8it4lLA/i8062ZUEQ0w9AFqw7qyoNYzfc/xzQ5XzDY1QIO/58DbKqvSw==",
+        "dependencies": {
+          "System.Text.Json": "8.0.0"
         }
       },
       "TestableIO.System.IO.Abstractions": {
