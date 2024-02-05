@@ -329,8 +329,14 @@ namespace Bicep.Core.IntegrationTests
             };
         }
 
-        public async Task BuiltIn_Az_namespace_can_be_loaded_from_configuration(){
+        [TestMethod]
+        public async Task External_Az_namespace_can_be_loaded_from_configuration()
+        {
             var services = await GetServices();
+            // Built-In Config contains the following entry:
+            // {
+            //   "implicitProviders": ["az"]
+            // }
             services = services.WithConfigurationPatch(c => c.WithProvidersConfiguration($$"""
             {
                 "az": {
@@ -347,21 +353,41 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
+        public async Task BuiltIn_Az_namespace_can_be_loaded_from_configuration()
+        {
+            var services = await GetServices();
+            // Built-In Config contains the following entries:
+            // {
+            //   "providers": {
+            //     "az": {
+            //       "builtIn": true
+            //     }
+            //   },
+            //   "implicitProviders": ["az"]
+            // }
+            var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
+            provider az
+            "));
+
+            result.Should().GenerateATemplate();
+        }
+
+        [TestMethod]
         public async Task Az_namespace_can_be_loaded_dynamically_using_provider_configuration()
         {
             //ARRANGE
             var artifactRegistryAddress = new ArtifactRegistryAddress(
                 "fake.azurecr.io",
                 "fake/path/az",
-                "1.0.0");
+                "1.0.0-fake");
             var services = await ServicesWithTestProviderArtifact(
                 artifactRegistryAddress,
                 GetTypesTgzBytesFromFiles(("index.json", """{"Resources": {}, "Functions": {}}""")));
             services = services.WithConfigurationPatch(c => c.WithProvidersConfiguration($$"""
             {
                 "az": {
-                    "source": "fake.azurecr.io/fake/path/az",
-                    "version": "1.0.0"
+                    "source": "{{artifactRegistryAddress.RegistryAddress}}/{{artifactRegistryAddress.RepositoryPath}}",
+                    "version": "{{artifactRegistryAddress.ProviderVersion}}"
                 }
             }
             """));
@@ -372,6 +398,7 @@ namespace Bicep.Core.IntegrationTests
             //ASSERT
             result.Should().GenerateATemplate();
             result.Template.Should().NotBeNull();
+            result.Template.Should().HaveValueAtPath("$.imports.az.version", artifactRegistryAddress.ProviderVersion);
         }
     }
 }
