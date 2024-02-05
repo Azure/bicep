@@ -4,9 +4,9 @@
     ".NETFramework,Version=v4.7.2": {
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[6.7.0, )",
-        "resolved": "6.7.0",
-        "contentHash": "PWbow/R3MnYDP8UW7zh/w80rGb+1NufGoNJeuzouTo2bqpvwNTFxbDwF6XWfFZ5IuquL2225Um+qSyZ8jVsT+w==",
+        "requested": "[6.8.0, )",
+        "resolved": "6.8.0",
+        "contentHash": "NfSlAG97wMxS48Ov+wQEhJITdn4bKrgtKrG4sCPrFBVKozpC57lQ2vzsPdxUOsPbfEgEQTMtvCDECxIlDBfgNA==",
         "dependencies": {
           "System.Net.Http": "4.3.4",
           "System.Threading.Tasks.Extensions": "4.5.0"
@@ -1014,6 +1014,7 @@
       "bicep.vslanguageserverclient": {
         "type": "Project",
         "dependencies": {
+          "FluentAssertions": "[6.8.0, )",
           "Microsoft.VisualStudio.LanguageServer.Client": "[17.2.2105, )",
           "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.2.8, )",
           "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.3.2180, )",
@@ -1028,6 +1029,7 @@
         "type": "Project",
         "dependencies": {
           "Bicep.VSLanguageServerClient": "[1.0.0, )",
+          "FluentAssertions": "[6.8.0, )",
           "Microsoft.NET.Test.Sdk": "[17.2.0, )",
           "Microsoft.Test.Apex.VisualStudio": "[17.6.33619.290, )",
           "Microsoft.VisualStudio.Composition": "[17.2.41, )",
