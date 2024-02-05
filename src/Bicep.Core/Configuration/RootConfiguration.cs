@@ -9,12 +9,21 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Configuration
 {
-    public class RootConfiguration
+    public class RootConfiguration(
+        CloudConfiguration cloud,
+        ModuleAliasesConfiguration moduleAliases,
+        ProviderAliasesConfiguration providerAliases,
+        ProvidersConfiguration providersConfig,
+        ImplicitProvidersConfiguration implicitProvidersConfig,
+        AnalyzersConfiguration analyzers,
+        string? cacheRootDirectory,
+        ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
+        FormattingConfiguration formatting,
+        Uri? configFileUri,
+        IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
     {
         public const string CloudKey = "cloud";
-
         public const string ModuleAliasesKey = "moduleAliases";
-
         public const string ProviderAliasesKey = "providerAliases";
         public const string ProvidersConfigurationKey = "providers";
         public const string ImplicitProvidersConfigurationKey = "implicitProviders";
@@ -23,31 +32,18 @@ namespace Bicep.Core.Configuration
         public const string ExperimentalFeaturesEnabledKey = "experimentalFeaturesEnabled";
         public const string FormattingKey = "formatting";
 
-        public RootConfiguration(
-            CloudConfiguration cloud,
-            ModuleAliasesConfiguration moduleAliases,
-            ProviderAliasesConfiguration providerAliases,
-            ProvidersConfiguration providersConfig,
-            ImplicitProvidersConfiguration implicitProvidersConfig,
-            AnalyzersConfiguration analyzers,
-            string? cacheRootDirectory,
-            ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
-            FormattingConfiguration formatting,
-            Uri? configFileUri,
-            IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
-        {
-            this.Cloud = cloud;
-            this.ModuleAliases = moduleAliases;
-            this.ProviderAliases = providerAliases;
-            this.ProvidersConfig = providersConfig;
-            this.ImplicitProvidersConfig = implicitProvidersConfig;
-            this.Analyzers = analyzers;
-            this.CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
-            this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
-            this.Formatting = formatting;
-            this.ConfigFileUri = configFileUri;
-            this.DiagnosticBuilders = diagnosticBuilders?.ToImmutableArray() ?? ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate>.Empty;
-        }
+         public CloudConfiguration Cloud { get; } = cloud;
+        public ModuleAliasesConfiguration ModuleAliases { get; } = moduleAliases;
+        public ProviderAliasesConfiguration ProviderAliases { get; } = providerAliases;
+        public ProvidersConfiguration ProvidersConfig { get; } = providersConfig;
+        public ImplicitProvidersConfiguration ImplicitProvidersConfig { get; } = implicitProvidersConfig;
+        public AnalyzersConfiguration Analyzers { get; } = analyzers;
+        public string? CacheRootDirectory { get; } = ExpandCacheRootDirectory(cacheRootDirectory);
+        public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; } = experimentalFeaturesEnabled;
+        public FormattingConfiguration Formatting { get; } = formatting;
+        public Uri? ConfigFileUri { get; } = configFileUri;
+        public ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate> DiagnosticBuilders { get; } = diagnosticBuilders?.ToImmutableArray() ?? [];
+        public bool IsBuiltIn => ConfigFileUri is null;
 
         public static RootConfiguration Bind(JsonElement element, Uri? configFileUri = null, IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders = null)
         {
@@ -75,28 +71,6 @@ namespace Bicep.Core.Configuration
                 diagnosticBuilders);
         }
 
-        public CloudConfiguration Cloud { get; }
-
-        public ModuleAliasesConfiguration ModuleAliases { get; }
-
-        public ProviderAliasesConfiguration ProviderAliases { get; }
-
-        public ProvidersConfiguration ProvidersConfig { get; }
-        public ImplicitProvidersConfiguration ImplicitProvidersConfig { get; }
-        public AnalyzersConfiguration Analyzers { get; }
-
-        public string? CacheRootDirectory { get; }
-
-        public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; }
-
-        public FormattingConfiguration Formatting { get; }
-
-        public Uri? ConfigFileUri { get; }
-
-        public ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate> DiagnosticBuilders { get; }
-
-        public bool IsBuiltIn => ConfigFileUri is null;
-
         public string ToUtf8Json()
         {
             var bufferWriter = new ArrayBufferWriter<byte>();
@@ -112,6 +86,12 @@ namespace Bicep.Core.Configuration
 
                 writer.WritePropertyName(ProviderAliasesKey);
                 this.ProviderAliases.WriteTo(writer);
+
+                writer.WritePropertyName(ProvidersConfigurationKey);
+                this.ProvidersConfig.WriteTo(writer);
+
+                writer.WritePropertyName(ImplicitProvidersConfigurationKey);
+                this.ImplicitProvidersConfig.WriteTo(writer);
 
                 writer.WritePropertyName(AnalyzersKey);
                 this.Analyzers.WriteTo(writer);
