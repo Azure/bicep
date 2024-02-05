@@ -93,8 +93,6 @@ namespace Bicep.Core.UnitTests.Configuration
         [TestMethod]
         public void RuleConfigs_ShouldBeCorrectlyDefined()
         {
-            var a = GetExperimentalFeaturesHelpContents();
-
             var (rules, schema) = GetRulesAndSchema();
             var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
             Assert.IsNotNull(ruleConfigs);
