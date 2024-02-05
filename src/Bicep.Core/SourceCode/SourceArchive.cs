@@ -164,7 +164,7 @@ namespace Bicep.Core.SourceCode
             // Filter out any links where the source or target is not in our list of files to package
             var sourceFileUris = sourceFiles.Select(sf => sf.FileUri).ToArray();
             documentLinks = documentLinks?
-                .Where(kvp => sourceFileUris.Contains( kvp.Key))
+                .Where(kvp => sourceFileUris.Contains(kvp.Key))
                 .Select(uriAndLink => (uriAndLink.Key, uriAndLink.Value.Where(link => sourceFileUris.Contains(link.Target)).ToArray()))
                 .ToDictionary();
 

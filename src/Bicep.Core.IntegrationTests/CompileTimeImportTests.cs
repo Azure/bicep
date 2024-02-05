@@ -1204,7 +1204,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Exporting_a_variable_that_references_a_parameter_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile( """
+        var result = CompilationHelper.Compile("""
             param foo string
             var bar = 'x${foo}x'
             var baz = bar
@@ -1222,7 +1222,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Exporting_a_variable_that_references_a_resource_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile( """
+        var result = CompilationHelper.Compile("""
             resource foo 'Microsoft.Network/virtualNetworks@2020-06-01' = {
                 location: 'westus'
                 name: 'myVNet'
