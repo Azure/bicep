@@ -231,56 +231,70 @@ namespace Bicep.Core.Workspaces
             IFeatureProvider featureProvider,
             BicepSourceFile file)
         {
-            if (!uriResult.IsSuccess(out var uri, out var builder))
+            if (!featureProvider.ExtensibilityEnabled)
             {
-                return new(builder.ErrorBuilder);
+                return new(x => x.ProvidersAreDisabled());
             }
 
-            if (providerDeclarationSyntax.Specification is InlinedResourceTypesProviderSpecification { } inlinedSpecification)
+            if (providerDeclarationSyntax.Specification is LegacyProviderSpecificationSyntax { } legacySpecification)
             {
+                return new(new ResourceTypesProviderDescriptor(legacySpecification.NamespaceIdentifier, file.FileUri));
+            }
+
+            if (!featureProvider.DynamicTypeLoadingEnabled)
+            {
+                return new(x => x.UnrecognizedProvider(providerDeclarationSyntax.Specification.NamespaceIdentifier));
+            }
+
+            if (providerDeclarationSyntax.Specification is InlinedProviderSpecificationSyntax { } inlinedSpecification)
+            {
+                if (!uriResult.IsSuccess(out var typesDataUri, out var uriResolutionError))
+                {
+                    return new(uriResolutionError.ErrorBuilder);
+                }
                 return new(new ResourceTypesProviderDescriptor(
                                inlinedSpecification.NamespaceIdentifier,
                                file.FileUri,
                                inlinedSpecification.Version,
                                providerDeclarationSyntax.Alias?.IdentifierName ?? inlinedSpecification.NamespaceIdentifier,
                                artifactReference,
-                               uri));
+                               typesDataUri));
             }
 
+            // The provider is configuration managed, fetch the provider source & version from the configuration
             var config = configurationManager.GetConfiguration(file.FileUri);
-            var providersConfigEntryName = providerDeclarationSyntax.Specification.NamespaceIdentifier;
+            var configLookupValue = providerDeclarationSyntax.Specification.NamespaceIdentifier;
 
-            if (!config.ProvidersConfig.TryGetProviderSource(providersConfigEntryName).IsSuccess(out var providerEntry, out var errorBuilder))
+            // Special case the "sys" provider for backwards compatibility
+            if (configLookupValue == SystemNamespaceType.BuiltInName)
             {
-                // special case the "sys" provider for backwards compatibility
-                if (providersConfigEntryName == SystemNamespaceType.BuiltInName)
-                {
-                    return new(new ResourceTypesProviderDescriptor(SystemNamespaceType.BuiltInName, file.FileUri));
-                }
+                return new(new ResourceTypesProviderDescriptor(SystemNamespaceType.BuiltInName, file.FileUri));
+            }
+
+            if (!config.ProvidersConfig.TryGetProviderSource(configLookupValue).IsSuccess(out var providerEntry, out var errorBuilder))
+            {
                 return new(errorBuilder);
             }
 
-            if (!featureProvider.ExtensibilityEnabled)
-            {
-                return new(x => x.ProvidersAreDisabled());
-            }
-
+            //handle built-in providers
             if (providerEntry.BuiltIn)
             {
-                return new(new ResourceTypesProviderDescriptor(providersConfigEntryName, file.FileUri));
+                return new(new ResourceTypesProviderDescriptor(configLookupValue, file.FileUri));
             }
 
-            if (!featureProvider.DynamicTypeLoadingEnabled)
-            {
-                return new(x => x.UnrecognizedProvider(providersConfigEntryName));
-            }
             var unreachableException = new UnreachableException("artifact path is validated during artifact creation so Source & Version must cannot be null");
             var providerNamespaceIdentifier = providerEntry.Source?.Split('/')[^1] ?? throw unreachableException;
+
+            if (!uriResult.IsSuccess(out var uri, out var uriResoulutionError))
+            {
+                return new(uriResoulutionError.ErrorBuilder);
+            }
+
             return new(new ResourceTypesProviderDescriptor(
                 providerNamespaceIdentifier,
                 file.FileUri,
                 providerEntry.Version ?? throw unreachableException,
-                providerDeclarationSyntax.Alias?.IdentifierName ?? providersConfigEntryName,
+                providerDeclarationSyntax.Alias?.IdentifierName ?? configLookupValue,
                 artifactReference,
                 uri));
         }

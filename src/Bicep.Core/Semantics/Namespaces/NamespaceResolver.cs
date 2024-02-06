@@ -14,6 +14,7 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public class NamespaceResolver
     {
+        public static string[] BuiltInNamespaces = new[] { AzNamespaceType.BuiltInName, SystemNamespaceType.BuiltInName, K8sNamespaceType.BuiltInName, MicrosoftGraphNamespaceType.BuiltInName };
         private readonly ImmutableDictionary<string, NamespaceType> namespaceTypes;
 
         private NamespaceResolver(ImmutableDictionary<string, NamespaceType> namespaceTypes, ImmutableDictionary<string, BuiltInNamespaceSymbol> builtIns)

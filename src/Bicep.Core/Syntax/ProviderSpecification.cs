@@ -6,27 +6,27 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public interface IResourceTypesProviderSpecification : ISymbolNameSource
+public interface IProviderSpecificationSyntax : ISymbolNameSource
 {
     string NamespaceIdentifier { get; }
     string? Version { get; }
 }
 
-public record InlinedResourceTypesProviderSpecification(
+public record InlinedProviderSpecificationSyntax(
     string NamespaceIdentifier,
     string Version,
     string UnexpandedArtifactAddress,
     bool IsValid,
-    TextSpan Span) : IResourceTypesProviderSpecification;
+    TextSpan Span) : IProviderSpecificationSyntax;
 
-public record ConfigurationManagedResourceTypesProviderSpecification(string NamespaceIdentifier, bool IsValid, TextSpan Span) : IResourceTypesProviderSpecification
+public record ConfigurationManagedProviderSpecificationSyntax(string NamespaceIdentifier, bool IsValid, TextSpan Span) : IProviderSpecificationSyntax
 {
     public string? Version => null;
 };
 
-public record LegacyProviderSpecification(string NamespaceIdentifier, string Version, bool IsValid, TextSpan Span) : IResourceTypesProviderSpecification;
+public record LegacyProviderSpecificationSyntax(string NamespaceIdentifier, string Version, bool IsValid, TextSpan Span) : IProviderSpecificationSyntax;
 
-public record ResourceTypesProviderSpecificationTrivia(TextSpan Span) : IResourceTypesProviderSpecification
+public record ProviderSpecificationSyntaxTrivia(TextSpan Span) : IProviderSpecificationSyntax
 {
     public string NamespaceIdentifier => LanguageConstants.ErrorName;
     public bool IsValid => false;
@@ -57,7 +57,7 @@ public static partial class ProviderSpecificationFactory
     [GeneratedRegex(@"^\S*[:\/](?<name>\S+)$", RegexOptions.ECMAScript | RegexOptions.Compiled)]
     private static partial Regex RepositoryNamePattern();
 
-    public static IResourceTypesProviderSpecification FromSyntax(SyntaxBase syntax)
+    public static IProviderSpecificationSyntax FromSyntax(SyntaxBase syntax)
      => syntax switch
      {
          StringSyntax stringSyntax when stringSyntax.TryGetLiteralValue() is { } value &&
@@ -65,15 +65,15 @@ public static partial class ProviderSpecificationFactory
              => specification,
 
          IdentifierSyntax identifierSyntax
-             => new ConfigurationManagedResourceTypesProviderSpecification(
+             => new ConfigurationManagedProviderSpecificationSyntax(
                  identifierSyntax.IdentifierName,
                  IsValid: true,
                  identifierSyntax.Span),
 
-         _ => new ResourceTypesProviderSpecificationTrivia(syntax.Span)
+         _ => new ProviderSpecificationSyntaxTrivia(syntax.Span)
      };
 
-    private static IResourceTypesProviderSpecification? TryCreateFromStringSyntax(StringSyntax stringSyntax, string value)
+    private static IProviderSpecificationSyntax? TryCreateFromStringSyntax(StringSyntax stringSyntax, string value)
     {
         if (LegacyBuiltInSpecificationPattern().Match(value) is { Success: true } legacyMatch)
         {
@@ -81,14 +81,14 @@ public static partial class ProviderSpecificationFactory
             var version = legacyMatch.Groups["version"].Value;
             var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
 
-            return new LegacyProviderSpecification(name, version, IsValid: true, span);
+            return new LegacyProviderSpecificationSyntax(name, version, IsValid: true, span);
         }
         else if (ConfigManagedSpecificationPattern().Match(value) is { Success: true } builtInMatch)
         {
             var name = builtInMatch.Groups["name"].Value;
             var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
 
-            return new ConfigurationManagedResourceTypesProviderSpecification(name, IsValid: true, span);
+            return new ConfigurationManagedProviderSpecificationSyntax(name, IsValid: true, span);
         }
         else if (InlinedSpecificationPattern().Match(value) is { Success: true } registryMatch)
         {
@@ -101,7 +101,7 @@ public static partial class ProviderSpecificationFactory
             var unexpandedArtifactAddress = $"{address}:{version}";
             var name = RepositoryNamePattern().Match(address).Groups["name"].Value;
 
-            return new InlinedResourceTypesProviderSpecification(name, version, unexpandedArtifactAddress, IsValid: true, span);
+            return new InlinedProviderSpecificationSyntax(name, version, unexpandedArtifactAddress, IsValid: true, span);
         }
         return null;
     }

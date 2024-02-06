@@ -2147,7 +2147,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP394",
                 $"The provider \"{providerName}\" could not be found in {BuildBicepConfigurationClause(configurationPath)}.");
 
-            public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecification syntax)
+            public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecificationSyntax syntax)
             {
                 var codeFix = new CodeFix(
                     "Replace the import specification with an configuration backed identifier",

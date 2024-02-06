@@ -822,7 +822,7 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated(syntax));
                 }
 
-                if (syntax.Specification is LegacyProviderSpecification specificationSyntax)
+                if (syntax.Specification is LegacyProviderSpecificationSyntax specificationSyntax)
                 {
                     diagnostics.Write(syntax.Specification, x => x.LegacyProviderSpecificationIsDeprecated(specificationSyntax));
                 }
