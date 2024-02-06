@@ -3,6 +3,7 @@
 
 using System.Data;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Common;
@@ -35,7 +36,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public record Failure(
             TextSpan Span,
             string Message,
-            ApiVersion[] AcceptableVersions,
+            AzureResourceApiVersion[] AcceptableVersions,
             CodeFix[] Fixes
         );
 
@@ -43,7 +44,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             FunctionCallSyntaxBase FunctionCallSyntax,
             string FunctionName,
             string? ResourceType,
-            ApiVersion? ApiVersion);
+            AzureResourceApiVersion? ApiVersion);
 
         public UseRecentApiVersionRule() : base(
             code: Code,
@@ -57,9 +58,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override string FormatMessage(params object[] values)
         {
             var message = (string)values[0];
-            var acceptableVersions = (ApiVersion[])values[1];
+            var acceptableVersions = (AzureResourceApiVersion[])values[1];
 
-            var acceptableVersionsString = string.Join(", ", acceptableVersions.Select(v => v.Formatted));
+            var acceptableVersionsString = string.Join(", ", acceptableVersions);
             return message
                 + (acceptableVersionsString.Any() ? " " + string.Format(CoreResources.UseRecentApiVersionRule_AcceptableVersions, acceptableVersionsString) : "");
         }
@@ -73,16 +74,16 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     diagnosticLevel,
                     new TextSpan(),
                     $"{UseRecentApiVersionRule.Code}: Configuration value for {MaxAgeInDaysKey} is not valid: {maxAgeInDays}",
-                    new ApiVersion[] { });
+                    Array.Empty<AzureResourceApiVersion>());
 
                 maxAgeInDays = DefaultMaxAgeInDays;
             }
 
-            var today = DateTime.Today;
+            var today = DateOnly.FromDateTime(DateTime.Today);
             // Today's date can be changed to enable testing/debug scenarios
             if (GetConfigurationValue<string?>(model.Configuration.Analyzers, "test-today", null) is string testToday)
             {
-                today = ApiVersionHelper.ParseDateFromApiVersion(testToday);
+                today = AzureResourceApiVersion.Parse(testToday).Date;
             }
             // Testing/debug: Warn if the resource type and/or API version are not found
             var warnIfNotFound = GetConfigurationValue(model.Configuration.Analyzers, "test-warn-not-found", false);
@@ -114,7 +115,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private static Failure? AnalyzeFunctionCall(SemanticModel model, DateTime today, int maxAgeInDays, FunctionCallInfo functionCallInfo)
+        private static Failure? AnalyzeFunctionCall(SemanticModel model, DateOnly today, int maxAgeInDays, FunctionCallInfo functionCallInfo)
         {
             if (functionCallInfo.ApiVersion.HasValue && functionCallInfo.ResourceType is not null)
             {
@@ -154,7 +155,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             //   func(resourceId(resourceType, ...), apiVersion, ...)
             //
 
-            ApiVersion? apiVersion = null;
+            AzureResourceApiVersion? apiVersion = null;
             string? resourceType = null;
 
             // resource type in first argument
@@ -189,7 +190,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var apiVersionExpression = functionCallSyntax.Arguments[1].Expression;
 
                 if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, apiVersionExpression) is (string apiVersionString, StringSyntax apiVersionSyntax, _)
-                    && ApiVersion.TryParse(apiVersionString) is ApiVersion apiVersion2)
+                    && AzureResourceApiVersion.TryParse(apiVersionString, out var apiVersion2))
                 {
                     apiVersion = apiVersion2;
                 }
@@ -313,14 +314,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return mostRecentValid;
         }
 
-        private static Failure? AnalyzeResource(SemanticModel model, DateTime today, int maxAgeInDays, ResourceSymbol resourceSymbol, bool warnIfNotFound)
+        private static Failure? AnalyzeResource(SemanticModel model, DateOnly today, int maxAgeInDays, ResourceSymbol resourceSymbol, bool warnIfNotFound)
         {
             if (resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference &&
                 resourceTypeReference.ApiVersion is string apiVersionString &&
                 GetReplacementSpan(resourceSymbol, apiVersionString) is TextSpan replacementSpan)
             {
-                var (date, suffix) = ApiVersionHelper.TryParse(apiVersionString);
-                if (date is not null)
+                if (AzureResourceApiVersion.TryParse(apiVersionString, out var apiVersion))
                 {
                     string fullyQualifiedResourceType = resourceTypeReference.FormatType();
                     return AnalyzeApiVersion(
@@ -331,7 +331,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         replacementSpan,
                         model.TargetScope,
                         fullyQualifiedResourceType,
-                        new ApiVersion(date, suffix),
+                        apiVersion,
                         returnNotFoundDiagnostics: warnIfNotFound);
                 }
             }
@@ -339,7 +339,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        public static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, DateTime today, int maxAgeInDays, TextSpan errorSpan, TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, ApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
+        public static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, DateOnly today, int maxAgeInDays, TextSpan errorSpan, TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, AzureResourceApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
         {
             var (allApiVersions, acceptableApiVersions) = GetAcceptableApiVersions(apiVersionProvider, today, maxAgeInDays, scope, fullyQualifiedResourceType);
             if (!allApiVersions.Any())
@@ -376,7 +376,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     return CreateFailureFromApiVersion(
                         errorSpan,
                         replacementSpan,
-                        string.Format(CoreResources.UseRecentApiVersionRule_UnknownVersion, actualApiVersion.Formatted, fullyQualifiedResourceType),
+                        string.Format(CoreResources.UseRecentApiVersionRule_UnknownVersion, actualApiVersion, fullyQualifiedResourceType),
                         acceptableApiVersions);
                 }
 
@@ -392,23 +392,23 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var mostRecentStableVersion = GetNewestDateOrNull(FilterStable(allApiVersions));
                 if (mostRecentStableVersion is not null)
                 {
-                    var comparison = DateTime.Compare(actualApiVersion.Date, mostRecentStableVersion.Value);
+                    var comparison = actualApiVersion.Date.CompareTo(mostRecentStableVersion.Value);
                     var stableIsMoreRecent = comparison < 0;
                     var stableIsSameDate = comparison == 0;
                     if (stableIsMoreRecent)
                     {
-                        failureReason = string.Format(CoreResources.UseRecentApiVersionRule_MoreRecentStable, actualApiVersion.Formatted);
+                        failureReason = string.Format(CoreResources.UseRecentApiVersionRule_MoreRecentStable, actualApiVersion);
                     }
                     else if (stableIsSameDate)
                     {
-                        failureReason = string.Format(CoreResources.UseRecentApiVersionRule_StableWithSameDate, actualApiVersion.Formatted);
+                        failureReason = string.Format(CoreResources.UseRecentApiVersionRule_StableWithSameDate, actualApiVersion);
                     }
                 }
             }
             if (failureReason is null)
             {
-                int ageInDays = today.Subtract(actualApiVersion.Date).Days;
-                failureReason = string.Format(CoreResources.UseRecentApiVersionRule_TooOld, actualApiVersion.Formatted, ageInDays, maxAgeInDays);
+                int ageInDays = today.DayNumber - actualApiVersion.Date.DayNumber;
+                failureReason = string.Format(CoreResources.UseRecentApiVersionRule_TooOld, actualApiVersion, ageInDays, maxAgeInDays);
             }
 
             Debug.Assert(failureReason is not null);
@@ -420,13 +420,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 acceptableApiVersions);
         }
 
-        public static (ApiVersion[] allApiVersions, ApiVersion[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateTime today, int maxAgeInDays, ResourceScope scope, string fullyQualifiedResourceType)
+        public static (AzureResourceApiVersion[] allApiVersions, AzureResourceApiVersion[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateOnly today, int maxAgeInDays, ResourceScope scope, string fullyQualifiedResourceType)
         {
             var allVersions = apiVersionProvider.GetApiVersions(scope, fullyQualifiedResourceType).ToArray();
             if (!allVersions.Any())
             {
                 // The resource type is not recognized.
-                return (allVersions, Array.Empty<ApiVersion>());
+                return (allVersions, Array.Empty<AzureResourceApiVersion>());
             }
 
             var stableVersionsSorted = FilterStable(allVersions).OrderBy(v => v.Date).ToArray();
@@ -436,7 +436,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var recentPreviewVersionsSorted = FilterRecent(previewVersionsSorted, today, maxAgeInDays).ToArray();
 
             // Start with all recent stable versions
-            List<ApiVersion> acceptableVersions = recentStableVersionsSorted.ToList();
+            List<AzureResourceApiVersion> acceptableVersions = recentStableVersionsSorted.ToList();
 
             // If no recent stable versions, add the most recent stable version, if any
             if (!acceptableVersions.Any())
@@ -492,10 +492,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static Failure CreateFailureFromMessage(TextSpan span, string message)
         {
-            return new Failure(span, message, Array.Empty<ApiVersion>(), Array.Empty<CodeFix>());
+            return new Failure(span, message, Array.Empty<AzureResourceApiVersion>(), Array.Empty<CodeFix>());
         }
 
-        private static Failure CreateFailureFromApiVersion(TextSpan errorSpan, TextSpan replacementSpan, string message, ApiVersion[] acceptableVersionsSorted)
+        private static Failure CreateFailureFromApiVersion(TextSpan errorSpan, TextSpan replacementSpan, string message, AzureResourceApiVersion[] acceptableVersionsSorted)
         {
             CodeFix? fix = null;
 
@@ -503,10 +503,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 // For now, always choose the most recent for the suggested auto-fix
                 var preferredVersion = acceptableVersionsSorted[0];
-                var codeReplacement = new CodeReplacement(replacementSpan, preferredVersion.Formatted);
+                var codeReplacement = new CodeReplacement(replacementSpan, preferredVersion);
 
                 fix = new CodeFix(
-                    string.Format(CoreResources.UseRecentApiVersionRule_Fix_ReplaceApiVersion, preferredVersion.Formatted),
+                    string.Format(CoreResources.UseRecentApiVersionRule_Fix_ReplaceApiVersion, preferredVersion),
                     isPreferred: true,
                     CodeFixKind.QuickFix,
                     codeReplacement);
@@ -515,14 +515,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return new Failure(errorSpan, message, acceptableVersionsSorted, fix is null ? Array.Empty<CodeFix>() : new CodeFix[] { fix });
         }
 
-        private static DateTime? GetNewestDateOrNull(IEnumerable<ApiVersion> apiVersions)
+        private static DateOnly? GetNewestDateOrNull(IEnumerable<AzureResourceApiVersion> apiVersions)
         {
             return apiVersions.Any() ? apiVersions.Max(v => v.Date) : null;
         }
 
         // Retrieves the most recent API version (this could be more than one if there are multiple apiVersions
         //   with the same, most recent date, but different suffixes)
-        private static IEnumerable<ApiVersion> FilterMostRecentApiVersion(IEnumerable<ApiVersion> apiVersions)
+        private static IEnumerable<AzureResourceApiVersion> FilterMostRecentApiVersion(IEnumerable<AzureResourceApiVersion> apiVersions)
         {
             var mostRecentDate = GetNewestDateOrNull(apiVersions);
             if (mostRecentDate is not null)
@@ -530,40 +530,39 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return FilterByDateEquals(apiVersions, mostRecentDate.Value);
             }
 
-            return Array.Empty<ApiVersion>();
+            return Array.Empty<AzureResourceApiVersion>();
         }
 
-        private static IEnumerable<ApiVersion> FilterByDateEquals(IEnumerable<ApiVersion> apiVersions, DateTime date)
+        private static IEnumerable<AzureResourceApiVersion> FilterByDateEquals(IEnumerable<AzureResourceApiVersion> apiVersions, DateOnly date)
         {
-            Debug.Assert(date == date.Date);
             return apiVersions.Where(v => v.Date == date);
         }
 
         // Recent meaning < maxAgeInDays old
-        private static bool IsRecent(ApiVersion apiVersion, DateTime today, int maxAgeInDays)
+        private static bool IsRecent(AzureResourceApiVersion apiVersion, DateOnly today, int maxAgeInDays)
         {
             return apiVersion.Date >= today.AddDays(-maxAgeInDays);
         }
 
         // Recent meaning < maxAgeInDays old
-        private static IEnumerable<ApiVersion> FilterRecent(IEnumerable<ApiVersion> apiVersions, DateTime today, int maxAgeInDays)
+        private static IEnumerable<AzureResourceApiVersion> FilterRecent(IEnumerable<AzureResourceApiVersion> apiVersions, DateOnly today, int maxAgeInDays)
         {
             return apiVersions.Where(v => IsRecent(v, today, maxAgeInDays));
         }
 
-        private static IEnumerable<ApiVersion> FilterPreview(IEnumerable<ApiVersion> apiVersions)
+        private static IEnumerable<AzureResourceApiVersion> FilterPreview(IEnumerable<AzureResourceApiVersion> apiVersions)
         {
             return apiVersions.Where(v => v.IsPreview);
         }
 
-        private static IEnumerable<ApiVersion> FilterStable(IEnumerable<ApiVersion> apiVersions)
+        private static IEnumerable<AzureResourceApiVersion> FilterStable(IEnumerable<AzureResourceApiVersion> apiVersions)
         {
             return apiVersions.Where(v => v.IsStable);
         }
 
-        private static bool IsMoreRecentThan(DateTime date, DateTime other)
+        private static bool IsMoreRecentThan(DateOnly date, DateOnly other)
         {
-            return DateTime.Compare(date, other) > 0;
+            return date.CompareTo(other) > 0;
         }
     }
 }

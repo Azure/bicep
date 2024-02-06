@@ -75,7 +75,7 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
             return cache.apiVersionsByResourceTypeName.Keys;
         }
 
-        public IEnumerable<ApiVersion> GetApiVersions(ResourceScope scope, string fullyQualifiedResourceType)
+        public IEnumerable<AzureResourceApiVersion> GetApiVersions(ResourceScope scope, string fullyQualifiedResourceType)
         {
             var cache = EnsureCached(scope);
 
@@ -86,10 +86,10 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
 
             if (cache.apiVersionsByResourceTypeName.TryGetValue(fullyQualifiedResourceType, out List<string>? apiVersions))
             {
-                return apiVersions.Select((string version) => new ApiVersion(version));
+                return apiVersions.Select(AzureResourceApiVersion.Parse);
             }
 
-            return Enumerable.Empty<ApiVersion>();
+            return Enumerable.Empty<AzureResourceApiVersion>();
         }
 
         private class ApiVersionCache
@@ -105,14 +105,11 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
 
                 foreach (var resourceTypeReference in resourceTypeReferences)
                 {
-                    var (apiVersion, suffix) =
-                        resourceTypeReference.ApiVersion != null ?
-                        ApiVersionHelper.TryParse(resourceTypeReference.ApiVersion) :
-                        (null, null);
-                    if (apiVersion is not null)
+                    if (resourceTypeReference.ApiVersion is string apiVersionString &&
+                        AzureResourceApiVersion.TryParse(apiVersionString, out var apiVersion))
                     {
                         string fullyQualifiedType = resourceTypeReference.FormatType();
-                        AddApiVersionToCache(apiVersionsByResourceTypeName, suffix == null ? apiVersion : (apiVersion + suffix) /* suffix will have been lower-cased */, fullyQualifiedType);
+                        AddApiVersionToCache(apiVersionsByResourceTypeName, apiVersion /* suffix will have been lower-cased */, fullyQualifiedType);
                     }
                     else
                     {
@@ -124,7 +121,7 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
                 apiVersionsByResourceTypeName = apiVersionsByResourceTypeName.ToDictionary(x => x.Key, x => x.Value.OrderBy(y => y).ToList(), Comparer);
             }
 
-            private void AddApiVersionToCache(Dictionary<string, List<string>> listOfTypes, string apiVersion, string fullyQualifiedType)
+            private static void AddApiVersionToCache(Dictionary<string, List<string>> listOfTypes, string apiVersion, string fullyQualifiedType)
             {
                 if (listOfTypes.TryGetValue(fullyQualifiedType, out List<string>? value))
                 {

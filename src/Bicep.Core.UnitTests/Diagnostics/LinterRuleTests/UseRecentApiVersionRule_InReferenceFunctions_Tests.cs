@@ -13,8 +13,6 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-#pragma warning disable CA1825 // Avoid zero-length array allocations
-
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     public partial class UseRecentApiVersionRuleTests
@@ -53,7 +51,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     var typedActual = new ExpectedFunctionInfo(
                             actual.First().FunctionCallSyntax.ToText(),
                             actual.First().ResourceType,
-                            actual.First().ApiVersion?.Formatted);
+                            actual.First().ApiVersion?.ToString());
 
                     typedActual.Should().BeEquivalentTo(typedExpected);
                 }
@@ -652,7 +650,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.SubscriptionScopeTypes,
                     "2422-07-04",
-                    Array.Empty<string>());
+                    []);
             }
 
             [TestMethod]
@@ -666,9 +664,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
-                        // pass
-                    });
+                    []);
             }
 
             [TestMethod]
@@ -681,10 +677,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                         // Compiler error
                         "[2] Expected 1 to 3 arguments, but got 0."
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -697,8 +693,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
-                    });
+                    []);
             }
 
             [TestMethod]
@@ -711,8 +706,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
-                    });
+                    []);
             }
 
             [TestMethod]
@@ -726,8 +720,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
-                    });
+                    []);
             }
 
             [TestMethod]
@@ -742,9 +735,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                new string[] {
+                [
                     "[4] Could not find apiVersion 2400-01-01 for Fake.DBforMySQL/servers. Acceptable versions: 2417-12-01"
-                });
+                ]);
             }
 
             [TestMethod]
@@ -758,9 +751,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                         "[3] Use more recent API version for 'Fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2417-12-01",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -775,9 +768,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                          "[4] Could not find resource type \"Fake.DBforMySQLOrWhatever/servers\". Did you mean \"Fake.DBForMySql/flexibleServers\"?",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -792,9 +785,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                         "[4] Could not find apiVersion 2417-12-02 for Fake.DBforMySQL/servers. Acceptable versions: 2417-12-01",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -809,9 +802,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
-                        // ignore (pass)
-                    });
+                    []);
             }
 
             [TestMethod]
@@ -824,9 +815,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
-                        // ignore (pass)
-                    });
+                    []);
             }
 
             [TestMethod]
@@ -839,9 +828,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
-                        // ignore (pass)
-                    });
+                    []);
             }
 
             [TestMethod]
@@ -854,9 +841,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                new string[] {
-                    "[2] Use more recent API version for 'Fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2417-12-01",
-                });
+                    [
+                        "[2] Use more recent API version for 'Fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2417-12-01",
+                    ]);
             }
 
             [TestMethod]
@@ -871,9 +858,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                         "[3] Could not find apiVersion 2406-06-01 for Fake.Web/connections. Acceptable versions: 2416-06-01"
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -897,7 +884,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                 FakeResourceTypes.ResourceScopeTypes,
                 "2422-07-04",
-                    new string[] {
+                    [
                         // TTK result:
                         //    [-] apiVersions Should Be Recent In Reference Functions(12 ms)
                         //        reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName')), '2015-08-31-PREVIEW')  uses a preview version(2015 - 08 - 31 - PREVIEW) and there are more recent
@@ -914,7 +901,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         //        2422 - 01 - 31 - PREVIEW
                         "[7] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
                         "[12] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -928,9 +915,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                         "[2] Use more recent API version for 'Fake.Web/connections'. '2415-08-01-preview' is 2529 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2416-06-01",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -944,9 +931,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                         "[2] Use more recent API version for 'Fake.Network/virtualNetworks/subnets'. '2415-06-15' is 2576 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2420-11-01, 2420-08-01",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -960,7 +947,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                          // TTK results:
                          // [-] apiVersions Should Be Recent In Reference Functions(24 ms)
                          //       Api versions must be the latest or under 2 years old(730 days) - API version used by:
@@ -979,7 +966,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                          //       2021 - 01 - 01
                          //       2020 - 11 - 01
                         "[2] Use more recent API version for 'Fake.Network/publicIPAddresses'. '2415-06-15' is 2576 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2420-11-01, 2420-08-01",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -1002,9 +989,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                          "[11] Use more recent API version for 'Fake.Network/publicIPAddresses'. '2415-06-15' is 2576 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2420-11-01, 2420-08-01",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -1019,9 +1006,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                         "[3] Use more recent API version for 'Fake.Network/publicIPAddresses'. '2415-06-15' is 2576 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2420-11-01, 2420-08-01"
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -1035,9 +1022,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                         "[2] Use more recent API version for 'Fake.Network/publicIPAddresses'. '2415-06-15' is 2576 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2420-11-01, 2420-08-01"
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -1057,9 +1044,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
+                    [
                         "[8] Use more recent API version for 'Fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2417-12-01",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -1073,9 +1060,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                 FakeResourceTypes.ResourceScopeTypes,
                 "2422-07-04",
-                    new string[] {
+                    [
                         "[3] Could not find resource type \"Fake.Network/privateIPAddresses\". Did you mean \"Fake.Network/publicIPAddresses\"?"
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -1089,9 +1076,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                 FakeResourceTypes.ResourceScopeTypes,
                 "2422-07-04",
-                    new string[] {
+                    [
                         "[3] Could not find resource type \"Fake.Network/publicIPAddress\". Did you mean \"Fake.Network/publicIPAddresses\"?"
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -1105,9 +1092,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                new string[] {
+                [
                     "[2] Use more recent API version for 'Fake.Compute/virtualMachineScaleSets/virtualMachines/runCommands'. '2420-06-01' is 763 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2421-07-01, 2421-04-01, 2421-03-01, 2420-12-01",
-                });
+                ]);
             }
 
             [TestMethod]
@@ -1136,7 +1123,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                 FakeResourceTypes.ResourceScopeTypes,
                 "2422-07-04",
-                    new string[] {
+                    [
                     // TTK result:
                     //    Api versions must be the latest or under 2 years old (730 days) - API version used by:
                     //        reference(resourceId(parameters('storageAccountResourceGroupName'), 'Microsoft.Storage/storageAccounts/', parameters('storageAccountName')), '2019-06-01')
@@ -1151,7 +1138,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     //    2021-02-01
                     //    2021-01-01
                     "[14] Could not find apiVersion 2420-12-01 for Fake.Storage/storageAccounts. Acceptable versions: 2421-06-01, 2421-04-01, 2421-02-01, 2421-01-01",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -1176,10 +1163,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                 FakeResourceTypes.ResourceScopeTypes,
                 "2422-07-04",
-                    new string[] {
+                    [
                         "[2] Could not find apiVersion 2420-01-01 for Fake.Network/publicIPAddresses. Acceptable versions: 2420-11-01, 2420-08-01",
                         "[4] Could not find apiVersion 2420-12-01 for Fake.Network/publicIPAddresses. Acceptable versions: 2420-11-01, 2420-08-01",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -1196,12 +1183,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ";
                 CompileAndTestWithFakeDateAndTypes(bicep,
                     ResourceScope.ResourceGroup,
-                FakeResourceTypes.ResourceScopeTypes,
-                "2422-07-04",
-                    new string[] {
+                    FakeResourceTypes.ResourceScopeTypes,
+                    "2422-07-04",
+                    [
                         "[4] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
                         "[8] Use more recent API version for 'Fake.ManagedIdentity/userAssignedIdentities'. '2415-08-31-preview' is 2499 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2418-11-30",
-                    });
+                    ]);
             }
         }
     }

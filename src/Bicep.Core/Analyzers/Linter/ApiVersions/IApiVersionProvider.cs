@@ -8,6 +8,6 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
     public interface IApiVersionProvider
     {
         public IEnumerable<string> GetResourceTypeNames(ResourceScope scope);
-        public IEnumerable<ApiVersion> GetApiVersions(ResourceScope scope, string fullyQualifiedResourceName);
+        public IEnumerable<AzureResourceApiVersion> GetApiVersions(ResourceScope scope, string fullyQualifiedResourceName);
     }
 }
