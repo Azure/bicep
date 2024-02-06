@@ -139,12 +139,9 @@ namespace Bicep.Core.Semantics.Namespaces
             return fallbackTypes;
         }
 
-        public IEnumerable<ResourceTypeReference> GetAvailableResourceTypes()
-        {
-            // Here we are not handling any deduplication between namespaces. This is OK for now, because there
-            // are only two supported namespaces ("az" & "sys"), both singletons. "sys" does not contain any resource types.
-            return namespaceTypes.Values.SelectMany(type => type.ResourceTypeProvider.GetAvailableTypes());
-        }
+        public IEnumerable<ResourceTypeReference> GetAvailableAzureResourceTypes() =>
+            namespaceTypes.Values.SingleOrDefault(x => x.Name.Equals(AzNamespaceType.BuiltInName, StringComparison.Ordinal))?.ResourceTypeProvider.GetAvailableTypes() ??
+            Enumerable.Empty<ResourceTypeReference>();
 
         public ILookup<string, ImmutableArray<ResourceTypeReference>> GetGroupedResourceTypes()
         {

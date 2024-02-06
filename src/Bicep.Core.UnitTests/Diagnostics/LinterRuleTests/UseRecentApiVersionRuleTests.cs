@@ -15,8 +15,6 @@ using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-#pragma warning disable CA1825 // Avoid zero-length array allocations
-
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
@@ -108,23 +106,28 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 original.ModuleAliases,
                 original.ProviderAliases,
                 new AnalyzersConfiguration(
-                    JsonElementFactory.CreateElement(@"
-                    {
-                        ""core"": {
-                            ""enabled"": true,
-                            ""rules"": {
-                                ""use-recent-api-versions"": {
-                                    ""level"": ""warning"",
-                                    ""test-today"": ""<TESTING_TODAY_DATE>"",
-                                    ""test-warn-not-found"": true
-                                    <MAX_AGE_PROP>
+                    JsonElementFactory.CreateElement("""
+                        {
+                            "core": {
+                                "enabled": true,
+                                "rules": {
+                                    "use-recent-api-versions": {
+                                        "level": "warning",
+                                        "test-today": "<TESTING_TODAY_DATE>",
+                                        "test-warn-not-found": true
+                                        <MAX_AGE_PROP>
+                                    }
                                 }
                             }
                         }
-                    }".Replace("<TESTING_TODAY_DATE>", today)
-                    .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : ""))),
+                        """
+                            .Replace("<TESTING_TODAY_DATE>", today)
+                            .Replace("<MAX_AGE_PROP>", maxAgeInDays.HasValue ? $", \"maxAgeInDays\": {maxAgeInDays}" : ""))),
                 original.CacheRootDirectory,
-                original.ExperimentalFeaturesEnabled,
+                original.ExperimentalFeaturesEnabled with
+                {
+                    Extensibility = true,
+                },
                 original.Formatting,
                 null,
                 null);
@@ -156,10 +159,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2418-09-07-preview
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2418-09-07-preview",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -172,10 +174,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2418-09-07-PREVIEW
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2418-09-07-preview",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -188,9 +189,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-01-01
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
-                    });
+                    []);
             }
 
             [TestMethod]
@@ -205,10 +204,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2413-09-07-alpha
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2413-09-07-alpha",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -224,11 +222,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2413-09-07-beta
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2413-09-07-alpha",
                         "2413-09-07-beta",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -243,12 +240,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2419-09-07-alpha
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2419-09-07-alpha",
                         "2419-08-15-beta",
                         "2419-07-21-preview",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -267,8 +263,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2419-09-07-privatepreview
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2419-09-07-alpha",
                         "2419-09-07-beta",
                         "2419-09-07-privatepreview",
@@ -276,7 +271,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2419-08-15-privatepreview",
                         "2419-07-21-beta",
                         "2419-07-21-preview",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -294,12 +289,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2419-09-07-beta
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2419-09-07-beta",
                         "2419-08-21-beta",
                         "2419-07-15-privatepreview",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -318,10 +312,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2500-07-07",
-                    new string[]
-                    {
+                    [
                         "2420-09-18",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -337,10 +330,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2413-09-07
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2413-09-07",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -357,10 +349,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2413-06-15-beta
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2413-06-15",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -379,10 +370,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2413-09-08-beta
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2413-06-15",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -400,13 +390,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2419-09-08-beta
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2419-09-08-beta",
                         "2419-09-07-beta",
                         "2419-09-07-preview",
                         "2413-06-15",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -423,12 +412,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2419-09-07-beta
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2419-09-07-beta",
                         "2419-09-07-preview",
                         "2413-05-15",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -443,12 +431,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2420-09-18",
                         "2419-08-15",
                         "2419-07-21",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -465,11 +452,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                    "2421-07-07",
-                   new string[]
-                   {
+                   [
                         "2420-09-18",
                         "2419-07-21",
-                   });
+                   ]);
             }
 
             [TestMethod]
@@ -485,12 +471,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-07-16-beta
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2421-07-16-beta",
                         "2420-09-18",
                         "2419-07-21",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -508,13 +493,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-07-17-preview
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2421-07-17-preview",
                         "2421-07-16-beta",
                         "2420-09-18",
                         "2419-07-21",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -531,10 +515,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2417-07-17-preview
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2416-09-18",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -551,12 +534,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-07-17-preview
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2421-07-17-preview",
                         "2421-07-16-beta",
                         "2416-09-18",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -573,11 +555,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2420-09-18",
                         "2419-07-11",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -594,12 +575,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2425-01-01
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2425-01-01",
                         "2421-01-01",
                         "2419-09-07",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -620,11 +600,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2420-09-18",
                         "2420-06-14",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -645,11 +624,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2420-09-18",
                         "2420-06-14",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -672,12 +650,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2420-09-18
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2421-09-07-privatepreview",
                         "2420-09-18",
                         "2420-06-14",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -697,15 +674,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-04-02-preview
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2421-04-02-preview",
                         "2421-04-01-preview",
                         "2421-03-01-preview",
                         "2421-01-03-preview",
                         "2421-01-02-preview",
                         "2421-01-01-preview",
-                    });
+                    ]);
             }
 
             [TestMethod]
@@ -726,13 +702,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         Fake.Kusto/clusters@2421-04-02-preview
                     ",
                     "2421-07-07",
-                    new string[]
-                    {
+                    [
                         "2421-04-02-preview",
                         "2421-04-01-beta",
                         "2421-03-01-preview",
                         "2421-02-01", // No previews older than this allowed, even if < 2 years old
-                    });
+                    ]);
             }
         }
 
@@ -1900,13 +1875,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.Subscription,
                     FakeResourceTypes.SubscriptionScopeTypes,
                     "2422-07-04",
-                    new[] {
+                    [
                         new DiagnosticAndFixes(
                             "Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 0 days old, or the most recent. Acceptable versions: 2421-05-01",
                             "Replace with 2421-05-01",
                             "resource newRG 'fake.Resources/resourceGroups@2421-05-01'"
                             )
-                    },
+                    ],
                     maxAgeInDays: 0);
             }
 
@@ -1914,7 +1889,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             public void LinterIgnoresNotAzureResources()
             {
                 CompileAndTestWithFakeDateAndTypes(@"
-                        provider 'kubernetes@1.0.0' {
+                        provider 'kubernetes@1.0.0' with {
                           namespace: 'default'
                           kubeConfig: ''
                         }
@@ -1934,10 +1909,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
-                       // pass
-                    },
-                    OnCompileErrors.Ignore);
+                    []);
             }
         }
     }
