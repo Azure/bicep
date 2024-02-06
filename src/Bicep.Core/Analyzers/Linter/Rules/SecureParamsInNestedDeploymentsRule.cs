@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -69,7 +68,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             var message = string.Format(
                                 CoreResources.SecureParamsInNestedDeployRule_Message_ListFunction,
                                 resource.Name,
-                                listFunctionReference.ToText());
+                                listFunctionReference.ToString());
                             yield return CreateDiagnosticForSpan(diagnosticLevel, resource.NameSource.Span, message);
                         }
                     }

@@ -53,8 +53,8 @@ namespace Bicep.LanguageServer.Handlers
             if (featureProvider.PrettyPrintingEnabled)
             {
                 var v2Options = context.Compilation.GetEntrypointSemanticModel().Configuration.Formatting.Data;
-                var printerV2Context = PrettyPrinterV2Context.Create(context.ProgramSyntax, v2Options, lexingErrorLookup, parsingErrorLookup);
-                var v2Output = PrettyPrinterV2.Print(printerV2Context);
+                var printerV2Context = PrettyPrinterV2Context.Create(v2Options, lexingErrorLookup, parsingErrorLookup);
+                var v2Output = PrettyPrinterV2.Print(context.ProgramSyntax, printerV2Context);
 
                 return Task.FromResult<TextEditContainer?>(new TextEditContainer(new TextEdit
                 {

@@ -84,7 +84,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (RewriteConcatToInterpolate(functionCallSyntax) is StringSyntax newSyntax)
                 {
-                    return CodeReplacement.FromSyntax(functionCallSyntax.Span, newSyntax);
+                    return new CodeReplacement(functionCallSyntax.Span, newSyntax.ToString());
                 }
                 return null;
             }
@@ -97,10 +97,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private StringSyntax RewriteConcatCallback(FunctionCallSyntax syntax)
             {
-                var tokens = new List<Token>();
-                var expressions = new List<SyntaxBase>();
-                var segments = new List<string>();
-
                 var flattened = SyntaxFactory.FlattenStringOperations(syntax);
                 if (flattened is FunctionCallSyntax concatSyntax)
                 {

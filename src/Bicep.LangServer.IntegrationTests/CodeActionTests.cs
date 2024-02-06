@@ -899,7 +899,7 @@ param fo|o {paramType}
             // the handler can contain tabs. convert to double space to simplify printing.
             textToInsert = textToInsert.Replace("\t", "  ");
 
-            var originalFile = bicepFile.ProgramSyntax.ToTextPreserveFormatting();
+            var originalFile = bicepFile.ProgramSyntax.ToString();
             var replaced = originalFile.Substring(0, start) + textToInsert + originalFile.Substring(end);
 
             return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);

@@ -3,7 +3,6 @@
 
 using System.Text;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -63,7 +62,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (NonDeterministicFunctionNames.Contains(syntax.Name.IdentifierName))
                 {
-                    pathsToNonDeterministicFunctionsUsed.Add((FormatPath(syntax.ToText()), syntax.Name.IdentifierName));
+                    pathsToNonDeterministicFunctionsUsed.Add((FormatPath(syntax.ToString()), syntax.Name.IdentifierName));
                 }
                 base.VisitFunctionCallSyntax(syntax);
             }

@@ -74,8 +74,8 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
 
             // Normalize formatting
             var regex = new Regex("[\\r\\n\\s]+");
-            string programText = regex.Replace(program.ToTextPreserveFormatting(), "");
-            string formattedProgramText = regex.Replace(formattedProgram.ToTextPreserveFormatting(), "");
+            string programText = regex.Replace(program.ToString(), "");
+            string formattedProgramText = regex.Replace(formattedProgram.ToString(), "");
 
             formattedProgramText.Should().Be(programText);
         }

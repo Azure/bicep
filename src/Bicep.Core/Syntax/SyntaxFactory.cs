@@ -416,7 +416,7 @@ namespace Bicep.Core.Syntax
 
         public static ParameterAssignmentSyntax CreateParameterAssignmentSyntax(string name, SyntaxBase value)
             => new(
-                CreateIdentifierToken(LanguageConstants.ParameterKeyword),
+                CreateIdentifierToken(LanguageConstants.ParameterKeyword, EmptyTrivia, SingleSpaceTrivia),
                 CreateIdentifier(name),
                 AssignmentToken,
                 value);

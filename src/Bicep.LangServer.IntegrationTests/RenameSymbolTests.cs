@@ -47,7 +47,7 @@ var blah = '${NewIdentifier}'
 
         var edit = await file.RequestRename(cursor, "NewIdentifier");
 
-        var appliedEdit = file.ApplyWorkspaceEdit(edit).ProgramSyntax.ToTextPreserveFormatting();
+        var appliedEdit = file.ApplyWorkspaceEdit(edit).ProgramSyntax.ToString();
 
         appliedEdit.Should().EqualIgnoringTrailingWhitespace(expectedOutput);
     }
