@@ -286,7 +286,7 @@ namespace Bicep.Core.Parsing
 
         private ProviderDeclarationSyntax ProviderImportDeclaration(Token keyword, IEnumerable<SyntaxBase> leadingNodes)
         {
-            var providerSpecification = reader.Peek().Type switch
+            var providerSpecificationSyntax = reader.Peek().Type switch
             {
                 TokenType.Identifier => this.WithRecovery(
                     () => IdentifierOrSkip(b => b.ExpectedProviderAliasName()),
@@ -305,7 +305,7 @@ namespace Bicep.Core.Parsing
                 TokenType.NewLine or
                 TokenType.AsKeyword => this.SkipEmpty(),
 
-                _ => this.WithRecovery(() => this.ProviderWithClause(), GetSuppressionFlag(providerSpecification), TokenType.NewLine),
+                _ => this.WithRecovery(() => this.ProviderWithClause(), GetSuppressionFlag(providerSpecificationSyntax), TokenType.NewLine),
             };
 
             var asClause = this.reader.Peek().Type switch
@@ -316,7 +316,7 @@ namespace Bicep.Core.Parsing
                 _ => this.WithRecovery(() => this.ProviderAsClause(), GetSuppressionFlag(withClause), TokenType.NewLine),
             };
 
-            return new(leadingNodes, keyword, providerSpecification, withClause, asClause);
+            return new(leadingNodes, keyword, providerSpecificationSyntax, withClause, asClause);
         }
 
         private ProviderWithClauseSyntax ProviderWithClause()

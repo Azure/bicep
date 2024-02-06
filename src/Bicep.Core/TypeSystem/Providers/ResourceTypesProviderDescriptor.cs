@@ -16,7 +16,7 @@ public class ResourceTypesProviderDescriptor
         string? Version = null,
         string? Alias = null,
         ArtifactReference? ArtifactReference = null,
-        Result<Uri, UriResolutionError>? TypesDataUri = null)
+        Uri? TypesDataUri = null)
     {
         this.Name = NamespaceIdentifier;
         this.ParentModuleUri = ParentModuleUri;
@@ -39,7 +39,7 @@ public class ResourceTypesProviderDescriptor
         }
         this.Alias = Alias ?? NamespaceIdentifier;
         this.ArtifactReference = ArtifactReference;
-        this.TypesDataUri = TypesDataUri;
+        this.TypesDataFileUri = TypesDataUri;
     }
 
     public ArtifactReference? ArtifactReference { get; }
@@ -48,5 +48,5 @@ public class ResourceTypesProviderDescriptor
     public string Name { get; }
     public Uri ParentModuleUri { get; }
     public string Version { get; }
-    public Result<Uri, UriResolutionError>? TypesDataUri { get; }
+    public Uri? TypesDataFileUri { get; }
 };

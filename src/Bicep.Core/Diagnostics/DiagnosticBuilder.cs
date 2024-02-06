@@ -1220,7 +1220,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP201",
                 "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location.");
-// Expected a provider identifier at this location.
+            // Expected a provider identifier at this location.
             public ErrorDiagnostic ExpectedProviderAliasName() => new(
                 TextSpan,
                 "BCP202",
@@ -2146,6 +2146,24 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP394",
                 $"The provider \"{providerName}\" could not be found in {BuildBicepConfigurationClause(configurationPath)}.");
+
+            public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecification syntax)
+            {
+                var codeFix = new CodeFix(
+                    "Replace the import specification with an configuration backed identifier",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax.Span, syntax.NamespaceIdentifier));
+
+                return new FixableDiagnostic(
+                    TextSpan,
+                    DiagnosticLevel.Warning,
+                    "BCP395",
+                    $"Declaring provider namespaces using the \'<provierName>@<version>\' expression has been deprecated. Please use an identifier instead.",
+                    documentationUri: null,
+                    DiagnosticStyling.Default,
+                    codeFix);
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

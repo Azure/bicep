@@ -47,18 +47,14 @@ namespace Bicep.Core.TypeSystem.Providers
         private ResultWithDiagnostic<IResourceTypeProvider> GetDynamicallyLoadedResourceTypesProvider(ResourceTypesProviderDescriptor providerDescriptor)
         {
             var fullyQualifiedArtifactReference = providerDescriptor.ArtifactReference?.FullyQualifiedReference ?? throw new UnreachableException($"the reference is validated prior to a call to {nameof(this.GetResourceTypeProvider)}");
-            if (providerDescriptor.TypesDataUri is null)
+            if (providerDescriptor.TypesDataFileUri is null)
             {
                 return new(x => x.ArtifactRestoreFailedWithMessage(
                     fullyQualifiedArtifactReference,
                     $"Provider {providerDescriptor.Name} requires a types base URI."));
             }
-            if (!providerDescriptor.TypesDataUri.IsSuccess(out var typesDataUri, out var uriResolutionError))
-            {
-                return new(uriResolutionError.ErrorBuilder);
-            }
 
-            var typesLoader = OciTypeLoader.FromDisk(fileSystem, typesDataUri);
+            var typesLoader = OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesDataFileUri);
             if (providerDescriptor.Name == AzNamespaceType.BuiltInName)
             {
                 return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typesLoader), providerDescriptor.Version));

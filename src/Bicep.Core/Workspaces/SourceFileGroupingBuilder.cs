@@ -231,24 +231,25 @@ namespace Bicep.Core.Workspaces
             IFeatureProvider featureProvider,
             BicepSourceFile file)
         {
+            if (!uriResult.IsSuccess(out var uri, out var builder))
+            {
+                return new(builder.ErrorBuilder);
+            }
+
             if (providerDeclarationSyntax.Specification is InlinedResourceTypesProviderSpecification { } inlinedSpecification)
             {
-                if (artifactReference is null && !uriResult.IsSuccess(out _, out var builder))
-                {
-                    // This happens when the artifact reference is not valid because the provider alias doesn't exist in the configuration
-                    return new(builder.ErrorBuilder);
-                }
                 return new(new ResourceTypesProviderDescriptor(
                                inlinedSpecification.NamespaceIdentifier,
                                file.FileUri,
                                inlinedSpecification.Version,
                                providerDeclarationSyntax.Alias?.IdentifierName ?? inlinedSpecification.NamespaceIdentifier,
                                artifactReference,
-                               uriResult));
+                               uri));
             }
 
             var config = configurationManager.GetConfiguration(file.FileUri);
             var providersConfigEntryName = providerDeclarationSyntax.Specification.NamespaceIdentifier;
+
             if (!config.ProvidersConfig.TryGetProviderSource(providersConfigEntryName).IsSuccess(out var providerEntry, out var errorBuilder))
             {
                 // special case the "sys" provider for backwards compatibility
@@ -281,7 +282,7 @@ namespace Bicep.Core.Workspaces
                 providerEntry.Version ?? throw unreachableException,
                 providerDeclarationSyntax.Alias?.IdentifierName ?? providersConfigEntryName,
                 artifactReference,
-                uriResult));
+                uri));
         }
 
         private void ProcessAllImplicitProviderDeclarations(BicepSourceFile file, ProviderDescriptorBundleBuilder providerBundleBuilder)
@@ -341,7 +342,7 @@ namespace Bicep.Core.Workspaces
                     providerEntry.Version ?? throw new UnreachableException("provider version is validated during artifact creation"),
                     providerName,
                     artifactReference,
-                    new(artifactFileUri))));
+                    artifactFileUri)));
         }
 
 

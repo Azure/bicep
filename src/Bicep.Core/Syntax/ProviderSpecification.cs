@@ -12,12 +12,19 @@ public interface IResourceTypesProviderSpecification : ISymbolNameSource
     string? Version { get; }
 }
 
-public record InlinedResourceTypesProviderSpecification(string NamespaceIdentifier, string Version, string UnexpandedArtifactAddress, bool IsValid, TextSpan Span) : IResourceTypesProviderSpecification;
+public record InlinedResourceTypesProviderSpecification(
+    string NamespaceIdentifier,
+    string Version,
+    string UnexpandedArtifactAddress,
+    bool IsValid,
+    TextSpan Span) : IResourceTypesProviderSpecification;
+
 public record ConfigurationManagedResourceTypesProviderSpecification(string NamespaceIdentifier, bool IsValid, TextSpan Span) : IResourceTypesProviderSpecification
 {
     public string? Version => null;
-
 };
+
+public record LegacyProviderSpecification(string NamespaceIdentifier, string Version, bool IsValid, TextSpan Span) : IResourceTypesProviderSpecification;
 
 public record ResourceTypesProviderSpecificationTrivia(TextSpan Span) : IResourceTypesProviderSpecification
 {
@@ -40,6 +47,9 @@ public static partial class ProviderSpecificationFactory
 
     [GeneratedRegex(@$"^(?<name>{NamePattern})$", RegexOptions.ECMAScript | RegexOptions.Compiled)]
     private static partial Regex ConfigManagedSpecificationPattern();
+
+    [GeneratedRegex(@$"^(?<name>{NamePattern})@(?<version>{SemanticVersionPattern})$", RegexOptions.ECMAScript | RegexOptions.Compiled)]
+    private static partial Regex LegacyBuiltInSpecificationPattern();
 
     [GeneratedRegex(@$"^(?<address>{BicepRegistryAddressPattern})@(?<version>{SemanticVersionPattern})$", RegexOptions.ECMAScript | RegexOptions.Compiled)]
     private static partial Regex InlinedSpecificationPattern();
@@ -65,14 +75,22 @@ public static partial class ProviderSpecificationFactory
 
     private static IResourceTypesProviderSpecification? TryCreateFromStringSyntax(StringSyntax stringSyntax, string value)
     {
-        if (ConfigManagedSpecificationPattern().Match(value) is { } builtInMatch && builtInMatch.Success)
+        if (LegacyBuiltInSpecificationPattern().Match(value) is { Success: true } legacyMatch)
+        {
+            var name = legacyMatch.Groups["name"].Value;
+            var version = legacyMatch.Groups["version"].Value;
+            var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
+
+            return new LegacyProviderSpecification(name, version, IsValid: true, span);
+        }
+        else if (ConfigManagedSpecificationPattern().Match(value) is { Success: true } builtInMatch)
         {
             var name = builtInMatch.Groups["name"].Value;
             var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
+
             return new ConfigurationManagedResourceTypesProviderSpecification(name, IsValid: true, span);
         }
-
-        if (InlinedSpecificationPattern().Match(value) is { } registryMatch && registryMatch.Success)
+        else if (InlinedSpecificationPattern().Match(value) is { Success: true } registryMatch)
         {
             // NOTE(asilverman): The regex for the registry pattern is intentionally loose since it will be validated by the module resolver.
             var address = registryMatch.Groups["address"].Value;
@@ -85,7 +103,6 @@ public static partial class ProviderSpecificationFactory
 
             return new InlinedResourceTypesProviderSpecification(name, version, unexpandedArtifactAddress, IsValid: true, span);
         }
-
         return null;
     }
 }
