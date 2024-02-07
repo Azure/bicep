@@ -5,17 +5,11 @@ using System.Reflection;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
 {
-    public class CompletionData
+    public class CompletionData(string prefix, string snippetText)
     {
-        public CompletionData(string prefix, string snippetText)
-        {
-            Prefix = prefix;
-            SnippetText = snippetText;
-        }
+        public string Prefix { get; } = prefix;
 
-        public string Prefix { get; }
-
-        public string SnippetText { get; }
+        public string SnippetText { get; } = snippetText;
 
         public static string GetDisplayName(MethodInfo info, object[] data)
             => $"{info.Name}_{((CompletionData)data[0]).Prefix}";

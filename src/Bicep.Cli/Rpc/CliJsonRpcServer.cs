@@ -19,7 +19,7 @@ using StreamJsonRpc;
 
 namespace Bicep.Cli.Rpc;
 
-public class CliJsonRpcServer : ICliJsonRpcProtocol
+public class CliJsonRpcServer(BicepCompiler compiler) : ICliJsonRpcProtocol
 {
     public static IJsonRpcMessageHandler CreateMessageHandler(Stream inputStream, Stream outputStream)
     {
@@ -29,12 +29,7 @@ public class CliJsonRpcServer : ICliJsonRpcProtocol
         return new HeaderDelimitedMessageHandler(inputStream, outputStream, formatter);
     }
 
-    private readonly BicepCompiler compiler;
-
-    public CliJsonRpcServer(BicepCompiler compiler)
-    {
-        this.compiler = compiler;
-    }
+    private readonly BicepCompiler compiler = compiler;
 
     public async Task<VersionResponse> Version(VersionRequest request, CancellationToken cancellationToken)
     {

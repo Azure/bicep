@@ -6,22 +6,15 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics;
 
-public class WildcardImportInstanceFunctionSymbol : Symbol, IFunctionSymbol
+public class WildcardImportInstanceFunctionSymbol(WildcardImportSymbol baseSymbol, string name, ExportedFunctionMetadata exportMetadata) : Symbol(name), IFunctionSymbol
 {
-    public WildcardImportInstanceFunctionSymbol(WildcardImportSymbol baseSymbol, string name, ExportedFunctionMetadata exportMetadata)
-        : base(name)
-    {
-        BaseSymbol = baseSymbol;
-        Overloads = ImmutableArray.Create(TypeHelper.OverloadWithResolvedTypes(new(baseSymbol.Context.Binder), exportMetadata));
-    }
-
     public override void Accept(SymbolVisitor visitor) => visitor.VisitWildcardImportInstanceFunctionSymbol(this);
 
     public override SymbolKind Kind => SymbolKind.Function;
 
-    public ImmutableArray<FunctionOverload> Overloads { get; }
+    public ImmutableArray<FunctionOverload> Overloads { get; } = ImmutableArray.Create(TypeHelper.OverloadWithResolvedTypes(new(baseSymbol.Context.Binder), exportMetadata));
 
     public FunctionFlags FunctionFlags => FunctionFlags.Default;
 
-    public WildcardImportSymbol BaseSymbol { get; }
+    public WildcardImportSymbol BaseSymbol { get; } = baseSymbol;
 }

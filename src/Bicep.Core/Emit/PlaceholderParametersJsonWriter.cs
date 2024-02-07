@@ -10,17 +10,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
-    public class PlaceholderParametersJsonWriter
+    public class PlaceholderParametersJsonWriter(SemanticModel semanticModel, IncludeParamsOption includeParams)
     {
-        public PlaceholderParametersJsonWriter(SemanticModel semanticModel, IncludeParamsOption includeParams)
-        {
-            this.Context = new EmitterContext(semanticModel);
-            this.IncludeParams = includeParams;
-        }
+        private EmitterContext Context { get; } = new EmitterContext(semanticModel);
 
-        private EmitterContext Context { get; }
-
-        private IncludeParamsOption IncludeParams { get; }
+        private IncludeParamsOption IncludeParams { get; } = includeParams;
 
         public void Write(JsonTextWriter writer, string existingContent)
         {

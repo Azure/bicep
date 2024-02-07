@@ -11,27 +11,19 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem
 {
-    public abstract class DeployTimeConstantViolationVisitor : AstVisitor
+    public abstract class DeployTimeConstantViolationVisitor(
+        SyntaxBase deployTimeConstantContainer,
+        SemanticModel semanticModel,
+        IDiagnosticWriter diagnosticWriter,
+        ResourceTypeResolver resourceTypeResolver) : AstVisitor
     {
-        public DeployTimeConstantViolationVisitor(
-            SyntaxBase deployTimeConstantContainer,
-            SemanticModel semanticModel,
-            IDiagnosticWriter diagnosticWriter,
-            ResourceTypeResolver resourceTypeResolver)
-        {
-            this.DeployTimeConstantContainer = deployTimeConstantContainer;
-            this.SemanticModel = semanticModel;
-            this.DiagnosticWriter = diagnosticWriter;
-            this.ResourceTypeResolver = resourceTypeResolver;
-        }
+        protected SyntaxBase DeployTimeConstantContainer { get; } = deployTimeConstantContainer;
 
-        protected SyntaxBase DeployTimeConstantContainer { get; }
+        protected SemanticModel SemanticModel { get; } = semanticModel;
 
-        protected SemanticModel SemanticModel { get; }
+        protected IDiagnosticWriter DiagnosticWriter { get; } = diagnosticWriter;
 
-        protected IDiagnosticWriter DiagnosticWriter { get; }
-
-        protected ResourceTypeResolver ResourceTypeResolver { get; }
+        protected ResourceTypeResolver ResourceTypeResolver { get; } = resourceTypeResolver;
 
         protected void FlagDeployTimeConstantViolation(SyntaxBase errorSyntax, DeclaredSymbol? accessedSymbol = null, ObjectType? accessedObjectType = null, IEnumerable<string>? variableDependencyChain = null, string? violatingPropertyName = null)
         {

@@ -4,13 +4,8 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
 {
-    public class VariableSymbol : DeclaredSymbol
+    public class VariableSymbol(ISymbolContext context, string name, VariableDeclarationSyntax declaringSyntax) : DeclaredSymbol(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        public VariableSymbol(ISymbolContext context, string name, VariableDeclarationSyntax declaringSyntax)
-            : base(context, name, declaringSyntax, declaringSyntax.Name)
-        {
-        }
-
         public VariableDeclarationSyntax DeclaringVariable => (VariableDeclarationSyntax)this.DeclaringSyntax;
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitVariableSymbol(this);

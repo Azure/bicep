@@ -15,21 +15,15 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
-    public class ModuleDispatcher : IModuleDispatcher
+    public class ModuleDispatcher(IArtifactRegistryProvider registryProvider, IConfigurationManager configurationManager) : IModuleDispatcher
     {
         private static readonly TimeSpan FailureExpirationInterval = TimeSpan.FromMinutes(30);
 
         private readonly ConcurrentDictionary<RestoreFailureKey, RestoreFailureInfo> restoreFailures = new();
 
-        private readonly IArtifactRegistryProvider registryProvider;
+        private readonly IArtifactRegistryProvider registryProvider = registryProvider;
 
-        private readonly IConfigurationManager configurationManager;
-
-        public ModuleDispatcher(IArtifactRegistryProvider registryProvider, IConfigurationManager configurationManager)
-        {
-            this.registryProvider = registryProvider;
-            this.configurationManager = configurationManager;
-        }
+        private readonly IConfigurationManager configurationManager = configurationManager;
 
         private ImmutableDictionary<string, IArtifactRegistry> Registries(Uri parentModuleUri)
             => registryProvider.Registries(parentModuleUri).ToImmutableDictionary(r => r.Scheme);
@@ -257,17 +251,11 @@ namespace Bicep.Core.Registry
             this.restoreFailures.TryAdd(new(configuration.Cloud, reference), new RestoreFailureInfo(reference, failureBuilder, expiration));
         }
 
-        private class RestoreFailureKey
+        private class RestoreFailureKey(CloudConfiguration configuration, ArtifactReference reference)
         {
-            private readonly CloudConfiguration configuration;
+            private readonly CloudConfiguration configuration = configuration;
 
-            private readonly ArtifactReference reference;
-
-            public RestoreFailureKey(CloudConfiguration configuration, ArtifactReference reference)
-            {
-                this.configuration = configuration;
-                this.reference = reference;
-            }
+            private readonly ArtifactReference reference = reference;
 
             public override bool Equals(object? obj) =>
                 obj is RestoreFailureKey other &&
@@ -277,20 +265,13 @@ namespace Bicep.Core.Registry
             public override int GetHashCode() => HashCode.Combine(this.configuration, this.reference);
         }
 
-        private class RestoreFailureInfo
+        private class RestoreFailureInfo(ArtifactReference reference, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder, DateTime expiration)
         {
-            public RestoreFailureInfo(ArtifactReference reference, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder, DateTime expiration)
-            {
-                this.Reference = reference;
-                this.FailureBuilder = failureBuilder;
-                this.Expiration = expiration;
-            }
+            public ArtifactReference Reference { get; } = reference;
 
-            public ArtifactReference Reference { get; }
+            public DiagnosticBuilder.ErrorBuilderDelegate FailureBuilder { get; } = failureBuilder;
 
-            public DiagnosticBuilder.ErrorBuilderDelegate FailureBuilder { get; }
-
-            public DateTime Expiration { get; }
+            public DateTime Expiration { get; } = expiration;
         }
     }
 }

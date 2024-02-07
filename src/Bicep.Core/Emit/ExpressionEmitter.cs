@@ -14,7 +14,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
-    public class ExpressionEmitter
+    public class ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context)
     {
         private static readonly ExpressionSerializer ExpressionSerializer = new(new ExpressionSerializerSettings
         {
@@ -24,16 +24,9 @@ namespace Bicep.Core.Emit
             SingleStringHandling = ExpressionSerializerSingleStringHandling.SerializeAsString
         });
 
-        private readonly PositionTrackingJsonTextWriter writer;
-        private readonly EmitterContext context;
-        private readonly ExpressionConverter converter;
-
-        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context)
-        {
-            this.writer = writer;
-            this.context = context;
-            this.converter = new ExpressionConverter(context);
-        }
+        private readonly PositionTrackingJsonTextWriter writer = writer;
+        private readonly EmitterContext context = context;
+        private readonly ExpressionConverter converter = new ExpressionConverter(context);
 
         public void EmitExpression(Expression expression)
         {

@@ -19,33 +19,22 @@ namespace Bicep.LanguageServer.Providers
     /// Creates compilation contexts.
     /// </summary>
     /// <remarks>This class exists only so we can mock fatal exceptions in tests.</remarks>
-    public class BicepCompilationProvider : ICompilationProvider
+    public class BicepCompilationProvider(
+        IFeatureProviderFactory featureProviderFactory,
+        IEnvironment environment,
+        INamespaceProvider namespaceProvider,
+        IFileResolver fileResolver,
+        IModuleDispatcher moduleDispatcher,
+        IConfigurationManager configurationManager,
+        IBicepAnalyzer bicepAnalyzer) : ICompilationProvider
     {
-        private readonly IConfigurationManager configurationManager;
-        private readonly IBicepAnalyzer bicepAnalyzer;
-        private readonly IEnvironment environment;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-        private readonly INamespaceProvider namespaceProvider;
-        private readonly IFileResolver fileResolver;
-        private readonly IModuleDispatcher moduleDispatcher;
-
-        public BicepCompilationProvider(
-            IFeatureProviderFactory featureProviderFactory,
-            IEnvironment environment,
-            INamespaceProvider namespaceProvider,
-            IFileResolver fileResolver,
-            IModuleDispatcher moduleDispatcher,
-            IConfigurationManager configurationManager,
-            IBicepAnalyzer bicepAnalyzer)
-        {
-            this.environment = environment;
-            this.featureProviderFactory = featureProviderFactory;
-            this.namespaceProvider = namespaceProvider;
-            this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
-            this.configurationManager = configurationManager;
-            this.bicepAnalyzer = bicepAnalyzer;
-        }
+        private readonly IConfigurationManager configurationManager = configurationManager;
+        private readonly IBicepAnalyzer bicepAnalyzer = bicepAnalyzer;
+        private readonly IEnvironment environment = environment;
+        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
+        private readonly INamespaceProvider namespaceProvider = namespaceProvider;
+        private readonly IFileResolver fileResolver = fileResolver;
+        private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
 
         public CompilationContext Create(
             IReadOnlyWorkspace workspace,

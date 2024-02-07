@@ -10,14 +10,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDocumentLinkHandler : DocumentLinkHandlerBase
+    public class BicepDocumentLinkHandler(IModuleDispatcher moduleDispatcher) : DocumentLinkHandlerBase
     {
-        private readonly IModuleDispatcher moduleDispatcher;
-
-        public BicepDocumentLinkHandler(IModuleDispatcher moduleDispatcher)
-        {
-            this.moduleDispatcher = moduleDispatcher;
-        }
+        private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
 
         public override Task<DocumentLinkContainer?> Handle(DocumentLinkParams request, CancellationToken cancellationToken)
         {

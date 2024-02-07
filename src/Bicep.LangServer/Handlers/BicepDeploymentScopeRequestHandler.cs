@@ -27,23 +27,15 @@ namespace Bicep.LanguageServer.Handlers
     /// The BicepDeploymentScopeRequestHandler returns targetScope, template and error message.
     /// Error message would be null if provided bicep file was error free.
     /// </summary>
-    public class BicepDeploymentScopeRequestHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
+    public class BicepDeploymentScopeRequestHandler(
+        BicepCompiler bicepCompiler,
+        ICompilationManager compilationManager,
+        IDeploymentFileCompilationCache deploymentFileCompilationCache,
+        ISerializer serializer) : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>(LangServerConstants.GetDeploymentScopeCommand, serializer)
     {
-        private readonly BicepCompiler bicepCompiler;
-        private readonly ICompilationManager compilationManager;
-        private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache;
-
-        public BicepDeploymentScopeRequestHandler(
-            BicepCompiler bicepCompiler,
-            ICompilationManager compilationManager,
-            IDeploymentFileCompilationCache deploymentFileCompilationCache,
-            ISerializer serializer)
-            : base(LangServerConstants.GetDeploymentScopeCommand, serializer)
-        {
-            this.bicepCompiler = bicepCompiler;
-            this.compilationManager = compilationManager;
-            this.deploymentFileCompilationCache = deploymentFileCompilationCache;
-        }
+        private readonly BicepCompiler bicepCompiler = bicepCompiler;
+        private readonly ICompilationManager compilationManager = compilationManager;
+        private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache = deploymentFileCompilationCache;
 
         public override async Task<BicepDeploymentScopeResponse> Handle(BicepDeploymentScopeParams request, CancellationToken cancellationToken)
         {

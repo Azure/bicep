@@ -20,7 +20,7 @@ using Bicep.LanguageServer.Completions;
 
 namespace Bicep.LanguageServer.Snippets;
 
-public class SnippetCacheBuilder
+public class SnippetCacheBuilder(BicepCompiler bicepCompiler)
 {
     private static readonly Regex SnippetPlaceholderCommentPattern = new(@"\/\*(?<snippetPlaceholder>(.*?))\*\/('(.*?)'|\w+|-\d+|.*?)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
@@ -33,12 +33,7 @@ public class SnippetCacheBuilder
     // Used to cache top level declarations
     private readonly HashSet<Snippet> topLevelNamedDeclarationSnippets = new();
 
-    private readonly BicepCompiler bicepCompiler;
-
-    public SnippetCacheBuilder(BicepCompiler bicepCompiler)
-    {
-        this.bicepCompiler = bicepCompiler;
-    }
+    private readonly BicepCompiler bicepCompiler = bicepCompiler;
 
     public async Task<SnippetCache> Build()
     {

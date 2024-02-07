@@ -6,14 +6,9 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.UnitTests.Parsing
 {
-    public sealed class ExpressionTestVisitor : CstVisitor
+    public sealed class ExpressionTestVisitor(StringBuilder buffer) : CstVisitor
     {
-        private readonly StringBuilder buffer;
-
-        public ExpressionTestVisitor(StringBuilder buffer)
-        {
-            this.buffer = buffer;
-        }
+        private readonly StringBuilder buffer = buffer;
 
         public override void VisitToken(Token token) => this.buffer.Append(token.Text);
 

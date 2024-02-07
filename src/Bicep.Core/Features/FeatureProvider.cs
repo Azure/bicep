@@ -5,14 +5,9 @@ using Bicep.Core.Configuration;
 
 namespace Bicep.Core.Features
 {
-    public class FeatureProvider : IFeatureProvider
+    public class FeatureProvider(RootConfiguration configuration) : IFeatureProvider
     {
-        private readonly RootConfiguration configuration;
-
-        public FeatureProvider(RootConfiguration configuration)
-        {
-            this.configuration = configuration;
-        }
+        private readonly RootConfiguration configuration = configuration;
 
         public string CacheRootDirectory => GetCacheRootDirectory(this.configuration.CacheRootDirectory);
 

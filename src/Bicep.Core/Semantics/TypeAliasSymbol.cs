@@ -4,17 +4,11 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics;
 
-public class TypeAliasSymbol : DeclaredSymbol
+public class TypeAliasSymbol(ISymbolContext context, string name, TypeDeclarationSyntax declaringSyntax, SyntaxBase value) : DeclaredSymbol(context, name, declaringSyntax, declaringSyntax.Name)
 {
-    public TypeAliasSymbol(ISymbolContext context, string name, TypeDeclarationSyntax declaringSyntax, SyntaxBase value)
-        : base(context, name, declaringSyntax, declaringSyntax.Name)
-    {
-        this.Value = value;
-    }
-
     public TypeDeclarationSyntax DeclaringType => (TypeDeclarationSyntax)this.DeclaringSyntax;
 
-    public SyntaxBase Value { get; }
+    public SyntaxBase Value { get; } = value;
 
     public override void Accept(SymbolVisitor visitor) => visitor.VisitTypeAliasSymbol(this);
 

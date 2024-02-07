@@ -7,14 +7,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace Bicep.LanguageServer.Utils
 {
-    class ServerLogTraceListener : TraceListener
+    class ServerLogTraceListener(ILanguageServer server) : TraceListener
     {
-        private readonly ILanguageServer server;
-
-        public ServerLogTraceListener(ILanguageServer server)
-        {
-            this.server = server;
-        }
+        private readonly ILanguageServer server = server;
 
         public override void Write(string? message)
         {

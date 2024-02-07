@@ -2,18 +2,11 @@
 // Licensed under the MIT License.
 namespace Bicep.Core.Parsing
 {
-    public class SlidingTextWindow
+    public class SlidingTextWindow(string text)
     {
         public const char InvalidCharacter = char.MaxValue;
 
-        private readonly string text;
-
-        public SlidingTextWindow(string text)
-        {
-            this.text = text;
-            this.position = 0;
-            this.offset = 0;
-        }
+        private readonly string text = text;
 
         /// <summary>
         /// Gets the span of the current window.
@@ -60,9 +53,9 @@ namespace Bicep.Core.Parsing
         public ReadOnlySpan<char> GetText()
             => text.AsSpan(position, offset);
 
-        private int position;
+        private int position = 0;
 
-        private int offset;
+        private int offset = 0;
 
         public char Peek(int numChars = 0)
         {

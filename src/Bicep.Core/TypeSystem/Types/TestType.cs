@@ -3,19 +3,13 @@
 
 namespace Bicep.Core.TypeSystem.Types
 {
-    public class TestType : TypeSymbol
+    public class TestType(string name, ITypeReference body) : TypeSymbol(name)
     {
-        public TestType(string name, ITypeReference body)
-            : base(name)
-        {
-            Body = body;
-        }
-
         public override TypeKind TypeKind => TypeKind.Test;
 
         public override TypeSymbolValidationFlags ValidationFlags { get; } = TypeSymbolValidationFlags.PreventAssignment;
 
-        public ITypeReference Body { get; }
+        public ITypeReference Body { get; } = body;
 
         public static TestType? TryUnwrap(TypeSymbol typeSymbol)
             => typeSymbol switch

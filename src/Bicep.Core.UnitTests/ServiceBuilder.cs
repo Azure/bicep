@@ -52,14 +52,9 @@ public class ServiceBuilder
         return new ServiceBuilderInternal(services.BuildServiceProvider());
     }
 
-    private class ServiceBuilderInternal : IDependencyHelper
+    private class ServiceBuilderInternal(IServiceProvider provider) : IDependencyHelper
     {
-        private readonly IServiceProvider provider;
-
-        public ServiceBuilderInternal(IServiceProvider provider)
-        {
-            this.provider = provider;
-        }
+        private readonly IServiceProvider provider = provider;
 
         public TService Construct<TService>()
             where TService : class

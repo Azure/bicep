@@ -5,12 +5,8 @@ using Bicep.Core.Exceptions;
 
 namespace Bicep.Cli
 {
-    public class CommandLineException : BicepException
+    public class CommandLineException(string message, Exception? inner = null) : BicepException(message, inner)
     {
-        public CommandLineException(string message, Exception? inner = null)
-            : base(message, inner)
-        {
-        }
     }
 }
 

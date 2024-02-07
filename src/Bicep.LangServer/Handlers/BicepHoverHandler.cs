@@ -18,21 +18,14 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepHoverHandler : HoverHandlerBase
+    public class BicepHoverHandler(
+        IModuleDispatcher moduleDispatcher,
+        IArtifactRegistryProvider moduleRegistryProvider,
+        ISymbolResolver symbolResolver) : HoverHandlerBase
     {
-        private readonly IModuleDispatcher moduleDispatcher;
-        private readonly IArtifactRegistryProvider moduleRegistryProvider;
-        private readonly ISymbolResolver symbolResolver;
-
-        public BicepHoverHandler(
-            IModuleDispatcher moduleDispatcher,
-            IArtifactRegistryProvider moduleRegistryProvider,
-            ISymbolResolver symbolResolver)
-        {
-            this.moduleDispatcher = moduleDispatcher;
-            this.moduleRegistryProvider = moduleRegistryProvider;
-            this.symbolResolver = symbolResolver;
-        }
+        private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
+        private readonly IArtifactRegistryProvider moduleRegistryProvider = moduleRegistryProvider;
+        private readonly ISymbolResolver symbolResolver = symbolResolver;
 
         public override async Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
         {

@@ -5,13 +5,8 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class FunctionCallSyntax : FunctionCallSyntaxBase, ISymbolReference
+    public class FunctionCallSyntax(IdentifierSyntax name, Token openParen, IEnumerable<SyntaxBase> children, Token closeParen) : FunctionCallSyntaxBase(name, openParen, children, closeParen), ISymbolReference
     {
-        public FunctionCallSyntax(IdentifierSyntax name, Token openParen, IEnumerable<SyntaxBase> children, Token closeParen)
-            : base(name, openParen, children, closeParen)
-        {
-        }
-
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitFunctionCallSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(Name, CloseParen);

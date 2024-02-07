@@ -8,14 +8,9 @@ using Newtonsoft.Json;
 namespace Bicep.Core.Emit;
 
 // Emits bicepparams files
-public class ParametersEmitter
+public class ParametersEmitter(SemanticModel model)
 {
-    private readonly SemanticModel model;
-
-    public ParametersEmitter(SemanticModel model)
-    {
-        this.model = model;
-    }
+    private readonly SemanticModel model = model;
 
     /// <summary>
     /// The JSON spec requires UTF8 without a BOM, so we use this encoding to write JSON files.

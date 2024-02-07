@@ -8,16 +8,10 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Analyzers
 {
-    public class AnalyzerFixableDiagnostic : AnalyzerDiagnostic, IBicepAnalyerFixableDiagnostic
+    public class AnalyzerFixableDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level,
+        string code, string message, Uri? documentationUri,
+        DiagnosticStyling styling, IEnumerable<CodeFix> codeFixes) : AnalyzerDiagnostic(analyzerName, span, level, code, message, documentationUri, styling), IBicepAnalyerFixableDiagnostic
     {
-        public AnalyzerFixableDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level,
-            string code, string message, Uri? documentationUri,
-            DiagnosticStyling styling, IEnumerable<CodeFix> codeFixes)
-            : base(analyzerName, span, level, code, message, documentationUri, styling)
-        {
-            this.Fixes = codeFixes;
-        }
-
-        public IEnumerable<CodeFix> Fixes { get; }
+        public IEnumerable<CodeFix> Fixes { get; } = codeFixes;
     }
 }

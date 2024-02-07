@@ -5,14 +5,9 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public class ArrayTypeMemberSyntax : TypeSyntax
+public class ArrayTypeMemberSyntax(SyntaxBase value) : TypeSyntax
 {
-    public ArrayTypeMemberSyntax(SyntaxBase value)
-    {
-        this.Value = value;
-    }
-
-    public SyntaxBase Value { get; }
+    public SyntaxBase Value { get; } = value;
 
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitArrayTypeMemberSyntax(this);
 

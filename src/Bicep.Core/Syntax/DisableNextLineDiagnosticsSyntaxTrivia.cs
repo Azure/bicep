@@ -6,14 +6,8 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class DisableNextLineDiagnosticsSyntaxTrivia : SyntaxTrivia
+    public class DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType type, TextSpan span, string text, IEnumerable<Token> diagnosticCodes) : SyntaxTrivia(type, span, text)
     {
-        public DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType type, TextSpan span, string text, IEnumerable<Token> diagnosticCodes)
-            : base(type, span, text)
-        {
-            DiagnosticCodes = diagnosticCodes.ToImmutableArray();
-        }
-
-        public ImmutableArray<Token> DiagnosticCodes { get; }
+        public ImmutableArray<Token> DiagnosticCodes { get; } = diagnosticCodes.ToImmutableArray();
     }
 }

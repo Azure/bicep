@@ -7,7 +7,6 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Resources;
@@ -27,18 +26,13 @@ namespace Bicep.Core.Diagnostics
 
         public delegate Diagnostic DiagnosticBuilderDelegate(DiagnosticBuilderInternal builder);
 
-        public class DiagnosticBuilderInternal
+        public class DiagnosticBuilderInternal(TextSpan textSpan)
         {
 
             private const string TypeInaccuracyClause = " If this is an inaccuracy in the documentation, please report it to the Bicep Team.";
             private static readonly Uri TypeInaccuracyLink = new("https://aka.ms/bicep-type-issues");
 
-            public DiagnosticBuilderInternal(TextSpan textSpan)
-            {
-                TextSpan = textSpan;
-            }
-
-            public TextSpan TextSpan { get; }
+            public TextSpan TextSpan { get; } = textSpan;
 
             private static string ToQuotedString(IEnumerable<string> elements)
                 => elements.Any() ? $"\"{elements.ConcatString("\", \"")}\"" : "";

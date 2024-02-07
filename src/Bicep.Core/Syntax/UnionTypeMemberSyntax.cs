@@ -5,14 +5,9 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public class UnionTypeMemberSyntax : TypeSyntax
+public class UnionTypeMemberSyntax(SyntaxBase value) : TypeSyntax
 {
-    public UnionTypeMemberSyntax(SyntaxBase value)
-    {
-        Value = value;
-    }
-
-    public SyntaxBase Value { get; }
+    public SyntaxBase Value { get; } = value;
 
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitUnionTypeMemberSyntax(this);
 

@@ -6,13 +6,8 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.Semantics
 {
-    public class TestSymbol : DeclaredSymbol
+    public class TestSymbol(ISymbolContext context, string name, TestDeclarationSyntax declaringSyntax) : DeclaredSymbol(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        public TestSymbol(ISymbolContext context, string name, TestDeclarationSyntax declaringSyntax)
-            : base(context, name, declaringSyntax, declaringSyntax.Name)
-        {
-        }
-
         public TestDeclarationSyntax DeclaringTest => (TestDeclarationSyntax)this.DeclaringSyntax;
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitTestSymbol(this);

@@ -20,33 +20,23 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Bicep.Core.Registry
 {
-    public sealed class OciArtifactRegistry : ExternalArtifactRegistry<OciArtifactReference, OciArtifactResult>
+    public sealed class OciArtifactRegistry(
+        IFileResolver FileResolver,
+        IFileSystem fileSystem,
+        IContainerRegistryClientFactory clientFactory,
+        IFeatureProvider features,
+        RootConfiguration configuration,
+        Uri parentModuleUri) : ExternalArtifactRegistry<OciArtifactReference, OciArtifactResult>(FileResolver, fileSystem)
     {
-        private readonly AzureContainerRegistryManager client;
+        private readonly AzureContainerRegistryManager client = new AzureContainerRegistryManager(clientFactory);
 
-        private readonly string cachePath;
+        private readonly string cachePath = fileSystem.Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
 
-        private readonly RootConfiguration configuration;
+        private readonly RootConfiguration configuration = configuration;
 
-        private readonly Uri parentModuleUri;
+        private readonly Uri parentModuleUri = parentModuleUri;
 
-        private readonly IFeatureProvider features;
-
-        public OciArtifactRegistry(
-            IFileResolver FileResolver,
-            IFileSystem fileSystem,
-            IContainerRegistryClientFactory clientFactory,
-            IFeatureProvider features,
-            RootConfiguration configuration,
-            Uri parentModuleUri)
-            : base(FileResolver, fileSystem)
-        {
-            this.cachePath = fileSystem.Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
-            this.client = new AzureContainerRegistryManager(clientFactory);
-            this.configuration = configuration;
-            this.features = features;
-            this.parentModuleUri = parentModuleUri;
-        }
+        private readonly IFeatureProvider features = features;
 
         public override string Scheme => ModuleReferenceSchemes.Oci;
 

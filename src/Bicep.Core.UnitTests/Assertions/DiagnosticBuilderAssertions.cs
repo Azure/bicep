@@ -13,13 +13,8 @@ namespace Bicep.Core.UnitTests.Assertions
         public static DiagnosticBuilderAssertions Should(this DiagnosticBuilder.DiagnosticBuilderDelegate diagnosticBuilder) => new(diagnosticBuilder);
     }
 
-    public class DiagnosticBuilderAssertions : ReferenceTypeAssertions<DiagnosticBuilder.DiagnosticBuilderDelegate, DiagnosticBuilderAssertions>
+    public class DiagnosticBuilderAssertions(DiagnosticBuilder.DiagnosticBuilderDelegate diagnosticBuilder) : ReferenceTypeAssertions<DiagnosticBuilder.DiagnosticBuilderDelegate, DiagnosticBuilderAssertions>(diagnosticBuilder)
     {
-        public DiagnosticBuilderAssertions(DiagnosticBuilder.DiagnosticBuilderDelegate diagnosticBuilder)
-            : base(diagnosticBuilder)
-        {
-        }
-
         protected override string Identifier => "DiagnosticBuilderDelegate";
 
         public AndConstraint<DiagnosticBuilderAssertions> HaveCodeAndSeverity(string code, DiagnosticLevel level, string because = "", params object[] becauseArgs)

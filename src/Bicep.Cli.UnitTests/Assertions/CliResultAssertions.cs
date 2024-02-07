@@ -4,12 +4,7 @@ using FluentAssertions.Primitives;
 
 namespace Bicep.Cli.UnitTests.Assertions;
 
-public class CliResultAssertions : ReferenceTypeAssertions<CliResult, CliResultAssertions>
+public class CliResultAssertions(CliResult instance) : ReferenceTypeAssertions<CliResult, CliResultAssertions>(instance)
 {
-    public CliResultAssertions(CliResult instance)
-        : base(instance)
-    {
-    }
-
     protected override string Identifier => "result";
 }

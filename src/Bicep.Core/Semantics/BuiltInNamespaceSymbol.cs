@@ -4,15 +4,9 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics
 {
-    public class BuiltInNamespaceSymbol : Symbol, INamespaceSymbol
+    public class BuiltInNamespaceSymbol(string name, NamespaceType type) : Symbol(name), INamespaceSymbol
     {
-        public BuiltInNamespaceSymbol(string name, NamespaceType type)
-            : base(name)
-        {
-            Type = type;
-        }
-
-        public NamespaceType Type { get; }
+        public NamespaceType Type { get; } = type;
 
         public override IEnumerable<Symbol> Descendants
         {

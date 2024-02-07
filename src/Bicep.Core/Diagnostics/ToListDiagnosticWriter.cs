@@ -3,14 +3,9 @@
 
 namespace Bicep.Core.Diagnostics
 {
-    public class ToListDiagnosticWriter : IDiagnosticWriter
+    public class ToListDiagnosticWriter(List<IDiagnostic> diagnostics) : IDiagnosticWriter
     {
-        private readonly List<IDiagnostic> diagnostics;
-
-        public ToListDiagnosticWriter(List<IDiagnostic> diagnostics)
-        {
-            this.diagnostics = diagnostics;
-        }
+        private readonly List<IDiagnostic> diagnostics = diagnostics;
 
         public static ToListDiagnosticWriter Create()
             => new(new List<IDiagnostic>());

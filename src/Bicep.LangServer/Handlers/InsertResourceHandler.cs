@@ -39,24 +39,16 @@ namespace Bicep.LanguageServer.Handlers
         public string? ResourceId { get; init; }
     }
 
-    public class InsertResourceHandler : IJsonRpcNotificationHandler<InsertResourceParams>
+    public class InsertResourceHandler(
+        ILanguageServerFacade server,
+        ICompilationManager compilationManager,
+        IAzResourceProvider azResourceProvider,
+        ITelemetryProvider telemetryProvider) : IJsonRpcNotificationHandler<InsertResourceParams>
     {
-        private readonly ILanguageServerFacade server;
-        private readonly ICompilationManager compilationManager;
-        private readonly IAzResourceProvider azResourceProvider;
-        private readonly TelemetryAndErrorHandlingHelper<Unit> helper;
-
-        public InsertResourceHandler(
-            ILanguageServerFacade server,
-            ICompilationManager compilationManager,
-            IAzResourceProvider azResourceProvider,
-            ITelemetryProvider telemetryProvider)
-        {
-            this.server = server;
-            this.compilationManager = compilationManager;
-            this.azResourceProvider = azResourceProvider;
-            this.helper = new TelemetryAndErrorHandlingHelper<Unit>(server.Window, telemetryProvider);
-        }
+        private readonly ILanguageServerFacade server = server;
+        private readonly ICompilationManager compilationManager = compilationManager;
+        private readonly IAzResourceProvider azResourceProvider = azResourceProvider;
+        private readonly TelemetryAndErrorHandlingHelper<Unit> helper = new TelemetryAndErrorHandlingHelper<Unit>(server.Window, telemetryProvider);
 
         public Task<Unit> Handle(InsertResourceParams request, CancellationToken cancellationToken)
             => helper.ExecuteWithTelemetryAndErrorHandling(async () =>

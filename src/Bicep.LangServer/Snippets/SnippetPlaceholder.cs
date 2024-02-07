@@ -4,19 +4,12 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.LanguageServer.Snippets
 {
-    public class SnippetPlaceholder
+    public class SnippetPlaceholder(int index, string? name, TextSpan span)
     {
-        public SnippetPlaceholder(int index, string? name, TextSpan span)
-        {
-            this.Index = index;
-            this.Name = name;
-            this.Span = span;
-        }
+        public int Index { get; } = index;
 
-        public int Index { get; }
+        public string? Name { get; } = name;
 
-        public string? Name { get; }
-
-        public TextSpan Span { get; }
+        public TextSpan Span { get; } = span;
     }
 }

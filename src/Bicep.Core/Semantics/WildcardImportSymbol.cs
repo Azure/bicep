@@ -8,18 +8,11 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics;
 
-public class WildcardImportSymbol : DeclaredSymbol, INamespaceSymbol
+public class WildcardImportSymbol(ISymbolContext context, ISemanticModel sourceModel, WildcardImportSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclaration) : DeclaredSymbol(context, declaringSyntax.Name.IdentifierName, declaringSyntax, declaringSyntax.AliasAsClause.Alias), INamespaceSymbol
 {
-    public WildcardImportSymbol(ISymbolContext context, ISemanticModel sourceModel, WildcardImportSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclaration)
-        : base(context, declaringSyntax.Name.IdentifierName, declaringSyntax, declaringSyntax.AliasAsClause.Alias)
-    {
-        SourceModel = sourceModel;
-        EnclosingDeclaration = enclosingDeclaration;
-    }
+    public ISemanticModel SourceModel { get; } = sourceModel;
 
-    public ISemanticModel SourceModel { get; }
-
-    public CompileTimeImportDeclarationSyntax EnclosingDeclaration { get; }
+    public CompileTimeImportDeclarationSyntax EnclosingDeclaration { get; } = enclosingDeclaration;
 
     public override void Accept(SymbolVisitor visitor)
     {

@@ -5,16 +5,10 @@ using Bicep.Core.Features;
 
 namespace Bicep.Core.UnitTests.Features;
 
-public class OverriddenFeatureProvider : IFeatureProvider
+public class OverriddenFeatureProvider(IFeatureProvider features, FeatureProviderOverrides overrides) : IFeatureProvider
 {
-    private readonly IFeatureProvider features;
-    private readonly FeatureProviderOverrides overrides;
-
-    public OverriddenFeatureProvider(IFeatureProvider features, FeatureProviderOverrides overrides)
-    {
-        this.features = features;
-        this.overrides = overrides;
-    }
+    private readonly IFeatureProvider features = features;
+    private readonly FeatureProviderOverrides overrides = overrides;
 
     public string AssemblyVersion => overrides.AssemblyVersion ?? features.AssemblyVersion;
 

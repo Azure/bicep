@@ -16,23 +16,16 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDocumentFormattingHandler : DocumentFormattingHandlerBase
+    public class BicepDocumentFormattingHandler(
+        ILogger<BicepDocumentSymbolHandler> logger,
+        ICompilationManager compilationManager,
+        IFeatureProviderFactory featureProviderFactory) : DocumentFormattingHandlerBase
     {
-        private readonly ILogger<BicepDocumentSymbolHandler> logger;
+        private readonly ILogger<BicepDocumentSymbolHandler> logger = logger;
 
-        private readonly ICompilationManager compilationManager;
+        private readonly ICompilationManager compilationManager = compilationManager;
 
-        private readonly IFeatureProviderFactory featureProviderFactory;
-
-        public BicepDocumentFormattingHandler(
-            ILogger<BicepDocumentSymbolHandler> logger,
-            ICompilationManager compilationManager,
-            IFeatureProviderFactory featureProviderFactory)
-        {
-            this.logger = logger;
-            this.compilationManager = compilationManager;
-            this.featureProviderFactory = featureProviderFactory;
-        }
+        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
 
         public override Task<TextEditContainer?> Handle(DocumentFormattingParams request, CancellationToken cancellationToken)
         {

@@ -2,17 +2,11 @@
 // Licensed under the MIT License.
 namespace Bicep.Wasm.LanguageHelpers
 {
-    public class Position
+    public class Position(int line, int character)
     {
-        public Position(int line, int character)
-        {
-            Line = line;
-            Character = character;
-        }
+        public int Line { get; } = line;
 
-        public int Line { get; }
-
-        public int Character { get; }
+        public int Character { get; } = character;
     }
 }
 

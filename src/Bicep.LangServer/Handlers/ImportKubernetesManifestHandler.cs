@@ -25,14 +25,9 @@ namespace Bicep.LanguageServer.Handlers
 
     public record ImportKubernetesManifestResponse(string? BicepFilePath);
 
-    public class ImportKubernetesManifestHandler : IJsonRpcRequestHandler<ImportKubernetesManifestRequest, ImportKubernetesManifestResponse>
+    public class ImportKubernetesManifestHandler(ILanguageServerFacade server, ITelemetryProvider telemetryProvider) : IJsonRpcRequestHandler<ImportKubernetesManifestRequest, ImportKubernetesManifestResponse>
     {
-        private readonly TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> helper;
-
-        public ImportKubernetesManifestHandler(ILanguageServerFacade server, ITelemetryProvider telemetryProvider)
-        {
-            this.helper = new TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse>(server.Window, telemetryProvider);
-        }
+        private readonly TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> helper = new TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse>(server.Window, telemetryProvider);
 
         public Task<ImportKubernetesManifestResponse> Handle(ImportKubernetesManifestRequest request, CancellationToken cancellationToken)
             => helper.ExecuteWithTelemetryAndErrorHandling(async () =>

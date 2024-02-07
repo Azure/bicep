@@ -5,15 +5,9 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
 {
-    public class MetadataSymbol : DeclaredSymbol
+    public class MetadataSymbol(ISymbolContext context, string name, MetadataDeclarationSyntax declaringSyntax, SyntaxBase value) : DeclaredSymbol(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        public MetadataSymbol(ISymbolContext context, string name, MetadataDeclarationSyntax declaringSyntax, SyntaxBase value)
-            : base(context, name, declaringSyntax, declaringSyntax.Name)
-        {
-            this.Value = value;
-        }
-
-        public SyntaxBase Value { get; }
+        public SyntaxBase Value { get; } = value;
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitMetadataSymbol(this);
 

@@ -18,13 +18,8 @@ namespace Bicep.Core.UnitTests.Assertions
         public static MockRegistryAssertions Should(this MockRegistryBlobClient client) => new(client);
     }
 
-    public class MockRegistryAssertions : ReferenceTypeAssertions<MockRegistryBlobClient, MockRegistryAssertions>
+    public class MockRegistryAssertions(MockRegistryBlobClient client) : ReferenceTypeAssertions<MockRegistryBlobClient, MockRegistryAssertions>(client)
     {
-        public MockRegistryAssertions(MockRegistryBlobClient client)
-            : base(client)
-        {
-        }
-
         protected override string Identifier => nameof(MockRegistryBlobClient);
 
         public AndConstraint<MockRegistryAssertions> HaveModuleWithSource(string tag, BinaryData expectedModuleContent, BinaryData? expectedSourceContent = null)

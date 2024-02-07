@@ -10,22 +10,15 @@ namespace Bicep.Core.TypeSystem.Types;
 /// <summary>
 /// An IUnresolvedResourceDerivedType to use as a branch of a DiscriminatedObjectType
 /// </summary>
-public class UnresolvedResourceDerivedPartialObjectType : ObjectType, IUnresolvedResourceDerivedType
+public class UnresolvedResourceDerivedPartialObjectType(ResourceTypeReference typeReference, ImmutableArray<string> pointerSegments, string discriminatorName, string discriminatorValue) : ObjectType(typeReference.FormatType(),
+        TypeSymbolValidationFlags.Default,
+        new TypeProperty(discriminatorName, TypeFactory.CreateStringLiteralType(discriminatorValue)).AsEnumerable(),
+        LanguageConstants.Any,
+        TypePropertyFlags.FallbackProperty), IUnresolvedResourceDerivedType
 {
-    public UnresolvedResourceDerivedPartialObjectType(ResourceTypeReference typeReference, ImmutableArray<string> pointerSegments, string discriminatorName, string discriminatorValue)
-        : base(typeReference.FormatType(),
-            TypeSymbolValidationFlags.Default,
-            new TypeProperty(discriminatorName, TypeFactory.CreateStringLiteralType(discriminatorValue)).AsEnumerable(),
-            LanguageConstants.Any,
-            TypePropertyFlags.FallbackProperty)
-    {
-        TypeReference = typeReference;
-        PointerSegments = pointerSegments;
-    }
+    public ResourceTypeReference TypeReference { get; } = typeReference;
 
-    public ResourceTypeReference TypeReference { get; }
-
-    public ImmutableArray<string> PointerSegments { get; }
+    public ImmutableArray<string> PointerSegments { get; } = pointerSegments;
 
     public TypeSymbol FallbackType => this;
 

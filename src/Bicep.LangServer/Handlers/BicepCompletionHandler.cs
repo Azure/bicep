@@ -13,20 +13,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepCompletionHandler : CompletionHandlerBase
+    public class BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory) : CompletionHandlerBase
     {
-        private readonly ILogger<BicepCompletionHandler> logger;
-        private readonly ICompilationManager compilationManager;
-        private readonly ICompletionProvider completionProvider;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-
-        public BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory)
-        {
-            this.logger = logger;
-            this.compilationManager = compilationManager;
-            this.completionProvider = completionProvider;
-            this.featureProviderFactory = featureProviderFactory;
-        }
+        private readonly ILogger<BicepCompletionHandler> logger = logger;
+        private readonly ICompilationManager compilationManager = compilationManager;
+        private readonly ICompletionProvider completionProvider = completionProvider;
+        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
 
         public override async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
         {

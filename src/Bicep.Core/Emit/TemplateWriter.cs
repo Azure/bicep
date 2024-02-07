@@ -22,7 +22,7 @@ using Newtonsoft.Json.Linq;
 namespace Bicep.Core.Emit
 {
     // TODO: Are there discrepancies between parameter, variable, and output names between bicep and ARM?
-    public class TemplateWriter : ITemplateWriter
+    public class TemplateWriter(SemanticModel semanticModel) : ITemplateWriter
     {
         public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
@@ -66,14 +66,8 @@ namespace Bicep.Core.Emit
         }
 
         private EmitterContext Context => ExpressionBuilder.Context;
-        private ExpressionBuilder ExpressionBuilder { get; }
-        private ImmutableDictionary<string, DeclaredTypeExpression> declaredTypesByName;
-
-        public TemplateWriter(SemanticModel semanticModel)
-        {
-            ExpressionBuilder = new ExpressionBuilder(new EmitterContext(semanticModel));
-            declaredTypesByName = ImmutableDictionary<string, DeclaredTypeExpression>.Empty;
-        }
+        private ExpressionBuilder ExpressionBuilder { get; } = new ExpressionBuilder(new EmitterContext(semanticModel));
+        private ImmutableDictionary<string, DeclaredTypeExpression> declaredTypesByName = ImmutableDictionary<string, DeclaredTypeExpression>.Empty;
 
         public void Write(SourceAwareJsonTextWriter writer)
         {

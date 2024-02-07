@@ -37,15 +37,10 @@ namespace Bicep.Core.Semantics
             return parent;
         }
 
-        private sealed class ParentTrackingVisitor : SymbolVisitor
+        private sealed class ParentTrackingVisitor(Dictionary<Symbol, Symbol?> parentMap) : SymbolVisitor
         {
-            private readonly Dictionary<Symbol, Symbol?> parentMap;
+            private readonly Dictionary<Symbol, Symbol?> parentMap = parentMap;
             private readonly Stack<Symbol> currentParents = new();
-
-            public ParentTrackingVisitor(Dictionary<Symbol, Symbol?> parentMap)
-            {
-                this.parentMap = parentMap;
-            }
 
             protected override void VisitInternal(Symbol node)
             {

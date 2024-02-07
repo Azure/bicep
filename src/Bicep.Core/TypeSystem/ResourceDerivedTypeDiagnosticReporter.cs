@@ -10,19 +10,13 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem;
 
-public class ResourceDerivedTypeDiagnosticReporter
+public class ResourceDerivedTypeDiagnosticReporter(IFeatureProvider features, IBinder binder)
 {
     private static readonly StringComparer PointerSegmentComparer = StringComparer.OrdinalIgnoreCase;
 
     private readonly Stack<TypeSymbol> processing = new();
-    private readonly IFeatureProvider features;
-    private readonly IBinder binder;
-
-    public ResourceDerivedTypeDiagnosticReporter(IFeatureProvider features, IBinder binder)
-    {
-        this.features = features;
-        this.binder = binder;
-    }
+    private readonly IFeatureProvider features = features;
+    private readonly IBinder binder = binder;
 
     public IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> ReportResourceDerivedTypeDiagnostics(ITypeReference @ref) => @ref switch
     {

@@ -3,22 +3,15 @@
 
 namespace Bicep.Core.Workspaces
 {
-    public class TemplateSpecFile : ISourceFile
+    public class TemplateSpecFile(Uri fileUri, string? templateSpecId, ArmTemplateFile mainTemplateFile) : ISourceFile
     {
-        public TemplateSpecFile(Uri fileUri, string? templateSpecId, ArmTemplateFile mainTemplateFile)
-        {
-            this.FileUri = fileUri;
-            this.TemplateSpecId = templateSpecId;
-            this.MainTemplateFile = mainTemplateFile;
-        }
-
-        public Uri FileUri { get; }
+        public Uri FileUri { get; } = fileUri;
 
         public string GetOriginalSource() => MainTemplateFile.GetOriginalSource();
 
-        public string? TemplateSpecId { get; }
+        public string? TemplateSpecId { get; } = templateSpecId;
 
-        public ArmTemplateFile MainTemplateFile { get; }
+        public ArmTemplateFile MainTemplateFile { get; } = mainTemplateFile;
 
         public bool HasErrors() => this.TemplateSpecId is null;
     }

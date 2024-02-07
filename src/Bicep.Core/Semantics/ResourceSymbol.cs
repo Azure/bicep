@@ -6,13 +6,8 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics
 {
-    public class ResourceSymbol : DeclaredSymbol
+    public class ResourceSymbol(ISymbolContext context, string name, ResourceDeclarationSyntax declaringSyntax) : DeclaredSymbol(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        public ResourceSymbol(ISymbolContext context, string name, ResourceDeclarationSyntax declaringSyntax)
-            : base(context, name, declaringSyntax, declaringSyntax.Name)
-        {
-        }
-
         public ResourceDeclarationSyntax DeclaringResource => (ResourceDeclarationSyntax)this.DeclaringSyntax;
 
         public IdentifierSyntax NameIdentifier => (IdentifierSyntax)this.NameSource;

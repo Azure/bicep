@@ -2,20 +2,13 @@
 // Licensed under the MIT License.
 namespace Bicep.Core.TypeSystem
 {
-    public class ArgumentCountMismatch
+    public class ArgumentCountMismatch(int argumentCount, int minimumArgumentCount, int? maximumArgumentCount)
     {
-        public ArgumentCountMismatch(int argumentCount, int minimumArgumentCount, int? maximumArgumentCount)
-        {
-            this.ArgumentCount = argumentCount;
-            this.MinimumArgumentCount = minimumArgumentCount;
-            this.MaximumArgumentCount = maximumArgumentCount;
-        }
+        public int ArgumentCount { get; } = argumentCount;
 
-        public int ArgumentCount { get; }
+        public int MinimumArgumentCount { get; } = minimumArgumentCount;
 
-        public int MinimumArgumentCount { get; }
-
-        public int? MaximumArgumentCount { get; }
+        public int? MaximumArgumentCount { get; } = maximumArgumentCount;
 
         public void Deconstruct(out int argumentCount, out int minimumArgumentCount, out int? maximumArgumentCount)
         {

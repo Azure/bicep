@@ -4,14 +4,9 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class FunctionArgumentSyntax : ExpressionSyntax
+    public class FunctionArgumentSyntax(SyntaxBase expression) : ExpressionSyntax
     {
-        public FunctionArgumentSyntax(SyntaxBase expression)
-        {
-            this.Expression = expression;
-        }
-
-        public SyntaxBase Expression { get; }
+        public SyntaxBase Expression { get; } = expression;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitFunctionArgumentSyntax(this);
 

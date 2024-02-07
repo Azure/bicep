@@ -88,19 +88,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private sealed class Visitor : AstVisitor
+        private sealed class Visitor(ImmutableArray<string> disallowedHosts, int minHostLen, ImmutableArray<string> excludedHosts) : AstVisitor
         {
             public readonly Dictionary<TextSpan, string> DisallowedHostSpans = new();
-            private readonly ImmutableArray<string> disallowedHosts;
-            private readonly int minHostLen;
-            private readonly ImmutableArray<string> excludedHosts;
-
-            public Visitor(ImmutableArray<string> disallowedHosts, int minHostLen, ImmutableArray<string> excludedHosts)
-            {
-                this.disallowedHosts = disallowedHosts;
-                this.minHostLen = minHostLen;
-                this.excludedHosts = excludedHosts;
-            }
+            private readonly ImmutableArray<string> disallowedHosts = disallowedHosts;
+            private readonly int minHostLen = minHostLen;
+            private readonly ImmutableArray<string> excludedHosts = excludedHosts;
 
             public static IEnumerable<(TextSpan RelativeSpan, string Value)> RemoveOverlapping(IEnumerable<(TextSpan RelativeSpan, string Value)> matches)
             {

@@ -6,14 +6,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
-    public sealed class DescriptionsValidator : IModuleFileValidator
+    public sealed class DescriptionsValidator(ILogger logger) : IModuleFileValidator
     {
-        private readonly ILogger logger;
-
-        public DescriptionsValidator(ILogger logger)
-        {
-            this.logger = logger;
-        }
+        private readonly ILogger logger = logger;
 
         public Task<IEnumerable<string>> ValidateAsync(MainBicepFile file) => Task.FromResult(this.Validate(file));
 

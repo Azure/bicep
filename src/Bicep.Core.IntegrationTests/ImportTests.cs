@@ -44,9 +44,9 @@ namespace Bicep.Core.IntegrationTests
             return services;
         }
 
-        private class TestNamespaceProvider : INamespaceProvider
+        private class TestNamespaceProvider(Dictionary<string, Func<string, NamespaceType>> builderDict) : INamespaceProvider
         {
-            private readonly ImmutableDictionary<string, Func<string, NamespaceType>> builderDict;
+            private readonly ImmutableDictionary<string, Func<string, NamespaceType>> builderDict = builderDict.ToImmutableDictionary();
 
             private readonly HashSet<string> builtInNamespacesNames = new(){
                 SystemNamespaceType.BuiltInName,
@@ -54,11 +54,6 @@ namespace Bicep.Core.IntegrationTests
                 MicrosoftGraphNamespaceType.BuiltInName,
                 K8sNamespaceType.BuiltInName,
             };
-
-            public TestNamespaceProvider(Dictionary<string, Func<string, NamespaceType>> builderDict)
-            {
-                this.builderDict = builderDict.ToImmutableDictionary();
-            }
 
             public ResultWithDiagnostic<NamespaceType> TryGetNamespace(ResourceTypesProviderDescriptor providerDescriptor, ResourceScope resourceScope, IFeatureProvider features, BicepSourceFileKind sourceFileKind)
             {

@@ -13,22 +13,19 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public abstract class LocationRuleBase : LinterRuleBase
+    public abstract class LocationRuleBase(
+        string code,
+        string description,
+        Uri docUri,
+        DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
+        DiagnosticStyling diagnosticStyling = DiagnosticStyling.Default
+            ) : LinterRuleBase(code, description, docUri, diagnosticLevel, diagnosticStyling)
     {
         protected const string Global = "global";
 
         private const string ResourceGroupFunctionName = "resourceGroup";
         private const string DeploymentFunctionName = "deployment";
         private const string RGOrDeploymentLocationPropertyName = "location";
-
-        public LocationRuleBase(
-            string code,
-            string description,
-            Uri docUri,
-            DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
-            DiagnosticStyling diagnosticStyling = DiagnosticStyling.Default
-            )
-        : base(code, description, docUri, diagnosticLevel, diagnosticStyling) { }
 
         /// <summary>
         /// Retrieves the literal text value of a syntax node if that node is either a string literal or a reference (possibly indirectly)
@@ -279,16 +276,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return result.ToImmutableArray();
         }
 
-        private class GetParametersUsedInResourceLocationsVisitor : AstVisitor
+        private class GetParametersUsedInResourceLocationsVisitor(SemanticModel semanticModel) : AstVisitor
         {
-            private readonly SemanticModel semanticModel;
+            private readonly SemanticModel semanticModel = semanticModel;
 
             public List<ParameterSymbol> parameters = new();
-
-            public GetParametersUsedInResourceLocationsVisitor(SemanticModel semanticModel)
-            {
-                this.semanticModel = semanticModel;
-            }
 
             public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             {
@@ -306,16 +298,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private class GetReferencedParametersVisitor : AstVisitor
+        private class GetReferencedParametersVisitor(SemanticModel semanticModel) : AstVisitor
         {
-            private readonly SemanticModel semanticModel;
+            private readonly SemanticModel semanticModel = semanticModel;
 
             public List<ParameterSymbol> parameters = new();
-
-            public GetReferencedParametersVisitor(SemanticModel semanticModel)
-            {
-                this.semanticModel = semanticModel;
-            }
 
             public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
             {

@@ -11,22 +11,13 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics.Metadata
 {
-    public class ResourceMetadataCache : SyntaxMetadataCacheBase<ResourceMetadata?>
+    public class ResourceMetadataCache(SemanticModel semanticModel) : SyntaxMetadataCacheBase<ResourceMetadata?>
     {
-        private readonly SemanticModel semanticModel;
-        private readonly ConcurrentDictionary<ResourceSymbol, ResourceMetadata> symbolLookup;
-        private readonly Lazy<ImmutableDictionary<ResourceDeclarationSyntax, ResourceSymbol>> resourceSymbols;
-        private readonly ConcurrentDictionary<(ModuleSymbol module, string output), ResourceMetadata> moduleOutputLookup;
-
-        public ResourceMetadataCache(SemanticModel semanticModel)
-        {
-            this.semanticModel = semanticModel;
-            this.symbolLookup = new();
-            this.resourceSymbols = new(() => ResourceSymbolVisitor.GetAllResources(semanticModel.Root)
+        private readonly SemanticModel semanticModel = semanticModel;
+        private readonly ConcurrentDictionary<ResourceSymbol, ResourceMetadata> symbolLookup = new();
+        private readonly Lazy<ImmutableDictionary<ResourceDeclarationSyntax, ResourceSymbol>> resourceSymbols = new(() => ResourceSymbolVisitor.GetAllResources(semanticModel.Root)
                 .ToImmutableDictionary(x => x.DeclaringResource));
-
-            this.moduleOutputLookup = new();
-        }
+        private readonly ConcurrentDictionary<(ModuleSymbol module, string output), ResourceMetadata> moduleOutputLookup = new();
 
         // NOTE: modules can declare outputs with resource types. This means one piece of syntax (the module)
         // can declare multiple ResourceMetadata. We have this separate code path to 'load' these because

@@ -7,15 +7,9 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics
 {
-    public class ProviderNamespaceSymbol : DeclaredSymbol, INamespaceSymbol
+    public class ProviderNamespaceSymbol(ISymbolContext context, ProviderDeclarationSyntax declaringSyntax, TypeSymbol declaredType) : DeclaredSymbol(context, declaringSyntax.Alias?.IdentifierName ?? declaringSyntax.Specification.Name, declaringSyntax, declaringSyntax.Alias as ISymbolNameSource ?? declaringSyntax.Specification), INamespaceSymbol
     {
-        public ProviderNamespaceSymbol(ISymbolContext context, ProviderDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
-            : base(context, declaringSyntax.Alias?.IdentifierName ?? declaringSyntax.Specification.Name, declaringSyntax, declaringSyntax.Alias as ISymbolNameSource ?? declaringSyntax.Specification)
-        {
-            this.DeclaredType = declaredType;
-        }
-
-        public TypeSymbol DeclaredType { get; }
+        public TypeSymbol DeclaredType { get; } = declaredType;
 
         public ProviderDeclarationSyntax DeclaringProvider => (ProviderDeclarationSyntax)this.DeclaringSyntax;
 

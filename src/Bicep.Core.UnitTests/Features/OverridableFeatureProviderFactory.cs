@@ -5,16 +5,10 @@ using Bicep.Core.Features;
 
 namespace Bicep.Core.UnitTests.Features;
 
-public class OverriddenFeatureProviderFactory : IFeatureProviderFactory
+public class OverriddenFeatureProviderFactory(FeatureProviderFactory factory, FeatureProviderOverrides overrides) : IFeatureProviderFactory
 {
-    private readonly IFeatureProviderFactory factory;
-    private readonly FeatureProviderOverrides overrides;
-
-    public OverriddenFeatureProviderFactory(FeatureProviderFactory factory, FeatureProviderOverrides overrides)
-    {
-        this.factory = factory;
-        this.overrides = overrides;
-    }
+    private readonly IFeatureProviderFactory factory = factory;
+    private readonly FeatureProviderOverrides overrides = overrides;
 
     public IFeatureProvider GetFeatureProvider(Uri templateUri)
         => new OverriddenFeatureProvider(factory.GetFeatureProvider(templateUri), overrides);

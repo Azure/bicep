@@ -3,22 +3,14 @@
 
 namespace Bicep.Cli.Logging
 {
-    public class BicepLoggerOptions
+    public class BicepLoggerOptions(bool enableColors, ConsoleColor errorColor, ConsoleColor warningColor, TextWriter writer)
     {
-        public BicepLoggerOptions(bool enableColors, ConsoleColor errorColor, ConsoleColor warningColor, TextWriter writer)
-        {
-            this.EnableColors = enableColors;
-            this.ErrorColor = errorColor;
-            this.WarningColor = warningColor;
-            this.Writer = writer;
-        }
+        public bool EnableColors { get; } = enableColors;
 
-        public bool EnableColors { get; }
+        public ConsoleColor ErrorColor { get; } = errorColor;
 
-        public ConsoleColor ErrorColor { get; }
+        public ConsoleColor WarningColor { get; } = warningColor;
 
-        public ConsoleColor WarningColor { get; }
-
-        public TextWriter Writer { get; }
+        public TextWriter Writer { get; } = writer;
     }
 }

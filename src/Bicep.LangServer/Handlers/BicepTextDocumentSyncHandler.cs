@@ -14,16 +14,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepTextDocumentSyncHandler : TextDocumentSyncHandlerBase
+    public class BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler) : TextDocumentSyncHandlerBase
     {
-        private readonly ICompilationManager compilationManager;
-        private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
-
-        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler)
-        {
-            this.bicepConfigChangeHandler = bicepConfigChangeHandler;
-            this.compilationManager = compilationManager;
-        }
+        private readonly ICompilationManager compilationManager = compilationManager;
+        private readonly IBicepConfigChangeHandler bicepConfigChangeHandler = bicepConfigChangeHandler;
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
         {

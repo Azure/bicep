@@ -5,12 +5,8 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
 {
-    public class ParamsParser : BaseParser
+    public class ParamsParser(string text) : BaseParser(text)
     {
-        public ParamsParser(string text) : base(text)
-        {
-        }
-
         public override ProgramSyntax Program()
         {
             var declarationsOrTokens = new List<SyntaxBase>();

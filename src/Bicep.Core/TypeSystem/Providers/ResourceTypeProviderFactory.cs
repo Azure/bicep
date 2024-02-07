@@ -12,19 +12,14 @@ using Bicep.Core.TypeSystem.Providers.ThirdParty;
 
 namespace Bicep.Core.TypeSystem.Providers
 {
-    public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
+    public class ResourceTypeProviderFactory(IFileSystem fileSystem) : IResourceTypeProviderFactory
     {
         private static readonly Lazy<IResourceTypeProvider> azResourceTypeProviderLazy
             = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), AzNamespaceType.Settings.ArmTemplateProviderVersion));
 
         private record ResourceTypeLoaderKey(string Name, string Version);
         private readonly ConcurrentDictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders = new();
-        private readonly IFileSystem fileSystem;
-
-        public ResourceTypeProviderFactory(IFileSystem fileSystem)
-        {
-            this.fileSystem = fileSystem;
-        }
+        private readonly IFileSystem fileSystem = fileSystem;
 
         public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProviderFromFilePath(ResourceTypesProviderDescriptor providerDescriptor)
         {

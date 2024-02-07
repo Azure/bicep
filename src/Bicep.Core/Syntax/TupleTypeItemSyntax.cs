@@ -5,14 +5,9 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public class TupleTypeItemSyntax : DecorableSyntax
+public class TupleTypeItemSyntax(IEnumerable<SyntaxBase> leadingNodes, SyntaxBase value) : DecorableSyntax(leadingNodes)
 {
-    public TupleTypeItemSyntax(IEnumerable<SyntaxBase> leadingNodes, SyntaxBase value) : base(leadingNodes)
-    {
-        this.Value = value;
-    }
-
-    public SyntaxBase Value { get; }
+    public SyntaxBase Value { get; } = value;
 
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitTupleTypeItemSyntax(this);
 

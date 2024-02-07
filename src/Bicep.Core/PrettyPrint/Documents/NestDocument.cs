@@ -6,21 +6,15 @@ using System.Text;
 
 namespace Bicep.Core.PrettyPrint.Documents
 {
-    public class NestDocument : ILinkedDocument
+    public class NestDocument(int level, ImmutableArray<ILinkedDocument> successors) : ILinkedDocument
     {
-        private readonly int level;
+        private readonly int level = level;
 
-        private readonly ImmutableArray<ILinkedDocument> successors;
+        private readonly ImmutableArray<ILinkedDocument> successors = successors;
 
         public NestDocument(int level)
             : this(level, ImmutableArray<ILinkedDocument>.Empty)
         {
-        }
-
-        public NestDocument(int level, ImmutableArray<ILinkedDocument> successors)
-        {
-            this.level = level;
-            this.successors = successors;
         }
 
         public ILinkedDocument Concat(ILinkedDocument other)

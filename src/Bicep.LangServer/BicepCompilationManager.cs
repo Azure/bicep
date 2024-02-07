@@ -25,38 +25,27 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer
 {
-    public class BicepCompilationManager : ICompilationManager
+    public class BicepCompilationManager(
+        ILanguageServerFacade server,
+        ICompilationProvider provider,
+        IWorkspace workspace,
+        IModuleRestoreScheduler scheduler,
+        ITelemetryProvider telemetryProvider,
+        ILinterRulesProvider LinterRulesProvider,
+        IFileResolver fileResolver) : ICompilationManager
     {
         public const string LinterEnabledSetting = "core.enabled";
 
-        private readonly IWorkspace workspace;
-        private readonly AuxiliaryFileCache fileCache;
-        private readonly ILanguageServerFacade server;
-        private readonly ICompilationProvider provider;
-        private readonly IModuleRestoreScheduler scheduler;
-        private readonly ITelemetryProvider TelemetryProvider;
-        private readonly ILinterRulesProvider LinterRulesProvider;
+        private readonly IWorkspace workspace = workspace;
+        private readonly AuxiliaryFileCache fileCache = new(fileResolver);
+        private readonly ILanguageServerFacade server = server;
+        private readonly ICompilationProvider provider = provider;
+        private readonly IModuleRestoreScheduler scheduler = scheduler;
+        private readonly ITelemetryProvider TelemetryProvider = telemetryProvider;
+        private readonly ILinterRulesProvider LinterRulesProvider = LinterRulesProvider;
 
         // represents compilations of open bicep or param files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContextBase> activeContexts = new();
-
-        public BicepCompilationManager(
-            ILanguageServerFacade server,
-            ICompilationProvider provider,
-            IWorkspace workspace,
-            IModuleRestoreScheduler scheduler,
-            ITelemetryProvider telemetryProvider,
-            ILinterRulesProvider LinterRulesProvider,
-            IFileResolver fileResolver)
-        {
-            this.fileCache = new(fileResolver);
-            this.server = server;
-            this.provider = provider;
-            this.workspace = workspace;
-            this.scheduler = scheduler;
-            this.TelemetryProvider = telemetryProvider;
-            this.LinterRulesProvider = LinterRulesProvider;
-        }
 
         public void RefreshCompilation(DocumentUri documentUri, bool forceReloadAuxiliaryFiles)
         {

@@ -3,7 +3,6 @@
 
 using System.Text;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
@@ -32,17 +31,11 @@ namespace Bicep.Core.UnitTests.Utils
             return asString;
         }
 
-        public class Annotation : IPositionable
+        public class Annotation(TextSpan span, string message) : IPositionable
         {
-            public Annotation(TextSpan span, string message)
-            {
-                Span = span;
-                Message = message;
-            }
+            public TextSpan Span { get; } = span;
 
-            public TextSpan Span { get; }
-
-            public string Message { get; }
+            public string Message { get; } = message;
         }
 
         private static string[] GetProgramTextLines(BicepSourceFile bicepFile)

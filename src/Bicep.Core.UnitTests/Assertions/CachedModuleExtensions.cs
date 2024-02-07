@@ -15,12 +15,8 @@ namespace Bicep.Core.UnitTests.Assertions
         public static CachedModuleAssertions Should(this CachedModule CachedModule) => new(CachedModule);
     }
 
-    public class CachedModuleAssertions : ReferenceTypeAssertions<CachedModule, CachedModuleAssertions>
+    public class CachedModuleAssertions(CachedModule CachedModule) : ReferenceTypeAssertions<CachedModule, CachedModuleAssertions>(CachedModule)
     {
-        public CachedModuleAssertions(CachedModule CachedModule) : base(CachedModule)
-        {
-        }
-
         protected override string Identifier => $"CachedModule at {Subject.ModuleCacheFolder}";
 
         public AndConstraint<CachedModuleAssertions> HaveSource(bool shouldHaveSource = true)

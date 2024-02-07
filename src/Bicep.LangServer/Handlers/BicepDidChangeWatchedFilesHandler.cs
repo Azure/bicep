@@ -11,16 +11,10 @@ using FileSystemWatcher = OmniSharp.Extensions.LanguageServer.Protocol.Models.Fi
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public sealed class BicepDidChangeWatchedFilesHandler : DidChangeWatchedFilesHandlerBase
+    public sealed class BicepDidChangeWatchedFilesHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler) : DidChangeWatchedFilesHandlerBase
     {
-        private readonly ICompilationManager compilationManager;
-        private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
-
-        public BicepDidChangeWatchedFilesHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler)
-        {
-            this.bicepConfigChangeHandler = bicepConfigChangeHandler;
-            this.compilationManager = compilationManager;
-        }
+        private readonly ICompilationManager compilationManager = compilationManager;
+        private readonly IBicepConfigChangeHandler bicepConfigChangeHandler = bicepConfigChangeHandler;
 
         public override Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
         {

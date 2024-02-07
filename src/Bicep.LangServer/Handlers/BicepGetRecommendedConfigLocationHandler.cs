@@ -22,16 +22,10 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Retrieves the recommended folder to place a new bicepconfig.json file (used by client)
     /// </summary>
-    public class BicepGetRecommendedConfigLocationHandler : IJsonRpcRequestHandler<BicepGetRecommendedConfigLocationParams, BicepGetRecommendedConfigLocationResult>
+    public class BicepGetRecommendedConfigLocationHandler(ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider) : IJsonRpcRequestHandler<BicepGetRecommendedConfigLocationParams, BicepGetRecommendedConfigLocationResult>
     {
-        private readonly ILanguageServerFacade server;
-        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
-
-        public BicepGetRecommendedConfigLocationHandler(ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider)
-        {
-            this.server = server;
-            this.clientCapabilitiesProvider = clientCapabilitiesProvider;
-        }
+        private readonly ILanguageServerFacade server = server;
+        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider = clientCapabilitiesProvider;
 
         public async Task<BicepGetRecommendedConfigLocationResult> Handle(BicepGetRecommendedConfigLocationParams request, CancellationToken cancellationToken)
         {

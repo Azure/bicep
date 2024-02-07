@@ -6,16 +6,11 @@ using System.Runtime.CompilerServices;
 
 namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
 {
-    public class Sample
+    public class Sample(IEnumerable<(string, string)> resources)
     {
         private const string SampleResourcePrefix = "Bicep.RegistryModuleTool.TestFixtures.Samples";
 
-        private readonly IEnumerable<(string Path, string ResourceName)> resources;
-
-        public Sample(IEnumerable<(string, string)> resources)
-        {
-            this.resources = resources;
-        }
+        private readonly IEnumerable<(string Path, string ResourceName)> resources = resources;
 
         public static Sample Empty { get; } = new(Enumerable.Empty<(string, string)>());
 

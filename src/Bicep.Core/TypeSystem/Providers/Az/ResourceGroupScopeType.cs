@@ -6,15 +6,9 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.Az
 {
-    public class ResourceGroupScopeType : ObjectType, IScopeReference
+    public class ResourceGroupScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties) : ObjectType("resourceGroup", TypeSymbolValidationFlags.Default, properties, null), IScopeReference
     {
-        public ResourceGroupScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties)
-            : base("resourceGroup", TypeSymbolValidationFlags.Default, properties, null)
-        {
-            Arguments = arguments.ToImmutableArray();
-        }
-
-        public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }
+        public ImmutableArray<FunctionArgumentSyntax> Arguments { get; } = arguments.ToImmutableArray();
 
         public ResourceScope Scope => ResourceScope.ResourceGroup;
     }

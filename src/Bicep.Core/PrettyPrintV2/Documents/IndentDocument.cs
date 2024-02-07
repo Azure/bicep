@@ -5,11 +5,7 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.PrettyPrintV2.Documents
 {
-    public sealed class IndentDocument : ContainerDocument
+    public sealed class IndentDocument(IEnumerable<Document> documents) : ContainerDocument(documents.ToImmutableArray())
     {
-        public IndentDocument(IEnumerable<Document> documents)
-            : base(documents.ToImmutableArray())
-        {
-        }
     }
 }

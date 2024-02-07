@@ -5,20 +5,13 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public class PropertySymbol : Symbol
+    public class PropertySymbol(string name, string? description, TypeSymbol type) : Symbol(name)
     {
-        public PropertySymbol(string name, string? description, TypeSymbol type)
-            : base(name)
-        {
-            Description = description;
-            Type = type;
-        }
-
         public override SymbolKind Kind => SymbolKind.Property;
 
-        public string? Description { get; }
+        public string? Description { get; } = description;
 
-        public TypeSymbol Type { get; }
+        public TypeSymbol Type { get; } = type;
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitPropertySymbol(this);
     }

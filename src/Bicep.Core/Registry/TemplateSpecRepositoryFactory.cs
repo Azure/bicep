@@ -8,14 +8,9 @@ using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry
 {
-    public class TemplateSpecRepositoryFactory : ITemplateSpecRepositoryFactory
+    public class TemplateSpecRepositoryFactory(ITokenCredentialFactory credentialFactory) : ITemplateSpecRepositoryFactory
     {
-        private readonly ITokenCredentialFactory credentialFactory;
-
-        public TemplateSpecRepositoryFactory(ITokenCredentialFactory credentialFactory)
-        {
-            this.credentialFactory = credentialFactory;
-        }
+        private readonly ITokenCredentialFactory credentialFactory = credentialFactory;
 
         public ITemplateSpecRepository CreateRepository(RootConfiguration configuration, string subscriptionId)
         {

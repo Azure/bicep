@@ -13,12 +13,8 @@ namespace Bicep.Core.UnitTests.Assertions
         public static SourceArchiveAssertions Should(this SourceArchive? SourceArchive) => new(SourceArchive);
     }
 
-    public class SourceArchiveAssertions : ReferenceTypeAssertions<SourceArchive?, SourceArchiveAssertions>
+    public class SourceArchiveAssertions(SourceArchive? SourceArchive) : ReferenceTypeAssertions<SourceArchive?, SourceArchiveAssertions>(SourceArchive)
     {
-        public SourceArchiveAssertions(SourceArchive? SourceArchive) : base(SourceArchive)
-        {
-        }
-
         protected override string Identifier => "SourceArchive";
 
         public AndConstraint<SourceArchiveAssertions> BeEquivalentTo(SourceArchive archive)

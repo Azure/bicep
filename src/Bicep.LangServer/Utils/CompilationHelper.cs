@@ -8,16 +8,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Utils
 {
-    public class CompilationHelper
+    public class CompilationHelper(BicepCompiler bicepCompiler, ICompilationManager compilationManager)
     {
-        private readonly BicepCompiler bicepCompiler;
-        private readonly ICompilationManager compilationManager;
-
-        public CompilationHelper(BicepCompiler bicepCompiler, ICompilationManager compilationManager)
-        {
-            this.bicepCompiler = bicepCompiler;
-            this.compilationManager = compilationManager;
-        }
+        private readonly BicepCompiler bicepCompiler = bicepCompiler;
+        private readonly ICompilationManager compilationManager = compilationManager;
 
         public async Task<Compilation> GetRefreshedCompilation(DocumentUri documentUri)
         {

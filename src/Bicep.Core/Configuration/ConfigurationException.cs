@@ -5,11 +5,7 @@ using Bicep.Core.Exceptions;
 
 namespace Bicep.Core.Configuration
 {
-    public class ConfigurationException : BicepException
+    public class ConfigurationException(string message) : BicepException(message)
     {
-        public ConfigurationException(string message)
-            : base(message)
-        {
-        }
     }
 }

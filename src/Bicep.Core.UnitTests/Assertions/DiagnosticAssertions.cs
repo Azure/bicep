@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.Assertions
         }
     }
 
-    public class DiagnosticAssertions : ReferenceTypeAssertions<IDiagnostic, DiagnosticAssertions>
+    public class DiagnosticAssertions(IDiagnostic diagnostic) : ReferenceTypeAssertions<IDiagnostic, DiagnosticAssertions>(diagnostic)
     {
         private class DiagnosticFormatter : IValueFormatter
         {
@@ -39,11 +39,6 @@ namespace Bicep.Core.UnitTests.Assertions
         static DiagnosticAssertions()
         {
             Formatter.AddFormatter(new DiagnosticFormatter());
-        }
-
-        public DiagnosticAssertions(IDiagnostic diagnostic)
-            : base(diagnostic)
-        {
         }
 
         protected override string Identifier => "Diagnostic";

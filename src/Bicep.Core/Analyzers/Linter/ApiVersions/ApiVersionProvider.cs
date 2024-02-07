@@ -8,19 +8,14 @@ using ResourceScope = Bicep.Core.TypeSystem.ResourceScope;
 
 namespace Bicep.Core.Analyzers.Linter.ApiVersions
 {
-    public class ApiVersionProvider : IApiVersionProvider
+    public class ApiVersionProvider(IFeatureProvider features, IEnumerable<ResourceTypeReference> resourceTypeReferences) : IApiVersionProvider
     {
         private static StringComparer Comparer = LanguageConstants.ResourceTypeComparer;
 
         // One cache per target scope type
         private readonly Dictionary<ResourceScope, ApiVersionCache> _caches = new();
-        private readonly IFeatureProvider features;
-        private readonly IEnumerable<ResourceTypeReference> resourceTypeReferences;
-        public ApiVersionProvider(IFeatureProvider features, IEnumerable<ResourceTypeReference> resourceTypeReferences)
-        {
-            this.features = features;
-            this.resourceTypeReferences = resourceTypeReferences;
-        }
+        private readonly IFeatureProvider features = features;
+        private readonly IEnumerable<ResourceTypeReference> resourceTypeReferences = resourceTypeReferences;
 
         // for unit testing
         public void InjectTypeReferences(ResourceScope scope, IEnumerable<ResourceTypeReference> resourceTypeReferences)

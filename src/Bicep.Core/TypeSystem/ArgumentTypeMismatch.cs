@@ -4,23 +4,15 @@ using Bicep.Core.Semantics;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class ArgumentTypeMismatch
+    public class ArgumentTypeMismatch(FunctionOverload source, int argumentIndex, TypeSymbol argumentType, TypeSymbol parameterType)
     {
-        public ArgumentTypeMismatch(FunctionOverload source, int argumentIndex, TypeSymbol argumentType, TypeSymbol parameterType)
-        {
-            this.Source = source;
-            this.ArgumentIndex = argumentIndex;
-            this.ArgumentType = argumentType;
-            this.ParameterType = parameterType;
-        }
+        public FunctionOverload Source { get; } = source;
 
-        public FunctionOverload Source { get; }
+        public int ArgumentIndex { get; } = argumentIndex;
 
-        public int ArgumentIndex { get; }
+        public TypeSymbol ArgumentType { get; } = argumentType;
 
-        public TypeSymbol ArgumentType { get; }
-
-        public TypeSymbol ParameterType { get; }
+        public TypeSymbol ParameterType { get; } = parameterType;
 
         public void Deconstruct(out FunctionOverload source, out int argumentIndex, out TypeSymbol argumentType, out TypeSymbol parameterType)
         {

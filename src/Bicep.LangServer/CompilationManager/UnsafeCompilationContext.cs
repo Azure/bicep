@@ -11,13 +11,8 @@ namespace Bicep.LanguageServer.CompilationManager
     /// experience as the user is typing. (As rare as they are, fatal exceptions
     /// are typically due to a specific combination of characters in the source file.)
     /// </summary>
-    public class UnsafeCompilationContext : CompilationContextBase
+    public class UnsafeCompilationContext(Exception exception, BicepSourceFileKind? sourceFileKind) : CompilationContextBase(sourceFileKind)
     {
-        public UnsafeCompilationContext(Exception exception, BicepSourceFileKind? sourceFileKind) : base(sourceFileKind)
-        {
-            this.Exception = exception;
-        }
-
-        public Exception Exception { get; }
+        public Exception Exception { get; } = exception;
     }
 }

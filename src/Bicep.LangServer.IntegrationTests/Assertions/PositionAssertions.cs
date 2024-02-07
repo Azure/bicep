@@ -15,13 +15,8 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
         }
     }
 
-    public class PositionAssertions : ReferenceTypeAssertions<Position, PositionAssertions>
+    public class PositionAssertions(Position instance) : ReferenceTypeAssertions<Position, PositionAssertions>(instance)
     {
-        public PositionAssertions(Position instance)
-            : base(instance)
-        {
-        }
-
         protected override string Identifier => "position";
 
         public AndConstraint<PositionAssertions> HavePosition(int line, int character, string because = "", params object[] becauseArgs)

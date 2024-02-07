@@ -10,20 +10,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
-    public sealed class JsonSchemaValidator : IModuleFileValidator
+    public sealed class JsonSchemaValidator(ILogger logger) : IModuleFileValidator
     {
         private const string AdditionalPropertiesSchemaLocationSuffix = "/additionalProperties";
 
-        private readonly ILogger logger;
+        private readonly ILogger logger = logger;
 
         static JsonSchemaValidator()
         {
             ErrorMessages.Pattern = @"Value does not match the pattern of [[pattern]]";
-        }
-
-        public JsonSchemaValidator(ILogger logger)
-        {
-            this.logger = logger;
         }
 
         public Task<IEnumerable<string>> ValidateAsync(VersionFile file)

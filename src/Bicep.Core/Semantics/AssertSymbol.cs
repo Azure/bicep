@@ -5,13 +5,8 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
 {
-    public class AssertSymbol : DeclaredSymbol
+    public class AssertSymbol(ISymbolContext context, string name, AssertDeclarationSyntax declaringSyntax) : DeclaredSymbol(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        public AssertSymbol(ISymbolContext context, string name, AssertDeclarationSyntax declaringSyntax)
-            : base(context, name, declaringSyntax, declaringSyntax.Name)
-        {
-        }
-
         public AssertDeclarationSyntax DeclaringAssert => (AssertDeclarationSyntax)this.DeclaringSyntax;
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitAssertSymbol(this);

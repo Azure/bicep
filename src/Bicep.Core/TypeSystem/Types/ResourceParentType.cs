@@ -6,15 +6,9 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Types
 {
-    public class ResourceParentType : TypeSymbol
+    public class ResourceParentType(ResourceTypeReference childTypeReference) : TypeSymbol(GetFullyQualifiedParentTypeName(childTypeReference))
     {
-        public ResourceParentType(ResourceTypeReference childTypeReference)
-            : base(GetFullyQualifiedParentTypeName(childTypeReference))
-        {
-            ChildTypeReference = childTypeReference;
-        }
-
-        public ResourceTypeReference ChildTypeReference { get; }
+        public ResourceTypeReference ChildTypeReference { get; } = childTypeReference;
 
         public override TypeKind TypeKind => TypeKind.Resource;
 

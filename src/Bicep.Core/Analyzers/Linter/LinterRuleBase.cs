@@ -10,38 +10,28 @@ using Bicep.Core.Semantics;
 
 namespace Bicep.Core.Analyzers.Linter
 {
-    public abstract class LinterRuleBase : IBicepAnalyzerRule
+    public abstract class LinterRuleBase(
+        string code,
+        string description,
+        Uri? docUri = null,
+        DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
+        DiagnosticStyling diagnosticStyling = DiagnosticStyling.Default) : IBicepAnalyzerRule
     {
-        public LinterRuleBase(
-            string code,
-            string description,
-            Uri? docUri = null,
-            DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
-            DiagnosticStyling diagnosticStyling = DiagnosticStyling.Default)
-        {
-            this.AnalyzerName = LinterAnalyzer.AnalyzerName;
-            this.Code = code;
-            this.Description = description;
-            this.Uri = docUri;
-            this.DefaultDiagnosticLevel = diagnosticLevel;
-            this.DiagnosticStyling = diagnosticStyling;
-        }
+        public string AnalyzerName { get; } = LinterAnalyzer.AnalyzerName;
 
-        public string AnalyzerName { get; }
-
-        public string Code { get; }
+        public string Code { get; } = code;
 
         public readonly string RuleConfigSection = $"{LinterAnalyzer.AnalyzerName}.rules";
 
-        public DiagnosticLevel DefaultDiagnosticLevel { get; }
+        public DiagnosticLevel DefaultDiagnosticLevel { get; } = diagnosticLevel;
 
-        public string Description { get; }
+        public string Description { get; } = description;
 
-        public Uri? Uri { get; }
+        public Uri? Uri { get; } = docUri;
 
         // If specified, adds the given diagnostic label to every diagnostic created for this rule (such as for unnecessary or obsolete code).
         // Should be left as None/null for most rules.
-        public DiagnosticStyling DiagnosticStyling { get; }
+        public DiagnosticStyling DiagnosticStyling { get; } = diagnosticStyling;
 
 
         /// <summary>

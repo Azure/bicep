@@ -9,13 +9,8 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class DeployTimeConstantDirectViolationVisitor : DeployTimeConstantViolationVisitor
+    public class DeployTimeConstantDirectViolationVisitor(SyntaxBase deployTimeConstantContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ResourceTypeResolver resourceTypeResolver) : DeployTimeConstantViolationVisitor(deployTimeConstantContainer, semanticModel, diagnosticWriter, resourceTypeResolver)
     {
-        public DeployTimeConstantDirectViolationVisitor(SyntaxBase deployTimeConstantContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ResourceTypeResolver resourceTypeResolver)
-            : base(deployTimeConstantContainer, semanticModel, diagnosticWriter, resourceTypeResolver)
-        {
-        }
-
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
             if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))

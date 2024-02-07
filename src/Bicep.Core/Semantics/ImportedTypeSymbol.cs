@@ -5,11 +5,8 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics;
 
-public class ImportedTypeSymbol : ImportedSymbol<ExportedTypeMetadata>
+public class ImportedTypeSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, ExportedTypeMetadata exportMetadata) : ImportedSymbol<ExportedTypeMetadata>(context, declaringSyntax, enclosingDeclartion, sourceModel, exportMetadata)
 {
-    public ImportedTypeSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, ExportedTypeMetadata exportMetadata)
-        : base(context, declaringSyntax, enclosingDeclartion, sourceModel, exportMetadata) { }
-
     public override SymbolKind Kind => SymbolKind.TypeAlias;
 
     public override void Accept(SymbolVisitor visitor) => visitor.VisitImportedTypeSymbol(this);

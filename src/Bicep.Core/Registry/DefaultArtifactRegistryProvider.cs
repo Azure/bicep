@@ -10,26 +10,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.Core.Registry
 {
-    public class DefaultArtifactRegistryProvider : IArtifactRegistryProvider
+    public class DefaultArtifactRegistryProvider(IServiceProvider serviceProvider, IFileResolver fileResolver, IFileSystem fileSystem, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager) : IArtifactRegistryProvider
     {
-        private readonly IFileResolver fileResolver;
-        private readonly IFileSystem fileSystem;
-        private readonly IContainerRegistryClientFactory clientFactory;
-        private readonly ITemplateSpecRepositoryFactory templateSpecRepositoryFactory;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-        private readonly IConfigurationManager configurationManager;
-        private readonly IServiceProvider serviceProvider;
-
-        public DefaultArtifactRegistryProvider(IServiceProvider serviceProvider, IFileResolver fileResolver, IFileSystem fileSystem, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager)
-        {
-            this.fileResolver = fileResolver;
-            this.fileSystem = fileSystem;
-            this.clientFactory = clientFactory;
-            this.templateSpecRepositoryFactory = templateSpecRepositoryFactory;
-            this.featureProviderFactory = featureProviderFactory;
-            this.configurationManager = configurationManager;
-            this.serviceProvider = serviceProvider;
-        }
+        private readonly IFileResolver fileResolver = fileResolver;
+        private readonly IFileSystem fileSystem = fileSystem;
+        private readonly IContainerRegistryClientFactory clientFactory = clientFactory;
+        private readonly ITemplateSpecRepositoryFactory templateSpecRepositoryFactory = templateSpecRepositoryFactory;
+        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
+        private readonly IConfigurationManager configurationManager = configurationManager;
+        private readonly IServiceProvider serviceProvider = serviceProvider;
 
         /// <summary>
         /// Gets the registries available for module references inside a given template URI.

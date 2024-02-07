@@ -28,21 +28,15 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 namespace Bicep.LanguageServer.Handlers
 {
     // Provides code actions/fixes for a range in a Bicep document
-    public class BicepCodeActionHandler : CodeActionHandlerBase
+    public class BicepCodeActionHandler(ICompilationManager compilationManager, IClientCapabilitiesProvider clientCapabilitiesProvider) : CodeActionHandlerBase
     {
-        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
-        private readonly ICompilationManager compilationManager;
+        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider = clientCapabilitiesProvider;
+        private readonly ICompilationManager compilationManager = compilationManager;
 
         private static readonly ImmutableArray<ICodeFixProvider> codeFixProviders = new ICodeFixProvider[]
         {
             new MultilineObjectsAndArraysCodeFixProvider(),
         }.ToImmutableArray<ICodeFixProvider>();
-
-        public BicepCodeActionHandler(ICompilationManager compilationManager, IClientCapabilitiesProvider clientCapabilitiesProvider)
-        {
-            this.clientCapabilitiesProvider = clientCapabilitiesProvider;
-            this.compilationManager = compilationManager;
-        }
 
         public override async Task<CommandOrCodeActionContainer?> Handle(CodeActionParams request, CancellationToken cancellationToken)
         {

@@ -14,28 +14,20 @@ namespace Bicep.LanguageServer.Handlers
 
     public record BicepDeploymentWaitForCompletionResponse(bool isSuccess, string outputMessage);
 
-    public class BicepDeploymentWaitForCompletionCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentWaitForCompletionParams, bool>
+    /// <summary>
+    /// Handles "deploy/waitForCompletion" LSP request.
+    /// This handler waits for the deployment to complete and sends a "deploymentComplete" notification to the client.
+    /// This notification can be used on the client side to write success/failure messsage to the output channel without
+    /// blocking other commands.
+    /// Note: Base handler (ExecuteTypedResponseCommandHandlerBase) is serial. This blocks other commands on the client side.
+    /// To avoid the above issue, we changed the RequestProcessType to parallel in <see cref="Server"/>
+    /// We need to make sure changes to this handler are thread safe.
+    /// </summary>
+    public class BicepDeploymentWaitForCompletionCommandHandler(IDeploymentOperationsCache deploymentOperationsCache, ILanguageServerFacade server, ISerializer serializer, ITelemetryProvider telemetryProvider) : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentWaitForCompletionParams, bool>(LangServerConstants.DeployWaitForCompletionCommand, serializer)
     {
-        private readonly IDeploymentOperationsCache deploymentOperationsCache;
-        private readonly ILanguageServerFacade server;
-        private readonly ITelemetryProvider telemetryProvider;
-
-        /// <summary>
-        /// Handles "deploy/waitForCompletion" LSP request.
-        /// This handler waits for the deployment to complete and sends a "deploymentComplete" notification to the client.
-        /// This notification can be used on the client side to write success/failure messsage to the output channel without
-        /// blocking other commands.
-        /// Note: Base handler (ExecuteTypedResponseCommandHandlerBase) is serial. This blocks other commands on the client side.
-        /// To avoid the above issue, we changed the RequestProcessType to parallel in <see cref="Server"/>
-        /// We need to make sure changes to this handler are thread safe.
-        /// </summary>
-        public BicepDeploymentWaitForCompletionCommandHandler(IDeploymentOperationsCache deploymentOperationsCache, ILanguageServerFacade server, ISerializer serializer, ITelemetryProvider telemetryProvider)
-            : base(LangServerConstants.DeployWaitForCompletionCommand, serializer)
-        {
-            this.deploymentOperationsCache = deploymentOperationsCache;
-            this.server = server;
-            this.telemetryProvider = telemetryProvider;
-        }
+        private readonly IDeploymentOperationsCache deploymentOperationsCache = deploymentOperationsCache;
+        private readonly ILanguageServerFacade server = server;
+        private readonly ITelemetryProvider telemetryProvider = telemetryProvider;
 
         public override async Task<bool> Handle(BicepDeploymentWaitForCompletionParams request, CancellationToken cancellationToken)
         {

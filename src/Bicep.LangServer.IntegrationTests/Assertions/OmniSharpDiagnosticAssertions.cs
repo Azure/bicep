@@ -15,13 +15,8 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
         }
     }
 
-    public class OmniSharpDiagnosticAssertions : ReferenceTypeAssertions<Diagnostic, OmniSharpDiagnosticAssertions>
+    public class OmniSharpDiagnosticAssertions(Diagnostic instance) : ReferenceTypeAssertions<Diagnostic, OmniSharpDiagnosticAssertions>(instance)
     {
-        public OmniSharpDiagnosticAssertions(Diagnostic instance)
-            : base(instance)
-        {
-        }
-
         protected override string Identifier => "diagnostic";
 
         public AndConstraint<OmniSharpDiagnosticAssertions> HaveCodeAndSeverity(string code, DiagnosticSeverity severity, string because = "", params object[] becauseArgs)

@@ -6,7 +6,7 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.K8s
 {
-    public class K8sResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
+    public class K8sResourceTypeProvider(K8sResourceTypeLoader resourceTypeLoader) : ResourceTypeProviderBase(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet()), IResourceTypeProvider
     {
         public const string NamePropertyName = "name";
         public const string MetadataPropertyName = "metadata";
@@ -14,22 +14,14 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
-        private readonly K8sResourceTypeLoader resourceTypeLoader;
-        private readonly ResourceTypeCache definedTypeCache;
-        private readonly ResourceTypeCache generatedTypeCache;
+        private readonly K8sResourceTypeLoader resourceTypeLoader = resourceTypeLoader;
+        private readonly ResourceTypeCache definedTypeCache = new ResourceTypeCache();
+        private readonly ResourceTypeCache generatedTypeCache = new ResourceTypeCache();
 
         public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
         {
             NamePropertyName,
         }.ToImmutableHashSet();
-
-        public K8sResourceTypeProvider(K8sResourceTypeLoader resourceTypeLoader)
-            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
-        {
-            this.resourceTypeLoader = resourceTypeLoader;
-            definedTypeCache = new ResourceTypeCache();
-            generatedTypeCache = new ResourceTypeCache();
-        }
 
         private static ResourceTypeComponents SetBicepResourceProperties(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
         {

@@ -3,13 +3,8 @@
 
 namespace Bicep.RegistryModuleTool.Exceptions
 {
-    public class InvalidModuleFileException : Exception
+    public class InvalidModuleFileException(string message) : Exception(NormalizeLineEndings(message))
     {
-        public InvalidModuleFileException(string message)
-            : base(NormalizeLineEndings(message))
-        {
-        }
-
         public static string NormalizeLineEndings(string message)
         {
             // Normalize the message to make it always end with a new line.

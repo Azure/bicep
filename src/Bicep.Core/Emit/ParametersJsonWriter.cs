@@ -7,14 +7,9 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
 
-public class ParametersJsonWriter
+public class ParametersJsonWriter(SemanticModel model)
 {
-    private readonly SemanticModel model;
-
-    public ParametersJsonWriter(SemanticModel model)
-    {
-        this.model = model;
-    }
+    private readonly SemanticModel model = model;
 
     public void Write(JsonTextWriter jsonWriter)
     {

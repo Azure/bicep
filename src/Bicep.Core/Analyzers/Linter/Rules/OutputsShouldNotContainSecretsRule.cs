@@ -36,20 +36,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return visitor.diagnostics;
         }
 
-        private class OutputVisitor : AstVisitor
+        private class OutputVisitor(OutputsShouldNotContainSecretsRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel) : AstVisitor
         {
             public List<IDiagnostic> diagnostics = new();
 
-            private readonly OutputsShouldNotContainSecretsRule parent;
-            private readonly SemanticModel model;
-            private readonly DiagnosticLevel diagnosticLevel;
-
-            public OutputVisitor(OutputsShouldNotContainSecretsRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel)
-            {
-                this.parent = parent;
-                this.model = model;
-                this.diagnosticLevel = diagnosticLevel;
-            }
+            private readonly OutputsShouldNotContainSecretsRule parent = parent;
+            private readonly SemanticModel model = model;
+            private readonly DiagnosticLevel diagnosticLevel = diagnosticLevel;
 
             public override void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax)
             {

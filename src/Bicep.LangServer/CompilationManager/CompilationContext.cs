@@ -10,16 +10,9 @@ namespace Bicep.LanguageServer.CompilationManager
     /// Represents a compilation context that successfully produced a compilation
     /// (the compilation itself may have errors or warnings in the semantic model)
     /// </summary>
-    public class CompilationContext : CompilationContextBase
+    public class CompilationContext(Compilation compilation) : CompilationContextBase(compilation.SourceFileGrouping.EntryPoint.FileKind)
     {
-        public CompilationContext(Compilation compilation)
-            // on a successful compilation, we can reuse the entry point file kind
-            : base(compilation.SourceFileGrouping.EntryPoint.FileKind)
-        {
-            this.Compilation = compilation;
-        }
-
-        public Compilation Compilation { get; }
+        public Compilation Compilation { get; } = compilation;
 
         public ProgramSyntax ProgramSyntax => Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax;
 

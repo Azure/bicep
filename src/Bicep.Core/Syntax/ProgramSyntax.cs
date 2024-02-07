@@ -6,17 +6,11 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class ProgramSyntax : SyntaxBase
+    public class ProgramSyntax(IEnumerable<SyntaxBase> children, Token endOfFile) : SyntaxBase
     {
-        public ProgramSyntax(IEnumerable<SyntaxBase> children, Token endOfFile)
-        {
-            this.Children = children.ToImmutableArray();
-            this.EndOfFile = endOfFile;
-        }
+        public ImmutableArray<SyntaxBase> Children { get; } = children.ToImmutableArray();
 
-        public ImmutableArray<SyntaxBase> Children { get; }
-
-        public Token EndOfFile { get; }
+        public Token EndOfFile { get; } = endOfFile;
 
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitProgramSyntax(this);

@@ -3,17 +3,11 @@
 
 namespace Bicep.Core.TypeSystem.Types;
 
-public class UnparsableResourceDerivedType : ITypeReference
+public class UnparsableResourceDerivedType(string typeReferenceString, TypeSymbol fallbackType) : ITypeReference
 {
-    private readonly TypeSymbol fallbackType;
+    private readonly TypeSymbol fallbackType = fallbackType;
 
-    public UnparsableResourceDerivedType(string typeReferenceString, TypeSymbol fallbackType)
-    {
-        TypeReferenceString = typeReferenceString;
-        this.fallbackType = fallbackType;
-    }
-
-    public string TypeReferenceString { get; }
+    public string TypeReferenceString { get; } = typeReferenceString;
 
     TypeSymbol ITypeReference.Type => fallbackType;
 }

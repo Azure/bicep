@@ -19,25 +19,17 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class DeclaredTypeManager
+    public class DeclaredTypeManager(ITypeManager typeManager, IBinder binder, IFeatureProvider features)
     {
         // maps syntax nodes to their declared types
         // processed nodes found not to have a declared type will have a null value
         private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
         private readonly ConcurrentDictionary<TypeAliasSymbol, TypeSymbol> userDefinedTypeReferences = new();
         private readonly ConcurrentDictionary<ParameterizedTypeInstantiationSyntaxBase, Result<TypeExpression, ErrorDiagnostic>> reifiedTypes = new();
-        private readonly ITypeManager typeManager;
-        private readonly IBinder binder;
-        private readonly IFeatureProvider features;
-        private readonly ResourceDerivedTypeResolver resourceDerivedTypeResolver;
-
-        public DeclaredTypeManager(ITypeManager typeManager, IBinder binder, IFeatureProvider features)
-        {
-            this.typeManager = typeManager;
-            this.binder = binder;
-            this.features = features;
-            this.resourceDerivedTypeResolver = new(binder);
-        }
+        private readonly ITypeManager typeManager = typeManager;
+        private readonly IBinder binder = binder;
+        private readonly IFeatureProvider features = features;
+        private readonly ResourceDerivedTypeResolver resourceDerivedTypeResolver = new(binder);
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) =>
             this.declaredTypes.GetOrAdd(syntax, key => GetTypeAssignment(key));

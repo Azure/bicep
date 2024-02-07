@@ -32,7 +32,7 @@ using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LanguageServer.Completions
 {
-    public class BicepCompletionProvider : ICompletionProvider
+    public class BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, IModuleReferenceCompletionProvider moduleReferenceCompletionProvider) : ICompletionProvider
     {
         private static readonly Container<string> ResourceSymbolCommitChars = new(":");
 
@@ -41,16 +41,9 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Regex ModuleRegistryWithoutAliasPattern = new(@"'br:(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex ModuleRegistryWithAliasPattern = new(@"'br/(.*?):(.*?):?'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
-        private readonly IFileResolver FileResolver;
-        private readonly ISnippetsProvider SnippetsProvider;
-        public readonly IModuleReferenceCompletionProvider moduleReferenceCompletionProvider;
-
-        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, IModuleReferenceCompletionProvider moduleReferenceCompletionProvider)
-        {
-            this.FileResolver = fileResolver;
-            this.SnippetsProvider = snippetsProvider;
-            this.moduleReferenceCompletionProvider = moduleReferenceCompletionProvider;
-        }
+        private readonly IFileResolver FileResolver = fileResolver;
+        private readonly ISnippetsProvider SnippetsProvider = snippetsProvider;
+        public readonly IModuleReferenceCompletionProvider moduleReferenceCompletionProvider = moduleReferenceCompletionProvider;
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context, CancellationToken cancellationToken)
         {

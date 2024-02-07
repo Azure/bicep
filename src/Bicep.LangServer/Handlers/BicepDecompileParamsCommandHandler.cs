@@ -24,20 +24,13 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Handles a request from the client to decompile a JSON file for given a file path, creating a bicepparam file
     /// </summary>
-    public class BicepDecompileParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileParamsCommandParams, BicepDecompileParamsCommandResult>
+    public class BicepDecompileParamsCommandHandler(
+        IFileResolver fileResolver,
+        ISerializer serializer,
+        BicepDecompiler decompiler) : ExecuteTypedResponseCommandHandlerBase<BicepDecompileParamsCommandParams, BicepDecompileParamsCommandResult>(LangServerConstants.DecompileParamsCommand, serializer)
     {
-        private readonly IFileResolver fileResolver;
-        private readonly BicepDecompiler decompiler;
-
-        public BicepDecompileParamsCommandHandler(
-            IFileResolver fileResolver,
-            ISerializer serializer,
-            BicepDecompiler decompiler)
-            : base(LangServerConstants.DecompileParamsCommand, serializer)
-        {
-            this.fileResolver = fileResolver;
-            this.decompiler = decompiler;
-        }
+        private readonly IFileResolver fileResolver = fileResolver;
+        private readonly BicepDecompiler decompiler = decompiler;
 
         public override async Task<BicepDecompileParamsCommandResult> Handle(BicepDecompileParamsCommandParams parameters, CancellationToken cancellationToken)
         {

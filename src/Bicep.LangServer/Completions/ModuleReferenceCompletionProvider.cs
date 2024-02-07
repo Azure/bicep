@@ -20,14 +20,19 @@ namespace Bicep.LanguageServer.Completions
     /// <summary>
     /// Provides completions for remote (public or private) module references, e.g. br/public:modulePath:version
     /// </summary>
-    public class ModuleReferenceCompletionProvider : IModuleReferenceCompletionProvider
+    public class ModuleReferenceCompletionProvider(
+        IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
+        IConfigurationManager configurationManager,
+        IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
+        ISettingsProvider settingsProvider,
+        ITelemetryProvider telemetryProvider) : IModuleReferenceCompletionProvider
     {
-        private readonly IAzureContainerRegistriesProvider azureContainerRegistriesProvider;
+        private readonly IAzureContainerRegistriesProvider azureContainerRegistriesProvider = azureContainerRegistriesProvider;
 
-        private readonly IConfigurationManager configurationManager;
-        private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider;
-        private readonly ISettingsProvider settingsProvider;
-        private readonly ITelemetryProvider telemetryProvider;
+        private readonly IConfigurationManager configurationManager = configurationManager;
+        private readonly IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
+        private readonly ISettingsProvider settingsProvider = settingsProvider;
+        private readonly ITelemetryProvider telemetryProvider = telemetryProvider;
 
         private enum ModuleCompletionPriority
         {
@@ -46,20 +51,6 @@ namespace Bicep.LanguageServer.Completions
         private static readonly Regex MCRModuleRegistryWithAlias = new(@"br/public:(?<filePath>(.*?)):'?$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         private const string PublicMCRRegistry = LanguageConstants.BicepPublicMcrRegistry; // "mcr.microsoft.com"
-
-        public ModuleReferenceCompletionProvider(
-            IAzureContainerRegistriesProvider azureContainerRegistriesProvider,
-            IConfigurationManager configurationManager,
-            IPublicRegistryModuleMetadataProvider publicRegistryModuleMetadataProvider,
-            ISettingsProvider settingsProvider,
-            ITelemetryProvider telemetryProvider)
-        {
-            this.azureContainerRegistriesProvider = azureContainerRegistriesProvider;
-            this.configurationManager = configurationManager;
-            this.publicRegistryModuleMetadataProvider = publicRegistryModuleMetadataProvider;
-            this.settingsProvider = settingsProvider;
-            this.telemetryProvider = telemetryProvider;
-        }
 
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri sourceFileUri, BicepCompletionContext context, CancellationToken cancellationToken)
         {

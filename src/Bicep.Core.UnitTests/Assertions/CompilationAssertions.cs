@@ -15,13 +15,8 @@ namespace Bicep.Core.UnitTests.Assertions
         }
     }
 
-    public class CompilationAssertions : ReferenceTypeAssertions<Compilation, CompilationAssertions>
+    public class CompilationAssertions(Compilation compilation) : ReferenceTypeAssertions<Compilation, CompilationAssertions>(compilation)
     {
-        public CompilationAssertions(Compilation compilation)
-            : base(compilation)
-        {
-        }
-
         protected override string Identifier => "Compilation";
 
         public AndConstraint<CompilationAssertions> ContainDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs)

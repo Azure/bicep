@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -38,22 +37,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return visitor.diagnostics;
         }
 
-        private class ResourceVisitor : AstVisitor
+        private class ResourceVisitor(NoUnnecessaryDependsOnRule parent, Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap, SemanticModel model, DiagnosticLevel diagnosticLevel) : AstVisitor
         {
             public List<IDiagnostic> diagnostics = new();
 
-            private readonly NoUnnecessaryDependsOnRule parent;
-            private readonly Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap;
-            private readonly SemanticModel model;
-            private readonly DiagnosticLevel diagnosticLevel;
-
-            public ResourceVisitor(NoUnnecessaryDependsOnRule parent, Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap, SemanticModel model, DiagnosticLevel diagnosticLevel)
-            {
-                this.parent = parent;
-                this.inferredDependenciesMap = inferredDependenciesMap;
-                this.model = model;
-                this.diagnosticLevel = diagnosticLevel;
-            }
+            private readonly NoUnnecessaryDependsOnRule parent = parent;
+            private readonly Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap = inferredDependenciesMap;
+            private readonly SemanticModel model = model;
+            private readonly DiagnosticLevel diagnosticLevel = diagnosticLevel;
 
             public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
             {

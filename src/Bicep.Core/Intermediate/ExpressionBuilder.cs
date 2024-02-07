@@ -20,7 +20,7 @@ using static Bicep.Core.Emit.ScopeHelper;
 
 namespace Bicep.Core.Intermediate;
 
-public class ExpressionBuilder
+public class ExpressionBuilder(EmitterContext Context, ImmutableDictionary<LocalVariableSymbol, Expression> localReplacements)
 {
     private static readonly ImmutableHashSet<string> NonAzResourcePropertiesToOmit = new[] {
         LanguageConstants.ResourceDependsOnPropertyName,
@@ -42,15 +42,9 @@ public class ExpressionBuilder
 
     private static readonly int MaxCopyIndexStringLength = LanguageConstants.MaxResourceCopyIndexValue.ToString().Length;
 
-    private readonly ImmutableDictionary<LocalVariableSymbol, Expression> localReplacements;
+    private readonly ImmutableDictionary<LocalVariableSymbol, Expression> localReplacements = localReplacements;
 
-    public EmitterContext Context { get; }
-
-    public ExpressionBuilder(EmitterContext Context, ImmutableDictionary<LocalVariableSymbol, Expression> localReplacements)
-    {
-        this.Context = Context;
-        this.localReplacements = localReplacements;
-    }
+    public EmitterContext Context { get; } = Context;
 
     public ExpressionBuilder(EmitterContext Context)
         : this(Context, ImmutableDictionary<LocalVariableSymbol, Expression>.Empty)

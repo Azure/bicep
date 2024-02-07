@@ -10,14 +10,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Baselines;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
-public sealed class EmbeddedFilesTestDataAttribute : Attribute, ITestDataSource
+public sealed class EmbeddedFilesTestDataAttribute(string regexFilter) : Attribute, ITestDataSource
 {
-    public EmbeddedFilesTestDataAttribute(string regexFilter)
-    {
-        RegexFilter = regexFilter;
-    }
-
-    public string RegexFilter { get; }
+    public string RegexFilter { get; } = regexFilter;
 
     public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {

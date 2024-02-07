@@ -6,7 +6,7 @@ using Bicep.RegistryModuleTool.ModuleFileValidators;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    public class MainBicepTestFile : ModuleFile
+    public class MainBicepTestFile(string path) : ModuleFile(path)
     {
         public const string FileName = "main.test.bicep";
 
@@ -18,11 +18,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             module file is a deployment test. Make sure at least one test is added.
             */
             """.ReplaceLineEndings();
-
-        public MainBicepTestFile(string path)
-            : base(path)
-        {
-        }
 
         public static async Task<MainBicepTestFile> GenerateAsync(IFileSystem fileSystem)
         {

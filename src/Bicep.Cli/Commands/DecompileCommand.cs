@@ -12,33 +12,22 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
 {
-    public class DecompileCommand : ICommand
+    public class DecompileCommand(
+        ILogger logger,
+        DiagnosticLogger diagnosticLogger,
+        IOContext io,
+        IFileResolver fileResolver,
+        BicepDecompiler decompiler,
+        BicepCompiler compiler,
+        OutputWriter writer) : ICommand
     {
-        private readonly ILogger logger;
-        private readonly DiagnosticLogger diagnosticLogger;
-        private readonly IOContext io;
-        private readonly IFileResolver fileResolver;
-        private readonly BicepDecompiler decompiler;
-        private readonly BicepCompiler compiler;
-        private readonly OutputWriter writer;
-
-        public DecompileCommand(
-            ILogger logger,
-            DiagnosticLogger diagnosticLogger,
-            IOContext io,
-            IFileResolver fileResolver,
-            BicepDecompiler decompiler,
-            BicepCompiler compiler,
-            OutputWriter writer)
-        {
-            this.logger = logger;
-            this.diagnosticLogger = diagnosticLogger;
-            this.io = io;
-            this.fileResolver = fileResolver;
-            this.decompiler = decompiler;
-            this.compiler = compiler;
-            this.writer = writer;
-        }
+        private readonly ILogger logger = logger;
+        private readonly DiagnosticLogger diagnosticLogger = diagnosticLogger;
+        private readonly IOContext io = io;
+        private readonly IFileResolver fileResolver = fileResolver;
+        private readonly BicepDecompiler decompiler = decompiler;
+        private readonly BicepCompiler compiler = compiler;
+        private readonly OutputWriter writer = writer;
 
         public async Task<int> RunAsync(DecompileArguments args)
         {

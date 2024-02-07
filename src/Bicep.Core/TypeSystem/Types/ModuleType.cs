@@ -3,24 +3,17 @@
 
 namespace Bicep.Core.TypeSystem.Types
 {
-    public class ModuleType : TypeSymbol, IScopeReference
+    public class ModuleType(string name, ResourceScope validParentScopes, ITypeReference body) : TypeSymbol(name), IScopeReference
     {
-        public ModuleType(string name, ResourceScope validParentScopes, ITypeReference body)
-            : base(name)
-        {
-            ValidParentScopes = validParentScopes;
-            Body = body;
-        }
-
         public override TypeKind TypeKind => TypeKind.Module;
 
         /// <summary>
         /// Represents the possible scopes that this module type can be deployed at.
         /// Does not account for cross-scope deployment limitations.
         /// </summary>
-        public ResourceScope ValidParentScopes { get; }
+        public ResourceScope ValidParentScopes { get; } = validParentScopes;
 
-        public ITypeReference Body { get; }
+        public ITypeReference Body { get; } = body;
 
         public ResourceScope Scope => ResourceScope.Module;
 

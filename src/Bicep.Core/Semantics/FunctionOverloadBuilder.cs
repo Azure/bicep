@@ -7,36 +7,25 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public class FunctionOverloadBuilder
+    public class FunctionOverloadBuilder(string name)
     {
         public delegate TypeSymbol GetFunctionArgumentType(int argIndex);
 
         public delegate TypeSymbol? FunctionArgumentTypeCalculator(GetFunctionArgumentType getArgumentTypeFunc);
 
-        public FunctionOverloadBuilder(string name)
-        {
-            Name = name;
-            GenericDescription = string.Empty;
-            Description = string.Empty;
-            ReturnType = LanguageConstants.Any;
-            FixedParameters = ImmutableArray.CreateBuilder<FixedFunctionParameter>();
-            ResultBuilder = (_, _, _, _) => new(LanguageConstants.Any);
-            VariableParameter = null;
-        }
+        protected string Name { get; } = name;
 
-        protected string Name { get; }
+        protected string GenericDescription { get; private set; } = string.Empty;
 
-        protected string GenericDescription { get; private set; }
+        protected string Description { get; private set; } = string.Empty;
 
-        protected string Description { get; private set; }
+        protected TypeSymbol ReturnType { get; private set; } = LanguageConstants.Any;
 
-        protected TypeSymbol ReturnType { get; private set; }
+        protected ImmutableArray<FixedFunctionParameter>.Builder FixedParameters { get; } = ImmutableArray.CreateBuilder<FixedFunctionParameter>();
 
-        protected ImmutableArray<FixedFunctionParameter>.Builder FixedParameters { get; }
+        protected VariableFunctionParameter? VariableParameter { get; private set; } = null;
 
-        protected VariableFunctionParameter? VariableParameter { get; private set; }
-
-        protected FunctionOverload.ResultBuilderDelegate ResultBuilder { get; private set; }
+        protected FunctionOverload.ResultBuilderDelegate ResultBuilder { get; private set; } = (_, _, _, _) => new(LanguageConstants.Any);
 
         protected FunctionOverload.EvaluatorDelegate? Evaluator { get; private set; }
 

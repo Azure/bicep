@@ -6,15 +6,9 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics;
 
-public class ErroredImportSymbol : DeclaredSymbol
+public class ErroredImportSymbol(ISymbolContext context, string name, SyntaxBase declaringSyntax, ISymbolNameSource nameSource, ImmutableArray<ErrorDiagnostic> errors) : DeclaredSymbol(context, name, declaringSyntax, nameSource)
 {
-    private readonly ImmutableArray<ErrorDiagnostic> errors;
-
-    public ErroredImportSymbol(ISymbolContext context, string name, SyntaxBase declaringSyntax, ISymbolNameSource nameSource, ImmutableArray<ErrorDiagnostic> errors)
-        : base(context, name, declaringSyntax, nameSource)
-    {
-        this.errors = errors;
-    }
+    private readonly ImmutableArray<ErrorDiagnostic> errors = errors;
 
     public override SymbolKind Kind => SymbolKind.Error;
 

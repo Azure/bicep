@@ -17,33 +17,22 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core;
 
-public class BicepCompiler
+public class BicepCompiler(
+    IFeatureProviderFactory featureProviderFactory,
+    IEnvironment environment,
+    INamespaceProvider namespaceProvider,
+    IConfigurationManager configurationManager,
+    IBicepAnalyzer bicepAnalyzer,
+    IFileResolver fileResolver,
+    IModuleDispatcher moduleDispatcher)
 {
-    private readonly IFeatureProviderFactory featureProviderFactory;
-    private readonly IEnvironment environment;
-    private readonly INamespaceProvider namespaceProvider;
-    private readonly IConfigurationManager configurationManager;
-    private readonly IBicepAnalyzer bicepAnalyzer;
-    private readonly IFileResolver fileResolver;
-    private readonly IModuleDispatcher moduleDispatcher;
-
-    public BicepCompiler(
-        IFeatureProviderFactory featureProviderFactory,
-        IEnvironment environment,
-        INamespaceProvider namespaceProvider,
-        IConfigurationManager configurationManager,
-        IBicepAnalyzer bicepAnalyzer,
-        IFileResolver fileResolver,
-        IModuleDispatcher moduleDispatcher)
-    {
-        this.featureProviderFactory = featureProviderFactory;
-        this.environment = environment;
-        this.namespaceProvider = namespaceProvider;
-        this.configurationManager = configurationManager;
-        this.bicepAnalyzer = bicepAnalyzer;
-        this.fileResolver = fileResolver;
-        this.moduleDispatcher = moduleDispatcher;
-    }
+    private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
+    private readonly IEnvironment environment = environment;
+    private readonly INamespaceProvider namespaceProvider = namespaceProvider;
+    private readonly IConfigurationManager configurationManager = configurationManager;
+    private readonly IBicepAnalyzer bicepAnalyzer = bicepAnalyzer;
+    private readonly IFileResolver fileResolver = fileResolver;
+    private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
 
     public Compilation CreateCompilationWithoutRestore(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false)
     {

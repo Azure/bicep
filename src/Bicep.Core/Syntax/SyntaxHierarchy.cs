@@ -49,15 +49,10 @@ namespace Bicep.Core.Syntax
             return false;
         }
 
-        private sealed class ParentTrackingVisitor : CstVisitor
+        private sealed class ParentTrackingVisitor(Dictionary<SyntaxBase, SyntaxBase?> parentMap) : CstVisitor
         {
-            private readonly Dictionary<SyntaxBase, SyntaxBase?> parentMap;
+            private readonly Dictionary<SyntaxBase, SyntaxBase?> parentMap = parentMap;
             private readonly Stack<SyntaxBase> currentParents = new();
-
-            public ParentTrackingVisitor(Dictionary<SyntaxBase, SyntaxBase?> parentMap)
-            {
-                this.parentMap = parentMap;
-            }
 
             protected override void VisitInternal(SyntaxBase node)
             {

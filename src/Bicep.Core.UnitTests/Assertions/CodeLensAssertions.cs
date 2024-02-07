@@ -15,13 +15,8 @@ public static class CodeLensAssertionsExtensions
     }
 }
 
-public class CodeLensAssertions : ObjectAssertions<CodeLens, CodeLensAssertions>
+public class CodeLensAssertions(CodeLens subject) : ObjectAssertions<CodeLens, CodeLensAssertions>(subject)
 {
-    public CodeLensAssertions(CodeLens subject)
-        : base(subject)
-    {
-    }
-
     protected override string Identifier => nameof(CodeLens);
 
     public AndConstraint<CodeLensAssertions> HaveCommandTitle(string title, string because = "", params object[] becauseArgs)

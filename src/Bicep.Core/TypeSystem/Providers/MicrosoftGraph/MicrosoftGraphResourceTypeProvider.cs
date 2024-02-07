@@ -6,16 +6,16 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
 {
-    public class MicrosoftGraphResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
+    public class MicrosoftGraphResourceTypeProvider(MicrosoftGraphResourceTypeLoader resourceTypeLoader) : ResourceTypeProviderBase(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet()), IResourceTypeProvider
     {
         public const string UniqueNamePropertyName = "uniqueName";
         public const string AppIdPropertyName = "appId";
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
-        private readonly MicrosoftGraphResourceTypeLoader resourceTypeLoader;
-        private readonly ResourceTypeCache definedTypeCache;
-        private readonly ResourceTypeCache generatedTypeCache;
+        private readonly MicrosoftGraphResourceTypeLoader resourceTypeLoader = resourceTypeLoader;
+        private readonly ResourceTypeCache definedTypeCache = new ResourceTypeCache();
+        private readonly ResourceTypeCache generatedTypeCache = new ResourceTypeCache();
 
         public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
         {
@@ -30,14 +30,6 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
         public static readonly ImmutableSortedSet<string> ReadWriteDeployTimeConstantPropertyNames
             = ImmutableSortedSet.Create(LanguageConstants.IdentifierComparer,
                 UniqueNamePropertyName);
-
-        public MicrosoftGraphResourceTypeProvider(MicrosoftGraphResourceTypeLoader resourceTypeLoader)
-            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
-        {
-            this.resourceTypeLoader = resourceTypeLoader;
-            definedTypeCache = new ResourceTypeCache();
-            generatedTypeCache = new ResourceTypeCache();
-        }
 
         private static ResourceTypeComponents SetBicepResourceProperties(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
         {

@@ -6,14 +6,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public class ClientCapabilitiesProvider : IClientCapabilitiesProvider
+    public class ClientCapabilitiesProvider(ILanguageServerFacade server) : IClientCapabilitiesProvider
     {
-        private readonly ILanguageServerFacade server;
-
-        public ClientCapabilitiesProvider(ILanguageServerFacade server)
-        {
-            this.server = server;
-        }
+        private readonly ILanguageServerFacade server = server;
 
         public bool DoesClientSupportWorkspaceFolders()
         {

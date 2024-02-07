@@ -3,14 +3,9 @@
 
 namespace Bicep.Core.PrettyPrintV2.Documents
 {
-    public sealed class LineDocument : Document
+    public sealed class LineDocument(TextDocument? flattened) : Document
     {
-        private readonly TextDocument? flattened;
-
-        public LineDocument(TextDocument? flattened)
-        {
-            this.flattened = flattened;
-        }
+        private readonly TextDocument? flattened = flattened;
 
         public override IEnumerable<TextDocument> Flatten()
         {

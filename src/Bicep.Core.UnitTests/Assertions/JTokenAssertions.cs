@@ -5,13 +5,8 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public class JTokenAssertions : ReferenceTypeAssertions<JToken?, JTokenAssertions>
+    public class JTokenAssertions(JToken? instance) : ReferenceTypeAssertions<JToken?, JTokenAssertions>(instance)
     {
-        public JTokenAssertions(JToken? instance)
-            : base(instance)
-        {
-        }
-
         protected override string Identifier => "jtoken";
     }
 }

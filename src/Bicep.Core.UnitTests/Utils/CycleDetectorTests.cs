@@ -9,14 +9,9 @@ namespace Bicep.Core.UnitTests.Utils
     [TestClass]
     public class CycleDetectorTests
     {
-        private class Vertex
+        private class Vertex(int id)
         {
-            public Vertex(int id)
-            {
-                Id = id;
-            }
-
-            public int Id { get; }
+            public int Id { get; } = id;
         }
 
         [TestMethod]

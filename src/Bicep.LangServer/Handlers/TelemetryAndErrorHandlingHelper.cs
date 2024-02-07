@@ -6,30 +6,17 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class TelemetryAndErrorHandlingHelper<T>
+    public class TelemetryAndErrorHandlingHelper<T>(
+        IWindowLanguageServer window,
+        ITelemetryProvider telemetryProvider)
     {
-        private readonly IWindowLanguageServer window;
-        private readonly ITelemetryProvider telemetryProvider;
+        private readonly IWindowLanguageServer window = window;
+        private readonly ITelemetryProvider telemetryProvider = telemetryProvider;
 
-        public class TelemetryAndErrorHandlingException : Exception
+        public class TelemetryAndErrorHandlingException(string message, BicepTelemetryEvent telemetryEvent, T errorResponse) : Exception(message)
         {
-            public BicepTelemetryEvent TelemetryEvent { get; }
-            public T ErrorResponse { get; }
-
-            public TelemetryAndErrorHandlingException(string message, BicepTelemetryEvent telemetryEvent, T errorResponse)
-                : base(message)
-            {
-                TelemetryEvent = telemetryEvent;
-                ErrorResponse = errorResponse;
-            }
-        }
-
-        public TelemetryAndErrorHandlingHelper(
-            IWindowLanguageServer window,
-            ITelemetryProvider telemetryProvider)
-        {
-            this.window = window;
-            this.telemetryProvider = telemetryProvider;
+            public BicepTelemetryEvent TelemetryEvent { get; } = telemetryEvent;
+            public T ErrorResponse { get; } = errorResponse;
         }
 
         public TelemetryAndErrorHandlingException CreateException(string message, BicepTelemetryEvent telemetryEvent, T errorResponse)

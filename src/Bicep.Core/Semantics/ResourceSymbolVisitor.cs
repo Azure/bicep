@@ -4,7 +4,7 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.Semantics
 {
-    public class ResourceSymbolVisitor : SymbolVisitor
+    public class ResourceSymbolVisitor(List<ResourceSymbol> resources) : SymbolVisitor
     {
         public static ImmutableArray<ResourceSymbol> GetAllResources(Symbol symbol)
         {
@@ -15,12 +15,7 @@ namespace Bicep.Core.Semantics
             return resources.ToImmutableArray();
         }
 
-        private readonly List<ResourceSymbol> resources;
-
-        public ResourceSymbolVisitor(List<ResourceSymbol> resources)
-        {
-            this.resources = resources;
-        }
+        private readonly List<ResourceSymbol> resources = resources;
 
         public override void VisitResourceSymbol(ResourceSymbol symbol)
         {

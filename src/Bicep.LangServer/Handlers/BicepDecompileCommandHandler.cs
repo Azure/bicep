@@ -72,24 +72,16 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Handles a request from the client to decompile a JSON file for given a file path, creating one or more bicep files
     /// </summary>
-    public class BicepDecompileCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileCommandParams, BicepDecompileCommandResult>
+    public class BicepDecompileCommandHandler(
+        ISerializer serializer,
+        ILanguageServerFacade server,
+        ITelemetryProvider telemetryProvider,
+        IFileResolver fileResolver,
+        BicepDecompiler bicepDecompiler) : ExecuteTypedResponseCommandHandlerBase<BicepDecompileCommandParams, BicepDecompileCommandResult>(LangServerConstants.DecompileCommand, serializer)
     {
-        private readonly IFileResolver fileResolver;
-        private readonly BicepDecompiler bicepDecompiler;
-        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult> telemetryHelper;
-
-        public BicepDecompileCommandHandler(
-            ISerializer serializer,
-            ILanguageServerFacade server,
-            ITelemetryProvider telemetryProvider,
-            IFileResolver fileResolver,
-            BicepDecompiler bicepDecompiler)
-            : base(LangServerConstants.DecompileCommand, serializer)
-        {
-            this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult>(server.Window, telemetryProvider);
-            this.fileResolver = fileResolver;
-            this.bicepDecompiler = bicepDecompiler;
-        }
+        private readonly IFileResolver fileResolver = fileResolver;
+        private readonly BicepDecompiler bicepDecompiler = bicepDecompiler;
+        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult> telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult>(server.Window, telemetryProvider);
 
         public override Task<BicepDecompileCommandResult> Handle(BicepDecompileCommandParams parameters, CancellationToken cancellationToken)
         {

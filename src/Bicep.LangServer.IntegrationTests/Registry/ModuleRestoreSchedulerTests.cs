@@ -208,15 +208,9 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             public ResultWithException<SourceArchive> TryGetSource(ArtifactReference artifactReference) => new(new SourceNotAvailableException());
         }
 
-        private class MockArtifactRef : ArtifactReference
+        private class MockArtifactRef(string value, Uri parentModuleUri) : ArtifactReference("mock", parentModuleUri)
         {
-            public MockArtifactRef(string value, Uri parentModuleUri)
-                : base("mock", parentModuleUri)
-            {
-                this.Value = value;
-            }
-
-            public string Value { get; }
+            public string Value { get; } = value;
 
             public override string UnqualifiedReference => this.Value;
 

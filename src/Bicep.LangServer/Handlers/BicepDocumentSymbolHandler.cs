@@ -14,16 +14,10 @@ using SymbolKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.SymbolKin
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDocumentSymbolHandler : DocumentSymbolHandlerBase
+    public class BicepDocumentSymbolHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager) : DocumentSymbolHandlerBase
     {
-        private readonly ILogger<BicepDocumentSymbolHandler> logger;
-        private readonly ICompilationManager compilationManager;
-
-        public BicepDocumentSymbolHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager)
-        {
-            this.logger = logger;
-            this.compilationManager = compilationManager;
-        }
+        private readonly ILogger<BicepDocumentSymbolHandler> logger = logger;
+        private readonly ICompilationManager compilationManager = compilationManager;
 
         public override async Task<SymbolInformationOrDocumentSymbolContainer?> Handle(DocumentSymbolParams request, CancellationToken cancellationToken)
         {

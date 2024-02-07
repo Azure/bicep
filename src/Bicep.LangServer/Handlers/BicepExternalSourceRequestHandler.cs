@@ -26,23 +26,16 @@ namespace Bicep.LanguageServer.Handlers
     /// Handles textDocument/bicepExternalSource LSP requests. These are sent by clients that are resolving contents of document URIs using the bicep-extsrc: scheme.
     /// The BicepDefinitionHandler returns such URIs when definitions are inside modules that reside in the local module cache.
     /// </summary>
-    public class BicepExternalSourceRequestHandler : IJsonRpcRequestHandler<BicepExternalSourceParams, BicepExternalSourceResponse>
+    public class BicepExternalSourceRequestHandler(
+        IModuleDispatcher moduleDispatcher,
+        IFileResolver fileResolver,
+        ITelemetryProvider telemetryProvider) : IJsonRpcRequestHandler<BicepExternalSourceParams, BicepExternalSourceResponse>
     {
         public const string BicepExternalSourceLspMethodName = "textDocument/bicepExternalSource";
 
-        private readonly IModuleDispatcher moduleDispatcher;
-        private readonly IFileResolver fileResolver;
-        private readonly ITelemetryProvider telemetryProvider;
-
-        public BicepExternalSourceRequestHandler(
-            IModuleDispatcher moduleDispatcher,
-            IFileResolver fileResolver,
-            ITelemetryProvider telemetryProvider)
-        {
-            this.moduleDispatcher = moduleDispatcher;
-            this.fileResolver = fileResolver;
-            this.telemetryProvider = telemetryProvider;
-        }
+        private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
+        private readonly IFileResolver fileResolver = fileResolver;
+        private readonly ITelemetryProvider telemetryProvider = telemetryProvider;
 
         public Task<BicepExternalSourceResponse> Handle(BicepExternalSourceParams request, CancellationToken cancellationToken)
         {

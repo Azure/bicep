@@ -14,13 +14,8 @@ public static class CodeFixAssertionsExtensions
     }
 }
 
-public class CodeFixAssertions : ObjectAssertions<CodeFix, CodeFixAssertions>
+public class CodeFixAssertions(CodeFix subject) : ObjectAssertions<CodeFix, CodeFixAssertions>(subject)
 {
-    public CodeFixAssertions(CodeFix subject)
-        : base(subject)
-    {
-    }
-
     protected override string Identifier => "Fixable";
 
     public AndConstraint<CodeFixAssertions> HaveResult(string originalFile, string expectedResult, string because = "", params object[] becauseArgs)

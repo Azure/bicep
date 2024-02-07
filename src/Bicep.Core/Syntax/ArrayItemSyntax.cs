@@ -4,14 +4,9 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class ArrayItemSyntax : ExpressionSyntax
+    public class ArrayItemSyntax(SyntaxBase value) : ExpressionSyntax
     {
-        public ArrayItemSyntax(SyntaxBase value)
-        {
-            this.Value = value;
-        }
-
-        public SyntaxBase Value { get; }
+        public SyntaxBase Value { get; } = value;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitArrayItemSyntax(this);
 

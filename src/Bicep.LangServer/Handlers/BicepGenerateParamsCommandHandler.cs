@@ -25,17 +25,10 @@ namespace Bicep.LanguageServer.Handlers
 
     // This handler is used to generate compiled parameters.json file for given a bicep file path.
     // It returns generate-params succeeded/failed message, which can be displayed approriately in IDE output window
-    public class BicepGenerateParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepGenerateParamsCommandParams, string>
+    public class BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, BicepCompiler bicepCompiler, ISerializer serializer) : ExecuteTypedResponseCommandHandlerBase<BicepGenerateParamsCommandParams, string>(LangServerConstants.GenerateParamsCommand, serializer)
     {
-        private readonly ICompilationManager compilationManager;
-        private readonly BicepCompiler bicepCompiler;
-
-        public BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, BicepCompiler bicepCompiler, ISerializer serializer)
-            : base(LangServerConstants.GenerateParamsCommand, serializer)
-        {
-            this.compilationManager = compilationManager;
-            this.bicepCompiler = bicepCompiler;
-        }
+        private readonly ICompilationManager compilationManager = compilationManager;
+        private readonly BicepCompiler bicepCompiler = bicepCompiler;
 
         public override async Task<string> Handle(BicepGenerateParamsCommandParams parameters, CancellationToken cancellationToken)
         {

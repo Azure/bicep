@@ -22,18 +22,11 @@ namespace Bicep.Core.Navigation
             return visitor.Result;
         }
 
-        private sealed class NavigationSearchVisitor : CstVisitor
+        private sealed class NavigationSearchVisitor(int offset, Func<SyntaxBase, bool> predicate, bool inclusive) : CstVisitor
         {
-            private readonly int offset;
-            private readonly Func<SyntaxBase, bool> predicate;
-            private readonly bool inclusive;
-
-            public NavigationSearchVisitor(int offset, Func<SyntaxBase, bool> predicate, bool inclusive)
-            {
-                this.offset = offset;
-                this.predicate = predicate;
-                this.inclusive = inclusive;
-            }
+            private readonly int offset = offset;
+            private readonly Func<SyntaxBase, bool> predicate = predicate;
+            private readonly bool inclusive = inclusive;
 
             public SyntaxBase? Result { get; private set; }
 

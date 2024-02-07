@@ -10,17 +10,11 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
 {
-    public class PlaceholderParametersBicepParamWriter
+    public class PlaceholderParametersBicepParamWriter(SemanticModel semanticModel, IncludeParamsOption includeParams)
     {
-        private readonly SemanticModel semanticModel;
+        private readonly SemanticModel semanticModel = semanticModel;
 
-        public PlaceholderParametersBicepParamWriter(SemanticModel semanticModel, IncludeParamsOption includeParams)
-        {
-            this.semanticModel = semanticModel;
-            this.IncludeParams = includeParams;
-        }
-
-        private IncludeParamsOption IncludeParams { get; }
+        private IncludeParamsOption IncludeParams { get; } = includeParams;
 
         public void Write(TextWriter writer, string existingContent)
         {

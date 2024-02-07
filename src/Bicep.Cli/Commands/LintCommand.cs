@@ -10,24 +10,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands;
 
-public class LintCommand : ICommand
+public class LintCommand(
+    ILogger logger,
+    DiagnosticLogger diagnosticLogger,
+    BicepCompiler compiler,
+    IFeatureProviderFactory featureProviderFactory) : ICommand
 {
-    private readonly ILogger logger;
-    private readonly DiagnosticLogger diagnosticLogger;
-    private readonly BicepCompiler compiler;
-    private readonly IFeatureProviderFactory featureProviderFactory;
-
-    public LintCommand(
-        ILogger logger,
-        DiagnosticLogger diagnosticLogger,
-        BicepCompiler compiler,
-        IFeatureProviderFactory featureProviderFactory)
-    {
-        this.logger = logger;
-        this.diagnosticLogger = diagnosticLogger;
-        this.compiler = compiler;
-        this.featureProviderFactory = featureProviderFactory;
-    }
+    private readonly ILogger logger = logger;
+    private readonly DiagnosticLogger diagnosticLogger = diagnosticLogger;
+    private readonly BicepCompiler compiler = compiler;
+    private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
 
     public async Task<int> RunAsync(LintArguments args)
     {

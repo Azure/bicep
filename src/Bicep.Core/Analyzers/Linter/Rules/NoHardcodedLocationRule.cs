@@ -4,7 +4,6 @@
 using System.Collections.Immutable;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -153,22 +152,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private sealed class RuleVisitor : AstVisitor
+        private sealed class RuleVisitor(NoHardcodedLocationRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel) : AstVisitor
         {
             public List<IDiagnostic> diagnostics = new();
             private readonly HashSet<VariableSymbol> variablesToChangeToParam = new();
 
             private readonly Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> cachedParamsUsedInLocationPropsForFile = new();
-            private readonly NoHardcodedLocationRule parent;
-            private readonly SemanticModel model;
-            private readonly DiagnosticLevel diagnosticLevel;
-
-            public RuleVisitor(NoHardcodedLocationRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel)
-            {
-                this.parent = parent;
-                this.model = model;
-                this.diagnosticLevel = diagnosticLevel;
-            }
+            private readonly NoHardcodedLocationRule parent = parent;
+            private readonly SemanticModel model = model;
+            private readonly DiagnosticLevel diagnosticLevel = diagnosticLevel;
 
             public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             {

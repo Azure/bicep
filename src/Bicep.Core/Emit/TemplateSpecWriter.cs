@@ -5,14 +5,9 @@ using Bicep.Core.Semantics;
 
 namespace Bicep.Core.Emit
 {
-    public class TemplateSpecWriter : ITemplateWriter
+    public class TemplateSpecWriter(TemplateSpecSemanticModel semanticModel) : ITemplateWriter
     {
-        private readonly TemplateSpecSemanticModel semanticModel;
-
-        public TemplateSpecWriter(TemplateSpecSemanticModel semanticModel)
-        {
-            this.semanticModel = semanticModel;
-        }
+        private readonly TemplateSpecSemanticModel semanticModel = semanticModel;
 
         public void Write(SourceAwareJsonTextWriter writer)
         {

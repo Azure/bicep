@@ -40,16 +40,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        private sealed class Visitor : AstVisitor
+        private sealed class Visitor(Dictionary<TextSpan, CodeFix> spanFixes, SemanticModel model) : AstVisitor
         {
-            private readonly Dictionary<TextSpan, CodeFix> spanFixes;
-            private readonly SemanticModel model;
-
-            public Visitor(Dictionary<TextSpan, CodeFix> spanFixes, SemanticModel model)
-            {
-                this.spanFixes = spanFixes;
-                this.model = model;
-            }
+            private readonly Dictionary<TextSpan, CodeFix> spanFixes = spanFixes;
+            private readonly SemanticModel model = model;
 
             public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
             {

@@ -27,22 +27,15 @@ namespace Bicep.Core.Configuration
 
     public record ManagedIdentity(ManagedIdentityType Type, string? ClientId, string? ResourceId);
 
-    public class CloudConfiguration : ConfigurationSection<Cloud>, IEquatable<CloudConfiguration>
+    public class CloudConfiguration(Cloud data, Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri) : ConfigurationSection<Cloud>(data), IEquatable<CloudConfiguration>
     {
-        public CloudConfiguration(Cloud data, Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri)
-            : base(data)
-        {
-            this.ResourceManagerEndpointUri = resourceManagerEndpointUri;
-            this.ActiveDirectoryAuthorityUri = activeDirectoryAuthorityUri;
-        }
-
         public ImmutableArray<CredentialType> CredentialPrecedence => this.Data.CredentialPrecedence;
 
         public CredentialOptions? CredentialOptions => this.Data.CredentialOptions;
 
-        public Uri ResourceManagerEndpointUri { get; }
+        public Uri ResourceManagerEndpointUri { get; } = resourceManagerEndpointUri;
 
-        public Uri ActiveDirectoryAuthorityUri { get; }
+        public Uri ActiveDirectoryAuthorityUri { get; } = activeDirectoryAuthorityUri;
 
         // this is needed for all track 1 SDKs and track 2 management plane SDKs
         public string AuthenticationScope => ResourceManagerEndpointUri.AbsoluteUri;

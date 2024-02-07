@@ -6,13 +6,8 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics
 {
-    public class ParameterSymbol : DeclaredSymbol
+    public class ParameterSymbol(ISymbolContext context, string name, ParameterDeclarationSyntax declaringSyntax) : DeclaredSymbol(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        public ParameterSymbol(ISymbolContext context, string name, ParameterDeclarationSyntax declaringSyntax)
-            : base(context, name, declaringSyntax, declaringSyntax.Name)
-        {
-        }
-
         public ParameterDeclarationSyntax DeclaringParameter => (ParameterDeclarationSyntax)this.DeclaringSyntax;
 
         public override SymbolKind Kind => SymbolKind.Parameter;

@@ -4,17 +4,11 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
-    public sealed class SymbolContext : ISymbolContext
+    public sealed class SymbolContext(Compilation compilation, SemanticModel semanticModel) : ISymbolContext
     {
-        private readonly Compilation compilation;
-        private readonly SemanticModel semanticModel;
+        private readonly Compilation compilation = compilation;
+        private readonly SemanticModel semanticModel = semanticModel;
         private bool unlocked;
-
-        public SymbolContext(Compilation compilation, SemanticModel semanticModel)
-        {
-            this.compilation = compilation;
-            this.semanticModel = semanticModel;
-        }
 
         public ITypeManager TypeManager => WithLockCheck(() => this.semanticModel.TypeManager);
 

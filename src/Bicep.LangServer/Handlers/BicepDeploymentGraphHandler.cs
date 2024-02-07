@@ -28,17 +28,11 @@ namespace Bicep.LanguageServer.Handlers
 
     public record BicepDeploymentGraphEdge(string SourceId, string TargetId);
 
-    public class BicepDeploymentGraphHandler : IJsonRpcRequestHandler<BicepDeploymentGraphParams, BicepDeploymentGraph?>
+    public class BicepDeploymentGraphHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager) : IJsonRpcRequestHandler<BicepDeploymentGraphParams, BicepDeploymentGraph?>
     {
-        private readonly ILogger<BicepDocumentSymbolHandler> logger;
+        private readonly ILogger<BicepDocumentSymbolHandler> logger = logger;
 
-        private readonly ICompilationManager compilationManager;
-
-        public BicepDeploymentGraphHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager)
-        {
-            this.logger = logger;
-            this.compilationManager = compilationManager;
-        }
+        private readonly ICompilationManager compilationManager = compilationManager;
 
         public Task<BicepDeploymentGraph?> Handle(BicepDeploymentGraphParams request, CancellationToken cancellationToken)
         {

@@ -15,14 +15,9 @@ namespace Bicep.Core.UnitTests.Utils
             return symbols;
         }
 
-        private class SymbolCollectorVisitor : SymbolVisitor
+        private class SymbolCollectorVisitor(IList<Symbol> symbols) : SymbolVisitor
         {
-            private readonly IList<Symbol> symbols;
-
-            public SymbolCollectorVisitor(IList<Symbol> symbols)
-            {
-                this.symbols = symbols;
-            }
+            private readonly IList<Symbol> symbols = symbols;
 
             protected override void VisitInternal(Symbol symbol)
             {

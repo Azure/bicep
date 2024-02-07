@@ -8,17 +8,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepSemanticTokensHandler : SemanticTokensHandlerBase
+    public class BicepSemanticTokensHandler(ICompilationManager compilationManager) : SemanticTokensHandlerBase
     {
-        private readonly ICompilationManager compilationManager;
+        private readonly ICompilationManager compilationManager = compilationManager;
 
         // TODO: Not sure if this needs to be shared.
         private readonly SemanticTokensLegend legend = new();
-
-        public BicepSemanticTokensHandler(ICompilationManager compilationManager)
-        {
-            this.compilationManager = compilationManager;
-        }
 
         protected override Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken)
         {

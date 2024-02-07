@@ -10,7 +10,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.PrettyPrint
 {
-    public class DocumentBuildVisitor : CstVisitor
+    public class DocumentBuildVisitor(IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup) : CstVisitor
     {
         private static readonly ILinkedDocument Nil = new NilDocument();
 
@@ -33,9 +33,9 @@ namespace Bicep.Core.PrettyPrint
 
         private readonly Stack<ILinkedDocument> documentStack = new();
 
-        private readonly IDiagnosticLookup lexingErrorLookup;
+        private readonly IDiagnosticLookup lexingErrorLookup = lexingErrorLookup;
 
-        private readonly IDiagnosticLookup parsingErrorLookup;
+        private readonly IDiagnosticLookup parsingErrorLookup = parsingErrorLookup;
 
         private bool visitingSkippedTriviaSyntax;
 
@@ -50,12 +50,6 @@ namespace Bicep.Core.PrettyPrint
         public DocumentBuildVisitor()
             : this(EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance)
         {
-        }
-
-        public DocumentBuildVisitor(IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
-        {
-            this.lexingErrorLookup = lexingErrorLookup;
-            this.parsingErrorLookup = parsingErrorLookup;
         }
 
         public ILinkedDocument BuildDocument(SyntaxBase syntax)

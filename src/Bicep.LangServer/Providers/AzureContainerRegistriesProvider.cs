@@ -17,20 +17,14 @@ namespace Bicep.LanguageServer.Providers
     /// <summary>
     /// This provider fetches all the Azure Container Registries (ACR) names that the user has access to via Azure
     /// </summary>
-    public class AzureContainerRegistriesProvider : IAzureContainerRegistriesProvider
+    public class AzureContainerRegistriesProvider(IConfigurationManager configurationManager, ITokenCredentialFactory tokenCredentialFactory) : IAzureContainerRegistriesProvider
     {
-        private readonly IConfigurationManager configurationManager;
-        private readonly ITokenCredentialFactory tokenCredentialFactory;
+        private readonly IConfigurationManager configurationManager = configurationManager;
+        private readonly ITokenCredentialFactory tokenCredentialFactory = tokenCredentialFactory;
 
         private const string queryToGetRegistryNames = @"Resources
 | where type == ""microsoft.containerregistry/registries""
 | project properties[""loginServer""]";
-
-        public AzureContainerRegistriesProvider(IConfigurationManager configurationManager, ITokenCredentialFactory tokenCredentialFactory)
-        {
-            this.configurationManager = configurationManager;
-            this.tokenCredentialFactory = tokenCredentialFactory;
-        }
 
         // Used for completions after typing "'br:"
         public async IAsyncEnumerable<string> GetRegistryUris(Uri templateUri, [EnumeratorCancellation] CancellationToken cancellationToken)

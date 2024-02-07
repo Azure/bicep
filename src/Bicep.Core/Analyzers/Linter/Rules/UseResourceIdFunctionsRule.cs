@@ -4,7 +4,6 @@
 using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -32,16 +31,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 "guid"
                 };
 
-        private class Exclusion
+        private class Exclusion(string? regexResourceType, string? propertyName)
         {
-            public Regex? ResourceType { get; init; }
-            public string? propertyName { get; init; }
-
-            public Exclusion(string? regexResourceType, string? propertyName)
-            {
-                this.ResourceType = regexResourceType is null ? null : new Regex(regexResourceType, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.CultureInvariant);
-                this.propertyName = propertyName;
-            }
+            public Regex? ResourceType { get; init; } = regexResourceType is null ? null : new Regex(regexResourceType, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.CultureInvariant);
+            public string? propertyName { get; init; } = propertyName;
         }
 
         // These properties are ignored, since they are not actually resourceIds.

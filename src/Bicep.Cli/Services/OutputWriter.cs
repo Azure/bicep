@@ -11,16 +11,10 @@ using Newtonsoft.Json;
 
 namespace Bicep.Cli.Services
 {
-    public class OutputWriter
+    public class OutputWriter(IOContext io, IFileSystem fileSystem)
     {
-        private readonly IOContext io;
-        private readonly IFileSystem fileSystem;
-
-        public OutputWriter(IOContext io, IFileSystem fileSystem)
-        {
-            this.io = io;
-            this.fileSystem = fileSystem;
-        }
+        private readonly IOContext io = io;
+        private readonly IFileSystem fileSystem = fileSystem;
 
         public void ParametersToStdout(Compilation compilation)
         {

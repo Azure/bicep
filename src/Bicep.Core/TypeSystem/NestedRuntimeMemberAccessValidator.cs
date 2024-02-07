@@ -10,20 +10,13 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class NestedRuntimeMemberAccessValidator : AstVisitor
+    public class NestedRuntimeMemberAccessValidator(SemanticModel semanticModel, ResourceTypeResolver resourceTypeResolver, IDiagnosticWriter diagnosticWriter) : AstVisitor
     {
-        private readonly SemanticModel semanticModel;
+        private readonly SemanticModel semanticModel = semanticModel;
 
-        private readonly ResourceTypeResolver resourceTypeResolver;
+        private readonly ResourceTypeResolver resourceTypeResolver = resourceTypeResolver;
 
-        private readonly IDiagnosticWriter diagnosticWriter;
-
-        public NestedRuntimeMemberAccessValidator(SemanticModel semanticModel, ResourceTypeResolver resourceTypeResolver, IDiagnosticWriter diagnosticWriter)
-        {
-            this.semanticModel = semanticModel;
-            this.resourceTypeResolver = resourceTypeResolver;
-            this.diagnosticWriter = diagnosticWriter;
-        }
+        private readonly IDiagnosticWriter diagnosticWriter = diagnosticWriter;
 
         public static void Validate(SemanticModel semanticModel, ResourceTypeResolver resourceTypeResolver, IDiagnosticWriter diagnosticWriter)
         {

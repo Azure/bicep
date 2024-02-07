@@ -8,24 +8,16 @@ using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Emit.CompileTimeImports;
 
-internal class ImportedSymbolDeclarationMigrator : ExpressionRewriteVisitor
+internal class ImportedSymbolDeclarationMigrator(SemanticModel sourceModel,
+    ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames,
+    ImmutableDictionary<string, string> synthesizedVariableNames,
+    SyntaxBase sourceSyntax) : ExpressionRewriteVisitor
 {
-    private readonly SemanticModel sourceModel;
-    private readonly ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames;
-    private readonly ImmutableDictionary<string, string> synthesizedVariableNames;
-    private readonly SyntaxBase? sourceSyntax;
+    private readonly SemanticModel sourceModel = sourceModel;
+    private readonly ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames = declaredSymbolNames;
+    private readonly ImmutableDictionary<string, string> synthesizedVariableNames = synthesizedVariableNames;
+    private readonly SyntaxBase? sourceSyntax = sourceSyntax;
     private string? currentCopyLoopName;
-
-    public ImportedSymbolDeclarationMigrator(SemanticModel sourceModel,
-        ImmutableDictionary<DeclaredSymbol, string> declaredSymbolNames,
-        ImmutableDictionary<string, string> synthesizedVariableNames,
-        SyntaxBase sourceSyntax)
-    {
-        this.sourceModel = sourceModel;
-        this.declaredSymbolNames = declaredSymbolNames;
-        this.synthesizedVariableNames = synthesizedVariableNames;
-        this.sourceSyntax = sourceSyntax;
-    }
 
     public TExpression RewriteForMigration<TExpression>(TExpression expression) where TExpression : Expression
     {

@@ -3,7 +3,6 @@
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Navigation;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
@@ -17,16 +16,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LangServer.IntegrationTests
 {
-    public class FileRequestHelper
+    public class FileRequestHelper(ILanguageClient client, BicepSourceFile bicepFile)
     {
-        private readonly ILanguageClient client;
-        private readonly BicepSourceFile bicepFile;
-
-        public FileRequestHelper(ILanguageClient client, BicepSourceFile bicepFile)
-        {
-            this.client = client;
-            this.bicepFile = bicepFile;
-        }
+        private readonly ILanguageClient client = client;
+        private readonly BicepSourceFile bicepFile = bicepFile;
 
         public BicepSourceFile Source => bicepFile;
 

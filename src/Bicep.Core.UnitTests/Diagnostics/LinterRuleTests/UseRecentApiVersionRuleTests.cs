@@ -717,20 +717,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             private static readonly ApiVersionProvider RealApiVersionProvider = new(BicepTestConstants.Features, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
             private static readonly bool Exhaustive = false;
 
-            public class TestData
+            public class TestData(ResourceScope resourceScope, string fullyQualifiedResourceType, DateOnly today, int maxAgeInDays)
             {
-                public TestData(ResourceScope resourceScope, string fullyQualifiedResourceType, DateOnly today, int maxAgeInDays)
-                {
-                    ResourceScope = resourceScope;
-                    FullyQualifiedResourceType = fullyQualifiedResourceType;
-                    MaxAgeInDays = maxAgeInDays;
-                    Today = today;
-                }
-
-                public string FullyQualifiedResourceType { get; }
-                public ResourceScope ResourceScope { get; }
-                public int MaxAgeInDays { get; }
-                public DateOnly Today { get; }
+                public string FullyQualifiedResourceType { get; } = fullyQualifiedResourceType;
+                public ResourceScope ResourceScope { get; } = resourceScope;
+                public int MaxAgeInDays { get; } = maxAgeInDays;
+                public DateOnly Today { get; } = today;
 
                 public static string GetDisplayName(MethodInfo _, object[] data)
                 {

@@ -8,14 +8,9 @@ namespace Bicep.Core.TypeSystem
     /// <summary>
     /// Visitor used to collect errors caused by expression assignment to a compile-time constant property.
     /// </summary>
-    public sealed class CompileTimeConstantVisitor : AstVisitor
+    public sealed class CompileTimeConstantVisitor(IDiagnosticWriter diagnosticWriter) : AstVisitor
     {
-        private readonly IDiagnosticWriter diagnosticWriter;
-
-        public CompileTimeConstantVisitor(IDiagnosticWriter diagnosticWriter)
-        {
-            this.diagnosticWriter = diagnosticWriter;
-        }
+        private readonly IDiagnosticWriter diagnosticWriter = diagnosticWriter;
 
         /*
          * Overrides below correspond to nodes whose presence guarantees that

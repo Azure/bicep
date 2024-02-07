@@ -28,16 +28,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return spanFixes.Select(kvp => CreateFixableDiagnosticForSpan(diagnosticLevel, kvp.Key, kvp.Value));
         }
 
-        private sealed class Visitor : AstVisitor
+        private sealed class Visitor(Dictionary<TextSpan, CodeFix> spanFixes, SemanticModel model) : AstVisitor
         {
-            private readonly Dictionary<TextSpan, CodeFix> spanFixes;
-            private readonly SemanticModel model;
+            private readonly Dictionary<TextSpan, CodeFix> spanFixes = spanFixes;
+            private readonly SemanticModel model = model;
 
-            public Visitor(Dictionary<TextSpan, CodeFix> spanFixes, SemanticModel model)
-            {
-                this.spanFixes = spanFixes;
-                this.model = model;
-            }
             public override void VisitFunctionCallSyntax(FunctionCallSyntax functionCallSyntax)
             {
                 if (functionCallSyntax.NameEquals("json") &&

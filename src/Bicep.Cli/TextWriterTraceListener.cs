@@ -5,14 +5,9 @@ using System.Diagnostics;
 
 namespace Bicep.Cli
 {
-    public class TextWriterTraceListener : TraceListener
+    public class TextWriterTraceListener(TextWriter textWriter) : TraceListener
     {
-        private readonly TextWriter textWriter;
-
-        public TextWriterTraceListener(TextWriter textWriter)
-        {
-            this.textWriter = textWriter;
-        }
+        private readonly TextWriter textWriter = textWriter;
 
         public override void Write(string? message)
         {

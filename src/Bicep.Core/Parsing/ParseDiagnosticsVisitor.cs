@@ -8,14 +8,9 @@ namespace Bicep.Core.Parsing
     /// <summary>
     /// Visitor responsible for collecting all the parse diagnostics from the parse tree.
     /// </summary>
-    public class ParseDiagnosticsVisitor : CstVisitor
+    public class ParseDiagnosticsVisitor(IDiagnosticWriter diagnosticWriter) : CstVisitor
     {
-        private readonly IDiagnosticWriter diagnosticWriter;
-
-        public ParseDiagnosticsVisitor(IDiagnosticWriter diagnosticWriter)
-        {
-            this.diagnosticWriter = diagnosticWriter;
-        }
+        private readonly IDiagnosticWriter diagnosticWriter = diagnosticWriter;
 
         public override void VisitSkippedTriviaSyntax(SkippedTriviaSyntax syntax)
         {

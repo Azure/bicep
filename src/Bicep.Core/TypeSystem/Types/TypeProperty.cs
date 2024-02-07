@@ -3,23 +3,15 @@
 
 namespace Bicep.Core.TypeSystem.Types
 {
-    public class TypeProperty
+    public class TypeProperty(string name, ITypeReference typeReference, TypePropertyFlags flags = TypePropertyFlags.None, string? description = null)
     {
-        public TypeProperty(string name, ITypeReference typeReference, TypePropertyFlags flags = TypePropertyFlags.None, string? description = null)
-        {
-            Name = name;
-            TypeReference = typeReference;
-            Flags = flags;
-            Description = description;
-        }
+        public string Name { get; } = name;
 
-        public string Name { get; }
+        public string? Description { get; } = description;
 
-        public string? Description { get; }
+        public ITypeReference TypeReference { get; } = typeReference;
 
-        public ITypeReference TypeReference { get; }
-
-        public TypePropertyFlags Flags { get; }
+        public TypePropertyFlags Flags { get; } = flags;
 
         public TypeProperty With(TypePropertyFlags flags) => new(Name, TypeReference, flags, Description);
     }

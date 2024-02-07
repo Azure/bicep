@@ -12,16 +12,11 @@ using Bicep.Core.Json;
 
 namespace Bicep.Core.Configuration
 {
-    public class ConfigurationManager : IConfigurationManager
+    public class ConfigurationManager(IFileSystem fileSystem) : IConfigurationManager
     {
         private readonly ConcurrentDictionary<Uri, (RootConfiguration? config, DiagnosticBuilder.DiagnosticBuilderDelegate? loadError)> configFileUriToLoadedConfigCache = new();
         private readonly ConcurrentDictionary<Uri, ConfigLookupResult> templateUriToConfigUriCache = new();
-        private readonly IFileSystem fileSystem;
-
-        public ConfigurationManager(IFileSystem fileSystem)
-        {
-            this.fileSystem = fileSystem;
-        }
+        private readonly IFileSystem fileSystem = fileSystem;
 
         public RootConfiguration GetConfiguration(Uri sourceFileUri)
         {

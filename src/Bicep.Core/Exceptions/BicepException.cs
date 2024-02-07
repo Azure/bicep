@@ -6,11 +6,7 @@ namespace Bicep.Core.Exceptions
     /// <summary>
     /// Exception used to signal common error conditions.
     /// </summary>
-    public class BicepException : Exception
+    public class BicepException(string message, Exception? innerException = null) : Exception(message, innerException)
     {
-        public BicepException(string message, Exception? innerException = null)
-            : base(message, innerException)
-        {
-        }
     }
 }

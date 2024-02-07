@@ -28,14 +28,9 @@ public interface ICompilationEmitter
     ParametersResult Parameters();
 }
 
-public class CompilationEmitter : ICompilationEmitter
+public class CompilationEmitter(Compilation compilation) : ICompilationEmitter
 {
-    private readonly Compilation compilation;
-
-    public CompilationEmitter(Compilation compilation)
-    {
-        this.compilation = compilation;
-    }
+    private readonly Compilation compilation = compilation;
 
     public ParametersResult Parameters()
     {

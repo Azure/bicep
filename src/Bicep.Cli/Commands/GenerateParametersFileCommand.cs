@@ -12,27 +12,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
 {
-    public class GenerateParametersFileCommand : ICommand
+    public class GenerateParametersFileCommand(
+        ILogger logger,
+        DiagnosticLogger diagnosticLogger,
+        BicepCompiler compiler,
+        PlaceholderParametersWriter writer,
+        IFeatureProviderFactory featureProviderFactory) : ICommand
     {
-        private readonly ILogger logger;
-        private readonly DiagnosticLogger diagnosticLogger;
-        private readonly BicepCompiler compiler;
-        private readonly PlaceholderParametersWriter writer;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-
-        public GenerateParametersFileCommand(
-            ILogger logger,
-            DiagnosticLogger diagnosticLogger,
-            BicepCompiler compiler,
-            PlaceholderParametersWriter writer,
-            IFeatureProviderFactory featureProviderFactory)
-        {
-            this.logger = logger;
-            this.diagnosticLogger = diagnosticLogger;
-            this.compiler = compiler;
-            this.writer = writer;
-            this.featureProviderFactory = featureProviderFactory;
-        }
+        private readonly ILogger logger = logger;
+        private readonly DiagnosticLogger diagnosticLogger = diagnosticLogger;
+        private readonly BicepCompiler compiler = compiler;
+        private readonly PlaceholderParametersWriter writer = writer;
+        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
 
         public async Task<int> RunAsync(GenerateParametersFileArguments args)
         {

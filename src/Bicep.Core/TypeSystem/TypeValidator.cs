@@ -27,29 +27,19 @@ namespace Bicep.Core.TypeSystem
 
         private readonly IDiagnosticWriter diagnosticWriter;
 
-        private class TypeValidatorConfig
+        private class TypeValidatorConfig(bool skipTypeErrors, bool skipConstantCheck, bool disallowAny, SyntaxBase? originSyntax, TypeMismatchDiagnosticWriter? onTypeMismatch, bool isResourceDeclaration)
         {
-            public TypeValidatorConfig(bool skipTypeErrors, bool skipConstantCheck, bool disallowAny, SyntaxBase? originSyntax, TypeMismatchDiagnosticWriter? onTypeMismatch, bool isResourceDeclaration)
-            {
-                this.SkipTypeErrors = skipTypeErrors;
-                this.SkipConstantCheck = skipConstantCheck;
-                this.DisallowAny = disallowAny;
-                this.OriginSyntax = originSyntax;
-                this.OnTypeMismatch = onTypeMismatch;
-                this.IsResourceDeclaration = isResourceDeclaration;
-            }
+            public bool SkipTypeErrors { get; } = skipTypeErrors;
 
-            public bool SkipTypeErrors { get; }
+            public bool SkipConstantCheck { get; } = skipConstantCheck;
 
-            public bool SkipConstantCheck { get; }
+            public bool DisallowAny { get; } = disallowAny;
 
-            public bool DisallowAny { get; }
+            public SyntaxBase? OriginSyntax { get; } = originSyntax;
 
-            public SyntaxBase? OriginSyntax { get; }
+            public TypeMismatchDiagnosticWriter? OnTypeMismatch { get; } = onTypeMismatch;
 
-            public TypeMismatchDiagnosticWriter? OnTypeMismatch { get; }
-
-            public bool IsResourceDeclaration { get; }
+            public bool IsResourceDeclaration { get; } = isResourceDeclaration;
         }
 
         private TypeValidator(ITypeManager typeManager, IBinder binder, IDiagnosticLookup parsingErrorLookup, IDiagnosticWriter diagnosticWriter)

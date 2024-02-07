@@ -13,16 +13,10 @@ using StreamJsonRpc;
 
 namespace Bicep.Cli.Commands;
 
-public class JsonRpcCommand : ICommand
+public class JsonRpcCommand(BicepCompiler compiler, IOContext io) : ICommand
 {
-    private readonly BicepCompiler compiler;
-    private readonly IOContext io;
-
-    public JsonRpcCommand(BicepCompiler compiler, IOContext io)
-    {
-        this.compiler = compiler;
-        this.io = io;
-    }
+    private readonly BicepCompiler compiler = compiler;
+    private readonly IOContext io = io;
 
     public async Task<int> RunAsync(JsonRpcArguments args, CancellationToken cancellationToken)
     {

@@ -41,13 +41,8 @@ namespace Bicep.Core.UnitTests.Assertions
         }
     }
 
-    public class CompilationResultAssertions : ReferenceTypeAssertions<CompilationResult, CompilationResultAssertions>
+    public class CompilationResultAssertions(CompilationResult result) : ReferenceTypeAssertions<CompilationResult, CompilationResultAssertions>(result)
     {
-        public CompilationResultAssertions(CompilationResult result)
-            : base(result)
-        {
-        }
-
         protected override string Identifier => "Result";
 
         private AndConstraint<CompilationResultAssertions> DoWithDiagnosticAnnotations(Action<IEnumerable<IDiagnostic>> action)

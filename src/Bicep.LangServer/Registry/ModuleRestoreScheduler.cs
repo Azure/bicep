@@ -10,13 +10,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Registry
 {
-    public sealed class ModuleRestoreScheduler : IModuleRestoreScheduler, IAsyncDisposable
+    public sealed class ModuleRestoreScheduler(IModuleDispatcher moduleDispatcher) : IModuleRestoreScheduler, IAsyncDisposable
     {
         private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ArtifactReference> ModuleReferences);
 
         private record CompletionNotification(ICompilationManager CompilationManager, DocumentUri Uri);
 
-        private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
 
         private readonly Queue<QueueItem> queue = new();
 
@@ -28,11 +28,6 @@ namespace Bicep.LanguageServer.Registry
 
         private bool disposed = false;
         private Task? consumerTask;
-
-        public ModuleRestoreScheduler(IModuleDispatcher moduleDispatcher)
-        {
-            this.moduleDispatcher = moduleDispatcher;
-        }
 
         /// <summary>
         /// Requests that the specified modules be restored to the local file system.

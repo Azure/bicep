@@ -10,14 +10,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepReferencesHandler : ReferencesHandlerBase
+    public class BicepReferencesHandler(ISymbolResolver symbolResolver) : ReferencesHandlerBase
     {
-        private readonly ISymbolResolver symbolResolver;
-
-        public BicepReferencesHandler(ISymbolResolver symbolResolver)
-        {
-            this.symbolResolver = symbolResolver;
-        }
+        private readonly ISymbolResolver symbolResolver = symbolResolver;
 
         public override async Task<LocationContainer?> Handle(ReferenceParams request, CancellationToken cancellationToken)
         {

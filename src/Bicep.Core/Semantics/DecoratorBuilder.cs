@@ -4,21 +4,15 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public class DecoratorBuilder
+    public class DecoratorBuilder(string name)
     {
-        private readonly FunctionOverloadBuilder functionOverloadBuilder;
+        private readonly FunctionOverloadBuilder functionOverloadBuilder = new FunctionOverloadBuilder(name);
 
-        private TypeSymbol attachableType;
+        private TypeSymbol attachableType = LanguageConstants.Any;
 
         private DecoratorValidator? validator;
 
         private DecoratorEvaluator? evaluator;
-
-        public DecoratorBuilder(string name)
-        {
-            this.functionOverloadBuilder = new FunctionOverloadBuilder(name);
-            this.attachableType = LanguageConstants.Any;
-        }
 
         public DecoratorBuilder WithDescription(string description)
         {

@@ -257,15 +257,9 @@ namespace Bicep.Core.UnitTests.Registry
 
         private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
 
-        private class MockModuleReference : ArtifactReference
+        private class MockModuleReference(string reference, Uri parentModuleUri) : ArtifactReference("mock", parentModuleUri)
         {
-            public MockModuleReference(string reference, Uri parentModuleUri)
-                : base("mock", parentModuleUri)
-            {
-                this.Reference = reference;
-            }
-
-            public string Reference { get; }
+            public string Reference { get; } = reference;
 
             public override string UnqualifiedReference => this.Reference;
 

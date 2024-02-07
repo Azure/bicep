@@ -6,21 +6,13 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Types;
 
-public class UnresolvedResourceDerivedType : TypeSymbol, IUnresolvedResourceDerivedType
+public class UnresolvedResourceDerivedType(ResourceTypeReference typeReference, ImmutableArray<string> pointerSegments, TypeSymbol fallbackType) : TypeSymbol(typeReference.FormatType()), IUnresolvedResourceDerivedType
 {
-    public UnresolvedResourceDerivedType(ResourceTypeReference typeReference, ImmutableArray<string> pointerSegments, TypeSymbol fallbackType)
-        : base(typeReference.FormatType())
-    {
-        TypeReference = typeReference;
-        PointerSegments = pointerSegments;
-        FallbackType = fallbackType;
-    }
+    public ResourceTypeReference TypeReference { get; } = typeReference;
 
-    public ResourceTypeReference TypeReference { get; }
+    public ImmutableArray<string> PointerSegments { get; } = pointerSegments;
 
-    public ImmutableArray<string> PointerSegments { get; }
-
-    public TypeSymbol FallbackType { get; }
+    public TypeSymbol FallbackType { get; } = fallbackType;
 
     public override TypeKind TypeKind => TypeKind.UnboundResourceDerivedType;
 }

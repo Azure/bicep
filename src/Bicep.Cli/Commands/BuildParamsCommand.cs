@@ -18,30 +18,20 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Cli.Commands
 {
-    public class BuildParamsCommand : ICommand
+    public class BuildParamsCommand(
+        ILogger logger,
+        IEnvironment environment,
+        DiagnosticLogger diagnosticLogger,
+        BicepCompiler compiler,
+        OutputWriter writer,
+        IFeatureProviderFactory featureProviderFactory) : ICommand
     {
-        private readonly ILogger logger;
-        private readonly IEnvironment environment;
-        private readonly DiagnosticLogger diagnosticLogger;
-        private readonly BicepCompiler compiler;
-        private readonly OutputWriter writer;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-
-        public BuildParamsCommand(
-            ILogger logger,
-            IEnvironment environment,
-            DiagnosticLogger diagnosticLogger,
-            BicepCompiler compiler,
-            OutputWriter writer,
-            IFeatureProviderFactory featureProviderFactory)
-        {
-            this.logger = logger;
-            this.environment = environment;
-            this.diagnosticLogger = diagnosticLogger;
-            this.compiler = compiler;
-            this.writer = writer;
-            this.featureProviderFactory = featureProviderFactory;
-        }
+        private readonly ILogger logger = logger;
+        private readonly IEnvironment environment = environment;
+        private readonly DiagnosticLogger diagnosticLogger = diagnosticLogger;
+        private readonly BicepCompiler compiler = compiler;
+        private readonly OutputWriter writer = writer;
+        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
 
         public async Task<int> RunAsync(BuildParamsArguments args)
         {

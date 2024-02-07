@@ -9,14 +9,9 @@ namespace Bicep.Cli.Logging
     /// Writes messages to the console.
     /// </summary>
     /// <remarks>The built-in dotnet ConsoleLogger class does not write messages in the format we needed for a compiler and does not allow customization.</remarks>
-    public class BicepConsoleLogger : ILogger
+    public class BicepConsoleLogger(BicepLoggerOptions options) : ILogger
     {
-        private readonly BicepLoggerOptions options;
-
-        public BicepConsoleLogger(BicepLoggerOptions options)
-        {
-            this.options = options;
-        }
+        private readonly BicepLoggerOptions options = options;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {

@@ -4,13 +4,8 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
 {
-    public class OutputSymbol : DeclaredSymbol
+    public class OutputSymbol(ISymbolContext context, string name, OutputDeclarationSyntax declaringSyntax) : DeclaredSymbol(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        public OutputSymbol(ISymbolContext context, string name, OutputDeclarationSyntax declaringSyntax)
-            : base(context, name, declaringSyntax, declaringSyntax.Name)
-        {
-        }
-
         public OutputDeclarationSyntax DeclaringOutput => (OutputDeclarationSyntax)this.DeclaringSyntax;
 
         public override void Accept(SymbolVisitor visitor)

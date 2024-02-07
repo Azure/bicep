@@ -7,14 +7,9 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public class SemanticDiagnosticVisitor : SymbolVisitor
+    public class SemanticDiagnosticVisitor(IDiagnosticWriter diagnosticWriter) : SymbolVisitor
     {
-        private readonly IDiagnosticWriter diagnosticWriter;
-
-        public SemanticDiagnosticVisitor(IDiagnosticWriter diagnosticWriter)
-        {
-            this.diagnosticWriter = diagnosticWriter;
-        }
+        private readonly IDiagnosticWriter diagnosticWriter = diagnosticWriter;
 
         public override void VisitTypeSymbol(TypeSymbol symbol)
         {

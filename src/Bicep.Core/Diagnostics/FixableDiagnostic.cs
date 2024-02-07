@@ -4,17 +4,10 @@ using Bicep.Core.CodeAction;
 
 namespace Bicep.Core.Diagnostics
 {
-    public class FixableDiagnostic : Diagnostic, IFixable
+    public class FixableDiagnostic(Parsing.TextSpan span, DiagnosticLevel level, string code, string message, Uri? documentationUri, DiagnosticStyling styling, CodeFix fix) : Diagnostic(span, level, code, message, documentationUri, styling), IFixable
     {
-        private readonly CodeFix fix;
-        private readonly IEnumerable<CodeFix>? additionalFixes;
-
-        public FixableDiagnostic(Parsing.TextSpan span, DiagnosticLevel level, string code, string message, Uri? documentationUri, DiagnosticStyling styling, CodeFix fix)
-            : base(span, level, code, message, documentationUri, styling)
-        {
-            this.fix = fix;
-            this.additionalFixes = null;
-        }
+        private readonly CodeFix fix = fix;
+        private readonly IEnumerable<CodeFix>? additionalFixes = null;
 
         public FixableDiagnostic(Parsing.TextSpan span, DiagnosticLevel level, string code, string message, Uri? documentationUri, DiagnosticStyling styling, CodeFix fix, params CodeFix[] additionalFixes)
             : this(span, level, code, message, documentationUri, styling, fix)

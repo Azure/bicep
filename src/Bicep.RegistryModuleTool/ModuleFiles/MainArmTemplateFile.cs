@@ -11,17 +11,11 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
     public record MainArmTemplateOutput(string Name, string Type, string? Description);
 
-    public sealed class MainArmTemplateFile : ModuleFile
+    public sealed class MainArmTemplateFile(string path, string content) : ModuleFile(path)
     {
         public const string FileName = "main.json";
 
-        public MainArmTemplateFile(string path, string content)
-            : base(path)
-        {
-            this.Content = content;
-        }
-
-        public string Content { get; }
+        public string Content { get; } = content;
 
         public static async Task<MainArmTemplateFile> GenerateAsync(IFileSystem fileSystem, MainBicepFile mainBicepFile)
         {

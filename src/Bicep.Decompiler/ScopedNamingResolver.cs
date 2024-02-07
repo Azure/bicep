@@ -4,16 +4,10 @@ using Azure.Deployments.Expression.Expressions;
 
 namespace Bicep.Decompiler
 {
-    public class ScopedNamingResolver : INamingResolver
+    public class ScopedNamingResolver(INamingResolver parent, IEnumerable<string> scopedVariables) : INamingResolver
     {
-        private readonly INamingResolver parent;
-        private readonly ISet<string> scopedVariables;
-
-        public ScopedNamingResolver(INamingResolver parent, IEnumerable<string> scopedVariables)
-        {
-            this.parent = parent;
-            this.scopedVariables = scopedVariables.ToHashSet();
-        }
+        private readonly INamingResolver parent = parent;
+        private readonly ISet<string> scopedVariables = scopedVariables.ToHashSet();
 
         public string? TryLookupName(NameType nameType, string desiredName)
         {

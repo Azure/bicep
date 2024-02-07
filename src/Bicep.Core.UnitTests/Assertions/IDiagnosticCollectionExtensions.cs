@@ -14,13 +14,8 @@ namespace Bicep.Core.UnitTests.Assertions
         }
     }
 
-    public class IDiagnosticCollectionAssertions : GenericCollectionAssertions<IDiagnostic>
+    public class IDiagnosticCollectionAssertions(IEnumerable<IDiagnostic> diagnostics) : GenericCollectionAssertions<IDiagnostic>(diagnostics)
     {
-        public IDiagnosticCollectionAssertions(IEnumerable<IDiagnostic> diagnostics)
-            : base(diagnostics)
-        {
-        }
-
         public new AndConstraint<IDiagnosticCollectionAssertions> BeEmpty(string because = "", params object[] becauseArgs)
         {
             AssertionExtensions.Should(Subject).BeEmpty(because, becauseArgs);

@@ -5,28 +5,19 @@ using System.Collections.Immutable;
 namespace Bicep.Core.Registry.Oci
 {
     public record OciArtifactLayer(string Digest, string MediaType, BinaryData Data);
-    public abstract class OciArtifactResult
+    public abstract class OciArtifactResult(BinaryData manifestBits, string manifestDigest, IEnumerable<OciArtifactLayer> layers)
     {
         // media types are case-insensitive (they are lowercase by convention only)
         public static readonly StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
-
-        public OciArtifactResult(BinaryData manifestBits, string manifestDigest, IEnumerable<OciArtifactLayer> layers)
-        {
-            this.manifestBits = manifestBits;
-            this.Manifest = OciManifest.FromBinaryData(manifestBits) ?? throw new InvalidArtifactException("Unable to deserialize OCI manifest");
-            this.ManifestDigest = manifestDigest;
-            this.Layers = layers.ToImmutableArray();
-        }
-
-        private readonly BinaryData manifestBits;
+        private readonly BinaryData manifestBits = manifestBits;
 
         public Stream ToStream() => manifestBits.ToStream();
 
-        public OciManifest Manifest { get; init; }
+        public OciManifest Manifest { get; init; } = OciManifest.FromBinaryData(manifestBits) ?? throw new InvalidArtifactException("Unable to deserialize OCI manifest");
 
-        public string ManifestDigest { get; init; }
+        public string ManifestDigest { get; init; } = manifestDigest;
 
-        public IEnumerable<OciArtifactLayer> Layers { get; init; }
+        public IEnumerable<OciArtifactLayer> Layers { get; init; } = layers.ToImmutableArray();
 
         public BinaryData? TryGetSingleLayerByMediaType(string mediaType)
         {

@@ -7,10 +7,8 @@ using Bicep.Core.Json;
 
 namespace Bicep.Core.Configuration
 {
-    public class AnalyzersConfiguration : ConfigurationSection<JsonElement>
+    public class AnalyzersConfiguration(JsonElement data) : ConfigurationSection<JsonElement>(data)
     {
-        public AnalyzersConfiguration(JsonElement data) : base(data) { }
-
         public static AnalyzersConfiguration Empty => CreateEmptyAnalyzersConfiguration();
 
         public T GetValue<T>(string path, T defaultValue)

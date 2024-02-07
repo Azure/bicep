@@ -7,14 +7,9 @@ namespace Bicep.Core.TypeSystem.Types;
 /// <summary>
 /// The type of a symbol that may only be used as a type, not a value.
 /// </summary>
-public class TypeType : TypeSymbol
+public class TypeType(TypeSymbol toWrap) : TypeSymbol($"Type<{toWrap.Name}>")
 {
-    private readonly TypeSymbol wrappedType;
-
-    public TypeType(TypeSymbol toWrap) : base($"Type<{toWrap.Name}>")
-    {
-        wrappedType = toWrap;
-    }
+    private readonly TypeSymbol wrappedType = toWrap;
 
     public TypeSymbol Unwrapped => wrappedType;
 

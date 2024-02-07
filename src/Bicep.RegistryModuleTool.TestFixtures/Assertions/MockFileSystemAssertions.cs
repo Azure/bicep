@@ -13,13 +13,8 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Assertions
         public static MockFileSystemAssertions Should(this MockFileSystem fileSystem) => new(fileSystem);
     }
 
-    public class MockFileSystemAssertions : ReferenceTypeAssertions<MockFileSystem, MockFileSystemAssertions>
+    public class MockFileSystemAssertions(MockFileSystem subject) : ReferenceTypeAssertions<MockFileSystem, MockFileSystemAssertions>(subject)
     {
-        public MockFileSystemAssertions(MockFileSystem subject)
-            : base(subject)
-        {
-        }
-
         protected override string Identifier => nameof(MockFileSystem);
 
         public AndConstraint<MockFileSystemAssertions> HaveSameFilesAs(MockFileSystem expected)

@@ -9,7 +9,16 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Configuration
 {
-    public class RootConfiguration
+    public class RootConfiguration(
+        CloudConfiguration cloud,
+        ModuleAliasesConfiguration moduleAliases,
+        ProviderAliasesConfiguration providerAliases,
+        AnalyzersConfiguration analyzers,
+        string? cacheRootDirectory,
+        ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
+        FormattingConfiguration formatting,
+        Uri? configFileUri,
+        IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
     {
         private const string CloudKey = "cloud";
 
@@ -25,28 +34,6 @@ namespace Bicep.Core.Configuration
 
         private const string FormattingKey = "formatting";
 
-        public RootConfiguration(
-            CloudConfiguration cloud,
-            ModuleAliasesConfiguration moduleAliases,
-            ProviderAliasesConfiguration providerAliases,
-            AnalyzersConfiguration analyzers,
-            string? cacheRootDirectory,
-            ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
-            FormattingConfiguration formatting,
-            Uri? configFileUri,
-            IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
-        {
-            this.Cloud = cloud;
-            this.ModuleAliases = moduleAliases;
-            this.ProviderAliases = providerAliases;
-            this.Analyzers = analyzers;
-            this.CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
-            this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
-            this.Formatting = formatting;
-            this.ConfigFileUri = configFileUri;
-            this.DiagnosticBuilders = diagnosticBuilders?.ToImmutableArray() ?? ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate>.Empty;
-        }
-
         public static RootConfiguration Bind(JsonElement element, Uri? configFileUri = null, IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders = null)
         {
             var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey));
@@ -60,23 +47,23 @@ namespace Bicep.Core.Configuration
             return new(cloud, moduleAliases, providerAliases, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configFileUri, diagnosticBuilders);
         }
 
-        public CloudConfiguration Cloud { get; }
+        public CloudConfiguration Cloud { get; } = cloud;
 
-        public ModuleAliasesConfiguration ModuleAliases { get; }
+        public ModuleAliasesConfiguration ModuleAliases { get; } = moduleAliases;
 
-        public ProviderAliasesConfiguration ProviderAliases { get; }
+        public ProviderAliasesConfiguration ProviderAliases { get; } = providerAliases;
 
-        public AnalyzersConfiguration Analyzers { get; }
+        public AnalyzersConfiguration Analyzers { get; } = analyzers;
 
-        public string? CacheRootDirectory { get; }
+        public string? CacheRootDirectory { get; } = ExpandCacheRootDirectory(cacheRootDirectory);
 
-        public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; }
+        public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; } = experimentalFeaturesEnabled;
 
-        public FormattingConfiguration Formatting { get; }
+        public FormattingConfiguration Formatting { get; } = formatting;
 
-        public Uri? ConfigFileUri { get; }
+        public Uri? ConfigFileUri { get; } = configFileUri;
 
-        public ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate> DiagnosticBuilders { get; }
+        public ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate> DiagnosticBuilders { get; } = diagnosticBuilders?.ToImmutableArray() ?? ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate>.Empty;
 
         public bool IsBuiltIn => ConfigFileUri is null;
 

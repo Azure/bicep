@@ -5,11 +5,7 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.PrettyPrintV2.Documents
 {
-    public sealed class GlueDocument : ContainerDocument
+    public sealed class GlueDocument(IEnumerable<Document> documents) : ContainerDocument(documents.ToImmutableArray())
     {
-        public GlueDocument(IEnumerable<Document> documents)
-            : base(documents.ToImmutableArray())
-        {
-        }
     }
 }

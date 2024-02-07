@@ -28,26 +28,17 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Handles saving the decompiled files from a BicepDecompileCommandHandler result (after the client asked the user whether to overwrite or create copies)
     /// </summary>
-    public class BicepDecompileSaveCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileSaveCommandParams, BicepDecompileSaveCommandResult>
+    public class BicepDecompileSaveCommandHandler(
+        ISerializer serializer,
+        ILanguageServerFacade server,
+        ITelemetryProvider telemetryProvider,
+        IClientCapabilitiesProvider clientCapabilitiesProvider,
+        BicepDecompiler bicepDecompiler) : ExecuteTypedResponseCommandHandlerBase<BicepDecompileSaveCommandParams, BicepDecompileSaveCommandResult>(LangServerConstants.DecompileSaveCommand, serializer)
     {
-        private readonly BicepDecompiler bicepDecompiler;
-        private readonly ILanguageServerFacade languageServerFacade;
-        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
-        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult> telemetryHelper;
-
-        public BicepDecompileSaveCommandHandler(
-            ISerializer serializer,
-            ILanguageServerFacade server,
-            ITelemetryProvider telemetryProvider,
-            IClientCapabilitiesProvider clientCapabilitiesProvider,
-            BicepDecompiler bicepDecompiler)
-            : base(LangServerConstants.DecompileSaveCommand, serializer)
-        {
-            this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult>(server.Window, telemetryProvider);
-            this.bicepDecompiler = bicepDecompiler;
-            this.clientCapabilitiesProvider = clientCapabilitiesProvider;
-            this.languageServerFacade = server;
-        }
+        private readonly BicepDecompiler bicepDecompiler = bicepDecompiler;
+        private readonly ILanguageServerFacade languageServerFacade = server;
+        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider = clientCapabilitiesProvider;
+        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult> telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult>(server.Window, telemetryProvider);
 
         public override Task<BicepDecompileSaveCommandResult> Handle(BicepDecompileSaveCommandParams parameters, CancellationToken cancellationToken)
         {

@@ -7,14 +7,8 @@ namespace Bicep.Core.Diagnostics
     /// <summary>
     /// Exception with error diagnostic information attached.
     /// </summary>
-    public class ErrorDiagnosticException : BicepException
+    public class ErrorDiagnosticException(ErrorDiagnostic diagnostic, Exception? inner = null) : BicepException(diagnostic.Message, inner)
     {
-        public ErrorDiagnosticException(ErrorDiagnostic diagnostic, Exception? inner = null)
-            : base(diagnostic.Message, inner)
-        {
-            Diagnostic = diagnostic;
-        }
-
-        public ErrorDiagnostic Diagnostic { get; }
+        public ErrorDiagnostic Diagnostic { get; } = diagnostic;
     }
 }

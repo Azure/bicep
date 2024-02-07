@@ -14,15 +14,9 @@ namespace Bicep.LanguageServer.Handlers
     // Flow of events:
     // 1. workspace/executeCommand request is sent from the client to the server
     // 2. The above triggers telemetry/event from server to client
-    public class BicepTelemetryHandler : ExecuteTypedCommandHandlerBase<BicepTelemetryEvent>
+    public class BicepTelemetryHandler(ITelemetryProvider telemetryProvider, ISerializer serializer) : ExecuteTypedCommandHandlerBase<BicepTelemetryEvent>(TelemetryConstants.CommandName, serializer)
     {
-        private readonly ITelemetryProvider TelemetryProvider;
-
-        public BicepTelemetryHandler(ITelemetryProvider telemetryProvider, ISerializer serializer)
-           : base(TelemetryConstants.CommandName, serializer)
-        {
-            TelemetryProvider = telemetryProvider;
-        }
+        private readonly ITelemetryProvider TelemetryProvider = telemetryProvider;
 
         public override Task<Unit> Handle(BicepTelemetryEvent bicepTelemetryEvent, CancellationToken cancellationToken)
         {

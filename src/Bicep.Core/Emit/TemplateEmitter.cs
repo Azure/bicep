@@ -10,14 +10,9 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit;
 
-public class TemplateEmitter
+public class TemplateEmitter(SemanticModel model)
 {
-    private readonly ISemanticModel model;
-
-    public TemplateEmitter(SemanticModel model)
-    {
-        this.model = model;
-    }
+    private readonly ISemanticModel model = model;
 
     /// <summary>
     /// The JSON spec requires UTF8 without a BOM, so we use this encoding to write JSON files.

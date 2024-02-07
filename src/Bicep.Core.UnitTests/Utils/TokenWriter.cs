@@ -6,14 +6,9 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.UnitTests.Utils
 {
-    public class TokenWriter
+    public class TokenWriter(StringBuilder buffer)
     {
-        private readonly StringBuilder buffer;
-
-        public TokenWriter(StringBuilder buffer)
-        {
-            this.buffer = buffer;
-        }
+        private readonly StringBuilder buffer = buffer;
 
         public void WriteTokens(IEnumerable<Token> tokens)
         {

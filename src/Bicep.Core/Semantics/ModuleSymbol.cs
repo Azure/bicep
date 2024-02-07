@@ -7,13 +7,8 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.Semantics
 {
-    public class ModuleSymbol : DeclaredSymbol
+    public class ModuleSymbol(ISymbolContext context, string name, ModuleDeclarationSyntax declaringSyntax) : DeclaredSymbol(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        public ModuleSymbol(ISymbolContext context, string name, ModuleDeclarationSyntax declaringSyntax)
-            : base(context, name, declaringSyntax, declaringSyntax.Name)
-        {
-        }
-
         public ModuleDeclarationSyntax DeclaringModule => (ModuleDeclarationSyntax)this.DeclaringSyntax;
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitModuleSymbol(this);

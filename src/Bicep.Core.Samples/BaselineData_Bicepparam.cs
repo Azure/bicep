@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.Samples
 {
-    public class BaselineData_Bicepparam
+    public class BaselineData_Bicepparam(EmbeddedFile paramsFile)
     {
         public enum TestDataFilterType
         {
@@ -61,14 +61,9 @@ namespace Bicep.Core.Samples
             BaselineFile Formatted,
             BaselineFile PrettyPrinted);
 
-        private readonly EmbeddedFile paramsFile;
+        private readonly EmbeddedFile paramsFile = paramsFile;
 
         public bool IsValid => !paramsFile.StreamPath.StartsWith("Files/baselines_bicepparam/Invalid_");
-
-        public BaselineData_Bicepparam(EmbeddedFile paramsFile)
-        {
-            this.paramsFile = paramsFile;
-        }
 
         public BaselineData GetData(TestContext testContext)
         {

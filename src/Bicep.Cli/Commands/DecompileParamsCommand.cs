@@ -8,27 +8,18 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
 {
-    public class DecompileParamsCommand : ICommand
+    public class DecompileParamsCommand(
+        ILogger logger,
+        IOContext io,
+        IFileResolver fileResolver,
+        BicepDecompiler decompiler,
+        OutputWriter writer) : ICommand
     {
-        private readonly ILogger logger;
-        private readonly IOContext io;
-        private readonly IFileResolver fileResolver;
-        private readonly BicepDecompiler decompiler;
-        private readonly OutputWriter writer;
-
-        public DecompileParamsCommand(
-            ILogger logger,
-            IOContext io,
-            IFileResolver fileResolver,
-            BicepDecompiler decompiler,
-            OutputWriter writer)
-        {
-            this.logger = logger;
-            this.io = io;
-            this.fileResolver = fileResolver;
-            this.decompiler = decompiler;
-            this.writer = writer;
-        }
+        private readonly ILogger logger = logger;
+        private readonly IOContext io = io;
+        private readonly IFileResolver fileResolver = fileResolver;
+        private readonly BicepDecompiler decompiler = decompiler;
+        private readonly OutputWriter writer = writer;
 
         public int Run(DecompileParamsArguments args)
         {

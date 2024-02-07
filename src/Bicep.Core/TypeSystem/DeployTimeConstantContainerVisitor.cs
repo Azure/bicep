@@ -10,16 +10,11 @@ namespace Bicep.Core.TypeSystem
     /// <summary>
     /// Collects syntaxes that only accept deploy-time constant values (deploy-time constant containers).
     /// </summary>
-    public class DeployTimeConstantContainerVisitor : AstVisitor
+    public class DeployTimeConstantContainerVisitor(SemanticModel semanticModel) : AstVisitor
     {
-        private readonly SemanticModel semanticModel;
+        private readonly SemanticModel semanticModel = semanticModel;
 
         private readonly List<SyntaxBase> deployTimeConstantContainers = new();
-
-        public DeployTimeConstantContainerVisitor(SemanticModel semanticModel)
-        {
-            this.semanticModel = semanticModel;
-        }
 
         public static IEnumerable<SyntaxBase> CollectDeployTimeConstantContainers(SemanticModel semanticModel)
         {

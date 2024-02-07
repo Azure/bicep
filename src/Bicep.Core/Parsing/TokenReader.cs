@@ -4,17 +4,11 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
 {
-    public class TokenReader
+    public class TokenReader(IEnumerable<Token> tokens)
     {
-        private Token[] Tokens { get; }
+        private Token[] Tokens { get; } = tokens.ToArray();
 
-        public TokenReader(IEnumerable<Token> tokens)
-        {
-            this.Tokens = tokens.ToArray();
-            this.Position = 0;
-        }
-
-        public int Position { get; private set; }
+        public int Position { get; private set; } = 0;
 
         public int Count => this.Tokens.Length;
 

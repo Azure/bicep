@@ -5,14 +5,9 @@ using Azure.Core;
 
 namespace Bicep.LanguageServer.Deploy
 {
-    public class CredentialFromTokenAndTimeStamp : TokenCredential
+    public class CredentialFromTokenAndTimeStamp(string token, string timeStamp) : TokenCredential
     {
-        private AccessToken accessToken;
-
-        public CredentialFromTokenAndTimeStamp(string token, string timeStamp)
-        {
-            accessToken = new AccessToken(token, DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(timeStamp)));
-        }
+        private AccessToken accessToken = new AccessToken(token, DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(timeStamp)));
 
         public override ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
         {

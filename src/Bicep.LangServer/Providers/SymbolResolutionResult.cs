@@ -6,25 +6,19 @@ using Bicep.LanguageServer.CompilationManager;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public class SymbolResolutionResult
+    public class SymbolResolutionResult(SyntaxBase origin, Symbol symbol, CompilationContext context)
     {
-        public SymbolResolutionResult(SyntaxBase origin, Symbol symbol, CompilationContext context)
-        {
-            this.Origin = origin;
-            this.Symbol = symbol;
-            this.Context = context;
-        }
 
         /// <summary>
         /// Gets the resolved symbol
         /// </summary>
-        public Symbol Symbol { get; }
+        public Symbol Symbol { get; } = symbol;
 
         /// <summary>
         /// Gets the syntax node that corresponds to the specified position.
         /// </summary>
-        public SyntaxBase Origin { get; }
+        public SyntaxBase Origin { get; } = origin;
 
-        public CompilationContext Context { get; }
+        public CompilationContext Context { get; } = context;
     }
 }

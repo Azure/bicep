@@ -9,14 +9,9 @@ namespace Bicep.Core.Syntax
     /// <summary>
     /// Represents a local variable (such as the item or index variable in loops).
     /// </summary>
-    public class LocalVariableSyntax : SyntaxBase, INamedDeclarationSyntax
+    public class LocalVariableSyntax(IdentifierSyntax name) : SyntaxBase, INamedDeclarationSyntax
     {
-        public LocalVariableSyntax(IdentifierSyntax name)
-        {
-            this.Name = name;
-        }
-
-        public IdentifierSyntax Name { get; }
+        public IdentifierSyntax Name { get; } = name;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitLocalVariableSyntax(this);
 

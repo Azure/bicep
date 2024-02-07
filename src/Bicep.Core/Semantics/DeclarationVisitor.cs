@@ -442,14 +442,9 @@ namespace Bicep.Core.Semantics
         /// which is fragile.
         /// </summary>
         /// <remarks>This could be replaced with a record if we could target .net 5</remarks>
-        private class ScopeInfo
+        private class ScopeInfo(LocalScope scope)
         {
-            public ScopeInfo(LocalScope scope)
-            {
-                this.Scope = scope;
-            }
-
-            public LocalScope Scope { get; }
+            public LocalScope Scope { get; } = scope;
 
             public IList<DeclaredSymbol> Locals { get; } = new List<DeclaredSymbol>();
 

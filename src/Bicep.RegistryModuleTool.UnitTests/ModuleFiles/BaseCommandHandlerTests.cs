@@ -121,28 +121,16 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
             }
         }
 
-        private class PassThroughCommandHandler : BaseCommandHandler
+        private class PassThroughCommandHandler(int exitCode) : BaseCommandHandler(MockFileSystemFactory.CreateForSample(Sample.Empty), MockLoggerFactory.CreateLogger())
         {
-            private readonly int exitCode;
-
-            public PassThroughCommandHandler(int exitCode)
-                : base(MockFileSystemFactory.CreateForSample(Sample.Empty), MockLoggerFactory.CreateLogger())
-            {
-                this.exitCode = exitCode;
-            }
+            private readonly int exitCode = exitCode;
 
             protected override Task<int> InvokeInternalAsync(InvocationContext context) => Task.FromResult(this.exitCode);
         }
 
-        private class ThrowExceptionCommandHandler : BaseCommandHandler
+        private class ThrowExceptionCommandHandler(Exception exceptionToThrow, ILogger? logger = null) : BaseCommandHandler(MockFileSystemFactory.CreateForSample(Sample.Empty), logger ?? MockLoggerFactory.CreateLogger())
         {
-            private readonly Exception exceptionToThrow;
-
-            public ThrowExceptionCommandHandler(Exception exceptionToThrow, ILogger? logger = null)
-                : base(MockFileSystemFactory.CreateForSample(Sample.Empty), logger ?? MockLoggerFactory.CreateLogger())
-            {
-                this.exceptionToThrow = exceptionToThrow;
-            }
+            private readonly Exception exceptionToThrow = exceptionToThrow;
 
             protected override Task<int> InvokeInternalAsync(InvocationContext context)
             {

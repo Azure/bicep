@@ -4,13 +4,8 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
 {
-    public class ParameterAssignmentSymbol : DeclaredSymbol
+    public class ParameterAssignmentSymbol(ISymbolContext context, string name, ParameterAssignmentSyntax declaringSyntax) : DeclaredSymbol(context, name, declaringSyntax, declaringSyntax.Name)
     {
-        public ParameterAssignmentSymbol(ISymbolContext context, string name, ParameterAssignmentSyntax declaringSyntax)
-            : base(context, name, declaringSyntax, declaringSyntax.Name)
-        {
-            // TODO: Shouldn't we store the value syntax in the symbol?
-        }
         /// <summary>
         /// Gets the syntax node that declared this symbol.
         /// </summary>

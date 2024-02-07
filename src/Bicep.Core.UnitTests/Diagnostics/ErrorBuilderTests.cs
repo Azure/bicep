@@ -318,16 +318,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
             ExpectDiagnosticWithFixedText(text, expectedFix);
         }
 
-        private class PrimitiveType : TypeSymbol
+        private class PrimitiveType(string name, TypeSymbolValidationFlags validationFlags) : TypeSymbol(name)
         {
-            public PrimitiveType(string name, TypeSymbolValidationFlags validationFlags) : base(name)
-            {
-                ValidationFlags = validationFlags;
-            }
-
             public override TypeKind TypeKind => TypeKind.Primitive;
 
-            public override TypeSymbolValidationFlags ValidationFlags { get; }
+            public override TypeSymbolValidationFlags ValidationFlags { get; } = validationFlags;
         }
     }
 }

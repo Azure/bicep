@@ -18,15 +18,10 @@ public interface IReadableFileCache
     ResultWithDiagnostic<AuxiliaryFile> Read(Uri uri);
 }
 
-public class AuxiliaryFileCache : IReadableFileCache
+public class AuxiliaryFileCache(IFileResolver fileResolver) : IReadableFileCache
 {
-    public AuxiliaryFileCache(IFileResolver fileResolver)
-    {
-        this.fileResolver = fileResolver;
-    }
-
     private readonly ConcurrentDictionary<Uri, ResultWithDiagnostic<AuxiliaryFile>> fileCache = new();
-    private readonly IFileResolver fileResolver;
+    private readonly IFileResolver fileResolver = fileResolver;
 
     /// <summary>
     /// Reads a given file from the file system, utilizing the cache where possible.

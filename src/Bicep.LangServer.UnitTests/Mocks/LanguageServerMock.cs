@@ -18,14 +18,9 @@ namespace Bicep.LangServer.UnitTests.Mocks
 
         public IClientCapabilitiesProvider ClientCapabilitiesProvider => clientCapabilitiesProviderMock;
 
-        private class ClientCapabilitiesProviderMock : IClientCapabilitiesProvider
+        private class ClientCapabilitiesProviderMock(LanguageServerMock serverMock) : IClientCapabilitiesProvider
         {
-            private readonly LanguageServerMock serverMock;
-
-            public ClientCapabilitiesProviderMock(LanguageServerMock serverMock)
-            {
-                this.serverMock = serverMock;
-            }
+            private readonly LanguageServerMock serverMock = serverMock;
 
             bool IClientCapabilitiesProvider.DoesClientSupportShowDocumentRequest() => serverMock.WindowMock.DoesClientSupportShowDocumentRequest;
 

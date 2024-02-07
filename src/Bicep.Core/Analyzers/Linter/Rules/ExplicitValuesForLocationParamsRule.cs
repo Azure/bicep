@@ -31,21 +31,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return visitor.diagnostics;
         }
 
-        private sealed class Visitor : AstVisitor
+        private sealed class Visitor(ExplicitValuesForLocationParamsRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel) : AstVisitor
         {
             public List<IDiagnostic> diagnostics = new();
 
             private readonly Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> _cachedParamsUsedInLocationPropsForFile = new();
-            private readonly ExplicitValuesForLocationParamsRule parent;
-            private readonly SemanticModel model;
-            private readonly DiagnosticLevel diagnosticLevel;
-
-            public Visitor(ExplicitValuesForLocationParamsRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel)
-            {
-                this.parent = parent;
-                this.model = model;
-                this.diagnosticLevel = diagnosticLevel;
-            }
+            private readonly ExplicitValuesForLocationParamsRule parent = parent;
+            private readonly SemanticModel model = model;
+            private readonly DiagnosticLevel diagnosticLevel = diagnosticLevel;
 
             public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax moduleDeclarationSyntax)
             {

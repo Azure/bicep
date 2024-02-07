@@ -4,17 +4,11 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.Types
 {
-    public class UnionType : TypeSymbol
+    public class UnionType(string name, ImmutableArray<ITypeReference> members) : TypeSymbol(name)
     {
-        public UnionType(string name, ImmutableArray<ITypeReference> members)
-            : base(name)
-        {
-            Members = members;
-        }
-
         public override TypeKind TypeKind => Members.IsEmpty ? TypeKind.Never : TypeKind.Union;
 
-        public ImmutableArray<ITypeReference> Members { get; }
+        public ImmutableArray<ITypeReference> Members { get; } = members;
 
         public override string FormatNameForCompoundTypes() => TypeKind == TypeKind.Never ? Name : WrapTypeName();
 

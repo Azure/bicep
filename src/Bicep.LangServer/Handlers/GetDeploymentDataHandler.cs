@@ -16,16 +16,10 @@ namespace Bicep.LanguageServer.Handlers
 
     public record GetDeploymentDataResponse(string? TemplateJson = null, string? ParametersJson = null, string? ErrorMessage = null);
 
-    public class GetDeploymentDataHandler : IJsonRpcRequestHandler<GetDeploymentDataRequest, GetDeploymentDataResponse>
+    public class GetDeploymentDataHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager) : IJsonRpcRequestHandler<GetDeploymentDataRequest, GetDeploymentDataResponse>
     {
-        private readonly ILogger<BicepDocumentSymbolHandler> logger;
-        private readonly ICompilationManager compilationManager;
-
-        public GetDeploymentDataHandler(ILogger<BicepDocumentSymbolHandler> logger, ICompilationManager compilationManager)
-        {
-            this.logger = logger;
-            this.compilationManager = compilationManager;
-        }
+        private readonly ILogger<BicepDocumentSymbolHandler> logger = logger;
+        private readonly ICompilationManager compilationManager = compilationManager;
 
         public async Task<GetDeploymentDataResponse> Handle(GetDeploymentDataRequest request, CancellationToken cancellationToken)
         {

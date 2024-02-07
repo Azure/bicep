@@ -4,17 +4,11 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class BooleanLiteralSyntax : ExpressionSyntax
+    public class BooleanLiteralSyntax(Token literal, bool value) : ExpressionSyntax
     {
-        public BooleanLiteralSyntax(Token literal, bool value)
-        {
-            Literal = literal;
-            Value = value;
-        }
+        public bool Value { get; } = value;
 
-        public bool Value { get; }
-
-        public Token Literal { get; }
+        public Token Literal { get; } = literal;
 
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitBooleanLiteralSyntax(this);

@@ -10,7 +10,7 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem;
 
-public class ResourceDerivedTypeResolver
+public class ResourceDerivedTypeResolver(IBinder binder)
 {
     private static readonly StringComparer PointerSegmentComparer = StringComparer.OrdinalIgnoreCase;
 
@@ -18,12 +18,7 @@ public class ResourceDerivedTypeResolver
     private readonly ConcurrentDictionary<TypeSymbol, TypeSymbol> resolvedTypes = new();
     private readonly Stack<TypeSymbol> currentlySearchingForUnresolvedTypes = new();
     private readonly ConcurrentDictionary<TypeSymbol, bool> containsUnresolvedTypesCache = new();
-    private readonly IBinder binder;
-
-    public ResourceDerivedTypeResolver(IBinder binder)
-    {
-        this.binder = binder;
-    }
+    private readonly IBinder binder = binder;
 
     public TypeSymbol ResolveResourceDerivedTypes(TypeSymbol potentiallyUnresolved)
         => resolvedTypes.GetOrAdd(potentiallyUnresolved, ResolveType);

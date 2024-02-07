@@ -11,15 +11,9 @@ namespace Bicep.Core.TypeSystem.Types
     /// Generally this means the resource type is used as a parameter or an output of a module. The resolving
     /// of the type has yet to occur because it must take place in the context of the consuming module.
     /// </summary>
-    public class UnresolvedResourceType : TypeSymbol
+    public class UnresolvedResourceType(ResourceTypeReference typeReference) : TypeSymbol(typeReference.FormatType())
     {
-        public UnresolvedResourceType(ResourceTypeReference typeReference)
-            : base(typeReference.FormatType())
-        {
-            TypeReference = typeReference;
-        }
-
-        public ResourceTypeReference TypeReference { get; }
+        public ResourceTypeReference TypeReference { get; } = typeReference;
 
         public override TypeKind TypeKind => TypeKind.Resource;
     }

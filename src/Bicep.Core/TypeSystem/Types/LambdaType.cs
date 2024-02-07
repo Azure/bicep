@@ -5,20 +5,13 @@ using System.Collections.Immutable;
 
 namespace Bicep.Core.TypeSystem.Types
 {
-    public class LambdaType : TypeSymbol
+    public class LambdaType(ImmutableArray<ITypeReference> argumentTypes, ITypeReference returnType) : TypeSymbol(FormatTypeName(argumentTypes, returnType))
     {
-        public LambdaType(ImmutableArray<ITypeReference> argumentTypes, ITypeReference returnType)
-            : base(FormatTypeName(argumentTypes, returnType))
-        {
-            ArgumentTypes = argumentTypes;
-            ReturnType = returnType;
-        }
-
         public override TypeKind TypeKind => TypeKind.Lambda;
 
-        public ImmutableArray<ITypeReference> ArgumentTypes { get; }
+        public ImmutableArray<ITypeReference> ArgumentTypes { get; } = argumentTypes;
 
-        public ITypeReference ReturnType { get; }
+        public ITypeReference ReturnType { get; } = returnType;
 
         private static string FormatTypeName(ImmutableArray<ITypeReference> argumentTypes, ITypeReference bodyType)
             => argumentTypes.Length == 1 ?

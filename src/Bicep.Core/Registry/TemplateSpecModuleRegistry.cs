@@ -16,24 +16,15 @@ namespace Bicep.Core.Registry
 {
     public readonly record struct TemplateSpecEntity(string Content);
 
-    public class TemplateSpecModuleRegistry : ExternalArtifactRegistry<TemplateSpecModuleReference, TemplateSpecEntity>
+    public class TemplateSpecModuleRegistry(IFileResolver fileResolver, IFileSystem fileSystem, ITemplateSpecRepositoryFactory repositoryFactory, IFeatureProvider featureProvider, RootConfiguration configuration, Uri parentModuleUri) : ExternalArtifactRegistry<TemplateSpecModuleReference, TemplateSpecEntity>(fileResolver, fileSystem)
     {
-        private readonly ITemplateSpecRepositoryFactory repositoryFactory;
+        private readonly ITemplateSpecRepositoryFactory repositoryFactory = repositoryFactory;
 
-        private readonly IFeatureProvider featureProvider;
+        private readonly IFeatureProvider featureProvider = featureProvider;
 
-        private readonly RootConfiguration configuration;
+        private readonly RootConfiguration configuration = configuration;
 
-        private readonly Uri parentModuleUri;
-
-        public TemplateSpecModuleRegistry(IFileResolver fileResolver, IFileSystem fileSystem, ITemplateSpecRepositoryFactory repositoryFactory, IFeatureProvider featureProvider, RootConfiguration configuration, Uri parentModuleUri)
-            : base(fileResolver, fileSystem)
-        {
-            this.repositoryFactory = repositoryFactory;
-            this.featureProvider = featureProvider;
-            this.configuration = configuration;
-            this.parentModuleUri = parentModuleUri;
-        }
+        private readonly Uri parentModuleUri = parentModuleUri;
 
         public override string Scheme => ModuleReferenceSchemes.TemplateSpecs;
 

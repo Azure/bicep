@@ -5,26 +5,17 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public class TypedLambdaSyntax : ExpressionSyntax
+public class TypedLambdaSyntax(SyntaxBase variableSection, SyntaxBase returnType, SyntaxBase arrow, ImmutableArray<Token> newlinesBeforeBody, SyntaxBase body) : ExpressionSyntax
 {
-    public TypedLambdaSyntax(SyntaxBase variableSection, SyntaxBase returnType, SyntaxBase arrow, ImmutableArray<Token> newlinesBeforeBody, SyntaxBase body)
-    {
-        this.VariableSection = variableSection;
-        this.ReturnType = returnType;
-        this.Arrow = arrow;
-        this.NewlinesBeforeBody = newlinesBeforeBody;
-        this.Body = body;
-    }
+    public SyntaxBase VariableSection { get; } = variableSection;
 
-    public SyntaxBase VariableSection { get; }
+    public SyntaxBase ReturnType { get; } = returnType;
 
-    public SyntaxBase ReturnType { get; }
+    public SyntaxBase Arrow { get; } = arrow;
 
-    public SyntaxBase Arrow { get; }
+    public ImmutableArray<Token> NewlinesBeforeBody { get; } = newlinesBeforeBody;
 
-    public ImmutableArray<Token> NewlinesBeforeBody { get; }
-
-    public SyntaxBase Body { get; }
+    public SyntaxBase Body { get; } = body;
 
     public IEnumerable<TypedLocalVariableSyntax> GetLocalVariables()
         => VariableSection switch

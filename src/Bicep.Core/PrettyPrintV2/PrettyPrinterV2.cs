@@ -168,20 +168,13 @@ namespace Bicep.Core.PrettyPrintV2
             }
         }
 
-        private class NoTrailingSpaceWriter
+        private class NoTrailingSpaceWriter(TextWriter writer, PrettyPrinterV2Context context)
         {
-            private readonly TextWriter writer;
+            private readonly TextWriter writer = writer;
 
-            private readonly PrettyPrinterV2Context context;
+            private readonly PrettyPrinterV2Context context = context;
 
-            private readonly StringBuilder spaceBuffer;
-
-            public NoTrailingSpaceWriter(TextWriter writer, PrettyPrinterV2Context context)
-            {
-                this.writer = writer;
-                this.context = context;
-                this.spaceBuffer = new();
-            }
+            private readonly StringBuilder spaceBuffer = new();
 
             public void Write(string text)
             {

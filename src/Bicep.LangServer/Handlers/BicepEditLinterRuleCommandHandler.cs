@@ -25,21 +25,12 @@ namespace Bicep.LanguageServer.Handlers
     /// Using ExecuteTypedCommandHandlerBase instead of IJsonRpcRequestHandler because IJsonRpcRequestHandler will throw "Content modified" if text changes are detected, and for this command
     /// that is expected.
     /// </remarks>
-    public class BicepEditLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
+    public class BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, ITelemetryProvider telemetryProvider) : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>(LangServerConstants.EditLinterRuleCommandName, serializer)
     {
-        private readonly string DefaultBicepConfig;
-        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
-        private readonly ILanguageServerFacade server;
-        private readonly ITelemetryProvider telemetryProvider;
-
-        public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, ITelemetryProvider telemetryProvider)
-            : base(LangServerConstants.EditLinterRuleCommandName, serializer)
-        {
-            DefaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
-            this.clientCapabilitiesProvider = clientCapabilitiesProvider;
-            this.server = server;
-            this.telemetryProvider = telemetryProvider;
-        }
+        private readonly string DefaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
+        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider = clientCapabilitiesProvider;
+        private readonly ILanguageServerFacade server = server;
+        private readonly ITelemetryProvider telemetryProvider = telemetryProvider;
 
         public override async Task<Unit> Handle(DocumentUri documentUri, string ruleCode, string bicepConfigFilePath, CancellationToken cancellationToken)
         {

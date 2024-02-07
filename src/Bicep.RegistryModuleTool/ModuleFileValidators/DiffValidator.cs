@@ -7,20 +7,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
-    public sealed class DiffValidator : IModuleFileValidator
+    public sealed class DiffValidator(IFileSystem fileSystem, ILogger logger, MainBicepFile mainBicepFile) : IModuleFileValidator
     {
-        private readonly IFileSystem fileSystem;
+        private readonly IFileSystem fileSystem = fileSystem;
 
-        private readonly ILogger logger;
+        private readonly ILogger logger = logger;
 
-        private readonly MainBicepFile mainBicepFile;
-
-        public DiffValidator(IFileSystem fileSystem, ILogger logger, MainBicepFile mainBicepFile)
-        {
-            this.fileSystem = fileSystem;
-            this.logger = logger;
-            this.mainBicepFile = mainBicepFile;
-        }
+        private readonly MainBicepFile mainBicepFile = mainBicepFile;
 
         public async Task<IEnumerable<string>> ValidateAsync(MainArmTemplateFile file)
         {

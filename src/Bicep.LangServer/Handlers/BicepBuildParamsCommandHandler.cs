@@ -19,17 +19,10 @@ namespace Bicep.LanguageServer.Handlers
 {
     // This handler is used to build compiled parameters.json file for given a bicep file path.
     // It returns build-params succeeded/failed message, which can be displayed approriately in IDE output window
-    public class BicepBuildParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
+    public class BicepBuildParamsCommandHandler(ICompilationManager compilationManager, BicepCompiler bicepCompiler, ISerializer serializer) : ExecuteTypedResponseCommandHandlerBase<string, string>(LangServerConstants.BuildParamsCommand, serializer)
     {
-        private readonly ICompilationManager compilationManager;
-        private readonly BicepCompiler bicepCompiler;
-
-        public BicepBuildParamsCommandHandler(ICompilationManager compilationManager, BicepCompiler bicepCompiler, ISerializer serializer)
-            : base(LangServerConstants.BuildParamsCommand, serializer)
-        {
-            this.compilationManager = compilationManager;
-            this.bicepCompiler = bicepCompiler;
-        }
+        private readonly ICompilationManager compilationManager = compilationManager;
+        private readonly BicepCompiler bicepCompiler = bicepCompiler;
 
         public override async Task<string> Handle(string bicepParamsFilePath, CancellationToken cancellationToken)
         {

@@ -25,18 +25,12 @@ namespace Bicep.LangServer.IntegrationTests.Completions
             return triggers;
         }
 
-        private sealed class CompletionTriggerCollector : CstVisitor
+        private sealed class CompletionTriggerCollector(IList<CompletionTrigger> triggers, ImmutableArray<int> lineStarts) : CstVisitor
         {
             private static readonly Regex TriggerPattern = new(@"#\s*completionTest\s*\(\s*(?<char>\d+)\s*(,\s*(?<char>\d+)\s*)*\)\s*->\s*(?<set>\w+)", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-            private readonly IList<CompletionTrigger> triggers;
-            private readonly ImmutableArray<int> lineStarts;
-
-            public CompletionTriggerCollector(IList<CompletionTrigger> triggers, ImmutableArray<int> lineStarts)
-            {
-                this.triggers = triggers;
-                this.lineStarts = lineStarts;
-            }
+            private readonly IList<CompletionTrigger> triggers = triggers;
+            private readonly ImmutableArray<int> lineStarts = lineStarts;
 
             public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
             {

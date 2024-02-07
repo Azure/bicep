@@ -6,7 +6,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics
 {
-    public sealed class ResourceAncestorGraph
+    public sealed class ResourceAncestorGraph(ImmutableDictionary<DeclaredResourceMetadata, ImmutableArray<ResourceAncestorGraph.ResourceAncestor>> data)
     {
         public enum ResourceAncestorType
         {
@@ -17,12 +17,7 @@ namespace Bicep.Core.Semantics
 
         public record ResourceAncestor(ResourceAncestorType AncestorType, DeclaredResourceMetadata Resource, SyntaxBase? IndexExpression);
 
-        private readonly ImmutableDictionary<DeclaredResourceMetadata, ImmutableArray<ResourceAncestor>> data;
-
-        public ResourceAncestorGraph(ImmutableDictionary<DeclaredResourceMetadata, ImmutableArray<ResourceAncestor>> data)
-        {
-            this.data = data;
-        }
+        private readonly ImmutableDictionary<DeclaredResourceMetadata, ImmutableArray<ResourceAncestor>> data = data;
 
         // Gets the ordered list of ancestors of this resource in order from 'oldest' to 'youngest'
         // this is the same order we need to compute the name of a resource using `/` separated segments in a string.

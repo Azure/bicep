@@ -5,18 +5,11 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Types
 {
-    public class ResourceParameterType : TypeSymbol
+    public class ResourceParameterType(NamespaceType declaringNamespace, ResourceTypeReference typeReference) : TypeSymbol(typeReference.FormatType())
     {
-        public ResourceParameterType(NamespaceType declaringNamespace, ResourceTypeReference typeReference)
-            : base(typeReference.FormatType())
-        {
-            DeclaringNamespace = declaringNamespace;
-            TypeReference = typeReference;
-        }
+        public NamespaceType DeclaringNamespace { get; } = declaringNamespace;
 
-        public NamespaceType DeclaringNamespace { get; }
-
-        public ResourceTypeReference TypeReference { get; }
+        public ResourceTypeReference TypeReference { get; } = typeReference;
 
         public override TypeKind TypeKind => TypeKind.Resource;
     }

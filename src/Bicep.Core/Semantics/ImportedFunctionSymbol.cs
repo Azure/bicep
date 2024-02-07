@@ -7,15 +7,9 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics;
 
-public class ImportedFunctionSymbol : ImportedSymbol<ExportedFunctionMetadata>, IFunctionSymbol
+public class ImportedFunctionSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, ExportedFunctionMetadata exportedFunctionMetadata) : ImportedSymbol<ExportedFunctionMetadata>(context, declaringSyntax, enclosingDeclartion, sourceModel, exportedFunctionMetadata), IFunctionSymbol
 {
-    private readonly Lazy<FunctionOverload> overloadLazy;
-
-    public ImportedFunctionSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, ExportedFunctionMetadata exportedFunctionMetadata)
-        : base(context, declaringSyntax, enclosingDeclartion, sourceModel, exportedFunctionMetadata)
-    {
-        overloadLazy = new(() => TypeHelper.OverloadWithResolvedTypes(new(context.Binder), exportedFunctionMetadata));
-    }
+    private readonly Lazy<FunctionOverload> overloadLazy = new(() => TypeHelper.OverloadWithResolvedTypes(new(context.Binder), exportedFunctionMetadata));
 
     public override SymbolKind Kind => SymbolKind.Function;
 

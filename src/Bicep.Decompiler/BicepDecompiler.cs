@@ -19,16 +19,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler;
 
-public class BicepDecompiler
+public class BicepDecompiler(BicepCompiler bicepCompiler)
 {
-    private readonly BicepCompiler bicepCompiler;
+    private readonly BicepCompiler bicepCompiler = bicepCompiler;
 
     public static string DecompilerDisclaimerMessage => DecompilerResources.DecompilerDisclaimerMessage;
-
-    public BicepDecompiler(BicepCompiler bicepCompiler)
-    {
-        this.bicepCompiler = bicepCompiler;
-    }
 
     public async Task<DecompileResult> Decompile(Uri bicepUri, string jsonContent, DecompileOptions? options = null)
     {

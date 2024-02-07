@@ -14,14 +14,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepRenameHandler : RenameHandlerBase
+    public class BicepRenameHandler(ISymbolResolver symbolResolver) : RenameHandlerBase()
     {
-        private readonly ISymbolResolver symbolResolver;
-
-        public BicepRenameHandler(ISymbolResolver symbolResolver) : base()
-        {
-            this.symbolResolver = symbolResolver;
-        }
+        private readonly ISymbolResolver symbolResolver = symbolResolver;
 
         public override Task<WorkspaceEdit?> Handle(RenameParams request, CancellationToken cancellationToken)
         {

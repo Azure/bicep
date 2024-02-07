@@ -8,16 +8,10 @@ using static Bicep.Core.Semantics.ResourceAncestorGraph;
 
 namespace Bicep.Core.Semantics
 {
-    public sealed class ResourceAncestorVisitor : AstVisitor
+    public sealed class ResourceAncestorVisitor(SemanticModel semanticModel) : AstVisitor
     {
-        private readonly SemanticModel semanticModel;
-        private readonly ImmutableDictionary<DeclaredResourceMetadata, ResourceAncestor>.Builder ancestry;
-
-        public ResourceAncestorVisitor(SemanticModel semanticModel)
-        {
-            this.semanticModel = semanticModel;
-            this.ancestry = ImmutableDictionary.CreateBuilder<DeclaredResourceMetadata, ResourceAncestor>();
-        }
+        private readonly SemanticModel semanticModel = semanticModel;
+        private readonly ImmutableDictionary<DeclaredResourceMetadata, ResourceAncestor>.Builder ancestry = ImmutableDictionary.CreateBuilder<DeclaredResourceMetadata, ResourceAncestor>();
 
         public ImmutableDictionary<DeclaredResourceMetadata, ResourceAncestor> Ancestry
             => this.ancestry.ToImmutableDictionary();

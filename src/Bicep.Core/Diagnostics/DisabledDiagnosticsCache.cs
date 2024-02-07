@@ -35,16 +35,11 @@ namespace Bicep.Core.Diagnostics
             return visitor.GetDisableNextLineDiagnosticDirectivesCache();
         }
 
-        private class SyntaxTriviaVisitor : CstVisitor
+        private class SyntaxTriviaVisitor(ImmutableArray<int> lineStarts) : CstVisitor
         {
-            private readonly ImmutableArray<int> lineStarts;
+            private readonly ImmutableArray<int> lineStarts = lineStarts;
 
             private readonly ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes>.Builder disableNextLineDiagnosticDirectivesCacheBuilder = ImmutableDictionary.CreateBuilder<int, DisableNextLineDirectiveEndPositionAndCodes>();
-
-            public SyntaxTriviaVisitor(ImmutableArray<int> lineStarts)
-            {
-                this.lineStarts = lineStarts;
-            }
 
             public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
             {

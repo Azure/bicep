@@ -11,14 +11,9 @@ namespace Bicep.Cli.Services
     /// <summary>
     /// Generates a JSON parameter file from a Bicep file.
     /// </summary>
-    public class PlaceholderParametersWriter
+    public class PlaceholderParametersWriter(IOContext io)
     {
-        private readonly IOContext io;
-
-        public PlaceholderParametersWriter(IOContext io)
-        {
-            this.io = io;
-        }
+        private readonly IOContext io = io;
 
         public EmitResult ToFile(Compilation compilation, string outputPath, OutputFormatOption outputFormat, IncludeParamsOption includeParams)
         {

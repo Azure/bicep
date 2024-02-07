@@ -6,14 +6,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace Bicep.LanguageServer.Telemetry
 {
-    public class TelemetryProvider : ITelemetryProvider
+    public class TelemetryProvider(ILanguageServerFacade server) : ITelemetryProvider
     {
-        private readonly ILanguageServerFacade server;
-
-        public TelemetryProvider(ILanguageServerFacade server)
-        {
-            this.server = server;
-        }
+        private readonly ILanguageServerFacade server = server;
 
         public void PostEvent(BicepTelemetryEvent telemetryEvent)
         {

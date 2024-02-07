@@ -6,15 +6,9 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.Az
 {
-    public class TenantScopeType : ObjectType, IScopeReference
+    public class TenantScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties) : ObjectType("tenant", TypeSymbolValidationFlags.Default, properties, null), IScopeReference
     {
-        public TenantScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties)
-            : base("tenant", TypeSymbolValidationFlags.Default, properties, null)
-        {
-            Arguments = arguments.ToImmutableArray();
-        }
-
-        public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }
+        public ImmutableArray<FunctionArgumentSyntax> Arguments { get; } = arguments.ToImmutableArray();
 
         public ResourceScope Scope => ResourceScope.Tenant;
     }

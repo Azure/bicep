@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
@@ -11,16 +10,10 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.CodeAction.Fixes;
 
-public class DecoratorCodeFixProvider : ICodeFixProvider
+public class DecoratorCodeFixProvider(string decoratorName, Decorator decorator) : ICodeFixProvider
 {
-    private readonly string decoratorName;
-    private readonly Decorator decorator;
-
-    public DecoratorCodeFixProvider(string decoratorName, Decorator decorator)
-    {
-        this.decoratorName = decoratorName;
-        this.decorator = decorator;
-    }
+    private readonly string decoratorName = decoratorName;
+    private readonly Decorator decorator = decorator;
 
     public IEnumerable<CodeFix> GetFixes(SemanticModel semanticModel, IReadOnlyList<SyntaxBase> matchingNodes)
     {

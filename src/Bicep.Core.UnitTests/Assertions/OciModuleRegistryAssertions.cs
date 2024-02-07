@@ -13,12 +13,8 @@ namespace Bicep.Core.UnitTests.Assertions
         public static OciArtifactRegistryAssertions Should(this OciArtifactRegistry OciArtifactRegistry) => new(OciArtifactRegistry);
     }
 
-    public class OciArtifactRegistryAssertions : ReferenceTypeAssertions<OciArtifactRegistry, OciArtifactRegistryAssertions>
+    public class OciArtifactRegistryAssertions(OciArtifactRegistry OciArtifactRegistry) : ReferenceTypeAssertions<OciArtifactRegistry, OciArtifactRegistryAssertions>(OciArtifactRegistry)
     {
-        public OciArtifactRegistryAssertions(OciArtifactRegistry OciArtifactRegistry) : base(OciArtifactRegistry)
-        {
-        }
-
         protected override string Identifier => "OciArtifactRegistry";
 
         public AndConstraint<OciArtifactRegistryAssertions> HaveValidCachedModulesWithSources()

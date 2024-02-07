@@ -30,18 +30,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return visitor.diagnostics;
         }
 
-        private sealed class RuleVisitor : AstVisitor
+        private sealed class RuleVisitor(NoLocationExprOutsideParamsRule parent, DiagnosticLevel diagnosticLevel) : AstVisitor
         {
             public List<IDiagnostic> diagnostics = new();
 
-            private readonly NoLocationExprOutsideParamsRule parent;
-            private readonly DiagnosticLevel diagnosticLevel;
-
-            public RuleVisitor(NoLocationExprOutsideParamsRule parent, DiagnosticLevel diagnosticLevel)
-            {
-                this.parent = parent;
-                this.diagnosticLevel = diagnosticLevel;
-            }
+            private readonly NoLocationExprOutsideParamsRule parent = parent;
+            private readonly DiagnosticLevel diagnosticLevel = diagnosticLevel;
 
             public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
             {

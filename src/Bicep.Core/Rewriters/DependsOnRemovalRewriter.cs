@@ -17,14 +17,9 @@ namespace Bicep.Core.Rewriters
     //       otherRes
     //     ]
     //   }
-    public class DependsOnRemovalRewriter : SyntaxRewriteVisitor
+    public class DependsOnRemovalRewriter(SemanticModel semanticModel) : SyntaxRewriteVisitor
     {
-        private readonly SemanticModel semanticModel;
-
-        public DependsOnRemovalRewriter(SemanticModel semanticModel)
-        {
-            this.semanticModel = semanticModel;
-        }
+        private readonly SemanticModel semanticModel = semanticModel;
 
         private SyntaxBase? TryGetReplacementValue(SyntaxBase value) =>
             value switch

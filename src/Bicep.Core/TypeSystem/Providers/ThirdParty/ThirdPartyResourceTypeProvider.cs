@@ -6,22 +6,13 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.ThirdParty
 {
-    public class ThirdPartyResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
+    public class ThirdPartyResourceTypeProvider(ThirdPartyResourceTypeLoader resourceTypeLoader, string providerVersion) : ResourceTypeProviderBase(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet()), IResourceTypeProvider
     {
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
-        private readonly ThirdPartyResourceTypeLoader resourceTypeLoader;
-        private readonly ResourceTypeCache definedTypeCache;
-        private readonly ResourceTypeCache generatedTypeCache;
-
-        public ThirdPartyResourceTypeProvider(ThirdPartyResourceTypeLoader resourceTypeLoader, string providerVersion)
-            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
-        {
-            Version = providerVersion;
-            this.resourceTypeLoader = resourceTypeLoader;
-            definedTypeCache = new ResourceTypeCache();
-            generatedTypeCache = new ResourceTypeCache();
-        }
+        private readonly ThirdPartyResourceTypeLoader resourceTypeLoader = resourceTypeLoader;
+        private readonly ResourceTypeCache definedTypeCache = new ResourceTypeCache();
+        private readonly ResourceTypeCache generatedTypeCache = new ResourceTypeCache();
 
         private static ResourceTypeComponents SetBicepResourceProperties(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
         {
@@ -110,6 +101,6 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
 
-        public string Version { get; }
+        public string Version { get; } = providerVersion;
     }
 }

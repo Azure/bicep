@@ -9,23 +9,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
-    public class TestValidator : IModuleFileValidator
+    public class TestValidator(ILogger logger, IConsole console, BicepCompiler compiler, MainBicepFile mainBicepFile) : IModuleFileValidator
     {
-        private readonly ILogger logger;
+        private readonly ILogger logger = logger;
 
-        private readonly IConsole console;
+        private readonly IConsole console = console;
 
-        private readonly BicepCompiler compiler;
+        private readonly BicepCompiler compiler = compiler;
 
-        private readonly MainBicepFile mainBicepFile;
-
-        public TestValidator(ILogger logger, IConsole console, BicepCompiler compiler, MainBicepFile mainBicepFile)
-        {
-            this.logger = logger;
-            this.console = console;
-            this.compiler = compiler;
-            this.mainBicepFile = mainBicepFile;
-        }
+        private readonly MainBicepFile mainBicepFile = mainBicepFile;
 
         public async Task<IEnumerable<string>> ValidateAsync(MainBicepTestFile file)
         {

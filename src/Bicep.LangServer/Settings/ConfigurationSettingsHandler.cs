@@ -18,14 +18,9 @@ namespace Bicep.LanguageServer.Settings
     /// <summary>
     /// Handles settings change notification from client.
     /// </summary>
-    public class ConfigurationSettingsHandler : IJsonRpcNotificationHandler<DidChangeConfigurationObjectParams>
+    public class ConfigurationSettingsHandler(ISettingsProvider settingsProvider) : IJsonRpcNotificationHandler<DidChangeConfigurationObjectParams>
     {
-        private readonly ISettingsProvider settingsProvider;
-
-        public ConfigurationSettingsHandler(ISettingsProvider settingsProvider)
-        {
-            this.settingsProvider = settingsProvider;
-        }
+        private readonly ISettingsProvider settingsProvider = settingsProvider;
 
         Task<Unit> IRequestHandler<DidChangeConfigurationObjectParams, Unit>.Handle(DidChangeConfigurationObjectParams request, CancellationToken cancellationToken)
         {

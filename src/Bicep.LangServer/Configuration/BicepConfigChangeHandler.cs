@@ -10,26 +10,17 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace Bicep.LanguageServer.Configuration
 {
-    public class BicepConfigChangeHandler : IBicepConfigChangeHandler
+    public class BicepConfigChangeHandler(ICompilationManager compilationManager,
+                                    ConfigurationManager configurationManager,
+                                    ILinterRulesProvider linterRulesProvider,
+                                    ITelemetryProvider telemetryProvider,
+                                    IWorkspace workspace) : IBicepConfigChangeHandler
     {
-        private readonly ICompilationManager compilationManager;
-        private readonly ConfigurationManager configurationManager;
-        private readonly ILinterRulesProvider linterRulesProvider;
-        private readonly ITelemetryProvider telemetryProvider;
-        private readonly IWorkspace workspace;
-
-        public BicepConfigChangeHandler(ICompilationManager compilationManager,
-                                        ConfigurationManager configurationManager,
-                                        ILinterRulesProvider linterRulesProvider,
-                                        ITelemetryProvider telemetryProvider,
-                                        IWorkspace workspace)
-        {
-            this.compilationManager = compilationManager;
-            this.configurationManager = configurationManager;
-            this.linterRulesProvider = linterRulesProvider;
-            this.telemetryProvider = telemetryProvider;
-            this.workspace = workspace;
-        }
+        private readonly ICompilationManager compilationManager = compilationManager;
+        private readonly ConfigurationManager configurationManager = configurationManager;
+        private readonly ILinterRulesProvider linterRulesProvider = linterRulesProvider;
+        private readonly ITelemetryProvider telemetryProvider = telemetryProvider;
+        private readonly IWorkspace workspace = workspace;
 
         public void RefreshCompilationOfSourceFilesInWorkspace()
         {

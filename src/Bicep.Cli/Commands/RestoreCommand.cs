@@ -8,16 +8,10 @@ using Bicep.Core;
 
 namespace Bicep.Cli.Commands
 {
-    public class RestoreCommand : ICommand
+    public class RestoreCommand(BicepCompiler compiler, DiagnosticLogger diagnosticLogger) : ICommand
     {
-        private readonly BicepCompiler compiler;
-        private readonly DiagnosticLogger diagnosticLogger;
-
-        public RestoreCommand(BicepCompiler compiler, DiagnosticLogger diagnosticLogger)
-        {
-            this.compiler = compiler;
-            this.diagnosticLogger = diagnosticLogger;
-        }
+        private readonly BicepCompiler compiler = compiler;
+        private readonly DiagnosticLogger diagnosticLogger = diagnosticLogger;
 
         public async Task<int> RunAsync(RestoreArguments args)
         {

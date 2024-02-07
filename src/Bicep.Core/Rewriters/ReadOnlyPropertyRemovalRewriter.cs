@@ -10,14 +10,9 @@ using Bicep.Core.TypeSystem.Types;
 namespace Bicep.Core.Rewriters
 {
     // Removes any object properties which have been explicitly marked as "ReadOnly"
-    public class ReadOnlyPropertyRemovalRewriter : SyntaxRewriteVisitor
+    public class ReadOnlyPropertyRemovalRewriter(SemanticModel semanticModel) : SyntaxRewriteVisitor
     {
-        private readonly SemanticModel semanticModel;
-
-        public ReadOnlyPropertyRemovalRewriter(SemanticModel semanticModel)
-        {
-            this.semanticModel = semanticModel;
-        }
+        private readonly SemanticModel semanticModel = semanticModel;
 
         protected override SyntaxBase ReplaceObjectSyntax(ObjectSyntax syntax)
         {

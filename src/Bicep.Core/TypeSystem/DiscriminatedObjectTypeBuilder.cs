@@ -6,16 +6,11 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem;
 
-public class DiscriminatedObjectTypeBuilder
+public class DiscriminatedObjectTypeBuilder(string? requiredDiscriminator = null)
 {
     private readonly ImmutableHashSet<ObjectType>.Builder members = ImmutableHashSet.CreateBuilder<ObjectType>();
     private readonly Dictionary<string, HashSet<string>> discriminatorCandidates = new();
-    private readonly string? requiredDiscriminator;
-
-    public DiscriminatedObjectTypeBuilder(string? requiredDiscriminator = null)
-    {
-        this.requiredDiscriminator = requiredDiscriminator;
-    }
+    private readonly string? requiredDiscriminator = requiredDiscriminator;
 
     public bool TryInclude(ObjectType @object)
     {

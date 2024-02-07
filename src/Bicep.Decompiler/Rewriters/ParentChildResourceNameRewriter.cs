@@ -21,14 +21,9 @@ namespace Bicep.Core.Decompiler.Rewriters
     //       resA
     //     ]
     //   }
-    public class ParentChildResourceNameRewriter : SyntaxRewriteVisitor
+    public class ParentChildResourceNameRewriter(SemanticModel semanticModel) : SyntaxRewriteVisitor
     {
-        private readonly SemanticModel semanticModel;
-
-        public ParentChildResourceNameRewriter(SemanticModel semanticModel)
-        {
-            this.semanticModel = semanticModel;
-        }
+        private readonly SemanticModel semanticModel = semanticModel;
 
         public SyntaxBase? TryGetReplacementChildName(StringSyntax childName, SyntaxBase parentName, ResourceSymbol parentResourceSymbol)
         {

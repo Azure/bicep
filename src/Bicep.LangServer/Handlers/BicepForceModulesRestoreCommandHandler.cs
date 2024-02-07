@@ -15,26 +15,17 @@ namespace Bicep.LanguageServer.Handlers
 {
     // This handler is used to force the modules restore for given a bicep file.
     // It returns Restore (force) succeeded/failed message, which can be displayed approriately in IDE output window
-    public class BicepForceModulesRestoreCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
+    public class BicepForceModulesRestoreCommandHandler(
+        ISerializer serializer,
+        IFileResolver fileResolver,
+        IModuleDispatcher moduleDispatcher,
+        IWorkspace workspace,
+        IFeatureProviderFactory featureProviderFactory) : ExecuteTypedResponseCommandHandlerBase<string, string>(LangServerConstants.ForceModulesRestoreCommand, serializer)
     {
-        private readonly IFileResolver fileResolver;
-        private readonly IModuleDispatcher moduleDispatcher;
-        private readonly IWorkspace workspace;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-
-        public BicepForceModulesRestoreCommandHandler(
-            ISerializer serializer,
-            IFileResolver fileResolver,
-            IModuleDispatcher moduleDispatcher,
-            IWorkspace workspace,
-            IFeatureProviderFactory featureProviderFactory)
-            : base(LangServerConstants.ForceModulesRestoreCommand, serializer)
-        {
-            this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
-            this.workspace = workspace;
-            this.featureProviderFactory = featureProviderFactory;
-        }
+        private readonly IFileResolver fileResolver = fileResolver;
+        private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
+        private readonly IWorkspace workspace = workspace;
+        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
         {

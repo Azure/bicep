@@ -32,30 +32,20 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDefinitionHandler : DefinitionHandlerBase
+    public class BicepDefinitionHandler(
+        ISymbolResolver symbolResolver,
+        ICompilationManager compilationManager,
+        IFileResolver fileResolver,
+        ILanguageServerFacade languageServer,
+        IModuleDispatcher moduleDispatcher,
+        IFeatureProviderFactory featureProviderFactory) : DefinitionHandlerBase()
     {
-        private readonly ISymbolResolver symbolResolver;
-        private readonly ICompilationManager compilationManager;
-        private readonly IFileResolver fileResolver;
-        private readonly ILanguageServerFacade languageServer;
-        private readonly IModuleDispatcher moduleDispatcher;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-
-        public BicepDefinitionHandler(
-            ISymbolResolver symbolResolver,
-            ICompilationManager compilationManager,
-            IFileResolver fileResolver,
-            ILanguageServerFacade languageServer,
-            IModuleDispatcher moduleDispatcher,
-            IFeatureProviderFactory featureProviderFactory) : base()
-        {
-            this.symbolResolver = symbolResolver;
-            this.compilationManager = compilationManager;
-            this.fileResolver = fileResolver;
-            this.languageServer = languageServer;
-            this.moduleDispatcher = moduleDispatcher;
-            this.featureProviderFactory = featureProviderFactory;
-        }
+        private readonly ISymbolResolver symbolResolver = symbolResolver;
+        private readonly ICompilationManager compilationManager = compilationManager;
+        private readonly IFileResolver fileResolver = fileResolver;
+        private readonly ILanguageServerFacade languageServer = languageServer;
+        private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
+        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
 
         public override async Task<LocationOrLocationLinks?> Handle(DefinitionParams request, CancellationToken cancellationToken)
         {

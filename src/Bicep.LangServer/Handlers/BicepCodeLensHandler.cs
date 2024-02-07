@@ -11,14 +11,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace Bicep.LanguageServer.Handlers
 {
     // Provides code lenses for a range in a Bicep document
-    public class BicepCodeLensHandler : CodeLensHandlerBase
+    public class BicepCodeLensHandler(IModuleDispatcher moduleDispatcher) : CodeLensHandlerBase
     {
-        private readonly IModuleDispatcher moduleDispatcher;
-
-        public BicepCodeLensHandler(IModuleDispatcher moduleDispatcher)
-        {
-            this.moduleDispatcher = moduleDispatcher;
-        }
+        private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
 
         public override Task<CodeLensContainer?> Handle(CodeLensParams request, CancellationToken cancellationToken)
         {

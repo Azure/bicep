@@ -44,27 +44,15 @@ namespace Bicep.LanguageServer.Handlers
 
     public record BicepparamCompilationResult(bool isSuccess, string compilationResult);
 
-    public class BicepDeploymentStartCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentStartParams, BicepDeploymentStartResponse>
+    public class BicepDeploymentStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, BicepCompiler bicepCompiler, ICompilationManager compilationManager, ISerializer serializer, ITelemetryProvider telemetryProvider, IArmClientProvider armClientProvider, IDeploymentHelper deploymentHelper) : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentStartParams, BicepDeploymentStartResponse>(LangServerConstants.DeployStartCommand, serializer)
     {
-        private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
-        private readonly IDeploymentOperationsCache deploymentOperationsCache;
-        private readonly ITelemetryProvider telemetryProvider;
-        private readonly BicepCompiler bicepCompiler;
-        private readonly ICompilationManager compilationManager;
-        private readonly IArmClientProvider armClientProvider;
-        private readonly IDeploymentHelper deploymentHelper;
-
-        public BicepDeploymentStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, BicepCompiler bicepCompiler, ICompilationManager compilationManager, ISerializer serializer, ITelemetryProvider telemetryProvider, IArmClientProvider armClientProvider, IDeploymentHelper deploymentHelper)
-            : base(LangServerConstants.DeployStartCommand, serializer)
-        {
-            this.deploymentCollectionProvider = deploymentCollectionProvider;
-            this.deploymentOperationsCache = deploymentOperationsCache;
-            this.telemetryProvider = telemetryProvider;
-            this.bicepCompiler = bicepCompiler;
-            this.compilationManager = compilationManager;
-            this.armClientProvider = armClientProvider;
-            this.deploymentHelper = deploymentHelper;
-        }
+        private readonly IDeploymentCollectionProvider deploymentCollectionProvider = deploymentCollectionProvider;
+        private readonly IDeploymentOperationsCache deploymentOperationsCache = deploymentOperationsCache;
+        private readonly ITelemetryProvider telemetryProvider = telemetryProvider;
+        private readonly BicepCompiler bicepCompiler = bicepCompiler;
+        private readonly ICompilationManager compilationManager = compilationManager;
+        private readonly IArmClientProvider armClientProvider = armClientProvider;
+        private readonly IDeploymentHelper deploymentHelper = deploymentHelper;
 
         public override async Task<BicepDeploymentStartResponse> Handle(BicepDeploymentStartParams request, CancellationToken cancellationToken)
         {

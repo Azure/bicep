@@ -7,13 +7,8 @@ using Bicep.Core.PrettyPrintV2;
 
 namespace Bicep.Core.Configuration
 {
-    public class FormattingConfiguration : ConfigurationSection<PrettyPrinterV2Options>
+    public class FormattingConfiguration(PrettyPrinterV2Options data) : ConfigurationSection<PrettyPrinterV2Options>(data)
     {
-        public FormattingConfiguration(PrettyPrinterV2Options data)
-            : base(data)
-        {
-        }
-
         public static FormattingConfiguration Bind(JsonElement element)
             => new(element.ToNonNullObject<PrettyPrinterV2Options>());
     }

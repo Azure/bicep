@@ -5,14 +5,8 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
 {
-    public class FreeformToken : Token
+    public class FreeformToken(TokenType type, TextSpan span, string text, IEnumerable<SyntaxTrivia> leadingTrivia, IEnumerable<SyntaxTrivia> trailingTrivia) : Token(type, span, leadingTrivia, trailingTrivia)
     {
-        public FreeformToken(TokenType type, TextSpan span, string text, IEnumerable<SyntaxTrivia> leadingTrivia, IEnumerable<SyntaxTrivia> trailingTrivia)
-            : base(type, span, leadingTrivia, trailingTrivia)
-        {
-            this.Text = text;
-        }
-
-        public override string Text { get; }
+        public override string Text { get; } = text;
     }
 }

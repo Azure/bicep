@@ -5,14 +5,9 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.UnitTests.Utils;
 
-public class TestEnvironment : IEnvironment
+public class TestEnvironment(ImmutableDictionary<string, string?> variables) : IEnvironment
 {
-    private readonly ImmutableDictionary<string, string?> variables;
-
-    public TestEnvironment(ImmutableDictionary<string, string?> variables)
-    {
-        this.variables = variables;
-    }
+    private readonly ImmutableDictionary<string, string?> variables = variables;
 
     public static IEnvironment Create(params (string key, string? value)[] variables)
         => new TestEnvironment(variables.ToImmutableDictionary(x => x.key, x => x.value));

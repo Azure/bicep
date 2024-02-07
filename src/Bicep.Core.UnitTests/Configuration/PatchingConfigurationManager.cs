@@ -5,16 +5,10 @@ using Bicep.Core.Configuration;
 
 namespace Bicep.Core.UnitTests.Configuration;
 
-public class PatchingConfigurationManager : IConfigurationManager
+public class PatchingConfigurationManager(ConfigurationManager configurationManager, Func<RootConfiguration, RootConfiguration> patchFunc) : IConfigurationManager
 {
-    private readonly IConfigurationManager configurationManager;
-    private readonly Func<RootConfiguration, RootConfiguration> patchFunc;
-
-    public PatchingConfigurationManager(ConfigurationManager configurationManager, Func<RootConfiguration, RootConfiguration> patchFunc)
-    {
-        this.configurationManager = configurationManager;
-        this.patchFunc = patchFunc;
-    }
+    private readonly IConfigurationManager configurationManager = configurationManager;
+    private readonly Func<RootConfiguration, RootConfiguration> patchFunc = patchFunc;
 
     public RootConfiguration GetConfiguration(Uri sourceFileUri) => patchFunc(configurationManager.GetConfiguration(sourceFileUri));
 }

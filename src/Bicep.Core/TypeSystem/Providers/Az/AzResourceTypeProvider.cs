@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using System.Reflection;
 using System.Text.RegularExpressions;
-using Azure.Bicep.Types.Az;
 using Bicep.Core.Emit;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -11,7 +9,7 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.Az
 {
-    public class AzResourceTypeProvider : ResourceTypeProviderBase, IResourceTypeProvider
+    public class AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, string providerVersion) : ResourceTypeProviderBase(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet()), IResourceTypeProvider
     {
         private static readonly RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
         private static readonly Regex ResourceTypePattern = new(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+$", PatternRegexOptions);
@@ -67,12 +65,12 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
         public static readonly TypeSymbol ResourceAsserts = new ObjectType(nameof(ResourceAsserts), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Bool, TypePropertyFlags.DeployTimeConstant);
 
-        public string Version { get; } = typeof(AzTypeLoader).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
+        public string Version { get; } = providerVersion;
 
 
-        private readonly IResourceTypeLoader resourceTypeLoader;
-        private readonly ResourceTypeCache definedTypeCache;
-        private readonly ResourceTypeCache generatedTypeCache;
+        private readonly IResourceTypeLoader resourceTypeLoader = resourceTypeLoader;
+        private readonly ResourceTypeCache definedTypeCache = new ResourceTypeCache();
+        private readonly ResourceTypeCache generatedTypeCache = new ResourceTypeCache();
 
         public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
         {
@@ -188,15 +186,6 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 new TypeProperty("userAssignedIdentities", new ObjectType("userAssignedIdentities", TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), userAssignedIdentity)),
                 new TypeProperty("delegatedResources", LanguageConstants.Object),
             }, null));
-        }
-
-        public AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader, string providerVersion)
-            : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
-        {
-            Version = providerVersion;
-            this.resourceTypeLoader = resourceTypeLoader;
-            definedTypeCache = new ResourceTypeCache();
-            generatedTypeCache = new ResourceTypeCache();
         }
 
         private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)

@@ -8,14 +8,9 @@ using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry
 {
-    public class ContainerRegistryClientFactory : IContainerRegistryClientFactory
+    public class ContainerRegistryClientFactory(ITokenCredentialFactory credentialFactory) : IContainerRegistryClientFactory
     {
-        private readonly ITokenCredentialFactory credentialFactory;
-
-        public ContainerRegistryClientFactory(ITokenCredentialFactory credentialFactory)
-        {
-            this.credentialFactory = credentialFactory;
-        }
+        private readonly ITokenCredentialFactory credentialFactory = credentialFactory;
 
         public ContainerRegistryContentClient CreateAuthenticatedBlobClient(RootConfiguration configuration, Uri registryUri, string repository)
         {

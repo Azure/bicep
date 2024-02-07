@@ -9,14 +9,9 @@ using Bicep.Core.Tracing;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public class AzResourceProvider : IAzResourceProvider
+    public class AzResourceProvider(ITokenCredentialFactory credentialFactory) : IAzResourceProvider
     {
-        private readonly ITokenCredentialFactory credentialFactory;
-
-        public AzResourceProvider(ITokenCredentialFactory credentialFactory)
-        {
-            this.credentialFactory = credentialFactory;
-        }
+        private readonly ITokenCredentialFactory credentialFactory = credentialFactory;
 
         private ArmClient CreateArmClient(RootConfiguration configuration, string subscriptionId, IEnumerable<(string resourceType, string apiVersion)> resourceTypeApiVersionMapping)
         {

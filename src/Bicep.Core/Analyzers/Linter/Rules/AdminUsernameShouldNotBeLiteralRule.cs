@@ -30,20 +30,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return visitor.diagnostics;
         }
 
-        private class ResourceVisitor : AstVisitor
+        private class ResourceVisitor(AdminUsernameShouldNotBeLiteralRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel) : AstVisitor
         {
             public List<IDiagnostic> diagnostics = new();
 
-            private readonly AdminUsernameShouldNotBeLiteralRule parent;
-            private readonly SemanticModel model;
-            private readonly DiagnosticLevel diagnosticLevel;
-
-            public ResourceVisitor(AdminUsernameShouldNotBeLiteralRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel)
-            {
-                this.parent = parent;
-                this.model = model;
-                this.diagnosticLevel = diagnosticLevel;
-            }
+            private readonly AdminUsernameShouldNotBeLiteralRule parent = parent;
+            private readonly SemanticModel model = model;
+            private readonly DiagnosticLevel diagnosticLevel = diagnosticLevel;
 
             public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             {
@@ -54,22 +47,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private class PropertiesVisitor : AstVisitor
+        private class PropertiesVisitor(AdminUsernameShouldNotBeLiteralRule parent, List<IDiagnostic> diagnostics, SemanticModel model, DiagnosticLevel diagnosticLevel) : AstVisitor
         {
-            private readonly List<IDiagnostic> diagnostics;
+            private readonly List<IDiagnostic> diagnostics = diagnostics;
 
             private const string adminUsernamePropertyName = "adminusername";
-            private readonly AdminUsernameShouldNotBeLiteralRule parent;
-            private readonly SemanticModel model;
-            private readonly DiagnosticLevel diagnosticLevel;
-
-            public PropertiesVisitor(AdminUsernameShouldNotBeLiteralRule parent, List<IDiagnostic> diagnostics, SemanticModel model, DiagnosticLevel diagnosticLevel)
-            {
-                this.parent = parent;
-                this.model = model;
-                this.diagnostics = diagnostics;
-                this.diagnosticLevel = diagnosticLevel;
-            }
+            private readonly AdminUsernameShouldNotBeLiteralRule parent = parent;
+            private readonly SemanticModel model = model;
+            private readonly DiagnosticLevel diagnosticLevel = diagnosticLevel;
 
             public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
             {

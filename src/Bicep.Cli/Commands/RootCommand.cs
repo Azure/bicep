@@ -7,14 +7,9 @@ using Bicep.Core.Exceptions;
 
 namespace Bicep.Cli.Commands
 {
-    public class RootCommand : ICommand
+    public class RootCommand(IOContext io) : ICommand
     {
-        private readonly IOContext io;
-
-        public RootCommand(IOContext io)
-        {
-            this.io = io;
-        }
+        private readonly IOContext io = io;
 
         public int Run(RootArguments args)
         {

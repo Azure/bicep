@@ -4,14 +4,9 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public class ParameterizedTypeArgumentSyntax : ExpressionSyntax
+public class ParameterizedTypeArgumentSyntax(SyntaxBase expression) : ExpressionSyntax
 {
-    public ParameterizedTypeArgumentSyntax(SyntaxBase expression)
-    {
-        this.Expression = expression;
-    }
-
-    public SyntaxBase Expression { get; }
+    public SyntaxBase Expression { get; } = expression;
 
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitParameterizedTypeArgumentSyntax(this);
 

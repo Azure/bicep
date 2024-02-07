@@ -22,13 +22,8 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
         }
     }
 
-    public class TelemetryEventParamsAssertions : ReferenceTypeAssertions<TelemetryEventParams, TelemetryEventParamsAssertions>
+    public class TelemetryEventParamsAssertions(TelemetryEventParams instance) : ReferenceTypeAssertions<TelemetryEventParams, TelemetryEventParamsAssertions>(instance)
     {
-        public TelemetryEventParamsAssertions(TelemetryEventParams instance)
-            : base(instance)
-        {
-        }
-
         protected override string Identifier => "telemetry event";
 
         public AndConstraint<TelemetryEventParamsAssertions> HaveProperties(JObject properties, string because = "", params object[] becauseArgs)
@@ -39,13 +34,8 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
         }
     }
 
-    public class TelemetryEventParamsCollectionAssertions : GenericCollectionAssertions<IEnumerable<TelemetryEventParams>, TelemetryEventParams>
+    public class TelemetryEventParamsCollectionAssertions(IEnumerable<TelemetryEventParams> instance) : GenericCollectionAssertions<IEnumerable<TelemetryEventParams>, TelemetryEventParams>(instance)
     {
-        public TelemetryEventParamsCollectionAssertions(IEnumerable<TelemetryEventParams> instance)
-            : base(instance)
-        {
-        }
-
         protected override string Identifier => "telemetry";
 
         public AndConstraint<TelemetryEventParamsCollectionAssertions> ContainEvent(string eventName, JObject properties, string because = "", params object[] becauseArgs)

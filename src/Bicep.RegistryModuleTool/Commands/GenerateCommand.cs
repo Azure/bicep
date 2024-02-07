@@ -17,15 +17,9 @@ namespace Bicep.RegistryModuleTool.Commands
         {
         }
 
-        public sealed class CommandHandler : BaseCommandHandler
+        public sealed class CommandHandler(IFileSystem fileSystem, ILogger<GenerateCommand> logger, BicepCompiler compiler) : BaseCommandHandler(fileSystem, logger)
         {
-            private readonly BicepCompiler compiler;
-
-            public CommandHandler(IFileSystem fileSystem, ILogger<GenerateCommand> logger, BicepCompiler compiler)
-                : base(fileSystem, logger)
-            {
-                this.compiler = compiler;
-            }
+            private readonly BicepCompiler compiler = compiler;
 
             protected override async Task<int> InvokeInternalAsync(InvocationContext context)
             {

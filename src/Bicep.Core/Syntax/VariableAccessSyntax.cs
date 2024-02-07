@@ -8,14 +8,9 @@ namespace Bicep.Core.Syntax
     /// <summary>
     /// Represents a reference to a variable or parameter
     /// </summary>
-    public class VariableAccessSyntax : ExpressionSyntax, ISymbolReference
+    public class VariableAccessSyntax(IdentifierSyntax name) : ExpressionSyntax, ISymbolReference
     {
-        public VariableAccessSyntax(IdentifierSyntax name)
-        {
-            this.Name = name;
-        }
-
-        public IdentifierSyntax Name { get; }
+        public IdentifierSyntax Name { get; } = name;
 
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitVariableAccessSyntax(this);

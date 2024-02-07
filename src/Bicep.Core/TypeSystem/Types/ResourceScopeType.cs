@@ -3,17 +3,11 @@
 
 namespace Bicep.Core.TypeSystem.Types
 {
-    public class ResourceScopeType : TypeSymbol, IScopeReference
+    public class ResourceScopeType(string name, ResourceScope scopeType) : TypeSymbol(name), IScopeReference
     {
-        public ResourceScopeType(string name, ResourceScope scopeType)
-            : base(name)
-        {
-            Scope = scopeType;
-        }
-
         public override TypeKind TypeKind => TypeKind.ResourceScopeReference;
 
-        public ResourceScope Scope { get; }
+        public ResourceScope Scope { get; } = scopeType;
 
         public override string FormatNameForCompoundTypes() =>
             Enum.IsDefined(typeof(ResourceScope), Scope) ? Name : WrapTypeName();

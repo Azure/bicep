@@ -5,23 +5,16 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class DeclaredTypeAssignment
+    public class DeclaredTypeAssignment(ITypeReference reference, SyntaxBase? declaringSyntax, DeclaredTypeFlags flags)
     {
-        public DeclaredTypeAssignment(ITypeReference reference, SyntaxBase? declaringSyntax, DeclaredTypeFlags flags)
-        {
-            this.Reference = reference;
-            this.DeclaringSyntax = declaringSyntax;
-            this.Flags = flags;
-        }
-
         public DeclaredTypeAssignment(ITypeReference reference, SyntaxBase? declaringSyntax)
             : this(reference, declaringSyntax, DeclaredTypeFlags.None)
         {
         }
 
-        public ITypeReference Reference { get; }
+        public ITypeReference Reference { get; } = reference;
 
-        public DeclaredTypeFlags Flags { get; }
+        public DeclaredTypeFlags Flags { get; } = flags;
 
         /// <summary>
         /// Gets the node whose declared type this assignment represents. This is primarily used to resolve nested discriminated object types.
@@ -30,7 +23,7 @@ namespace Bicep.Core.TypeSystem
         /// ObjectPropertySyntax, etc.), you may see DeclaringSyntax to be set to the same node. When requesting declared type for a VariableAccessSyntax,
         /// PropertyAccessSyntax or ArrayAccessSyntax node, it will point to a corresponding node within the referenced declaration. The value may
         /// be null if there is not enough information in the declaration body.</remarks>
-        public SyntaxBase? DeclaringSyntax { get; }
+        public SyntaxBase? DeclaringSyntax { get; } = declaringSyntax;
 
         public DeclaredTypeAssignment ReplaceDeclaringSyntax(SyntaxBase? newSyntax) => new(this.Reference, newSyntax, this.Flags);
     }

@@ -3,13 +3,8 @@
 
 namespace Bicep.Core.PrettyPrintV2.Documents
 {
-    public sealed class SuffixDocument : TextDocument
+    public sealed class SuffixDocument(string value) : TextDocument(value)
     {
-        public SuffixDocument(string value)
-            : base(value)
-        {
-        }
-
         public override int Width => 0;
     }
 }

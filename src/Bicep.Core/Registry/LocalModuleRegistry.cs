@@ -11,18 +11,11 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
 {
-    public class LocalModuleRegistry : ArtifactRegistry<LocalModuleReference>
+    public class LocalModuleRegistry(IFileResolver fileResolver, Uri parentModuleUri, BicepCompiler? bicepCompiler) : ArtifactRegistry<LocalModuleReference>
     {
-        private readonly IFileResolver fileResolver;
-        private readonly Uri parentModuleUri;
-        private readonly BicepCompiler? bicepCompiler;
-
-        public LocalModuleRegistry(IFileResolver fileResolver, Uri parentModuleUri, BicepCompiler? bicepCompiler)
-        {
-            this.fileResolver = fileResolver;
-            this.parentModuleUri = parentModuleUri;
-            this.bicepCompiler = bicepCompiler;
-        }
+        private readonly IFileResolver fileResolver = fileResolver;
+        private readonly Uri parentModuleUri = parentModuleUri;
+        private readonly BicepCompiler? bicepCompiler = bicepCompiler;
 
         public override string Scheme => ModuleReferenceSchemes.Local;
 

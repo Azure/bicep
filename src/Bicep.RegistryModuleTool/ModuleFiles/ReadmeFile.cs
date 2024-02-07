@@ -12,7 +12,7 @@ using Markdig.Syntax.Inlines;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    public sealed class ReadmeFile : ModuleFile
+    public sealed class ReadmeFile(string path, string contents) : ModuleFile(path)
     {
         public const string FileName = "README.md";
 
@@ -33,13 +33,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             ```
             """.ReplaceLineEndings();
 
-        public ReadmeFile(string path, string contents)
-            : base(path)
-        {
-            this.Contents = contents;
-        }
-
-        public string Contents { get; }
+        public string Contents { get; } = contents;
 
         public static async Task<ReadmeFile> GenerateAsync(IFileSystem fileSystem, MainBicepFile mainBicepFile)
         {

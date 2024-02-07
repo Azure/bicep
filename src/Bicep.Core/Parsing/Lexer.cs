@@ -10,7 +10,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
 {
-    public class Lexer
+    public class Lexer(SlidingTextWindow textWindow, IDiagnosticWriter diagnosticWriter)
     {
         // maps the escape character (that follows the backslash) to its value
         private static readonly ImmutableSortedDictionary<char, char> SingleCharacterEscapes = new Dictionary<char, char>
@@ -34,14 +34,8 @@ namespace Bicep.Core.Parsing
         // to handle this, we use a modal lexing pattern with a stack to ensure we're applying the correct set of rules.
         private readonly Stack<TokenType> templateStack = new();
         private readonly IList<Token> tokens = new List<Token>();
-        private readonly IDiagnosticWriter diagnosticWriter;
-        private readonly SlidingTextWindow textWindow;
-
-        public Lexer(SlidingTextWindow textWindow, IDiagnosticWriter diagnosticWriter)
-        {
-            this.textWindow = textWindow;
-            this.diagnosticWriter = diagnosticWriter;
-        }
+        private readonly IDiagnosticWriter diagnosticWriter = diagnosticWriter;
+        private readonly SlidingTextWindow textWindow = textWindow;
 
         private void AddDiagnostic(TextSpan span, DiagnosticBuilder.ErrorBuilderDelegate diagnosticFunc)
         {

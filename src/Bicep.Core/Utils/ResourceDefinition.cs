@@ -5,21 +5,12 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Utils
 {
-    internal class ResourceDefinition
+    internal class ResourceDefinition(string resourceName, ResourceMetadata? resourceScope, string fullyQualifiedResourceType, StringSyntax resourceNamePropertyValue)
     {
-        public string ResourceName { get; }
-        public ResourceMetadata? ResourceScope { get; }
-        public string FullyQualifiedResourceType { get; }
-        public StringSyntax ResourceNamePropertyValue { get; }
-
-        public ResourceDefinition(string resourceName, ResourceMetadata? resourceScope, string fullyQualifiedResourceType, StringSyntax resourceNamePropertyValue)
-        {
-            ResourceName = resourceName;
-            ResourceScope = resourceScope;
-            FullyQualifiedResourceType = fullyQualifiedResourceType;
-            ResourceNamePropertyValue = resourceNamePropertyValue;
-        }
-
+        public string ResourceName { get; } = resourceName;
+        public ResourceMetadata? ResourceScope { get; } = resourceScope;
+        public string FullyQualifiedResourceType { get; } = fullyQualifiedResourceType;
+        public StringSyntax ResourceNamePropertyValue { get; } = resourceNamePropertyValue;
 
         public static readonly IEqualityComparer<ResourceDefinition> EqualityComparer = new ResourceComparer();
         // comparers below are very simple now, however in future it might be used to do more exact comparsion on property value to include interpolations

@@ -7,39 +7,28 @@ namespace Bicep.Core.Diagnostics
 {
     // roughly equivalent to the 'SyntaxDiagnosticInfo' class in Roslyn
     [DebuggerDisplay("Level = {" + nameof(Level) + "}, Code = {" + nameof(Code) + "}, Message = {" + nameof(Message) + "}")]
-    public class Diagnostic : IDiagnostic
+    public class Diagnostic(
+        TextSpan span,
+        DiagnosticLevel level,
+        string code,
+        string message,
+        Uri? documentationUri = null,
+        DiagnosticStyling styling = DiagnosticStyling.Default,
+        string? source = null) : IDiagnostic
     {
-        public Diagnostic(
-            TextSpan span,
-            DiagnosticLevel level,
-            string code,
-            string message,
-            Uri? documentationUri = null,
-            DiagnosticStyling styling = DiagnosticStyling.Default,
-            string? source = null)
-        {
-            Span = span;
-            Level = level;
-            Code = code;
-            Message = message;
-            Styling = styling;
-            Uri = documentationUri;
-            Source = source ?? LanguageConstants.LanguageId;
-        }
+        public string Source { get; protected set; } = source ?? LanguageConstants.LanguageId;
 
-        public string Source { get; protected set; }
+        public TextSpan Span { get; } = span;
 
-        public TextSpan Span { get; }
+        public DiagnosticLevel Level { get; } = level;
 
-        public DiagnosticLevel Level { get; }
+        public DiagnosticStyling Styling { get; } = styling;
 
-        public DiagnosticStyling Styling { get; }
+        public string Code { get; } = code;
 
-        public string Code { get; }
+        public string Message { get; } = message;
 
-        public string Message { get; }
-
-        public Uri? Uri { get; }
+        public Uri? Uri { get; } = documentationUri;
 
     }
 }

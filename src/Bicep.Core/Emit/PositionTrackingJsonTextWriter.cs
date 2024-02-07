@@ -27,18 +27,13 @@ namespace Bicep.Core.Emit
 
     public class PositionTrackingJsonTextWriter : JsonTextWriter
     {
-        private class PositionTrackingTextWriter : TextWriter
+        private class PositionTrackingTextWriter(TextWriter textWriter) : TextWriter
         {
-            private readonly TextWriter internalWriter = new StringWriter();
+            private readonly TextWriter internalWriter = textWriter;
 
             public int CurrentPosition;
 
             public List<int> CommaPositions = new();
-
-            public PositionTrackingTextWriter(TextWriter textWriter)
-            {
-                this.internalWriter = textWriter;
-            }
 
             public override Encoding Encoding => this.internalWriter.Encoding;
 

@@ -10,14 +10,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDocumentHighlightHandler : DocumentHighlightHandlerBase
+    public class BicepDocumentHighlightHandler(ISymbolResolver symbolResolver) : DocumentHighlightHandlerBase()
     {
-        private readonly ISymbolResolver symbolResolver;
-
-        public BicepDocumentHighlightHandler(ISymbolResolver symbolResolver) : base()
-        {
-            this.symbolResolver = symbolResolver;
-        }
+        private readonly ISymbolResolver symbolResolver = symbolResolver;
 
         public override Task<DocumentHighlightContainer?> Handle(DocumentHighlightParams request, CancellationToken cancellationToken)
         {

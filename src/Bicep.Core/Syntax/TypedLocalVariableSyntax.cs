@@ -6,17 +6,11 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
-public class TypedLocalVariableSyntax : SyntaxBase, INamedDeclarationSyntax
+public class TypedLocalVariableSyntax(IdentifierSyntax name, SyntaxBase type) : SyntaxBase, INamedDeclarationSyntax
 {
-    public TypedLocalVariableSyntax(IdentifierSyntax name, SyntaxBase type)
-    {
-        this.Name = name;
-        this.Type = type;
-    }
+    public IdentifierSyntax Name { get; } = name;
 
-    public IdentifierSyntax Name { get; }
-
-    public SyntaxBase Type { get; }
+    public SyntaxBase Type { get; } = type;
 
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitTypedLocalVariableSyntax(this);
 

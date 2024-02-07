@@ -17,33 +17,22 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
 {
-    public class PublishCommand : ICommand
+    public class PublishCommand(
+        DiagnosticLogger diagnosticLogger,
+        BicepCompiler compiler,
+        IOContext ioContext,
+        ILogger logger,
+        IModuleDispatcher moduleDispatcher,
+        IFileSystem fileSystem,
+        IFeatureProviderFactory featureProviderFactory) : ICommand
     {
-        private readonly DiagnosticLogger diagnosticLogger;
-        private readonly BicepCompiler compiler;
-        private readonly IModuleDispatcher moduleDispatcher;
-        private readonly IFileSystem fileSystem;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-        private readonly IOContext ioContext;
-        private readonly ILogger logger;
-
-        public PublishCommand(
-            DiagnosticLogger diagnosticLogger,
-            BicepCompiler compiler,
-            IOContext ioContext,
-            ILogger logger,
-            IModuleDispatcher moduleDispatcher,
-            IFileSystem fileSystem,
-            IFeatureProviderFactory featureProviderFactory)
-        {
-            this.diagnosticLogger = diagnosticLogger;
-            this.compiler = compiler;
-            this.moduleDispatcher = moduleDispatcher;
-            this.fileSystem = fileSystem;
-            this.featureProviderFactory = featureProviderFactory;
-            this.ioContext = ioContext;
-            this.logger = logger;
-        }
+        private readonly DiagnosticLogger diagnosticLogger = diagnosticLogger;
+        private readonly BicepCompiler compiler = compiler;
+        private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
+        private readonly IFileSystem fileSystem = fileSystem;
+        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
+        private readonly IOContext ioContext = ioContext;
+        private readonly ILogger logger = logger;
 
         public async Task<int> RunAsync(PublishArguments args)
         {

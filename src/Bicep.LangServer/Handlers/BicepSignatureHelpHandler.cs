@@ -19,19 +19,14 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepSignatureHelpHandler : SignatureHelpHandlerBase
+    public class BicepSignatureHelpHandler(ICompilationManager compilationManager) : SignatureHelpHandlerBase
     {
         private const string FunctionArgumentStart = "(";
         private const string FunctionArgumentEnd = ")";
         private const string TypeArgumentsStart = "<";
         private const string TypeArgumentsEnd = ">";
 
-        private readonly ICompilationManager compilationManager;
-
-        public BicepSignatureHelpHandler(ICompilationManager compilationManager)
-        {
-            this.compilationManager = compilationManager;
-        }
+        private readonly ICompilationManager compilationManager = compilationManager;
 
         public override Task<SignatureHelp?> Handle(SignatureHelpParams request, CancellationToken cancellationToken)
         {

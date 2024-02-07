@@ -8,14 +8,9 @@ using Azure.ResourceManager.Resources;
 
 namespace Bicep.Core.Registry
 {
-    public class TemplateSpecRepository : ITemplateSpecRepository
+    public class TemplateSpecRepository(ArmClient client) : ITemplateSpecRepository
     {
-        public readonly ArmClient client;
-
-        public TemplateSpecRepository(ArmClient client)
-        {
-            this.client = client;
-        }
+        public readonly ArmClient client = client;
 
         public async Task<TemplateSpecEntity> FindTemplateSpecByIdAsync(string templateSpecId, CancellationToken cancellationToken = default)
         {

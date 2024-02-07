@@ -23,19 +23,11 @@ namespace Bicep.LanguageServer.Handlers
     /// Using ExecuteTypedResponseCommandHandlerBase instead of IJsonRpcRequestHandler because IJsonRpcRequestHandler will throw "Content modified" if text changes are detected, and for this command
     /// that is expected.
     /// </remarks>
-    public class BicepCreateConfigFileHandler : ExecuteTypedResponseCommandHandlerBase<BicepCreateConfigParams, bool>
+    public class BicepCreateConfigFileHandler(ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, ILogger<BicepCreateConfigFileHandler> logger, ISerializer serializer) : ExecuteTypedResponseCommandHandlerBase<BicepCreateConfigParams, bool>(LangServerConstants.CreateConfigFile, serializer)
     {
-        private readonly ILogger<BicepCreateConfigFileHandler> logger;
-        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
-        private readonly ILanguageServerFacade server;
-
-        public BicepCreateConfigFileHandler(ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, ILogger<BicepCreateConfigFileHandler> logger, ISerializer serializer)
-            : base(LangServerConstants.CreateConfigFile, serializer)
-        {
-            this.clientCapabilitiesProvider = clientCapabilitiesProvider;
-            this.server = server;
-            this.logger = logger;
-        }
+        private readonly ILogger<BicepCreateConfigFileHandler> logger = logger;
+        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider = clientCapabilitiesProvider;
+        private readonly ILanguageServerFacade server = server;
 
         public override async Task<bool> Handle(BicepCreateConfigParams request, CancellationToken cancellationToken)
         {

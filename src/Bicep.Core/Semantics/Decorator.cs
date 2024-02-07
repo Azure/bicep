@@ -22,23 +22,15 @@ namespace Bicep.Core.Semantics
         FunctionCallExpression decorator,
         Expression decorated);
 
-    public class Decorator
+    public class Decorator(FunctionOverload overload, TypeSymbol attachableType, DecoratorValidator? validator, DecoratorEvaluator? evaluator)
     {
-        private readonly TypeSymbol attachableType;
+        private readonly TypeSymbol attachableType = attachableType;
 
-        private readonly DecoratorValidator? validator;
+        private readonly DecoratorValidator? validator = validator;
 
-        private readonly DecoratorEvaluator? evaluator;
+        private readonly DecoratorEvaluator? evaluator = evaluator;
 
-        public Decorator(FunctionOverload overload, TypeSymbol attachableType, DecoratorValidator? validator, DecoratorEvaluator? evaluator)
-        {
-            this.Overload = overload;
-            this.attachableType = attachableType;
-            this.validator = validator;
-            this.evaluator = evaluator;
-        }
-
-        public FunctionOverload Overload { get; }
+        public FunctionOverload Overload { get; } = overload;
 
         public bool CanAttachTo(TypeSymbol targetType) => TypeValidator.AreTypesAssignable(targetType, attachableType);
 

@@ -17,21 +17,16 @@ using OciManifest = Bicep.Core.Registry.Oci.OciManifest;
 
 namespace Bicep.Core.Registry
 {
-    public class AzureContainerRegistryManager
+    public class AzureContainerRegistryManager(IContainerRegistryClientFactory clientFactory)
     {
         // media types are case-insensitive (they are lowercase by convention only)
         private const StringComparison DigestComparison = StringComparison.Ordinal;
 
-        private readonly IContainerRegistryClientFactory clientFactory;
+        private readonly IContainerRegistryClientFactory clientFactory = clientFactory;
 
         // From the spec: "While the algorithm does allow one to implement a wide variety of algorithms, compliant implementations should use sha256."
         // (https://docs.docker.com/registry/spec/api/#content-digests)
         private static readonly string DigestAlgorithmIdentifier = OciDescriptor.AlgorithmIdentifierSha256;
-
-        public AzureContainerRegistryManager(IContainerRegistryClientFactory clientFactory)
-        {
-            this.clientFactory = clientFactory;
-        }
 
         public async Task<OciArtifactResult> PullArtifactAsync(
             RootConfiguration configuration,

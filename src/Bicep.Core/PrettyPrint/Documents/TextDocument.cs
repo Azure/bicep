@@ -7,21 +7,15 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.PrettyPrint.Documents
 {
-    public class TextDocument : ILinkedDocument
+    public class TextDocument(string text, ImmutableArray<ILinkedDocument> successors) : ILinkedDocument
     {
-        private readonly string text;
+        private readonly string text = text;
 
-        private readonly ImmutableArray<ILinkedDocument> successors;
+        private readonly ImmutableArray<ILinkedDocument> successors = successors;
 
         public TextDocument(string text)
             : this(text, ImmutableArray<ILinkedDocument>.Empty)
         {
-        }
-
-        public TextDocument(string text, ImmutableArray<ILinkedDocument> successors)
-        {
-            this.text = text;
-            this.successors = successors;
         }
 
         public ILinkedDocument Concat(ILinkedDocument other)

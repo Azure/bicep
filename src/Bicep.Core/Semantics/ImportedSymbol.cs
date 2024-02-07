@@ -8,22 +8,15 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics;
 
-public abstract class ImportedSymbol : DeclaredSymbol
+public abstract class ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel) : DeclaredSymbol(context, declaringSyntax.Name.IdentifierName, declaringSyntax, declaringSyntax.Name)
 {
-    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel)
-        : base(context, declaringSyntax.Name.IdentifierName, declaringSyntax, declaringSyntax.Name)
-    {
-        EnclosingDeclaration = enclosingDeclartion;
-        SourceModel = sourceModel;
-    }
-
-    public CompileTimeImportDeclarationSyntax EnclosingDeclaration { get; }
+    public CompileTimeImportDeclarationSyntax EnclosingDeclaration { get; } = enclosingDeclartion;
 
     public ImportedSymbolsListItemSyntax DeclaringImportedSymbolsListItem => (ImportedSymbolsListItemSyntax)DeclaringSyntax;
 
     public string? OriginalSymbolName => DeclaringImportedSymbolsListItem.TryGetOriginalSymbolNameText();
 
-    public ISemanticModel SourceModel { get; }
+    public ISemanticModel SourceModel { get; } = sourceModel;
 
     public abstract string? Description { get; }
 
@@ -31,15 +24,9 @@ public abstract class ImportedSymbol : DeclaredSymbol
         => Context.Compilation.ArtifactReferenceFactory.TryGetArtifactReference(EnclosingDeclaration, Context.SourceFile.FileUri);
 }
 
-public abstract class ImportedSymbol<T> : ImportedSymbol where T : ExportMetadata
+public abstract class ImportedSymbol<T>(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, T exportMetadata) : ImportedSymbol(context, declaringSyntax, enclosingDeclartion, sourceModel) where T : ExportMetadata
 {
-    public ImportedSymbol(ISymbolContext context, ImportedSymbolsListItemSyntax declaringSyntax, CompileTimeImportDeclarationSyntax enclosingDeclartion, ISemanticModel sourceModel, T exportMetadata)
-        : base(context, declaringSyntax, enclosingDeclartion, sourceModel)
-    {
-        ExportMetadata = exportMetadata;
-    }
-
-    public T ExportMetadata { get; }
+    public T ExportMetadata { get; } = exportMetadata;
 
     public override string? Description => ExportMetadata.Description;
 

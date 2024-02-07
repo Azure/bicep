@@ -165,20 +165,12 @@ public static class OperationReturnTypeEvaluator
                 TypeValidator.AreTypesAssignable(rightOperandType, OperandTypes.Right);
     }
 
-    private class BinaryEvaluator : IBinaryEvaluator
+    private class BinaryEvaluator(BinaryOperator @operator, (TypeSymbol, TypeSymbol) operandTypes, string armFunctionName, TypeSymbol genericReturnType) : IBinaryEvaluator
     {
-        private readonly BinaryOperator @operator;
-        private readonly (TypeSymbol, TypeSymbol) operandTypes;
-        private readonly string armFunctionName;
-        private readonly TypeSymbol genericReturnType;
-
-        public BinaryEvaluator(BinaryOperator @operator, (TypeSymbol, TypeSymbol) operandTypes, string armFunctionName, TypeSymbol genericReturnType)
-        {
-            this.@operator = @operator;
-            this.operandTypes = operandTypes;
-            this.armFunctionName = armFunctionName;
-            this.genericReturnType = genericReturnType;
-        }
+        private readonly BinaryOperator @operator = @operator;
+        private readonly (TypeSymbol, TypeSymbol) operandTypes = operandTypes;
+        private readonly string armFunctionName = armFunctionName;
+        private readonly TypeSymbol genericReturnType = genericReturnType;
 
         public BinaryOperator Operator => @operator;
 

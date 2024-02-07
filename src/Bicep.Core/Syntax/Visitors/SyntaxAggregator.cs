@@ -47,20 +47,13 @@ namespace Bicep.Core.Syntax.Visitors
             where TSyntax : SyntaxBase
             => Aggregate(source, syntax => syntax is TSyntax).OfType<TSyntax>();
 
-        private class AccumulatingVisitor<TAccumulate> : AstVisitor
+        private class AccumulatingVisitor<TAccumulate>(TAccumulate seed, Func<TAccumulate, SyntaxBase, TAccumulate> function, Func<TAccumulate, SyntaxBase, bool> continuationFunction) : AstVisitor
         {
-            private readonly Func<TAccumulate, SyntaxBase, TAccumulate> function;
+            private readonly Func<TAccumulate, SyntaxBase, TAccumulate> function = function;
 
-            private readonly Func<TAccumulate, SyntaxBase, bool> continuationFunction;
+            private readonly Func<TAccumulate, SyntaxBase, bool> continuationFunction = continuationFunction;
 
-            public AccumulatingVisitor(TAccumulate seed, Func<TAccumulate, SyntaxBase, TAccumulate> function, Func<TAccumulate, SyntaxBase, bool> continuationFunction)
-            {
-                this.Value = seed;
-                this.function = function;
-                this.continuationFunction = continuationFunction;
-            }
-
-            public TAccumulate Value { get; private set; }
+            public TAccumulate Value { get; private set; } = seed;
 
             protected override void VisitInternal(SyntaxBase syntax)
             {

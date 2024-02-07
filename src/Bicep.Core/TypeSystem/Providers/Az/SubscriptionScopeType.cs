@@ -6,15 +6,9 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.Az
 {
-    public class SubscriptionScopeType : ObjectType, IScopeReference
+    public class SubscriptionScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties) : ObjectType("subscription", TypeSymbolValidationFlags.Default, properties, null), IScopeReference
     {
-        public SubscriptionScopeType(IEnumerable<FunctionArgumentSyntax> arguments, IEnumerable<TypeProperty> properties)
-            : base("subscription", TypeSymbolValidationFlags.Default, properties, null)
-        {
-            Arguments = arguments.ToImmutableArray();
-        }
-
-        public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }
+        public ImmutableArray<FunctionArgumentSyntax> Arguments { get; } = arguments.ToImmutableArray();
 
         public ResourceScope Scope => ResourceScope.Subscription;
     }

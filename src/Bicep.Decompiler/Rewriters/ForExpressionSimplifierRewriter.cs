@@ -20,14 +20,9 @@ namespace Bicep.Core.Decompiler.Rewriters
     /// Where elements are accessed via:
     ///   {item}
     /// </summary>
-    public class ForExpressionSimplifierRewriter : SyntaxRewriteVisitor
+    public class ForExpressionSimplifierRewriter(SemanticModel semanticModel) : SyntaxRewriteVisitor
     {
-        private readonly SemanticModel semanticModel;
-
-        public ForExpressionSimplifierRewriter(SemanticModel semanticModel)
-        {
-            this.semanticModel = semanticModel;
-        }
+        private readonly SemanticModel semanticModel = semanticModel;
 
         private static bool IsLoopIteratorExpression(SemanticModel semanticModel, SyntaxBase syntax, [NotNullWhen(true)] out VariableAccessSyntax? arrayVariable)
         {

@@ -8,18 +8,12 @@ namespace Bicep.Core.TypeSystem.Types;
 /// <summary>
 /// Represents an array with a fixed number of items, each of which has an independently defined type.
 /// </summary>
-public class TupleType : ArrayType
+public class TupleType(string name, ImmutableArray<ITypeReference> items, TypeSymbolValidationFlags validationFlags) : ArrayType(name, new DeferredTypeReference(() => TypeHelper.CreateTypeUnion(items)), validationFlags, minLength: items.Length, maxLength: items.Length)
 {
     public TupleType(ImmutableArray<ITypeReference> items, TypeSymbolValidationFlags validationFlags)
         : this(DeriveTupleName(items), items, validationFlags) { }
 
-    public TupleType(string name, ImmutableArray<ITypeReference> items, TypeSymbolValidationFlags validationFlags)
-        : base(name, new DeferredTypeReference(() => TypeHelper.CreateTypeUnion(items)), validationFlags, minLength: items.Length, maxLength: items.Length)
-    {
-        Items = items;
-    }
-
-    public ImmutableArray<ITypeReference> Items { get; }
+    public ImmutableArray<ITypeReference> Items { get; } = items;
 
     /// <summary>
     /// Recharacterize this type as a TypedArrayType containing a union of the types of the tuple members. Unlike a tuple, a typed array makes no assertions about which indices contain a more specific type.

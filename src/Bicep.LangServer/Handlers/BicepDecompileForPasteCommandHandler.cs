@@ -44,10 +44,15 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Handles a request from the client to analyze/decompile a JSON fragment for possible conversion into Bicep (for pasting into a Bicep file)
     /// </summary>
-    public class BicepDecompileForPasteCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileForPasteCommandParams, BicepDecompileForPasteCommandResult>
+    public class BicepDecompileForPasteCommandHandler(
+        ISerializer serializer,
+        ILanguageServerFacade server,
+        ITelemetryProvider telemetryProvider,
+        BicepCompiler bicepCompiler
+        ) : ExecuteTypedResponseCommandHandlerBase<BicepDecompileForPasteCommandParams, BicepDecompileForPasteCommandResult>(LangServerConstants.DecompileForPasteCommand, serializer)
     {
-        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileForPasteCommandResult> telemetryHelper;
-        private readonly BicepCompiler bicepCompiler;
+        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileForPasteCommandResult> telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileForPasteCommandResult>(server.Window, telemetryProvider);
+        private readonly BicepCompiler bicepCompiler = bicepCompiler;
 
         private static readonly Uri JsonDummyUri = new("file://from-clipboard.json", UriKind.Absolute);
         private static readonly Uri BicepDummyUri = PathHelper.ChangeToBicepExtension(JsonDummyUri);
@@ -66,18 +71,6 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         private record ResultAndTelemetry(BicepDecompileForPasteCommandResult Result, BicepTelemetryEvent? SuccessTelemetry);
-
-        public BicepDecompileForPasteCommandHandler(
-            ISerializer serializer,
-            ILanguageServerFacade server,
-            ITelemetryProvider telemetryProvider,
-            BicepCompiler bicepCompiler
-        )
-            : base(LangServerConstants.DecompileForPasteCommand, serializer)
-        {
-            this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileForPasteCommandResult>(server.Window, telemetryProvider);
-            this.bicepCompiler = bicepCompiler;
-        }
 
         public override Task<BicepDecompileForPasteCommandResult> Handle(BicepDecompileForPasteCommandParams parameters, CancellationToken cancellationToken)
         {

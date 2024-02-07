@@ -3,13 +3,8 @@
 
 namespace Bicep.Core.Registry.Oci
 {
-    public class ModuleMetadata
+    public class ModuleMetadata(string manifestDigest)
     {
-        public ModuleMetadata(string manifestDigest)
-        {
-            this.ManifestDigest = manifestDigest;
-        }
-
-        public string ManifestDigest { get; }
+        public string ManifestDigest { get; } = manifestDigest;
     }
 }

@@ -25,16 +25,10 @@ public record DiagnosticOptions(
         SarifToStdout: false);
 }
 
-public class DiagnosticLogger
+public class DiagnosticLogger(ILogger logger, IOContext ioContext)
 {
-    private readonly ILogger logger;
-    private readonly IOContext ioContext;
-
-    public DiagnosticLogger(ILogger logger, IOContext ioContext)
-    {
-        this.logger = logger;
-        this.ioContext = ioContext;
-    }
+    private readonly ILogger logger = logger;
+    private readonly IOContext ioContext = ioContext;
 
     public DiagnosticSummary LogDiagnostics(DiagnosticOptions options, Compilation compilation)
         => LogDiagnostics(options, compilation.GetAllDiagnosticsByBicepFile());

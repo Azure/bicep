@@ -7,14 +7,9 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.FileSystem
 {
-    public class FileResolver : IFileResolver
+    public class FileResolver(IFileSystem fileSystem) : IFileResolver
     {
-        private readonly IFileSystem fileSystem;
-
-        public FileResolver(IFileSystem fileSystem)
-        {
-            this.fileSystem = fileSystem;
-        }
+        private readonly IFileSystem fileSystem = fileSystem;
 
         public IDisposable? TryAcquireFileLock(Uri fileUri)
         {

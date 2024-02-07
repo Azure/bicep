@@ -13,18 +13,11 @@ namespace Bicep.LanguageServer.Configuration
     /// <summary>
     /// Allows for some limited JSON text manipulation without destroying commands or existing whitespace
     /// </summary>
-    public class JsonEditor
+    public class JsonEditor(string json, int indent = 2)
     {
-        private string json;
-        private int indent;
-        private ImmutableArray<int> lineStarts;
-
-        public JsonEditor(string json, int indent = 2)
-        {
-            this.json = json;
-            this.indent = indent;
-            lineStarts = TextCoordinateConverter.GetLineStarts(json);
-        }
+        private string json = json;
+        private int indent = indent;
+        private ImmutableArray<int> lineStarts = TextCoordinateConverter.GetLineStarts(json);
 
         // If the insertion path already exists, or can't be added (eg array instead of object exists on the path), returns null
         public (int line, int column, string insertText)? InsertIfNotExist(string[] propertyPaths, object valueIfNotExist)

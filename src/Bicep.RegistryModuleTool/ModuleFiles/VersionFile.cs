@@ -10,7 +10,7 @@ using Bicep.RegistryModuleTool.ModuleFileValidators;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    public sealed class VersionFile : ModuleFile
+    public sealed class VersionFile(string path, string contents, JsonElement rootElement) : ModuleFile(path)
     {
         public const string FileName = "version.json";
 
@@ -26,16 +26,9 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private static readonly JsonElement DefaultRootElementWithoutVersion = DefaultRootElement.Patch(JsonPatchOperations.Remove("/version"));
 
-        public VersionFile(string path, string contents, JsonElement rootElement)
-            : base(path)
-        {
-            this.Contents = contents;
-            this.RootElement = rootElement;
-        }
+        public string Contents { get; } = contents;
 
-        public string Contents { get; }
-
-        public JsonElement RootElement { get; }
+        public JsonElement RootElement { get; } = rootElement;
 
         public static async Task<VersionFile> GenerateAsync(IFileSystem fileSystem)
         {

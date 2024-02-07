@@ -6,20 +6,12 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Utils
 {
-    internal class ModuleDefinition
+    internal class ModuleDefinition(string moduleName, ResourceScope modulePropertyScopeType, ImmutableArray<StringSyntax?>? modulePropertyScopeValue, StringSyntax modulePropertyNameValue)
     {
-        public string ModuleName { get; }
-        public ResourceScope ModulePropertyScopeType { get; }
-        public IReadOnlyCollection<StringSyntax?>? ModulePropertyScopeValue { get; }
-        public StringSyntax ModulePropertyNameValue { get; }
-
-        public ModuleDefinition(string moduleName, ResourceScope modulePropertyScopeType, ImmutableArray<StringSyntax?>? modulePropertyScopeValue, StringSyntax modulePropertyNameValue)
-        {
-            ModuleName = moduleName;
-            ModulePropertyScopeType = modulePropertyScopeType;
-            ModulePropertyScopeValue = modulePropertyScopeValue;
-            ModulePropertyNameValue = modulePropertyNameValue;
-        }
+        public string ModuleName { get; } = moduleName;
+        public ResourceScope ModulePropertyScopeType { get; } = modulePropertyScopeType;
+        public IReadOnlyCollection<StringSyntax?>? ModulePropertyScopeValue { get; } = modulePropertyScopeValue;
+        public StringSyntax ModulePropertyNameValue { get; } = modulePropertyNameValue;
 
         public static readonly IEqualityComparer<ModuleDefinition> EqualityComparer = new ModuleComparer();
 

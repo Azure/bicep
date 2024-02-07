@@ -15,31 +15,22 @@ using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands;
 
-public class FormatCommand : ICommand
+public class FormatCommand(
+    ILogger logger,
+    IOContext io,
+    IFileResolver fileResolver,
+    IConfigurationManager configurationManager,
+    IFeatureProviderFactory featureProviderFactory) : ICommand
 {
-    private readonly ILogger logger;
+    private readonly ILogger logger = logger;
 
-    private readonly IOContext io;
+    private readonly IOContext io = io;
 
-    private readonly IFileResolver fileResolver;
+    private readonly IFileResolver fileResolver = fileResolver;
 
-    private readonly IConfigurationManager configurationManager;
+    private readonly IConfigurationManager configurationManager = configurationManager;
 
-    private readonly IFeatureProviderFactory featureProviderFactory;
-
-    public FormatCommand(
-        ILogger logger,
-        IOContext io,
-        IFileResolver fileResolver,
-        IConfigurationManager configurationManager,
-        IFeatureProviderFactory featureProviderFactory)
-    {
-        this.logger = logger;
-        this.io = io;
-        this.fileResolver = fileResolver;
-        this.configurationManager = configurationManager;
-        this.featureProviderFactory = featureProviderFactory;
-    }
+    private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
 
     public int Run(FormatArguments args)
     {

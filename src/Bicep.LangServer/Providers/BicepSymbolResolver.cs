@@ -11,16 +11,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public class BicepSymbolResolver : ISymbolResolver
+    public class BicepSymbolResolver(ILogger<BicepSymbolResolver> logger, ICompilationManager compilationManager) : ISymbolResolver
     {
-        private readonly ILogger<BicepSymbolResolver> logger;
-        private readonly ICompilationManager compilationManager;
-
-        public BicepSymbolResolver(ILogger<BicepSymbolResolver> logger, ICompilationManager compilationManager)
-        {
-            this.logger = logger;
-            this.compilationManager = compilationManager;
-        }
+        private readonly ILogger<BicepSymbolResolver> logger = logger;
+        private readonly ICompilationManager compilationManager = compilationManager;
 
         public SymbolResolutionResult? ResolveSymbol(DocumentUri uri, Position position)
         {

@@ -9,19 +9,13 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class DeployTimeConstantIndirectViolationVisitor : DeployTimeConstantViolationVisitor
+    public class DeployTimeConstantIndirectViolationVisitor(SyntaxBase deployTimeConstantContainer, VariableAccessSyntax variableDependency, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ResourceTypeResolver resourceTypeResolver) : DeployTimeConstantViolationVisitor(deployTimeConstantContainer, semanticModel, diagnosticWriter, resourceTypeResolver)
     {
-        private readonly VariableAccessSyntax variableDependency;
+        private readonly VariableAccessSyntax variableDependency = variableDependency;
 
         private readonly Stack<string> visitedVariableNameStack = new();
 
         private bool hasError = false;
-
-        public DeployTimeConstantIndirectViolationVisitor(SyntaxBase deployTimeConstantContainer, VariableAccessSyntax variableDependency, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ResourceTypeResolver resourceTypeResolver)
-            : base(deployTimeConstantContainer, semanticModel, diagnosticWriter, resourceTypeResolver)
-        {
-            this.variableDependency = variableDependency;
-        }
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {

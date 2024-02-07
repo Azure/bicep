@@ -8,19 +8,14 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.PrettyPrintV2
 {
-    public partial class SyntaxLayouts : ISyntaxVisitor
+    public partial class SyntaxLayouts(PrettyPrinterV2Context context) : ISyntaxVisitor
     {
         private delegate IEnumerable<Document> SyntaxLayoutSpecifier<TSyntax>(TSyntax syntax)
             where TSyntax : SyntaxBase;
 
-        private readonly PrettyPrinterV2Context context;
+        private readonly PrettyPrinterV2Context context = context;
 
         private IEnumerable<Document> current = Enumerable.Empty<Document>();
-
-        public SyntaxLayouts(PrettyPrinterV2Context context)
-        {
-            this.context = context;
-        }
 
         public void VisitArrayAccessSyntax(ArrayAccessSyntax syntax) => this.Apply(syntax, this.LayoutArrayAccessSyntax);
 

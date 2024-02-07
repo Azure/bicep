@@ -5,14 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Semantics
 {
-    public class FunctionWildcardOverloadBuilder : FunctionOverloadBuilder
+    public class FunctionWildcardOverloadBuilder(string name, Regex wildcardRegex) : FunctionOverloadBuilder(name)
     {
-        private Regex WildcardRegex { get; }
-
-        public FunctionWildcardOverloadBuilder(string name, Regex wildcardRegex) : base(name)
-        {
-            this.WildcardRegex = wildcardRegex;
-        }
+        private Regex WildcardRegex { get; } = wildcardRegex;
 
         protected override FunctionOverload BuildInternal()
         {

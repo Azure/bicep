@@ -13,13 +13,8 @@ namespace Bicep.Core.UnitTests.Assertions
         public static ErrorBuilderAssertions Should(this DiagnosticBuilder.ErrorBuilderDelegate errorBuilder) => new(errorBuilder);
     }
 
-    public class ErrorBuilderAssertions : ReferenceTypeAssertions<DiagnosticBuilder.ErrorBuilderDelegate, ErrorBuilderAssertions>
+    public class ErrorBuilderAssertions(DiagnosticBuilder.ErrorBuilderDelegate errorBuilder) : ReferenceTypeAssertions<DiagnosticBuilder.ErrorBuilderDelegate, ErrorBuilderAssertions>(errorBuilder)
     {
-        public ErrorBuilderAssertions(DiagnosticBuilder.ErrorBuilderDelegate errorBuilder)
-            : base(errorBuilder)
-        {
-        }
-
         protected override string Identifier => "ErrorBuilderDelegate";
 
         public AndConstraint<ErrorBuilderAssertions> HaveCode(string code, string because = "", params object[] becauseArgs)

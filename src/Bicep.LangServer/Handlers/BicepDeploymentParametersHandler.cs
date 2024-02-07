@@ -25,17 +25,11 @@ namespace Bicep.LanguageServer.Handlers
     /// @secure() decorator, if it's missing default value/is not present in parameters file, is an expression etc
     /// The above information will be used to display appropriate controls in UI.
     /// </summary>
-    public class BicepDeploymentParametersHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, BicepDeploymentParametersResponse>
+    public class BicepDeploymentParametersHandler(
+        IDeploymentFileCompilationCache deploymentFileCompilationCache,
+        ISerializer serializer) : ExecuteTypedResponseCommandHandlerBase<string, string, string, BicepDeploymentParametersResponse>(LangServerConstants.GetDeploymentParametersCommand, serializer)
     {
-        private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache;
-
-        public BicepDeploymentParametersHandler(
-            IDeploymentFileCompilationCache deploymentFileCompilationCache,
-            ISerializer serializer)
-            : base(LangServerConstants.GetDeploymentParametersCommand, serializer)
-        {
-            this.deploymentFileCompilationCache = deploymentFileCompilationCache;
-        }
+        private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache = deploymentFileCompilationCache;
 
         public override Task<BicepDeploymentParametersResponse> Handle(string documentPath, string parametersFilePath, string template, CancellationToken cancellationToken)
         {

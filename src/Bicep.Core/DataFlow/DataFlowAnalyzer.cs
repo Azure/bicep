@@ -6,14 +6,9 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.DataFlow;
 
-public class DataFlowAnalyzer
+public class DataFlowAnalyzer(SemanticModel semanticModel)
 {
-    private readonly SemanticModel semanticModel;
-
-    public DataFlowAnalyzer(SemanticModel semanticModel)
-    {
-        this.semanticModel = semanticModel;
-    }
+    private readonly SemanticModel semanticModel = semanticModel;
 
     public IList<LocalVariableSymbol> GetInaccessibleLocalsAfterSyntaxMove(SyntaxBase syntax, SyntaxBase newParent)
     {

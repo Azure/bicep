@@ -15,13 +15,8 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
         }
     }
 
-    public class ShowMessageParamsAssertions : ReferenceTypeAssertions<ShowMessageParams, ShowMessageParamsAssertions>
+    public class ShowMessageParamsAssertions(ShowMessageParams instance) : ReferenceTypeAssertions<ShowMessageParams, ShowMessageParamsAssertions>(instance)
     {
-        public ShowMessageParamsAssertions(ShowMessageParams instance)
-            : base(instance)
-        {
-        }
-
         protected override string Identifier => "show message event";
 
         public AndConstraint<ShowMessageParamsAssertions> HaveMessageAndType(string message, MessageType messageType, string because = "", params object[] becauseArgs)

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Primitives;
@@ -16,13 +15,8 @@ namespace Bicep.Core.UnitTests.Assertions
         }
     }
 
-    public class BicepFileAssertions : ReferenceTypeAssertions<BicepFile, BicepFileAssertions>
+    public class BicepFileAssertions(BicepFile bicepFile) : ReferenceTypeAssertions<BicepFile, BicepFileAssertions>(bicepFile)
     {
-        public BicepFileAssertions(BicepFile bicepFile)
-            : base(bicepFile)
-        {
-        }
-
         protected override string Identifier => "File";
 
         public AndConstraint<BicepFileAssertions> HaveSourceText(string expected, string because = "", params object[] becauseArgs)

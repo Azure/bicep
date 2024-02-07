@@ -3,15 +3,9 @@
 
 namespace Bicep.Core.PrettyPrintV2.Documents
 {
-    public sealed class ConditionalTextDocument : TextDocument
+    public sealed class ConditionalTextDocument(string onBreak, string onFlatten) : TextDocument(onBreak)
     {
-        private readonly TextDocument onFlatten;
-
-        public ConditionalTextDocument(string onBreak, string onFlatten)
-            : base(onBreak)
-        {
-            this.onFlatten = onFlatten;
-        }
+        private readonly TextDocument onFlatten = onFlatten;
 
         public override IEnumerable<TextDocument> Flatten()
         {

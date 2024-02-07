@@ -4,17 +4,11 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class IntegerLiteralSyntax : ExpressionSyntax
+    public class IntegerLiteralSyntax(Token literal, ulong value) : ExpressionSyntax
     {
-        public IntegerLiteralSyntax(Token literal, ulong value)
-        {
-            Literal = literal;
-            Value = value;
-        }
+        public Token Literal { get; } = literal;
 
-        public Token Literal { get; }
-
-        public ulong Value { get; }
+        public ulong Value { get; } = value;
 
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitIntegerLiteralSyntax(this);

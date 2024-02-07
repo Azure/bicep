@@ -10,14 +10,9 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.IntegrationTests.Extensibility;
 
-public class TestExtensibilityNamespaceProvider : INamespaceProvider
+public class TestExtensibilityNamespaceProvider(IResourceTypeProviderFactory azResourceTypeProviderFactory) : INamespaceProvider
 {
-    private readonly INamespaceProvider defaultNamespaceProvider;
-
-    public TestExtensibilityNamespaceProvider(IResourceTypeProviderFactory azResourceTypeProviderFactory)
-    {
-        defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeProviderFactory);
-    }
+    private readonly INamespaceProvider defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeProviderFactory);
 
     public ResultWithDiagnostic<NamespaceType> TryGetNamespace(
         ResourceTypesProviderDescriptor providerDescriptor,

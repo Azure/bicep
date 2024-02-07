@@ -6,11 +6,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Analyzers
 {
-    public class AnalyzerDiagnostic : Diagnostic, IDiagnostic
+    public class AnalyzerDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level, string code, string message, Uri? documentationUri = null, DiagnosticStyling styling = DiagnosticStyling.Default) : Diagnostic(span, level, code, message, documentationUri, styling, $"{LanguageConstants.LanguageId} {analyzerName}"), IDiagnostic
     {
-        public AnalyzerDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level, string code, string message, Uri? documentationUri = null, DiagnosticStyling styling = DiagnosticStyling.Default)
-            : base(span, level, code, message, documentationUri, styling, $"{LanguageConstants.LanguageId} {analyzerName}")
-        {
-        }
     }
 }

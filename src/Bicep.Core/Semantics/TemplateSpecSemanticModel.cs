@@ -8,17 +8,11 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
-    public class TemplateSpecSemanticModel : ISemanticModel
+    public class TemplateSpecSemanticModel(TemplateSpecFile sourceFile) : ISemanticModel
     {
-        private readonly ArmTemplateSemanticModel mainTemplateSemanticModel;
+        private readonly ArmTemplateSemanticModel mainTemplateSemanticModel = new ArmTemplateSemanticModel(sourceFile.MainTemplateFile);
 
-        public TemplateSpecSemanticModel(TemplateSpecFile sourceFile)
-        {
-            this.mainTemplateSemanticModel = new ArmTemplateSemanticModel(sourceFile.MainTemplateFile);
-            this.SourceFile = sourceFile;
-        }
-
-        public TemplateSpecFile SourceFile { get; }
+        public TemplateSpecFile SourceFile { get; } = sourceFile;
 
         public ResourceScope TargetScope => this.mainTemplateSemanticModel.TargetScope;
 

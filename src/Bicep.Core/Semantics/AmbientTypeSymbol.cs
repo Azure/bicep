@@ -5,20 +5,13 @@ using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.Semantics;
 
-public class AmbientTypeSymbol : Symbol, ITypeReference
+public class AmbientTypeSymbol(string name, TypeSymbol type, NamespaceType declaringNamespace, string? description) : Symbol(name), ITypeReference
 {
-    public AmbientTypeSymbol(string name, TypeSymbol type, NamespaceType declaringNamespace, string? description) : base(name)
-    {
-        Type = type;
-        DeclaringNamespace = declaringNamespace;
-        Description = description;
-    }
+    public TypeSymbol Type { get; } = type;
 
-    public TypeSymbol Type { get; }
+    public NamespaceType DeclaringNamespace { get; } = declaringNamespace;
 
-    public NamespaceType DeclaringNamespace { get; }
-
-    public string? Description { get; }
+    public string? Description { get; } = description;
 
     public override IEnumerable<Symbol> Descendants
     {

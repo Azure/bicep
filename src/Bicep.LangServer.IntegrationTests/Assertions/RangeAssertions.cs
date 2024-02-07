@@ -16,13 +16,8 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
         }
     }
 
-    public class RangeAssertions : ReferenceTypeAssertions<Range, RangeAssertions>
+    public class RangeAssertions(Range instance) : ReferenceTypeAssertions<Range, RangeAssertions>(instance)
     {
-        public RangeAssertions(Range instance)
-            : base(instance)
-        {
-        }
-
         protected override string Identifier => "range";
 
         public AndConstraint<RangeAssertions> HaveRange((int line, int character) start, (int line, int character) end, string because = "", params object[] becauseArgs)

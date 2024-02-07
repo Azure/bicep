@@ -31,13 +31,8 @@ namespace Bicep.Core.UnitTests.Assertions
         }
     }
 
-    public class ParamsCompilationResultAssertions : ReferenceTypeAssertions<ParamsCompilationResult, ParamsCompilationResultAssertions>
+    public class ParamsCompilationResultAssertions(ParamsCompilationResult result) : ReferenceTypeAssertions<ParamsCompilationResult, ParamsCompilationResultAssertions>(result)
     {
-        public ParamsCompilationResultAssertions(ParamsCompilationResult result)
-            : base(result)
-        {
-        }
-
         protected override string Identifier => "Result";
 
         private AndConstraint<ParamsCompilationResultAssertions> DoWithDiagnosticAnnotations(Action<IEnumerable<IDiagnostic>> action)

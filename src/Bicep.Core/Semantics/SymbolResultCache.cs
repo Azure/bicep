@@ -2,14 +2,8 @@
 // Licensed under the MIT License.
 namespace Bicep.Core.Semantics
 {
-    public class SymbolResultCache<TResult>
+    public class SymbolResultCache<TResult>(Func<Symbol, TResult> getResultFunc)
     {
-        public SymbolResultCache(Func<Symbol, TResult> getResultFunc)
-        {
-            resultCache = new Dictionary<Symbol, TResult>();
-            this.getResultFunc = getResultFunc;
-        }
-
         public TResult Lookup(Symbol symbol)
         {
             if (!resultCache.TryGetValue(symbol, out var result))
@@ -21,8 +15,8 @@ namespace Bicep.Core.Semantics
             return result;
         }
 
-        private readonly IDictionary<Symbol, TResult> resultCache;
+        private readonly IDictionary<Symbol, TResult> resultCache = new Dictionary<Symbol, TResult>();
 
-        private readonly Func<Symbol, TResult> getResultFunc;
+        private readonly Func<Symbol, TResult> getResultFunc = getResultFunc;
     }
 }
