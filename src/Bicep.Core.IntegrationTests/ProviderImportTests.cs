@@ -94,13 +94,14 @@ provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
 provider
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location."),
+                ("BCP201", DiagnosticLevel.Error, "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location."),
             });
 
             result = await CompilationHelper.RestoreAndCompile(services, @"
 provider 'sys@1.0.0' blahblah
 ");
             result.Should().HaveDiagnostics(new[] {
+                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
             });
 
@@ -108,6 +109,7 @@ provider 'sys@1.0.0' blahblah
 provider 'kubernetes@1.0.0' with
 ");
             result.Should().HaveDiagnostics(new[] {
+                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
             });
 
@@ -118,6 +120,7 @@ provider 'kubernetes@1.0.0' with {
 } something
 ");
             result.Should().HaveDiagnostics(new[] {
+                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
             });
 
@@ -128,6 +131,7 @@ provider 'kubernetes@1.0.0' with {
 } as
 ");
             result.Should().HaveDiagnostics(new[] {
+                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
 
@@ -135,6 +139,7 @@ provider 'kubernetes@1.0.0' with {
 provider 'sys@1.0.0' as
 ");
             result.Should().HaveDiagnostics(new[] {
+                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
         }

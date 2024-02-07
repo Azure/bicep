@@ -134,11 +134,10 @@ namespace Bicep.Core.IntegrationTests
             var result = await CompilationHelper.RestoreAndCompile(services, @"
             provider 'az@0.2.661'
             ");
-
-            result.Should().NotGenerateATemplate();
+            result.Should().GenerateATemplate();
             result.Should().HaveDiagnostics(
                 new[] {
-                ("BCP304", DiagnosticLevel.Error, "Invalid provider specifier string. Specify a valid provider of format \"<providerName>@<providerVersion>\"."),
+                ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
             });
 
         }
@@ -153,12 +152,11 @@ namespace Bicep.Core.IntegrationTests
             provider 'br/notFound:az@0.2.661'
             ");
 
-            result.Should().GenerateATemplate();
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(
                 new[] {
                     ("BCP379", DiagnosticLevel.Error, "The OCI artifact provider alias name \"notFound\" does not exist in the built-in Bicep configuration."),
-                    //TODO(asilverman) Fix BCP084, it should not be thrown by this test because az is implicitly loaded
+                    ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
             });
 
         }

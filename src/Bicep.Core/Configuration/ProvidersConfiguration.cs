@@ -42,7 +42,7 @@ public partial class ProvidersConfiguration : ConfigurationSection<ImmutableDict
     {
         if (!this.Data.TryGetValue(providerName, out var providerConfigEntry))
         {
-            return new(x => x.ProviderNotFoundInConfiguration(providerName, configurationPath));
+            return new(x => x.UnrecognizedProvider(providerName));
         }
         return new(providerConfigEntry);
     }

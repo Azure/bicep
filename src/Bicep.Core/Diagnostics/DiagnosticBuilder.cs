@@ -2142,11 +2142,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP393",
                 $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
 
-            public ErrorDiagnostic ProviderNotFoundInConfiguration(string providerName, Uri? configurationPath) => new(
-                TextSpan,
-                "BCP394",
-                $"The provider \"{providerName}\" could not be found in {BuildBicepConfigurationClause(configurationPath)}.");
-
             public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecificationSyntax syntax)
             {
                 var codeFix = new CodeFix(
@@ -2159,7 +2154,7 @@ namespace Bicep.Core.Diagnostics
                     TextSpan,
                     DiagnosticLevel.Warning,
                     "BCP395",
-                    $"Declaring provider namespaces using the \'<provierName>@<version>\' expression has been deprecated. Please use an identifier instead.",
+                    $"Declaring provider namespaces using the \'<providerName>@<version>\' expression has been deprecated. Please use an identifier instead.",
                     documentationUri: null,
                     DiagnosticStyling.Default,
                     codeFix);
