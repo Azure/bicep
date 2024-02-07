@@ -76,8 +76,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 ? ParserHelper.GetFileWithSingleCursor(options.editorContentsWithCursor, '|')
                 : (string.Empty, 0);
 
-            var editorContentsWithPastedJson = editorContents.Substring(0, cursorOffset) + options.pastedJson + editorContents.Substring(cursorOffset);
-            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", editorContentsWithPastedJson);
+            var editorContentsWithPastedJson = string.Concat(editorContents.AsSpan(0, cursorOffset), options.pastedJson, editorContents.AsSpan(cursorOffset));
+            _ = FileHelper.SaveResultFile(TestContext, "main.bicep", editorContentsWithPastedJson);
             LanguageServerMock server = new();
             var handler = CreateHandler(server);
 
@@ -524,32 +524,40 @@ name: 'Premium_LRS'
         [TestMethod]
         public async Task MissingParametersAndVars_Conflict()
         {
-            string json = @"
+            string json = """
                 {
-                        ""type"": ""Microsoft.Storage/storageAccounts"",
-                        ""apiVersion"": ""2021-02-01"",
-                        ""name"": ""name"",
-                        ""location"": ""[concat(parameters('location'), variables('location'), parameters('location_var'), variables('location_var'), parameters('location_param'), variables('location_param'))]"",
-                        ""kind"": ""[variables('location')]"",
-                        ""sku"": {
-                          ""name"": ""Premium_LRS""
-                        }
+                    "type": "Microsoft.Storage/storageAccounts",
+                    "apiVersion": "2021-02-01",
+                    "name": "name",
+                    "location": "[concat(parameters('location'), variables('location'), parameters('location_var'), variables('location_var'), parameters('location_param'), variables('location_param'))]",
+                    "kind": "[variables('location')]",
+                    "sku": {
+                      "name": "Premium_LRS"
+                    }
                 }
-            ";
+                """;
 
             await TestDecompileForPaste(
                     json: json,
                     expectedErrorMessage: null,
                     expectedPasteType: PasteType.SingleResource,
-                    expectedBicep: @"
+                    expectedBicep: """
                     resource name 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-                        name: 'name'
-                        location: concat(location, location_var, location_var, location_var_var, location_param, location_param_var)
-                        kind: location_var
-                        sku: {
-                            name: 'Premium_LRS'
-                        }
-                    }");
+                      name: 'name'
+                      location: concat(
+                        location,
+                        location_var,
+                        location_var,
+                        location_var_var,
+                        location_param,
+                        location_param_var
+                      )
+                      kind: location_var
+                      sku: {
+                        name: 'Premium_LRS'
+                      }
+                    }
+                    """);
         }
 
         [TestMethod]
@@ -1294,9 +1302,7 @@ name: 'Premium_LRS'
         )]
         [DataRow(
             @"[""[resourceGroup().location]""]",
-            @"[
-  resourceGroup().location
-]",
+            @"[resourceGroup().location]",
             DisplayName = "Array with string expression"
         )]
         [DataRow(
@@ -1364,11 +1370,7 @@ name: 'Premium_LRS'
     1, 2,
     3
 ]",
-            @"[
-  1
-  2
-  3
-]",
+            @"[1, 2, 3]",
             DisplayName = "Multiline array"
         )]
         [DataRow(
@@ -1486,16 +1488,11 @@ name: 'Premium_LRS'
         [DataRow(
             "[1]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
-            @"[
-                1
-            ]")]
+            @"[1]")]
         [DataRow(
             "[1, 1]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
-            @"[
-                1
-                1
-            ]")]
+            @"[1, 1]")]
         [DataRow(
             "[      /* */  ]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
@@ -1509,9 +1506,7 @@ name: 'Premium_LRS'
             @"[
   1]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
-            @"[
-                1
-            ]")]
+            @"[1]")]
         [DataRow(
             "null",
             PasteType.BicepValue, // Valid json and valid Bicep expression

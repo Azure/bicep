@@ -7,3 +7,4 @@ resource defaultDataLakeStorageAccountName_default_defaultDataLakeStorageFilesys
     publicAccess: 'None'
   }
 }
+

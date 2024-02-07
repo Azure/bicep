@@ -13,10 +13,7 @@ param subscriptionAlias string
 param subscriptionDisplayName string
 
 @description('Workload type for the subscription')
-@allowed([
-  'Production'
-  'DevTest'
-])
+@allowed(['Production', 'DevTest'])
 param subscriptionWorkload string = 'Production'
 
 resource subscriptionAlias_resource 'Microsoft.Subscription/aliases@2020-09-01' = {
@@ -25,8 +22,13 @@ resource subscriptionAlias_resource 'Microsoft.Subscription/aliases@2020-09-01' 
   properties: {
     workload: subscriptionWorkload
     displayName: subscriptionDisplayName
-    billingScope: tenantResourceId('Microsoft.Billing/billingAccounts/enrollmentAccounts', billingAccount, enrollmentAccount)
+    billingScope: tenantResourceId(
+      'Microsoft.Billing/billingAccounts/enrollmentAccounts',
+      billingAccount,
+      enrollmentAccount
+    )
   }
 }
 
 output subscriptionId string = subscriptionAlias_resource.properties.subscriptionId
+

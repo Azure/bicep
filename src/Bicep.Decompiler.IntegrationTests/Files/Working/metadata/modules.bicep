@@ -12,3 +12,4 @@ module cdnProfileName_eventhub_module './nested_cdnProfileName_eventhub_module.b
     eventHubLocation: eventHubLocation
   }
 }
+

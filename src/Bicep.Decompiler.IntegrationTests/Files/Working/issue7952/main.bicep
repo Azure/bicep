@@ -9,3 +9,4 @@ var stillQuoted = {
   '+abc': 456
   '': 789
 }
+
