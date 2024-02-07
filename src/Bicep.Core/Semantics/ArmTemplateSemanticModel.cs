@@ -214,7 +214,7 @@ namespace Bicep.Core.Semantics
             if (template.Definitions is { } typeDefinitions)
             {
                 exports.AddRange(typeDefinitions.Where(kvp => IsExported(kvp.Value))
-                    .Select(kvp => new ExportedTypeMetadata(kvp.Key, GetType(kvp.Value), GetMostSpecificDescription(kvp.Value))));
+                    .Select(kvp => new ExportedTypeMetadata(kvp.Key, AsTypeType(GetType(kvp.Value)), GetMostSpecificDescription(kvp.Value))));
             }
 
             if (template.Functions is { } userDefinedFunctions)
@@ -279,6 +279,18 @@ namespace Bicep.Core.Semantics
 
             return exportsBuilder.ToImmutable();
         }
+
+        private static ITypeReference AsTypeType(ITypeReference @ref) => @ref switch
+        {
+            DeferredTypeReference => new DeferredTypeReference(() => AsTypeType(@ref.Type)),
+            _ => AsTypeType(@ref.Type),
+        };
+
+        private static TypeSymbol AsTypeType(TypeSymbol type) => type switch
+        {
+            TypeType or ErrorType => type,
+            _ => new TypeType(type),
+        };
 
         private static bool TryCreateUnboundResourceTypeParameter(JToken? metadataToken, [NotNullWhen(true)] out TypeSymbol? type)
         {
