@@ -21,7 +21,6 @@ namespace Bicep.Cli.Commands
         DiagnosticLogger diagnosticLogger,
         BicepCompiler compiler,
         IOContext ioContext,
-        ILogger logger,
         IModuleDispatcher moduleDispatcher,
         IFileSystem fileSystem,
         IFeatureProviderFactory featureProviderFactory) : ICommand
@@ -32,7 +31,6 @@ namespace Bicep.Cli.Commands
         private readonly IFileSystem fileSystem = fileSystem;
         private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
         private readonly IOContext ioContext = ioContext;
-        private readonly ILogger logger = logger;
 
         public async Task<int> RunAsync(PublishArguments args)
         {

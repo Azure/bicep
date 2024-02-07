@@ -22,17 +22,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
             var spanFixes = new Dictionary<TextSpan, CodeFix>();
-            var visitor = new Visitor(spanFixes, model);
+            var visitor = new Visitor(spanFixes);
             visitor.Visit(model.SourceFile.ProgramSyntax);
 
             return spanFixes.Select(kvp => CreateFixableDiagnosticForSpan(diagnosticLevel, kvp.Key, kvp.Value));
         }
 
-        private sealed class Visitor(Dictionary<TextSpan, CodeFix> spanFixes, SemanticModel model) : AstVisitor
+        private sealed class Visitor(Dictionary<TextSpan, CodeFix> spanFixes) : AstVisitor
         {
             private readonly Dictionary<TextSpan, CodeFix> spanFixes = spanFixes;
-            private readonly SemanticModel model = model;
-
             public override void VisitFunctionCallSyntax(FunctionCallSyntax functionCallSyntax)
             {
                 if (functionCallSyntax.NameEquals("json") &&

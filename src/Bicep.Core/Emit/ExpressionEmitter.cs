@@ -25,8 +25,7 @@ namespace Bicep.Core.Emit
         });
 
         private readonly PositionTrackingJsonTextWriter writer = writer;
-        private readonly EmitterContext context = context;
-        private readonly ExpressionConverter converter = new ExpressionConverter(context);
+        private readonly ExpressionConverter converter = new(context);
 
         public void EmitExpression(Expression expression)
         {

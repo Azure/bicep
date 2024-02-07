@@ -37,15 +37,13 @@ namespace Bicep.LanguageServer.Handlers
         ICompilationManager compilationManager,
         IFileResolver fileResolver,
         ILanguageServerFacade languageServer,
-        IModuleDispatcher moduleDispatcher,
-        IFeatureProviderFactory featureProviderFactory) : DefinitionHandlerBase()
+        IModuleDispatcher moduleDispatcher) : DefinitionHandlerBase()
     {
         private readonly ISymbolResolver symbolResolver = symbolResolver;
         private readonly ICompilationManager compilationManager = compilationManager;
         private readonly IFileResolver fileResolver = fileResolver;
         private readonly ILanguageServerFacade languageServer = languageServer;
         private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
-        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
 
         public override async Task<LocationOrLocationLinks?> Handle(DefinitionParams request, CancellationToken cancellationToken)
         {

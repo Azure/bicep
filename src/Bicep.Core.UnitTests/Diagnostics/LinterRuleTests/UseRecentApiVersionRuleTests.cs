@@ -142,7 +142,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 VerifyAllTypesAndDatesAreFake(resourceTypes);
                 VerifyAllTypesAndDatesAreFake(expectedApiVersions);
 
-                var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, Enumerable.Empty<ResourceTypeReference>());
+                var apiVersionProvider = new ApiVersionProvider([]);
                 apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
                 var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, AzureResourceApiVersion.Parse(today).Date, maxAgeInDays, scope, fullyQualifiedResourceType);
                 var allowedVersionsStrings = allowedVersions.Select(v => v.ToString()).ToArray();
@@ -714,7 +714,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestClass]
         public class GetAcceptableApiVersionsInvariantsTests
         {
-            private static readonly ApiVersionProvider RealApiVersionProvider = new(BicepTestConstants.Features, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
+            private static readonly ApiVersionProvider RealApiVersionProvider = new(FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
             private static readonly bool Exhaustive = false;
 
             public class TestData(ResourceScope resourceScope, string fullyQualifiedResourceType, DateOnly today, int maxAgeInDays)
@@ -903,7 +903,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 string[] gaVersions = gaVersionDates.Select(d => "Whoever.whatever/whichever@" + CreateApiVersion(d)).ToArray();
                 string[] previewVersions = previewVersionDates.Select(d => "Whoever.whatever/whichever@" + CreateApiVersion(d) + "-preview").ToArray();
-                var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, Enumerable.Empty<ResourceTypeReference>());
+                var apiVersionProvider = new ApiVersionProvider([]);
                 apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(gaVersions.Concat(previewVersions)));
 
                 var result = UseRecentApiVersionRule.AnalyzeApiVersion(

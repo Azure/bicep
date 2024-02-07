@@ -26,9 +26,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 // Test with the linter using the fake resource types from FakeResourceTypes (to guard against failures due to Azure changes)
                 // Note: The compiler does not know about these fake types, only the linter.
-                apiVersionProvider = new ApiVersionProvider(
-                    BicepTestConstants.Features,
-                    Enumerable.Empty<ResourceTypeReference>());
+                apiVersionProvider = new([]);
                 apiVersionProvider.InjectTypeReferences(
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));

@@ -2,19 +2,17 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using ResourceScope = Bicep.Core.TypeSystem.ResourceScope;
 
 namespace Bicep.Core.Analyzers.Linter.ApiVersions
 {
-    public class ApiVersionProvider(IFeatureProvider features, IEnumerable<ResourceTypeReference> resourceTypeReferences) : IApiVersionProvider
+    public class ApiVersionProvider(IEnumerable<ResourceTypeReference> resourceTypeReferences) : IApiVersionProvider
     {
         private static StringComparer Comparer = LanguageConstants.ResourceTypeComparer;
 
         // One cache per target scope type
         private readonly Dictionary<ResourceScope, ApiVersionCache> _caches = new();
-        private readonly IFeatureProvider features = features;
         private readonly IEnumerable<ResourceTypeReference> resourceTypeReferences = resourceTypeReferences;
 
         // for unit testing

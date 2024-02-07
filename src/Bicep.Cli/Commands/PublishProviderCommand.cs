@@ -16,16 +16,12 @@ namespace Bicep.Cli.Commands
 {
     public class PublishProviderCommand(
         IOContext ioContext,
-        ILogger logger,
         IModuleDispatcher moduleDispatcher,
-        IFileSystem fileSystem,
-        IFeatureProviderFactory featureProviderFactory) : ICommand
+        IFileSystem fileSystem) : ICommand
     {
         private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
         private readonly IFileSystem fileSystem = fileSystem;
-        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
         private readonly IOContext ioContext = ioContext;
-        private readonly ILogger logger = logger;
 
         public async Task<int> RunAsync(PublishProviderArguments args)
         {

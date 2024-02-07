@@ -14,7 +14,6 @@ namespace Bicep.Core.Semantics.Metadata
     public class ResourceMetadataCache(SemanticModel semanticModel) : SyntaxMetadataCacheBase<ResourceMetadata?>
     {
         private readonly SemanticModel semanticModel = semanticModel;
-        private readonly ConcurrentDictionary<ResourceSymbol, ResourceMetadata> symbolLookup = new();
         private readonly Lazy<ImmutableDictionary<ResourceDeclarationSyntax, ResourceSymbol>> resourceSymbols = new(() => ResourceSymbolVisitor.GetAllResources(semanticModel.Root)
                 .ToImmutableDictionary(x => x.DeclaringResource));
         private readonly ConcurrentDictionary<(ModuleSymbol module, string output), ResourceMetadata> moduleOutputLookup = new();

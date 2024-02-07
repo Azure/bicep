@@ -32,13 +32,11 @@ namespace Bicep.LanguageServer.Handlers
         ISerializer serializer,
         ILanguageServerFacade server,
         ITelemetryProvider telemetryProvider,
-        IClientCapabilitiesProvider clientCapabilitiesProvider,
-        BicepDecompiler bicepDecompiler) : ExecuteTypedResponseCommandHandlerBase<BicepDecompileSaveCommandParams, BicepDecompileSaveCommandResult>(LangServerConstants.DecompileSaveCommand, serializer)
+        IClientCapabilitiesProvider clientCapabilitiesProvider) : ExecuteTypedResponseCommandHandlerBase<BicepDecompileSaveCommandParams, BicepDecompileSaveCommandResult>(LangServerConstants.DecompileSaveCommand, serializer)
     {
-        private readonly BicepDecompiler bicepDecompiler = bicepDecompiler;
         private readonly ILanguageServerFacade languageServerFacade = server;
         private readonly IClientCapabilitiesProvider clientCapabilitiesProvider = clientCapabilitiesProvider;
-        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult> telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult>(server.Window, telemetryProvider);
+        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult> telemetryHelper = new(server.Window, telemetryProvider);
 
         public override Task<BicepDecompileSaveCommandResult> Handle(BicepDecompileSaveCommandParams parameters, CancellationToken cancellationToken)
         {

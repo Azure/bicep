@@ -14,8 +14,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
         private readonly MicrosoftGraphResourceTypeLoader resourceTypeLoader = resourceTypeLoader;
-        private readonly ResourceTypeCache definedTypeCache = new ResourceTypeCache();
-        private readonly ResourceTypeCache generatedTypeCache = new ResourceTypeCache();
+        private readonly ResourceTypeCache definedTypeCache = new();
 
         public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
         {

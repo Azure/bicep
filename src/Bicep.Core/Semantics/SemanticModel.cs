@@ -65,7 +65,7 @@ namespace Bicep.Core.Semantics
             this.Binder = new Binder(compilation.NamespaceProvider, Features, compilation.SourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext, compilation.ArtifactReferenceFactory);
 
             // TODO(#13239): ApiVersionProvider is only used by UseRecentApiVersionRule. Coupling the linter with the semantic model is suboptimal. A better approach would be to integrate ApiVersionProvider into IResourceTypeProvider.
-            this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(Features, this.Binder.NamespaceResolver.GetAvailableAzureResourceTypes()));
+            this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(this.Binder.NamespaceResolver.GetAvailableAzureResourceTypes()));
 
             this.TypeManager = new TypeManager(this, this.Binder);
 

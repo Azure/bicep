@@ -11,8 +11,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
         private readonly ThirdPartyResourceTypeLoader resourceTypeLoader = resourceTypeLoader;
-        private readonly ResourceTypeCache definedTypeCache = new ResourceTypeCache();
-        private readonly ResourceTypeCache generatedTypeCache = new ResourceTypeCache();
+        private readonly ResourceTypeCache definedTypeCache = new();
 
         private static ResourceTypeComponents SetBicepResourceProperties(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
         {

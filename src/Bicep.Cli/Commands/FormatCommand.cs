@@ -16,14 +16,11 @@ using Microsoft.Extensions.Logging;
 namespace Bicep.Cli.Commands;
 
 public class FormatCommand(
-    ILogger logger,
     IOContext io,
     IFileResolver fileResolver,
     IConfigurationManager configurationManager,
     IFeatureProviderFactory featureProviderFactory) : ICommand
 {
-    private readonly ILogger logger = logger;
-
     private readonly IOContext io = io;
 
     private readonly IFileResolver fileResolver = fileResolver;

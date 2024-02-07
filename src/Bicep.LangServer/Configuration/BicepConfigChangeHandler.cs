@@ -13,14 +13,12 @@ namespace Bicep.LanguageServer.Configuration
     public class BicepConfigChangeHandler(ICompilationManager compilationManager,
                                     ConfigurationManager configurationManager,
                                     ILinterRulesProvider linterRulesProvider,
-                                    ITelemetryProvider telemetryProvider,
-                                    IWorkspace workspace) : IBicepConfigChangeHandler
+                                    ITelemetryProvider telemetryProvider) : IBicepConfigChangeHandler
     {
         private readonly ICompilationManager compilationManager = compilationManager;
         private readonly ConfigurationManager configurationManager = configurationManager;
         private readonly ILinterRulesProvider linterRulesProvider = linterRulesProvider;
         private readonly ITelemetryProvider telemetryProvider = telemetryProvider;
-        private readonly IWorkspace workspace = workspace;
 
         public void RefreshCompilationOfSourceFilesInWorkspace()
         {

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Text.RegularExpressions;
 using Bicep.Core.TypeSystem;
+using static Bicep.Core.Semantics.FunctionOverload;
 
 namespace Bicep.Core.Semantics
 {

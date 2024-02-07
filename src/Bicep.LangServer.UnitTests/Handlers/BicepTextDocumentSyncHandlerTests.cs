@@ -5,7 +5,6 @@ using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests;
-using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Handlers;
@@ -192,8 +191,7 @@ public class BicepTextDocumentSyncHandlerTests
         var bicepConfigChangeHandler = new BicepConfigChangeHandler(compilationManager,
                                                                     new ConfigurationManager(fileSystem),
                                                                     linterRulesProvider,
-                                                                    telemetryProvider.Object,
-                                                                    new Workspace());
+                                                                    telemetryProvider.Object);
 
         var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, bicepConfigChangeHandler);
 

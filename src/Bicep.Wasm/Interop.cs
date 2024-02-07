@@ -13,13 +13,12 @@ using Microsoft.JSInterop;
 
 namespace Bicep.Wasm
 {
-    public class Interop(IJSRuntime jsRuntime, IServiceProvider serviceProvider)
+    public class Interop(IServiceProvider serviceProvider)
     {
         public record DecompileResult(string? bicepFile, string? error);
 
         public record CompileResult(string template, object diagnostics);
 
-        private readonly IJSRuntime jsRuntime = jsRuntime;
         private readonly IServiceProvider serviceProvider = serviceProvider;
 
         [JSInvokable]
