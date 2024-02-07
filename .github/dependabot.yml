@@ -23,52 +23,8 @@ updates:
   - package-ecosystem: "nuget"
     directory: "/src/vs-bicep"
     schedule:
-      interval: "weekly"
+      interval: "daily"
       day: "sunday"
     ignore:
       - dependency-name: "Moq"
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-  - package-ecosystem: "npm"
-    directory: "/src/vscode-bicep"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-    ignore:
-      # we're deliberately taking a dependency on an older version of vscode for back-compatibility
-      - dependency-name: "@types/vscode"
-        versions:
-        - ">1.52.0"
-  - package-ecosystem: "npm"
-    directory: "/src/playground"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-  - package-ecosystem: "npm"
-    directory: "/src/Bicep.Cli.E2eTests"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-  - package-ecosystem: "npm"
-    directory: "/src/Bicep.MSBuild.E2eTests"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-  - package-ecosystem: "npm"
-    directory: "/src/textmate"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-  - package-ecosystem: "npm"
-    directory: "/src/highlightjs"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
-  - package-ecosystem: "npm"
-    directory: "/src/monarch"
-    schedule:
-      interval: "weekly"
-      day: "sunday"
+
