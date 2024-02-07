@@ -1,29 +1,29 @@
 @description('Admin username for VM')
 param adminUsername string
 
-@description('Number of VMs to deploy, limit 398 since there is an 800 resource limit for a single template deployment')
+@description(
+  'Number of VMs to deploy, limit 398 since there is an 800 resource limit for a single template deployment'
+)
 @minValue(2)
 @maxValue(398)
 param numberOfInstances int = 4
 
 @description('OS Platform for the VM')
-@allowed([
-  'Ubuntu'
-  'Windows'
-])
+@allowed(['Ubuntu', 'Windows'])
 param OS string = 'Ubuntu'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-@description('Type of authentication to use on the Virtual Machine. SSH key is recommended.')
-@allowed([
-  'sshPublicKey'
-  'password'
-])
+@description(
+  'Type of authentication to use on the Virtual Machine. SSH key is recommended.'
+)
+@allowed(['sshPublicKey', 'password'])
 param authenticationType string = 'sshPublicKey'
 
-@description('SSH Key or password for the Virtual Machine. SSH key is recommended.')
+@description(
+  'SSH Key or password for the Virtual Machine. SSH key is recommended.'
+)
 @secure()
 param adminPasswordOrKey string
 
@@ -36,8 +36,16 @@ var subnet1Name = 'Subnet-1'
 var subnet2Name = 'Subnet-2'
 var subnet1Prefix = '10.0.0.0/24'
 var subnet2Prefix = '10.0.1.0/24'
-var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet1Name)
-var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet2Name)
+var subnet1Ref = resourceId(
+  'Microsoft.Network/virtualNetworks/subnets',
+  virtualNetworkName,
+  subnet1Name
+)
+var subnet2Ref = resourceId(
+  'Microsoft.Network/virtualNetworks/subnets',
+  virtualNetworkName,
+  subnet2Name
+)
 var availabilitySetName = 'AvSet'
 var imageReference = {
   Ubuntu: {
@@ -70,17 +78,19 @@ var linuxConfiguration = {
   }
 }
 
-resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-06-01' = [for i in range(0, 2): {
-  name: '${availabilitySetName}-${i}'
-  location: location
-  properties: {
-    platformFaultDomainCount: 2
-    platformUpdateDomainCount: 2
+resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-06-01' = [
+  for i in range(0, 2): {
+    name: '${availabilitySetName}-${i}'
+    location: location
+    properties: {
+      platformFaultDomainCount: 2
+      platformUpdateDomainCount: 2
+    }
+    sku: {
+      name: 'Aligned'
+    }
   }
-  sku: {
-    name: 'Aligned'
-  }
-}]
+]
 
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
   name: networkSecurityGroupName
@@ -109,9 +119,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        addressPrefix
-      ]
+      addressPrefixes: [addressPrefix]
     }
     subnets: [
       {
@@ -136,61 +144,69 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   }
 }
 
-resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(0, numberOfInstances): {
-  name: 'nic${i}'
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig1'
-        properties: {
-          privateIPAllocationMethod: 'Dynamic'
-          subnet: {
-            id: (((i % 2) == 0) ? subnet1Ref : subnet2Ref)
-          }
-        }
-      }
-    ]
-  }
-  dependsOn: [
-    virtualNetwork
-  ]
-}]
-
-resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in range(0, numberOfInstances): {
-  name: 'myvm${i}'
-  location: location
-  properties: {
-    availabilitySet: {
-      id: resourceId('Microsoft.Compute/availabilitySets', '${availabilitySetName}-${(i % 2)}')
-    }
-    hardwareProfile: {
-      vmSize: vmSize
-    }
-    osProfile: {
-      computerName: 'vm${i}'
-      adminUsername: adminUsername
-      adminPassword: adminPasswordOrKey
-      linuxConfiguration: ((authenticationType == 'password') ? json('null') : linuxConfiguration)
-//@[64:76) [simplify-json-null (Warning)] Simplify json('null') to null (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-json-null)) |json('null')|
-    }
-    storageProfile: {
-      imageReference: imageReference[OS]
-      osDisk: {
-        createOption: 'FromImage'
-      }
-    }
-    networkProfile: {
-      networkInterfaces: [
+resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [
+  for i in range(0, numberOfInstances): {
+    name: 'nic${i}'
+    location: location
+    properties: {
+      ipConfigurations: [
         {
-          id: resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')
+          name: 'ipconfig1'
+          properties: {
+            privateIPAllocationMethod: 'Dynamic'
+            subnet: {
+              id: (((i % 2) == 0) ? subnet1Ref : subnet2Ref)
+            }
+          }
         }
       ]
     }
+    dependsOn: [virtualNetwork]
   }
-  dependsOn: [
-    resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')
-//@[04:64) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
-    availabilitySet
-  ]
-}]
+]
+
+resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [
+  for i in range(0, numberOfInstances): {
+    name: 'myvm${i}'
+    location: location
+    properties: {
+      availabilitySet: {
+        id: resourceId(
+          'Microsoft.Compute/availabilitySets',
+          '${availabilitySetName}-${(i%2)}'
+        )
+      }
+      hardwareProfile: {
+        vmSize: vmSize
+      }
+      osProfile: {
+        computerName: 'vm${i}'
+        adminUsername: adminUsername
+        adminPassword: adminPasswordOrKey
+        linuxConfiguration: ((authenticationType == 'password')
+          ? json('null')
+//@[12:24) [simplify-json-null (Warning)] Simplify json('null') to null (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-json-null)) |json('null')|
+          : linuxConfiguration)
+      }
+      storageProfile: {
+        imageReference: imageReference[OS]
+        osDisk: {
+          createOption: 'FromImage'
+        }
+      }
+      networkProfile: {
+        networkInterfaces: [
+          {
+            id: resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')
+          }
+        ]
+      }
+    }
+    dependsOn: [
+      resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')
+//@[06:66) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
+      availabilitySet
+    ]
+  }
+]
+

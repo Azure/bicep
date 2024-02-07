@@ -3,3 +3,4 @@ module foo 'ts:fc88314c-e5cf-4a0b-aee1-743b09254997/StacksTestRG34xu72emdafmq/AB
   name: 'foo'
   params: {}
 }
+

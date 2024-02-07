@@ -167,7 +167,7 @@ namespace Bicep.Decompiler
                 return null;
             }
 
-            return new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken(typeString.ToLowerInvariant())));
+            return new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(typeString.ToLowerInvariant()));
         }
 
         private string? TryLookupResource(LanguageExpression expression)
@@ -697,10 +697,7 @@ namespace Bicep.Decompiler
         {
             try
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
+                ArgumentNullException.ThrowIfNull(value);
 
                 if (ExpressionsEngine.IsLanguageExpression(value))
                 {
@@ -859,8 +856,8 @@ namespace Bicep.Decompiler
             List<SyntaxBase> leadingNodes = new();
             return new MetadataDeclarationSyntax(
                 leadingNodes,
-                SyntaxFactory.CreateIdentifierToken("metadata"),
-                SyntaxFactory.CreateIdentifier(value.Name),
+                SyntaxFactory.MetadataKeywordToken,
+                SyntaxFactory.CreateIdentifierWithTrailingSpace(value.Name),
                 SyntaxFactory.AssignmentToken,
                 ParseJToken(value.Value)
                 );
@@ -893,12 +890,12 @@ namespace Bicep.Decompiler
             switch (typeSyntax.Name.IdentifierName)
             {
                 case "securestring":
-                    typeSyntax = new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken("string")));
+                    typeSyntax = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier("string"));
                     decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(LanguageConstants.ParameterSecurePropertyName));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                     break;
                 case "secureobject":
-                    typeSyntax = new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken("object")));
+                    typeSyntax = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier("object"));
                     decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(LanguageConstants.ParameterSecurePropertyName));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                     break;
@@ -921,8 +918,8 @@ namespace Bicep.Decompiler
 
             return new ParameterDeclarationSyntax(
                 leadingNodes,
-                SyntaxFactory.CreateIdentifierToken("param"),
-                SyntaxFactory.CreateIdentifier(identifier),
+                SyntaxFactory.ParameterKeywordToken,
+                SyntaxFactory.CreateIdentifierWithTrailingSpace(identifier),
                 typeSyntax,
                 modifier);
         }
@@ -951,8 +948,8 @@ namespace Bicep.Decompiler
 
             return new VariableDeclarationSyntax(
                 ImmutableArray<SyntaxBase>.Empty,
-                SyntaxFactory.CreateIdentifierToken("var"),
-                SyntaxFactory.CreateIdentifier(identifier),
+                SyntaxFactory.VariableKeywordToken,
+                SyntaxFactory.CreateIdentifierWithTrailingSpace(identifier),
                 SyntaxFactory.AssignmentToken,
                 variableValue);
         }
@@ -1179,7 +1176,7 @@ namespace Bicep.Decompiler
             }
 
             return new IfConditionSyntax(
-                SyntaxFactory.CreateIdentifierToken("if"),
+                SyntaxFactory.IfKeywordToken,
                 conditionExpression,
                 body);
         }
@@ -1356,16 +1353,16 @@ namespace Bicep.Decompiler
 
                 var nestedOptions = this.options with { AllowMissingParamsAndVars = this.options.AllowMissingParamsAndVarsInNestedTemplates };
                 var nestedConverter = new TemplateConverter(workspace, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule, nestedOptions);
-                var nestedBicepFile = SourceFileFactory.CreateBicepFile(nestedModuleUri, nestedConverter.Parse().ToText());
+                var nestedBicepFile = SourceFileFactory.CreateBicepFile(nestedModuleUri, nestedConverter.Parse().ToString());
                 workspace.UpsertSourceFile(nestedBicepFile);
 
                 return new ModuleDeclarationSyntax(
                     decoratorsAndNewLines,
-                    SyntaxFactory.CreateIdentifierToken(LanguageConstants.ModuleKeyword),
-                    SyntaxFactory.CreateIdentifier(identifier),
+                    SyntaxFactory.ModuleKeywordToken,
+                    SyntaxFactory.CreateIdentifierWithTrailingSpace(identifier),
                     SyntaxFactory.CreateStringLiteral(filePath),
                     SyntaxFactory.AssignmentToken,
-                    ImmutableArray<Token>.Empty,
+                    [],
                     nestedValue);
             }
             else
@@ -1399,11 +1396,11 @@ namespace Bicep.Decompiler
                 }
                 var module = new ModuleDeclarationSyntax(
                     decoratorsAndNewLines,
-                    SyntaxFactory.CreateIdentifierToken(LanguageConstants.ModuleKeyword),
-                    SyntaxFactory.CreateIdentifier(identifier),
+                    SyntaxFactory.ModuleKeywordToken,
+                    SyntaxFactory.CreateIdentifierWithTrailingSpace(identifier),
                     modulePath,
                     SyntaxFactory.AssignmentToken,
-                    ImmutableArray<Token>.Empty,
+                    [],
                     value);
 
                 /*
@@ -1524,12 +1521,12 @@ namespace Bicep.Decompiler
 
             return new ResourceDeclarationSyntax(
                 decoratorsAndNewLines,
-                SyntaxFactory.CreateIdentifierToken("resource"),
-                SyntaxFactory.CreateIdentifier(identifier),
+                SyntaxFactory.ResourceKeywordToken,
+                SyntaxFactory.CreateIdentifierWithTrailingSpace(identifier),
                 SyntaxFactory.CreateStringLiteral($"{typeString}@{apiVersionString}"),
                 null,
                 SyntaxFactory.AssignmentToken,
-                ImmutableArray<Token>.Empty,
+                [],
                 value);
         }
 
@@ -1638,8 +1635,8 @@ namespace Bicep.Decompiler
 
             return new OutputDeclarationSyntax(
                 decoratorsAndNewLines,
-                SyntaxFactory.CreateIdentifierToken("output"),
-                SyntaxFactory.CreateIdentifier(identifier),
+                SyntaxFactory.OutputKeywordToken,
+                SyntaxFactory.CreateIdentifierWithTrailingSpace(identifier),
                 typeSyntax,
                 SyntaxFactory.AssignmentToken,
                 valueSyntax);
@@ -1657,17 +1654,17 @@ namespace Bicep.Decompiler
             {
                 case "/schemas/2019-08-01/tenantDeploymentTemplate.json":
                     return new TargetScopeSyntax(
-                        SyntaxFactory.CreateIdentifierToken("targetScope"),
+                        SyntaxFactory.TargetScopeKeywordToken,
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("tenant"));
                 case "/schemas/2019-08-01/managementGroupDeploymentTemplate.json":
                     return new TargetScopeSyntax(
-                        SyntaxFactory.CreateIdentifierToken("targetScope"),
+                        SyntaxFactory.TargetScopeKeywordToken,
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("managementGroup"));
                 case "/schemas/2018-05-01/subscriptionDeploymentTemplate.json":
                     return new TargetScopeSyntax(
-                        SyntaxFactory.CreateIdentifierToken("targetScope"),
+                        SyntaxFactory.TargetScopeKeywordToken,
                         SyntaxFactory.AssignmentToken,
                         SyntaxFactory.CreateStringLiteral("subscription"));
                 case "/schemas/2014-04-01-preview/deploymentTemplate.json":

@@ -7,3 +7,4 @@ module testnested './nested_testnested.bicep' = {
     variables_outer: outer
   }
 }
+
