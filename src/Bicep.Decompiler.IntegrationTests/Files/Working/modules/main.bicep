@@ -10,10 +10,7 @@ var module2Url = '${armBaseUrl}/nested/module2.jsonc'
 var objectVar = {
   val1: 'a${location}b'
 }
-var arrayVar = [
-  'abc'
-  location
-]
+var arrayVar = ['abc', location]
 
 module module1Deploy 'nested/module1.json' = {
   name: 'module1Deploy'
@@ -64,3 +61,4 @@ module moduleWithSub 'nested/module1.json' = {
   params: {}
 //@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "location", "objectParam". (CodeDescription: none) |params|
 }
+

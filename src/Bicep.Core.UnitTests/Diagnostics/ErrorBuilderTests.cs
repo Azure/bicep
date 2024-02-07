@@ -185,7 +185,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             {
                 return new ProviderDeclarationSyntax(
                     Enumerable.Empty<SyntaxBase>(),
-                    SyntaxFactory.CreateIdentifierToken("import"),
+                    SyntaxFactory.ImportKeywordToken,
                     SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
                     withClause: SyntaxFactory.EmptySkippedTrivia,
                     asClause: SyntaxFactory.EmptySkippedTrivia);

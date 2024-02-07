@@ -29,10 +29,11 @@ public class BicepCompiler(
     private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
     private readonly IEnvironment environment = environment;
     private readonly INamespaceProvider namespaceProvider = namespaceProvider;
-    private readonly IConfigurationManager configurationManager = configurationManager;
     private readonly IBicepAnalyzer bicepAnalyzer = bicepAnalyzer;
     private readonly IFileResolver fileResolver = fileResolver;
     private readonly IModuleDispatcher moduleDispatcher = moduleDispatcher;
+
+    public IConfigurationManager ConfigurationManager { get; } = configurationManager;
 
     public Compilation CreateCompilationWithoutRestore(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false)
     {
@@ -86,7 +87,7 @@ public class BicepCompiler(
             environment,
             namespaceProvider,
             sourceFileGrouping,
-            configurationManager,
+            this.ConfigurationManager,
             bicepAnalyzer,
             moduleDispatcher,
             new AuxiliaryFileCache(fileResolver),

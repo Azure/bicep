@@ -13,7 +13,6 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.SourceCode;
-using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands
 {

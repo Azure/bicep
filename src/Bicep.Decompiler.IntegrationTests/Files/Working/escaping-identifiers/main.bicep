@@ -24,3 +24,4 @@ output output6 string = doNotStripUnderscoresFromUserNames_
 output output7 string = _doNotStripUnderscoresFromUserNames_
 output output8 string = concat(_doNotStripUnderscoresFromUserNames__var)
 output _doNotStripUnderscoresFromUserNames_ string = '_doNotStripUnderscoresFromUserNames_'
+

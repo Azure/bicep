@@ -4,7 +4,6 @@
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 

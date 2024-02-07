@@ -16,18 +16,14 @@ resource fooName_baz 'Foo.Rp/bar@2019-06-01' = {
 //@[21:44) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
   name: '${fooName}baz'
   location: location
-  dependsOn: [
-    fooName_bar
-  ]
+  dependsOn: [fooName_bar]
 }
 
 resource fooName_blah 'Foo.Rp/bar@2019-06-01' = {
 //@[22:45) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
   name: '${fooName}blah'
   location: location
-  dependsOn: [
-    fooName_bar
-  ]
+  dependsOn: [fooName_bar]
 }
 
 resource fooName_blah2 'Foo.Rp/bar@2019-06-01' = {
@@ -44,8 +40,7 @@ resource fooName_blah2 'Foo.Rp/bar@2019-06-01' = {
     foobarResIdLocation: reference(fooName_bar.id, '2019-06-01', 'Full').location
 //@[25:72) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-resource-symbol-reference)) |reference(fooName_bar.id, '2019-06-01', 'Full')|
   }
-  dependsOn: [
-    'Foo.Rp/bar${fooName}bar'
-//@[04:29) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "'Foo.Rp/barFoo!bar'". (CodeDescription: none) |'Foo.Rp/bar${fooName}bar'|
-  ]
+  dependsOn: ['Foo.Rp/bar${fooName}bar']
+//@[14:39) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "'Foo.Rp/barFoo!bar'". (CodeDescription: none) |'Foo.Rp/bar${fooName}bar'|
 }
+

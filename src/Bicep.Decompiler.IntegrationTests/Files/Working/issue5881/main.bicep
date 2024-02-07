@@ -8,3 +8,4 @@ var def = {
   '1234': '1234'
   '${guid('blah')}': guid('blah')
 }
+

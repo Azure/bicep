@@ -4,11 +4,10 @@
 using System.Collections.Immutable;
 using Bicep.Core;
 using Bicep.Core.Decompiler.Rewriters;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Navigation;
-using Bicep.Core.PrettyPrint;
-using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -32,7 +31,7 @@ public class BicepDecompiler(BicepCompiler bicepCompiler)
         options ??= new DecompileOptions();
 
         var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, bicepUri, jsonContent, options);
-        var bicepFile = SourceFileFactory.CreateBicepFile(bicepUri, program.ToText());
+        var bicepFile = SourceFileFactory.CreateBicepFile(bicepUri, program.ToString());
         workspace.UpsertSourceFile(bicepFile);
 
         await RewriteSyntax(workspace, bicepUri, semanticModel => new ParentChildResourceNameRewriter(semanticModel));
@@ -51,7 +50,7 @@ public class BicepDecompiler(BicepCompiler bicepCompiler)
 
         return new DecompileResult(
             bicepUri,
-            PrintFiles(workspace));
+            this.PrintFiles(workspace));
     }
     public DecompileResult DecompileParameters(string contents, Uri entryBicepparamUri, Uri? bicepFileUri)
     {
@@ -59,11 +58,11 @@ public class BicepDecompiler(BicepCompiler bicepCompiler)
 
         var program = DecompileParametersFile(contents, entryBicepparamUri, bicepFileUri);
 
-        var bicepparamFile = SourceFileFactory.CreateBicepParamFile(entryBicepparamUri, program.ToText());
+        var bicepparamFile = SourceFileFactory.CreateBicepParamFile(entryBicepparamUri, program.ToString());
 
         workspace.UpsertSourceFile(bicepparamFile);
 
-        return new DecompileResult(entryBicepparamUri, PrintFiles(workspace));
+        return new DecompileResult(entryBicepparamUri, this.PrintFiles(workspace));
     }
 
     private ProgramSyntax DecompileParametersFile(string jsonInput, Uri entryBicepparamUri, Uri? bicepFileUri)
@@ -74,7 +73,7 @@ public class BicepDecompiler(BicepCompiler bicepCompiler)
         var bicepPath = bicepFileUri is { } ? PathHelper.GetRelativePath(entryBicepparamUri, bicepFileUri) : null;
 
         statements.Add(new UsingDeclarationSyntax(
-            SyntaxFactory.CreateIdentifierToken("using"),
+            SyntaxFactory.UsingKeywordToken,
             bicepPath is { } ?
             SyntaxFactory.CreateStringLiteral(bicepPath) :
             SyntaxFactory.CreateStringLiteralWithComment("", "TODO: Provide a path to a bicep template")));
@@ -166,7 +165,7 @@ public class BicepDecompiler(BicepCompiler bicepCompiler)
         return SyntaxFactory.CreateObject(propertySyntaxes);
     }
 
-    private SyntaxBase ParseParameterWithComment(JToken jToken)
+    private static SyntaxBase ParseParameterWithComment(JToken jToken)
     {
         var metadata = jToken.ToString();
         var commentSyntax = SyntaxFactory.CreateEmptySyntaxWithComment(
@@ -180,7 +179,7 @@ Following metadata was not decompiled:
         return commentSyntax;
     }
 
-    public string? DecompileJsonValue(string jsonInput, DecompileOptions? options = null)
+    public static string? DecompileJsonValue(string jsonInput, DecompileOptions? options = null)
     {
         var workspace = new Workspace();
         options ??= new DecompileOptions();
@@ -189,7 +188,11 @@ Following metadata was not decompiled:
         try
         {
             var syntax = TemplateConverter.DecompileJsonValue(workspace, bicepUri, jsonInput, options);
-            return syntax is null ? null : PrintSyntax(syntax);
+
+            // TODO: Add bicepUri to BicepDecompileForPasteCommandParams to get actual formatting options.
+            var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+
+            return syntax is not null ? PrettyPrinterV2.Print(syntax, context) : null;
         }
         catch (Exception)
         {
@@ -197,7 +200,7 @@ Following metadata was not decompiled:
         }
     }
 
-    private static ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)
+    private ImmutableDictionary<Uri, string> PrintFiles(Workspace workspace)
     {
         var filesToSave = new Dictionary<Uri, string>();
         foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
@@ -207,18 +210,13 @@ Following metadata was not decompiled:
                 continue;
             }
 
-            filesToSave[fileUri] = PrettyPrinter.PrintProgram(bicepFile.ProgramSyntax, GetPrettyPrintOptions(), bicepFile.LexingErrorLookup, bicepFile.ParsingErrorLookup);
+            var options = this.bicepCompiler.ConfigurationManager.GetConfiguration(fileUri).Formatting.Data;
+            var context = PrettyPrinterV2Context.Create(options, bicepFile.LexingErrorLookup, bicepFile.ParsingErrorLookup);
+            filesToSave[fileUri] = PrettyPrinterV2.Print(bicepFile.ProgramSyntax, context);
         }
 
         return filesToSave.ToImmutableDictionary();
     }
-
-    private static string PrintSyntax(SyntaxBase syntax)
-    {
-        return PrettyPrinter.PrintValidSyntax(syntax, GetPrettyPrintOptions());
-    }
-
-    private static PrettyPrintOptions GetPrettyPrintOptions() => new(NewlineOption.LF, IndentKindOption.Space, 2, false);
 
     private async Task<bool> RewriteSyntax(Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
     {
@@ -234,7 +232,7 @@ Following metadata was not decompiled:
             if (!object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))
             {
                 hasChanges = true;
-                var newFile = SourceFileFactory.CreateBicepFile(bicepFile.FileUri, newProgramSyntax.ToText());
+                var newFile = SourceFileFactory.CreateBicepFile(bicepFile.FileUri, newProgramSyntax.ToString());
                 workspace.UpsertSourceFile(newFile);
 
                 compilation = await bicepCompiler.CreateCompilation(entryUri, workspace, skipRestore: true);

@@ -5,7 +5,6 @@ using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Templates.Extensions;
 using Bicep.Core;
 using Bicep.Core.Emit;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;

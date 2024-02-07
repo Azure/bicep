@@ -50,21 +50,21 @@ namespace Bicep.Cli.IntegrationTests
   }
 }";
             var expectedOutput =
-@"using '' /*TODO: Provide a path to a bicep template*/
+                """
+                using '' /*TODO: Provide a path to a bicep template*/
 
-param first = 'test'
+                param first = 'test'
 
-param second = 1
+                param second = 1
 
-param third = [
-  1
-  'foo'
-]
+                param third = [1, 'foo']
 
-param fourth = {
-  firstKey: 'bar'
-  secondKey: 1
-}";
+                param fourth = {
+                  firstKey: 'bar'
+                  secondKey: 1
+                }
+
+                """;
 
             var (jsonPath, bicepparamPath) = Setup(TestContext, paramFile);
 
@@ -83,19 +83,24 @@ param fourth = {
         public async Task Decompile_ValidParamFileWithBicepPath_ShouldSucceed()
         {
             var paramFile =
-  @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""foo"": {
-      ""value"": ""bar""
-    }
-  }
-}";
+              """
+              {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "foo": {
+                    "value": "bar"
+                  }
+                }
+              }
+              """;
             var expectedOutput =
-@"using 'dir/main.bicep'
+                """
+                using 'dir/main.bicep'
 
-param foo = 'bar'";
+                param foo = 'bar'
+
+                """;
 
             var (jsonPath, bicepparamPath) = Setup(TestContext, paramFile);
             var bicepPath = PathHelper.ResolvePath("./dir/main.bicep", Path.GetDirectoryName(jsonPath));
@@ -115,19 +120,24 @@ param foo = 'bar'";
         public async Task Decompile_ValidParamFileWithStdOut_ShouldSucceed()
         {
             var paramFile =
-  @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""foo"": {
-      ""value"": ""bar""
-    }
-  }
-}";
+                """
+                {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "foo": {
+                    "value": "bar"
+                  }
+                }
+                }
+                """;
             var expectedOutput =
-@"using '' /*TODO: Provide a path to a bicep template*/
+                """
+                using '' /*TODO: Provide a path to a bicep template*/
 
-param foo = 'bar'";
+                param foo = 'bar'
+
+                """;
 
             var (jsonPath, bicepparamPath) = Setup(TestContext, paramFile);
 

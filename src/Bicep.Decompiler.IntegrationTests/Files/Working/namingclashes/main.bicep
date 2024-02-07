@@ -33,3 +33,4 @@ output name1 string = name1_resource.properties.val1
 //@[48:52) [BCP053 (Warning)] The type "ResourceGroupProperties" does not contain property "val1". Available properties include "provisioningState". (CodeDescription: none) |val1|
 output Name2 string = naME2_resource.properties.val2
 //@[48:52) [BCP053 (Warning)] The type "ResourceGroupProperties" does not contain property "val2". Available properties include "provisioningState". (CodeDescription: none) |val2|
+

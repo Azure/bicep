@@ -35,19 +35,24 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public async Task HandleDecompileParams_WithValidParamsFile_ShouldSucceed()
         {
             var paramFile =
-  @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""foo"": {
-      ""value"": ""bar""
-    }
-  }
-}";
+                """
+                {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "foo": {
+                    "value": "bar"
+                  }
+                }
+                }
+                """;
             var expectedOutput =
-@"using 'main.bicep'
+                """
+                using 'main.bicep'
 
-param foo = 'bar'";
+                param foo = 'bar'
+
+                """;
 
             var paramFilePath = FileHelper.SaveResultFile(TestContext, "param.json", paramFile);
             var bicepPath = PathHelper.ResolvePath("./main.bicep", Path.GetDirectoryName(paramFilePath));

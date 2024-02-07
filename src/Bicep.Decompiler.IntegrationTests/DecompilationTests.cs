@@ -146,7 +146,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("equals(toLower(variables('a')),toLower(variables('b')))", "boolean", "(a =~ b)")]
         [DataRow("not(equals(variables('a'),variables('b')))", "boolean", "(a != b)")]
         [DataRow("not(equals(toLower(variables('a')),toLower(variables('b'))))", "boolean", "(a !~ b)")]
-        [DataRow("createArray(1, 2, 3)", "array", "[\n  1\n  2\n  3\n]")]
+        [DataRow("createArray(1, 2, 3)", "array", "[1, 2, 3]")]
         [DataRow("createObject('key', 'value')", "object", "{\n  key: 'value'\n}")]
         [DataRow("tryGet(parameters('z'), 'y')", "int", "(z.?y)")]
         [DataRow("tryGet(parameters('z'), 'y', 'x', 'w')", "int", "(z.?y.x.w)")]
@@ -185,50 +185,52 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task Decompiler_should_partially_handle_user_defined_functions_with_placeholders()
         {
-            const string template = @"{
- ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
- ""contentVersion"": ""1.0.0.0"",
- ""parameters"": {
-   ""storageNamePrefix"": {
-     ""type"": ""string"",
-     ""maxLength"": 11
-   }
- },
- ""functions"": [
-  {
-    ""namespace"": ""contoso"",
-    ""members"": {
-      ""uniqueName"": {
-        ""parameters"": [
-          {
-            ""name"": ""namePrefix"",
-            ""type"": ""string""
-          }
-        ],
-        ""output"": {
-          ""type"": ""string"",
-          ""value"": ""[concat(toLower(parameters('namePrefix')), uniqueString(resourceGroup().id))]""
-        }
-      }
-    }
-  }
-],
- ""resources"": [
-   {
-     ""type"": ""Microsoft.Storage/storageAccounts"",
-     ""apiVersion"": ""2019-04-01"",
-     ""name"": ""[contoso.uniqueName(parameters('storageNamePrefix'))]"",
-     ""location"": ""South Central US"",
-     ""sku"": {
-       ""name"": ""Standard_LRS""
-     },
-     ""kind"": ""StorageV2"",
-     ""properties"": {
-       ""supportsHttpsTrafficOnly"": true
-     }
-   }
- ]
-}";
+            const string template = """
+                {
+                 "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                 "contentVersion": "1.0.0.0",
+                 "parameters": {
+                   "storageNamePrefix": {
+                     "type": "string",
+                     "maxLength": 11
+                   }
+                 },
+                 "functions": [
+                  {
+                    "namespace": "contoso",
+                    "members": {
+                      "uniqueName": {
+                        "parameters": [
+                          {
+                            "name": "namePrefix",
+                            "type": "string"
+                          }
+                        ],
+                        "output": {
+                          "type": "string",
+                          "value": "[concat(toLower(parameters('namePrefix')), uniqueString(resourceGroup().id))]"
+                        }
+                      }
+                    }
+                  }
+                ],
+                 "resources": [
+                   {
+                     "type": "Microsoft.Storage/storageAccounts",
+                     "apiVersion": "2019-04-01",
+                     "name": "[contoso.uniqueName(parameters('storageNamePrefix'))]",
+                     "location": "South Central US",
+                     "sku": {
+                       "name": "Standard_LRS"
+                     },
+                     "kind": "StorageV2",
+                     "properties": {
+                       "supportsHttpsTrafficOnly": true
+                     }
+                   }
+                 ]
+                }
+                """;
 
             var fileUri = new Uri("file:///path/to/main.json");
 

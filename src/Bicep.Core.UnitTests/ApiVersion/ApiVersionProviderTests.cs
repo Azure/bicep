@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.ApiVersions;
-using Bicep.Core.Configuration;
-using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Mock;

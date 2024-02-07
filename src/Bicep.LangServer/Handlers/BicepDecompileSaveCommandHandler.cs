@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Text;
-using Bicep.Decompiler;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
 using OmniSharp.Extensions.JsonRpc;

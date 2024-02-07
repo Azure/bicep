@@ -11,7 +11,6 @@ using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.PrettyPrintV2;
-using Microsoft.Extensions.Logging;
 
 namespace Bicep.Cli.Commands;
 

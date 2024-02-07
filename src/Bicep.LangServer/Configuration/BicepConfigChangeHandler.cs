@@ -3,7 +3,6 @@
 
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol;
