@@ -21,6 +21,20 @@ namespace Bicep.Core.Configuration
             return config;
         }
 
+        public static RootConfiguration WithAnalyzers(this RootConfiguration analyzersConfiguration, AnalyzersConfiguration anayzersConfiguration)
+        {
+            return new RootConfiguration(
+                analyzersConfiguration.Cloud,
+                analyzersConfiguration.ModuleAliases,
+                analyzersConfiguration.ProviderAliases,
+                anayzersConfiguration,
+                analyzersConfiguration.CacheRootDirectory,
+                analyzersConfiguration.ExperimentalFeaturesEnabled,
+                analyzersConfiguration.Formatting,
+                analyzersConfiguration.ConfigFileUri,
+                analyzersConfiguration.DiagnosticBuilders);
+        }
+
         public static RootConfiguration WithAllAnalyzersDisabled(this RootConfiguration analyzersConfiguration)
         {
             return new RootConfiguration(

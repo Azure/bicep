@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
@@ -5624,5 +5625,55 @@ param foo {
             ("BCP308", DiagnosticLevel.Error, """The decorator "secure" may not be used on statements whose declared type is a reference to a user-defined type."""),
             ("BCP308", DiagnosticLevel.Error, """The decorator "secure" may not be used on statements whose declared type is a reference to a user-defined type."""),
         });
+    }
+
+    // https://github.com/Azure/bicep/issues/12347
+    [TestMethod]
+    public void Test_Issue12347()
+    {
+        var result = CompilationHelper.Compile(
+            Services
+                .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
+                .WithConfigurationPatch(x => x.WithAnalyzers(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
+            ("main.bicep", """
+                provider 'kubernetes@1.0.0' with {
+                  kubeConfig: 'config'
+                  namespace: ''
+                } as k8s
+
+                resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
+                  name: 'name'
+                  location: 'westus'
+                  identity: {
+                    type: 'SystemAssigned'
+                  }
+                  properties: {
+                    kubernetesVersion: '1.19.7'
+                    dnsPrefix: 'dnsprefix'
+                    enableRBAC: true
+                    agentPoolProfiles: [
+                      {
+                        name: 'agentpool'
+                        count: 3
+                        vmSize: 'Standard_DS2_v2'
+                        osType: 'Linux'
+                        mode: 'System'
+                      }
+                    ]
+                    linuxProfile: {
+                      adminUsername: 'adminUserName'
+                      ssh: {
+                        publicKeys: [
+                          {
+                            keyData: 'REQUIRED'
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 }
