@@ -61,9 +61,10 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
+        [TestMethod]
         public void ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsExternal()
         {
-
+            throw new NotImplementedException();
         }
     }
 }
