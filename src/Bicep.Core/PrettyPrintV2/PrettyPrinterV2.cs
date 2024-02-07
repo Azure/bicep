@@ -55,7 +55,7 @@ namespace Bicep.Core.PrettyPrintV2
                 }
             }
 
-            if (context.Options.InsertFinalNewline)
+            if (syntaxToPrint is ProgramSyntax && context.Options.InsertFinalNewline)
             {
                 writer.Write(context.Newline);
             }
