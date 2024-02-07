@@ -46,6 +46,13 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static string AddDiagsToSourceText<T>(string bicepOutput, string newlineSequence, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc, bool isLinePreformatted = false)
         {
+            if (bicepOutput.Equals("\r", StringComparison.Ordinal) ||
+                bicepOutput.Equals("\n", StringComparison.Ordinal) ||
+                bicepOutput.Equals("\r\n", StringComparison.Ordinal))
+            {
+                return bicepOutput;
+            }
+
             var lineStarts = TextCoordinateConverter.GetLineStarts(bicepOutput);
 
             var diagsByLine = items
