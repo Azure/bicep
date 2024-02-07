@@ -209,6 +209,7 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
+
                 if (!uriResult.IsSuccess(out var artifactUri))
                 {
                     continue;

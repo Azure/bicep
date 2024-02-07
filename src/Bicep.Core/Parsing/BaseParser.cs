@@ -1357,11 +1357,10 @@ namespace Bicep.Core.Parsing
                 skippedSpan = TextSpan.SafeBetween(skippedTokens, startToken.Span.Position);
             }
 
-            var errors = flags.HasFlag(RecoveryFlags.SuppressDiagnostics)
-                ? ImmutableArray<ErrorDiagnostic>.Empty
-                : [errorFunc(DiagnosticBuilder.ForPosition(errorSpan))];
-
-            return new SkippedTriviaSyntax(skippedSpan, skippedTokens, errors);
+            return new SkippedTriviaSyntax(
+                skippedSpan,
+                skippedTokens,
+                flags.HasFlag(RecoveryFlags.SuppressDiagnostics) ? [] : [errorFunc(DiagnosticBuilder.ForPosition(errorSpan))]);
         }
 
         protected SyntaxBase ThrowIfSkipped(Func<SyntaxBase> syntaxFunc, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
