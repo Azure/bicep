@@ -47,7 +47,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
                 InsertTextFormat = InsertTextFormat.Plaintext
             };
 
-            handleSnippetCompletionsMiddleLayer.GetUpdatedCompletionItem(completionItem).Should().Be(completionItem);
+            handleSnippetCompletionsMiddleLayer.GetUpdatedCompletionItem(completionItem).Should().Be("asdfg");
         }
 
         [TestMethod]
@@ -58,7 +58,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
             var resourceText = "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\r\n  name: $5\r\n  $0\r\n}";
             var completionItem = new CompletionItem
             {
-                Label = "resource",
+                Label = "resourceasdfg",
                 InsertTextFormat = InsertTextFormat.Snippet,
                 TextEdit = new TextEdit()
                 {
@@ -102,7 +102,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
 
             var result = handleSnippetCompletionsMiddleLayer.GetUpdatedCompletionItem(completionItem);
             var textEdit = result.TextEdit;
-            textEdit.Should().NotBeNull();
+            textEdit.Should().BeNull();
 
             var expectedInsertText = @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {
   name: ${5:'test1'}
