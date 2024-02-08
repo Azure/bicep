@@ -11,6 +11,11 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 dotnet restore --force-evaluate
+
+pushd src/vs-bicep
+dotnet restore --force-evaluate
+popd
+
 git commit -a -m "Fix dotnet lockfiles"
 git push
 
