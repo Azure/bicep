@@ -697,9 +697,8 @@
       "description": "The directory in which Bicep may cache templates downloaded from remote registries"
     },
     "experimentalFeaturesEnabled": {
-      "_comment": "Documentation for these features can be found at https://aka.ms/bicep/experimental-features",
       "type": "object",
-      "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file",
+      "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file. See https://aka.ms/bicep/experimental-features for more information.",
       "properties": {
         "microsoftGraphPreview": {
           "type": "boolean"

@@ -17,3 +17,4 @@ resource storageNamePrefix_resource 'Microsoft.Storage/storageAccounts@2019-04-0
     supportsHttpsTrafficOnly: true
   }
 }
+

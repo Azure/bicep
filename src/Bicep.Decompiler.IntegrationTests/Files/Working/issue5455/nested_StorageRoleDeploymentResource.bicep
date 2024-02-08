@@ -20,12 +20,14 @@ resource defaultDataLakeStorageAccountName_Microsoft_Authorization_id_variables_
   }
 }
 
-resource defaultDataLakeStorageAccountName_Microsoft_Authorization_id_variables_storageBlobDataContributorRoleID_userObjectId_storageRoleUniqueId 'Microsoft.Storage/storageAccounts/providers/roleAssignments@2018-09-01-preview' = if (setSbdcRbacOnStorageAccount) {
+resource defaultDataLakeStorageAccountName_Microsoft_Authorization_id_variables_storageBlobDataContributorRoleID_userObjectId_storageRoleUniqueId 'Microsoft.Storage/storageAccounts/providers/roleAssignments@2018-09-01-preview' =
 //@[146:226) [BCP174 (Warning)] Type validation is not available for resource types declared containing a "/providers/" segment. Please instead use the "scope" property. (CodeDescription: bicep(https://aka.ms/BicepScopes)) |'Microsoft.Storage/storageAccounts/providers/roleAssignments@2018-09-01-preview'|
-  name: '${defaultDataLakeStorageAccountName}/Microsoft.Authorization/${guid('${resourceGroup().id}/${variables_storageBlobDataContributorRoleID}/${userObjectId}/${storageRoleUniqueId}')}'
-  properties: {
-    roleDefinitionId: resourceId_Microsoft_Authorization_roleDefinitions_variables_storageBlobDataContributorRoleID
-    principalId: userObjectId
-    principalType: 'User'
+  if (setSbdcRbacOnStorageAccount) {
+    name: '${defaultDataLakeStorageAccountName}/Microsoft.Authorization/${guid('${resourceGroup().id}/${variables_storageBlobDataContributorRoleID}/${userObjectId}/${storageRoleUniqueId}')}'
+    properties: {
+      roleDefinitionId: resourceId_Microsoft_Authorization_roleDefinitions_variables_storageBlobDataContributorRoleID
+      principalId: userObjectId
+      principalType: 'User'
+    }
   }
-}
+

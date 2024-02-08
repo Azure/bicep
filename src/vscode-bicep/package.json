@@ -753,7 +753,7 @@
     "@types/node": "^20.11.10",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
-    "@types/react-test-renderer": "^18.0.5",
+    "@types/react-test-renderer": "^18.0.7",
     "@types/semver": "^7.5.6",
     "@types/triple-beam": "^1.3.5",
     "@types/vscode": "^1.82.0",
@@ -782,7 +782,7 @@
     "prettier": "^3.1.1",
     "react-test-renderer": "^18.2.0",
     "rimraf": "^5.0.5",
-    "semver": "^7.5.2",
+    "semver": "^7.6.0",
     "style-loader": "^3.3.4",
     "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "5.3.10",
@@ -813,7 +813,7 @@
     "vscode-languageclient": "^9.0.1",
     "vscode-nls": "^5.2.0",
     "winston": "^3.11.0",
-    "winston-transport": "^4.6.0"
+    "winston-transport": "^4.7.0"
   },
   "extensionDependencies": [
     "ms-dotnettools.vscode-dotnet-runtime"

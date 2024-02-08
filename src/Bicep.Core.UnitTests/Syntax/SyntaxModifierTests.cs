@@ -34,7 +34,7 @@ public class SyntaxModifierTests
 
         var rewrittenProgram = rewriteFunc(program, nodes, parsingErrorLookup);
 
-        return rewrittenProgram.ToTextPreserveFormatting();
+        return rewrittenProgram.ToString();
     }
 
     [DataTestMethod]

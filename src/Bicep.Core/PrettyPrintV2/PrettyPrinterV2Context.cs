@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.PrettyPrintV2
@@ -13,17 +13,14 @@ namespace Bicep.Core.PrettyPrintV2
 
         private readonly IDiagnosticLookup parsingErrorLookup;
 
-        private PrettyPrinterV2Context(SyntaxBase syntaxToPrint, PrettyPrinterV2Options options, string indent, string newline, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
+        private PrettyPrinterV2Context(PrettyPrinterV2Options options, string indent, string newline, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
-            this.SyntaxToPrint = syntaxToPrint;
             this.Options = options;
             this.Indent = indent;
             this.Newline = newline;
             this.lexingErrorLookup = lexingErrorLookup;
             this.parsingErrorLookup = parsingErrorLookup;
         }
-
-        public SyntaxBase SyntaxToPrint { get; }
 
         public PrettyPrinterV2Options Options { get; }
 
@@ -35,53 +32,17 @@ namespace Bicep.Core.PrettyPrintV2
 
         public bool InsertFinalNewline => this.Options.InsertFinalNewline;
 
-        public static PrettyPrinterV2Context Create(SyntaxBase syntaxToPrint, PrettyPrinterV2Options options, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
+        public static PrettyPrinterV2Context From(SemanticModel semanticModel) =>
+            Create(semanticModel.Configuration.Formatting.Data, semanticModel.LexingErrorLookup, semanticModel.ParsingErrorLookup);
+
+        public static PrettyPrinterV2Context Create(PrettyPrinterV2Options options, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
             var indent = options.IndentKind == IndentKind.Space ? new string(' ', options.IndentSize) : "\t";
-            var newline = options.NewlineKind switch
-            {
-                NewlineKind.CR => "\r",
-                NewlineKind.LF => "\n",
-                NewlineKind.CRLF => "\r\n",
-                NewlineKind.Auto => NewlineFinder.TryFindNewline(syntaxToPrint) ?? "\r",
-                _ => throw new NotImplementedException(),
-            };
+            var newline = options.NewlineKind.ToEscapeSequence();
 
-            return new(syntaxToPrint, options, indent, newline, lexingErrorLookup, parsingErrorLookup);
+            return new(options, indent, newline, lexingErrorLookup, parsingErrorLookup);
         }
 
         public bool HasSyntaxError(SyntaxBase syntax) => this.lexingErrorLookup.Contains(syntax) || this.parsingErrorLookup.Contains(syntax);
-
-        private class NewlineFinder : CstVisitor
-        {
-            public string? newline;
-
-            public static string? TryFindNewline(SyntaxBase syntax)
-            {
-                var finder = new NewlineFinder();
-
-                finder.Visit(syntax);
-
-                return finder.newline;
-            }
-
-            public override void VisitToken(Token token)
-            {
-                if (token.IsOf(TokenType.NewLine))
-                {
-                    this.newline = StringUtils.MatchNewline(token.Text);
-                }
-            }
-
-            protected override void VisitInternal(SyntaxBase node)
-            {
-                if (this.newline is not null)
-                {
-                    return;
-                }
-
-                base.VisitInternal(node);
-            }
-        }
     }
 }

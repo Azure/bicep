@@ -47,7 +47,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         private static string[] GetProgramTextLines(BicepSourceFile bicepFile)
         {
-            var programText = bicepFile.ProgramSyntax.ToTextPreserveFormatting();
+            var programText = bicepFile.ProgramSyntax.ToString();
 
             return StringUtils.ReplaceNewlines(programText, "\n").Split("\n");
         }

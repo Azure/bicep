@@ -41,3 +41,4 @@ resource fooName_bar_childPrefix 'Foo.Rp/bar/child1@2019-06-01' = {
     foo: 'bar'
   }
 }
+

@@ -99,7 +99,7 @@ namespace Bicep.Core.IntegrationTests
             var program = ParserHelper.Parse(contents);
             program.Should().BeOfType<ProgramSyntax>();
 
-            program.ToTextPreserveFormatting().Should().Be(contents);
+            program.ToString().Should().Be(contents);
         }
 
         private static void RunSpanConsistencyTest(string text)

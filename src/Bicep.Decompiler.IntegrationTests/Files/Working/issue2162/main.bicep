@@ -7,3 +7,4 @@ resource foo 'Microsoft.Storage/storageAccounts@2021-01-01' = {
     name: 'Standard_RAGRS'
   }
 }
+

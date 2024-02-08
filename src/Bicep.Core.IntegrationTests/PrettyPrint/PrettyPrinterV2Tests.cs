@@ -85,9 +85,9 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
                 ? ParserHelper.ParamsParse(programText, out var lexingErrorLookup, out var parsingErrorLookup)
                 : ParserHelper.Parse(programText, out lexingErrorLookup, out parsingErrorLookup);
 
-            var context = PrettyPrinterV2Context.Create(program, options, lexingErrorLookup, parsingErrorLookup);
+            var context = PrettyPrinterV2Context.Create(options, lexingErrorLookup, parsingErrorLookup);
 
-            return PrettyPrinterV2.Print(context);
+            return PrettyPrinterV2.Print(program, context);
         }
 
         private static IEnumerable<object[]> GetData() => DataSets.AllDataSets

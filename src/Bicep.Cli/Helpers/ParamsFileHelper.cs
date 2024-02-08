@@ -3,7 +3,6 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
-using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Rewriters;
 using Bicep.Core.Workspaces;
@@ -86,6 +85,6 @@ public static class ParamsFileHelper
             return sourceFile;
         }
 
-        return SourceFileFactory.CreateBicepParamFile(sourceFile.FileUri, newProgramSyntax.ToText());
+        return SourceFileFactory.CreateBicepParamFile(sourceFile.FileUri, newProgramSyntax.ToString());
     }
 }

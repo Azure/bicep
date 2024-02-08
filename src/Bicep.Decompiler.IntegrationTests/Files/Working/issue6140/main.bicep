@@ -18,3 +18,4 @@ resource someworkspacename 'microsoft.operationalinsights/workspaces@2021-06-01'
     publicNetworkAccessForQuery: 'Enabled'
   }
 }
+

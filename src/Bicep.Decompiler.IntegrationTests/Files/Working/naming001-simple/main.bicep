@@ -30,3 +30,4 @@ resource virtualMachine3 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   name: virtualMachineName3
   location: location
 }
+

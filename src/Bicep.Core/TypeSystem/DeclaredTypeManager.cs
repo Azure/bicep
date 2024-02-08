@@ -10,7 +10,6 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.Intermediate;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -32,7 +31,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IFeatureProvider features;
         private readonly ResourceDerivedTypeResolver resourceDerivedTypeResolver;
 
-        public DeclaredTypeManager(TypeManager typeManager, IBinder binder, IFeatureProvider features)
+        public DeclaredTypeManager(ITypeManager typeManager, IBinder binder, IFeatureProvider features)
         {
             this.typeManager = typeManager;
             this.binder = binder;
@@ -489,7 +488,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetTypeReferenceForResourceType(ResourceTypeSyntax syntax)
         {
-            if (!features.ResourceTypedParamsAndOutputsEnabled)
+            if (!this.features.ResourceTypedParamsAndOutputsEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Span).ParamOrOutputResourceTypeUnsupported());
             }
@@ -505,7 +504,7 @@ namespace Bicep.Core.TypeSystem
             return type;
         }
 
-        private bool IsExtensibilityType(ResourceType resourceType)
+        private static bool IsExtensibilityType(ResourceType resourceType)
         {
             return resourceType.DeclaringNamespace.ProviderName != AzNamespaceType.BuiltInName;
         }
@@ -582,13 +581,13 @@ namespace Bicep.Core.TypeSystem
             return signifiedType;
         });
 
-        private TypeSymbol GetArrayTypeType(ArrayTypeSyntax syntax)
+        private TypedArrayType GetArrayTypeType(ArrayTypeSyntax syntax)
         {
             var memberType = GetTypeFromTypeSyntax(syntax.Item, allowNamespaceReferences: false);
             var flags = TypeSymbolValidationFlags.Default;
 
             return memberType is DeferredTypeReference
-                ? new TypedArrayType(syntax.ToText(), memberType, flags)
+                ? new TypedArrayType(syntax.ToString(), memberType, flags)
                 : new TypedArrayType(memberType, flags);
         }
 
@@ -655,11 +654,11 @@ namespace Bicep.Core.TypeSystem
             return new ObjectType(nameBuilder.ToString(), default, properties, additionalPropertiesType, additionalPropertiesFlags);
         }
 
-        private string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
+        private static string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
         {
             if (propertyType is DeferredTypeReference)
             {
-                return typeSyntax.ToText();
+                return typeSyntax.ToString().Trim(' ');
             }
 
             return propertyType.Type.Name;

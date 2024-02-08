@@ -10,7 +10,5 @@ namespace Bicep.Core.PrettyPrintV2
         CRLF,
 
         CR,
-
-        Auto,
     }
 }

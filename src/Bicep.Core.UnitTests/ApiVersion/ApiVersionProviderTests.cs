@@ -26,7 +26,7 @@ namespace Bicep.Core.UnitTests.ApiVersions
             var apiVersionProvider = CreateDefaultApiVersionProvider();
             apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
 
-            string[] actual = apiVersionProvider.GetApiVersions(ResourceScope.ResourceGroup, fullyQualifiedName).Select(v => v.Formatted).ToArray();
+            string[] actual = apiVersionProvider.GetApiVersions(ResourceScope.ResourceGroup, fullyQualifiedName).Select(v => v.ToString()).ToArray();
 
             actual.Should().BeEquivalentTo(expected);
         }
