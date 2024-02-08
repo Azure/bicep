@@ -29,7 +29,6 @@ namespace Bicep.Core.UnitTests.Configuration
 
         // TODO: Remove these when they're fixed
         private readonly string[] GrandfatheredFeaturesNeedingHelpOrDescription = {
-                "dynamicTypeLoading",
                 "microsoftGraphPreview",
                 "providerRegistry",
             };
@@ -233,7 +232,7 @@ namespace Bicep.Core.UnitTests.Configuration
             foreach (var (featureName, featureValue) in experimentalFeatures)
             {
                 /* Example:
-                 
+
                     "publishSource": {
                         "type": "boolean",
                         "description": "Enables publishing source code with modules using the bicep publish `--with-source` option. See https://aka.ms/bicep/experimental-features#publishsource"
@@ -289,7 +288,7 @@ namespace Bicep.Core.UnitTests.Configuration
             foreach (var (featureName, featureValue) in experimentalFeatures)
             {
                 /* Example:
-                 
+
                     "publishSource": {
                         "type": "boolean",
                         "description": "Enables publishing source code with modules using the bicep publish `--with-source` option. See https://aka.ms/bicep/experimental-features#publishsource"
