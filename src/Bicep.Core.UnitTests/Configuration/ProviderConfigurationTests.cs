@@ -50,8 +50,8 @@ public class ProvidersConfigurationTests
         providers.TryGetProviderSource("unspecified").IsSuccess(out var provider, out var errorBuilder).Should().BeFalse();
         provider.Should().BeNull();
         errorBuilder!.Should().NotBeNull();
-        errorBuilder!.Should().HaveCode("BCP394");
-        errorBuilder!.Should().HaveMessage(@$"The provider ""unspecified"" could not be found in Bicep configuration ""{fakeBicepConfigUri.LocalPath}"".");
+        errorBuilder!.Should().HaveCode("BCP204");
+        errorBuilder!.Should().HaveMessage($"Provider namespace \"unspecified\" is not recognized.");
     }
 
     [TestMethod]
@@ -141,7 +141,7 @@ public class ProvidersConfigurationTests
         providers.TryGetProviderSource("sys").IsSuccess(out var provider, out var errorBuilder).Should().BeFalse();
         provider.Should().BeNull();
         errorBuilder!.Should().NotBeNull();
-        errorBuilder!.Should().HaveCode("BCP394");
-        errorBuilder!.Should().HaveMessage(@$"The provider ""sys"" could not be found in Bicep configuration ""{testFilePath}"".");
+        errorBuilder!.Should().HaveCode("BCP204");
+        errorBuilder!.Should().HaveMessage($"Provider namespace \"sys\" is not recognized.");
     }
 }

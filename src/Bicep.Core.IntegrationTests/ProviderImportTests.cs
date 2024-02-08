@@ -94,7 +94,7 @@ provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
 provider
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP201", DiagnosticLevel.Error, "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location."),
+                ("BCP394", DiagnosticLevel.Error, "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location."),
             });
 
             result = await CompilationHelper.RestoreAndCompile(services, @"

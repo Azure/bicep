@@ -9,41 +9,51 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Configuration
 {
-    public class RootConfiguration(
-        CloudConfiguration cloud,
-        ModuleAliasesConfiguration moduleAliases,
-        ProviderAliasesConfiguration providerAliases,
-        ProvidersConfiguration providersConfig,
-        ImplicitProvidersConfiguration implicitProvidersConfig,
-        AnalyzersConfiguration analyzers,
-        string? cacheRootDirectory,
-        ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
-        FormattingConfiguration formatting,
-        Uri? configFileUri,
-        IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
+    public class RootConfiguration
     {
         public const string CloudKey = "cloud";
+
         public const string ModuleAliasesKey = "moduleAliases";
+
         public const string ProviderAliasesKey = "providerAliases";
+
         public const string ProvidersConfigurationKey = "providers";
+
         public const string ImplicitProvidersConfigurationKey = "implicitProviders";
+
         public const string AnalyzersKey = "analyzers";
+
         public const string CacheRootDirectoryKey = "cacheRootDirectory";
+
         public const string ExperimentalFeaturesEnabledKey = "experimentalFeaturesEnabled";
+
         public const string FormattingKey = "formatting";
 
-         public CloudConfiguration Cloud { get; } = cloud;
-        public ModuleAliasesConfiguration ModuleAliases { get; } = moduleAliases;
-        public ProviderAliasesConfiguration ProviderAliases { get; } = providerAliases;
-        public ProvidersConfiguration ProvidersConfig { get; } = providersConfig;
-        public ImplicitProvidersConfiguration ImplicitProvidersConfig { get; } = implicitProvidersConfig;
-        public AnalyzersConfiguration Analyzers { get; } = analyzers;
-        public string? CacheRootDirectory { get; } = ExpandCacheRootDirectory(cacheRootDirectory);
-        public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; } = experimentalFeaturesEnabled;
-        public FormattingConfiguration Formatting { get; } = formatting;
-        public Uri? ConfigFileUri { get; } = configFileUri;
-        public ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate> DiagnosticBuilders { get; } = diagnosticBuilders?.ToImmutableArray() ?? [];
-        public bool IsBuiltIn => ConfigFileUri is null;
+        public RootConfiguration(
+            CloudConfiguration cloud,
+            ModuleAliasesConfiguration moduleAliases,
+            ProviderAliasesConfiguration providerAliases,
+            ProvidersConfiguration providersConfig,
+            ImplicitProvidersConfiguration implicitProvidersConfig,
+            AnalyzersConfiguration analyzers,
+            string? cacheRootDirectory,
+            ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
+            FormattingConfiguration formatting,
+            Uri? configFileUri,
+            IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
+        {
+            this.Cloud = cloud;
+            this.ModuleAliases = moduleAliases;
+            this.ProviderAliases = providerAliases;
+            this.ProvidersConfig = providersConfig;
+            this.ImplicitProvidersConfig = implicitProvidersConfig;
+            this.Analyzers = analyzers;
+            this.CacheRootDirectory = ExpandCacheRootDirectory(cacheRootDirectory);
+            this.ExperimentalFeaturesEnabled = experimentalFeaturesEnabled;
+            this.Formatting = formatting;
+            this.ConfigFileUri = configFileUri;
+            this.DiagnosticBuilders = diagnosticBuilders?.ToImmutableArray() ?? [];
+        }
 
         public static RootConfiguration Bind(JsonElement element, Uri? configFileUri = null, IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders = null)
         {
@@ -57,19 +67,32 @@ namespace Bicep.Core.Configuration
             var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey));
             var formatting = FormattingConfiguration.Bind(element.GetProperty(FormattingKey));
 
-            return new(
-                cloud,
-                moduleAliases,
-                providerAliases,
-                providersConfig,
-                implicitProvidersConfig,
-                analyzers,
-                cacheRootDirectory,
-                experimentalFeaturesEnabled,
-                formatting,
-                configFileUri,
-                diagnosticBuilders);
+            return new(cloud, moduleAliases, providerAliases, providersConfig, implicitProvidersConfig, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, formatting, configFileUri, diagnosticBuilders);
         }
+
+        public CloudConfiguration Cloud { get; }
+
+        public ModuleAliasesConfiguration ModuleAliases { get; }
+        
+        public ProviderAliasesConfiguration ProviderAliases { get; }
+        
+        public ProvidersConfiguration ProvidersConfig { get; }
+        
+        public ImplicitProvidersConfiguration ImplicitProvidersConfig { get; }
+        
+        public AnalyzersConfiguration Analyzers { get; }
+
+        public string? CacheRootDirectory { get; }
+
+        public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; }
+
+        public FormattingConfiguration Formatting { get; }
+
+        public Uri? ConfigFileUri { get; }
+
+        public ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate> DiagnosticBuilders { get; }
+
+        public bool IsBuiltIn => ConfigFileUri is null;
 
         public string ToUtf8Json()
         {

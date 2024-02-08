@@ -48,17 +48,17 @@ namespace Bicep.Core.Semantics.Namespaces
         private static FunctionResult GetRestrictedResourceGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
                 new ResourceGroupScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
-                new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
+                new ObjectExpression(functionCall, []));
 
         private static FunctionResult GetRestrictedSubscriptionReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
                 new SubscriptionScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
-                new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
+                new ObjectExpression(functionCall, []));
 
         private static FunctionResult GetRestrictedManagementGroupReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(
                 new ManagementGroupScopeType(functionCall.Arguments, Enumerable.Empty<TypeProperty>()),
-                new ObjectExpression(functionCall, ImmutableArray<ObjectPropertyExpression>.Empty));
+                new ObjectExpression(functionCall, []));
 
         private static FunctionResult GetTenantReturnResult(SemanticModel model, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
             => new(new TenantScopeType(functionCall.Arguments, new[]
