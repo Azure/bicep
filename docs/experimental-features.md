@@ -41,6 +41,10 @@ Enables publishing source code with modules using the `bicep publish` `--with-so
 ### `resourceDerivedTypes`
 If enabled, templates can reuse resource types wherever a type is expected. For example, to declare a parameter `foo` that should be usable as the name of an Azure Storage account, the following syntax would be used: `param foo resouce<'Microsoft.Storage/storageAccounts@2022-09-01'>.name`. **NB:** Because resource types may be inaccurate in some cases, no constraints other than the ARM type primitive will be enforced on resource derived types within the ARM deployment engine. Resource-derived types will be checked by Bicep at compile time, but violations will be emitted as warnings rather than errors.
 
+### `dynamicTypeLoading`
+Requires `extensibility` to be enabled. If enabled, users are able to fetch the azure resource type definitions from an OCI Registry as a runtime dependency. To fetch the type definitions the following syntax can be used. For example `provider 'br:mcr.microsoft.com/bicep/providers/az@1.0.0' as az`.
+The provider definitions also support aliasing via `bicepconfig.json` similar to [`moduleAliases`](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-config-modules#aliases-for-modules). For example `provider 'br/public:az@1.0.0' as az`.
+
 ## Other experimental functionality
 
 ### `publish-provider` CLI Command
