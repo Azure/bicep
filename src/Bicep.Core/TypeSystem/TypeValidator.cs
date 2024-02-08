@@ -1060,7 +1060,7 @@ namespace Bicep.Core.TypeSystem
                 var missingRequiredProperties = targetType.Properties.Values
                     .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) &&
                         !AreTypesAssignable(LanguageConstants.Null, p.TypeReference.Type) &&
-                        !expressionObjectType.Properties.ContainsKey(p.Name))
+                        !(expressionObjectType.Properties.ContainsKey(p.Name) || expressionObjectType.AdditionalPropertiesType is not null))
                     .OrderBy(p => p.Name)
                     .ToImmutableArray();
 
