@@ -1057,12 +1057,16 @@ namespace Bicep.Core.TypeSystem
 
             if (expressionType is ObjectType expressionObjectType)
             {
-                var missingRequiredProperties = targetType.Properties.Values
-                    .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) &&
-                        !AreTypesAssignable(LanguageConstants.Null, p.TypeReference.Type) &&
-                        !(expressionObjectType.Properties.ContainsKey(p.Name) || expressionObjectType.AdditionalPropertiesType is not null))
-                    .OrderBy(p => p.Name)
-                    .ToImmutableArray();
+                var missingRequiredProperties = expressionObjectType.AdditionalPropertiesType is not null
+                    // if the assigned value allows additional properties, we can't know if it's missing any
+                    ? ImmutableArray<TypeProperty>.Empty
+                    // otherwise, look for required properties on the target for which there is no declared counterpart on the assigned value
+                    : targetType.Properties.Values
+                        .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) &&
+                            !AreTypesAssignable(LanguageConstants.Null, p.TypeReference.Type) &&
+                            !expressionObjectType.Properties.ContainsKey(p.Name))
+                        .OrderBy(p => p.Name)
+                        .ToImmutableArray();
 
                 if (missingRequiredProperties.Length > 0)
                 {
