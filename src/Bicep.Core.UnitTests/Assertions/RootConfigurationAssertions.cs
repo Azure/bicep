@@ -4,6 +4,7 @@
 using Bicep.Core.Configuration;
 using FluentAssertions;
 using FluentAssertions.Primitives;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -25,7 +26,7 @@ namespace Bicep.Core.UnitTests.Assertions
         {
             var actual = Subject.ToUtf8Json().ReplaceLineEndings();
             var expected = contents.ReplaceLineEndings();
-            actual.Should().Be(expected, because, becauseArgs);
+            JToken.Parse(expected).Should().DeepEqual(JToken.Parse(actual));
             return new AndConstraint<RootConfigurationAssertions>(this);
         }
     }
