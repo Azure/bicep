@@ -25,6 +25,9 @@ updates:
     schedule:
       interval: "daily"
       day: "sunday"
+    allow:
+      - dependency-type: "all"
     ignore:
       - dependency-name: "Moq"
-
+    labels:
+      - vs-bicep-dependencies
