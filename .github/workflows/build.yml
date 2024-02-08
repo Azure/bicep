@@ -269,9 +269,6 @@ jobs:
           runInParallel: true
           searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/
           ifNoFilesFound: error
-        # Temporary workaround to force a green build - VS tests are flaky
-        # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
-        continue-on-error: true
 
       - name: Install bicep in Visual Studio
         run: ./src/vs-bicep/Install.cmd
@@ -283,9 +280,9 @@ jobs:
           runInParallel: false
           searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/
           ifNoFilesFound: error
-        # Temporary workaround to force a green build - VS tests are flaky
+        # Temporary workaround to force a green build - VS integration tests are flaky and take a long time to time out
         # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
-        continue-on-error: true
+        if: false
 
   build-windows-setup:
     name: Build Windows Setup
