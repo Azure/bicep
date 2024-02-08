@@ -43,7 +43,7 @@ namespace Bicep.Core.Syntax
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(this.SpecificationString, this.WithClause, this.AsClause));
 
-        SyntaxBase IArtifactReferenceSyntax.SourceSyntax => SpecificationString;
+        public SyntaxBase SourceSyntax => SpecificationString;
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitProviderDeclarationSyntax(this);
 
@@ -54,7 +54,7 @@ namespace Bicep.Core.Syntax
 
         public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration config)
         {
-            if(this.Specification is InlinedProviderSpecificationSyntax spec)
+            if (this.Specification is InlinedProviderSpecificationSyntax spec)
             {
                 return new(spec.UnexpandedArtifactAddress);
             }
