@@ -183,20 +183,25 @@ namespace Bicep.Core.Workspaces
 
         private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild)
         {
-            if (!this.providerDescriptorBundleBuilderBySourceFile.TryGetValue(file, out var providerBundleBuilder))
+            var featureProvider = featureProviderFactory.GetFeatureProvider(file.FileUri);
+            ProviderDescriptorBundleBuilder? providerBundleBuilder = null;
+            if (featureProvider.ExtensibilityEnabled && featureProvider.DynamicTypeLoadingEnabled)
             {
-                this.providerDescriptorBundleBuilderBySourceFile[file] = providerBundleBuilder = new ProviderDescriptorBundleBuilder();
-                providerBundleBuilder.AddImplicitProvider(new(new ResourceTypesProviderDescriptor(SystemNamespaceType.BuiltInName, file.FileUri)));
+                if (!this.providerDescriptorBundleBuilderBySourceFile.TryGetValue(file, out providerBundleBuilder))
+                {
+                    this.providerDescriptorBundleBuilderBySourceFile[file] = providerBundleBuilder = new ProviderDescriptorBundleBuilder();
+                    providerBundleBuilder.AddImplicitProvider(new(new ResourceTypesProviderDescriptor(SystemNamespaceType.BuiltInName, file.FileUri)));
+                }
+                ProcessAllImplicitProviderDeclarations(file, providerBundleBuilder);
             }
-            ProcessAllImplicitProviderDeclarations(file, providerBundleBuilder);
-
             foreach (var restorable in file.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>())
             {
                 var (childArtifactReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
 
                 uriResultByBicepSourceFileByArtifactReferenceSyntax.GetOrAdd(file, f => new())[restorable] = uriResult;
 
-                if (restorable is ProviderDeclarationSyntax { } providerDeclarationSyntax)
+                if (restorable is ProviderDeclarationSyntax { } providerDeclarationSyntax &&
+                    providerBundleBuilder is not null)
                 {
                     providerBundleBuilder.AddOrUpdateExplicitProvider(
                         providerDeclarationSyntax,
@@ -204,7 +209,7 @@ namespace Bicep.Core.Workspaces
                             providerDeclarationSyntax,
                             childArtifactReference,
                             uriResult,
-                            featureProviderFactory.GetFeatureProvider(file.FileUri),
+                            featureProvider,
                             file));
                     continue;
                 }

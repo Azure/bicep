@@ -155,6 +155,20 @@ import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
             });
         }
 
+        [DataRow("az")]
+        [DataRow("sys")]
+        [TestMethod]
+        public async Task Using_legacy_import_syntax_raises_warning_for_az_provider(string providerName)
+        {
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider '{providerName}@1.0.0' as {providerName}
+            ");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
+            });
+        }
+
         [TestMethod]
         public async Task Import_configuration_is_blocked_by_default()
         {
