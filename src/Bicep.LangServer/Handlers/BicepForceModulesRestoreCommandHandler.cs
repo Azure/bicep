@@ -97,11 +97,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // refresh all compilations with a reference to this file or cached artifacts
-            compilationManager.HandleFileChanges(artifactUris.Concat(documentUri.ToUriEncoded()).Select(uri => new FileEvent
-            {
-                Uri = uri,
-                Type = FileChangeType.Changed,
-            }));
+            compilationManager.RefreshChangedFiles(artifactUris.Concat(documentUri.ToUriEncoded()));
             return $"Restore (force) summary: {sbRestoreSummary}";
         }
     }
