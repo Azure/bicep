@@ -30,7 +30,7 @@ public class PublishProviderCommandTests : TestBase
         var repository = $"test/provider";
         var version = "0.0.1";
 
-        var (clientFactory, blobClientMocks) = DataSetsExtensions.CreateMockRegistryClients((registryStr, repository));
+        var (clientFactory, blobClientMocks) = RegistryHelper.CreateMockRegistryClients((registryStr, repository));
         var mockBlobClient = blobClientMocks[(registryUri, repository)];
 
         var indexPath = Path.Combine(outputDirectory, "index.json");

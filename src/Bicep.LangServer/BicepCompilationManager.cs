@@ -184,6 +184,13 @@ namespace Bicep.LanguageServer
             CloseCompilationInternal(documentUri, 0, Enumerable.Empty<Diagnostic>());
         }
 
+        public void RefreshChangedFiles(IEnumerable<Uri> files)
+            => HandleFileChanges(files.Select(uri => new FileEvent
+            {
+                Uri = uri,
+                Type = FileChangeType.Changed,
+            }));
+
         public void HandleFileChanges(IEnumerable<FileEvent> fileEvents)
         {
             var modifiedSourceFiles = new HashSet<ISourceFile>();

@@ -42,13 +42,13 @@ public class SourceFileGrouping : IArtifactFileLookup
 
     public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; }
 
-    public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore()
+    public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore(bool force = false)
     {
         foreach (var (sourceFile, artifactResults) in FileUriResultByArtifactReference)
         {
             foreach (var (syntax, result) in artifactResults)
             {
-                if (!result.IsSuccess(out _, out var failure) && failure.RequiresRestore)
+                if (force || !result.IsSuccess(out _, out var failure) && failure.RequiresRestore)
                 {
                     yield return new(syntax, sourceFile);
                 }
