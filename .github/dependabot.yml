@@ -24,7 +24,6 @@ updates:
     directory: "/src/vs-bicep"
     schedule:
       interval: "daily"
-      day: "sunday"
     allow:
       - dependency-type: "all"
     ignore:
