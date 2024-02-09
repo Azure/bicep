@@ -5502,7 +5502,6 @@ var functionExport = testFunction(json.experimentalFeaturesEnabled.userDefinedFu
             ("bicepconfig.json", """
 {
   "experimentalFeaturesEnabled": {
-    "compileTimeImports": true,
     "userDefinedFunctions": true
   }
 }
@@ -5674,6 +5673,48 @@ param foo {
                 }
                 """));
 
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/13250
+    [TestMethod]
+    public void Test_Issue13250()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'test.bicep'
+import * as strings from 'import.bicep'
+param in1 = strings.aNormalString
+// Failed to evaluate parameter "in2": Unhandled exception during evaluating template language function 'variables' is not handled.bicep(BCP338)
+param in2 = strings.aStringInBrackets
+param in3 = strings.startBracket
+param in4 = strings.endBracket
+// Failed to evaluate parameter "in5": Unhandled exception during evaluating template language function 'variables' is not handled.bicep(BCP338)
+param in5 = strings.startAndEndBracket
+param in6 = strings.startAndEndBracketInString
+"""),
+            ("test.bicep", """
+param in1 string
+param in2 string
+param in3 string
+param in4 string
+param in5 string
+param in6 string
+"""),
+            ("import.bicep", """
+@export()
+var aNormalString = 'test'
+@export()
+var aStringInBrackets = '[test]'
+@export()
+var startBracket = '['
+@export()
+var endBracket = ']'
+@export()
+var startAndEndBracket = '[]'
+@export()
+var startAndEndBracketInString = 'x[]y'
+"""));
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
