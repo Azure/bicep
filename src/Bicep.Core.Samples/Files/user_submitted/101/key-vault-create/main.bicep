@@ -18,15 +18,7 @@ param accessPolicies array = [
         'Backup'
         'Restore'
       ]
-      secrets: [
-        'Get'
-        'List'
-        'Set'
-        'Delete'
-        'Recover'
-        'Backup'
-        'Restore'
-      ]
+      secrets: ['Get', 'List', 'Set', 'Delete', 'Recover', 'Backup', 'Restore']
       certificates: [
         'Get'
         'List'

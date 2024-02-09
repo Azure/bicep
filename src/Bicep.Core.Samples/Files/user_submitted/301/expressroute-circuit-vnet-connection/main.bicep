@@ -14,9 +14,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        virtualNetworkPrefix
-      ]
+      addressPrefixes: [virtualNetworkPrefix]
     }
   }
 }

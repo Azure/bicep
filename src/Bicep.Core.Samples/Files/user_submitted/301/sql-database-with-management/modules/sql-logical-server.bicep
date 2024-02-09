@@ -79,16 +79,17 @@ resource sqlLogicalServerRes 'Microsoft.Sql/servers@2021-02-01-preview' = {
 }
 
 // Azure Active Directory integration
-resource azureAdIntegration 'Microsoft.Sql/servers/administrators@2021-02-01-preview' = if (!empty(sqlLogicalServer.azureActiveDirectoryAdministrator.objectId)) {
-  name: 'ActiveDirectory'
-  parent: sqlLogicalServerRes
-  properties: {
-    administratorType: 'ActiveDirectory'
-    login: sqlLogicalServer.azureActiveDirectoryAdministrator.name
-    sid: sqlLogicalServer.azureActiveDirectoryAdministrator.objectId
-    tenantId: sqlLogicalServer.azureActiveDirectoryAdministrator.tenantId
+resource azureAdIntegration 'Microsoft.Sql/servers/administrators@2021-02-01-preview' =
+  if (!empty(sqlLogicalServer.azureActiveDirectoryAdministrator.objectId)) {
+    name: 'ActiveDirectory'
+    parent: sqlLogicalServerRes
+    properties: {
+      administratorType: 'ActiveDirectory'
+      login: sqlLogicalServer.azureActiveDirectoryAdministrator.name
+      sid: sqlLogicalServer.azureActiveDirectoryAdministrator.objectId
+      tenantId: sqlLogicalServer.azureActiveDirectoryAdministrator.tenantId
+    }
   }
-}
 
 // Azure Defender
 resource azureDefender 'Microsoft.Sql/servers/securityAlertPolicies@2021-02-01-preview' = {
@@ -103,37 +104,55 @@ resource azureDefender 'Microsoft.Sql/servers/securityAlertPolicies@2021-02-01-p
 }
 
 // Get existing storage account
-resource storageAccountVulnerabilityAssessments 'Microsoft.Storage/storageAccounts@2021-04-01' existing = if (sqlLogicalServer.azureDefender.enabled && sqlLogicalServer.azureDefender.vulnerabilityAssessments.recurringScans && !empty(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name)) {
-  scope: resourceGroup(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName)
-  name: sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name
-}
+resource storageAccountVulnerabilityAssessments 'Microsoft.Storage/storageAccounts@2021-04-01' existing =
+  if (sqlLogicalServer.azureDefender.enabled && sqlLogicalServer.azureDefender.vulnerabilityAssessments.recurringScans && !empty(
+    sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name
+  )) {
+    scope: resourceGroup(
+      sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName
+    )
+    name: sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name
+  }
 
 // Vulnerability Assessments
 // Can be enabled only if Azure Defender is enabled as well
-resource vulnerabilityAssessments 'Microsoft.Sql/servers/vulnerabilityAssessments@2021-02-01-preview' = if (sqlLogicalServer.azureDefender.enabled && sqlLogicalServer.azureDefender.vulnerabilityAssessments.recurringScans && !empty(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name)) {
-  dependsOn: [
-    azureDefender
-  ]
-  name: 'default'
-  parent: sqlLogicalServerRes
-  properties: {
-    recurringScans: {
-      isEnabled: sqlLogicalServer.azureDefender.vulnerabilityAssessments.recurringScans
-      emailSubscriptionAdmins: sqlLogicalServer.azureDefender.vulnerabilityAssessments.emailSubscriptionAdmins
-      emails: sqlLogicalServer.azureDefender.vulnerabilityAssessments.emails
+resource vulnerabilityAssessments 'Microsoft.Sql/servers/vulnerabilityAssessments@2021-02-01-preview' =
+  if (sqlLogicalServer.azureDefender.enabled && sqlLogicalServer.azureDefender.vulnerabilityAssessments.recurringScans && !empty(
+    sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name
+  )) {
+    dependsOn: [azureDefender]
+    name: 'default'
+    parent: sqlLogicalServerRes
+    properties: {
+      recurringScans: {
+        isEnabled: sqlLogicalServer.azureDefender.vulnerabilityAssessments.recurringScans
+        emailSubscriptionAdmins: sqlLogicalServer.azureDefender.vulnerabilityAssessments.emailSubscriptionAdmins
+        emails: sqlLogicalServer.azureDefender.vulnerabilityAssessments.emails
+      }
+      storageContainerPath: !empty(
+          sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name
+        )
+        ? '${storageAccountVulnerabilityAssessments.properties.primaryEndpoints.blob}${sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.containerName}'
+        : ''
+      storageAccountAccessKey: !empty(
+          sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name
+        )
+        ? storageAccountVulnerabilityAssessments.listKeys().keys[0].value
+        : ''
     }
-    storageContainerPath: !empty(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name) ? '${storageAccountVulnerabilityAssessments.properties.primaryEndpoints.blob}${sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.containerName}' : ''
-    storageAccountAccessKey: !empty(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name) ? storageAccountVulnerabilityAssessments.listKeys().keys[0].value : ''
   }
-}
 
 // Audit settings need for enabling auditing to Log Analytics workspace
 resource auditSettings 'Microsoft.Sql/servers/auditingSettings@2021-02-01-preview' = {
   name: 'default'
   parent: sqlLogicalServerRes
   properties: {
-    state: sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs ? 'Enabled' : 'Disabled'
-    auditActionsAndGroups: !empty(sqlLogicalServer.auditActionsAndGroups) ? sqlLogicalServer.auditActionsAndGroups : defaultAuditActionsAndGroups
+    state: sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs
+      ? 'Enabled'
+      : 'Disabled'
+    auditActionsAndGroups: !empty(sqlLogicalServer.auditActionsAndGroups)
+      ? sqlLogicalServer.auditActionsAndGroups
+      : defaultAuditActionsAndGroups
     storageEndpoint: ''
     storageAccountAccessKey: ''
     storageAccountSubscriptionId: '00000000-0000-0000-0000-000000000000'
@@ -144,100 +163,116 @@ resource auditSettings 'Microsoft.Sql/servers/auditingSettings@2021-02-01-previe
 }
 
 // SQL Logical Server Firewall Rules
-module sqlFirewallRules 'sql-firewall-rule.bicep' = [for (firewallRules, index) in sqlLogicalServer.firewallRules: {
-  dependsOn: [
-    sqlLogicalServerRes
-  ]
-  name: 'sqlFirewallRule-${uniqueString(sqlLogicalServer.name)}-${index}'
-  params: {
-    sqlFirewallRule: sqlLogicalServer.firewallRules[index]
-    sqlServerName: sqlLogicalServer.name
+module sqlFirewallRules 'sql-firewall-rule.bicep' = [
+  for (firewallRules, index) in sqlLogicalServer.firewallRules: {
+    dependsOn: [sqlLogicalServerRes]
+    name: 'sqlFirewallRule-${uniqueString(sqlLogicalServer.name)}-${index}'
+    params: {
+      sqlFirewallRule: sqlLogicalServer.firewallRules[index]
+      sqlServerName: sqlLogicalServer.name
+    }
   }
-}]
+]
 
 // SQL Databases
-module sqlDatabases 'sql-database.bicep' = [for (sqlDatabase, index) in sqlLogicalServer.databases: {
-  dependsOn: [
-    sqlLogicalServerRes
-  ]
-  name: 'sqlDb-${uniqueString(sqlLogicalServer.name)}-${index}'
-  params: {
-    sqlServerName: sqlLogicalServer.name
-    sqlDatabase: union(defaultSqlDatabaseProperties, sqlLogicalServer.databases[index])
-    tags: union(tags, union(defaultSqlDatabaseProperties, sqlLogicalServer.databases[index]).tags)
+module sqlDatabases 'sql-database.bicep' = [
+  for (sqlDatabase, index) in sqlLogicalServer.databases: {
+    dependsOn: [sqlLogicalServerRes]
+    name: 'sqlDb-${uniqueString(sqlLogicalServer.name)}-${index}'
+    params: {
+      sqlServerName: sqlLogicalServer.name
+      sqlDatabase: union(
+        defaultSqlDatabaseProperties,
+        sqlLogicalServer.databases[index]
+      )
+      tags: union(
+        tags,
+        union(defaultSqlDatabaseProperties, sqlLogicalServer.databases[index]).tags
+      )
+    }
   }
-}]
+]
 
 // Empty deployment that serves as artificial delay until master database resource is created
 @batchSize(1)
-resource dummyDeployments 'Microsoft.Resources/deployments@2021-04-01' = [for (dummyDeployment, index) in range(0, 5): if (sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs && !empty(sqlLogicalServer.diagnosticLogsAndMetrics.name)) {
-  dependsOn: [
-    sqlLogicalServerRes
-  ]
-  name: 'dummyTemplateSqlServer-${uniqueString(sqlLogicalServer.name)}-${index}'
-  properties: {
-    mode: 'Incremental'
-    template: {
-      '$schema': 'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'
-      contentVersion: '1.0.0.0'
-      resources: []
+resource dummyDeployments 'Microsoft.Resources/deployments@2021-04-01' = [
+  for (dummyDeployment, index) in range(0, 5): if (sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs && !empty(
+    sqlLogicalServer.diagnosticLogsAndMetrics.name
+  )) {
+    dependsOn: [sqlLogicalServerRes]
+    name: 'dummyTemplateSqlServer-${uniqueString(sqlLogicalServer.name)}-${index}'
+    properties: {
+      mode: 'Incremental'
+      template: {
+        '$schema': 'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'
+        contentVersion: '1.0.0.0'
+        resources: []
+      }
     }
   }
-}]
+]
 
 // Get existing master database
-resource masterDb 'Microsoft.Sql/servers/databases@2021-02-01-preview' existing = if (sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs || !empty(sqlLogicalServer.diagnosticLogsAndMetrics.name)) {
-  name: 'master'
-  parent: sqlLogicalServerRes
-}
+resource masterDb 'Microsoft.Sql/servers/databases@2021-02-01-preview' existing =
+  if (sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs || !empty(
+    sqlLogicalServer.diagnosticLogsAndMetrics.name
+  )) {
+    name: 'master'
+    parent: sqlLogicalServerRes
+  }
 
 // Get existing Log Analytics workspace
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing = if (sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs || !empty(sqlLogicalServer.diagnosticLogsAndMetrics.name)) {
-  scope: resourceGroup(sqlLogicalServer.diagnosticLogsAndMetrics.subscriptionId, sqlLogicalServer.diagnosticLogsAndMetrics.resourceGroupName)
-  name: sqlLogicalServer.diagnosticLogsAndMetrics.name
-}
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing =
+  if (sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs || !empty(
+    sqlLogicalServer.diagnosticLogsAndMetrics.name
+  )) {
+    scope: resourceGroup(
+      sqlLogicalServer.diagnosticLogsAndMetrics.subscriptionId,
+      sqlLogicalServer.diagnosticLogsAndMetrics.resourceGroupName
+    )
+    name: sqlLogicalServer.diagnosticLogsAndMetrics.name
+  }
 
 // Sends audit logs to Log Analytics Workspace
-resource auditDiagnosticSettings 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = if (sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs) {
-  dependsOn: [
-    auditSettings
-    sqlDatabases
-    dummyDeployments
-  ]
-  scope: masterDb
-  name: 'SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1'
-  properties: {
-    workspaceId: logAnalyticsWorkspace.id
-    logs: [
-      {
-        category: 'SQLSecurityAuditEvents'
-        enabled: true
-      }
-      {
-        category: 'DevOpsOperationsAudit'
-        enabled: sqlLogicalServer.diagnosticLogsAndMetrics.microsoftSupportOperationsAuditLogs
-      }
-    ]
+resource auditDiagnosticSettings 'microsoft.insights/diagnosticSettings@2017-05-01-preview' =
+  if (sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs) {
+    dependsOn: [auditSettings, sqlDatabases, dummyDeployments]
+    scope: masterDb
+    name: 'SQLSecurityAuditEvents_3d229c42-c7e7-4c97-9a99-ec0d0d8b86c1'
+    properties: {
+      workspaceId: logAnalyticsWorkspace.id
+      logs: [
+        {
+          category: 'SQLSecurityAuditEvents'
+          enabled: true
+        }
+        {
+          category: 'DevOpsOperationsAudit'
+          enabled: sqlLogicalServer.diagnosticLogsAndMetrics.microsoftSupportOperationsAuditLogs
+        }
+      ]
+    }
   }
-}
 
 // Send other logs and metrics to Log Analytics
-resource diagnosticSettings 'microsoft.insights/diagnosticSettings@2017-05-01-preview' = if (!empty(sqlLogicalServer.diagnosticLogsAndMetrics.name)) {
-  dependsOn: [
-    sqlDatabases
-    dummyDeployments
-  ]
-  scope: masterDb
-  name: 'sendLogsAndMetrics'
-  properties: {
-    workspaceId: logAnalyticsWorkspace.id
-    logs: [for log in sqlLogicalServer.diagnosticLogsAndMetrics.logs: {
-      category: log
-      enabled: true
-    }]
-    metrics: [for metric in sqlLogicalServer.diagnosticLogsAndMetrics.metrics: {
-      category: metric
-      enabled: true
-    }]
+resource diagnosticSettings 'microsoft.insights/diagnosticSettings@2017-05-01-preview' =
+  if (!empty(sqlLogicalServer.diagnosticLogsAndMetrics.name)) {
+    dependsOn: [sqlDatabases, dummyDeployments]
+    scope: masterDb
+    name: 'sendLogsAndMetrics'
+    properties: {
+      workspaceId: logAnalyticsWorkspace.id
+      logs: [
+        for log in sqlLogicalServer.diagnosticLogsAndMetrics.logs: {
+          category: log
+          enabled: true
+        }
+      ]
+      metrics: [
+        for metric in sqlLogicalServer.diagnosticLogsAndMetrics.metrics: {
+          category: metric
+          enabled: true
+        }
+      ]
+    }
   }
-}

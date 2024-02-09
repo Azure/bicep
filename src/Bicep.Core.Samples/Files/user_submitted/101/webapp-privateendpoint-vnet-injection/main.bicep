@@ -29,27 +29,15 @@ param subnet2_CIDR string = '10.200.2.0/24'
 param location string = resourceGroup().location
 
 @description('SKU name, must be minimum P1v2')
-@allowed([
-  'P1v2'
-  'P2v2'
-  'P3v2'
-])
+@allowed(['P1v2', 'P2v2', 'P3v2'])
 param skuName string = 'P1v2'
 
 @description('SKU size, must be minimum P1v2')
-@allowed([
-  'P1v2'
-  'P2v2'
-  'P3v2'
-])
+@allowed(['P1v2', 'P2v2', 'P3v2'])
 param skuSize string = 'P1v2'
 
 @description('SKU family, must be minimum P1v2')
-@allowed([
-  'P1v2'
-  'P2v2'
-  'P3v2'
-])
+@allowed(['P1v2', 'P2v2', 'P3v2'])
 param skuFamily string = 'P1v2'
 
 @description('Name of your Private Endpoint')
@@ -67,9 +55,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        virtualNetwork_CIDR
-      ]
+      addressPrefixes: [virtualNetwork_CIDR]
     }
   }
 }
@@ -106,9 +92,7 @@ resource subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
 resource subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   parent: virtualNetwork
   name: subnet2Name
-  dependsOn: [
-    subnet1
-  ]
+  dependsOn: [subnet1]
   properties: {
     addressPrefix: subnet2_CIDR
     delegations: [
@@ -237,9 +221,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-06-01' = {
         name: privateLinkConnectionName
         properties: {
           privateLinkServiceId: webApp1.id
-          groupIds: [
-            'sites'
-          ]
+          groupIds: ['sites']
         }
       }
     ]
@@ -249,9 +231,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-06-01' = {
 resource privateDnsZones 'Microsoft.Network/privateDnsZones@2018-09-01' = {
   name: privateDNSZoneName
   location: 'global'
-  dependsOn: [
-    virtualNetwork
-  ]
+  dependsOn: [virtualNetwork]
 }
 
 resource privateDnsZoneLink 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2018-09-01' = {

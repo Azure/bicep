@@ -3,11 +3,7 @@ param vnetAddressPrefix string = '10.0.0.0/16'
 param azureFirewallSubnetAddressPrefix string = '10.0.1.0/24'
 param firewallName string = 'firewall1'
 param location string = resourceGroup().location
-param availabilityZones array = [
-  '1'
-  '2'
-  '3'
-]
+param availabilityZones array = ['1', '2', '3']
 
 var azureFirewallSubnetName = 'AzureFirewallSubnet'
 
@@ -16,9 +12,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnetAddressPrefix
-      ]
+      addressPrefixes: [vnetAddressPrefix]
     }
   }
 }
@@ -77,12 +71,8 @@ resource firewall 'Microsoft.Network/azureFirewalls@2020-06-01' = {
                   protocolType: 'Http'
                 }
               ]
-              targetFqdns: [
-                'www.microsoft.com'
-              ]
-              sourceAddresses: [
-                '10.0.0.0/24'
-              ]
+              targetFqdns: ['www.microsoft.com']
+              sourceAddresses: ['10.0.0.0/24']
             }
           ]
         }
@@ -99,18 +89,10 @@ resource firewall 'Microsoft.Network/azureFirewalls@2020-06-01' = {
           rules: [
             {
               name: 'netRule1'
-              protocols: [
-                'TCP'
-              ]
-              sourceAddresses: [
-                '10.0.0.0/24'
-              ]
-              destinationAddresses: [
-                '*'
-              ]
-              destinationPorts: [
-                '8000-8999'
-              ]
+              protocols: ['TCP']
+              sourceAddresses: ['10.0.0.0/24']
+              destinationAddresses: ['*']
+              destinationPorts: ['8000-8999']
             }
           ]
         }

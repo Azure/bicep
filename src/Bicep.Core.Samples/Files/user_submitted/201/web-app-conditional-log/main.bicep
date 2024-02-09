@@ -8,9 +8,10 @@ module webappModule './webapp.bicep' = {
   }
 }
 
-module loggingModule './logging.bicep' = if (logging) {
-  name: 'loggingDeploy'
-  params: {
-    appName: webappModule.outputs.appServiceName
+module loggingModule './logging.bicep' =
+  if (logging) {
+    name: 'loggingDeploy'
+    params: {
+      appName: webappModule.outputs.appServiceName
+    }
   }
-}

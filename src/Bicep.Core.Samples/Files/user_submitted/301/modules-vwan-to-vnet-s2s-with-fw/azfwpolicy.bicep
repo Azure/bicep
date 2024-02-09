@@ -2,9 +2,7 @@ param location string = resourceGroup().location
 param policyname string
 
 @description('Specify custom DNS Servers for Azure Firewall')
-param dnsservers array = [
-  '168.63.129.16'
-]
+param dnsservers array = ['168.63.129.16']
 
 resource policy 'Microsoft.Network/firewallPolicies@2020-06-01' = {
   name: policyname
@@ -35,21 +33,13 @@ resource platformrcgroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroup
             ruleType: 'NetworkRule'
             name: 'Azure-KMS-Service'
             description: 'Allow traffic from all Address Spaces to Azure platform KMS Service'
-            sourceAddresses: [
-              '*'
-            ]
+            sourceAddresses: ['*']
             sourceIpGroups: []
-            ipProtocols: [
-              'TCP'
-            ]
-            destinationPorts: [
-              '1688'
-            ]
+            ipProtocols: ['TCP']
+            destinationPorts: ['1688']
             destinationIpGroups: []
             destinationAddresses: []
-            destinationFqdns: [
-              'kms.core.windows.net'
-            ]
+            destinationFqdns: ['kms.core.windows.net']
           }
         ]
       }
@@ -65,9 +55,7 @@ resource platformrcgroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroup
             ruleType: 'ApplicationRule'
             name: 'Http'
             description: 'Allow traffic from all sources to Azure platform KMS Service'
-            sourceAddresses: [
-              '*'
-            ]
+            sourceAddresses: ['*']
             sourceIpGroups: []
             protocols: [
               {
@@ -76,17 +64,13 @@ resource platformrcgroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroup
               }
             ]
             targetFqdns: []
-            fqdnTags: [
-              'WindowsUpdate'
-            ]
+            fqdnTags: ['WindowsUpdate']
           }
           {
             ruleType: 'ApplicationRule'
             name: 'Https'
             description: 'Allow traffic from all sources to Azure platform KMS Service'
-            sourceAddresses: [
-              '*'
-            ]
+            sourceAddresses: ['*']
             sourceIpGroups: []
             protocols: [
               {
@@ -95,9 +79,7 @@ resource platformrcgroup 'Microsoft.Network/firewallPolicies/ruleCollectionGroup
               }
             ]
             targetFqdns: []
-            fqdnTags: [
-              'WindowsUpdate'
-            ]
+            fqdnTags: ['WindowsUpdate']
           }
         ]
       }

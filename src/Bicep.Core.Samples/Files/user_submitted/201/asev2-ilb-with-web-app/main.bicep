@@ -1,12 +1,7 @@
 param location string = resourceGroup().location
 param aseName string
 
-@allowed([
-  'None'
-  'Publishing'
-  'Web'
-  'Web,Publishing'
-])
+@allowed(['None', 'Publishing', 'Web', 'Web,Publishing'])
 param internalLoadBalancingMode string = 'Web,Publishing'
 
 param dnsSuffix string
@@ -14,11 +9,7 @@ param websiteName string
 param appServicePlanName string
 param numberOfWorkers int = 1
 
-@allowed([
-  '1'
-  '2'
-  '3'
-])
+@allowed(['1', '2', '3'])
 param workerPool string = '1'
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
@@ -26,9 +17,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/16'
-      ]
+      addressPrefixes: ['10.0.0.0/16']
     }
   }
 }

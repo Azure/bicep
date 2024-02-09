@@ -9,12 +9,13 @@ var defaultResourceGroupProperties = {
 }
 
 // Deploy Resource Group
-resource sqlRg 'Microsoft.Resources/resourceGroups@2021-04-01' = if (union(defaultResourceGroupProperties, resourceGroup).deploy) {
-  name: resourceGroup.name
-  location: resourceGroup.location
-  tags: union(defaultResourceGroupProperties, resourceGroup).tags
-  properties: {}
-}
+resource sqlRg 'Microsoft.Resources/resourceGroups@2021-04-01' =
+  if (union(defaultResourceGroupProperties, resourceGroup).deploy) {
+    name: resourceGroup.name
+    location: resourceGroup.location
+    tags: union(defaultResourceGroupProperties, resourceGroup).tags
+    properties: {}
+  }
 
 // Start SQL Logical Servers deployment
 module sqlLogicalServers 'modules/sql-logical-servers.bicep' = {

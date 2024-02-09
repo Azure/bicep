@@ -4,7 +4,11 @@ param location string = resourceGroup().location
 var storageAccountName = 'storage${uniqueString(resourceGroup().id)}'
 var endpointName = 'endpoint-${uniqueString(resourceGroup().id)}'
 var profileName = 'cdn-${uniqueString(resourceGroup().id)}'
-var storageAccountHostName = replace(replace(storageAccount.properties.primaryEndpoints.blob, 'https://', ''), '/', '')
+var storageAccountHostName = replace(
+  replace(storageAccount.properties.primaryEndpoints.blob, 'https://', ''),
+  '/',
+  ''
+)
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   name: storageAccountName

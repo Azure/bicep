@@ -4,13 +4,17 @@ param existingVNETName string
 @description('Name of Azure Relay Namespace.')
 param relayNamespaceName string
 
-@description('Object Id of Azure Container Instance Service Principal. We have to grant this permission to create hybrid connections in the Azure Relay you specify. To get it: Get-AzADServicePrincipal -DisplayNameBeginsWith \'Azure Container Instance\'')
+@description(
+  'Object Id of Azure Container Instance Service Principal. We have to grant this permission to create hybrid connections in the Azure Relay you specify. To get it: Get-AzADServicePrincipal -DisplayNameBeginsWith \'Azure Container Instance\''
+)
 param azureContainerInstanceOID string
 
 @description('Name of the subnet to use for cloud shell containers.')
 param containerSubnetName string = 'cloudshellsubnet'
 
-@description('Address space of the subnet to add for cloud shell. e.g. 10.0.1.0/26')
+@description(
+  'Address space of the subnet to add for cloud shell. e.g. 10.0.1.0/26'
+)
 param containerSubnetAddressPrefix string
 
 @description('Name of the subnet to use for private link of relay namespace.')
@@ -32,10 +36,21 @@ param privateEndpointName string = 'cloudshellRelayEndpoint'
 param location string = resourceGroup().location
 
 var networkProfileName = 'aci-networkProfile-${location}'
-var contributorRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
-var networkRoleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', '4d97b98b-1d4f-4787-a291-c67834d212e7')
-var privateDnsZoneName = ((toLower(environment().name) == 'azureusgovernment') ? 'privatelink.servicebus.usgovcloudapi.net' : 'privatelink.servicebus.windows.net')
-var vnetResourceId = resourceId('Microsoft.Network/virtualNetworks', existingVNETName)
+var contributorRoleDefinitionId = resourceId(
+  'Microsoft.Authorization/roleDefinitions',
+  'b24988ac-6180-42a0-ab88-20f7382dd24c'
+)
+var networkRoleDefinitionId = resourceId(
+  'Microsoft.Authorization/roleDefinitions',
+  '4d97b98b-1d4f-4787-a291-c67834d212e7'
+)
+var privateDnsZoneName = ((toLower(environment().name) == 'azureusgovernment')
+  ? 'privatelink.servicebus.usgovcloudapi.net'
+  : 'privatelink.servicebus.windows.net')
+var vnetResourceId = resourceId(
+  'Microsoft.Network/virtualNetworks',
+  existingVNETName
+)
 
 resource existingVNET 'Microsoft.Network/virtualNetworks@2020-04-01' existing = {
   name: existingVNETName
@@ -69,9 +84,7 @@ resource containerSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' 
     serviceEndpoints: [
       {
         service: 'Microsoft.Storage'
-        locations: [
-          location
-        ]
+        locations: [location]
       }
     ]
     delegations: [
@@ -111,7 +124,11 @@ resource networkProfile 'Microsoft.Network/networkProfiles@2019-11-01' = {
 
 resource networkProfile_roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   scope: networkProfile
-  name: guid(networkRoleDefinitionId, azureContainerInstanceOID, networkProfile.name)
+  name: guid(
+    networkRoleDefinitionId,
+    azureContainerInstanceOID,
+    networkProfile.name
+  )
   properties: {
     roleDefinitionId: networkRoleDefinitionId
     principalId: azureContainerInstanceOID
@@ -129,7 +146,11 @@ resource relayNamespace 'Microsoft.Relay/namespaces@2018-01-01-preview' = {
 
 resource relayNamespace_roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   scope: relayNamespace
-  name: guid(contributorRoleDefinitionId, azureContainerInstanceOID, relayNamespace.name)
+  name: guid(
+    contributorRoleDefinitionId,
+    azureContainerInstanceOID,
+    relayNamespace.name
+  )
   properties: {
     roleDefinitionId: contributorRoleDefinitionId
     principalId: azureContainerInstanceOID
@@ -164,9 +185,7 @@ resource relaySubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' = {
       }
     }
   }
-  dependsOn: [
-    containerSubnet
-  ]
+  dependsOn: [containerSubnet]
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-04-01' = {
@@ -178,9 +197,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-04-01' = {
         name: privateEndpointName
         properties: {
           privateLinkServiceId: relayNamespace.id
-          groupIds: [
-            'namespace'
-          ]
+          groupIds: ['namespace']
         }
       }
     ]
@@ -198,9 +215,7 @@ resource storageSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' = 
     serviceEndpoints: [
       {
         service: 'Microsoft.Storage'
-        locations: [
-          location
-        ]
+        locations: [location]
       }
     ]
     networkSecurityGroup: {
@@ -224,9 +239,7 @@ resource storageSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' = 
       }
     }
   }
-  dependsOn: [
-    relaySubnet
-  ]
+  dependsOn: [relaySubnet]
 }
 
 resource privateDnsZone 'Microsoft.Network/privateDnsZones@2020-01-01' = {
@@ -241,7 +254,9 @@ resource privateDnsZoneARecord 'Microsoft.Network/privateDnsZones/A@2020-01-01' 
     ttl: 3600
     aRecords: [
       {
-        ipv4Address: first(first(privateEndpoint.properties.customDnsConfigs)!.ipAddresses)!
+        ipv4Address: first(
+          first(privateEndpoint.properties.customDnsConfigs)!.ipAddresses
+        )!
       }
     ]
   }

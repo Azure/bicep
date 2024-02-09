@@ -17,9 +17,7 @@ module hubVNET 'modules/vnet.bicep' = {
   scope: hubrg
   params: {
     prefix: 'hub'
-    addressSpaces: [
-      '192.168.0.0/24'
-    ]
+    addressSpaces: ['192.168.0.0/24']
     subnets: [
       {
         name: 'AzureFirewallSubnet'
@@ -36,10 +34,7 @@ module spokeVNET 'modules/vnet.bicep' = {
   scope: spokerg
   params: {
     prefix: 'spoke'
-    addressSpaces: [
-      '192.168.1.0/24'
-      '10.0.0.0/23'
-    ]
+    addressSpaces: ['192.168.1.0/24', '10.0.0.0/23']
     subnets: [
       {
         name: 'spoke-vnet'

@@ -23,9 +23,7 @@ resource vnet1 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnet1Config.addressSpacePrefix
-      ]
+      addressPrefixes: [vnet1Config.addressSpacePrefix]
     }
     subnets: [
       {
@@ -77,9 +75,7 @@ resource vnet2 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnet2Config.addressSpacePrefix
-      ]
+      addressPrefixes: [vnet2Config.addressSpacePrefix]
     }
     subnets: [
       {

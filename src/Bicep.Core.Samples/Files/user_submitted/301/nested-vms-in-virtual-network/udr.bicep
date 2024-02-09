@@ -8,16 +8,20 @@ resource udr 'Microsoft.Network/routeTables@2020-06-01' = {
   location: location
   properties: {
     // conditionally deploy route
-    routes: any(addressPrefix == '' ? null : [
-      {
-        name: 'Nested-VMs'
-        properties: {
-          addressPrefix: addressPrefix
-          nextHopType: 'VirtualAppliance'
-          nextHopIpAddress: nextHopAddress
-        }
-      }
-    ])
+    routes: any(
+      addressPrefix == ''
+        ? null
+        : [
+            {
+              name: 'Nested-VMs'
+              properties: {
+                addressPrefix: addressPrefix
+                nextHopType: 'VirtualAppliance'
+                nextHopIpAddress: nextHopAddress
+              }
+            }
+          ]
+    )
   }
 }
 

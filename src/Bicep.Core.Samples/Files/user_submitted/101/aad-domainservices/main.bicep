@@ -141,9 +141,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-11-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        domainServicesVnetAddressPrefix
-      ]
+      addressPrefixes: [domainServicesVnetAddressPrefix]
     }
   }
 }

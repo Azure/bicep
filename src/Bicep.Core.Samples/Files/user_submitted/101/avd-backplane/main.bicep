@@ -40,8 +40,6 @@ resource ws 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {
   location: avdbackplanelocation
   properties: {
     friendlyName: workspaceNameFriendlyName
-    applicationGroupReferences: [
-      ag.id
-    ]
+    applicationGroupReferences: [ag.id]
   }
 }

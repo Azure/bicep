@@ -14,23 +14,24 @@ param nextHopIpAddress string = '10.10.3.4'
 var vnetName = 'vnet-${vnetSuffix}'
 
 //Create User Defined Route Acc
-resource udr 'Microsoft.Network/routeTables@2020-06-01' = if (createUserDefinedRoutes) {
-  name: udrName
-  location: resourceGroup().location
-  properties: {
-    routes: [
-      {
-        name: udrRouteName
-        properties: {
-          addressPrefix: addressPrefix
-          nextHopType: nextHopType
-          nextHopIpAddress: nextHopIpAddress
+resource udr 'Microsoft.Network/routeTables@2020-06-01' =
+  if (createUserDefinedRoutes) {
+    name: udrName
+    location: resourceGroup().location
+    properties: {
+      routes: [
+        {
+          name: udrRouteName
+          properties: {
+            addressPrefix: addressPrefix
+            nextHopType: nextHopType
+            nextHopIpAddress: nextHopIpAddress
+          }
         }
-      }
-    ]
-    disableBgpRoutePropagation: false
+      ]
+      disableBgpRoutePropagation: false
+    }
   }
-}
 
 //Create Vnet and Subnet
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
@@ -38,14 +39,10 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: resourceGroup().location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnetaddressPrefix
-      ]
+      addressPrefixes: [vnetaddressPrefix]
     }
     dhcpOptions: {
-      dnsServers: [
-        dnsServer
-      ]
+      dnsServers: [dnsServer]
     }
     subnets: [
       {

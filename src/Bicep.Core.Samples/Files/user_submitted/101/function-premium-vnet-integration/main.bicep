@@ -5,22 +5,14 @@ param location string = resourceGroup().location
 param appInsightsLocation string
 
 @description('The language worker runtime to load in the function app.')
-@allowed([
-  'node'
-  'dotnet'
-  'java'
-])
+@allowed(['node', 'dotnet', 'java'])
 param runtime string = 'node'
 
 @description('The name of the function app that you wish to create.')
 param appName string = 'fnapp${uniqueString(resourceGroup().id)}'
 
 @description('Storage Account type')
-@allowed([
-  'Standard_LRS'
-  'Standard_GRS'
-  'Standard_RAGRS'
-])
+@allowed(['Standard_LRS', 'Standard_GRS', 'Standard_RAGRS'])
 param storageAccountType string = 'Standard_LRS'
 
 @description('The name of the virtual network to be created.')
@@ -41,9 +33,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnetAddressPrefix
-      ]
+      addressPrefixes: [vnetAddressPrefix]
     }
     subnets: [
       {
@@ -154,9 +144,7 @@ resource function 'Microsoft.Web/sites@2020-06-01' = {
       ]
     }
   }
-  dependsOn: [
-    virtualNetwork
-  ]
+  dependsOn: [virtualNetwork]
 }
 
 resource networkConfig 'Microsoft.Web/sites/networkConfig@2020-06-01' = {

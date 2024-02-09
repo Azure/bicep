@@ -2,13 +2,7 @@
 @secure()
 param sharedKey string
 
-@allowed([
-  'Standard'
-  'HighPerformance'
-  'VpnGw1'
-  'VpnGw2'
-  'VpnGw3'
-])
+@allowed(['Standard', 'HighPerformance', 'VpnGw1', 'VpnGw2', 'VpnGw3'])
 param gatewaySku string = 'VpnGw1'
 
 param location string = resourceGroup().location
@@ -42,9 +36,7 @@ resource vnet1 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnet1cfg.addressSpacePrefix
-      ]
+      addressPrefixes: [vnet1cfg.addressSpacePrefix]
     }
     subnets: [
       {
@@ -108,9 +100,7 @@ resource vnet2 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnet2cfg.addressSpacePrefix
-      ]
+      addressPrefixes: [vnet2cfg.addressSpacePrefix]
     }
     subnets: [
       {
