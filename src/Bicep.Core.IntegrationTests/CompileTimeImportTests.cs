@@ -1991,13 +1991,6 @@ import { bar } from 'test.bicep'
 """),
             ("test.bicep", """
 INVALID FILE
-"""),
-            ("bicepconfig.json", """
-{
-  "experimentalFeaturesEnabled": {
-    "compileTimeImports": true
-  }
-}
 """));
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
