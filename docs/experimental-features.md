@@ -11,6 +11,10 @@ The following features can be optionally enabled through your `bicepconfig.json`
 ### `assertions`
 Should be enabled in tandem with `testFramework` experimental feature flag for expected functionality. Allows you to author boolean assertions using the `assert` keyword comparing the actual value of a parameter, variable, or resource name to an expected value. Assert statements can only be written directly within the Bicep file whose resources they reference. For more information, see [Bicep Experimental Test Framework](https://github.com/Azure/bicep/issues/11967).
 
+### `dynamicTypeLoading`
+Requires `extensibility` to be enabled. If enabled, users are able to fetch the azure resource type definitions from an OCI Registry as a runtime dependency. To fetch the type definitions the following syntax can be used. For example `provider 'br:mcr.microsoft.com/bicep/providers/az@1.0.0' as az`.
+The provider definitions also support aliasing via `bicepconfig.json` similar to [`moduleAliases`](https://learn.microsoft.com/azure/azure-resource-manager/bicep/bicep-config-modules#aliases-for-modules). For example `provider 'br/public:az@1.0.0' as az`.
+
 ### `extensibility`
 Allows Bicep to use a provider model to deploy non-ARM resources. Currently, we only support a Kubernetes provider. See [Bicep extensibility Kubernetes provider](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-extensibility-kubernetes-provider).
 
