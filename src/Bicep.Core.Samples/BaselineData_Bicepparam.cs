@@ -58,7 +58,6 @@ namespace Bicep.Core.Samples
             BaselineFile Diagnostics,
             BaselineFile Symbols,
             BaselineFile Syntax,
-            BaselineFile Formatted,
             BaselineFile PrettyPrinted);
 
         private readonly EmbeddedFile paramsFile;
@@ -85,7 +84,6 @@ namespace Bicep.Core.Samples
                     Diagnostics: outputFolder.GetFileOrEnsureCheckedIn("parameters.diagnostics.bicepparam"),
                     Symbols: outputFolder.GetFileOrEnsureCheckedIn("parameters.symbols.bicepparam"),
                     Syntax: outputFolder.GetFileOrEnsureCheckedIn("parameters.syntax.bicepparam"),
-                    Formatted: outputFolder.GetFileOrEnsureCheckedIn("parameters.formatted.bicepparam"),
                     PrettyPrinted: outputFolder.GetFileOrEnsureCheckedIn("parameters.pprint.bicepparam"));
             }
         }

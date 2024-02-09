@@ -45,14 +45,12 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         public void Print_DataSet_ProducesExpectedOutput(DataSet dataSet)
         {
             var output = Print(dataSet.Bicep, PrettyPrinterV2Options.Default);
-            var outputFileName = $"main.pprint.bicep";
+            var outputFileName = DataSet.TestFileMainPrettyPrinted;
             var outputFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, outputFileName), output);
-
-            var expected = dataSet.ReadDataSetFile(outputFileName);
 
             output.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
-                expected,
+                dataSet.PrettyPrinted,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
                 actualLocation: outputFile);
 

@@ -1,14 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.PrettyPrintV2;
 
 namespace Bicep.Cli.Arguments
 {
     public class FormatArguments : ArgumentsBase
     {
-        public FormatArguments(string[] args, IOContext io) : base(Constants.Command.Format)
+        public FormatArguments(string[] args, IOContext io, IFileSystem? fileSystem) : base(Constants.Command.Format)
         {
             for (var i = 0; i < args.Length; i++)
             {
@@ -45,19 +46,38 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--newline":
+                        // TODO: Uncomment this once Azure CLI is updated to support the new parameter.
+                        //io.WriteParameterDeprecationWarning("--newline", "--newline-kind");
                         if (args.Length == i + 1)
                         {
                             throw new CommandLineException($"The --newline parameter expects an argument");
                         }
-                        if (Newline is not null)
+                        if (NewlineKind is not null)
                         {
                             throw new CommandLineException($"The --newline parameter cannot be specified twice");
                         }
-                        if (!Enum.TryParse<NewlineOption>(args[i + 1], true, out var newline) || !Enum.IsDefined<NewlineOption>(newline))
+                        if (!Enum.TryParse<NewlineKind>(args[i + 1], true, out var newline) || !Enum.IsDefined(newline))
                         {
-                            throw new CommandLineException($"The --newline parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(NewlineOption)))}");
+                            throw new CommandLineException($"The --newline parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(NewlineKind)))}");
                         }
-                        Newline = newline;
+                        NewlineKind = newline;
+                        i++;
+                        break;
+
+                    case "--newline-kind":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --newline-kind parameter expects an argument");
+                        }
+                        if (NewlineKind is not null)
+                        {
+                            throw new CommandLineException($"The --newline-kind parameter cannot be specified twice");
+                        }
+                        if (!Enum.TryParse(args[i + 1], true, out newline) || !Enum.IsDefined(newline))
+                        {
+                            throw new CommandLineException($"The --newline parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(NewlineKind)))}");
+                        }
+                        NewlineKind = newline;
                         i++;
                         break;
 
@@ -73,9 +93,9 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --indentKind parameter cannot be specified twice");
                         }
-                        if (!Enum.TryParse<IndentKindOption>(args[i + 1], true, out var indentKind) || !Enum.IsDefined(indentKind))
+                        if (!Enum.TryParse<IndentKind>(args[i + 1], true, out var indentKind) || !Enum.IsDefined(indentKind))
                         {
-                            throw new CommandLineException($"The --indentKind parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(IndentKindOption)))}");
+                            throw new CommandLineException($"The --indentKind parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(IndentKind)))}");
                         }
                         IndentKind = indentKind;
                         i++;
@@ -91,7 +111,7 @@ namespace Bicep.Cli.Arguments
                         }
                         if (!Enum.TryParse(args[i + 1], true, out indentKind) || !Enum.IsDefined(indentKind))
                         {
-                            throw new CommandLineException($"The --indent-kind parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(IndentKindOption)))}");
+                            throw new CommandLineException($"The --indent-kind parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(IndentKind)))}");
                         }
                         IndentKind = indentKind;
                         i++;
@@ -141,14 +161,50 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --insertFinalNewline parameter cannot be specified twice");
                         }
-                        InsertFinalNewline = true;
+
+                        if (bool.TryParse(args[i + 1], out var insertFinalNewline))
+                        {
+                            InsertFinalNewline = insertFinalNewline;
+                            i++;
+                        }
+                        else
+                        {
+                            InsertFinalNewline = insertFinalNewline;
+                        }
                         break;
+
+                    case "--width":
+                        if (args.Length == i + 1)
+                        {
+                            throw new CommandLineException($"The --width parameter expects an argument");
+                        }
+                        if (IndentSize is not null)
+                        {
+                            throw new CommandLineException($"The --width parameter cannot be specified twice");
+                        }
+                        if (!int.TryParse(args[i + 1], out var width))
+                        {
+                            throw new CommandLineException($"The --width parameter only accepts integer values");
+                        }
+                        Width = width;
+                        i++;
+                        break;
+
                     case "--insert-final-newline":
                         if (InsertFinalNewline is not null)
                         {
                             throw new CommandLineException($"The --insert-final-newline parameter cannot be specified twice");
                         }
-                        InsertFinalNewline = true;
+
+                        if (bool.TryParse(args[i + 1], out insertFinalNewline))
+                        {
+                            InsertFinalNewline = insertFinalNewline;
+                            i++;
+                        }
+                        else
+                        {
+                            InsertFinalNewline = true;
+                        }
                         break;
 
                     default:
@@ -185,16 +241,12 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException($"The --outdir and --outfile parameters cannot both be used");
             }
 
-            if (IndentSize is not null && IndentKind == IndentKindOption.Tab)
-            {
-                throw new CommandLineException($"The --indent-size cannot be used when --indent-kind is \"Tab\"");
-            }
-
             if (OutputDir is not null)
             {
-                var outputDir = PathHelper.ResolvePath(OutputDir);
+                var outputDir = PathHelper.ResolvePath(OutputDir, fileSystem: fileSystem);
 
-                if (!Directory.Exists(outputDir))
+                if ((fileSystem is not null && !fileSystem.Directory.Exists(outputDir)) ||
+                    (fileSystem is null && !Directory.Exists(outputDir)))
                 {
                     throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
                 }
@@ -209,13 +261,14 @@ namespace Bicep.Cli.Arguments
 
         public string? OutputFile { get; }
 
-        public NewlineOption? Newline { get; }
+        public NewlineKind? NewlineKind { get; }
 
-        public IndentKindOption? IndentKind { get; }
+        public IndentKind? IndentKind { get; }
 
         public int? IndentSize { get; }
 
-        public bool? InsertFinalNewline { get; }
+        public int? Width { get; }
 
+        public bool? InsertFinalNewline { get; }
     }
 }

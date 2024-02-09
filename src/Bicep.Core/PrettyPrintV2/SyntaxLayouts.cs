@@ -359,11 +359,11 @@ namespace Bicep.Core.PrettyPrintV2
 
             for (var i = 0; i < syntax.Expressions.Length; i++)
             {
-                writer.Write(syntax.StringTokens[i].Text);
+                writer.Write(syntax.StringTokens[i].Text.ReplaceLineEndings(this.context.Newline));
                 SyntaxStringifier.StringifyTo(writer, syntax.Expressions[i], this.context.Newline);
             }
 
-            writer.Write(syntax.StringTokens[^1].Text);
+            writer.Write(syntax.StringTokens[^1].Text.ReplaceLineEndings(this.context.Newline));
 
             return LayoutWithLeadingAndTrailingTrivia(writer.ToString(), leadingTrivia, trailingTrivia, suffix);
         }
@@ -686,7 +686,7 @@ namespace Bicep.Core.PrettyPrintV2
                 }
 
                 // Trim newlines to handle unterminated multi-line comments.
-                yield return triviaItem.Text.TrimEnd('\r', '\n');
+                yield return triviaItem.Text.TrimEnd('\r', '\n').ReplaceLineEndings(this.context.Newline);
             }
         }
 
@@ -723,7 +723,7 @@ namespace Bicep.Core.PrettyPrintV2
                 }
 
                 // Trim newlines to handle unterminated multi-line comments.
-                trailingTrivia.Add(triviaItem.Text.TrimEnd('\r', '\n'));
+                trailingTrivia.Add(triviaItem.Text.TrimEnd('\r', '\n').ReplaceLineEndings(this.context.Newline));
             }
 
             return trailingTrivia;

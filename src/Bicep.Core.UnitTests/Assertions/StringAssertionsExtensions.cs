@@ -54,7 +54,8 @@ namespace Bicep.Core.UnitTests.Assertions
         public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
         {
             var lineDiff = CalculateDiff(expected, instance.Subject);
-            var testPassed = lineDiff is null;
+            var hasNewlineDiffsOnly = lineDiff is null && !expected.Equals(instance.Subject, System.StringComparison.Ordinal);
+            var testPassed = lineDiff is null && !hasNewlineDiffsOnly;
 
             var isBaselineUpdate = !testPassed && BaselineHelper.ShouldSetBaseline(testContext);
             if (isBaselineUpdate)
@@ -67,7 +68,7 @@ namespace Bicep.Core.UnitTests.Assertions
                 .ForCondition(testPassed)
                 .FailWith(
                     BaselineHelper.GetAssertionFormatString(isBaselineUpdate),
-                    lineDiff,
+                    lineDiff ?? "differences in newlines only",
                     BaselineHelper.GetAbsolutePathRelativeToRepoRoot(actualLocation),
                     BaselineHelper.GetAbsolutePathRelativeToRepoRoot(expectedLocation));
 

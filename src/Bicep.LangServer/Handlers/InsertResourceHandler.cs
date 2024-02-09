@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -11,8 +10,7 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
-using Bicep.Core.PrettyPrint;
-using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Resources;
 using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
@@ -186,28 +184,38 @@ namespace Bicep.LanguageServer.Handlers
         {
             // Create a new document containing the resource to insert.
             // This allows us to apply syntax rewriters and formatting, before generating the code replacement.
-            var printOptions = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false);
             var program = new ProgramSyntax(
                 new[] { resourceDeclaration },
                 SyntaxFactory.EndOfFileToken);
 
-            var printed = PrettyPrinter.PrintValidProgram(program, printOptions);
             var bicepFile = RewriterHelper.RewriteMultiple(
                 prevCompilation,
-                SourceFileFactory.CreateBicepFile(new Uri("inmemory:///generated.bicep"), printed),
+                SourceFileFactory.CreateBicepFile(new Uri("inmemory:///generated.bicep"), program.ToString()),
                 rewritePasses: 5,
                 model => new TypeCasingFixerRewriter(model),
                 model => new ReadOnlyPropertyRemovalRewriter(model));
 
-            printed = PrettyPrinter.PrintValidProgram(bicepFile.ProgramSyntax, printOptions);
-            if (insertContext.StartWithNewline)
+            var printerOptions = prevCompilation.GetEntrypointSemanticModel().Configuration.Formatting.Data;
+            var printed = PrettyPrinterV2.PrintValid(program, printerOptions);
+
+            var newline = printerOptions.NewlineKind.ToEscapeSequence();
+            var newlineCharacters = newline.ToCharArray();
+            var hasLeadingNewline = printed.StartsWith(newline, StringComparison.Ordinal);
+            var hasTrailingNewline = printed.EndsWith(newline, StringComparison.Ordinal);
+
+            printed = (insertContext.StartWithNewline, hasLeadingNewline) switch
             {
-                printed = "\n" + printed;
-            }
-            if (insertContext.EndWithNewline)
+                (true, false) => $"{newline}{printed}",
+                (false, true) => printed.TrimStart(newlineCharacters),
+                _ => printed,
+            };
+
+            printed = (insertContext.EndWithNewline, hasTrailingNewline) switch
             {
-                printed = printed + "\n";
-            }
+                (true, false) => $"{printed}{newline}",
+                (false, true) => printed.TrimEnd(newlineCharacters),
+                _ => printed,
+            };
 
             return new CodeReplacement(new TextSpan(insertContext.InsertOffset, 0), printed);
         }

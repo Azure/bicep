@@ -1,509 +1,93 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions.TestingHelpers;
 using System.Text.RegularExpressions;
-using Bicep.Core;
+using Bicep.Cli.UnitTests;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Samples;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace Bicep.Cli.IntegrationTests
 {
     [TestClass]
-    public class FormatCommandTests : TestBase
+    public partial class FormatCommandTests : TestBase
     {
-        [TestMethod]
-        public async Task Format_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
-        {
-            var (output, error, result) = await Bicep("format");
-
-            using (new AssertionScope())
-            {
-                result.Should().Be(1);
-                output.Should().BeEmpty();
-
-                error.Should().NotBeEmpty();
-                error.Should().Contain($"The input file path was not specified");
-            }
-        }
-
-        [TestMethod]
-        public async Task Format_NonBicepFiles_ShouldFail_WithExpectedErrorMessage()
-        {
-            var (output, error, result) = await Bicep("format", "/dev/zero");
-
-            using (new AssertionScope())
-            {
-                result.Should().Be(1);
-                output.Should().BeEmpty();
-
-                error.Should().NotBeEmpty();
-                error.Should().Contain($@"The specified input ""/dev/zero"" was not recognized as a Bicep or Bicep Parameters file. Valid files must either the {LanguageConstants.LanguageFileExtension} or {LanguageConstants.ParamsFileExtension} extension.");
-            }
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Format_Valid_Files_with_DefaultSettings_ShouldSucceed(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var originalContent = File.ReadAllText(bicepFilePath);
-            if (string.IsNullOrEmpty(originalContent))
-            {
-                // Skip if input file is empty
-                return;
-            }
-            var (output, error, result) = await Bicep("format", bicepFilePath);
-
-            // Should format successfully
-            using (new AssertionScope())
-            {
-                result.Should().Be(0);
-                output.Should().BeEmpty();
-                AssertNoErrors(error);
-            }
-
-            var actual = File.ReadAllText(bicepFilePath);
-
-            string lf = ((char)10).ToString();
-            string cr = ((char)13).ToString();
-
-            // Should not have new lines in end of file
-            actual.Should().NotEndWith(lf);
-            actual.Should().NotEndWith(cr);
-
-            // Should use two spaces for indentation
-            var indentation = GetIndentation(actual);
-            if (indentation.Length > 0)
-            {
-                indentation.Should().Be("  ");
-            }
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Format_Valid_Files_with_DefaultSettings_and_OutFile_ShouldSucceed(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var originalContent = File.ReadAllText(bicepFilePath);
-            if (string.IsNullOrEmpty(originalContent))
-            {
-                // Skip if input file is empty
-                return;
-            }
-            var outFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainFormatted);
-            var (output, error, result) = await Bicep("format", bicepFilePath, "--outfile", outFilePath);
-
-            // Should format successfully
-            using (new AssertionScope())
-            {
-                result.Should().Be(0);
-                output.Should().BeEmpty();
-                AssertNoErrors(error);
-            }
-
-            var actual = File.ReadAllText(outFilePath);
-
-            string lf = ((char)10).ToString();
-            string cr = ((char)13).ToString();
-
-            // Should not have new lines in end of file
-            actual.Should().NotEndWith(lf);
-            actual.Should().NotEndWith(cr);
-
-            // Should use two spaces for indentation
-            var indentation = GetIndentation(actual);
-            if (indentation.Length > 0)
-            {
-                indentation.Should().Be("  ");
-            }
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Format_Valid_Files_with_DefaultSettings_to_StandardOut_ShouldSucceed(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var originalContent = File.ReadAllText(bicepFilePath);
-            if (string.IsNullOrEmpty(originalContent))
-            {
-                // Skip if input file is empty
-                return;
-            }
-            var (output, error, result) = await Bicep("format", bicepFilePath, "--stdout");
-
-            // Should format successfully to stdout
-            using (new AssertionScope())
-            {
-                result.Should().Be(0);
-                output.Should().NotBeEmpty();
-                AssertNoErrors(error);
-            }
-
-            var actual = output;
-
-            string lf = ((char)10).ToString();
-            string cr = ((char)13).ToString();
-
-            // Should not have new lines in end of file
-            actual.Should().NotEndWith(lf);
-            actual.Should().NotEndWith(cr);
-
-            // Should use two spaces for indentation
-            var indentation = GetIndentation(actual);
-            if (indentation.Length > 0)
-            {
-                indentation.Should().Be("  ");
-            }
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Format_Valid_Files_with_Newline_CRLF_ShouldSucceed(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var originalContent = File.ReadAllText(bicepFilePath);
-            if (string.IsNullOrEmpty(originalContent))
-            {
-                // Skip if input file is empty
-                return;
-            }
-            var (output, error, result) = await Bicep("format", bicepFilePath, "--newLine", "CRLF");
-
-            // Should format successfully
-            using (new AssertionScope())
-            {
-                result.Should().Be(0);
-                output.Should().BeEmpty();
-                AssertNoErrors(error);
-            }
-
-            var actual = File.ReadAllText(bicepFilePath);
-
-            string lf = ((char)10).ToString();
-            string cr = ((char)13).ToString();
-
-            // Should not have new lines in end of file
-            actual.Should().NotEndWith(lf);
-            actual.Should().NotEndWith(cr);
-
-            // Should use CRLF lineEndings
-            actual.Should().Contain(cr + lf);
-
-            // Should use two spaces for indentation
-            var indentation = GetIndentation(actual);
-            if (indentation.Length > 0)
-            {
-                indentation.Should().Be("  ");
-            }
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Format_Valid_Files_with_Newline_LF_ShouldSucceed(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var originalContent = File.ReadAllText(bicepFilePath);
-            if (string.IsNullOrEmpty(originalContent))
-            {
-                // Skip if input file is empty
-                return;
-            }
-            var (output, error, result) = await Bicep("format", bicepFilePath, "--newline", "LF");
-
-            // Should format successfully
-            using (new AssertionScope())
-            {
-                result.Should().Be(0);
-                output.Should().BeEmpty();
-                AssertNoErrors(error);
-            }
-
-            var actual = File.ReadAllText(bicepFilePath);
-
-            string lf = ((char)10).ToString();
-            string cr = ((char)13).ToString();
-
-            // Should not have new lines in end of file
-            actual.Should().NotEndWith(lf);
-            actual.Should().NotEndWith(cr);
-
-            // Should use only LF lineEndings
-            actual.Should().Contain(lf);
-            actual.Should().NotContain(cr);
-
-            // Should use two spaces for indentation
-            var indentation = GetIndentation(actual);
-            if (indentation.Length > 0)
-            {
-                indentation.Should().Be("  ");
-            }
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Format_Valid_Files_with_Newline_CRLF_and_finalNewLine_ShouldSucceed(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var originalContent = File.ReadAllText(bicepFilePath);
-            if (string.IsNullOrEmpty(originalContent))
-            {
-                // Skip if input file is empty
-                return;
-            }
-            var (output, error, result) = await Bicep("format", bicepFilePath, "--newLine", "CRLF", "--insert-final-newline");
-
-            // Should format successfully
-            using (new AssertionScope())
-            {
-                result.Should().Be(0);
-                output.Should().BeEmpty();
-                AssertNoErrors(error);
-            }
-
-            var actual = File.ReadAllText(bicepFilePath);
-
-            string lf = ((char)10).ToString();
-            string cr = ((char)13).ToString();
-
-            // Should have a new line at the end
-            actual.Should().EndWith(cr + lf);
-
-            // Should use CRLF lineEndings
-            actual.TrimEnd().Should().Contain(cr + lf);
-
-            // Should use two spaces for indentation
-            var indentation = GetIndentation(actual);
-            if (indentation.Length > 0)
-            {
-                indentation.Should().Be("  ");
-            }
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Format_Valid_Files_with_Newline_CRLF_and_TabIndentation_ShouldSucceed(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var originalContent = File.ReadAllText(bicepFilePath);
-            if (string.IsNullOrEmpty(originalContent))
-            {
-                // Skip if input file is empty
-                return;
-            }
-            var (output, error, result) = await Bicep("format", bicepFilePath, "--newLine", "CRLF", "--indentKind", "Tab");
-
-            // Should format successfully
-            using (new AssertionScope())
-            {
-                result.Should().Be(0);
-                output.Should().BeEmpty();
-                AssertNoErrors(error);
-            }
-
-            var actual = File.ReadAllText(bicepFilePath);
-
-            string lf = ((char)10).ToString();
-            string cr = ((char)13).ToString();
-
-            // Should not have new lines in end of file
-            actual.Should().NotEndWith(lf);
-            actual.Should().NotEndWith(cr);
-
-            // Should use CRLF lineEndings
-            actual.Should().Contain(cr + lf);
-
-            // Should use tabs for indentation
-            string tab = ((char)9).ToString();
-            var indentation = GetIndentation(actual);
-            if (indentation.Length > 0)
-            {
-                indentation.Should().Be(tab);
-            }
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Format_Valid_Files_with_Newline_CRLF_and_Indentsize_4_ShouldSucceed(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var originalContent = File.ReadAllText(bicepFilePath);
-            if (string.IsNullOrEmpty(originalContent))
-            {
-                // Skip if input file is empty
-                return;
-            }
-            var (output, error, result) = await Bicep("format", bicepFilePath, "--newLine", "CRLF", "--indent-size", "4");
-
-            // Should format successfully
-            using (new AssertionScope())
-            {
-                result.Should().Be(0);
-                output.Should().BeEmpty();
-                AssertNoErrors(error);
-            }
-
-            var actual = File.ReadAllText(bicepFilePath);
-
-            string lf = ((char)10).ToString();
-            string cr = ((char)13).ToString();
-
-            // Should not have new lines in end of file
-            actual.Should().NotEndWith(lf);
-            actual.Should().NotEndWith(cr);
-
-            // Should use CRLF lineEndings
-            actual.Should().Contain(cr + lf);
-
-            // Should use four spaces for indentation
-            var indentation = GetIndentation(actual);
-            if (indentation.Length > 0)
-            {
-                indentation.Should().Be("    ");
-            }
-        }
-
-        [TestMethod]
-        public async Task Format_with_outdir_and_stdout_ShouldFail_WithExpectedErrorMessage()
-        {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
-output myOutput string = 'hello!'
-            ");
-
-            var outputDirectory = FileHelper.GetResultFilePath(TestContext, "outputdir");
-
-            var (output, error, result) = await Bicep("format", "--outdir", outputDirectory, "--stdout", bicepPath);
-
-            result.Should().Be(1);
-            output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The --outdir and --stdout parameters cannot both be used");
-        }
-
-        [TestMethod]
-        public async Task Format_with_outfile_and_stdout_ShouldFail_WithExpectedErrorMessage()
-        {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
-output myOutput string = 'hello!'
-            ");
-
-            var (output, error, result) = await Bicep("format", "--outfile", bicepPath, "--stdout", bicepPath);
-
-            result.Should().Be(1);
-            output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The --outfile and --stdout parameters cannot both be used");
-        }
-
-        [TestMethod]
-        public async Task Format_with_outdir_and_outfile_ShouldFail_WithExpectedErrorMessage()
-        {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
-output myOutput string = 'hello!'
-            ");
-
-            var outputDirectory = FileHelper.GetResultFilePath(TestContext, "outputdir");
-            var outFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainFormatted);
-
-            var (output, error, result) = await Bicep("format", "--outdir", outputDirectory, "--outfile", outFilePath, bicepPath);
-
-            result.Should().Be(1);
-            output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The --outdir and --outfile parameters cannot both be used");
-        }
-
-        [TestMethod]
-        public async Task Format_with_indentSize_and_indentKindTab_ShouldFail_WithExpectedErrorMessage()
-        {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
-output myOutput string = 'hello!'
-            ");
-
-            var (output, error, result) = await Bicep("format", "--indent-size", "2", "--indent-kind", "Tab", bicepPath);
-
-            result.Should().Be(1);
-            output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The --indent-size cannot be used when --indent-kind is ""Tab""");
-        }
-
-        [TestMethod]
-        public async Task Format_WithNonExistantOutDir_ShouldFail_WithExpectedErrorMessage()
-        {
-            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
-output myOutput string = 'hello!'
-            ");
-
-            var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
-            var (output, error, result) = await Bicep("format", "--outdir", outputFileDir, bicepPath);
-
-            result.Should().Be(1);
-            output.Should().BeEmpty();
-            error.Should().MatchRegex(@"The specified output directory "".*outputdir"" does not exist");
-        }
-
-        // TODO: Enable this test once Azure CLI is updated to support the new parameters.
+        // TODO(#13276): Enable this test once Azure CLI is updated to support the new parameters.
         //[TestMethod]
         //public async Task Format_WithDeprecatedParams_PrintsDeprecationMessage()
         //{
         //    var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "output myOutput string = 'hello!'");
 
         //    var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
-        //    var (output, error, result) = await Bicep("format", bicepPath, "--indentKind", "space", "--indentSize", "4", "--insertFinalNewline");
+        //    var (output, error, result) = await Bicep("format", bicepPath, "-newline", "crlf", "--indentKind", "space", "--indentSize", "4", "--insertFinalNewline");
 
         //    result.Should().Be(0);
         //    output.Should().BeEmpty();
+        //    error.Should().MatchRegex(@"DEPRECATED: The parameter --newline is deprecated and will be removed in a future version of Bicpe CLI. Use --newline-kind instead.");
         //    error.Should().MatchRegex(@"DEPRECATED: The parameter --indentKind is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-kind instead.");
         //    error.Should().MatchRegex(@"DEPRECATED: The parameter --indentSize is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-size instead.");
         //    error.Should().MatchRegex(@"DEPRECATED: The parameter --insertFinalNewline is deprecated and will be removed in a future version of Bicpe CLI. Use --insert-final-newline instead.");
         //}
 
         [TestMethod]
-        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Format_Valid_Files_with_OutDir_ShouldSucceed(DataSet dataSet)
+        public async Task Format_MissingInputFilePath_Fails()
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
-            var originalContent = File.ReadAllText(bicepFilePath);
-            if (string.IsNullOrEmpty(originalContent))
+            var result = await Bicep("format");
+
+            AssertFailure(result, "The input file path was not specified");
+        }
+
+        [TestMethod]
+        public async Task Format_NonBicepFile_Fails()
+        {
+            var result = await Bicep("format", "/dev/zero");
+
+            AssertFailure(result, "The specified input \"/dev/zero\" was not recognized as a Bicep or Bicep Parameters file. Valid files must either the .bicep or .bicepparam extension.");
+        }
+
+        [TestMethod]
+        public async Task Format_LockedOutputFile_Fails()
+        {
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "Empty.bicep", DataSets.Empty.Bicep);
+
+            // ReSharper disable once ConvertToUsingDeclaration
+            using (new FileStream(inputFile, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
             {
-                // Skip if input file is empty
-                return;
+                // keep the output stream open while we attempt to write to it
+                // this should force an access denied error
+                var result = await Bicep("format", inputFile);
+
+                AssertFailure(result, "Empty.bicep"); 
             }
-            var (output, error, result) = await Bicep("format", bicepFilePath, "--outdir", outputDirectory);
+        }
 
-            // Should format successfully
-            using (new AssertionScope())
-            {
-                result.Should().Be(0);
-                output.Should().BeEmpty();
-                AssertNoErrors(error);
-            }
+        [TestMethod]
+        public async Task Format_WithBothOutdirAndStdoutSpecified_Fails()
+        {
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "output myOutput string = 'hello!'");
+            var outputDirectory = FileHelper.GetResultFilePath(TestContext, "outputdir");
 
-            var actual = File.ReadAllText(bicepFilePath);
+            var result = await Bicep("format", "--outdir", outputDirectory, "--stdout", bicepPath);
 
-            string lf = ((char)10).ToString();
-            string cr = ((char)13).ToString();
+            AssertFailure(result, "The --outdir and --stdout parameters cannot both be used");
+        }
 
-            // Should not have new lines in end of file
-            actual.Should().NotEndWith(lf);
-            actual.Should().NotEndWith(cr);
+        [TestMethod]
+        public async Task Format_WithBothOutdirAndOutfileSpecified_Fails()
+        {
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "output myOutput string = 'hello!'");
 
-            // Should use two spaces for indentation
-            var indentation = GetIndentation(actual);
-            if (indentation.Length > 0)
-            {
-                indentation.Should().Be("  ");
-            }
+            var outputDirectory = FileHelper.GetResultFilePath(TestContext, "outputdir");
+
+            var result = await Bicep("format", "--outdir", outputDirectory, "--outfile", "foo.bicep", bicepPath);
+
+            AssertFailure(result, "The --outdir and --outfile parameters cannot both be used");
         }
 
         [DataRow("DoesNotExist.bicep", new[] { "--stdout" }, @"An error occurred reading file. Could not find file '.+DoesNotExist.bicep'")]
@@ -513,81 +97,241 @@ output myOutput string = 'hello!'
         [DataRow("WrongDir\\Fake.bicep", new[] { "--outdir", "." }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataRow("WrongDir\\Fake.bicep", new[] { "--outfile", "file1" }, @"An error occurred reading file. Could not find .+'.+WrongDir[\\/]Fake.bicep'")]
         [DataTestMethod]
-        public async Task Format_InvalidInputPaths_ShouldProduceExpectedError(string badPath, string[] args, string expectedErrorRegex)
+        public async Task Format_InvalidInputPath_Fails(string badPath, string[] args, string expectedErrorPattern)
         {
-            var (output, error, result) = await Bicep(new[] { "format" }.Concat(args).Append(badPath).ToArray());
+            var result = await Bicep(["format", .. args, badPath]);
 
-            result.Should().Be(1);
-            output.Should().BeEmpty();
+            AssertFailure(result, expectedErrorPattern);
         }
 
         [TestMethod]
-        public async Task Format_LockedOutputFile_ShouldProduceExpectedError()
+        public async Task Format_NonExistentOutDir_Fails()
         {
-            var inputFile = FileHelper.SaveResultFile(this.TestContext, "Empty.bicep", DataSets.Empty.Bicep);
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "iutput myOutput string = 'hello!'");
+            var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
 
-            // ReSharper disable once ConvertToUsingDeclaration
-            using (new FileStream(inputFile, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
-            {
-                // keep the output stream open while we attempt to write to it
-                // this should force an access denied error
-                var (output, error, result) = await Bicep("format", inputFile);
+            var result = await Bicep("format", "--outdir", outputFileDir, bicepPath);
 
-                result.Should().Be(1);
-                output.Should().BeEmpty();
-                error.Should().Contain("Empty.bicep");
-            }
+            AssertFailure(result, @"The specified output directory "".*outputdir"" does not exist");
         }
 
         [DataTestMethod]
         [BaselineData_Bicepparam.TestData()]
-        public async Task Format_bicepparam_gives_expected_output(BaselineData_Bicepparam baselineData)
+        public async Task Format_SampleBicepParam_MatchesFormattedSample(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
 
-            data.Formatted.WriteToOutputFolder(data.Parameters.EmbeddedFile.Contents);
-            var (output, error, result) = await Bicep("format", data.Formatted.OutputFilePath, "--insertfinalnewline");
+            data.PrettyPrinted.WriteToOutputFolder(data.Parameters.EmbeddedFile.Contents);
+            var result = await Bicep("format", data.PrettyPrinted.OutputFilePath);
 
-            // Should format successfully
+            AssertSuccess(result);
+
+            data.PrettyPrinted.ShouldHaveExpectedValue();
+        }
+
+        [DataTestMethod]
+        //[DynamicData(nameof(GetDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Format_SampleFile_MatchesFormattedSample()
+        {
+            DataSet dataSet = DataSets.Metadata_CRLF;
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
+
+            var result = await Bicep("format", bicepFilePath);
+
+            AssertSuccess(result);
+
+            var actual = File.ReadAllText(bicepFilePath);
+            actual.Should().Be(dataSet.PrettyPrinted);
+        }
+
+        [TestMethod]
+        public async Task Format_WithOutFile_WritesContentToOutFile()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                ["main.bicep"] = "var number = 42",
+            });
+
+            var result = await Bicep(services => services.WithFileSystem(fileSystem), "format", "main.bicep", "--outfile", "somefile.bicep");
+
+            AssertSuccess(result);
+
+            fileSystem.FileExists("somefile.bicep").Should().BeTrue();
+        }
+
+        [TestMethod]
+        public async Task Format_WithStdout_WritesContentToStdout()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                ["main.bicep"] = "var number = 42",
+            });
+
+            var result = await Bicep(services => services.WithFileSystem(fileSystem), "format", "main.bicep", "--stdout");
+
+            AssertSuccess(result);
+
+            result.Stdout.Should().BeEquivalentToIgnoringNewlines("""
+                var number = 42
+
+                """);
+        }
+
+        [TestMethod]
+        public async Task Format_WithOutdir_SavesFileToOutdir()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                ["main.bicep"] = "var number = 42",
+                ["some-directory"] = new MockDirectoryData(),
+            });
+
+            var result = await Bicep(services => services.WithFileSystem(fileSystem), "format", "main.bicep", "--outdir", "some-directory");
+
+            AssertSuccess(result);
+
+            fileSystem.FileExists("some-directory/main.bicep").Should().BeTrue();
+        }
+
+        [DataTestMethod]
+        [DataRow(true)]
+        [DataRow(false)]
+        public async Task Format_WithInsertFinalNewlineOverride_SetsFinalNewlineAccordlingly(bool insertFinalNewline)
+        {
+            var fileContentWithoutFinalNewline = """
+                var obj = {
+                  foo: true
+                  bar: 123
+                }
+                """;
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                ["main.bicep"] = insertFinalNewline
+                    ? fileContentWithoutFinalNewline
+                    : $"{fileContentWithoutFinalNewline}\n",
+            });
+
+            var result = await Bicep(services => services.WithFileSystem(fileSystem), "format", "main.bicep", "--insert-final-newline", insertFinalNewline.ToString());
+
+            AssertSuccess(result);
+
+            var formatted = fileSystem.File.ReadAllText("main.bicep");
+            formatted.Should().BeEquivalentToIgnoringNewlines(insertFinalNewline
+                ? $"{fileContentWithoutFinalNewline}\n"
+                : fileContentWithoutFinalNewline);
+        }
+
+        [DataTestMethod]
+        [DataRow(IndentKind.Space)]
+        [DataRow(IndentKind.Tab)]
+        public async Task Format_WithIndentKindOverride_SetsIndentKindAccordingly(IndentKind indentKind)
+        {
+            var fileContentTemplate = """
+                var obj = {{
+                {0}foo: true
+                {0}bar: 123
+                }}
+
+                """;
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                ["main.bicep"] = string.Format(fileContentTemplate, indentKind is IndentKind.Space ? "\t" : "  "),
+            });
+
+            var result = await Bicep(services => services.WithFileSystem(fileSystem), "format", "main.bicep", "--indent-kind", indentKind.ToString());
+
+            AssertSuccess(result);
+
+            var formatted = fileSystem.File.ReadAllText("main.bicep");
+            var expected = string.Format(fileContentTemplate, indentKind is IndentKind.Space ? "  " : "\t");
+            formatted.Should().BeEquivalentToIgnoringNewlines(expected);
+        }
+
+        [DataTestMethod]
+        [DataRow(1)]
+        [DataRow(4)]
+        [DataRow(8)]
+        public async Task Format_WithIndentSizeOverride_SetsIndentSizeAccordingly(int indentSize)
+        {
+            var fileContentTemplate = """
+                var obj = {{
+                {0}foo: true
+                {0}bar: 123
+                }}
+
+                """;
+
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                ["main.bicep"] = string.Format(fileContentTemplate, ""),
+            });
+
+            var result = await Bicep(services => services.WithFileSystem(fileSystem), "format", "main.bicep", "--indent-size", indentSize.ToString());
+
+            AssertSuccess(result);
+
+            var formatted = fileSystem.File.ReadAllText("main.bicep");
+            var expected = string.Format(fileContentTemplate, new string(' ', indentSize));
+            formatted.Should().BeEquivalentToIgnoringNewlines(expected);
+        }
+
+        [TestMethod]
+        public async Task Format_WithWidthOverride_AppliesWidthLimitAccordlingly()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                ["main.bicep"] = "var obj = { prop: [1, 2, 3 ] }"
+            });
+
+            var result = await Bicep(services => services.WithFileSystem(fileSystem), "format", "main.bicep", "--width", "1");
+
+            AssertSuccess(result);
+
+            var formatted = fileSystem.File.ReadAllText("main.bicep");
+            formatted.Should().BeEquivalentToIgnoringNewlines("""
+                var obj = {
+                  prop: [
+                    1
+                    2
+                    3
+                  ]
+                }
+
+                """);
+        }
+
+        private static IEnumerable<object[]> GetDataSets() => DataSets.AllDataSets
+            .Where(x => !x.Name.Equals(DataSets.PrettyPrint_LF.Name, StringComparison.Ordinal))
+            .ToDynamicTestData();
+
+        private static void AssertSuccess(CliResult result)
+        {
             using (new AssertionScope())
             {
-                result.Should().Be(0);
-                output.Should().BeEmpty();
-                AssertNoErrors(error);
+                result.ExitCode.Should().Be(0);
+                AssertNoErrors(result.Stderr);
             }
-
-            data.Formatted.ShouldHaveExpectedValue();
         }
 
-        private static IEnumerable<object[]> GetValidDataSets() => DataSets
-            .AllDataSets
-            .Where(ds => ds.IsValid)
-            .ToDynamicTestData();
-
-        private static IEnumerable<object[]> GetInvalidDataSets() => DataSets
-            .AllDataSets
-            .Where(ds => ds.IsValid == false)
-            .ToDynamicTestData();
-
-        private static IEnumerable<object[]> GetValidDataSetsWithExternalModules() => DataSets
-            .AllDataSets
-            .Where(ds => ds.IsValid && ds.HasExternalModules)
-            .ToDynamicTestData();
-
-        /// <summary>
-        /// Find first indented line that follows a brace ({) or
-        /// bracket ([) and returns the indentation part of that line.
-        /// </summary>
-        /// <param name="content">Content of the file</param>
-        /// <returns>Indentation part of first indented line.</returns>
-        private static string GetIndentation(string content)
+        private static void AssertFailure(CliResult result, string? errorMessagePattern = null)
         {
-            var indentation = Regex.Match(content, @"(\{|\[)\r?\n(?<indentation>\s+)\S", RegexOptions.Multiline);
-            if (indentation.Success)
+            using (new AssertionScope())
             {
-                return indentation.Groups["indentation"].Value;
+                result.ExitCode.Should().Be(1);
+                result.Stdout.Should().BeEmpty();
+                result.Stderr.Should().NotBeEmpty();
+
+                if (errorMessagePattern is not null)
+                {
+                    result.Stderr.Should().MatchRegex(errorMessagePattern);
+                }
             }
-            return string.Empty;
         }
+
+        [GeneratedRegex(@"^(?<indentation>\s+)")]
+        private static partial Regex IndentationPattern();
     }
 }

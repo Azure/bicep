@@ -40,22 +40,6 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         }
 
         [DataTestMethod]
-        [BaselineData_Bicepparam.TestData()]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void PrintProgram_ParamsFile_ShouldProduceExpectedOutput(BaselineData_Bicepparam baselineData)
-        {
-            var data = baselineData.GetData(TestContext);
-            var program = ParserHelper.ParamsParse(data.Parameters.EmbeddedFile.Contents, out var lexingErrorLookup, out var parsingErrorLookup);
-            var options = new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, true);
-
-            var formattedOutput = PrettyPrinter.PrintProgram(program, options, lexingErrorLookup, parsingErrorLookup);
-            formattedOutput.Should().NotBeNull();
-
-            data.Formatted.WriteToOutputFolder(formattedOutput);
-            data.Formatted.ShouldHaveExpectedValue();
-        }
-
-        [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void PrintProgram_PrintTwice_ReturnsConsistentResults(DataSet dataSet)
         {

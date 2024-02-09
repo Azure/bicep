@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.PrettyPrintV2.Documents;
 using Bicep.Core.Syntax;
 
@@ -20,6 +21,13 @@ namespace Bicep.Core.PrettyPrintV2
         {
             this.writer = new(writer, context);
             this.context = context;
+        }
+
+        public static string PrintValid(SyntaxBase validSyntaxToPrint, PrettyPrinterV2Options options)
+        {
+            var context = PrettyPrinterV2Context.Create(options, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+
+            return Print(validSyntaxToPrint, context);
         }
 
         public static string Print(SyntaxBase syntaxToPrint, PrettyPrinterV2Context context)

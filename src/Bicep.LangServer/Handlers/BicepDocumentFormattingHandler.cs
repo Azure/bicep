@@ -1,84 +1,43 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Features;
-using Bicep.Core.PrettyPrint;
-using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.PrettyPrintV2;
-using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDocumentFormattingHandler : DocumentFormattingHandlerBase
+    public class BicepDocumentFormattingHandler(
+        ILogger<BicepDocumentSymbolHandler> logger,
+        ICompilationManager compilationManager) : DocumentFormattingHandlerBase
     {
-        private readonly ILogger<BicepDocumentSymbolHandler> logger;
-
-        private readonly ICompilationManager compilationManager;
-
-        private readonly IFeatureProviderFactory featureProviderFactory;
-
-        public BicepDocumentFormattingHandler(
-            ILogger<BicepDocumentSymbolHandler> logger,
-            ICompilationManager compilationManager,
-            IFeatureProviderFactory featureProviderFactory)
-        {
-            this.logger = logger;
-            this.compilationManager = compilationManager;
-            this.featureProviderFactory = featureProviderFactory;
-        }
-
         public override Task<TextEditContainer?> Handle(DocumentFormattingParams request, CancellationToken cancellationToken)
         {
-            CompilationContext? context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
+            CompilationContext? context = compilationManager.GetCompilation(request.TextDocument.Uri);
 
             if (context == null)
             {
                 // we have not yet compiled this document, which shouldn't really happen
-                this.logger.LogError("Document formatting request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
+                logger.LogError("Document formatting request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
 
                 return Task.FromResult<TextEditContainer?>(null);
             }
 
             var lexingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.LexingErrorLookup;
             var parsingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.ParsingErrorLookup;
-            var featureProvider = this.featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUriEncoded());
 
-            if (featureProvider.PrettyPrintingEnabled)
-            {
-                var v2Options = context.Compilation.GetEntrypointSemanticModel().Configuration.Formatting.Data;
-                var printerV2Context = PrettyPrinterV2Context.Create(v2Options, lexingErrorLookup, parsingErrorLookup);
-                var v2Output = PrettyPrinterV2.Print(context.ProgramSyntax, printerV2Context);
-
-                return Task.FromResult<TextEditContainer?>(new TextEditContainer(new TextEdit
-                {
-                    Range = context.ProgramSyntax.Span.ToRange(context.LineStarts),
-                    NewText = v2Output,
-                }));
-            }
-
-            long indentSize = request.Options.TabSize;
-            IndentKindOption indentKindOption = request.Options.InsertSpaces ? IndentKindOption.Space : IndentKindOption.Tab;
-
-            ProgramSyntax programSyntax = context.ProgramSyntax;
-            PrettyPrintOptions options = new(NewlineOption.Auto, indentKindOption, indentSize, request.Options.InsertFinalNewline);
-            string? output = PrettyPrinter.PrintProgram(context.ProgramSyntax, options, lexingErrorLookup, parsingErrorLookup);
-
-            if (output == null)
-            {
-                return Task.FromResult<TextEditContainer?>(null);
-            }
+            var printerOptions = context.Compilation.GetEntrypointSemanticModel().Configuration.Formatting.Data;
+            var printerContext = PrettyPrinterV2Context.Create(printerOptions, lexingErrorLookup, parsingErrorLookup);
+            var output = PrettyPrinterV2.Print(context.ProgramSyntax, printerContext);
 
             return Task.FromResult<TextEditContainer?>(new TextEditContainer(new TextEdit
             {
-                Range = programSyntax.Span.ToRange(context.LineStarts),
-                NewText = output
+                Range = context.ProgramSyntax.Span.ToRange(context.LineStarts),
+                NewText = output,
             }));
         }
 

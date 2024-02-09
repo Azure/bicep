@@ -10,9 +10,6 @@ namespace Bicep.Core.PrettyPrint
 {
     public static class PrettyPrinter
     {
-        public static string PrintValidProgram(ProgramSyntax programSyntax, PrettyPrintOptions options) =>
-            PrintProgram(programSyntax, options, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
-
         public static string PrintProgram(ProgramSyntax programSyntax, PrettyPrintOptions options, IDiagnosticLookup lexingErrorLookup, IDiagnosticLookup parsingErrorLookup)
         {
             string indent = options.IndentKindOption == IndentKindOption.Space ? new string(' ', options.IndentSize) : "\t";
@@ -35,18 +32,6 @@ namespace Bicep.Core.PrettyPrint
                 sb.Append(newline);
             }
 
-            return sb.ToString();
-        }
-
-        public static string PrintValidSyntax(SyntaxBase syntax, PrettyPrintOptions options)
-        {
-            string indent = options.IndentKindOption == IndentKindOption.Space ? new string(' ', options.IndentSize) : "\t";
-
-            var sb = new StringBuilder();
-            var documentBuildVisitor = new DocumentBuildVisitor(EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
-
-            var document = documentBuildVisitor.BuildDocument(syntax);
-            document.Layout(sb, indent, Environment.NewLine);
             return sb.ToString();
         }
 
