@@ -5715,6 +5715,48 @@ var startAndEndBracket = '[]'
 @export()
 var startAndEndBracketInString = 'x[]y'
 """));
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/13427
+    [TestMethod]
+    public void Test_Issue13427()
+    {
+        var result = CompilationHelper.Compile("""
+            @export()
+            type naming = {
+              @description('Override the abbreviation of this resource with this parameter')
+              abbreviation: string?
+              @description('The resource environment (for example: dev, tst, acc, prd)')
+              environment: string?
+              @description('The resource location (for example: weu, we, westeurope)')
+              location: string?
+              @description('The name of the customer')
+              customer: string?
+              @description('The delimiter between resources (default: -)')
+              delimiter: string?
+              @description('The order of the array defines the order of elements in the naming scheme')
+              nameFormat: ('abbreviation' | 'function' | 'environment' | 'location' | 'customer' | 'param1' | 'param2' | 'param3')[]?
+              @description('Extra parameter self defined')
+              param1: string?
+              @description('Extra parameter self defined')
+              param2: string?
+              @description('Extra parameter self defined')
+              param3: string?
+              @description('Full name of the resource overwrites the combinated name')
+              overrideName: string?
+              @description('Function of the resource [can be app, db, security,...]')
+              function: string
+              @description('Suffix for the resource, if empty non will be appended, otherwise will be added to the end [can be index, ...]')
+              suffix: string?
+            }
+
+            param defaultNaming naming
+
+            param resourceNaming naming
+
+            param test naming = union(defaultNaming, resourceNaming)
+            """);
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
