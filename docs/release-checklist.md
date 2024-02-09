@@ -17,9 +17,8 @@
         1. Might also need to update baseline tests (run `bicep/scripts/SetBaseline.ps1`)
 1. Verify the latest build on the `main` branch is green: ![Build on main](https://github.com/Azure/bicep/actions/workflows/build.yml/badge.svg?branch=main).
 1. Review history for changes to [bicepconfig.schema.json](https://github.com/Azure/bicep/commits/main/src/vscode-bicep/schemas/bicepconfig.schema.json). Create a GitHub issue for it if none already exists and notify the team for any recently-added linter rules which do not have public documentation. This is non-blocking for the release process (continue to the next step).
-1. (**end-of-month releases only**) Update Bicep:
-    1. Bump the version number by incrementing the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))
-    1. Run the Official Build for BicepMirror (see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror) for instructions).
+1. (**end-of-month releases only**) Bump the version number by incrementing the minor version number in [this file](https://github.com/Azure/bicep/blob/main/version.json) (example [here](https://github.com/Azure/bicep/pull/9698))
+1. Run the Official Build for BicepMirror (see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror) for instructions).
 1. Push the version tag for the commit used to generate the official build.
     1. Obtain the version number from official build. This should be of format `vXX.YY.ZZ` - e.g `v0.14.85`.
         1. Look at either the official build artifacts or 
