@@ -41,6 +41,9 @@ jobs:
 
       - name: debug
         run: |
+          echo ${{ github }}
+          echo ${{ github.event }}
+          echo ${{ github.event.client_payload }}
           echo ${{ github.event.client_payload.slash_command.command }}
           echo ${{ github.event.client_payload.slash_command.args.all }}
           echo ${{ github.event.client_payload.slash_command.args.unnamed.all }}
