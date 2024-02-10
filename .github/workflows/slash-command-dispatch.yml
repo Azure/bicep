@@ -21,7 +21,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commands: |
             lockfiles
           permission: write
@@ -29,7 +29,7 @@ jobs:
           dispatch-type: workflow
           static-args: ref=${{ steps.comment-branch.outputs.head_ref }}
 
-      - name: Dump context
+      - name: Dump context 2
         env:
           SLASH_CONTEXT: ${{ toJson(steps.slash-command) }}
         run: echo "$SLASH_CONTEXT"
