@@ -4,8 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.PrettyPrint;
-using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -97,7 +95,6 @@ namespace Bicep.Core.IntegrationTests
             var bicepFile = baselineFolder.EntryFile;
 
             var program = ParserHelper.Parse(embeddedBicep.Contents, out var lexingErrorLookup, out var parsingErrorLookup);
-            var printOptions = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, true);
             var context = PrettyPrinterV2Context.Create(PrettyPrinterV2Options.Default, lexingErrorLookup, parsingErrorLookup);
             var formattedContents = PrettyPrinterV2.Print(program, context);
             formattedContents.Should().NotBeNull();
