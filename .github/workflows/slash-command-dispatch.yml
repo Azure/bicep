@@ -70,3 +70,17 @@ jobs:
             [Command run output][1]
 
             [1]: ${{ steps.vars.outputs.run-url }}
+
+      - name: Bot Details
+        id: bot-details
+        uses: raven-actions/bot-details@v1
+
+      - name: Bot Details outputs
+        run: |
+          echo "ID: ${{ steps.bot-details.outputs.id }}"
+          echo "Slug name: ${{ steps.bot-details.outputs.slug }}"
+          echo "Display name: ${{ steps.bot-details.outputs.name }}"
+          echo "Email: ${{ steps.bot-details.outputs.email }}"
+          echo "Name Email: ${{ steps.bot-details.outputs.name-email }}"
+          echo "HTML URL: ${{ steps.bot-details.outputs.html-url }}"
+          echo "API URL: ${{ steps.bot-details.outputs.api-url }}"
