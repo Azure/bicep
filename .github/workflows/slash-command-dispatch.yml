@@ -6,7 +6,6 @@ jobs:
   slashCommandDispatch:
     runs-on: ubuntu-latest
     steps:
-
       - uses: xt0rted/pull-request-comment-branch@v2
         id: comment-branch
 
