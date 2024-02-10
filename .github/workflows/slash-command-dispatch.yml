@@ -27,7 +27,7 @@ jobs:
             lockfiles
           permission: write
           issue-type: pull-request
-          dispatch-type: workflow
+          #dispatch-type: workflow
           static-args: ref=${{ steps.comment-branch.outputs.head_ref }}
 
       - name: Dump context asdfg
