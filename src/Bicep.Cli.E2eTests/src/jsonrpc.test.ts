@@ -88,11 +88,6 @@ describe("bicep jsonrpc", () => {
   });
 
   it("should return metadata for a bicep file", async () => {
-    writeTempFile("jsonrpc-metadata", "bicepconfig.json", `{
-      "experimentalFeaturesEnabled": {
-        "compileTimeImports": true
-      }
-    }`);
     const bicepPath = writeTempFile("jsonrpc-metadata", "metadata.bicep", `
     metadata description = 'my file'
 

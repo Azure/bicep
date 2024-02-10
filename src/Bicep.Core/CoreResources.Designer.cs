@@ -178,15 +178,6 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Compile-time imports.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_CompileTimeImports {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_CompileTimeImports", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Dynamic type loading.
         /// </summary>
         internal static string ExperimentalFeatureNames_DynamicTypeLoading {
