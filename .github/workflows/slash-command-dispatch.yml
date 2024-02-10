@@ -18,8 +18,10 @@ jobs:
       - name: Slash Command Dispatch
         uses: peter-evans/slash-command-dispatch@v4
         id: slash-command
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: ${{ secrets.PAT_REPO_FULL }}
+          token: ${{ GITHUB_TOKEN }}
           commands: |
             lockfiles
           permission: write
