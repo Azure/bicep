@@ -1,0 +1,33 @@
+name: Slash Command Dispatch
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  slashCommandDispatch:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: xt0rted/pull-request-comment-branch@v2
+        id: comment-branch
+
+      - name: Dump context
+        env:
+          COMMENT_CONTEXT: ${{ toJson(steps.comment-branch.outputs) }}
+        run: echo "$COMMENT_CONTEXT"
+
+      - name: Slash Command Dispatch
+        uses: peter-evans/slash-command-dispatch@v4
+        id: slash-command
+        with:
+          token: ${{ secrets.PAT_REPO_FULL }}
+          commands: |
+            lockfiles
+          permission: write
+          issue-type: pull-request
+          dispatch-type: workflow
+          static-args: ref=${{ steps.comment-branch.outputs.head_ref }}
+
+      - name: Dump context
+        env:
+          SLASH_CONTEXT: ${{ toJson(steps.slash-command) }}
+        run: echo "$SLASH_CONTEXT"
