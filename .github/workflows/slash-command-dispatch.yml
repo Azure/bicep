@@ -68,11 +68,19 @@ jobs:
           PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
         run: echo "$PAYLOAD_CONTEXT"  
 
+      - name: Dump the client payload context
+        env:
+          abc: ${{ toJson(github.repository) }}
+          def: ${{ toJson(github.event.comment.id) }}
+        run: |
+          echo "$abc"
+          echo "$def"
+
       - name: Add reaction
         uses: peter-evans/create-or-update-comment@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          repository: ${{ github.repository.full_name }}
           comment-id: ${{ github.event.comment.id }}
           reactions: hooray
 
