@@ -1,0 +1,67 @@
+# https://docs.github.com/en/code-security/supply-chain-security/keeping-your-dependencies-updated-automatically/automating-dependabot-with-github-actions#enable-auto-merge-on-a-pull-request
+name: Dependabot Updates
+on: pull_request_target
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1.6.0
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Enable auto-merge for Dependabot PRs
+        #if: ${{steps.metadata.outputs.update-type == 'version-update:semver-patch'}}
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.PAT_REPO_FULL}}
+
+  lockfiles:
+    # We want this to run *after* auto-merge has completed.
+    # Otherwise, auto-merge may fail due to the extra commit from this workflow
+    needs:
+      - auto-merge
+
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history
+          token: ${{ secrets.PAT_REPO_FULL }}
+          ref: ${{ github.head_ref }}
+
+      - name: Setup .NET 5
+        uses: actions/setup-dotnet@v4.0.0
+        with:
+          dotnet-version: 5.0.x
+
+      - name: Restore dependencies
+        run: |
+          dotnet restore --force-evaluate
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Update lockfiles
+
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+      
