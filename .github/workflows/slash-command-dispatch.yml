@@ -36,7 +36,7 @@ jobs:
         run: echo "$SLASH_CONTEXT"
 
       - name: Bot Details
-        id: bot-details
+        id: bot-details2
         uses: raven-actions/bot-details@v1
 
       - name: debug
