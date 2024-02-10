@@ -14,195 +14,207 @@ namespace Bicep.Core.UnitTests.Rewriters
         [TestMethod]
         public void Unnecessary_dependsOn_statements_are_removed()
         {
-            var bicepFile = @"
-resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-}
+            var bicepFile = """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                }
 
-resource resB 'My.Rp/resB@2020-01-01' = {
-  name: 'resB'
-  properties: {
-    resA: resA.name
-  }
-  dependsOn: [
-    resA
-  ]
-}
+                resource resB 'My.Rp/resB@2020-01-01' = {
+                  name: 'resB'
+                  properties: {
+                    resA: resA.name
+                  }
+                  dependsOn: [
+                    resA
+                  ]
+                }
 
-var varA = resA.name
-var varB = {
-  resA: varA
-  resB: resB.name
-}
+                var varA = resA.name
+                var varB = {
+                  resA: varA
+                  resB: resB.name
+                }
 
-resource resC 'My.Rp/resB@2020-01-01' = {
-  name: 'resC'
-  properties: {
-    resA: varB
-  }
-  dependsOn: [
-    resA
-    resB
-  ]
-}";
+                resource resC 'My.Rp/resB@2020-01-01' = {
+                  name: 'resC'
+                  properties: {
+                    resA: varB
+                  }
+                  dependsOn: [
+                    resA
+                    resB
+                  ]
+                }
+                """;
 
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
-@"resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-}
+                """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                }
 
-resource resB 'My.Rp/resB@2020-01-01' = {
-  name: 'resB'
-  properties: {
-    resA: resA.name
-  }
-}
+                resource resB 'My.Rp/resB@2020-01-01' = {
+                  name: 'resB'
+                  properties: {
+                    resA: resA.name
+                  }
+                }
 
-var varA = resA.name
-var varB = {
-  resA: varA
-  resB: resB.name
-}
+                var varA = resA.name
+                var varB = {
+                  resA: varA
+                  resB: resB.name
+                }
 
-resource resC 'My.Rp/resB@2020-01-01' = {
-  name: 'resC'
-  properties: {
-    resA: varB
-  }
-}");
+                resource resC 'My.Rp/resB@2020-01-01' = {
+                  name: 'resC'
+                  properties: {
+                    resA: varB
+                  }
+                }
+
+                """);
         }
 
         [TestMethod]
         public void Unneccessary_dependsOn_statements_are_removed_for_modules()
         {
-            var bicepFile = @"
-resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-}
+            var bicepFile = """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                }
 
-module modB 'modb.bicep' = {
-  name: 'modB'
-  params: {
-    resA: resA.name
-  }
-  dependsOn: [
-    resA
-  ]
-}
+                module modB 'modb.bicep' = {
+                  name: 'modB'
+                  params: {
+                    resA: resA.name
+                  }
+                  dependsOn: [
+                    resA
+                  ]
+                }
 
-var varA = resA.name
-var varB = {
-  resA: varA
-  modB: modB.name
-}
+                var varA = resA.name
+                var varB = {
+                  resA: varA
+                  modB: modB.name
+                }
 
-module modC 'modC.bicep' = {
-  name: 'modC'
-  params: {
-    resA: varB
-  }
-  dependsOn: [
-    resA
-    modB
-  ]
-}";
+                module modC 'modC.bicep' = {
+                  name: 'modC'
+                  params: {
+                    resA: varB
+                  }
+                  dependsOn: [
+                    resA
+                    modB
+                  ]
+                }
+                """;
 
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
-@"resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-}
+                """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                }
 
-module modB 'modb.bicep' = {
-  name: 'modB'
-  params: {
-    resA: resA.name
-  }
-}
+                module modB 'modb.bicep' = {
+                  name: 'modB'
+                  params: {
+                    resA: resA.name
+                  }
+                }
 
-var varA = resA.name
-var varB = {
-  resA: varA
-  modB: modB.name
-}
+                var varA = resA.name
+                var varB = {
+                  resA: varA
+                  modB: modB.name
+                }
 
-module modC 'modC.bicep' = {
-  name: 'modC'
-  params: {
-    resA: varB
-  }
-}");
+                module modC 'modC.bicep' = {
+                  name: 'modC'
+                  params: {
+                    resA: varB
+                  }
+                }
+
+                """);
         }
 
         [TestMethod]
         public void Necessary_dependsOn_statements_are_not_removed()
         {
-            var bicepFile = @"
-resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-}
+            var bicepFile = """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                }
 
-resource resB 'My.Rp/resB@2020-01-01' = {
-  name: 'resB'
-  dependsOn: [
-    resA
-  ]
-}";
+                resource resB 'My.Rp/resB@2020-01-01' = {
+                  name: 'resB'
+                  dependsOn: [
+                    resA
+                  ]
+                }
+                """;
 
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
-@"resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-}
+                """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                }
 
-resource resB 'My.Rp/resB@2020-01-01' = {
-  name: 'resB'
-  dependsOn: [
-    resA
-  ]
-}");
+                resource resB 'My.Rp/resB@2020-01-01' = {
+                  name: 'resB'
+                  dependsOn: [resA]
+                }
+
+                """);
         }
 
         [TestMethod]
         public void Necessary_dependsOn_statements_are_not_removed_for_modules()
         {
-            var bicepFile = @"
-resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-}
+            var bicepFile = """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                }
 
-module modB 'modb.bicep' = {
-  name: 'modB'
-  dependsOn: [
-    resA
-  ]
-}";
+                module modB 'modb.bicep' = {
+                  name: 'modB'
+                  dependsOn: [
+                    resA
+                  ]
+                }
+                """;
 
             var (_, _, compilation) = CompilationHelper.Compile(("main.bicep", bicepFile));
             var rewriter = new DependsOnRemovalRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
-@"resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-}
+                """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                }
 
-module modB 'modb.bicep' = {
-  name: 'modB'
-  dependsOn: [
-    resA
-  ]
-}");
+                module modB 'modb.bicep' = {
+                  name: 'modB'
+                  dependsOn: [resA]
+                }
+
+                """);
         }
 
         [TestMethod]

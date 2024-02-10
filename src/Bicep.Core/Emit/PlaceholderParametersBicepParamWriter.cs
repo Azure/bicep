@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.Options;
-using Bicep.Core.PrettyPrint;
-using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -44,7 +42,7 @@ namespace Bicep.Core.Emit
 
             var program = new ProgramSyntax(processedSyntaxList, SyntaxFactory.EndOfFileToken);
 
-            var output = PrettyPrinter.PrintProgram(program, new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, true), EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+            var output = PrettyPrinterV2.PrintValid(program, PrettyPrinterV2Options.Default);
 
             writer.WriteLine(output);
         }
