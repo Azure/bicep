@@ -10,7 +10,7 @@ jobs:
       - uses: xt0rted/pull-request-comment-branch@v2
         id: comment-branch
 
-      - name: Dump context
+      - name: Dump context 2
         env:
           COMMENT_CONTEXT: ${{ toJson(steps.comment-branch.outputs) }}
         run: echo "$COMMENT_CONTEXT"
