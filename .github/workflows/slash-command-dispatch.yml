@@ -20,7 +20,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commands: |
-            lockfiles3
+            lockfiles
           permission: write
           issue-type: pull-request
           dispatch-type: workflow

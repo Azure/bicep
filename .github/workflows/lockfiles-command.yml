@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  lockfiles3:
+  lockfiles:
     runs-on: ubuntu-latest
     steps:
       - name: Dump GitHub context
