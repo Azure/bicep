@@ -33,9 +33,9 @@ namespace Bicep.Core.IntegrationTests
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(DataSetsExtensions.CreateOciClientForAzProvider());
+                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzProvider());
 
-            await DataSetsExtensions.PublishAzProvider(services.Build(), indexJson);
+            await RegistryHelper.PublishAzProvider(services.Build(), indexJson);
 
             return services;
         }
@@ -125,12 +125,12 @@ namespace Bicep.Core.IntegrationTests
         {
             // ARRANGE
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/providers/az", "0.2.661");
-            var clientFactory = DataSetsExtensions.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
+            var clientFactory = RegistryHelper.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
-            await DataSetsExtensions.PublishModuleToRegistryAsync(
+            await RegistryHelper.PublishModuleToRegistry(
                 clientFactory,
                 moduleName: "az",
                 target: testArtifact.ToSpecificationString(':'),

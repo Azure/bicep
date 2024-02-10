@@ -17,7 +17,7 @@ public class RegistryProviderTests : TestBase
 {
     private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registryHost, string repositoryPath, bool extensibilityEnabledBool, bool providerRegistryBool)
     {
-        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients((registryHost, repositoryPath));
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(registryHost, repositoryPath);
 
         return new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: extensibilityEnabledBool, ProviderRegistry: providerRegistryBool))
@@ -38,7 +38,7 @@ public class RegistryProviderTests : TestBase
 
         var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
 
-        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
         provider 'br:example.azurecr.io/test/provider/http@1.2.3'
@@ -69,7 +69,7 @@ public class RegistryProviderTests : TestBase
 
         var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
 
-        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
         provider 'br:example.azurecr.io/test/provider/http@1.2.3' with {}
@@ -101,7 +101,7 @@ public class RegistryProviderTests : TestBase
 
         var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
 
-        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, @$"
         provider 'br:example.azurecr.io/test/provider/http@1.2.3'
@@ -147,7 +147,7 @@ public class RegistryProviderTests : TestBase
 
         var services = GetServiceBuilder(fileSystem, registry, repository, false, false);
 
-        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, @$"
         provider 'br:example.azurecr.io/test/provider/http@1.2.3'

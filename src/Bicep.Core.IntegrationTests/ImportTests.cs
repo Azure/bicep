@@ -35,11 +35,11 @@ namespace Bicep.Core.IntegrationTests
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
-                .WithContainerRegistryClientFactory(DataSetsExtensions.CreateOciClientForAzProvider())
+                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzProvider())
                 .WithMockFileSystem(fileSystem)
                 .WithAzResourceTypeLoader(azTypeLoaderLazy.Value);
 
-            await DataSetsExtensions.PublishAzProvider(services.Build(), "/types/index.json");
+            await RegistryHelper.PublishAzProvider(services.Build(), "/types/index.json");
 
             return services;
         }
