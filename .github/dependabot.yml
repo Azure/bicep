@@ -30,3 +30,4 @@ updates:
       - dependency-name: "Moq"
     labels:
       - vs-bicep-dependencies
+      - bug
