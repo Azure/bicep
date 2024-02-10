@@ -23,6 +23,11 @@ jobs:
           COMMENT_CONTEXT: ${{ toJson(github.event.comment) }}
         run: echo "$COMMENT_CONTEXT"
 
+      - name: Dump github
+        env:
+          COMMENT_CONTEXT: ${{ toJson(github) }}
+        run: echo "$COMMENT_CONTEXT"
+
       - name: Slash Command Dispatch
         uses: peter-evans/slash-command-dispatch@v4
         id: slash-command
@@ -68,7 +73,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
-          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          comment-id: ${{ github.event.comment.id }}
           reactions: hooray
 
       - name: Create URL to the run output
