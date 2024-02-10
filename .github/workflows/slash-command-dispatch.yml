@@ -6,6 +6,10 @@ jobs:
   slashCommandDispatch:
     runs-on: ubuntu-latest
     steps:
+      - name: Bot Details
+        id: bot-details
+        uses: raven-actions/bot-details@v1
+
       - uses: xt0rted/pull-request-comment-branch@v2
         id: comment-branch
 
@@ -30,6 +34,10 @@ jobs:
         env:
           SLASH_CONTEXT: ${{ toJson(steps.slash-command) }}
         run: echo "$SLASH_CONTEXT"
+
+      - name: Bot Details
+        id: bot-details
+        uses: raven-actions/bot-details@v1
 
       - name: debug
         run: |
@@ -69,10 +77,6 @@ jobs:
             [Command run output][1]
 
             [1]: ${{ steps.vars.outputs.run-url }}
-
-      - name: Bot Details
-        id: bot-details
-        uses: raven-actions/bot-details@v1
 
       - name: Bot Details outputs
         run: |
