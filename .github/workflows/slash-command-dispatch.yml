@@ -31,7 +31,7 @@ jobs:
           SLASH_CONTEXT: ${{ toJson(steps.slash-command) }}
         run: echo "$SLASH_CONTEXT"
 
-      -name: debug
+      - name: debug
         run: |
           echo ${{ github.event.client_payload.slash_command.command }}
           echo ${{ github.event.client_payload.slash_command.args.all }}
