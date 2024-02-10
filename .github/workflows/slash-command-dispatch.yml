@@ -10,7 +10,7 @@ jobs:
       - uses: xt0rted/pull-request-comment-branch@v2
         id: comment-branch
 
-      - name: Dump context 2
+      - name: Dump context
         env:
           COMMENT_CONTEXT: ${{ toJson(steps.comment-branch.outputs) }}
         run: echo "$COMMENT_CONTEXT"
@@ -21,7 +21,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          token: secrets.GITHUB_TOKEN
+          token: ${{ GITHUB_TOKEN }}
           commands: |
             lockfiles
           permission: write
