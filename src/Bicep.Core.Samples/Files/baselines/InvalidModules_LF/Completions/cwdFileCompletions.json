@@ -96,20 +96,6 @@
     }
   },
   {
-    "label": "main.formatted.bicep",
-    "kind": "file",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "1_main.formatted.bicep",
-    "filterText": "'main.formatted.bicep'",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "'main.formatted.bicep'"
-    }
-  },
-  {
     "label": "main.pprint.bicep",
     "kind": "file",
     "deprecated": false,
