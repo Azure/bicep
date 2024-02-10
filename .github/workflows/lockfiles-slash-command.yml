@@ -24,6 +24,7 @@ jobs:
       - name: Restore dependencies
         run: |
           dotnet restore --force-evaluate
+          dotnet restore src/vs-bicep/BicepInVisualStudio.sln --force-evaluate
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
