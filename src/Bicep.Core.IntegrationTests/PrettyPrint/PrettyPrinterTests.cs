@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
-using Bicep.Core.Navigation;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Samples;

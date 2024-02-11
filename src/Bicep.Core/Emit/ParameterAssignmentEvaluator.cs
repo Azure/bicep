@@ -9,7 +9,6 @@ using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Expressions;
-using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Intermediate;

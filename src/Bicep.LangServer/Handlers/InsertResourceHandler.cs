@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
