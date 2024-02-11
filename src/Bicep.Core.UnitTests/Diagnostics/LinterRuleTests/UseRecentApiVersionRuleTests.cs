@@ -454,7 +454,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                    "2421-07-07",
                    [
                         "2420-09-18",
-                        "2419-07-21",
+                       "2419-07-21",
                    ]);
             }
 

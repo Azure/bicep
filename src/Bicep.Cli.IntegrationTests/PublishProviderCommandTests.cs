@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.UnitTests.Assertions;
-using Bicep.Core.Samples;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
