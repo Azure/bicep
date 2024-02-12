@@ -26,7 +26,6 @@ namespace Bicep.Core.TypeSystem
         private readonly IFeatureProvider features;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
-        private readonly IEnvironment environment;
         private readonly SemanticModel model;
         private readonly IDiagnosticLookup parsingErrorLookup;
         private readonly IArtifactFileLookup sourceFileLookup;
@@ -43,7 +42,6 @@ namespace Bicep.Core.TypeSystem
             this.model = model;
             this.features = model.Features;
             this.binder = model.Binder;
-            this.environment = model.Environment;
             this.parsingErrorLookup = model.ParsingErrorLookup;
             this.sourceFileLookup = model.Compilation.SourceFileGrouping;
             this.semanticModelLookup = model.Compilation;
@@ -107,7 +105,7 @@ namespace Bicep.Core.TypeSystem
                 return new TypeAssignment(reference, diagnosticWriter.GetDiagnostics());
             });
 
-        private TypeSymbol? CheckForCyclicError(SyntaxBase syntax)
+        private ErrorType? CheckForCyclicError(SyntaxBase syntax)
         {
             if (this.binder.GetSymbolInfo(syntax) is not DeclaredSymbol declaredSymbol)
             {
@@ -822,7 +820,8 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated(syntax));
                 }
 
-                if (syntax.Specification is LegacyProviderSpecificationSyntax specificationSyntax)
+                if (syntax.Specification is LegacyProviderSpecificationSyntax specificationSyntax &&
+                    features.DynamicTypeLoadingEnabled)
                 {
                     diagnostics.Write(syntax.Specification, x => x.LegacyProviderSpecificationIsDeprecated(specificationSyntax));
                 }
@@ -2203,7 +2202,7 @@ namespace Bicep.Core.TypeSystem
             return diagnosticWriter.GetDiagnostics();
         }
 
-        private IEnumerable<IDiagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
+        private List<IDiagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
         {
             return SyntaxAggregator.Aggregate(syntax, new List<IDiagnostic>(), (accumulated, current) =>
                 {

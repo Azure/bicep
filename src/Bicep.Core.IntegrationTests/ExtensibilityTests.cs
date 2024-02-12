@@ -16,7 +16,7 @@ namespace Bicep.Core.IntegrationTests
     public class ExtensibilityTests : TestBase
     {
         private ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true))
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
 
         [TestMethod]
@@ -29,8 +29,7 @@ provider 'bar@0.0.1' with {
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"connectionString\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"configuration\". Permissible properties include \"connectionString\"."),
-                ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead.")
+                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"configuration\". Permissible properties include \"connectionString\".")
             });
         }
 

@@ -168,9 +168,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private static IEnumerable<object[]> GetNonExpressionData()
         {
-            yield return CreateRow("param declaration", new Parser("param foo 'fizz'|'buzz'|'pop'").Program());
+            yield return CreateRow("param declaration", new Parser("param foo 'fizz'|'buzz'|'pop'", BicepTestConstants.Features).Program());
 
-            yield return CreateRow("empty file", new Parser("").Program());
+            yield return CreateRow("empty file", new Parser("", BicepTestConstants.Features).Program());
         }
 
         private static object[] CreateRow(string name, SyntaxBase expression) => new object[] { name, expression };

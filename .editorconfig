@@ -38,3 +38,4 @@ dotnet_sort_system_directives_first = true
 csharp_style_implicit_object_creation_when_type_is_apparent = true:warning
 # IDE0005: [Using directive is unnecessary](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/ide0005) 
 dotnet_diagnostic.IDE0005.severity = suggestion
+# dotnet_diagnostic.CA1859.severity = warning

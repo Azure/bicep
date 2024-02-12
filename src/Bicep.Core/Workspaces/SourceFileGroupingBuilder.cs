@@ -164,12 +164,12 @@ namespace Bicep.Core.Workspaces
         private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild)
         {
             var featureProvider = featureProviderFactory.GetFeatureProvider(file.FileUri);
-            if (featureProvider.ExtensibilityEnabled && featureProvider.DynamicTypeLoadingEnabled)
+            if (featureProvider.ExtensibilityEnabled)
             {
                 PopulateProviderDeclarations(file, featureProviderFactory, configurationManager);
             }
 
-            foreach (var restorable in file.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>())
+            foreach (var restorable in file.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>().Where(x => x is not ProviderDeclarationSyntax))
             {
                 var (childArtifactReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
                 uriResultByBicepSourceFileByArtifactReferenceSyntax.GetOrAdd(file, f => new())[restorable] = uriResult;
@@ -179,16 +179,13 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
-                if (restorable is not ProviderDeclarationSyntax)
+                if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
+                    (childResult.IsSuccess(out var childFile) && sourceFilesToRebuild is not null && sourceFilesToRebuild.Contains(childFile)))
                 {
-                    if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
-                        (childResult.IsSuccess(out var childFile) && sourceFilesToRebuild is not null && sourceFilesToRebuild.Contains(childFile)))
-                    {
-                        // only recurse if we've not seen this file before - to avoid infinite loops
-                        childResult = PopulateRecursive(artifactUri, childArtifactReference, sourceFilesToRebuild, featureProviderFactory, configurationManager);
-                    }
-                    fileResultByUri[artifactUri] = childResult;
+                    // only recurse if we've not seen this file before - to avoid infinite loops
+                    childResult = PopulateRecursive(artifactUri, childArtifactReference, sourceFilesToRebuild, featureProviderFactory, configurationManager);
                 }
+                fileResultByUri[artifactUri] = childResult;
             }
         }
 
@@ -299,10 +296,14 @@ namespace Bicep.Core.Workspaces
             if (!this.providerDescriptorBundleBuilderBySourceFile.TryGetValue(file, out var providerBundleBuilder))
             {
                 this.providerDescriptorBundleBuilderBySourceFile[file] = providerBundleBuilder = new ProviderDescriptorBundleBuilder();
-                providerBundleBuilder.AddImplicitProvider(new(new ResourceTypesProviderDescriptor(SystemNamespaceType.BuiltInName, file.FileUri)));
-            }
 
-            ProcessAllImplicitProviderDeclarations(file, providerBundleBuilder, config);
+            }
+            if (featureProvider.DynamicTypeLoadingEnabled)
+            {
+                ProcessAllImplicitProviderDeclarations(file, providerBundleBuilder, config);
+                providerBundleBuilder.AddImplicitProvider(
+                    new(new ResourceTypesProviderDescriptor(SystemNamespaceType.BuiltInName, file.FileUri)));
+            }
 
             foreach (var restorable in file.ProgramSyntax.Children.OfType<ProviderDeclarationSyntax>())
             {
@@ -368,7 +369,11 @@ namespace Bicep.Core.Workspaces
 
             if (providerDeclarationSyntax.Specification is LegacyProviderSpecificationSyntax { } legacySpecification)
             {
-                return new(new ResourceTypesProviderDescriptor(legacySpecification.NamespaceIdentifier, file.FileUri));
+                return new(new ResourceTypesProviderDescriptor(
+                    legacySpecification.NamespaceIdentifier,
+                    file.FileUri,
+                    legacySpecification.Version,
+                    providerDeclarationSyntax.Alias?.IdentifierName));
             }
 
             if (!featureProvider.DynamicTypeLoadingEnabled)
@@ -386,7 +391,7 @@ namespace Bicep.Core.Workspaces
                                inlinedSpecification.NamespaceIdentifier,
                                file.FileUri,
                                inlinedSpecification.Version,
-                               providerDeclarationSyntax.Alias?.IdentifierName ?? inlinedSpecification.NamespaceIdentifier,
+                               providerDeclarationSyntax.Alias?.IdentifierName,
                                artifactReference,
                                typesDataUri));
             }

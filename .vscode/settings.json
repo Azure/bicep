@@ -7,5 +7,9 @@
     "yaml.schemas": {
         "https://json.schemastore.org/github-workflow.json": "/.github/workflows/*.yml"
     },
-    "dotnet.defaultSolution": "Bicep.sln"
+    "dotnet.defaultSolution": "Bicep.sln",
+    "cSpell.words": [
+        "Decorable",
+        "Interpolable"
+    ]
 }

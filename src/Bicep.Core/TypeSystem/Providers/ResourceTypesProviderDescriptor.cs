@@ -3,43 +3,38 @@
 
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Utils;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem.Providers;
 
 public class ResourceTypesProviderDescriptor
 {
+    public const string LegacyVersionPlaceholder = "1.0.0";
+
     public ResourceTypesProviderDescriptor(
         string NamespaceIdentifier,
         Uri ParentModuleUri,
-        string? Version = null,
+        string Version = LegacyVersionPlaceholder,
         string? Alias = null,
         ArtifactReference? ArtifactReference = null,
         Uri? TypesDataUri = null)
     {
         this.Name = NamespaceIdentifier;
         this.ParentModuleUri = ParentModuleUri;
-        if (Version is not null)
-        {
-            this.IsBuiltIn = false;
-            this.Version = Version;
-        }
-        else
-        {
-            this.IsBuiltIn = true;
-            this.Version = NamespaceIdentifier switch
-            {
-                AzNamespaceType.BuiltInName => AzNamespaceType.Settings.ArmTemplateProviderVersion,
-                K8sNamespaceType.BuiltInName => K8sNamespaceType.Settings.ArmTemplateProviderVersion,
-                MicrosoftGraphNamespaceType.BuiltInName => MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion,
-                SystemNamespaceType.BuiltInName => SystemNamespaceType.Settings.ArmTemplateProviderVersion,
-                _ => throw new NotImplementedException($"Built-in provider {NamespaceIdentifier} is not supported.")
-            };
-        }
+        this.Version = Version;
+        this.IsBuiltIn = IsBuiltInNamespace(NamespaceIdentifier, Version);
         this.Alias = Alias ?? NamespaceIdentifier;
         this.ArtifactReference = ArtifactReference;
         this.TypesDataFileUri = TypesDataUri;
+    }
+
+    private static bool IsBuiltInNamespace(string namespaceIdentifier, string version)
+    {
+        var usesLegacyPlaceholderVersion = version == LegacyVersionPlaceholder;
+        if (namespaceIdentifier == AzNamespaceType.BuiltInName)
+        {
+            return usesLegacyPlaceholderVersion || version == AzNamespaceType.Settings.ArmTemplateProviderVersion;
+        }
+        return usesLegacyPlaceholderVersion;
     }
 
     public ArtifactReference? ArtifactReference { get; }

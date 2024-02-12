@@ -5,6 +5,7 @@ using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Templates.Engines;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
@@ -14,8 +15,9 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Workspaces
 {
-    public static class SourceFileFactory
+    public class SourceFileFactory(IFeatureProviderFactory featureProviderFactory)
     {
+        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
         private static readonly Uri InMemoryMainTemplateUri = new("inmemory:///main.json");
 
         private static readonly JsonLoadSettings JsonLoadSettings = new()
@@ -72,9 +74,10 @@ namespace Bicep.Core.Workspaces
             return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
-        public static BicepFile CreateBicepFile(Uri fileUri, string fileContents)
+        public BicepFile CreateBicepFile(Uri fileUri, string fileContents)
         {
-            var parser = new Parser(fileContents);
+            var featureProvider = this.featureProviderFactory.GetFeatureProvider(fileUri);
+            var parser = new Parser(fileContents, featureProvider);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 
             return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);
