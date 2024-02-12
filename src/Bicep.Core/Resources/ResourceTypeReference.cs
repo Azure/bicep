@@ -5,15 +5,8 @@ using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Resources
 {
-    public class ResourceTypeReference
+    public partial class ResourceTypeReference
     {
-        private const string TypeSegmentPattern = "[a-z0-9][a-z0-9-.]*";
-        private const string VersionPattern = "[a-z0-9][a-z0-9-]+";
-
-        private const RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
-        private static readonly Regex ResourceTypePattern = new(@$"^(?<types>{TypeSegmentPattern}(/{TypeSegmentPattern})*)(@(?<version>{VersionPattern}))?$", PatternRegexOptions);
-        private static readonly Regex ResourceTypePrefixPattern = new(@$"^(?<types>{TypeSegmentPattern}(/{TypeSegmentPattern})*)@", PatternRegexOptions);
-
         public ResourceTypeReference(string type, string? version)
         {
             if (type.Length <= 0)
@@ -49,7 +42,7 @@ namespace Bicep.Core.Resources
 
         public static ResourceTypeReference? TryParse(string resourceType)
         {
-            var match = ResourceTypePattern.Match(resourceType);
+            var match = ResourceTypePattern().Match(resourceType);
             if (match.Success == false)
             {
                 return null;
@@ -77,7 +70,7 @@ namespace Bicep.Core.Resources
             => TryParse(resourceType) ?? throw new ArgumentException($"Unable to parse '{resourceType}'", nameof(resourceType));
 
         public static bool HasResourceTypePrefix(string segment)
-            => ResourceTypePrefixPattern.Match(segment).Success;
+            => ResourceTypePrefixPattern().IsMatch(segment);
 
         public override string ToString()
             => this.FormatName();
@@ -97,5 +90,11 @@ namespace Bicep.Core.Resources
             => HashCode.Combine(
                 Enumerable.Select(this.TypeSegments, x => LanguageConstants.ResourceTypeComparer.GetHashCode(x)).Aggregate((a, b) => a ^ b),
                 (this.ApiVersion is null ? 0 : LanguageConstants.ResourceTypeComparer.GetHashCode(this.ApiVersion)));
+
+        [GeneratedRegex("^(?<types>[a-z0-9][a-z0-9-.]*(/[a-z0-9][a-z0-9-.]*)*)@", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant)]
+        private static partial Regex ResourceTypePrefixPattern();
+
+        [GeneratedRegex(@"^(?<types>[a-z0-9][a-z0-9-.]*(/[a-z0-9][a-z0-9-.]*)*)(@(?<version>[a-z0-9][a-z0-9-\.]+))?$", RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant)]
+        private static partial Regex ResourceTypePattern();
     }
 }
