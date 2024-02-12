@@ -3,7 +3,6 @@
 
 using System.Data;
 using System.Diagnostics;
-using System.Globalization;
 using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Common;

@@ -2,19 +2,15 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
-using System.IO.Abstractions;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Registry.Providers;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
