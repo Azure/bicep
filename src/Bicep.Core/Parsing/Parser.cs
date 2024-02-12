@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using Bicep.Core.Features;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
@@ -9,6 +8,8 @@ namespace Bicep.Core.Parsing
 {
     public class Parser : BaseParser
     {
+        public Parser(string text) : base(text) { }
+
         public override ProgramSyntax Program()
         {
             var declarationsOrTokens = new List<SyntaxBase>();
@@ -291,7 +292,7 @@ namespace Bicep.Core.Parsing
                     TokenType.NewLine),
 
                 _ => this.WithRecovery(
-                    () => ThrowIfSkipped(this.InterpolableString, b => featureProvider.DynamicTypeLoadingEnabled ? b.ExpectedProviderSpecification() : b.ExpectedProviderSpecificationLegacy()),
+                    () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedLegacyProviderSpecification()),
                     RecoveryFlags.None,
                     TokenType.NewLine)
             };

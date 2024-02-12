@@ -1216,7 +1216,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedProviderSpecificationLegacy() => new(
+            public ErrorDiagnostic ExpectedLegacyProviderSpecification() => new(
                 TextSpan,
                 "BCP201",
                 "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location.");
@@ -2145,7 +2145,8 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedProviderSpecification() => new(
                 TextSpan,
                 "BCP394",
-                "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location.");
+                "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" "
+                + "or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location.");
            
             public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecificationSyntax syntax)
             {

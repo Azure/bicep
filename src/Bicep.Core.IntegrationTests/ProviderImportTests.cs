@@ -77,8 +77,8 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = new ServiceBuilder();
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
-");
+            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
+            ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
                 // BCP084 is raised because BCP203 prevented the compiler from binding a namespace to the `az` symbol (an ErrorType was bound instead).
@@ -86,54 +86,80 @@ provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
             });
         }
 
+
         [TestMethod]
-        public async Task Import_statement_parse_diagnostics_are_guiding()
+        public async Task Provider_Statement_Without_Specification_String_Should_Emit_Diagnostic()
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-provider
-");
+            provider
+            ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location."),
             });
+        }
 
-            result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'sys@1.0.0' blahblah
-");
+        [TestMethod]
+        public async Task Provider_Statement_With_Invalid_Keyword_Should_Emit_Diagnostic()
+        {
+            var services = await GetServices();
+            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            provider 'sys@1.0.0' blahblah
+            ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
             });
+        }
 
-            result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'kubernetes@1.0.0' with
-");
+        [TestMethod]
+        public async Task Provider_Statement_Without_Brace_Should_Raise_Error()
+        {
+            var services = await GetServices();
+            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            provider 'kubernetes@1.0.0' with
+            ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
             });
+        }
 
-            result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'kubernetes@1.0.0' with {
-  kubeConfig: 'foo'
-  namespace: 'bar'
-} something
-");
+        [TestMethod]
+        public async Task Provider_Statement_Without_As_Keyword_Should_Raise_Error()
+        {
+            var services = await GetServices();
+            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            provider 'kubernetes@1.0.0' with {
+            kubeConfig: 'foo'
+            namespace: 'bar'
+            } something
+            ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
             });
+        }
 
-            result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'kubernetes@1.0.0' with {
-  kubeConfig: 'foo'
-  namespace: 'bar'
-} as
-");
+        [TestMethod]
+        public async Task Provider_Statement_Without_Alias_Name_Should_Raise_Error()
+        {
+            var services = await GetServices();
+            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            provider 'kubernetes@1.0.0' with {
+            kubeConfig: 'foo'
+            namespace: 'bar'
+            } as
+            ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
+        }
 
-            result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'sys@1.0.0' as
-");
+        [TestMethod]
+        public async Task Provider_Statement_Without_Alias_Name_For_Sys_Should_Raise_Error()
+        {
+            var services = await GetServices();
+            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            provider 'sys@1.0.0' as
+            ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
@@ -142,9 +168,11 @@ provider 'sys@1.0.0' as
         [TestMethod]
         public async Task Using_import_instead_of_provider_raises_warning()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
-import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
-");
+            var services = await GetServices();
+            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
+            ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP381", DiagnosticLevel.Warning, "Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead."),
             });
@@ -170,7 +198,9 @@ import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
         [TestMethod]
         public async Task Import_configuration_is_blocked_by_default()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            var services = await GetServices();
+            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
             provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' with {{
               foo: 'bar'
             }}
@@ -179,12 +209,13 @@ import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
                 ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
             });
         }
+
         [TestMethod]
         public async Task Imports_return_error_with_unrecognized_namespace()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"
-provider 'madeUpNamespace@1.0.0'
-");
+            provider 'madeUpNamespace@1.0.0'
+            ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP204", DiagnosticLevel.Error, "Provider namespace \"madeUpNamespace\" is not recognized."),
             });
@@ -193,15 +224,18 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public async Task Using_import_statements_frees_up_the_namespace_symbol()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
-provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as newAz
+            var services = await GetServices();
+            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
 
-var az = 'Fake AZ!'
-var myRg = newAz.resourceGroup()
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as newAz
 
-output az string = az
-output rgLocation string = myRg.location
-");
+            var az = 'Fake AZ!'
+            var myRg = newAz.resourceGroup()
+
+            output az string = az
+            output rgLocation string = myRg.location
+            ");
 
             result.Should().NotHaveAnyDiagnostics();
         }
@@ -209,30 +243,37 @@ output rgLocation string = myRg.location
         [TestMethod]
         public async Task You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
-provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
-provider 'sys@1.0.0' as az
+            var services = await GetServices();
+            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
+            provider 'sys@1.0.0' as az
 
-var myRg = sys.resourceGroup()
+            var myRg = sys.resourceGroup()
 
-@az.description('why on earth would you do this?')
-output rgLocation string = myRg.location
-");
+            @az.description('why on earth would you do this?')
+            output rgLocation string = myRg.location
+            ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().GenerateATemplate();
+            result.Should().HaveDiagnostics(new[]{
+                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
+            });
             result.Template.Should().HaveValueAtPath("$.outputs.rgLocation.metadata.description", "why on earth would you do this?");
         }
 
         [TestMethod]
         public async Task Overwriting_single_built_in_namespace_with_import_is_prohibited()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
-provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
+            var services = await GetServices();
+            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
 
-var myRg = sys.resourceGroup()
+            var myRg = sys.resourceGroup()
 
-output rgLocation string = myRg.location
-");
+            output rgLocation string = myRg.location
+            ");
 
             result.Should().ContainDiagnostic("BCP084", DiagnosticLevel.Error, "The symbolic name \"sys\" is reserved. Please use a different symbolic name. Reserved namespaces are \"sys\".");
         }
@@ -240,35 +281,42 @@ output rgLocation string = myRg.location
         [TestMethod]
         public async Task Singleton_imports_cannot_be_used_multiple_times()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
-provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az1
-provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az2
+            var services = await GetServices();
+            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az1
+            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az2
 
-provider 'sys@1.0.0' as sys1
-provider 'sys@1.0.0' as sys2
-");
+            provider 'sys@1.0.0' as sys1
+            provider 'sys@1.0.0' as sys2
+            ");
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is declared multiple times. Remove the duplicates."),
+                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is declared multiple times. Remove the duplicates."),
+                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead.")
             });
         }
 
         [TestMethod]
         public async Task Import_names_must_not_conflict_with_other_symbols()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
-provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
-provider 'kubernetes@1.0.0' with {{
-  kubeConfig: ''
-  namespace: ''
-}} as az
-");
+            var services = await GetServices();
+            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
+            provider 'kubernetes@1.0.0' with {{
+            kubeConfig: ''
+            namespace: ''
+            }} as az
+            ");
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
+                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
             });
         }
@@ -315,13 +363,13 @@ provider 'kubernetes@1.0.0' with {{
             var services = (await GetServices()).WithNamespaceProvider(nsProvider);
 
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'ns1@1.0.0' as ns1
-provider 'ns2@1.0.0' as ns2
+            provider 'ns1@1.0.0' as ns1
+            provider 'ns2@1.0.0' as ns2
 
-output ambiguousResult string = dupeFunc()
-output ns1Result string = ns1Func()
-output ns2Result string = ns2Func()
-");
+            output ambiguousResult string = dupeFunc()
+            output ns1Result string = ns1Func()
+            output ns2Result string = ns2Func()
+            ");
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP056", DiagnosticLevel.Error, "The reference to name \"dupeFunc\" is ambiguous because it exists in namespaces \"ns1\", \"ns2\". The reference must be fully-qualified."),
@@ -329,13 +377,13 @@ output ns2Result string = ns2Func()
 
             // fix by fully-qualifying
             result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'ns1@1.0.0' as ns1
-provider 'ns2@1.0.0' as ns2
+            provider 'ns1@1.0.0' as ns1
+            provider 'ns2@1.0.0' as ns2
 
-output ambiguousResult string = ns1.dupeFunc()
-output ns1Result string = ns1Func()
-output ns2Result string = ns2Func()
-");
+            output ambiguousResult string = ns1.dupeFunc()
+            output ns1Result string = ns1Func()
+            output ns2Result string = ns2Func()
+            ");
 
             result.Should().NotHaveAnyDiagnostics();
         }
@@ -370,11 +418,11 @@ output ns2Result string = ns2Func()
             var services = (await GetServices()).WithNamespaceProvider(nsProvider);
 
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'mockNs@1.0.0' with {
-  optionalConfig: 'blah blah'
-} as ns1
-provider 'mockNs@1.0.0' as ns2
-");
+            provider 'mockNs@1.0.0' with {
+            optionalConfig: 'blah blah'
+            } as ns1
+            provider 'mockNs@1.0.0' as ns2
+            ");
 
             result.Should().NotHaveAnyDiagnostics();
         }

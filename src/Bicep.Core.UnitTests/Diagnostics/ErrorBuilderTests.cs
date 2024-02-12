@@ -206,6 +206,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return ArtifactType.Module;
             }
 
+            if (parameter.ParameterType == typeof(LegacyProviderSpecificationSyntax))
+            {
+                return new LegacyProviderSpecificationSyntax("mock", "1.0.0", true, TextSpan.Nil);
+            }
+
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");
         }
 

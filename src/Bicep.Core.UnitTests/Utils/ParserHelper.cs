@@ -12,14 +12,14 @@ namespace Bicep.Core.UnitTests.Utils
     {
         public static ProgramSyntax Parse(string text)
         {
-            var parser = new Parser(text, BicepTestConstants.Features);
+            var parser = new Parser(text);
 
             return parser.Program();
         }
 
         public static ProgramSyntax Parse(string text, out IEnumerable<IDiagnostic> syntaxErrors)
         {
-            var parser = new Parser(text,BicepTestConstants.Features);
+            var parser = new Parser(text);
             var program = parser.Program();
 
             syntaxErrors = parser.LexingErrorLookup.Concat(parser.ParsingErrorLookup);
@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ProgramSyntax Parse(string text, out IDiagnosticLookup lexingErrorLookup, out IDiagnosticLookup parsingErrorLookup)
         {
-            var parser = new Parser(text,BicepTestConstants.Features);
+            var parser = new Parser(text);
             var program = parser.Program();
 
             lexingErrorLookup = parser.LexingErrorLookup;
@@ -40,14 +40,14 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ProgramSyntax ParamsParse(string text)
         {
-            var parser = new ParamsParser(text,BicepTestConstants.Features);
+            var parser = new ParamsParser(text);
 
             return parser.Program();
         }
 
         public static ProgramSyntax ParamsParse(string text, out IDiagnosticLookup lexingErrorLookup, out IDiagnosticLookup parsingErrorLookup)
         {
-            var parser = new ParamsParser(text,BicepTestConstants.Features);
+            var parser = new ParamsParser(text);
             var program = parser.Program();
 
             lexingErrorLookup = parser.LexingErrorLookup;
@@ -56,7 +56,7 @@ namespace Bicep.Core.UnitTests.Utils
             return program;
         }
 
-        public static SyntaxBase ParseExpression(string text, ExpressionFlags expressionFlags = ExpressionFlags.AllowComplexLiterals) => new Parser(text).Expression(expressionFlags,BicepTestConstants.Features);
+        public static SyntaxBase ParseExpression(string text, ExpressionFlags expressionFlags = ExpressionFlags.AllowComplexLiterals) => new Parser(text).Expression(expressionFlags);
 
         public static (string file, IReadOnlyList<int> cursors) GetFileWithCursors(string fileWithCursors, char cursor = '|')
             => GetFileWithCursors(fileWithCursors, cursor.ToString());

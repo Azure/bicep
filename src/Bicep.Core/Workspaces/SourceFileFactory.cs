@@ -15,9 +15,8 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Workspaces
 {
-    public class SourceFileFactory(IFeatureProviderFactory featureProviderFactory)
+    public static class SourceFileFactory
     {
-        private readonly IFeatureProviderFactory featureProviderFactory = featureProviderFactory;
         private static readonly Uri InMemoryMainTemplateUri = new("inmemory:///main.json");
 
         private static readonly JsonLoadSettings JsonLoadSettings = new()
@@ -74,10 +73,9 @@ namespace Bicep.Core.Workspaces
             return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);
         }
 
-        public BicepFile CreateBicepFile(Uri fileUri, string fileContents)
+        public static BicepFile CreateBicepFile(Uri fileUri, string fileContents)
         {
-            var featureProvider = this.featureProviderFactory.GetFeatureProvider(fileUri);
-            var parser = new Parser(fileContents, featureProvider);
+            var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 
             return new(fileUri, lineStarts, parser.Program(), parser.LexingErrorLookup, parser.ParsingErrorLookup);
