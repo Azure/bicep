@@ -42,7 +42,6 @@ namespace Bicep.Core.IntegrationTests
 
         private async Task<ServiceBuilder> ServicesWithTestProviderArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
         {
-
             (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
 
             (_, var client) = blobClients.First();
@@ -139,7 +138,6 @@ namespace Bicep.Core.IntegrationTests
                 new[] {
                 ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
             });
-
         }
 
         [TestMethod]

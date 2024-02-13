@@ -45,19 +45,16 @@ public class BicepCompiler
         this.moduleDispatcher = moduleDispatcher;
     }
 
-    public Compilation CreateCompilationWithoutRestore(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false)
-    {
-        workspace ??= new Workspace();
-        return Create(
-            SourceFileGroupingBuilder.Build(
-                fileResolver,
-                moduleDispatcher,
-                configurationManager,
-                workspace,
-                bicepUri,
-                featureProviderFactory,
-                markAllForRestore));
-    }
+    public Compilation CreateCompilationWithoutRestore(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false) => Create(
+        SourceFileGroupingBuilder.Build(
+            fileResolver,
+            moduleDispatcher,
+            configurationManager,
+            workspace ?? new Workspace(),
+            bicepUri,
+            featureProviderFactory,
+            markAllForRestore));
+
 
     public async Task<Compilation> CreateCompilation(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool skipRestore = false, bool forceRestore = false)
     {

@@ -25,7 +25,7 @@ namespace Bicep.Core.Syntax
             this.WithClause = withClause;
             this.AsClause = asClause;
 
-            this.lazySpecification = new(() => ProviderSpecificationSyntaxFactory.FromSyntax(specificationString));
+            this.lazySpecification = new(() => ProviderSpecificationSyntaxFactory.CreateProviderSpecificationSyntax(specificationString));
         }
 
         public Token Keyword { get; }

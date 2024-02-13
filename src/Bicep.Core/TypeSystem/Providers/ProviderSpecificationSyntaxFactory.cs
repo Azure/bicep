@@ -30,7 +30,7 @@ public static partial class ProviderSpecificationSyntaxFactory
     [GeneratedRegex(@"^\S*[:\/](?<name>\S+)$", RegexOptions.ECMAScript | RegexOptions.Compiled)]
     private static partial Regex RepositoryNamePattern();
 
-    public static IProviderSpecificationSyntax FromSyntax(SyntaxBase syntax)
+    public static IProviderSpecificationSyntax CreateProviderSpecificationSyntax(SyntaxBase syntax)
      => syntax switch
      {
          StringSyntax stringSyntax when stringSyntax.TryGetLiteralValue() is { } value &&

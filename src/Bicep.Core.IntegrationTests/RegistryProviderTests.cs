@@ -15,12 +15,13 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class RegistryProviderTests : TestBase
 {
-    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem,
-                                                    string registryHost,
-                                                    string repositoryPath,
-                                                    bool extensibilityEnabledBool,
-                                                    bool providerRegistryBool,
-                                                    bool dynamicTypeLoadingEnabledBool)
+    private static ServiceBuilder GetServiceBuilder(
+        IFileSystem fileSystem,
+        string registryHost,
+        string repositoryPath,
+        bool extensibilityEnabledBool,
+        bool providerRegistryBool,
+        bool dynamicTypeLoadingEnabledBool)
     {
         var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients((registryHost, repositoryPath));
 

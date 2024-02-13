@@ -34,7 +34,7 @@ public class ImportSpecificationTests
         // Arrange
         var syntax = SyntaxFactory.CreateStringLiteral(input);
         // Act
-        var got = ProviderSpecificationSyntaxFactory.FromSyntax(syntax);
+        var got = ProviderSpecificationSyntaxFactory.CreateProviderSpecificationSyntax(syntax);
         // Assert
         if (isValidDeclaration)
         {

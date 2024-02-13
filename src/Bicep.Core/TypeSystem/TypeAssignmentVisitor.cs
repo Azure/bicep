@@ -17,7 +17,6 @@ using Bicep.Core.Syntax.Providers;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
@@ -2208,7 +2207,7 @@ namespace Bicep.Core.TypeSystem
             return diagnosticWriter.GetDiagnostics();
         }
 
-        private List<IDiagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
+        private IEnumerable<IDiagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
         {
             return SyntaxAggregator.Aggregate(syntax, new List<IDiagnostic>(), (accumulated, current) =>
                 {

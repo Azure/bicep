@@ -5,7 +5,6 @@ using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Templates.Engines;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;

@@ -77,8 +77,8 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = new ServiceBuilder();
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
-            ");
+provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
+");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
                 // BCP084 is raised because BCP203 prevented the compiler from binding a namespace to the `az` symbol (an ErrorType was bound instead).
@@ -86,14 +86,13 @@ namespace Bicep.Core.IntegrationTests
             });
         }
 
-
         [TestMethod]
         public async Task Provider_Statement_Without_Specification_String_Should_Emit_Diagnostic()
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider
-            ");
+provider
+");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location."),
             });
@@ -214,8 +213,8 @@ namespace Bicep.Core.IntegrationTests
         public async Task Imports_return_error_with_unrecognized_namespace()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"
-            provider 'madeUpNamespace@1.0.0'
-            ");
+provider 'madeUpNamespace@1.0.0'
+");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP204", DiagnosticLevel.Error, "Provider namespace \"madeUpNamespace\" is not recognized."),
             });
@@ -363,13 +362,13 @@ namespace Bicep.Core.IntegrationTests
             var services = (await GetServices()).WithNamespaceProvider(nsProvider);
 
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider 'ns1@1.0.0' as ns1
-            provider 'ns2@1.0.0' as ns2
+provider 'ns1@1.0.0' as ns1
+provider 'ns2@1.0.0' as ns2
 
-            output ambiguousResult string = dupeFunc()
-            output ns1Result string = ns1Func()
-            output ns2Result string = ns2Func()
-            ");
+output ambiguousResult string = dupeFunc()
+output ns1Result string = ns1Func()
+output ns2Result string = ns2Func()
+");
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP056", DiagnosticLevel.Error, "The reference to name \"dupeFunc\" is ambiguous because it exists in namespaces \"ns1\", \"ns2\". The reference must be fully-qualified."),
@@ -377,13 +376,13 @@ namespace Bicep.Core.IntegrationTests
 
             // fix by fully-qualifying
             result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider 'ns1@1.0.0' as ns1
-            provider 'ns2@1.0.0' as ns2
+provider 'ns1@1.0.0' as ns1
+provider 'ns2@1.0.0' as ns2
 
-            output ambiguousResult string = ns1.dupeFunc()
-            output ns1Result string = ns1Func()
-            output ns2Result string = ns2Func()
-            ");
+output ambiguousResult string = ns1.dupeFunc()
+output ns1Result string = ns1Func()
+output ns2Result string = ns2Func()
+");
 
             result.Should().NotHaveAnyDiagnostics();
         }
@@ -418,11 +417,11 @@ namespace Bicep.Core.IntegrationTests
             var services = (await GetServices()).WithNamespaceProvider(nsProvider);
 
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider 'mockNs@1.0.0' with {
-            optionalConfig: 'blah blah'
-            } as ns1
-            provider 'mockNs@1.0.0' as ns2
-            ");
+provider 'mockNs@1.0.0' with {
+  optionalConfig: 'blah blah'
+} as ns1
+provider 'mockNs@1.0.0' as ns2
+");
 
             result.Should().NotHaveAnyDiagnostics();
         }
