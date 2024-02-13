@@ -278,12 +278,23 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                // collect the values of the expected variant properties
-                // provided that they exist on the type
+                if (semanticModel.Features.OptionalModuleNamesEnabled &&
+                    module.TryGetBodyProperty(LanguageConstants.ModuleNamePropertyName) is null)
+                {
+                    // optional module names are enabled and the module name property is not set
+                    // the codegen layer will emit a loop-variant expression in the JSON
+                    // which satisfies the requirements to pass this linter check
+                    // and no further analysis is required for this module
+                    continue;
+                }
+
+                // collect properties that are expected to be loop-variant on the type
                 var expectedVariantPropertiesForType = bodyType.Properties.Values
                     .Where(property => property.Flags.HasFlag(TypePropertyFlags.LoopVariant))
                     .OrderBy(property => property.Name, LanguageConstants.IdentifierComparer);
 
+                // collect the values of the expected variant properties
+                // provided that they exist on the type
                 var propertyMap = expectedVariantPropertiesForType
                     .Select(property => (property, value: module.TryGetBodyPropertyValue(property.Name)))
                     // exclude missing or malformed property values

@@ -1,8 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -11,6 +14,9 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class LoopInvariantTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [TestMethod]
         public void VariantResourcePropertiesShouldProduceNoWarning()
         {
@@ -296,6 +302,29 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' existing = [for (item, i) 
 }]
 ";
             var result = CompilationHelper.Compile(text);
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void OmittedModuleNameShouldProduceNoDiagnostic()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var result = CompilationHelper.Compile(
+                services,
+                ("main.bicep", $@"
+targetScope = 'subscription'
+
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {{
+  name: 'myRg'
+  location: 'westus'
+}}
+
+module item 'mod.bicep' = [for i in range(0, 5): {{
+  scope: rg
+}}]
+"),
+                ("mod.bicep", string.Empty));
+
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
     }
