@@ -1,3 +1,5 @@
+# Implements "slash commands" on PR comments
+#   see https://github.com/peter-evans/slash-command-dispatch
 # Listens for a comment on a pull request beginning with "/{command}" and dispatches that command
 # E.g. commenting "/lockfiles" will dispatch the "lockfiles-command.yml" workflow
 name: Slash Command Dispatch
@@ -36,13 +38,3 @@ jobs:
         env:
           SLASH_CONTEXT: ${{ toJson(steps.slash-command) }}
         run: echo "$SLASH_CONTEXT"
-
-
-      - name: Dump the client payload context
-        env:
-          PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
-        run: echo "$PAYLOAD_CONTEXT"  
-
-      - name: Create URL to the run output
-        id: vars
-        run: echo "run-url=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_OUTPUT
