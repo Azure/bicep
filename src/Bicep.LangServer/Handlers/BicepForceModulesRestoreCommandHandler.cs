@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Text;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
+using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -19,6 +21,7 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly ICompilationManager compilationManager;
         private readonly IWorkspace workspace;
         private readonly IFeatureProviderFactory featureProviderFactory;
 
@@ -26,12 +29,14 @@ namespace Bicep.LanguageServer.Handlers
             ISerializer serializer,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
+            ICompilationManager compilationManager,
             IWorkspace workspace,
             IFeatureProviderFactory featureProviderFactory)
             : base(LangServerConstants.ForceModulesRestoreCommand, serializer)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
+            this.compilationManager = compilationManager;
             this.workspace = workspace;
             this.featureProviderFactory = featureProviderFactory;
         }
@@ -61,8 +66,13 @@ namespace Bicep.LanguageServer.Handlers
                 featureProviderFactory);
 
             // Ignore modules to restore logic, include all modules to be restored
-            var artifactsToRestore = sourceFileGrouping.FileUriResultByArtifactReference
-                .SelectMany(kvp => kvp.Value.Keys.Where(x => x is ModuleDeclarationSyntax or UsingDeclarationSyntax).Select(mds => new ArtifactResolutionInfo(mds, kvp.Key)));
+            var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(force: true);
+
+            var artifactUris = sourceFileGrouping
+                .FileUriResultByArtifactReference.SelectMany(x => x.Value)
+                .Select(x => x.Value.TryUnwrap())
+                .WhereNotNull()
+                .Distinct();
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging
             var artifactReferencesToRestore = this.moduleDispatcher.GetValidModuleReferences(artifactsToRestore)
@@ -85,9 +95,8 @@ namespace Bicep.LanguageServer.Handlers
                 sbRestoreSummary.Append($"{Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
 
-            // Have to actually update compilations to pick up new modules' contents
-            workspace.UpsertSourceFiles(sourceFileGrouping.SourceFiles);
-
+            // refresh all compilations with a reference to this file or cached artifacts
+            compilationManager.RefreshChangedFiles(artifactUris.Concat(documentUri.ToUriEncoded()));
             return $"Restore (force) summary: {sbRestoreSummary}";
         }
     }

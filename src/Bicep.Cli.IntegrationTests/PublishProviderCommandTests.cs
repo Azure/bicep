@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.UnitTests.Assertions;
-using Bicep.Core.Samples;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
@@ -30,7 +29,7 @@ public class PublishProviderCommandTests : TestBase
         var repository = $"test/provider";
         var version = "0.0.1";
 
-        var (clientFactory, blobClientMocks) = DataSetsExtensions.CreateMockRegistryClients((registryStr, repository));
+        var (clientFactory, blobClientMocks) = RegistryHelper.CreateMockRegistryClients((registryStr, repository));
         var mockBlobClient = blobClientMocks[(registryUri, repository)];
 
         var indexPath = Path.Combine(outputDirectory, "index.json");

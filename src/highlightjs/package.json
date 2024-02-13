@@ -4,10 +4,10 @@
   "devDependencies": {
     "@types/highlight.js": "^10.1.0",
     "@types/jest": "^28.1.7",
-    "@types/node": "^20.11.16",
+    "@types/node": "^20.11.17",
     "@types/plist": "^3.0.5",
-    "@typescript-eslint/eslint-plugin": "^6.20.0",
-    "@typescript-eslint/parser": "^6.20.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.56.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^27.6.3",

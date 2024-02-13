@@ -5,7 +5,6 @@ using Azure.Bicep.Types.Az;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
@@ -35,11 +34,11 @@ namespace Bicep.Core.IntegrationTests
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
-                .WithContainerRegistryClientFactory(DataSetsExtensions.CreateOciClientForAzProvider())
+                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzProvider())
                 .WithMockFileSystem(fileSystem)
                 .WithAzResourceTypeLoader(azTypeLoaderLazy.Value);
 
-            await DataSetsExtensions.PublishAzProvider(services.Build(), "/types/index.json");
+            await RegistryHelper.PublishAzProvider(services.Build(), "/types/index.json");
 
             return services;
         }

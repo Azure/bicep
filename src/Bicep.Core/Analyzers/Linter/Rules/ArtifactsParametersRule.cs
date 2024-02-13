@@ -5,8 +5,6 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
-using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 

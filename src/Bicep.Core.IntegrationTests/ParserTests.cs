@@ -3,7 +3,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;

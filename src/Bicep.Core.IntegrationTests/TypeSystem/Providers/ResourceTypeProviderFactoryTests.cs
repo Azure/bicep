@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
-using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -29,7 +28,7 @@ public class ResourceTypeProviderFactoryTests
         var repositoryPath = $"test/provider";
         var repositoryNames = new[] { "foo", "bar" };
 
-        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients(repositoryNames.Select(name => (registry, $"{repositoryPath}/{name}")).ToArray());
+        var (clientFactory, _) = RegistryHelper.CreateMockRegistryClients(repositoryNames.Select(name => (registry, $"{repositoryPath}/{name}")).ToArray());
 
         var services = new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true))
@@ -38,7 +37,7 @@ public class ResourceTypeProviderFactoryTests
         foreach (var repoName in repositoryNames)
         {
             var indexJsonPath = Path.Combine(outputDirectory, "types", "index.json");
-            await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), indexJsonPath, $"br:{registry}/{repositoryPath}/{repoName}:1.2.3");
+            await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), indexJsonPath, $"br:{registry}/{repositoryPath}/{repoName}:1.2.3");
         }
 
         var result = await CompilationHelper.RestoreAndCompile(

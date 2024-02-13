@@ -450,11 +450,11 @@ namespace Bicep.Cli.IntegrationTests
             var registryUri = new Uri($"https://{registryStr}");
             var repository = $"test/{moduleName}".ToLowerInvariant();
 
-            var (clientFactory, blobClients) = DataSetsExtensions.CreateMockRegistryClients((registryStr, repository));
+            var (clientFactory, blobClients) = RegistryHelper.CreateMockRegistryClients((registryStr, repository));
 
             var blobClient = blobClients[(registryUri, repository)];
 
-            await DataSetsExtensions.PublishModuleToRegistryAsync(clientFactory, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
+            await RegistryHelper.PublishModuleToRegistry(clientFactory, "modulename", $"br:example.com/test/{moduleName}:v1", bicepModuleContents, publishSource: false, documentationUri);
 
             var manifest = blobClient.Manifests.Single().Value.ToObjectFromJson<OciManifest>(new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 

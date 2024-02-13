@@ -14,9 +14,11 @@ namespace Bicep.Core.UnitTests.Utils
     {
         private readonly ImmutableDictionary<(Uri registryUri, string repository), MockRegistryBlobClient>.Builder clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
 
-        public void RegisterMockRepositoryBlobClient(string registryHost, string repository)
+        public TestContainerRegistryClientFactoryBuilder RegisterMockRepositoryBlobClient(string registryHost, string repository)
         {
             clientsBuilder.TryAdd((new Uri($"https://{registryHost}"), repository), new MockRegistryBlobClient());
+
+            return this;
         }
 
         public void RegisterMockRepositoryBlobClient(string registryHost, string repository, MockRegistryBlobClient client)

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.RegularExpressions;
 using Bicep.Core.Parsing;
 using Bicep.Core.UnitTests.Utils;
 using DiffPlex.DiffBuilder;
@@ -28,6 +29,9 @@ namespace Bicep.Core.UnitTests.Assertions
                 ChangeType.Deleted => "--",
                 _ => "  ",
             };
+
+        private static Regex CamelCasingRegex = new(@"^[a-z][a-zA-Z0-9]*$");
+        private static Regex KebabCasingRegex = new(@"^[a-z][a-z0-9-]*[a-z0-9]$");
 
         private static string? CalculateDiff(string expected, string actual, bool ignoreWhiteSpace = false, bool ignoreCase = false, int truncate = 100)
         {
@@ -173,6 +177,26 @@ namespace Bicep.Core.UnitTests.Assertions
             IEnumerable<string> enumerable = values.Where((string v) => Contains(instance.Subject, v, stringComparison));
             Execute.Assertion.ForCondition(!enumerable.Any()).BecauseOf(because, becauseArgs).FailWith("Did not expect {context:string} {0} to contain any of the strings: {1}{reason}.",
                 instance.Subject, enumerable);
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        public static AndConstraint<StringAssertions> BeInCamelCasing(this StringAssertions instance, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(CamelCasingRegex.Match(instance.Subject).Success)
+                .FailWith("Expected {0} to be in kebab casing (e.g. 'thisIsCamelCasing')", instance.Subject);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        public static AndConstraint<StringAssertions> BeInKebabCasing(this StringAssertions instance, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(KebabCasingRegex.Match(instance.Subject).Success)
+                .FailWith("Expected {0} to be in kebab casing (e.g. 'this-is-kebab-casing')", instance.Subject);
+
             return new AndConstraint<StringAssertions>(instance);
         }
 
