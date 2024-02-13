@@ -52,9 +52,9 @@ public class FormatCommand : ICommand
             throw new ErrorDiagnosticException(diagnostic);
         }
 
-        var featureProvider = this.featureProviderFactory.GetFeatureProvider(inputUri);
         BaseParser parser = PathHelper.HasBicepExtension(inputUri) ? new Parser(fileContents) : new ParamsParser(fileContents);
         var program = parser.Program();
+        var featureProvider = this.featureProviderFactory.GetFeatureProvider(inputUri);
 
         if (featureProvider.PrettyPrintingEnabled)
         {
