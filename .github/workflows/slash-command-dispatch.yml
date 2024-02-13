@@ -1,5 +1,6 @@
 # Implements "slash commands" on PR comments
 #   see https://github.com/peter-evans/slash-command-dispatch
+#   and https://david.gardiner.net.au/2021/05/dependabot-nuget-lockfiles.html
 # Listens for a comment on a pull request beginning with "/{command}" and dispatches that command
 # E.g. commenting "/lockfiles" will dispatch the "lockfiles-command.yml" workflow
 name: Slash Command Dispatch
@@ -14,6 +15,7 @@ jobs:
         id: bot-details
         uses: raven-actions/bot-details@v1
 
+        # Obtain the name of the branch that is linked to the pull request for the triggering comment.
       - uses: xt0rted/pull-request-comment-branch@v2
         id: comment-branch
 
@@ -31,6 +33,7 @@ jobs:
             lockfiles
           permission: write
           issue-type: pull-request
+          # We want the secondary workflow to run against the pull request branch (not the default branch)
           dispatch-type: workflow
           static-args: ref=${{ steps.comment-branch.outputs.head_ref }}
 
