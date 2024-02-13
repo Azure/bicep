@@ -60,11 +60,5 @@ namespace Bicep.Core.IntegrationTests
                      ("BCP206", DiagnosticLevel.Error, "Provider namespace \"kubernetes\" requires configuration, but none was provided.") } };
             }
         }
-
-        [TestMethod]
-        public void ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsExternal()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
