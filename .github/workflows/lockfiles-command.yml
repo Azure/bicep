@@ -1,3 +1,4 @@
+# You can run this on a PR by commenting "/lockfiles" on the PR
 name: Update lockfiles
 on:
   workflow_dispatch:
