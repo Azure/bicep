@@ -23,6 +23,16 @@ namespace Bicep.Core.PrettyPrintV2
             this.context = context;
         }
 
+        /// <summary>
+        /// Outputs a formatted string representation of a syntactically correct syntax node.
+        /// </summary>
+        /// <remarks>
+        /// This method is intended for formatting manually created syntax nodes that are confirmed to be free of lexing and parsing errors. 
+        /// Supplying a syntax node that contains errors could result in improperly formatted output.
+        /// </remarks>
+        /// <param name="validSyntaxToPrint">The syntax node to format, which must be free of syntax errors.</param>
+        /// <param name="options">The formatting options.</param>
+        /// <returns>A string that represents the formatted syntax node.</returns>
         public static string PrintValid(SyntaxBase validSyntaxToPrint, PrettyPrinterV2Options options)
         {
             var context = PrettyPrinterV2Context.Create(options, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);

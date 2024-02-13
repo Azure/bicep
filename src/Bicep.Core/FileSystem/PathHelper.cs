@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.IO.Abstractions;
 using Bicep.Core.Emit.Options;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.FileSystem
 {
@@ -27,19 +28,16 @@ namespace Bicep.Core.FileSystem
         /// <param name="fileSystem">The file system abstraction.</param>
         public static string ResolvePath(string path, string? baseDirectory = null, IFileSystem? fileSystem = null)
         {
-            if (Path.IsPathFullyQualified(path))
+            fileSystem ??= new IOFileSystem();
+
+            if (fileSystem.Path.IsPathFullyQualified(path))
             {
                 return path;
             }
 
-            baseDirectory ??= fileSystem?.Directory.GetCurrentDirectory() ?? Environment.CurrentDirectory;
+            baseDirectory ??= fileSystem.Directory.GetCurrentDirectory() ?? Environment.CurrentDirectory;
 
-            if (fileSystem is not null)
-            {
-                return fileSystem.Path.Combine(baseDirectory, path);
-            }
-
-            return Path.Combine(baseDirectory, path);
+            return fileSystem.Path.Combine(baseDirectory, path);
         }
 
         /// <summary>
@@ -56,11 +54,13 @@ namespace Bicep.Core.FileSystem
 
         public static string ResolveDefaultOutputPath(string inputPath, string? outputDir, string? outputFile, Func<string, string> defaultOutputPath, IFileSystem? fileSystem = null)
         {
+            fileSystem ??= new IOFileSystem();
+
             if (outputDir is not null)
             {
                 var dir = ResolvePath(outputDir, fileSystem: fileSystem);
-                var file = fileSystem is not null ? fileSystem.Path.GetFileName(inputPath) : Path.GetFileName(inputPath);
-                var path = fileSystem is not null ? fileSystem.Path.Combine(dir, file) : Path.Combine(dir, file);
+                var file = fileSystem.Path.GetFileName(inputPath);
+                var path = fileSystem.Path.Combine(dir, file);
 
                 return defaultOutputPath(path);
             }

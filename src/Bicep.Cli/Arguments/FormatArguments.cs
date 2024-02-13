@@ -9,8 +9,10 @@ namespace Bicep.Cli.Arguments
 {
     public class FormatArguments : ArgumentsBase
     {
-        public FormatArguments(string[] args, IOContext io, IFileSystem? fileSystem) : base(Constants.Command.Format)
+        public FormatArguments(string[] args, IOContext io, IFileSystem fileSystem) : base(Constants.Command.Format)
         {
+            ArgumentNullException.ThrowIfNull(fileSystem);
+
             for (var i = 0; i < args.Length; i++)
             {
                 switch (args[i].ToLowerInvariant())
@@ -58,7 +60,7 @@ namespace Bicep.Cli.Arguments
                         }
                         if (!Enum.TryParse<NewlineKind>(args[i + 1], true, out var newline) || !Enum.IsDefined(newline))
                         {
-                            throw new CommandLineException($"The --newline parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(NewlineKind)))}");
+                            throw new CommandLineException($"The --newline parameter only accepts these values: {string.Join(" | ", Enum.GetNames(typeof(NewlineKind)))}");
                         }
                         NewlineKind = newline;
                         i++;
@@ -75,7 +77,7 @@ namespace Bicep.Cli.Arguments
                         }
                         if (!Enum.TryParse(args[i + 1], true, out newline) || !Enum.IsDefined(newline))
                         {
-                            throw new CommandLineException($"The --newline-kind parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(NewlineKind)))}");
+                            throw new CommandLineException($"The --newline-kind parameter only accepts these values: {string.Join(" | ", Enum.GetNames(typeof(NewlineKind)))}");
                         }
                         NewlineKind = newline;
                         i++;
@@ -95,7 +97,7 @@ namespace Bicep.Cli.Arguments
                         }
                         if (!Enum.TryParse<IndentKind>(args[i + 1], true, out var indentKind) || !Enum.IsDefined(indentKind))
                         {
-                            throw new CommandLineException($"The --indentKind parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(IndentKind)))}");
+                            throw new CommandLineException($"The --indentKind parameter only accepts these cdvalues: {string.Join(" | ", Enum.GetNames(typeof(IndentKind)))}");
                         }
                         IndentKind = indentKind;
                         i++;
@@ -111,7 +113,7 @@ namespace Bicep.Cli.Arguments
                         }
                         if (!Enum.TryParse(args[i + 1], true, out indentKind) || !Enum.IsDefined(indentKind))
                         {
-                            throw new CommandLineException($"The --indent-kind parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(IndentKind)))}");
+                            throw new CommandLineException($"The --indent-kind parameter only accepts these values: {string.Join(" | ", Enum.GetNames(typeof(IndentKind)))}");
                         }
                         IndentKind = indentKind;
                         i++;
@@ -169,7 +171,9 @@ namespace Bicep.Cli.Arguments
                         }
                         else
                         {
-                            InsertFinalNewline = insertFinalNewline;
+                            // Either "true" or "false" is not supplied after "--insertFinalNewline", or the value is not a valid boolean.
+                            // Treat it as only "--insertFinalNewline" is specified without a value, and default to true.
+                            InsertFinalNewline = true;
                         }
                         break;
 
@@ -186,6 +190,8 @@ namespace Bicep.Cli.Arguments
                         }
                         else
                         {
+                            // Either "true" or "false" is not supplied after "--insert-final-newline", or the value is not a valid boolean.
+                            // Treat it as only "--insert-final-newline" is specified without a value, and default to true.
                             InsertFinalNewline = true;
                         }
                         break;

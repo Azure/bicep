@@ -9,7 +9,7 @@ namespace Bicep.Cli.Services
 {
     public static class ArgumentParser
     {
-        public static ArgumentsBase? TryParse(string[] args, IOContext io, IFileSystem? fileSystem = null)
+        public static ArgumentsBase? TryParse(string[] args, IOContext io, IFileSystem fileSystem)
         {
             if (args.Length < 1)
             {
