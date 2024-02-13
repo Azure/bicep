@@ -803,7 +803,7 @@ namespace Bicep.Core.TypeSystem
             {
                 if (syntax.IsSkipped)
                 {
-                    diagnostics.Write(syntax.Specification, b => this.features.DynamicTypeLoadingEnabled ? b.ExpectedProviderSpecification() : b.ExpectedLegacyProviderSpecification());
+                    diagnostics.Write(syntax.Specification, b => b.ExpectedProviderSpecification(this.features.DynamicTypeLoadingEnabled));
                 }
 
                 if (binder.GetSymbolInfo(syntax) is not ProviderNamespaceSymbol namespaceSymbol)

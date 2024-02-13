@@ -1216,10 +1216,16 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedLegacyProviderSpecification() => new(
-                TextSpan,
-                "BCP201",
-                "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location.");
+            public ErrorDiagnostic ExpectedProviderSpecification(bool isDynamicLoadingEnabled)
+            {
+                var message = "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location.";
+                if (isDynamicLoadingEnabled)
+                {
+                    message = "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\""
+                                + " or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location.";
+                }
+                return new(TextSpan, "BCP201", message);
+            }
 
             public ErrorDiagnostic ExpectedProviderAliasName() => new(
                 TextSpan,
@@ -2141,12 +2147,6 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP393",
                 $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
-
-            public ErrorDiagnostic ExpectedProviderSpecification() => new(
-                TextSpan,
-                "BCP394",
-                "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" "
-                + "or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location.");
 
             public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecificationSyntax syntax)
             {

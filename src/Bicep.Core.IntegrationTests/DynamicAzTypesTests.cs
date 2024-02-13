@@ -129,13 +129,14 @@ namespace Bicep.Core.IntegrationTests
             var services = new ServiceBuilder()
                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
 
-            var result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider 'az@0.2.661'
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider 'az@{BicepTestConstants.BuiltinAzProviderVersion}'
             ");
-            result.Should().GenerateATemplate();
+            result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(
                 new[] {
-                ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
+                ("BCP201", DiagnosticLevel.Error, "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location."),
+                ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
             });
         }
 

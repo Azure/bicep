@@ -54,7 +54,6 @@ public class BicepCompiler
         return Create(sourceFileGrouping);
     }
 
-
     public async Task<Compilation> CreateCompilation(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool skipRestore = false, bool forceRestore = false)
     {
         workspace ??= new Workspace();
@@ -82,18 +81,18 @@ public class BicepCompiler
         return Create(sourceFileGrouping);
     }
 
-    public async Task<ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>> Restore(Compilation compilation, bool force)
+    public async Task<ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>> Restore(Compilation compilation, bool forceArtifactRestore)
     {
         var workspace = new Workspace();
         var sourceFileGrouping = compilation.SourceFileGrouping;
         var originalModulesToRestore = sourceFileGrouping.GetExplicitArtifactsToRestore().ToImmutableHashSet();
-        if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(originalModulesToRestore), force))
+        if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(originalModulesToRestore), forceArtifactRestore))
         {
             // modules had to be restored - recompile
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, ConfigurationManager, workspace, sourceFileGrouping);
         }
 
-        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, force);
+        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceArtifactRestore);
     }
 
     private Compilation Create(SourceFileGrouping sourceFileGrouping)

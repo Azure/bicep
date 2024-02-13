@@ -370,11 +370,15 @@ namespace Bicep.Core.Workspaces
 
             if (providerDeclarationSyntax.Specification is LegacyProviderSpecificationSyntax { } legacySpecification)
             {
-                return new(new ResourceTypesProviderDescriptor(
-                    legacySpecification.NamespaceIdentifier,
-                    file.FileUri,
-                    legacySpecification.Version,
-                    providerDeclarationSyntax.Alias?.IdentifierName));
+                if (!featureProvider.DynamicTypeLoadingEnabled)
+                {
+                    return new(new ResourceTypesProviderDescriptor(
+                        legacySpecification.NamespaceIdentifier,
+                        file.FileUri,
+                        legacySpecification.Version,
+                        providerDeclarationSyntax.Alias?.IdentifierName));
+                }
+                return new(x => x.ExpectedProviderSpecification(featureProvider.DynamicTypeLoadingEnabled));
             }
 
             if (!featureProvider.DynamicTypeLoadingEnabled)
