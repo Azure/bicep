@@ -20,7 +20,6 @@ namespace Bicep.Core.Samples
         public const string TestFileMainSymbols = "main.symbols.bicep";
         public const string TestFileMainSyntax = "main.syntax.bicep";
         public const string TestFileMainFormatted = "main.formatted.bicep";
-        public const string TestFileMainPrettyPrinted = "main.pprint.bicep";
         public const string TestFileMainSourceMap = "main.sourcemap.bicep";
         public const string TestFileMainCompiled = "main.json";
         public const string TestFileMainCompiledWithSymbolicNames = "main.symbolicnames.json";
@@ -57,8 +56,6 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<string> lazyFormatted;
 
-        private readonly Lazy<string> lazyPrettyPrinted;
-
         private readonly Lazy<string>? lazySourceMap;
 
         private readonly Lazy<ImmutableDictionary<string, string>> lazyCompletions;
@@ -80,7 +77,6 @@ namespace Bicep.Core.Samples
             this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
             this.lazySyntax = this.CreateRequired(TestFileMainSyntax);
             this.lazyFormatted = this.CreateRequired(TestFileMainFormatted);
-            this.lazyPrettyPrinted = this.CreateRequired(TestFileMainPrettyPrinted);
             this.lazySourceMap = this.CreateIffValid(TestFileMainSourceMap);
             this.lazyCompletions = new(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyModulesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishPrefix)), LazyThreadSafetyMode.PublicationOnly);
@@ -108,8 +104,6 @@ namespace Bicep.Core.Samples
         public string Syntax => this.lazySyntax.Value;
 
         public string Formatted => this.lazyFormatted.Value;
-
-        public string PrettyPrinted => this.lazyPrettyPrinted.Value;
 
         public string? SourceMap => this.lazySourceMap?.Value;
 

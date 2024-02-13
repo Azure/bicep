@@ -96,17 +96,17 @@
     }
   },
   {
-    "label": "main.pprint.bicep",
+    "label": "main.formatted.bicep",
     "kind": "file",
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_main.pprint.bicep",
-    "filterText": "'./main.pprint.bicep'",
+    "sortText": "1_main.formatted.bicep",
+    "filterText": "'./main.formatted.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'./main.pprint.bicep'"
+      "newText": "'./main.formatted.bicep'"
     }
   },
   {

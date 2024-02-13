@@ -46,12 +46,12 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         public void Print_DataSet_ProducesExpectedOutput(DataSet dataSet)
         {
             var output = Print(dataSet.Bicep, PrettyPrinterV2Options.Default);
-            var outputFileName = DataSet.TestFileMainPrettyPrinted;
+            var outputFileName = DataSet.TestFileMainFormatted;
             var outputFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, outputFileName), output);
 
             output.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
-                dataSet.PrettyPrinted,
+                dataSet.Formatted,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
                 actualLocation: outputFile);
 
@@ -80,8 +80,8 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var data = baselineData.GetData(TestContext);
             var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, isParamFile: true);
 
-            data.PrettyPrinted.WriteToOutputFolder(output);
-            data.PrettyPrinted.ShouldHaveExpectedValue();
+            data.Formatted.WriteToOutputFolder(output);
+            data.Formatted.ShouldHaveExpectedValue();
 
             AssertConsistentParamsOutput(output, PrettyPrinterV2Options.Default);
         }

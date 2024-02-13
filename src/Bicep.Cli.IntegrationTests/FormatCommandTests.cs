@@ -121,19 +121,18 @@ namespace Bicep.Cli.IntegrationTests
         {
             var data = baselineData.GetData(TestContext);
 
-            data.PrettyPrinted.WriteToOutputFolder(data.Parameters.EmbeddedFile.Contents);
-            var result = await Bicep("format", data.PrettyPrinted.OutputFilePath);
+            data.Formatted.WriteToOutputFolder(data.Parameters.EmbeddedFile.Contents);
+            var result = await Bicep("format", data.Formatted.OutputFilePath);
 
             AssertSuccess(result);
 
-            data.PrettyPrinted.ShouldHaveExpectedValue();
+            data.Formatted.ShouldHaveExpectedValue();
         }
 
         [DataTestMethod]
-        //[DynamicData(nameof(GetDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Format_SampleFile_MatchesFormattedSample()
+        [DynamicData(nameof(GetDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Format_SampleBicepFile_MatchesFormattedSample(DataSet dataSet)
         {
-            DataSet dataSet = DataSets.Metadata_CRLF;
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
@@ -142,7 +141,7 @@ namespace Bicep.Cli.IntegrationTests
             AssertSuccess(result);
 
             var actual = File.ReadAllText(bicepFilePath);
-            actual.Should().Be(dataSet.PrettyPrinted);
+            actual.Should().Be(dataSet.Formatted);
         }
 
         [TestMethod]
