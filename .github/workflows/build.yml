@@ -36,6 +36,12 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.3
 
+      - name: Debug
+        run: |
+          dotnet --version
+          dotnet --info
+          msbuild --version
+          
       - name: Build Bicep.sln
         run: dotnet build --configuration release
 
