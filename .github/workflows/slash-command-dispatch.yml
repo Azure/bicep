@@ -1,3 +1,5 @@
+# Listens for a comment on a pull request beginning with "/{command}" and dispatches that command
+# E.g. commenting "/lockfiles" will dispatch the "lockfiles-command.yml" workflow
 name: Slash Command Dispatch
 on:
   issue_comment:
@@ -18,16 +20,6 @@ jobs:
           COMMENT_CONTEXT: ${{ toJson(steps.comment-branch.outputs) }}
         run: echo "$COMMENT_CONTEXT"
 
-      - name: Dump comment context
-        env:
-          COMMENT_CONTEXT: ${{ toJson(github.event.comment) }}
-        run: echo "$COMMENT_CONTEXT"
-
-      - name: Dump github
-        env:
-          COMMENT_CONTEXT: ${{ toJson(github) }}
-        run: echo "$COMMENT_CONTEXT"
-
       - name: Slash Command Dispatch
         uses: peter-evans/slash-command-dispatch@v4
         id: slash-command
@@ -40,71 +32,17 @@ jobs:
           dispatch-type: workflow
           static-args: ref=${{ steps.comment-branch.outputs.head_ref }}
 
-      - name: Dump context asdfg
+      - name: Dump slash context
         env:
           SLASH_CONTEXT: ${{ toJson(steps.slash-command) }}
         run: echo "$SLASH_CONTEXT"
 
-      - name: Bot Details
-        id: bot-details2
-        uses: raven-actions/bot-details@v1
-
-      - name: debug
-        run: |
-          echo ${{ github }}
-          echo ${{ github.event }}
-          echo ${{ github.event.client_payload }}
-          echo ${{ github.event.client_payload.slash_command.command }}
-          echo ${{ github.event.client_payload.slash_command.args.all }}
-          echo ${{ github.event.client_payload.slash_command.args.unnamed.all }}
-          echo ${{ github.event.client_payload.slash_command.args.unnamed.arg1 }}
-          echo ${{ github.event.client_payload.slash_command.args.unnamed.arg2 }}
-          echo ${{ github.event.client_payload.slash_command.args.named.region }}
-          echo ${{ github.event.client_payload.slash_command.args.named.branch }}
-          echo ${{ github.event.client_payload.slash_command.args.named.reason }}
 
       - name: Dump the client payload context
         env:
           PAYLOAD_CONTEXT: ${{ toJson(github.event.client_payload) }}
         run: echo "$PAYLOAD_CONTEXT"  
 
-      - name: Dump the client payload context
-        env:
-          abc: ${{ toJson(github.repository) }}
-          def: ${{ toJson(github.event.comment.id) }}
-        run: |
-          echo "$abc"
-          echo "$def"
-
-      - name: Add reaction
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository.full_name }}
-          comment-id: ${{ github.event.comment.id }}
-          reactions: hooray
-
       - name: Create URL to the run output
         id: vars
         run: echo "run-url=https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_OUTPUT
-
-      - name: Create comment
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.PAT }}
-          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
-          issue-number: ${{ github.event.client_payload.github.payload.issue.number }}
-          body: |
-            [Command run output][1]
-
-            [1]: ${{ steps.vars.outputs.run-url }}
-
-      - name: Bot Details outputs
-        run: |
-          echo "ID: ${{ steps.bot-details.outputs.id }}"
-          echo "Slug name: ${{ steps.bot-details.outputs.slug }}"
-          echo "Display name: ${{ steps.bot-details.outputs.name }}"
-          echo "Email: ${{ steps.bot-details.outputs.email }}"
-          echo "Name Email: ${{ steps.bot-details.outputs.name-email }}"
-          echo "HTML URL: ${{ steps.bot-details.outputs.html-url }}"
-          echo "API URL: ${{ steps.bot-details.outputs.api-url }}"
