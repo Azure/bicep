@@ -155,5 +155,14 @@ namespace Bicep.Core.Extensions
         }
 
         private static string[] GetPropertyNames(string path) => path.Split('.');
+
+        public static string[]? TryGetStringArray(this JsonElement element)
+        {
+            if (element.ValueKind != JsonValueKind.Array)
+            {
+                return null;
+            }
+            return element.EnumerateArray().Select(x => x.GetString()).WhereNotNull().ToArray();
+        }
     }
 }

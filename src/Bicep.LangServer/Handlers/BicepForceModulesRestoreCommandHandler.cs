@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -22,6 +23,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly ICompilationManager compilationManager;
+        private readonly IConfigurationManager configurationManager;
         private readonly IWorkspace workspace;
         private readonly IFeatureProviderFactory featureProviderFactory;
 
@@ -29,6 +31,7 @@ namespace Bicep.LanguageServer.Handlers
             ISerializer serializer,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
+            IConfigurationManager configurationManager,
             ICompilationManager compilationManager,
             IWorkspace workspace,
             IFeatureProviderFactory featureProviderFactory)
@@ -36,6 +39,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
+            this.configurationManager = configurationManager;
             this.compilationManager = compilationManager;
             this.workspace = workspace;
             this.featureProviderFactory = featureProviderFactory;
@@ -61,15 +65,16 @@ namespace Bicep.LanguageServer.Handlers
             SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 this.fileResolver,
                 this.moduleDispatcher,
+                this.configurationManager,
                 workspace,
                 fileUri,
                 featureProviderFactory);
 
             // Ignore modules to restore logic, include all modules to be restored
-            var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(force: true);
+            var artifactsToRestore = sourceFileGrouping.GetExplicitArtifactsToRestore(force: true);
 
             var artifactUris = sourceFileGrouping
-                .FileUriResultByArtifactReference.SelectMany(x => x.Value)
+                .FileUriResultByBicepSourceFileByArtifactReference.SelectMany(x => x.Value)
                 .Select(x => x.Value.TryUnwrap())
                 .WhereNotNull()
                 .Distinct();

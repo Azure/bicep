@@ -103,7 +103,6 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow("br/mcr:az", true, LanguageConstants.BicepPublicMcrRegistry)]
         [DataRow("br:contoso.azurecr.io/bicep/providers/az", true, "contoso.azurecr.io")]
         // Negative
-        [DataRow("az", false)]
         [DataRow("br:invalid.azureacr.io/bicep/providers/az", false)]
         [DataRow("br/unknown:az", false)]
         public async Task Build_Valid_SingleFile_WithProviderDeclarationStatement(
@@ -147,7 +146,7 @@ namespace Bicep.Cli.IntegrationTests
                                 "providerPath": "bicep/providers"
                             },
                             "mcr": {
-                                "registry": "mcr.microsoft.com",
+                                "registry": "{{LanguageConstants.BicepPublicMcrRegistry}}",
                                 "providerPath": "bicep/providers"
                             }
                         }

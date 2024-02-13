@@ -49,10 +49,11 @@ public class BicepCompiler
     public Compilation CreateCompilationWithoutRestore(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false)
     {
         workspace ??= new Workspace();
-        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, bicepUri, featureProviderFactory, markAllForRestore);
+        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, ConfigurationManager, workspace, bicepUri, featureProviderFactory, markAllForRestore);
 
         return Create(sourceFileGrouping);
     }
+
 
     public async Task<Compilation> CreateCompilation(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool skipRestore = false, bool forceRestore = false)
     {
@@ -69,12 +70,15 @@ public class BicepCompiler
         // however we still want to surface as many errors as we can for the module refs that are valid
         // so we will try to restore modules with valid refs and skip everything else
         // (the diagnostics will be collected during compilation)
-        if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.GetArtifactsToRestore()), forceRestore: forceRestore))
+        var artifactsToRestore = moduleDispatcher.GetValidModuleReferences(
+            sourceFileGrouping.GetExplicitArtifactsToRestore()).Concat(
+                sourceFileGrouping.GetImplicitArtifactsToRestore());
+
+        if (await moduleDispatcher.RestoreModules(artifactsToRestore, forceRestore: forceRestore))
         {
             // modules had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, workspace, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, ConfigurationManager, workspace, sourceFileGrouping);
         }
-
         return Create(sourceFileGrouping);
     }
 
@@ -82,14 +86,14 @@ public class BicepCompiler
     {
         var workspace = new Workspace();
         var sourceFileGrouping = compilation.SourceFileGrouping;
-        var originalModulesToRestore = sourceFileGrouping.GetArtifactsToRestore().ToImmutableHashSet();
+        var originalModulesToRestore = sourceFileGrouping.GetExplicitArtifactsToRestore().ToImmutableHashSet();
         if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(originalModulesToRestore), force))
         {
             // modules had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, workspace, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, ConfigurationManager, workspace, sourceFileGrouping);
         }
 
-        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceModulesRestore: force);
+        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, force);
     }
 
     private Compilation Create(SourceFileGrouping sourceFileGrouping)

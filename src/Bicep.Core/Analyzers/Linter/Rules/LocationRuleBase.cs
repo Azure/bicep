@@ -70,7 +70,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             //   var v2 = v1
                             //
                             // resource ... {
-                            //   location: v2     <<< For 'v2' here as the valueSyntax, we return ('westus', <defition-of-v1>)
+                            //   location: v2     <<< For 'v2' here as the valueSyntax, we return ('westus', <definition-of-v1>)
                             // }
 
                             return (literalTextValue, definingVariable ?? variableSymbol);

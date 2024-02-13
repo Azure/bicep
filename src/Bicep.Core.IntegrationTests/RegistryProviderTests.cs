@@ -14,12 +14,18 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class RegistryProviderTests : TestBase
 {
-    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registryHost, string repositoryPath, bool extensibilityEnabledBool, bool providerRegistryBool)
+    private static ServiceBuilder GetServiceBuilder(
+        IFileSystem fileSystem,
+        string registryHost,
+        string repositoryPath,
+        bool extensibilityEnabledBool,
+        bool providerRegistryBool,
+        bool dynamicTypeLoadingEnabledBool)
     {
         var clientFactory = RegistryHelper.CreateMockRegistryClient(registryHost, repositoryPath);
 
         return new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: extensibilityEnabledBool, ProviderRegistry: providerRegistryBool))
+            .WithFeatureOverrides(new(ExtensibilityEnabled: extensibilityEnabledBool, DynamicTypeLoadingEnabled: dynamicTypeLoadingEnabledBool, ProviderRegistry: providerRegistryBool))
             .WithFileSystem(fileSystem)
             .WithContainerRegistryClientFactory(clientFactory);
     }
@@ -35,7 +41,7 @@ public class RegistryProviderTests : TestBase
         var registry = "example.azurecr.io";
         var repository = $"test/provider/http";
 
-        var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
+        var services = GetServiceBuilder(fileSystem, registry, repository, true, true, true);
 
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
@@ -66,7 +72,7 @@ public class RegistryProviderTests : TestBase
         var registry = "example.azurecr.io";
         var repository = $"test/provider/http";
 
-        var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
+        var services = GetServiceBuilder(fileSystem, registry, repository, true, true, true);
 
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
@@ -98,7 +104,7 @@ public class RegistryProviderTests : TestBase
         var registry = "example.azurecr.io";
         var repository = $"test/provider/http";
 
-        var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
+        var services = GetServiceBuilder(fileSystem, registry, repository, true, true, true);
 
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
@@ -144,7 +150,7 @@ public class RegistryProviderTests : TestBase
         var registry = "example.azurecr.io";
         var repository = $"test/provider/http";
 
-        var services = GetServiceBuilder(fileSystem, registry, repository, false, false);
+        var services = GetServiceBuilder(fileSystem, registry, repository, false, false, false);
 
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
@@ -155,7 +161,7 @@ public class RegistryProviderTests : TestBase
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
             });
 
-        services = GetServiceBuilder(fileSystem, registry, repository, true, false);
+        services = GetServiceBuilder(fileSystem, registry, repository, true, false, false);
 
         var result2 = await CompilationHelper.RestoreAndCompile(services, @$"
         provider 'br:example.azurecr.io/test/provider/http@1.2.3'
@@ -185,8 +191,8 @@ public class RegistryProviderTests : TestBase
         var services = new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: false));
 
-        var result = await CompilationHelper.RestoreAndCompile(services, @"
-        provider 'br:mcr.microsoft.com/bicep/provider/az@0.0.0'
+        var result = await CompilationHelper.RestoreAndCompile(services, @$"
+        provider 'br:{LanguageConstants.BicepPublicMcrRegistry}/bicep/provider/az@0.0.0'
         ");
         result.Should().NotGenerateATemplate();
         result.Should().HaveDiagnostics(new[]{

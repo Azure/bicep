@@ -34,9 +34,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 .OfType<NamespaceType>()
                 .ToImmutableDictionary(x => x.Name, LanguageConstants.IdentifierComparer);
 
-            void TryAddBuiltInNamespace(string @namespace, string @version)
+            void TryAddBuiltInNamespace(string @namespace)
             {
-                if (!namespaceProvider.TryGetNamespace(new(@namespace, @version, isImplicitImport: true), targetScope, features, sourceFile.FileKind).IsSuccess(out var namespaceType))
+                if (!namespaceProvider.TryGetNamespace(new(@namespace, sourceFile.FileUri), targetScope, features, sourceFile.FileKind).IsSuccess(out var namespaceType))
                 {
                     // this namespace doesn't match a known built-in namespace
                     return;
@@ -60,9 +60,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 }
             }
 
-            TryAddBuiltInNamespace(SystemNamespaceType.BuiltInName, SystemNamespaceType.Settings.ArmTemplateProviderVersion);
+            TryAddBuiltInNamespace(SystemNamespaceType.BuiltInName);
 
-            TryAddBuiltInNamespace(AzNamespaceType.BuiltInName, AzNamespaceType.Settings.ArmTemplateProviderVersion);
+            TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
 
             return new(namespaceTypes, builtInNamespaceSymbols.ToImmutableDictionary(LanguageConstants.IdentifierComparer));
         }

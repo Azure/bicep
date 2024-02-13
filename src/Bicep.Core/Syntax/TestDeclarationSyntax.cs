@@ -1,5 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
@@ -55,5 +58,8 @@ namespace Bicep.Core.Syntax
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid test body is not available on this test due to errors. Use {nameof(TryGetBody)}() instead.");
 
         public ArtifactType GetArtifactType() => ArtifactType.Module;
+
+        public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration _)
+            => SyntaxHelper.TryGetForeignTemplatePath(this, x => x.PathHasNotBeenSpecified());
     }
 }

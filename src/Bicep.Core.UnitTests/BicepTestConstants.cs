@@ -51,18 +51,15 @@ namespace Bicep.Core.UnitTests
 
         public static ResourceTypesProviderDescriptor BuiltInAzProviderDescriptor { get; } = new(
             AzNamespaceType.BuiltInName,
-            AzNamespaceType.Settings.ArmTemplateProviderVersion,
-            isImplicitImport: true);
+            new Uri("file:///dev/null"));
 
         public static ResourceTypesProviderDescriptor BuiltInSysProviderDescriptor { get; } = new(
             SystemNamespaceType.BuiltInName,
-            SystemNamespaceType.Settings.ArmTemplateProviderVersion,
-            isImplicitImport: true);
+            new Uri("file:///dev/null"));
 
         public static ResourceTypesProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = new(
             MicrosoftGraphNamespaceType.BuiltInName,
-            MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion,
-            isImplicitImport: true);
+            new Uri("file:///dev/null"));
 
         // Linter rules added to this list will be automatically disabled for most tests.
         // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
@@ -102,6 +99,8 @@ namespace Bicep.Core.UnitTests
                 ["cloud.credentialPrecedence"] = new[] { "AzureCLI", "AzurePowerShell" },
                 ["moduleAliases"] = new Dictionary<string, object>(),
                 ["providerAliases"] = new Dictionary<string, object>(),
+                ["providers"] = new Dictionary<string, object>(),
+                ["implicitProviders"] = new[] { "az" },
                 ["analyzers"] = new Dictionary<string, object>(),
                 ["experimentalFeaturesEnabled"] = new Dictionary<string, bool>(),
                 ["formatting"] = new Dictionary<string, bool>(),

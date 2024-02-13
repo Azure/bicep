@@ -13,10 +13,10 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
@@ -26,7 +26,6 @@ namespace Bicep.Core.TypeSystem
         private readonly IFeatureProvider features;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
-        private readonly IEnvironment environment;
         private readonly SemanticModel model;
         private readonly IDiagnosticLookup parsingErrorLookup;
         private readonly IArtifactFileLookup sourceFileLookup;
@@ -43,7 +42,6 @@ namespace Bicep.Core.TypeSystem
             this.model = model;
             this.features = model.Features;
             this.binder = model.Binder;
-            this.environment = model.Environment;
             this.parsingErrorLookup = model.ParsingErrorLookup;
             this.sourceFileLookup = model.Compilation.SourceFileGrouping;
             this.semanticModelLookup = model.Compilation;
@@ -107,7 +105,7 @@ namespace Bicep.Core.TypeSystem
                 return new TypeAssignment(reference, diagnosticWriter.GetDiagnostics());
             });
 
-        private TypeSymbol? CheckForCyclicError(SyntaxBase syntax)
+        private ErrorType? CheckForCyclicError(SyntaxBase syntax)
         {
             if (this.binder.GetSymbolInfo(syntax) is not DeclaredSymbol declaredSymbol)
             {
@@ -803,6 +801,11 @@ namespace Bicep.Core.TypeSystem
         public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
+                if (syntax.IsSkipped)
+                {
+                    diagnostics.Write(syntax.Specification, b => this.features.DynamicTypeLoadingEnabled ? b.ExpectedProviderSpecification() : b.ExpectedLegacyProviderSpecification());
+                }
+
                 if (binder.GetSymbolInfo(syntax) is not ProviderNamespaceSymbol namespaceSymbol)
                 {
                     // We have syntax or binding errors, which should have already been handled.
@@ -820,6 +823,12 @@ namespace Bicep.Core.TypeSystem
                 if (syntax.Keyword.Text.Equals(LanguageConstants.ImportKeyword))
                 {
                     diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated(syntax));
+                }
+
+                if (syntax.Specification is LegacyProviderSpecificationSyntax specificationSyntax &&
+                    features.DynamicTypeLoadingEnabled)
+                {
+                    diagnostics.Write(syntax.Specification, x => x.LegacyProviderSpecificationIsDeprecated(specificationSyntax));
                 }
 
                 if (syntax.Config is not null)

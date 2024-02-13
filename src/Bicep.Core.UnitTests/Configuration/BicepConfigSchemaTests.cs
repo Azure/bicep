@@ -346,5 +346,46 @@ namespace Bicep.Core.UnitTests.Configuration
             errors.Should().BeEmpty();
             isValid.Should().BeTrue();
         }
+
+        [TestMethod]
+        public void UserConfig_SysProviderIsProhibited()
+        {
+            var bicepConfigJson = JObject.Parse("""
+            {
+                "providers": {
+                    "sys": {
+                        "source": "example.azurecr.io/some/fake/path",
+                        "version": "1.0.0"
+                    }
+                }
+            }
+            """);
+            var schema = GetConfigSchema();
+            bool isValid = bicepConfigJson.IsValid(schema, out IList<ValidationError> errors);
+            errors.Should().HaveCount(1);
+            errors.Single().Path.Should().Be("providers.sys");
+            isValid.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void UserConfig_BuiltIn_property_is_mutually_exclusive_with_source_and_version()
+        {
+            var bicepConfigJson = JObject.Parse("""
+            {
+                "providers": {
+                    "az": {
+                        "source": "example.azurecr.io/some/fake/path",
+                        "version": "1.0.0",
+                        "builtIn": true
+                    }
+                }
+            }
+            """);
+            var schema = GetConfigSchema();
+            bool isValid = bicepConfigJson.IsValid(schema, out IList<ValidationError> errors);
+            errors.Should().HaveCount(1);
+            errors.Single().Path.Should().Be("providers.az");
+            isValid.Should().BeFalse();
+        }
     }
 }

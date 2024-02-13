@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO.Abstractions;
 using Azure.Bicep.Types.Az;
 using Bicep.Core.Diagnostics;
@@ -14,11 +15,9 @@ namespace Bicep.Core.TypeSystem.Providers
 {
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
-        private static readonly Lazy<IResourceTypeProvider> azResourceTypeProviderLazy
-            = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), AzNamespaceType.Settings.ArmTemplateProviderVersion));
-
+        private static readonly Lazy<IResourceTypeProvider> azResourceTypeProviderLazy = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), AzNamespaceType.Settings.ArmTemplateProviderVersion));
         private record ResourceTypeLoaderKey(string Name, string Version);
-        private readonly ConcurrentDictionary<ResourceTypeLoaderKey, IResourceTypeProvider> cachedResourceTypeLoaders = new();
+        private readonly ConcurrentDictionary<ResourceTypeLoaderKey, ResultWithDiagnostic<IResourceTypeProvider>> cachedResourceTypeLoaders = new();
         private readonly IFileSystem fileSystem;
 
         public ResourceTypeProviderFactory(IFileSystem fileSystem)
@@ -26,45 +25,41 @@ namespace Bicep.Core.TypeSystem.Providers
             this.fileSystem = fileSystem;
         }
 
-        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProviderFromFilePath(ResourceTypesProviderDescriptor providerDescriptor)
+        public ResultWithDiagnostic<IResourceTypeProvider> GetResourceTypeProvider(ResourceTypesProviderDescriptor providerDescriptor)
         {
-
-
-
             var key = new ResourceTypeLoaderKey(providerDescriptor.Name, providerDescriptor.Version);
-            IResourceTypeProvider result;
-            try
+            return cachedResourceTypeLoaders.GetOrAdd(key, _ =>
             {
-                result = cachedResourceTypeLoaders.GetOrAdd(key, _ =>
+                try
                 {
-
-                    if (providerDescriptor.TypesBaseUri is null)
-                    {
-                        throw new ArgumentException($"Provider {providerDescriptor.Name} requires a types base URI.");
-                    }
-                    if (providerDescriptor.Name != AzNamespaceType.BuiltInName)
-                    {
-                        return new ThirdPartyResourceTypeProvider(
-                                    new ThirdPartyResourceTypeLoader(
-                                        OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
-                                        providerDescriptor.Version);
-                    }
-
-                    return new AzResourceTypeProvider(
-                                new AzResourceTypeLoader(
-                                    OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesBaseUri)),
-                                    providerDescriptor.Version);
-                });
-            }
-            catch (Exception ex)
-            {
-                var invalidArtifactException = ex as InvalidArtifactException ?? new InvalidArtifactException(ex.Message, ex, InvalidArtifactExceptionKind.NotSpecified);
-                return new(x => x.ArtifactRestoreFailedWithMessage(providerDescriptor.ArtifactReference, invalidArtifactException.Message));
-            }
-            return new(result);
+                    return GetDynamicallyLoadedResourceTypesProvider(providerDescriptor);
+                }
+                catch (Exception ex)
+                {
+                    var fullyQualifiedArtifactReference = providerDescriptor.ArtifactReference?.FullyQualifiedReference ?? throw new UnreachableException($"the reference is validated prior to a call to {nameof(this.GetResourceTypeProvider)}");
+                    var invalidArtifactException = ex as InvalidArtifactException ?? new InvalidArtifactException(ex.Message, ex, InvalidArtifactExceptionKind.NotSpecified);
+                    return new(x => x.ArtifactRestoreFailedWithMessage(fullyQualifiedArtifactReference, invalidArtifactException.Message));
+                }
+            });
         }
-
         public IResourceTypeProvider GetBuiltInAzResourceTypesProvider()
-            => azResourceTypeProviderLazy.Value;
+           => azResourceTypeProviderLazy.Value;
+        private ResultWithDiagnostic<IResourceTypeProvider> GetDynamicallyLoadedResourceTypesProvider(ResourceTypesProviderDescriptor providerDescriptor)
+        {
+            var fullyQualifiedArtifactReference = providerDescriptor.ArtifactReference?.FullyQualifiedReference ?? throw new UnreachableException($"the reference is validated prior to a call to {nameof(this.GetResourceTypeProvider)}");
+            if (providerDescriptor.TypesDataFileUri is null)
+            {
+                return new(x => x.ArtifactRestoreFailedWithMessage(
+                    fullyQualifiedArtifactReference,
+                    $"Provider {providerDescriptor.Name} requires a types base URI."));
+            }
+
+            var typesLoader = OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesDataFileUri);
+            if (providerDescriptor.Name == AzNamespaceType.BuiltInName)
+            {
+                return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typesLoader), providerDescriptor.Version));
+            }
+            return new(new ThirdPartyResourceTypeProvider(new ThirdPartyResourceTypeLoader(typesLoader), providerDescriptor.Version));
+        }
     }
 }

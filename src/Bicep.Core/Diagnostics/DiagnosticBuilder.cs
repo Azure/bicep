@@ -13,6 +13,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
@@ -1215,7 +1216,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedProviderSpecification() => new(
+            public ErrorDiagnostic ExpectedLegacyProviderSpecification() => new(
                 TextSpan,
                 "BCP201",
                 "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location.");
@@ -2140,6 +2141,30 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP393",
                 $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
+
+            public ErrorDiagnostic ExpectedProviderSpecification() => new(
+                TextSpan,
+                "BCP394",
+                "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" "
+                + "or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location.");
+
+            public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecificationSyntax syntax)
+            {
+                var codeFix = new CodeFix(
+                    "Replace the import specification with an configuration backed identifier",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax.Span, syntax.NamespaceIdentifier));
+
+                return new FixableDiagnostic(
+                    TextSpan,
+                    DiagnosticLevel.Warning,
+                    "BCP395",
+                    $"Declaring provider namespaces using the \'<providerName>@<version>\' expression has been deprecated. Please use an identifier instead.",
+                    documentationUri: null,
+                    DiagnosticStyling.Default,
+                    codeFix);
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

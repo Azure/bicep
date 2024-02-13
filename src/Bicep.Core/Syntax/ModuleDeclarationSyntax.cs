@@ -1,6 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
@@ -71,5 +74,8 @@ namespace Bicep.Core.Syntax
         public bool HasCondition() => this.Value is IfConditionSyntax or ForSyntax { Body: IfConditionSyntax };
 
         public ArtifactType GetArtifactType() => ArtifactType.Module;
+
+        public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration _)
+            => SyntaxHelper.TryGetForeignTemplatePath(this, x => x.ModulePathHasNotBeenSpecified());
     }
 }
