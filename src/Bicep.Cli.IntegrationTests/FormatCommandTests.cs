@@ -18,22 +18,22 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public partial class FormatCommandTests : TestBase
     {
-        // TODO(#13276): Enable this test once Azure CLI is updated to support the new parameters.
-        //[TestMethod]
-        //public async Task Format_WithDeprecatedParams_PrintsDeprecationMessage()
-        //{
-        //    var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "output myOutput string = 'hello!'");
+        // TODO(#13276)
+        [TestMethod]
+        [Ignore("This test is disabled until Azure CLI is updated to support the new parameters.")]
+        public async Task Format_WithDeprecatedParams_PrintsDeprecationMessage()
+        {
+            var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", "output myOutput string = 'hello!'");
 
-        //    var outputFileDir = FileHelper.GetResultFilePath(TestContext, "outputdir");
-        //    var (output, error, result) = await Bicep("format", bicepPath, "-newline", "crlf", "--indentKind", "space", "--indentSize", "4", "--insertFinalNewline");
+            var (output, error, result) = await Bicep("format", bicepPath, "-newline", "crlf", "--indentKind", "space", "--indentSize", "4", "--insertFinalNewline");
 
-        //    result.Should().Be(0);
-        //    output.Should().BeEmpty();
-        //    error.Should().MatchRegex(@"DEPRECATED: The parameter --newline is deprecated and will be removed in a future version of Bicpe CLI. Use --newline-kind instead.");
-        //    error.Should().MatchRegex(@"DEPRECATED: The parameter --indentKind is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-kind instead.");
-        //    error.Should().MatchRegex(@"DEPRECATED: The parameter --indentSize is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-size instead.");
-        //    error.Should().MatchRegex(@"DEPRECATED: The parameter --insertFinalNewline is deprecated and will be removed in a future version of Bicpe CLI. Use --insert-final-newline instead.");
-        //}
+            result.Should().Be(0);
+            output.Should().BeEmpty();
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --newline is deprecated and will be removed in a future version of Bicpe CLI. Use --newline-kind instead.");
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentKind is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-kind instead.");
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --indentSize is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-size instead.");
+            error.Should().MatchRegex(@"DEPRECATED: The parameter --insertFinalNewline is deprecated and will be removed in a future version of Bicpe CLI. Use --insert-final-newline instead.");
+        }
 
         [TestMethod]
         public async Task Format_MissingInputFilePath_Fails()
@@ -276,31 +276,6 @@ namespace Bicep.Cli.IntegrationTests
             var formatted = fileSystem.File.ReadAllText("main.bicep");
             var expected = string.Format(fileContentTemplate, new string(' ', indentSize));
             formatted.Should().BeEquivalentToIgnoringNewlines(expected);
-        }
-
-        [TestMethod]
-        public async Task Format_WithWidthOverride_AppliesWidthLimitAccordlingly()
-        {
-            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
-            {
-                ["main.bicep"] = "var obj = { prop: [1, 2, 3 ] }"
-            });
-
-            var result = await Bicep(services => services.WithFileSystem(fileSystem), "format", "main.bicep", "--width", "1");
-
-            AssertSuccess(result);
-
-            var formatted = fileSystem.File.ReadAllText("main.bicep");
-            formatted.Should().BeEquivalentToIgnoringNewlines("""
-                var obj = {
-                  prop: [
-                    1
-                    2
-                    3
-                  ]
-                }
-
-                """);
         }
 
         private static IEnumerable<object[]> GetDataSets() => DataSets.AllDataSets

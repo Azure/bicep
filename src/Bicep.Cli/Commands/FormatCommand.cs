@@ -12,14 +12,31 @@ using Bicep.Core.PrettyPrintV2;
 
 namespace Bicep.Cli.Commands;
 
-public class FormatCommand(IOContext io, IFileResolver fileResolver, IFileSystem fileSystem, IConfigurationManager configurationManager) : ICommand
+public class FormatCommand : ICommand
 {
+    private readonly IOContext io;
+    private readonly IFileResolver fileResolver;
+    private readonly IFileSystem fileSystem;
+    private readonly IConfigurationManager configurationManager;
+
+    public FormatCommand(
+        IOContext io,
+        IFileResolver fileResolver,
+        IFileSystem fileSystem,
+        IConfigurationManager configurationManager)
+    {
+        this.io = io;
+        this.fileResolver = fileResolver;
+        this.fileSystem = fileSystem;
+        this.configurationManager = configurationManager;
+    }
+
     public int Run(FormatArguments args)
     {
-        var inputUri = ArgumentHelper.GetFileUri(args.InputFile, fileSystem);
+        var inputUri = ArgumentHelper.GetFileUri(args.InputFile, this.fileSystem);
         ArgumentHelper.ValidateBicepOrBicepParamFile(inputUri);
 
-        if (!fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
+        if (!this.fileResolver.TryRead(inputUri).IsSuccess(out var fileContents, out var failureBuilder))
         {
             var diagnostic = failureBuilder(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)));
             throw new ErrorDiagnosticException(diagnostic);
@@ -32,13 +49,13 @@ public class FormatCommand(IOContext io, IFileResolver fileResolver, IFileSystem
 
         if (args.OutputToStdOut)
         {
-            PrettyPrinterV2.PrintTo(io.Output, program, context);
-            io.Output.Flush();
+            PrettyPrinterV2.PrintTo(this.io.Output, program, context);
+            this.io.Output.Flush();
         }
         else
         {
-            var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, path => path, fileSystem);
-            using var fileStream = fileSystem.File.Open(outputPath, FileMode.Create, FileAccess.Write, FileShare.Read);
+            var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, path => path, this.fileSystem);
+            using var fileStream = this.fileSystem.File.Open(outputPath, FileMode.Create, FileAccess.Write, FileShare.Read);
             using var writer = new StreamWriter(fileStream);
 
 
@@ -50,7 +67,7 @@ public class FormatCommand(IOContext io, IFileResolver fileResolver, IFileSystem
 
     private PrettyPrinterV2Options GetPrettyPrinterOptions(Uri inputUri, FormatArguments args)
     {
-        var options = configurationManager.GetConfiguration(inputUri).Formatting.Data;
+        var options = this.configurationManager.GetConfiguration(inputUri).Formatting.Data;
 
         if (args.NewlineKind is not null)
         {
@@ -65,11 +82,6 @@ public class FormatCommand(IOContext io, IFileResolver fileResolver, IFileSystem
         if (args.IndentSize is not null)
         {
             options = options with { IndentSize = args.IndentSize.Value };
-        }
-
-        if (args.Width is not null)
-        {
-            options = options with { Width = args.Width.Value };
         }
 
         if (args.InsertFinalNewline is not null)

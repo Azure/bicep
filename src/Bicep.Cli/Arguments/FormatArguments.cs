@@ -75,7 +75,7 @@ namespace Bicep.Cli.Arguments
                         }
                         if (!Enum.TryParse(args[i + 1], true, out newline) || !Enum.IsDefined(newline))
                         {
-                            throw new CommandLineException($"The --newline parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(NewlineKind)))}");
+                            throw new CommandLineException($"The --newline-kind parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(NewlineKind)))}");
                         }
                         NewlineKind = newline;
                         i++;
@@ -173,23 +173,6 @@ namespace Bicep.Cli.Arguments
                         }
                         break;
 
-                    case "--width":
-                        if (args.Length == i + 1)
-                        {
-                            throw new CommandLineException($"The --width parameter expects an argument");
-                        }
-                        if (IndentSize is not null)
-                        {
-                            throw new CommandLineException($"The --width parameter cannot be specified twice");
-                        }
-                        if (!int.TryParse(args[i + 1], out var width))
-                        {
-                            throw new CommandLineException($"The --width parameter only accepts integer values");
-                        }
-                        Width = width;
-                        i++;
-                        break;
-
                     case "--insert-final-newline":
                         if (InsertFinalNewline is not null)
                         {
@@ -266,8 +249,6 @@ namespace Bicep.Cli.Arguments
         public IndentKind? IndentKind { get; }
 
         public int? IndentSize { get; }
-
-        public int? Width { get; }
 
         public bool? InsertFinalNewline { get; }
     }
