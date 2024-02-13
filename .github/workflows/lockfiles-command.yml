@@ -4,6 +4,7 @@ on:
 
 jobs:
   lockfiles:
+    # dotnet restore for src/vs-bicep/BicepInVisualStudio.sln doesn't seem to work well on Linux
     runs-on: windows-latest
     steps:
       - name: Dump GitHub context
