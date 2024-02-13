@@ -4,36 +4,9 @@
 using System.Text.RegularExpressions;
 using Bicep.Core.Parsing;
 
-namespace Bicep.Core.Syntax;
+namespace Bicep.Core.Syntax.Providers;
 
-public interface IProviderSpecificationSyntax : ISymbolNameSource
-{
-    string NamespaceIdentifier { get; }
-    string? Version { get; }
-}
-
-public record InlinedProviderSpecificationSyntax(
-    string NamespaceIdentifier,
-    string Version,
-    string UnexpandedArtifactAddress,
-    bool IsValid,
-    TextSpan Span) : IProviderSpecificationSyntax;
-
-public record ConfigurationManagedProviderSpecificationSyntax(string NamespaceIdentifier, bool IsValid, TextSpan Span) : IProviderSpecificationSyntax
-{
-    public string? Version => null;
-};
-
-public record LegacyProviderSpecificationSyntax(string NamespaceIdentifier, string Version, bool IsValid, TextSpan Span) : IProviderSpecificationSyntax;
-
-public record ProviderSpecificationSyntaxTrivia(TextSpan Span) : IProviderSpecificationSyntax
-{
-    public string NamespaceIdentifier => LanguageConstants.ErrorName;
-    public bool IsValid => false;
-    public string? Version => null;
-};
-
-public static partial class ProviderSpecificationFactory
+public static partial class ProviderSpecificationSyntaxFactory
 {
     // The setting below adds syntax highlighting for regex.
     // language=regex

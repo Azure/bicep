@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
+using Bicep.Core.Syntax.Providers;
 
 namespace Bicep.Core.Syntax
 {
@@ -24,7 +25,7 @@ namespace Bicep.Core.Syntax
             this.WithClause = withClause;
             this.AsClause = asClause;
 
-            this.lazySpecification = new(() => ProviderSpecificationFactory.FromSyntax(specificationString));
+            this.lazySpecification = new(() => ProviderSpecificationSyntaxFactory.FromSyntax(specificationString));
         }
 
         public Token Keyword { get; }

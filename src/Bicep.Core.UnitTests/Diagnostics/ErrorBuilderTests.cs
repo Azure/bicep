@@ -9,6 +9,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
@@ -301,7 +302,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                          name: 'D1'
 
                        }
-                       
+
                        location:
                        name:// comment
                  }"

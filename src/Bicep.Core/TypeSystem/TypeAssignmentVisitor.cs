@@ -13,6 +13,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
@@ -805,7 +806,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     diagnostics.Write(syntax.Specification, b => this.features.DynamicTypeLoadingEnabled ? b.ExpectedProviderSpecification() : b.ExpectedLegacyProviderSpecification());
                 }
-                
+
                 if (binder.GetSymbolInfo(syntax) is not ProviderNamespaceSymbol namespaceSymbol)
                 {
                     // We have syntax or binding errors, which should have already been handled.

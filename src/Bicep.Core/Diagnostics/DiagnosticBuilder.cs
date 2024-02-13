@@ -14,6 +14,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
@@ -1220,7 +1221,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP201",
                 "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location.");
-           
+
             public ErrorDiagnostic ExpectedProviderAliasName() => new(
                 TextSpan,
                 "BCP202",
@@ -2147,7 +2148,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP394",
                 "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" "
                 + "or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location.");
-           
+
             public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecificationSyntax syntax)
             {
                 var codeFix = new CodeFix(

@@ -14,6 +14,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
