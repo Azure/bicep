@@ -187,6 +187,61 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
+        public async Task Decompiler_should_handle_module_output_references()
+        {
+            const string template = @"
+{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Storage/storageAccounts"",
+      ""apiVersion"": ""2023-01-01"",
+      ""name"": ""hi"",
+      ""location"": ""[resourceGroup().location]"",
+      ""sku"": {
+        ""name"": ""Premium_LRS""
+      },
+      ""kind"": ""StorageV2"",
+      ""properties"": {
+        ""accessTier"": ""[reference(resourceId('Microsoft.Resources/deployments', 'hi'), '2022-09-01').outputs.accessTier.value]""
+      },
+      ""dependsOn"": [
+        ""[resourceId('Microsoft.Resources/deployments', 'hi')]""
+      ]
+    },
+    {
+      ""type"": ""Microsoft.Resources/deployments"",
+      ""apiVersion"": ""2022-09-01"",
+      ""name"": ""hi"",
+      ""properties"": {
+        ""expressionEvaluationOptions"": {
+          ""scope"": ""inner""
+        },
+        ""mode"": ""Incremental"",
+        ""template"": {
+          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+          ""contentVersion"": ""1.0.0.0"",
+          ""resources"": [],
+          ""outputs"": {
+            ""accessTier"": {
+              ""type"": ""string"",
+              ""value"": ""Hot""
+            }
+          }
+        }
+      }
+    }
+  ]
+}";
+
+            var fileUri = new Uri("file:///path/to/main.json");
+
+            var decompiler = CreateDecompiler();
+            var (entryPointUri, filesToSave) = await decompiler.Decompile(PathHelper.ChangeToBicepExtension(fileUri), template);
+        }
+
+        [TestMethod]
         public async Task Decompiler_should_partially_handle_user_defined_functions_with_placeholders()
         {
             const string template = @"{
