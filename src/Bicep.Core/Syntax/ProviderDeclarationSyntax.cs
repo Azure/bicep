@@ -55,9 +55,14 @@ namespace Bicep.Core.Syntax
 
         public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration config)
         {
-            if (this.Specification is InlinedProviderSpecificationSyntax spec)
+            if (this.Specification is InlinedProviderSpecificationSyntax inlinedSpec)
             {
-                return new(spec.UnexpandedArtifactAddress);
+                return new(inlinedSpec.UnexpandedArtifactAddress);
+            }
+
+            if (this.Specification is LegacyProviderSpecificationSyntax legacySpec)
+            {
+                return new("builtin");
             }
 
             if (!config.ProvidersConfig.TryGetProviderSource(this.Specification.NamespaceIdentifier).IsSuccess(out var providerSource, out var errorBuilder))

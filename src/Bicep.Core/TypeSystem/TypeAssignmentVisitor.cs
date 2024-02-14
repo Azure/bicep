@@ -825,10 +825,9 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated(syntax));
                 }
 
-                if (syntax.Specification is LegacyProviderSpecificationSyntax specificationSyntax &&
-                    features.DynamicTypeLoadingEnabled)
+                if (syntax.Specification is LegacyProviderSpecificationSyntax specificationSyntax)
                 {
-                    diagnostics.Write(syntax.Specification, x => x.LegacyProviderSpecificationIsDeprecated(specificationSyntax));
+                    diagnostics.Write(syntax.SpecificationString, x => x.LegacyProviderSpecificationIsDeprecated(specificationSyntax));
                 }
 
                 if (syntax.Config is not null)

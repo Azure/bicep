@@ -77,9 +77,9 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = new ServiceBuilder();
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
-");
-            result.Should().HaveDiagnostics(new[] {
+            provider 'az@1.0.0'
+            ");
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
                 // BCP084 is raised because BCP203 prevented the compiler from binding a namespace to the `az` symbol (an ErrorType was bound instead).
                 ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\"."),
@@ -167,10 +167,8 @@ provider
         [TestMethod]
         public async Task Using_import_instead_of_provider_raises_warning()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            import 'az@1.0.0' as foo
             ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP381", DiagnosticLevel.Warning, "Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead."),
@@ -182,10 +180,7 @@ provider
         [TestMethod]
         public async Task Using_legacy_import_syntax_raises_warning_for_az_provider(string providerName)
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
             provider '{providerName}@1.0.0' as {providerName}
             ");
 
@@ -197,10 +192,8 @@ provider
         [TestMethod]
         public async Task Import_configuration_is_blocked_by_default()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' with {{
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0' with {{
               foo: 'bar'
             }}
             ");
@@ -223,11 +216,8 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public async Task Using_import_statements_frees_up_the_namespace_symbol()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as newAz
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0' as newAz
 
             var az = 'Fake AZ!'
             var myRg = newAz.resourceGroup()
@@ -242,10 +232,8 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public async Task You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0' as sys
             provider 'sys@1.0.0' as az
 
             var myRg = sys.resourceGroup()
@@ -255,19 +243,15 @@ provider 'madeUpNamespace@1.0.0'
             ");
 
             result.Should().GenerateATemplate();
-            result.Should().HaveDiagnostics(new[]{
-                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
-            });
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs.rgLocation.metadata.description", "why on earth would you do this?");
         }
 
         [TestMethod]
         public async Task Overwriting_single_built_in_namespace_with_import_is_prohibited()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0' as sys
 
             var myRg = sys.resourceGroup()
 
@@ -280,40 +264,34 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public async Task Singleton_imports_cannot_be_used_multiple_times()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az1
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az2
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0' as az1
+            provider 'az@1.0.0' as az2
 
             provider 'sys@1.0.0' as sys1
             provider 'sys@1.0.0' as sys2
             ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is declared multiple times. Remove the duplicates."),
-                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is declared multiple times. Remove the duplicates."),
-                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead.")
             });
         }
 
         [TestMethod]
         public async Task Import_names_must_not_conflict_with_other_symbols()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0'
             provider 'kubernetes@1.0.0' with {{
             kubeConfig: ''
             namespace: ''
             }} as az
             ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
@@ -362,13 +340,13 @@ provider 'madeUpNamespace@1.0.0'
             var services = (await GetServices()).WithNamespaceProvider(nsProvider);
 
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'ns1@1.0.0' as ns1
-provider 'ns2@1.0.0' as ns2
+            provider 'ns1@1.0.0' as ns1
+            provider 'ns2@1.0.0' as ns2
 
-output ambiguousResult string = dupeFunc()
-output ns1Result string = ns1Func()
-output ns2Result string = ns2Func()
-");
+            output ambiguousResult string = dupeFunc()
+            output ns1Result string = ns1Func()
+            output ns2Result string = ns2Func()
+            ");
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP056", DiagnosticLevel.Error, "The reference to name \"dupeFunc\" is ambiguous because it exists in namespaces \"ns1\", \"ns2\". The reference must be fully-qualified."),
@@ -376,13 +354,13 @@ output ns2Result string = ns2Func()
 
             // fix by fully-qualifying
             result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'ns1@1.0.0' as ns1
-provider 'ns2@1.0.0' as ns2
+            provider 'ns1@1.0.0' as ns1
+            provider 'ns2@1.0.0' as ns2
 
-output ambiguousResult string = ns1.dupeFunc()
-output ns1Result string = ns1Func()
-output ns2Result string = ns2Func()
-");
+            output ambiguousResult string = ns1.dupeFunc()
+            output ns1Result string = ns1Func()
+            output ns2Result string = ns2Func()
+            ");
 
             result.Should().NotHaveAnyDiagnostics();
         }
@@ -417,11 +395,11 @@ output ns2Result string = ns2Func()
             var services = (await GetServices()).WithNamespaceProvider(nsProvider);
 
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-provider 'mockNs@1.0.0' with {
-  optionalConfig: 'blah blah'
-} as ns1
-provider 'mockNs@1.0.0' as ns2
-");
+            provider 'mockNs@1.0.0' with {
+              optionalConfig: 'blah blah'
+            } as ns1
+            provider 'mockNs@1.0.0' as ns2
+            ");
 
             result.Should().NotHaveAnyDiagnostics();
         }
