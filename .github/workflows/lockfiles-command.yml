@@ -18,10 +18,8 @@ jobs:
           fetch-depth: 0 # full history
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup .NET 5
+      - name: Setup .NET Core
         uses: actions/setup-dotnet@v4.0.0
-        with:
-          dotnet-version: 5.0.x
 
       - name: Restore dependencies
         run: |
