@@ -105,7 +105,7 @@ provider
             var result = await CompilationHelper.RestoreAndCompile(services, @"
             provider 'sys@1.0.0' blahblah
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
             });
         }
@@ -117,7 +117,7 @@ provider
             var result = await CompilationHelper.RestoreAndCompile(services, @"
             provider 'kubernetes@1.0.0' with
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
             });
         }
@@ -132,7 +132,7 @@ provider
             namespace: 'bar'
             } something
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
             });
         }
@@ -147,7 +147,7 @@ provider
             namespace: 'bar'
             } as
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
         }
@@ -159,7 +159,7 @@ provider
             var result = await CompilationHelper.RestoreAndCompile(services, @"
             provider 'sys@1.0.0' as
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
         }
@@ -170,7 +170,7 @@ provider
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
             import 'az@1.0.0' as foo
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP381", DiagnosticLevel.Warning, "Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead."),
             });
         }
@@ -197,7 +197,7 @@ provider
               foo: 'bar'
             }}
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
             });
         }
@@ -226,7 +226,7 @@ provider 'madeUpNamespace@1.0.0'
             output rgLocation string = myRg.location
             ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -293,7 +293,6 @@ provider 'madeUpNamespace@1.0.0'
 
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
-                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
             });
         }
@@ -348,7 +347,7 @@ provider 'madeUpNamespace@1.0.0'
             output ns2Result string = ns2Func()
             ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP056", DiagnosticLevel.Error, "The reference to name \"dupeFunc\" is ambiguous because it exists in namespaces \"ns1\", \"ns2\". The reference must be fully-qualified."),
             });
 
@@ -362,7 +361,7 @@ provider 'madeUpNamespace@1.0.0'
             output ns2Result string = ns2Func()
             ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -401,7 +400,7 @@ provider 'madeUpNamespace@1.0.0'
             provider 'mockNs@1.0.0' as ns2
             ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -418,7 +417,7 @@ provider 'madeUpNamespace@1.0.0'
 
             result = await CompilationHelper.RestoreAndCompile(serviceWithPreview, @"provider 'microsoftGraph@1.0.0' as graph");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
     }
 }

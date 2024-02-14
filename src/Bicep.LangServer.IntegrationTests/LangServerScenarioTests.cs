@@ -81,10 +81,10 @@ param foo: string
         var paramsFileUri = new Uri("file:///main.bicepparam");
 
         var diags = await helper.OpenFileOnceAsync(TestContext, """
-using 'br:mockregistry.io/test/foo:1.1'
+        using 'br:mockregistry.io/test/foo:1.1'
 
-param foo = 'abc'
-""", paramsFileUri);
+        param foo = 'abc'
+        """, paramsFileUri);
         diags = await helper.WaitForDiagnostics(paramsFileUri);
         diags.Diagnostics.Should().ContainSingle(x => x.Message.Contains("Expected a value of type \"bool\" but the provided value is of type \"'abc'\"."));
 

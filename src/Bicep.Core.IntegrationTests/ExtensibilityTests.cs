@@ -503,8 +503,8 @@ provider 'bar@0.0.1' with {
                   base64Content: base64(loadTextContent('blob.txt'))
                 }
                 "),
-                ("blob.txt", @"
-                Hello from Bicep!"));
+                ("blob.txt",
+                "\nHello from Bicep!"));
 
             result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
             result.Template.Should().DeepEqual(JToken.Parse("""
