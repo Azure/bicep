@@ -89,9 +89,9 @@
       },
       "MSTest.TestFramework": {
         "type": "Direct",
-        "requested": "[2.2.8, )",
-        "resolved": "2.2.8",
-        "contentHash": "phUoHuGTuw9T5yekxPHLLLq8jE56yufmh2yPlJq1IfkT4a3tYZ2htkeTlnQmzmJP3hI5xYhlqwiHcy3JqVt/OA=="
+        "requested": "[3.2.0, )",
+        "resolved": "3.2.0",
+        "contentHash": "jrlSvf3DmE6nqMR194++GdpJfN4evGwDKlCzxC6mowvCj0QVWSPfTltkq9pyXO/ne4gpE8DpPl9dqTg4CNPiUQ=="
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
