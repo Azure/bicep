@@ -780,8 +780,11 @@ module single 'mod.bicep' = {{
 }}
 
 output singleName string = single.name
+output singleOutput string = single.outputs.test
 "),
-                ("mod.bicep", string.Empty));
+                ("mod.bicep", $@"
+output test string = 'test'
+"));
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
@@ -789,6 +792,7 @@ output singleName string = single.name
             result.Template.Should().HaveValueAtPath("$.resources[2].name", "[format('single-{0}', uniqueString('single', deployment().name))]");
 
             result.Template.Should().HaveValueAtPath("$.outputs.singleName.value", "[format('single-{0}', uniqueString('single', deployment().name))]");
+            result.Template.Should().HaveValueAtPath("$.outputs.singleOutput.value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', format('single-{0}', uniqueString('single', deployment().name))), '2022-09-01').outputs.test.value]");
         }
 
         [TestMethod]
@@ -817,8 +821,11 @@ module single 'mod.bicep' = {{
 }}
 
 output singleName string = single.name
+output singleOutput string = single.outputs.test
 "),
-                ("mod.bicep", string.Empty));
+                ("mod.bicep", $@"
+output test string = 'test'
+"));
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
@@ -826,6 +833,7 @@ output singleName string = single.name
             result.Template.Should().HaveValueAtPath("$.resources.single.name", "[format('single-{0}', uniqueString('single', deployment().name))]");
 
             result.Template.Should().HaveValueAtPath("$.outputs.singleName.value", "[format('single-{0}', uniqueString('single', deployment().name))]");
+            result.Template.Should().HaveValueAtPath("$.outputs.singleOutput.value", "[reference('single').outputs.test.value]");
         }
 
         private static string GetTemplate(Compilation compilation)
