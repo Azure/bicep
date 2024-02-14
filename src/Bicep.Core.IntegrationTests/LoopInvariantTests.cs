@@ -314,9 +314,12 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' existing = [for (item, i) 
                 ("main.bicep", $@"
 targetScope = 'subscription'
 
+param resourceGroupName string
+param location string
+
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {{
-  name: 'myRg'
-  location: 'westus'
+  name: resourceGroupName
+  location: location
 }}
 
 module item 'mod.bicep' = [for i in range(0, 5): {{

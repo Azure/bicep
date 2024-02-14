@@ -754,6 +754,80 @@ module {symbolicName} 'mod.bicep' = [for x in []: {{
             result.Template.Should().HaveValueAtPath("$.resources[0].name", $"[format('{symbolicNamePrefix}-{{0}}-{{1}}', copyIndex(), uniqueString('{symbolicName}', deployment().name))]");
         }
 
+        [TestMethod]
+        public void Module_references_work_correctly_with_optional_module_names_enabled()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true));
+            var result = CompilationHelper.Compile(
+                services,
+                ("main.bicep", $@"
+targetScope = 'subscription'
+
+param resourceGroupName string
+param location string
+
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {{
+  name: resourceGroupName
+  location: location
+}}
+
+module multiple 'mod.bicep' = [for i in range(0, 5): {{
+  scope: rg
+}}]
+
+module single 'mod.bicep' = {{
+  scope: rg
+}}
+
+output singleName string = single.name
+"),
+                ("mod.bicep", string.Empty));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.resources[1].name", "[format('multiple-{0}-{1}', copyIndex(), uniqueString('multiple', deployment().name))]");
+            result.Template.Should().HaveValueAtPath("$.resources[2].name", "[format('single-{0}', uniqueString('single', deployment().name))]");
+
+            result.Template.Should().HaveValueAtPath("$.outputs.singleName.value", "[format('single-{0}', uniqueString('single', deployment().name))]");
+        }
+
+        [TestMethod]
+        public void Module_references_work_correctly_with_optional_module_names_enabled_with_symbolic_names()
+        {
+            var services = new ServiceBuilder().WithFeatureOverrides(new FeatureProviderOverrides(TestContext, OptionalModuleNamesEnabled: true, SymbolicNameCodegenEnabled: true));
+            var result = CompilationHelper.Compile(
+                services,
+                ("main.bicep", $@"
+targetScope = 'subscription'
+
+param resourceGroupName string
+param location string
+
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {{
+  name: resourceGroupName
+  location: location
+}}
+
+module multiple 'mod.bicep' = [for i in range(0, 5): {{
+  scope: rg
+}}]
+
+module single 'mod.bicep' = {{
+  scope: rg
+}}
+
+output singleName string = single.name
+"),
+                ("mod.bicep", string.Empty));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.resources.multiple.name", "[format('multiple-{0}-{1}', copyIndex(), uniqueString('multiple', deployment().name))]");
+            result.Template.Should().HaveValueAtPath("$.resources.single.name", "[format('single-{0}', uniqueString('single', deployment().name))]");
+
+            result.Template.Should().HaveValueAtPath("$.outputs.singleName.value", "[format('single-{0}', uniqueString('single', deployment().name))]");
+        }
+
         private static string GetTemplate(Compilation compilation)
         {
             var stringBuilder = new StringBuilder();

@@ -518,7 +518,7 @@ public class ExpressionBuilder
 
     private record LoopExpressionContext(string Name, SyntaxBase SourceSyntax, Expression LoopExpression);
 
-    private ObjectPropertyExpression CreateModuleNameExpression(ModuleSymbol symbol, ObjectSyntax objectBody)
+    private ObjectPropertyExpression CreateModuleNamePropertyExpression(ModuleSymbol symbol, ObjectSyntax objectBody)
     {
         if (objectBody.TryGetPropertyByName(AzResourceTypeProvider.ResourceNamePropertyName) is { } namePropertySyntax)
         {
@@ -595,11 +595,12 @@ public class ExpressionBuilder
         }
 
         var objectBody = (ObjectSyntax)body;
+        var nameProperty = CreateModuleNamePropertyExpression(symbol, objectBody);
 
         var properties = objectBody.Properties
             .Where(x => x.TryGetKeyText() is not { } key || !ModulePropertiesToOmit.Contains(key))
             .Select(ConvertObjectProperty)
-            .Append(CreateModuleNameExpression(symbol, objectBody));
+            .Append(nameProperty);
         Expression bodyExpression = new ObjectExpression(body, properties.ToImmutableArray());
         var parameters = objectBody.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName);
 
@@ -628,6 +629,7 @@ public class ExpressionBuilder
             syntax,
             symbol,
             Context.ModuleScopeData[symbol],
+            nameProperty.Value,
             body,
             bodyExpression,
             parameters is not null ? ConvertWithoutLowering(parameters.Value) : null,

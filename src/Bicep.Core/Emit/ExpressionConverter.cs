@@ -483,14 +483,9 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression GetModuleNameExpression(ModuleSymbol moduleSymbol)
         {
-            SyntaxBase nameValueSyntax = GetModuleNameSyntax(moduleSymbol);
-            return ConvertExpression(nameValueSyntax);
-        }
-
-        public static SyntaxBase GetModuleNameSyntax(ModuleSymbol moduleSymbol)
-        {
-            // this condition should have already been validated by the type checker
-            return moduleSymbol.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
+            // TODO: Ideally we would reuse the already generated declared module expression
+            var moduleExpression = (DeclaredModuleExpression)expressionBuilder.Convert(moduleSymbol.DeclaringModule);
+            return ConvertExpression(moduleExpression.Name);
         }
 
         public LanguageExpression GetUnqualifiedResourceId(DeclaredResourceMetadata resource)

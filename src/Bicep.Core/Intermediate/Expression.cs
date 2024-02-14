@@ -503,6 +503,7 @@ public record DeclaredModuleExpression(
     SyntaxBase? SourceSyntax,
     ModuleSymbol Symbol,
     ScopeHelper.ScopeData ScopeData,
+    Expression Name,
     SyntaxBase BodySyntax,
     Expression Body,
     Expression? Parameters,
