@@ -57,10 +57,15 @@ param foo: string
     }
 
     [TestMethod]
-    public async Task Test_Issue13254()
+    public async Task Test_Issue13254() // https://github.com/Azure/bicep/issues/13254
     {
+        // This test exercises the following scenario:
+        // * The user authors a file that references a module sourced from a registry
+        // * The module is re-published with different contents. The module cache (on disk) is not aware of this change
+        // * The user forces a module restore to fetch the latest contents
+
         var clientFactory = RegistryHelper.CreateMockRegistryClient("mockregistry.io", "test/foo");
-        async Task publish(string source)
+        async Task setPublishedModuleContents(string source)
             => await RegistryHelper.PublishModuleToRegistry(
                 clientFactory,
                 "modulename",
@@ -69,6 +74,7 @@ param foo: string
                 publishSource: false);
 
         var cacheRootPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
         var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
             TestContext,
             services => services
@@ -76,20 +82,21 @@ param foo: string
                 .WithContainerRegistryClientFactory(clientFactory)
                 .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>());
 
-        await publish("param foo bool");
+        await setPublishedModuleContents("param foo bool");
 
         var paramsFileUri = new Uri("file:///main.bicepparam");
-
         var diags = await helper.OpenFileOnceAsync(TestContext, """
         using 'br:mockregistry.io/test/foo:1.1'
 
         param foo = 'abc'
         """, paramsFileUri);
+
+        // Assert the file is compiled by the language server by catching the type mismatch diagnostic
         diags = await helper.WaitForDiagnostics(paramsFileUri);
         diags.Diagnostics.Should().ContainSingle(x => x.Message.Contains("Expected a value of type \"bool\" but the provided value is of type \"'abc'\"."));
 
-        await publish("param foo string");
 
+        await setPublishedModuleContents("param foo string");
         await helper.Client.Workspace.ExecuteCommand(new Command
         {
             Name = "forceModulesRestore",
@@ -98,6 +105,7 @@ param foo: string
             ]
         });
 
+        // Assert the updated module contents is used by the language server (since diagnostic goes away)
         diags = await helper.WaitForDiagnostics(paramsFileUri);
         diags.Diagnostics.Should().BeEmpty();
     }

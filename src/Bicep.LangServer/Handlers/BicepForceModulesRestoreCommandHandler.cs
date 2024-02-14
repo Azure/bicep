@@ -74,7 +74,7 @@ namespace Bicep.LanguageServer.Handlers
             var artifactsToRestore = sourceFileGrouping.GetExplicitArtifactsToRestore(force: true);
 
             var artifactUris = sourceFileGrouping
-                .FileUriResultByBicepSourceFileByArtifactReference.SelectMany(x => x.Value)
+                .FileUriResultByBicepSourceFileByArtifactReferenceSyntax.SelectMany(x => x.Value)
                 .Select(x => x.Value.TryUnwrap())
                 .WhereNotNull()
                 .Distinct();
