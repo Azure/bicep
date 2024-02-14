@@ -23,4 +23,3 @@ foreach ($srcSubdir in (Get-ChildItem "src")) {
 }
 
 RmRF -DirectoryName $env:Temp -Recurse
-RmRF -DirectoryName [Environment]::GetEnvironmentVariables('machine').TMP -Recurse
