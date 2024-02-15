@@ -1,0 +1,34 @@
+<!--
+  Do not include this project in the solution. It is intended to validate our MSBuild task.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- enable recursive build and publish outputs -->
+    <BicepOutputStyle>Recursive</BicepOutputStyle>
+  </PropertyGroup>
+
+  <!-- 
+    Pickup latest available packages (including prerelease) from local feed configured in NuGet.config.
+  -->
+  <ItemGroup>
+    <PackageReference Include="Azure.Bicep.CommandLine.$(RuntimeSuffix)" Version="*-*" />
+    <PackageReference Include="Azure.Bicep.MSBuild" Version="*-*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Bicep Include="**\*.bicep"/>
+  </ItemGroup>
+  <ItemGroup>
+    <BicepParam Include="root1.bicepparam"/>
+    <BicepParam Include="root2.bicepparam"/>
+    <BicepParam Include="one/one1.bicepparam"/>
+    <BicepParam Include="one/one2.bicepparam"/>
+    <BicepParam Include="one/two/two1.bicepparam"/>
+    <BicepParam Include="one/two/two2.bicepparam"/>
+  </ItemGroup>
+</Project>
+
