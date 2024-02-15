@@ -13,7 +13,7 @@ using Azure.Bicep.Types.Serialization;
 namespace Bicep.Core.UnitTests.Utils;
 
 public static class ThirdPartyTypeHelper
-{
+{    
     /// <summary>
     /// Returns a .tgz file containing a set of pre-defined types for testing purposes.
     /// </summary>
@@ -37,13 +37,19 @@ public static class ThirdPartyTypeHelper
             ["properties"] = new(factory.GetReference(fooBodyPropertiesType), ObjectTypePropertyFlags.Required, "Resource properties"),
         }, null));
 
+        var barFunctionType = factory.Create(() => new FunctionType([ 
+            new FunctionParameter("bar", factory.GetReference(stringType), "The bar parameter"),
+        ], factory.GetReference(stringType)));
+
         var fooType = factory.Create(() => new ResourceType(
             "fooType@v1",
             ScopeType.Unknown,
             ScopeType.Unknown,
             factory.GetReference(fooBodyType),
             ResourceFlags.None,
-            null));
+            new Dictionary<string, ResourceTypeFunction>{
+                ["convertBarToBaz"] = new(factory.GetReference(barFunctionType), "Converts a bar into a baz!")
+            }));
 
         var index = new TypeIndex(new Dictionary<string, CrossFileTypeReference>
             {

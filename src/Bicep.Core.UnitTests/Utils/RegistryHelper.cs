@@ -70,7 +70,6 @@ public static class RegistryHelper
     public static async Task PublishProviderToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData)
     {
         var dispatcher = services.Construct<IModuleDispatcher>();
-        var fileSystem = services.Construct<IFileSystem>();
 
         var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, new Uri("file:///main.bicep")).Unwrap();
 
