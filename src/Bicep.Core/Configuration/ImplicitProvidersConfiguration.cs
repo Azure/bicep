@@ -10,7 +10,8 @@ public partial class ImplicitProvidersConfiguration : ConfigurationSection<strin
 {
     private ImplicitProvidersConfiguration(string[] data) : base(data) { }
 
-    public static ImplicitProvidersConfiguration Bind(JsonElement element) => new(element.TryGetStringArray()?.ToArray() ?? Array.Empty<string>());
+    public static ImplicitProvidersConfiguration Bind(JsonElement element)
+        => new(element.TryGetStringArray()?.ToArray() ?? []);
 
     public IEnumerable<string> GetImplicitProviderNames() => this.Data;
 }
