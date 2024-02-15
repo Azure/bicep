@@ -6,14 +6,22 @@
 
     <!-- default to project OutputPath -->
     <BicepOutputPath Condition=" $(BicepOutputPath) == '' ">$(OutputPath)</BicepOutputPath>
+    <!-- all files by default will get dumped into the configured output path -->
+    <BicepOutputStyle Condition=" $(BicepOutputStyle) == '' ">Flat</BicepOutputStyle>
   </PropertyGroup>
 
-  <Target Name="BeforeBicepCompile" Condition=" @(Bicep) != '' " BeforeTargets="BicepCompile">
+  <Target Name="BeforeBicepCompileCommon">
+    <Error Text="The BicepOutputStyle property must be set to either 'Flat' or 'Recursive'." Condition=" ($(BicepOutputStyle) != 'Flat') and ($(BicepOutputStyle) != 'Recursive') " />
+  </Target>
+
+  <Target Name="BeforeBicepCompile" Condition=" @(Bicep) != '' " BeforeTargets="BicepCompile" DependsOnTargets="BeforeBicepCompileCommon">
     <ItemGroup>
       <!-- consider only files without NoBuild metadata set -->
       <_BicepResolvedIntermediate Include="@(Bicep)" Condition=" %(Bicep.NoBuild) != 'true' ">
-        <!-- populate missing output file metadata using the default path -->
-        <OutputFile Condition=" %(Bicep.OutputFile) == '' ">$(BicepOutputPath)\%(FileName)$(BicepDefaultOutputFileExtension)</OutputFile>
+        <!-- in recursive mode, incorporate the file's relative path into the final output path -->
+        <OutputFile Condition=" ($(BicepOutputStyle) == 'Recursive') and (%(Bicep.OutputFile) == '') ">$(BicepOutputPath)\$([MSBuild]::MakeRelative($(MSBuildProjectDirectory), %(RootDir)%(Directory)%(Filename)$(BicepDefaultOutputFileExtension)))</OutputFile>
+        <!-- in flat mode, append the file name to the output path -->
+        <OutputFile Condition=" ($(BicepOutputStyle) == 'Flat') and (%(Bicep.OutputFile) == '') ">$(BicepOutputPath)\%(FileName)$(BicepDefaultOutputFileExtension)</OutputFile>
       </_BicepResolvedIntermediate>
       <_BicepResolved Include="@(_BicepResolvedIntermediate)">
         <OutputFile>$([System.IO.Path]::GetFullPath('%(OutputFile)'))</OutputFile>
@@ -30,12 +38,14 @@
     <Error Text="The path to the Bicep compiler is not set. Reference the appropriate Azure.Bicep.CommandLine.* package for your runtime or set the BicepPath property." Condition=" $(BicepPath) == '' " />
   </Target>
 
-  <Target Name="BeforeBicepParamCompile" Condition=" @(BicepParam) != '' " BeforeTargets="BicepParamCompile">
+  <Target Name="BeforeBicepParamCompile" Condition=" @(BicepParam) != '' " BeforeTargets="BicepParamCompile" DependsOnTargets="BeforeBicepCompileCommon">
     <ItemGroup>
       <!-- consider only files without NoBuild metadata set -->
       <_BicepParamResolvedIntermediate Include="@(BicepParam)" Condition=" %(BicepParam.NoBuild) != 'true' ">
-        <!-- populate missing output file metadata using the default path -->
-        <OutputFile Condition=" %(BicepParam.OutputFile) == '' ">$(BicepOutputPath)\%(FileName)$(BicepParamDefaultOutputFileExtension)</OutputFile>
+        <!-- in recursive mode, incorporate the file's relative path into the final output path -->
+        <OutputFile Condition=" ($(BicepOutputStyle) == 'Recursive') and (%(BicepParam.OutputFile) == '') ">$(BicepOutputPath)\$([MSBuild]::MakeRelative($(MSBuildProjectDirectory), %(RootDir)%(Directory)%(Filename)$(BicepParamDefaultOutputFileExtension)))</OutputFile>
+        <!-- in flat mode, append the file name to the output path -->
+        <OutputFile Condition=" ($(BicepOutputStyle) == 'Flat') and (%(BicepParam.OutputFile) == '') ">$(BicepOutputPath)\%(FileName)$(BicepParamDefaultOutputFileExtension)</OutputFile>
       </_BicepParamResolvedIntermediate>
       <_BicepParamResolved Include="@(_BicepParamResolvedIntermediate)">
         <OutputFile>$([System.IO.Path]::GetFullPath('%(OutputFile)'))</OutputFile>
@@ -76,14 +86,19 @@
       <_BicepOutputFiles Include="%(_BicepParamResolved.OutputFile)" />
     </ItemGroup>
 
+    <PropertyGroup>
+      <_BicepNormalizedOutputPath>$([MSBuild]::NormalizeDirectory($(OutputPath)))</_BicepNormalizedOutputPath>
+    </PropertyGroup>
+
     <!-- find all files compiled by Bicep under the project output dir -->
-    <FindUnderPath Path="$([MSBuild]::NormalizeDirectory($(OutputPath)))" Files="@(_BicepOutputFiles)" UpdateToAbsolutePaths="true">
+    <FindUnderPath Path="$(_BicepNormalizedOutputPath)" Files="@(_BicepOutputFiles)" UpdateToAbsolutePaths="true">
       <Output TaskParameter="InPath" ItemName="_PublishableBicepOutputFiles"/>
     </FindUnderPath>
 
     <ItemGroup>
       <ResolvedFileToPublish Include="@(_PublishableBicepOutputFiles)">
-        <RelativePath>%(FileName)%(Extension)</RelativePath>
+        <RelativePath Condition=" $(BicepOutputStyle) == 'Flat' ">%(FileName)%(Extension)</RelativePath>
+        <RelativePath Condition=" $(BicepOutputStyle) == 'Recursive' ">$([MSBuild]::MakeRelative($(_BicepNormalizedOutputPath), %(FullPath)))</RelativePath>
         <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       </ResolvedFileToPublish>
     </ItemGroup>

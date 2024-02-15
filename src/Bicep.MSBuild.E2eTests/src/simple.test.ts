@@ -21,8 +21,8 @@ describe("msbuild", () => {
 
     example.cleanProjectDir();
 
-    example.publish(null);
-    expect(buildResult.stderr).toBe("");
+    const publishResult = example.publish(null);
+    expect(publishResult.stderr).toBe("");
 
     // both build and publish outputs should be present
     example.expectTemplate(templateRelativePath);
