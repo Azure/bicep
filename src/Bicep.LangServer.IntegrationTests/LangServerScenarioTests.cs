@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -10,6 +11,7 @@ using Bicep.LanguageServer.Registry;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -88,13 +90,18 @@ param foo: string
         var diags = await helper.OpenFileOnceAsync(TestContext, """
         using 'br:mockregistry.io/test/foo:1.1'
 
-        param foo = 'abc'
-        """, paramsFileUri);
+param foo = 'abc'
+""", paramsFileUri);
 
-        // Assert the file is compiled by the language server by catching the type mismatch diagnostic
-        diags = await helper.WaitForDiagnostics(paramsFileUri);
-        diags.Diagnostics.Should().ContainSingle(x => x.Message.Contains("Expected a value of type \"bool\" but the provided value is of type \"'abc'\"."));
+        var diags2 = await helper.WaitForDiagnostics(paramsFileUri);
 
+        // diagnostics are published twice (once on open, once when restoration complete).
+        // in this test, they can come back out of order, so we just combine and assert on either.
+        var allDiags = diags.Diagnostics.Concat(diags2.Diagnostics);
+        allDiags.Should().ContainSingle(x => x.Message.Contains("Expected a value of type \"bool\" but the provided value is of type \"'abc'\"."));
+
+        // the published module now has the correct type
+        await setPublishedModuleContents("param foo string");
 
         await setPublishedModuleContents("param foo string");
         await helper.Client.Workspace.ExecuteCommand(new Command
@@ -105,7 +112,8 @@ param foo: string
             ]
         });
 
-        // Assert the updated module contents is used by the language server (since diagnostic goes away)
+        // diagnostics being published indicates that we refreshed the compilation.
+        // the diagnostics being empty indicates that compilation succeeded (e.g. we picked up the new changes)
         diags = await helper.WaitForDiagnostics(paramsFileUri);
         diags.Diagnostics.Should().BeEmpty();
     }
