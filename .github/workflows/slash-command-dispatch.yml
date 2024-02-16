@@ -1,0 +1,43 @@
+# Implements "slash commands" on PR comments
+#   see https://github.com/peter-evans/slash-command-dispatch
+#   and https://david.gardiner.net.au/2021/05/dependabot-nuget-lockfiles.html
+# Listens for a comment on a pull request beginning with "/{command}" and dispatches that command
+# E.g. commenting "/lockfiles" will dispatch the "lockfiles-command.yml" workflow
+name: Slash Command Dispatch
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  slashCommandDispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bot Details
+        id: bot-details
+        uses: raven-actions/bot-details@v1
+
+        # Obtain the name of the branch that is linked to the pull request for the triggering comment.
+      - uses: xt0rted/pull-request-comment-branch@v2
+        id: comment-branch
+
+      - name: Dump comment context
+        env:
+          COMMENT_CONTEXT: ${{ toJson(steps.comment-branch.outputs) }}
+        run: echo "$COMMENT_CONTEXT"
+
+      - name: Slash Command Dispatch
+        uses: peter-evans/slash-command-dispatch@v4
+        id: slash-command
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commands: |
+            lockfiles
+          permission: write
+          issue-type: pull-request
+          # We want the secondary workflow to run against the pull request branch (not the default branch)
+          dispatch-type: workflow
+          static-args: ref=${{ steps.comment-branch.outputs.head_ref }}
+
+      - name: Dump slash context
+        env:
+          SLASH_CONTEXT: ${{ toJson(steps.slash-command) }}
+        run: echo "$SLASH_CONTEXT"
