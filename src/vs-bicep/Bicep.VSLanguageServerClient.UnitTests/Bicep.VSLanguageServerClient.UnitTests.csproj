@@ -15,8 +15,8 @@
 		<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
 		<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.2.32505.113" />
 		<PackageReference Include="Moq" Version="4.18.4" />
-		<PackageReference Include="MSTest.TestAdapter" Version="3.0.3" />
-		<PackageReference Include="MSTest.TestFramework" Version="3.0.3" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.2.0" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>
