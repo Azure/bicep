@@ -9,6 +9,7 @@
   },
   "experimentalFeaturesEnabled": {
     "extensibility": true,
+    "dynamicTypeLoading": true,
     "providerRegistry": true
   }
 }
