@@ -73,13 +73,13 @@ namespace Bicep.Core.Configuration
         public CloudConfiguration Cloud { get; }
 
         public ModuleAliasesConfiguration ModuleAliases { get; }
-        
+
         public ProviderAliasesConfiguration ProviderAliases { get; }
-        
+
         public ProvidersConfiguration ProvidersConfig { get; }
-        
+
         public ImplicitProvidersConfiguration ImplicitProvidersConfig { get; }
-        
+
         public AnalyzersConfiguration Analyzers { get; }
 
         public string? CacheRootDirectory { get; }

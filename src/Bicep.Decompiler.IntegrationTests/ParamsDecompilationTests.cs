@@ -25,46 +25,48 @@ namespace Bicep.Core.IntegrationTests
         public void Decompiler_Decompiles_ValidParametersFile()
         {
             var jsonParametersFile =
-@"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""first"": {
-      ""value"": ""test""
-    },
-    ""second"": {
-      ""value"": 1
-    },
-    ""third"" : {
-      ""value"" : [
-        1,
-        ""foo""
-      ]
-    },
-    ""fourth"" : {
-      ""value"" : {
-        ""firstKey"" : ""bar"",
-        ""secondKey"" : 1
-      }
-    }
-  }
-}";
+                """
+                {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                  "contentVersion": "1.0.0.0",
+                  "parameters": {
+                    "first": {
+                      "value": "test"
+                    },
+                    "second": {
+                      "value": 1
+                    },
+                    "third" : {
+                      "value" : [
+                        1,
+                        "foo"
+                      ]
+                    },
+                    "fourth" : {
+                      "value" : {
+                        "firstKey" : "bar",
+                        "secondKey" : 1
+                      }
+                    }
+                  }
+                }
+                """;
             var expectedBicepparamFile =
-@"using '' /*TODO: Provide a path to a bicep template*/
+                """
+                using '' /*TODO: Provide a path to a bicep template*/
 
-param first = 'test'
+                param first = 'test'
 
-param second = 1
+                param second = 1
 
-param third = [
-  1
-  'foo'
-]
+                param third = [1, 'foo']
 
-param fourth = {
-  firstKey: 'bar'
-  secondKey: 1
-}";
+                param fourth = {
+                  firstKey: 'bar'
+                  secondKey: 1
+                }
+
+                """;
 
             var paramFileUri = new Uri("file:///path/to/main.json");
 
@@ -79,36 +81,41 @@ param fourth = {
                 jsonParametersFile,
                 PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension), null);
 
-            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);
+            filesToSave[entryPointUri].Should().BeEquivalentToIgnoringNewlines(expectedBicepparamFile);
         }
 
         [TestMethod]
         public void Decompiler_Decompiles_ValidParamsFileWithBicepFilePath()
         {
             var jsonParametersFile =
-@"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""first"": {
-      ""value"": ""test""
-    },
-    ""second"": {
-      ""value"": 1
-    },
-    ""third"" : {
-      ""value"" : true
-    },
-  }
-}";
+                """
+                {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                  "contentVersion": "1.0.0.0",
+                  "parameters": {
+                    "first": {
+                      "value": "test"
+                    },
+                    "second": {
+                      "value": 1
+                    },
+                    "third" : {
+                      "value" : true
+                    },
+                  }
+                }
+                """;
             var expectedBicepparamFile =
-@"using 'dir/main.bicep'
+                """
+                using 'dir/main.bicep'
 
-param first = 'test'
+                param first = 'test'
 
-param second = 1
+                param second = 1
 
-param third = true";
+                param third = true
+
+                """;
 
             var paramFileUri = new Uri("file:///path/to/main.json");
             var bicepFileUri = new Uri("file:///path/to/dir/main.bicep");
@@ -125,42 +132,47 @@ param third = true";
               PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
               bicepFileUri);
 
-            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);
+            filesToSave[entryPointUri].Should().BeEquivalentToIgnoringNewlines(expectedBicepparamFile);
         }
 
         [TestMethod]
         public void Decompiler_Decompiles_KeyVaultReferenceParameters()
         {
             var jsonParametersFile =
-@"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""adminUsername"": {
-      ""value"": ""tim""
-    },
-    ""adminPassword"": {
-      ""reference"": {
-        ""keyVault"": {
-          ""id"": ""/subscriptions/2fbf906e-1101-4bc0-b64f-adc44e462fff/resourceGroups/INSTRUCTOR/providers/Microsoft.KeyVault/vaults/TimKV""
-        },
-        ""secretName"": ""vm-password""
-      }
-    },
+                """
+                {
+                  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+                  "contentVersion": "1.0.0.0",
+                  "parameters": {
+                    "adminUsername": {
+                      "value": "tim"
+                    },
+                    "adminPassword": {
+                      "reference": {
+                        "keyVault": {
+                          "id": "/subscriptions/2fbf906e-1101-4bc0-b64f-adc44e462fff/resourceGroups/INSTRUCTOR/providers/Microsoft.KeyVault/vaults/TimKV"
+                        },
+                        "secretName": "vm-password"
+                      }
+                    },
 
-    ""dnsLabelPrefix"": {
-      ""value"": ""newvm79347a""
-    }
-  }
-}";
+                    "dnsLabelPrefix": {
+                      "value": "newvm79347a"
+                    }
+                  }
+                }
+                """;
             var expectedBicepparamFile =
-@"using '' /*TODO: Provide a path to a bicep template*/
+                """
+                using '' /*TODO: Provide a path to a bicep template*/
 
-param adminUsername = 'tim'
+                param adminUsername = 'tim'
 
-param adminPassword = ? /*KeyVault references are not supported in Bicep Parameters files*/
+                param adminPassword = ? /*KeyVault references are not supported in Bicep Parameters files*/
 
-param dnsLabelPrefix = 'newvm79347a'";
+                param dnsLabelPrefix = 'newvm79347a'
+
+                """;
 
             var paramFileUri = new Uri("file:///path/to/main.json");
 
@@ -184,39 +196,41 @@ param dnsLabelPrefix = 'newvm79347a'";
         public void Decompiler_Decompiles_ParametersContainingMetadata()
         {
             var jsonParametersFile =
-@"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""regions"": {
-      ""metadata"": {
-          ""description"": ""List of permitted regions"",
-          ""displayName"": ""List of regions""
-      },
-      ""value"": [
-          ""North Europe"",
-          ""West Europe""
-      ]
-    }
-  }
-}";
+                """
+                {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+                  "contentVersion": "1.0.0.0",
+                  "parameters": {
+                    "regions": {
+                      "metadata": {
+                          "description": "List of permitted regions",
+                          "displayName": "List of regions"
+                      },
+                      "value": [
+                          "North Europe",
+                          "West Europe"
+                      ]
+                    }
+                  }
+                }
+                """;
 
             var expectedBicepparamFile =
-@"using '' /*TODO: Provide a path to a bicep template*/
-
-/*
-Parameter metadata is not supported in Bicep Parameters files
-
-Following metadata was not decompiled:
-{
-  ""description"": ""List of permitted regions"",
-  ""displayName"": ""List of regions""
-}
-*/
-param regions = [
-  'North Europe'
-  'West Europe'
-]";
+                """
+                using '' /*TODO: Provide a path to a bicep template*/
+    
+                /*
+                Parameter metadata is not supported in Bicep Parameters files
+                
+                Following metadata was not decompiled:
+                {
+                  "description": "List of permitted regions",
+                  "displayName": "List of regions"
+                }
+                */
+                param regions = ['North Europe', 'West Europe']
+                
+                """;
 
             var paramFileUri = new Uri("file:///path/to/main.json");
 
@@ -232,7 +246,7 @@ param regions = [
               PathHelper.ChangeExtension(paramFileUri, LanguageConstants.ParamsFileExtension),
               null);
 
-            filesToSave[entryPointUri].Should().Be(expectedBicepparamFile);
+            filesToSave[entryPointUri].Should().BeEquivalentToIgnoringNewlines(expectedBicepparamFile);
         }
     }
 }

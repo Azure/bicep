@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Text;
 using Bicep.Core.PrettyPrintV2.Documents;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.PrettyPrintV2
 {
@@ -21,19 +22,19 @@ namespace Bicep.Core.PrettyPrintV2
             this.context = context;
         }
 
-        public static string Print(PrettyPrinterV2Context context)
+        public static string Print(SyntaxBase syntaxToPrint, PrettyPrinterV2Context context)
         {
             var writer = new StringWriter();
 
-            PrintTo(writer, context);
+            PrintTo(writer, syntaxToPrint, context);
 
             return writer.ToString();
         }
 
-        public static void PrintTo(TextWriter writer, PrettyPrinterV2Context context)
+        public static void PrintTo(TextWriter writer, SyntaxBase syntaxToPrint, PrettyPrinterV2Context context)
         {
             var layouts = new SyntaxLayouts(context);
-            var documents = layouts.Layout(context.SyntaxToPrint);
+            var documents = layouts.Layout(syntaxToPrint);
             var printer = new PrettyPrinterV2(writer, context);
 
             foreach (var document in documents)
@@ -54,7 +55,7 @@ namespace Bicep.Core.PrettyPrintV2
                 }
             }
 
-            if (context.Options.InsertFinalNewline)
+            if (syntaxToPrint is ProgramSyntax && context.Options.InsertFinalNewline)
             {
                 writer.Write(context.Newline);
             }

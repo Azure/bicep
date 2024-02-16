@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Telemetry
@@ -274,7 +273,8 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
-        public enum ExternalSourceRequestType {
+        public enum ExternalSourceRequestType
+        {
             CompiledJson, // main.json
             BicepEntrypoint,
             Local, // A file included with the compilation group

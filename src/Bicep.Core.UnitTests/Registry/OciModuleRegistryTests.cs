@@ -722,7 +722,7 @@ namespace Bicep.Core.UnitTests.Registry
             string cacheRootDirectory,
             bool publishSourceEnabled)
         {
-            return OciArtifactRegistryHelper.CreateModuleRegistry(parentModuleUri, GetFeatures(cacheRootDirectory, publishSourceEnabled));
+            return OciRegistryHelper.CreateModuleRegistry(parentModuleUri, GetFeatures(cacheRootDirectory, publishSourceEnabled));
         }
 
         private (OciArtifactRegistry, MockRegistryBlobClient, Uri parentModuleUri) CreateModuleRegistryAndBicepFile(
@@ -750,7 +750,7 @@ namespace Bicep.Core.UnitTests.Registry
         {
             var (OciArtifactRegistry, _, parentModuleUri) = CreateModuleRegistryAndBicepFile(parentBicepFileContents, true);
 
-            OciArtifactReference? OciArtifactReference = OciArtifactRegistryHelper.CreateModuleReferenceMock(
+            OciArtifactReference? OciArtifactReference = OciRegistryHelper.CreateModuleReferenceMock(
                 registry,
                 repository,
                 parentModuleUri,
@@ -759,7 +759,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             if (manifestFileContents is string)
             {
-                OciArtifactRegistryHelper.SaveManifestFileToModuleRegistryCache(
+                OciRegistryHelper.SaveManifestFileToModuleRegistryCache(
                     TestContext,
                     registry,
                     repository,

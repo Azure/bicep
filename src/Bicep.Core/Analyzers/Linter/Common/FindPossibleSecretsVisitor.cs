@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -52,7 +51,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
             possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
-                .Select(pathToSecureComponent => new PossibleSecret(syntax.PropertyName, PossibleSecretMessage(syntax.ToTextPreserveFormatting() + pathToSecureComponent))));
+                .Select(pathToSecureComponent => new PossibleSecret(syntax.PropertyName, PossibleSecretMessage(syntax.ToString() + pathToSecureComponent))));
 
             trailingAccessExpressions++;
             base.VisitPropertyAccessSyntax(syntax);
@@ -62,7 +61,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
             possibleSecrets.AddRange(FindPathsToSecureTypeComponents(semanticModel.GetTypeInfo(syntax))
-                .Select(pathToSecureComponent => new PossibleSecret(syntax.IndexExpression, PossibleSecretMessage(syntax.ToTextPreserveFormatting() + pathToSecureComponent))));
+                .Select(pathToSecureComponent => new PossibleSecret(syntax.IndexExpression, PossibleSecretMessage(syntax.ToString() + pathToSecureComponent))));
 
             trailingAccessExpressions++;
             base.VisitArrayAccessSyntax(syntax);

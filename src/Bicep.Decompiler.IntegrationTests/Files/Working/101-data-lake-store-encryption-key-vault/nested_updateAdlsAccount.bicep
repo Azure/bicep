@@ -29,3 +29,4 @@ resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
     type: 'SystemAssigned'
   }
 }
+

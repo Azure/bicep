@@ -36,11 +36,11 @@ namespace Bicep.Core.IntegrationTests
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true))
-                .WithContainerRegistryClientFactory(DataSetsExtensions.CreateOciClientForAzProvider())
+                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzProvider())
                 .WithMockFileSystem(fileSystem)
                 .WithAzResourceTypeLoader(azTypeLoaderLazy.Value);
 
-            await DataSetsExtensions.PublishAzProvider(services.Build(), "/types/index.json");
+            await RegistryHelper.PublishAzProvider(services.Build(), "/types/index.json");
 
             return services;
         }
@@ -77,23 +77,22 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = new ServiceBuilder();
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
+            provider 'az@1.0.0'
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
                 // BCP084 is raised because BCP203 prevented the compiler from binding a namespace to the `az` symbol (an ErrorType was bound instead).
                 ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\"."),
             });
         }
 
-
         [TestMethod]
         public async Task Provider_Statement_Without_Specification_String_Should_Emit_Diagnostic()
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider
-            ");
+provider
+");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location."),
             });
@@ -106,7 +105,7 @@ namespace Bicep.Core.IntegrationTests
             var result = await CompilationHelper.RestoreAndCompile(services, @"
             provider 'sys@1.0.0' blahblah
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
             });
         }
@@ -118,7 +117,7 @@ namespace Bicep.Core.IntegrationTests
             var result = await CompilationHelper.RestoreAndCompile(services, @"
             provider 'kubernetes@1.0.0' with
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
             });
         }
@@ -133,7 +132,7 @@ namespace Bicep.Core.IntegrationTests
             namespace: 'bar'
             } something
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
             });
         }
@@ -148,7 +147,7 @@ namespace Bicep.Core.IntegrationTests
             namespace: 'bar'
             } as
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
         }
@@ -160,7 +159,7 @@ namespace Bicep.Core.IntegrationTests
             var result = await CompilationHelper.RestoreAndCompile(services, @"
             provider 'sys@1.0.0' as
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
         }
@@ -168,12 +167,10 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task Using_import_instead_of_provider_raises_warning()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            import 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as foo
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            import 'az@1.0.0' as foo
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP381", DiagnosticLevel.Warning, "Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead."),
             });
         }
@@ -183,10 +180,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task Using_legacy_import_syntax_raises_warning_for_az_provider(string providerName)
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
             provider '{providerName}@1.0.0' as {providerName}
             ");
 
@@ -198,14 +192,12 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task Import_configuration_is_blocked_by_default()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' with {{
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0' with {{
               foo: 'bar'
             }}
             ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
             });
         }
@@ -214,8 +206,8 @@ namespace Bicep.Core.IntegrationTests
         public async Task Imports_return_error_with_unrecognized_namespace()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"
-            provider 'madeUpNamespace@1.0.0'
-            ");
+provider 'madeUpNamespace@1.0.0'
+");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP204", DiagnosticLevel.Error, "Provider namespace \"madeUpNamespace\" is not recognized."),
             });
@@ -224,11 +216,8 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task Using_import_statements_frees_up_the_namespace_symbol()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as newAz
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0' as newAz
 
             var az = 'Fake AZ!'
             var myRg = newAz.resourceGroup()
@@ -237,16 +226,14 @@ namespace Bicep.Core.IntegrationTests
             output rgLocation string = myRg.location
             ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public async Task You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0' as sys
             provider 'sys@1.0.0' as az
 
             var myRg = sys.resourceGroup()
@@ -256,19 +243,15 @@ namespace Bicep.Core.IntegrationTests
             ");
 
             result.Should().GenerateATemplate();
-            result.Should().HaveDiagnostics(new[]{
-                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
-            });
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs.rgLocation.metadata.description", "why on earth would you do this?");
         }
 
         [TestMethod]
         public async Task Overwriting_single_built_in_namespace_with_import_is_prohibited()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as sys
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0' as sys
 
             var myRg = sys.resourceGroup()
 
@@ -281,42 +264,35 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public async Task Singleton_imports_cannot_be_used_multiple_times()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az1
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}' as az2
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0' as az1
+            provider 'az@1.0.0' as az2
 
             provider 'sys@1.0.0' as sys1
             provider 'sys@1.0.0' as sys2
             ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is declared multiple times. Remove the duplicates."),
-                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is declared multiple times. Remove the duplicates."),
-                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead.")
             });
         }
 
         [TestMethod]
         public async Task Import_names_must_not_conflict_with_other_symbols()
         {
-            var services = await GetServices();
-            services = services.WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider 'br/public:az@{BicepTestConstants.BuiltinAzProviderVersion}'
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            provider 'az@1.0.0'
             provider 'kubernetes@1.0.0' with {{
             kubeConfig: ''
             namespace: ''
             }} as az
             ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
-                ("BCP395", DiagnosticLevel.Warning,"Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
             });
         }
@@ -371,7 +347,7 @@ namespace Bicep.Core.IntegrationTests
             output ns2Result string = ns2Func()
             ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP056", DiagnosticLevel.Error, "The reference to name \"dupeFunc\" is ambiguous because it exists in namespaces \"ns1\", \"ns2\". The reference must be fully-qualified."),
             });
 
@@ -385,7 +361,7 @@ namespace Bicep.Core.IntegrationTests
             output ns2Result string = ns2Func()
             ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -419,12 +395,12 @@ namespace Bicep.Core.IntegrationTests
 
             var result = await CompilationHelper.RestoreAndCompile(services, @"
             provider 'mockNs@1.0.0' with {
-            optionalConfig: 'blah blah'
+              optionalConfig: 'blah blah'
             } as ns1
             provider 'mockNs@1.0.0' as ns2
             ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -441,7 +417,7 @@ namespace Bicep.Core.IntegrationTests
 
             result = await CompilationHelper.RestoreAndCompile(serviceWithPreview, @"provider 'microsoftGraph@1.0.0' as graph");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
     }
 }

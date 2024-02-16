@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -39,7 +39,8 @@ public class DecoratorCodeFixProvider : ICodeFixProvider
         }
 
         var decoratorSyntax = SyntaxFactory.CreateDecorator(decoratorName, GetEmptyParams());
-        var decoratorText = $"{decoratorSyntax.ToText()}{Environment.NewLine}";
+        var newline = semanticModel.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence();
+        var decoratorText = $"{decoratorSyntax}{newline}";
         var newSpan = new TextSpan(decorableSyntax.Span.Position, 0);
         var codeReplacement = new CodeReplacement(newSpan, decoratorText);
 

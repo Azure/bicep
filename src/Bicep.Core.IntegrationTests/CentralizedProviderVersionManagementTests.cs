@@ -7,7 +7,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Configuration;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -59,12 +58,6 @@ namespace Bicep.Core.IntegrationTests
                     new (string, DiagnosticLevel, string)[] {
                      ("BCP206", DiagnosticLevel.Error, "Provider namespace \"kubernetes\" requires configuration, but none was provided.") } };
             }
-        }
-
-        [TestMethod]
-        public void ProvidersConfig_SupportForConfigManagedProviderDeclarationSyntax_When_ProviderIsExternal()
-        {
-            throw new NotImplementedException();
         }
     }
 }

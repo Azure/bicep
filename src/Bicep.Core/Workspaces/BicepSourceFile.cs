@@ -3,7 +3,6 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Workspaces
@@ -38,7 +37,7 @@ namespace Bicep.Core.Workspaces
 
         public Uri FileUri { get; }
 
-        public string GetOriginalSource() => ProgramSyntax.ToTextPreserveFormatting();
+        public string GetOriginalSource() => ProgramSyntax.ToString();
 
         public abstract BicepSourceFileKind FileKind { get; }
 

@@ -5,8 +5,8 @@ using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -51,7 +51,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (!param.IsSecure())
                 {
-                    if (AnalyzeUnsecuredParameter(diagnosticLevel, param) is IDiagnostic diag)
+                    if (AnalyzeUnsecuredParameter(model, diagnosticLevel, param) is IDiagnostic diag)
                     {
                         yield return diag;
                     }
@@ -59,7 +59,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private IDiagnostic? AnalyzeUnsecuredParameter(DiagnosticLevel diagnosticLevel, ParameterSymbol parameterSymbol)
+        private AnalyzerFixableDiagnostic? AnalyzeUnsecuredParameter(SemanticModel model, DiagnosticLevel diagnosticLevel, ParameterSymbol parameterSymbol)
         {
             string name = parameterSymbol.Name;
             TypeSymbol type = parameterSymbol.Type;
@@ -71,7 +71,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     {
                         // Create fix
                         var decorator = SyntaxFactory.CreateDecorator("secure");
-                        var decoratorText = $"{decorator.ToText()}\n";
+                        var newline = model.Configuration.Formatting.Data.NewlineKind.ToEscapeSequence();
+                        var decoratorText = $"{decorator}{newline}";
                         var fixSpan = new TextSpan(parameterSymbol.DeclaringSyntax.Span.Position, 0);
                         var codeReplacement = new CodeReplacement(fixSpan, decoratorText);
 

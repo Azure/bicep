@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Navigation;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -47,7 +46,7 @@ var blah = '${NewIdentifier}'
 
         var edit = await file.RequestRename(cursor, "NewIdentifier");
 
-        var appliedEdit = file.ApplyWorkspaceEdit(edit).ProgramSyntax.ToTextPreserveFormatting();
+        var appliedEdit = file.ApplyWorkspaceEdit(edit).ProgramSyntax.ToString();
 
         appliedEdit.Should().EqualIgnoringTrailingWhitespace(expectedOutput);
     }

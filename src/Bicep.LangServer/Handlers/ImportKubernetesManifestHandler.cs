@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
-using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
@@ -56,14 +54,14 @@ namespace Bicep.LanguageServer.Handlers
                         SyntaxFactory.CreateDecorator("secure"),
                         SyntaxFactory.NewlineToken,
                     },
-                    SyntaxFactory.CreateIdentifierToken("param"),
-                    SyntaxFactory.CreateIdentifier("kubeConfig"),
+                    SyntaxFactory.ParameterKeywordToken,
+                    SyntaxFactory.CreateIdentifierWithTrailingSpace("kubeConfig"),
                     new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken("string"))),
                     null),
 
                 new ProviderDeclarationSyntax(
                     Enumerable.Empty<SyntaxBase>(),
-                    SyntaxFactory.CreateIdentifierToken(LanguageConstants.ProviderKeyword),
+                    SyntaxFactory.ProviderKeywordToken,
                     SyntaxFactory.CreateStringLiteral($"{K8sNamespaceType.BuiltInName}@{K8sNamespaceType.BuiltInVersion}"),
                     new ProviderWithClauseSyntax(
                         SyntaxFactory.CreateToken(TokenType.WithKeyword),
@@ -142,12 +140,12 @@ namespace Bicep.LanguageServer.Handlers
 
             return new ResourceDeclarationSyntax(
                 Enumerable.Empty<SyntaxBase>(),
-                SyntaxFactory.CreateIdentifierToken("resource"),
-                SyntaxFactory.CreateIdentifier(symbolName),
+                SyntaxFactory.ResourceKeywordToken,
+                SyntaxFactory.CreateIdentifierWithTrailingSpace(symbolName),
                 SyntaxFactory.CreateStringLiteral($"{type}@{apiVersion}"),
                 null,
                 SyntaxFactory.AssignmentToken,
-                ImmutableArray<Token>.Empty,
+                [],
                 resourceBody);
         }
 

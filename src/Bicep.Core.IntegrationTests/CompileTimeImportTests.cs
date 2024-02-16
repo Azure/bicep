@@ -348,6 +348,47 @@ public class CompileTimeImportTests
             """));
     }
 
+    // https://github.com/Azure/bicep/issues/13248
+    [TestMethod]
+    public void Type_symbols_imported_from_ARM_json_via_wildcard_should_be_usable_as_types()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import * as mod from 'mod.json'
+
+                param foo mod.foo
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "languageVersion": "2.0",
+                    "definitions": {
+                        "foo": {
+                            "metadata": {
+                                "{{LanguageConstants.MetadataExportedPropertyName}}": true
+                            },
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/bar"
+                            }
+                        },
+                        "bar": {
+                            "type": "string"
+                        }
+                    },
+                    "resources": {}
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("parameters.foo", JToken.Parse("""
+            {
+                "$ref": "#/definitions/_1.foo"
+            }
+            """));
+    }
+
     [TestMethod]
     public void Variable_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
     {
@@ -386,6 +427,41 @@ public class CompileTimeImportTests
                 "_1.bar": "barValue"
             }
             """));
+    }
+
+    [TestMethod]
+    public void Variable_symbols_imported_from_ARM_json_with_wildcard_syntax_should_be_usable_as_values()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import * as mod from 'mod.json'
+
+                output bar string = mod.foo.property
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "metadata": {
+                        "{{LanguageConstants.TemplateMetadataExportedVariablesName}}": [
+                            {
+                                "name": "foo",
+                                "description": "A lengthy, florid description"
+                            }
+                        ]
+                    },
+                    "variables": {
+                        "foo": {
+                            "property": "[variables('bar')]"
+                        },
+                        "bar": "barValue"
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("outputs.bar.value", "[variables('_1.foo').property]");
     }
 
     [TestMethod]
@@ -1204,7 +1280,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Exporting_a_variable_that_references_a_parameter_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile( """
+        var result = CompilationHelper.Compile("""
             param foo string
             var bar = 'x${foo}x'
             var baz = bar
@@ -1222,7 +1298,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Exporting_a_variable_that_references_a_resource_should_raise_diagnostic()
     {
-        var result = CompilationHelper.Compile( """
+        var result = CompilationHelper.Compile("""
             resource foo 'Microsoft.Network/virtualNetworks@2020-06-01' = {
                 location: 'westus'
                 name: 'myVNet'
@@ -1991,13 +2067,6 @@ import { bar } from 'test.bicep'
 """),
             ("test.bicep", """
 INVALID FILE
-"""),
-            ("bicepconfig.json", """
-{
-  "experimentalFeaturesEnabled": {
-    "compileTimeImports": true
-  }
-}
 """));
 
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]

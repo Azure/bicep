@@ -4,8 +4,7 @@
 using Bicep.Core.Configuration;
 using FluentAssertions;
 using FluentAssertions.Primitives;
-using System.Text.Json.JsonDiffPatch.MsTest;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -25,10 +24,9 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<RootConfigurationAssertions> HaveContents(string contents, string because = "", params object[] becauseArgs)
         {
-            var expected = contents.ReplaceLineEndings();
             var actual = Subject.ToUtf8Json().ReplaceLineEndings();
-
-            Assert.That.JsonAreEqual(expected, actual, output: true);
+            var expected = contents.ReplaceLineEndings();
+            JToken.Parse(expected).Should().DeepEqual(JToken.Parse(actual));
             return new AndConstraint<RootConfigurationAssertions>(this);
         }
     }

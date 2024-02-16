@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
@@ -152,7 +151,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
             newSyntax = SyntaxFactory.CreatePropertyAccess(newSyntax, "properties");
         }
 
-        var codeReplacement = new CodeReplacement(functionCall.Span, newSyntax.ToTextPreserveFormatting());
+        var codeReplacement = new CodeReplacement(functionCall.Span, newSyntax.ToString());
 
         return CreateFixableDiagnosticForSpan(
             diagnosticLevel,
@@ -188,7 +187,7 @@ public sealed class UseResourceSymbolReferenceRule : LinterRuleBase
             functionCall.Name.IdentifierName,
             newArgs);
 
-        var codeReplacement = new CodeReplacement(functionCall.Span, newFunctionCall.ToTextPreserveFormatting());
+        var codeReplacement = new CodeReplacement(functionCall.Span, newFunctionCall.ToString());
 
         return CreateFixableDiagnosticForSpan(
             diagnosticLevel,

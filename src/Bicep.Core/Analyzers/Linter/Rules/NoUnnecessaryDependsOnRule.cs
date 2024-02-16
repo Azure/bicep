@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -102,13 +101,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         continue;
                     }
 
-                    CodeReplacement? codeReplacement = null;
+                    CodeReplacement codeReplacement = CodeReplacement.Nil;
                     if (declaredDependencies.Items.Count() == 1)
                     {
                         // we only have one entry - remove the whole dependsOn property
                         if (SyntaxModifier.TryRemoveProperty(body, dependsOnProperty, model.ParsingErrorLookup) is { } newObject)
                         {
-                            codeReplacement = new CodeReplacement(body.Span, newObject.ToTextPreserveFormatting());
+                            codeReplacement = new CodeReplacement(body.Span, newObject.ToString());
                         }
                     }
                     else
@@ -116,13 +115,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         // we have multiple entries - just remove this one
                         if (SyntaxModifier.TryRemoveItem(declaredDependencies, declaredDependency, model.ParsingErrorLookup) is { } newArray)
                         {
-                            codeReplacement = new CodeReplacement(declaredDependencies.Span, newArray.ToTextPreserveFormatting());
+                            codeReplacement = new CodeReplacement(declaredDependencies.Span, newArray.ToString());
                         }
                     }
 
                     // if the syntax is in an invald state, we may not have a replacement.
                     // just return a diagnostic and leave it up to the user.
-                    if (codeReplacement is null)
+                    if (codeReplacement.IsNil)
                     {
                         this.diagnostics.Add(
                             parent.CreateDiagnosticForSpan(

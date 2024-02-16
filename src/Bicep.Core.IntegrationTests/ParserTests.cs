@@ -3,7 +3,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Syntax;
@@ -99,7 +98,7 @@ namespace Bicep.Core.IntegrationTests
             var program = ParserHelper.Parse(contents);
             program.Should().BeOfType<ProgramSyntax>();
 
-            program.ToTextPreserveFormatting().Should().Be(contents);
+            program.ToString().Should().Be(contents);
         }
 
         private static void RunSpanConsistencyTest(string text)

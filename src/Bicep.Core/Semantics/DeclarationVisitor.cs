@@ -216,12 +216,6 @@ namespace Bicep.Core.Semantics
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.NamespaceIdentifier));
             }
 
-            // Check if the Az provider is recognized and enabled
-            if (syntax.Specification.NamespaceIdentifier == AzNamespaceType.BuiltInName && !features.DynamicTypeLoadingEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.NamespaceIdentifier));
-            }
-
             if (!this.artifactFileLookup.TryGetProviderDescriptor(syntax).IsSuccess(out var providerDescriptor, out var errorBuilder))
             {
                 return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));

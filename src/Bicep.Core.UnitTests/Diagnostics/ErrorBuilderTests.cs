@@ -9,6 +9,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
@@ -185,7 +186,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             {
                 return new ProviderDeclarationSyntax(
                     Enumerable.Empty<SyntaxBase>(),
-                    SyntaxFactory.CreateIdentifierToken("import"),
+                    SyntaxFactory.ImportKeywordToken,
                     SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
                     withClause: SyntaxFactory.EmptySkippedTrivia,
                     asClause: SyntaxFactory.EmptySkippedTrivia);

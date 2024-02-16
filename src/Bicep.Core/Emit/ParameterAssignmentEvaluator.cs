@@ -9,7 +9,6 @@ using Azure.Deployments.Core.Diagnostics;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Expressions;
-using Bicep.Core.ArmHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Intermediate;
@@ -48,7 +47,6 @@ public class ParameterAssignmentEvaluator
     private readonly ConcurrentDictionary<WildcardImportPropertyReference, Result> wildcardImportVariableResults = new();
     private readonly ConcurrentDictionary<Expression, Result> synthesizedVariableResults = new();
     private readonly ConcurrentDictionary<SemanticModel, ResultWithDiagnostic<Template>> templateResults = new();
-    private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> armEvaluators = new();
     private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
     private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
     private readonly ImmutableDictionary<string, ImportedVariableSymbol> importsByName;
@@ -179,7 +177,7 @@ public class ParameterAssignmentEvaluator
 
         try
         {
-            return Result.For(armEvaluators.GetOrAdd(importedFrom, t => new(t)).GetEvaluatedVariableValue(originalSymbolName));
+            return Result.For(importedFrom.Variables[originalSymbolName].Value);
         }
         catch (Exception e)
         {
@@ -218,10 +216,9 @@ public class ParameterAssignmentEvaluator
             return Result.For(diagnostic);
         }
 
-        var evaluator = armEvaluators.GetOrAdd(importedFrom, t => new(t));
         try
         {
-            return Result.For(evaluator.GetEvaluatedVariableValue(propertyReference.PropertyName));
+            return Result.For(importedFrom.Variables[propertyReference.PropertyName].Value);
         }
         catch (Exception e)
         {

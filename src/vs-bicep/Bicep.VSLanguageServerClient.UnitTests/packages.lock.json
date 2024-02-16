@@ -4,9 +4,9 @@
     ".NETFramework,Version=v4.7.2": {
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[6.7.0, )",
-        "resolved": "6.7.0",
-        "contentHash": "PWbow/R3MnYDP8UW7zh/w80rGb+1NufGoNJeuzouTo2bqpvwNTFxbDwF6XWfFZ5IuquL2225Um+qSyZ8jVsT+w==",
+        "requested": "[6.9.0, )",
+        "resolved": "6.9.0",
+        "contentHash": "Z+alhbX6FreF+buZlOpP4jt93wofAdAzyUngcDNHYcuVsDUh/rjIB9WcqXctxffh4XZ3xUG/Ew4UgULSP/kUZg==",
         "dependencies": {
           "System.Net.Http": "4.3.4",
           "System.Threading.Tasks.Extensions": "4.5.0"
@@ -83,9 +83,9 @@
       },
       "MSTest.TestAdapter": {
         "type": "Direct",
-        "requested": "[2.2.10, )",
-        "resolved": "2.2.10",
-        "contentHash": "KOc7XVNM0Q5GrTAx4RhxTgwdt9O5gOqSzmLpUMyl9ywa6vvUNFVQ9nCjtEE7qDQW54MZdc82e287PzZDc7yQtA=="
+        "requested": "[3.0.3, )",
+        "resolved": "3.0.3",
+        "contentHash": "k2LRhIKbgc0HQQvTYZVsBby3I1V9q4h+xbXP3A0yQuB1jEeMze/JnJb3UCyUUElSx1CAfmyMazuTfbYaZwqZGw=="
       },
       "MSTest.TestFramework": {
         "type": "Direct",

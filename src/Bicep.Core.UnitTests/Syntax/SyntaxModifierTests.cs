@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Rewriters;
 using Bicep.Core.UnitTests.Assertions;
@@ -34,7 +33,7 @@ public class SyntaxModifierTests
 
         var rewrittenProgram = rewriteFunc(program, nodes, parsingErrorLookup);
 
-        return rewrittenProgram.ToTextPreserveFormatting();
+        return rewrittenProgram.ToString();
     }
 
     [DataTestMethod]

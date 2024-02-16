@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
+using Bicep.Core.Syntax.Providers;
 
 namespace Bicep.Core.Syntax
 {
@@ -24,7 +25,7 @@ namespace Bicep.Core.Syntax
             this.WithClause = withClause;
             this.AsClause = asClause;
 
-            this.lazySpecification = new(() => ProviderSpecificationFactory.FromSyntax(specificationString));
+            this.lazySpecification = new(() => ProviderSpecificationSyntaxFactory.CreateProviderSpecificationSyntax(specificationString));
         }
 
         public Token Keyword { get; }
@@ -54,9 +55,14 @@ namespace Bicep.Core.Syntax
 
         public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration config)
         {
-            if (this.Specification is InlinedProviderSpecificationSyntax spec)
+            if (this.Specification is InlinedProviderSpecificationSyntax inlinedSpec)
             {
-                return new(spec.UnexpandedArtifactAddress);
+                return new(inlinedSpec.UnexpandedArtifactAddress);
+            }
+
+            if (this.Specification is LegacyProviderSpecificationSyntax legacySpec)
+            {
+                return new("builtin");
             }
 
             if (!config.ProvidersConfig.TryGetProviderSource(this.Specification.NamespaceIdentifier).IsSuccess(out var providerSource, out var errorBuilder))

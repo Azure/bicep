@@ -22,7 +22,6 @@ public class BicepCompiler
     private readonly IFeatureProviderFactory featureProviderFactory;
     private readonly IEnvironment environment;
     private readonly INamespaceProvider namespaceProvider;
-    private readonly IConfigurationManager configurationManager;
     private readonly IBicepAnalyzer bicepAnalyzer;
     private readonly IFileResolver fileResolver;
     private readonly IModuleDispatcher moduleDispatcher;
@@ -39,24 +38,20 @@ public class BicepCompiler
         this.featureProviderFactory = featureProviderFactory;
         this.environment = environment;
         this.namespaceProvider = namespaceProvider;
-        this.configurationManager = configurationManager;
+        this.ConfigurationManager = configurationManager;
         this.bicepAnalyzer = bicepAnalyzer;
         this.fileResolver = fileResolver;
         this.moduleDispatcher = moduleDispatcher;
     }
 
+    public IConfigurationManager ConfigurationManager { get; }
+
     public Compilation CreateCompilationWithoutRestore(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool markAllForRestore = false)
     {
         workspace ??= new Workspace();
-        return Create(
-            SourceFileGroupingBuilder.Build(
-                fileResolver,
-                moduleDispatcher,
-                configurationManager,
-                workspace,
-                bicepUri,
-                featureProviderFactory,
-                markAllForRestore));
+        var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, ConfigurationManager, workspace, bicepUri, featureProviderFactory, markAllForRestore);
+
+        return Create(sourceFileGrouping);
     }
 
     public async Task<Compilation> CreateCompilation(Uri bicepUri, IReadOnlyWorkspace? workspace = null, bool skipRestore = false, bool forceRestore = false)
@@ -81,23 +76,23 @@ public class BicepCompiler
         if (await moduleDispatcher.RestoreModules(artifactsToRestore, forceRestore: forceRestore))
         {
             // modules had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, configurationManager, workspace, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, ConfigurationManager, workspace, sourceFileGrouping);
         }
         return Create(sourceFileGrouping);
     }
 
-    public async Task<ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>> Restore(Compilation compilation, bool force)
+    public async Task<ImmutableDictionary<BicepSourceFile, ImmutableArray<IDiagnostic>>> Restore(Compilation compilation, bool forceArtifactRestore)
     {
         var workspace = new Workspace();
         var sourceFileGrouping = compilation.SourceFileGrouping;
         var originalModulesToRestore = sourceFileGrouping.GetExplicitArtifactsToRestore().ToImmutableHashSet();
-        if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(originalModulesToRestore), force))
+        if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(originalModulesToRestore), forceArtifactRestore))
         {
             // modules had to be restored - recompile
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, configurationManager, workspace, sourceFileGrouping);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, ConfigurationManager, workspace, sourceFileGrouping);
         }
 
-        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceModulesRestore: force);
+        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceArtifactRestore);
     }
 
     private Compilation Create(SourceFileGrouping sourceFileGrouping)
@@ -106,7 +101,7 @@ public class BicepCompiler
             environment,
             namespaceProvider,
             sourceFileGrouping,
-            configurationManager,
+            this.ConfigurationManager,
             bicepAnalyzer,
             moduleDispatcher,
             new AuxiliaryFileCache(fileResolver),

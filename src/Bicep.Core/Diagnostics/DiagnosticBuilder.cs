@@ -7,13 +7,13 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
@@ -254,7 +254,7 @@ namespace Bicep.Core.Diagnostics
                         showTypeInaccuracy ? TypeInaccuracyLink : null);
                 }
 
-                var codeFix = new CodeFix("Add required properties", true, CodeFixKind.QuickFix, new CodeReplacement(objectSyntax.Span, newSyntax.ToTextPreserveFormatting()));
+                var codeFix = new CodeFix("Add required properties", true, CodeFixKind.QuickFix, new CodeReplacement(objectSyntax.Span, newSyntax.ToString()));
 
                 return new FixableDiagnostic(
                     TextSpan,
@@ -1216,11 +1216,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedLegacyProviderSpecification() => new(
-                TextSpan,
-                "BCP201",
-                "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location.");
-           
+            public ErrorDiagnostic ExpectedProviderSpecification(bool isDynamicLoadingEnabled)
+            {
+                var message = "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location.";
+                if (isDynamicLoadingEnabled)
+                {
+                    message = "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\""
+                                + " or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location.";
+                }
+                return new(TextSpan, "BCP201", message);
+            }
+
             public ErrorDiagnostic ExpectedProviderAliasName() => new(
                 TextSpan,
                 "BCP202",
@@ -1760,14 +1766,14 @@ namespace Bicep.Core.Diagnostics
                     "If you do not know whether the value will be null and the template would handle a null value for the overall expression, use a `.?` (safe dereference) operator to short-circuit the access expression if the base expression's value is null",
                     true,
                     CodeFixKind.QuickFix,
-                    new(accessExpression.Span, accessExpression.AsSafeAccess().ToTextPreserveFormatting())),
+                    new(accessExpression.Span, accessExpression.AsSafeAccess().ToString())),
                 AsNonNullable(accessExpression.BaseExpression));
 
             private static CodeFix AsNonNullable(SyntaxBase expression) => new(
                 "If you know the value will not be null, use a non-null assertion operator to inform the compiler that the value will not be null",
                 false,
                 CodeFixKind.QuickFix,
-                new(expression.Span, SyntaxFactory.AsNonNullable(expression).ToTextPreserveFormatting()));
+                new(expression.Span, SyntaxFactory.AsNonNullable(expression).ToString()));
 
             public ErrorDiagnostic UnresolvableArmJsonType(string errorSource, string message) => new(
                 TextSpan,
@@ -2142,12 +2148,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP393",
                 $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
 
-            public ErrorDiagnostic ExpectedProviderSpecification() => new(
-                TextSpan,
-                "BCP394",
-                "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" "
-                + "or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location.");
-           
             public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecificationSyntax syntax)
             {
                 var codeFix = new CodeFix(

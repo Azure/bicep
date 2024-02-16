@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
-using Bicep.Core.Navigation;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Samples;
@@ -74,8 +73,8 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
 
             // Normalize formatting
             var regex = new Regex("[\\r\\n\\s]+");
-            string programText = regex.Replace(program.ToTextPreserveFormatting(), "");
-            string formattedProgramText = regex.Replace(formattedProgram.ToTextPreserveFormatting(), "");
+            string programText = regex.Replace(program.ToString(), "");
+            string formattedProgramText = regex.Replace(formattedProgram.ToString(), "");
 
             formattedProgramText.Should().Be(programText);
         }

@@ -32,7 +32,7 @@ namespace Bicep.LanguageServer.Handlers
                 return new TextDocumentAttributes(uri, LanguageConstants.JsoncLanguageId);
             }
 
-            if (PathHelper.HasBicepparamsExension(uri.ToUriEncoded()))
+            if (PathHelper.HasBicepparamsExtension(uri.ToUriEncoded()))
             {
                 return new TextDocumentAttributes(uri, LanguageConstants.ParamsLanguageId);
             }

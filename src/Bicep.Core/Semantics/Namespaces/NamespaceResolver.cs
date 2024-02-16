@@ -14,7 +14,6 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public class NamespaceResolver
     {
-        public static string[] BuiltInNamespaces = new[] { AzNamespaceType.BuiltInName, SystemNamespaceType.BuiltInName, K8sNamespaceType.BuiltInName, MicrosoftGraphNamespaceType.BuiltInName };
         private readonly ImmutableDictionary<string, NamespaceType> namespaceTypes;
 
         private NamespaceResolver(ImmutableDictionary<string, NamespaceType> namespaceTypes, ImmutableDictionary<string, BuiltInNamespaceSymbol> builtIns)
@@ -140,18 +139,15 @@ namespace Bicep.Core.Semantics.Namespaces
             return fallbackTypes;
         }
 
-        public IEnumerable<ResourceTypeReference> GetAvailableResourceTypes()
-        {
-            // Here we are not handling any deduplication between namespaces. This is OK for now, because there
-            // are only two supported namespaces ("az" & "sys"), both singletons. "sys" does not contain any resource types.
-            return namespaceTypes.Values.SelectMany(type => type.ResourceTypeProvider.GetAvailableTypes());
-        }
+        public IEnumerable<ResourceTypeReference> GetAvailableAzureResourceTypes() =>
+            namespaceTypes.Values.SingleOrDefault(x
+                => x.Name.Equals(AzNamespaceType.BuiltInName, StringComparison.Ordinal))?.ResourceTypeProvider.GetAvailableTypes() ?? [];
 
         public ILookup<string, ImmutableArray<ResourceTypeReference>> GetGroupedResourceTypes()
-        {
-            return namespaceTypes.Values
+            => namespaceTypes.Values
                 .SelectMany(x => x.ResourceTypeProvider.TypeReferencesByType)
-                .ToLookup(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
-        }
+                .ToLookup(
+                    x => x.Key,
+                    x => x.Value, StringComparer.OrdinalIgnoreCase);
     }
 }

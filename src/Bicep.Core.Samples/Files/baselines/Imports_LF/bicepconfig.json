@@ -1,6 +1,5 @@
 {
     "experimentalFeaturesEnabled": {
-        "compileTimeImports": true,
         "userDefinedFunctions": true
     }
 }

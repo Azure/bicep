@@ -27,3 +27,4 @@ resource cdnProfileName_afdEndpoint 'Microsoft.Cdn/profiles/afdEndpoints@2021-06
     enabledState: (enableAfdEndpoint ? 'Enabled' : 'Disabled')
   }
 }
+

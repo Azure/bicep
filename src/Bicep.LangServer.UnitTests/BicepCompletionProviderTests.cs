@@ -417,7 +417,7 @@ output length int =
             var serviceWithGraph = new ServiceBuilder().WithFeatureOverrides(featureOverrides);
 
             var compilationWithMSGraph = serviceWithGraph.BuildCompilation(codeFragment);
-            compilationWithMSGraph.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            compilationWithMSGraph.GetEntrypointSemanticModel().GetAllDiagnostics().Where(d => !d.Code.Equals("BCP395")).Should().BeEmpty();
             var features = new OverriddenFeatureProvider(new FeatureProvider(BicepTestConstants.BuiltInConfiguration), featureOverrides);
             var completionsWithMSGraph = await completionProvider.GetFilteredCompletions(compilationWithMSGraph, BicepCompletionContext.Create(features, compilationWithMSGraph, offset), CancellationToken.None);
 

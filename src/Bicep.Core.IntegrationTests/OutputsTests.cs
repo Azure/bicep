@@ -236,7 +236,7 @@ output out resource = resource
             output out resource = container
             """);
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[]
             {
                 ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
             });

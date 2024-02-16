@@ -7,7 +7,6 @@ using System.Text;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
@@ -703,7 +702,7 @@ module mod 'mod.bicep' = {
             var completions = await file.RequestCompletions(cursors);
             completions.Count().Should().Be(1);
 
-            var withRequiredProps = file.ApplyCompletion(completions.Single(), "required-properties").ProgramSyntax.ToTextPreserveFormatting();
+            var withRequiredProps = file.ApplyCompletion(completions.Single(), "required-properties").ProgramSyntax.ToString();
             withRequiredProps.Should().Contain("requiredProperty");
             withRequiredProps.Should().NotContain("optionalProperty");
         }
@@ -1787,7 +1786,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
                     c => c!.Select(x => x.Label).Should().Equal($"'az@{BicepTestConstants.BuiltinAzProviderVersion}'", "'kubernetes@1.0.0'", "'sys@1.0.0'"),
-                    c => c!.Select(x => x.Label).Should().Equal($"'az@{BicepTestConstants.BuiltinAzProviderVersion}'", "'kubernetes@1.0.0'", "'sys@1.0.0'")
+                    c => c!.Select(x => x.Label).Should().BeEmpty()
                 ),
                 '|');
 

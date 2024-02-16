@@ -145,7 +145,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             }
             else
             {
-                forVariableBlockSyntax = new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(itemVarName));
+                forVariableBlockSyntax = new LocalVariableSyntax(SyntaxFactory.CreateIdentifierWithTrailingSpace(itemVarName));
             }
 
             var forExpression = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(arraySymbol.Name));

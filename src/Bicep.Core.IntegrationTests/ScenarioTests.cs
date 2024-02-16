@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
@@ -5501,7 +5502,6 @@ var functionExport = testFunction(json.experimentalFeaturesEnabled.userDefinedFu
             ("bicepconfig.json", """
 {
   "experimentalFeaturesEnabled": {
-    "compileTimeImports": true,
     "userDefinedFunctions": true
   }
 }
@@ -5624,5 +5624,140 @@ param foo {
             ("BCP308", DiagnosticLevel.Error, """The decorator "secure" may not be used on statements whose declared type is a reference to a user-defined type."""),
             ("BCP308", DiagnosticLevel.Error, """The decorator "secure" may not be used on statements whose declared type is a reference to a user-defined type."""),
         });
+    }
+
+    // https://github.com/Azure/bicep/issues/12347
+    [TestMethod]
+    public void Test_Issue12347()
+    {
+        var result = CompilationHelper.Compile(
+            Services
+                .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
+                .WithConfigurationPatch(x => x.WithAnalyzers(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
+            ("main.bicep", """
+                provider 'kubernetes@1.0.0' with {
+                  kubeConfig: 'config'
+                  namespace: ''
+                } as k8s
+
+                resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
+                  name: 'name'
+                  location: 'westus'
+                  identity: {
+                    type: 'SystemAssigned'
+                  }
+                  properties: {
+                    kubernetesVersion: '1.19.7'
+                    dnsPrefix: 'dnsprefix'
+                    enableRBAC: true
+                    agentPoolProfiles: [
+                      {
+                        name: 'agentpool'
+                        count: 3
+                        vmSize: 'Standard_DS2_v2'
+                        osType: 'Linux'
+                        mode: 'System'
+                      }
+                    ]
+                    linuxProfile: {
+                      adminUsername: 'adminUserName'
+                      ssh: {
+                        publicKeys: [
+                          {
+                            keyData: 'REQUIRED'
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/13250
+    [TestMethod]
+    public void Test_Issue13250()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'test.bicep'
+import * as strings from 'import.bicep'
+param in1 = strings.aNormalString
+// Failed to evaluate parameter "in2": Unhandled exception during evaluating template language function 'variables' is not handled.bicep(BCP338)
+param in2 = strings.aStringInBrackets
+param in3 = strings.startBracket
+param in4 = strings.endBracket
+// Failed to evaluate parameter "in5": Unhandled exception during evaluating template language function 'variables' is not handled.bicep(BCP338)
+param in5 = strings.startAndEndBracket
+param in6 = strings.startAndEndBracketInString
+"""),
+            ("test.bicep", """
+param in1 string
+param in2 string
+param in3 string
+param in4 string
+param in5 string
+param in6 string
+"""),
+            ("import.bicep", """
+@export()
+var aNormalString = 'test'
+@export()
+var aStringInBrackets = '[test]'
+@export()
+var startBracket = '['
+@export()
+var endBracket = ']'
+@export()
+var startAndEndBracket = '[]'
+@export()
+var startAndEndBracketInString = 'x[]y'
+"""));
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/13427
+    [TestMethod]
+    public void Test_Issue13427()
+    {
+        var result = CompilationHelper.Compile("""
+            @export()
+            type naming = {
+              @description('Override the abbreviation of this resource with this parameter')
+              abbreviation: string?
+              @description('The resource environment (for example: dev, tst, acc, prd)')
+              environment: string?
+              @description('The resource location (for example: weu, we, westeurope)')
+              location: string?
+              @description('The name of the customer')
+              customer: string?
+              @description('The delimiter between resources (default: -)')
+              delimiter: string?
+              @description('The order of the array defines the order of elements in the naming scheme')
+              nameFormat: ('abbreviation' | 'function' | 'environment' | 'location' | 'customer' | 'param1' | 'param2' | 'param3')[]?
+              @description('Extra parameter self defined')
+              param1: string?
+              @description('Extra parameter self defined')
+              param2: string?
+              @description('Extra parameter self defined')
+              param3: string?
+              @description('Full name of the resource overwrites the combinated name')
+              overrideName: string?
+              @description('Function of the resource [can be app, db, security,...]')
+              function: string
+              @description('Suffix for the resource, if empty non will be appended, otherwise will be added to the end [can be index, ...]')
+              suffix: string?
+            }
+
+            param defaultNaming naming
+
+            param resourceNaming naming
+
+            param test naming = union(defaultNaming, resourceNaming)
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 }

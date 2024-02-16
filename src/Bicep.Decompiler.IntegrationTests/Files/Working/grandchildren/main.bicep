@@ -179,11 +179,8 @@ resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs11 'Microsoft.Stora
     denyEncryptionScopeOverride: false
     publicAccess: 'None'
   }
-  dependsOn: [
-
-    storageAccounts_ll21w7onmmpv65q24_name_resource
-//@[04:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll21w7onmmpv65q24_name_resource|
-  ]
+  dependsOn: [storageAccounts_ll21w7onmmpv65q24_name_resource]
+//@[14:61) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll21w7onmmpv65q24_name_resource|
 }
 
 resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs12 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {
@@ -194,11 +191,8 @@ resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs12 'Microsoft.Stora
     denyEncryptionScopeOverride: false
     publicAccess: 'None'
   }
-  dependsOn: [
-
-    storageAccounts_ll21w7onmmpv65q24_name_resource
-//@[04:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll21w7onmmpv65q24_name_resource|
-  ]
+  dependsOn: [storageAccounts_ll21w7onmmpv65q24_name_resource]
+//@[14:61) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll21w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll21w7onmmpv65q24_name_resource|
 }
 
 resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs21 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {
@@ -209,11 +203,8 @@ resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs21 'Microsoft.Stora
     denyEncryptionScopeOverride: false
     publicAccess: 'None'
   }
-  dependsOn: [
-
-    storageAccounts_ll22w7onmmpv65q24_name_resource
-//@[04:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll22w7onmmpv65q24_name_resource|
-  ]
+  dependsOn: [storageAccounts_ll22w7onmmpv65q24_name_resource]
+//@[14:61) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll22w7onmmpv65q24_name_resource|
 }
 
 resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs22 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {
@@ -224,9 +215,7 @@ resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs22 'Microsoft.Stora
     denyEncryptionScopeOverride: false
     publicAccess: 'None'
   }
-  dependsOn: [
-
-    storageAccounts_ll22w7onmmpv65q24_name_resource
-//@[04:51) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll22w7onmmpv65q24_name_resource|
-  ]
+  dependsOn: [storageAccounts_ll22w7onmmpv65q24_name_resource]
+//@[14:61) [no-unnecessary-dependson (Warning)] Remove unnecessary dependsOn entry 'storageAccounts_ll22w7onmmpv65q24_name_resource'. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unnecessary-dependson)) |storageAccounts_ll22w7onmmpv65q24_name_resource|
 }
+

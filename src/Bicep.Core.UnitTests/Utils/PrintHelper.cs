@@ -3,7 +3,6 @@
 
 using System.Text;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
@@ -47,7 +46,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         private static string[] GetProgramTextLines(BicepSourceFile bicepFile)
         {
-            var programText = bicepFile.ProgramSyntax.ToTextPreserveFormatting();
+            var programText = bicepFile.ProgramSyntax.ToString();
 
             return StringUtils.ReplaceNewlines(programText, "\n").Split("\n");
         }

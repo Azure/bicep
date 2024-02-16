@@ -110,7 +110,7 @@ namespace Bicep.Core.UnitTests.Utils
             var (uriDictionary, entryUri) = CreateFileDictionary(files.Select(file => ("/path/to", file.fileName, file.fileContents)).ToArray(), "parameters.bicepparam");
 
             var sourceFiles = uriDictionary
-                .Where(x => PathHelper.HasBicepparamsExension(x.Key) || PathHelper.HasBicepExtension(x.Key) || PathHelper.HasArmTemplateLikeExtension(x.Key))
+                .Where(x => PathHelper.HasBicepparamsExtension(x.Key) || PathHelper.HasBicepExtension(x.Key) || PathHelper.HasArmTemplateLikeExtension(x.Key))
                 .ToDictionary(x => x.Key, x => x.Value);
 
             var compilation = services

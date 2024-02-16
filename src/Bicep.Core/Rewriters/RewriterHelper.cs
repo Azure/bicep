@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
@@ -22,7 +21,7 @@ namespace Bicep.Core.Rewriters
                 return (bicepFile, false);
             }
 
-            bicepFile = SourceFileFactory.CreateBicepFile(bicepFile.FileUri, newProgramSyntax.ToTextPreserveFormatting());
+            bicepFile = SourceFileFactory.CreateBicepFile(bicepFile.FileUri, newProgramSyntax.ToString());
             return (bicepFile, true);
         }
 

@@ -1,4 +1,6 @@
-@description('Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)')
+@description(
+  'Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)'
+)
 param virtualMachineSize string = 'Standard_DS1_v2'
 
 @description('Default Admin username')
@@ -9,10 +11,7 @@ param adminUsername string
 param adminPassword string
 
 @description('Storage Account type for the VM and VM diagnostic storage')
-@allowed([
-  'Standard_LRS'
-  'Premium_LRS'
-])
+@allowed(['Standard_LRS', 'Premium_LRS'])
 param storageAccountType string = 'Standard_LRS'
 
 @description('Location for all resources.')
@@ -27,8 +26,16 @@ var virtualNetworkName = 'virtualNetwork'
 var subnet1Name = 'subnet-1'
 var subnet2Name = 'subnet-2'
 var publicIPAddressName = 'publicIp'
-var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet1Name)
-var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet2Name)
+var subnet1Ref = resourceId(
+  'Microsoft.Network/virtualNetworks/subnets',
+  virtualNetworkName,
+  subnet1Name
+)
+var subnet2Ref = resourceId(
+  'Microsoft.Network/virtualNetworks/subnets',
+  virtualNetworkName,
+  subnet2Name
+)
 var diagStorageAccountName = 'diags${uniqueString(resourceGroup().id)}'
 var networkSecurityGroupName = 'NSG'
 var networkSecurityGroupName2 = '${subnet2Name}-nsg'
@@ -105,9 +112,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/16'
-      ]
+      addressPrefixes: ['10.0.0.0/16']
     }
     subnets: [
       {
@@ -171,10 +176,7 @@ resource nic1 'Microsoft.Network/networkInterfaces@2020-05-01' = {
       id: networkSecurityGroup.id
     }
   }
-  dependsOn: [
-
-    virtualNetwork
-  ]
+  dependsOn: [virtualNetwork]
 }
 
 resource nic2 'Microsoft.Network/networkInterfaces@2020-05-01' = {
@@ -193,9 +195,7 @@ resource nic2 'Microsoft.Network/networkInterfaces@2020-05-01' = {
       }
     ]
   }
-  dependsOn: [
-    virtualNetwork
-  ]
+  dependsOn: [virtualNetwork]
 }
 
 resource publicIpAddress 'Microsoft.Network/publicIPAddresses@2020-05-01' = {
@@ -227,3 +227,4 @@ resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2020-05-0
     ]
   }
 }
+

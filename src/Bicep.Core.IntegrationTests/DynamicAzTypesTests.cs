@@ -7,7 +7,6 @@ using System.Text;
 using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -33,16 +32,15 @@ namespace Bicep.Core.IntegrationTests
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(DataSetsExtensions.CreateOciClientForAzProvider());
+                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzProvider());
 
-            await DataSetsExtensions.PublishAzProvider(services.Build(), indexJson);
+            await RegistryHelper.PublishAzProvider(services.Build(), indexJson);
 
             return services;
         }
 
         private async Task<ServiceBuilder> ServicesWithTestProviderArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
         {
-
             (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
 
             (_, var client) = blobClients.First();
@@ -131,15 +129,15 @@ namespace Bicep.Core.IntegrationTests
             var services = new ServiceBuilder()
                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
 
-            var result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider 'az@0.2.661'
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider 'az@{BicepTestConstants.BuiltinAzProviderVersion}'
             ");
-            result.Should().GenerateATemplate();
+            result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(
                 new[] {
-                ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
+                ("BCP201", DiagnosticLevel.Error, "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location."),
+                ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
             });
-
         }
 
         [TestMethod]
@@ -166,12 +164,12 @@ namespace Bicep.Core.IntegrationTests
         {
             // ARRANGE
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/providers/az", "0.2.661");
-            var clientFactory = DataSetsExtensions.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
+            var clientFactory = RegistryHelper.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
-            await DataSetsExtensions.PublishModuleToRegistryAsync(
+            await RegistryHelper.PublishModuleToRegistry(
                 clientFactory,
                 moduleName: "az",
                 target: testArtifact.ToSpecificationString(':'),

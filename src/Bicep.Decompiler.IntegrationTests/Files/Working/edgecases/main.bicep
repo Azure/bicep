@@ -15,3 +15,4 @@ var keyescaping = {
   '>>abc<<>>---abc.def---<<': 'shouldbeescaped'
   'abcdef${test}ghi/jkl.${test}': 'shouldbeescaped'
 }
+

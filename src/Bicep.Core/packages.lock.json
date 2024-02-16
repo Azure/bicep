@@ -4,9 +4,9 @@
     "net8.0": {
       "Azure.Bicep.Internal.RoslynAnalyzers": {
         "type": "Direct",
-        "requested": "[0.1.32, )",
-        "resolved": "0.1.32",
-        "contentHash": "gYkrz0QWZPWgM5vImR/rAfO3+sFFv79dZ5NiWOd2i00El8YGOxXyaQUb+SV8GrpuCVuC2XMyBkU6bCfGsTIsHw=="
+        "requested": "[0.1.38, )",
+        "resolved": "0.1.38",
+        "contentHash": "o+n+MAz78UKsioC+P40CP4PsRlx6f1SkZP6XWJXSINKDDR0X31mGNg5eu6Zpbobes2QBPdjl86XxOPfDm9bfBg=="
       },
       "Azure.Bicep.Types": {
         "type": "Direct",
@@ -19,9 +19,9 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Direct",
-        "requested": "[0.2.661, )",
-        "resolved": "0.2.661",
-        "contentHash": "KUqMFh3skVPUpdPVoaEF57AEDeR13WrJx9kzH54mhUMhnzlpLs4hRu/xPa7xED96qnvYjdC7CKCnTXfHOO4u+A==",
+        "requested": "[0.2.671, )",
+        "resolved": "0.2.671",
+        "contentHash": "kEERDutafSbfhHo+JqvjmbDtTccOqCBQ5/RYBrehECjOFzVOil+ZL3mXptzsaustySEx/0mIEKpaaxxWc9AonA==",
         "dependencies": {
           "Azure.Bicep.Types": "0.4.1"
         }
@@ -70,9 +70,9 @@
       },
       "Azure.Deployments.Internal.GenerateNotice": {
         "type": "Direct",
-        "requested": "[0.1.32, )",
-        "resolved": "0.1.32",
-        "contentHash": "vogk6semxm58Ws/vzyhvK5O5nSZH6EHNIfisxPnO+l9fKP/2WH2nPyAbHVqL8ZOp9ImgJ/AotOpMLvxF5Z/7JA=="
+        "requested": "[0.1.38, )",
+        "resolved": "0.1.38",
+        "contentHash": "BqTIqpSk+JoK4QYpkt5htsccgBM4IrMINlo4d/Z4Ii3qV91V20VUhDqON+0Zax4hpGTsz710iDk0V7ypteLM/g=="
       },
       "Azure.Deployments.Templates": {
         "type": "Direct",

@@ -4,7 +4,6 @@
 using System.Collections.Immutable;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -104,7 +103,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     CodeFixKind.QuickFix,
                     new CodeReplacement(
                         definingVariable.DeclaringSyntax.Span,
-                        $"param {definingVariable.Name} string = {definingVariable.DeclaringVariable.Value.ToTextPreserveFormatting()}"));
+                        $"param {definingVariable.Name} string = {definingVariable.DeclaringVariable.Value.ToString()}"));
                 diagnostics.Add(this.CreateFixableDiagnosticForSpan(diagnosticLevel, errorSpan, fix, msg));
             }
             else
@@ -116,7 +115,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 // Fix: Create a new parameter
                 string newParamName = GetUnusedTopLevelName("location", model);
-                string newDefaultValue = locationValueSyntax.ToTextPreserveFormatting();
+                string newDefaultValue = locationValueSyntax.ToString();
                 CodeReplacement insertNewParamDefinition = new(
                         TextSpan.TextDocumentStart,
                         $"@description('Specifies the location for resources.')\n"

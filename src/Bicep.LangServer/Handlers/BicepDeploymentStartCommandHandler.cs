@@ -82,7 +82,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (request.parametersFilePath is { })
             {
-                if (PathHelper.HasBicepparamsExension(DocumentUri.FromFileSystemPath(request.parametersFilePath).ToUriEncoded()))
+                if (PathHelper.HasBicepparamsExtension(DocumentUri.FromFileSystemPath(request.parametersFilePath).ToUriEncoded()))
                 {
                     //params file validation
                     if (request.parametersFileUpdateOption != ParametersFileUpdateOption.None)

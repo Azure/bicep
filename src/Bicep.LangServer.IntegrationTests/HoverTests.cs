@@ -1060,7 +1060,7 @@ Source port ranges.
             var file = SourceFileFactory.CreateBicepFile(parentModuleUri, bicepFileContents);
             var moduleDeclarationSyntax = programSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
 
-            OciArtifactRegistryHelper.SaveManifestFileToModuleRegistryCache(
+            OciRegistryHelper.SaveManifestFileToModuleRegistryCache(
                 TestContext,
                 registry,
                 repository,
@@ -1068,7 +1068,7 @@ Source port ranges.
                 testOutputPath,
                 digest,
                 tag);
-            ArtifactReference? ociArtifactModuleReference = OciArtifactRegistryHelper.CreateModuleReferenceMock(
+            ArtifactReference? ociArtifactModuleReference = OciRegistryHelper.CreateModuleReferenceMock(
                 registry,
                 repository,
                 parentModuleUri,

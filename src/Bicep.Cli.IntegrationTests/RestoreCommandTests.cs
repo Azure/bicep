@@ -168,7 +168,7 @@ namespace Bicep.Cli.IntegrationTests
             var repository = "hello/there";
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
 
-            var (client, clientFactory) = await OciArtifactRegistryHelper.PublishArtifactLayersToMockClient(
+            var (client, clientFactory) = await OciRegistryHelper.PublishArtifactLayersToMockClient(
                 tempDirectory,
                 registry,
                 registryUri,
@@ -249,7 +249,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var dataSet = DataSets.Empty;
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
 
-            var (client, clientFactory) = await OciArtifactRegistryHelper.PublishArtifactLayersToMockClient(
+            var (client, clientFactory) = await OciRegistryHelper.PublishArtifactLayersToMockClient(
                 tempDirectory,
                 registry,
                 registryUri,

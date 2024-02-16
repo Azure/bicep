@@ -24,7 +24,11 @@ resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
     encryptionConfig: {
       type: 'UserManaged'
       keyVaultMetaInfo: {
-        keyVaultResourceId: resourceId(keyVaultResourceGroupName, 'Microsoft.KeyVault/vaults', keyVaultName)
+        keyVaultResourceId: resourceId(
+          keyVaultResourceGroupName,
+          'Microsoft.KeyVault/vaults',
+          keyVaultName
+        )
         encryptionKeyName: keyName
         encryptionKeyVersion: keyVersion
       }
@@ -39,8 +43,12 @@ module addAccessPolicy './nested_addAccessPolicy.bicep' = {
   name: 'addAccessPolicy'
   scope: resourceGroup(keyVaultResourceGroupName)
   params: {
-    resourceId_Microsoft_DataLakeStore_accounts_parameters_dataLakeStoreName: reference(dataLakeStore.id, '2016-11-01', 'Full')
-//@[78:127) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-resource-symbol-reference)) |reference(dataLakeStore.id, '2016-11-01', 'Full')|
+    resourceId_Microsoft_DataLakeStore_accounts_parameters_dataLakeStoreName: reference(
+//@[78:151) [use-resource-symbol-reference (Warning)] Use a resource reference instead of invoking function "reference". This simplifies the syntax and allows Bicep to better understand your deployment dependency graph. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-resource-symbol-reference)) |reference(\n      dataLakeStore.id,\n      '2016-11-01',\n      'Full'\n    )|
+      dataLakeStore.id,
+      '2016-11-01',
+      'Full'
+    )
     keyVaultName: keyVaultName
   }
 }
@@ -48,13 +56,16 @@ module addAccessPolicy './nested_addAccessPolicy.bicep' = {
 module updateAdlsAccount './nested_updateAdlsAccount.bicep' = {
   name: 'updateAdlsAccount'
   params: {
-    resourceId_parameters_keyVaultResourceGroupName_Microsoft_KeyVault_vaults_parameters_keyVaultName: resourceId(keyVaultResourceGroupName, 'Microsoft.KeyVault/vaults', keyVaultName)
+    resourceId_parameters_keyVaultResourceGroupName_Microsoft_KeyVault_vaults_parameters_keyVaultName: resourceId(
+      keyVaultResourceGroupName,
+      'Microsoft.KeyVault/vaults',
+      keyVaultName
+    )
     dataLakeStoreName: dataLakeStoreName
     location: location
     keyName: keyName
     keyVersion: keyVersion
   }
-  dependsOn: [
-    addAccessPolicy
-  ]
+  dependsOn: [addAccessPolicy]
 }
+

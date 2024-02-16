@@ -292,7 +292,7 @@ namespace Bicep.Core.Parsing
                     TokenType.NewLine),
 
                 _ => this.WithRecovery(
-                    () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedLegacyProviderSpecification()),
+                    () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification(false)),
                     RecoveryFlags.None,
                     TokenType.NewLine)
             };

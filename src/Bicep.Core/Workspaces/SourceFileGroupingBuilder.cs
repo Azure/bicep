@@ -14,6 +14,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
@@ -369,11 +370,15 @@ namespace Bicep.Core.Workspaces
 
             if (providerDeclarationSyntax.Specification is LegacyProviderSpecificationSyntax { } legacySpecification)
             {
-                return new(new ResourceTypesProviderDescriptor(
-                    legacySpecification.NamespaceIdentifier,
-                    file.FileUri,
-                    legacySpecification.Version,
-                    providerDeclarationSyntax.Alias?.IdentifierName));
+                if (!featureProvider.DynamicTypeLoadingEnabled)
+                {
+                    return new(new ResourceTypesProviderDescriptor(
+                        legacySpecification.NamespaceIdentifier,
+                        file.FileUri,
+                        legacySpecification.Version,
+                        providerDeclarationSyntax.Alias?.IdentifierName));
+                }
+                return new(x => x.ExpectedProviderSpecification(featureProvider.DynamicTypeLoadingEnabled));
             }
 
             if (!featureProvider.DynamicTypeLoadingEnabled)

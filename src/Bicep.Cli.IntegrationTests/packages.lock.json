@@ -77,8 +77,8 @@
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.661",
-        "contentHash": "KUqMFh3skVPUpdPVoaEF57AEDeR13WrJx9kzH54mhUMhnzlpLs4hRu/xPa7xED96qnvYjdC7CKCnTXfHOO4u+A==",
+        "resolved": "0.2.671",
+        "contentHash": "kEERDutafSbfhHo+JqvjmbDtTccOqCBQ5/RYBrehECjOFzVOil+ZL3mXptzsaustySEx/0mIEKpaaxxWc9AonA==",
         "dependencies": {
           "Azure.Bicep.Types": "0.4.1"
         }
@@ -2082,23 +2082,6 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "SystemTextJson.JsonDiffPatch": {
-        "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "77lUHCNLQGAIi6lKQBOV1spvZJuENh8it4lLA/i8062ZUEQ0w9AFqw7qyoNYzfc/xzQ5XzDY1QIO/58DbKqvSw==",
-        "dependencies": {
-          "System.Text.Json": "8.0.0"
-        }
-      },
-      "SystemTextJson.JsonDiffPatch.MSTest": {
-        "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "StuTlgtQI/2QVAe+ieer3ECBDbqj79n+6CIYe4JTdSJ7476wC3VvollkRIlT2EUGqAE4gWFV6Uacjl+pQ/YJAg==",
-        "dependencies": {
-          "MSTest.TestFramework": "2.1.2",
-          "SystemTextJson.JsonDiffPatch": "2.0.0"
-        }
-      },
       "TestableIO.System.IO.Abstractions": {
         "type": "Transitive",
         "resolved": "20.0.15",
@@ -2134,7 +2117,7 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "[0.4.1, )",
-          "Azure.Bicep.Types.Az": "[0.2.661, )",
+          "Azure.Bicep.Types.Az": "[0.2.671, )",
           "Azure.Bicep.Types.K8s": "[0.1.504, )",
           "Azure.Containers.ContainerRegistry": "[1.1.1, )",
           "Azure.Deployments.Core": "[1.0.1158, )",
@@ -2207,8 +2190,7 @@
           "Microsoft.NET.Test.Sdk": "[17.8.0, )",
           "Moq": "[4.18.4, )",
           "Newtonsoft.Json.Schema": "[3.0.15, )",
-          "System.IO.Abstractions.TestingHelpers": "[20.0.15, )",
-          "SystemTextJson.JsonDiffPatch.MSTest": "[2.0.0, )"
+          "System.IO.Abstractions.TestingHelpers": "[20.0.15, )"
         }
       },
       "bicep.langserver": {

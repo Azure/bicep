@@ -13,10 +13,10 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
@@ -803,9 +803,9 @@ namespace Bicep.Core.TypeSystem
             {
                 if (syntax.IsSkipped)
                 {
-                    diagnostics.Write(syntax.Specification, b => this.features.DynamicTypeLoadingEnabled ? b.ExpectedProviderSpecification() : b.ExpectedLegacyProviderSpecification());
+                    diagnostics.Write(syntax.Specification, b => b.ExpectedProviderSpecification(this.features.DynamicTypeLoadingEnabled));
                 }
-                
+
                 if (binder.GetSymbolInfo(syntax) is not ProviderNamespaceSymbol namespaceSymbol)
                 {
                     // We have syntax or binding errors, which should have already been handled.
@@ -825,10 +825,9 @@ namespace Bicep.Core.TypeSystem
                     diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated(syntax));
                 }
 
-                if (syntax.Specification is LegacyProviderSpecificationSyntax specificationSyntax &&
-                    features.DynamicTypeLoadingEnabled)
+                if (syntax.Specification is LegacyProviderSpecificationSyntax specificationSyntax)
                 {
-                    diagnostics.Write(syntax.Specification, x => x.LegacyProviderSpecificationIsDeprecated(specificationSyntax));
+                    diagnostics.Write(syntax.SpecificationString, x => x.LegacyProviderSpecificationIsDeprecated(specificationSyntax));
                 }
 
                 if (syntax.Config is not null)
@@ -2207,7 +2206,7 @@ namespace Bicep.Core.TypeSystem
             return diagnosticWriter.GetDiagnostics();
         }
 
-        private List<IDiagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
+        private IEnumerable<IDiagnostic> ValidateIdentifierAccess(SyntaxBase syntax)
         {
             return SyntaxAggregator.Aggregate(syntax, new List<IDiagnostic>(), (accumulated, current) =>
                 {

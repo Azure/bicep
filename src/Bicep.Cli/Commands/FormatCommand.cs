@@ -52,18 +52,18 @@ public class FormatCommand : ICommand
             throw new ErrorDiagnosticException(diagnostic);
         }
 
-        var featureProvider = this.featureProviderFactory.GetFeatureProvider(inputUri);
         BaseParser parser = PathHelper.HasBicepExtension(inputUri) ? new Parser(fileContents) : new ParamsParser(fileContents);
         var program = parser.Program();
+        var featureProvider = this.featureProviderFactory.GetFeatureProvider(inputUri);
 
         if (featureProvider.PrettyPrintingEnabled)
         {
             var v2Options = this.configurationManager.GetConfiguration(inputUri).Formatting.Data;
-            var printerV2Context = PrettyPrinterV2Context.Create(program, v2Options, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+            var printerV2Context = PrettyPrinterV2Context.Create(v2Options, parser.LexingErrorLookup, parser.ParsingErrorLookup);
 
             if (args.OutputToStdOut)
             {
-                PrettyPrinterV2.PrintTo(io.Output, printerV2Context);
+                PrettyPrinterV2.PrintTo(io.Output, program, printerV2Context);
                 io.Output.Flush();
             }
             else
@@ -71,7 +71,7 @@ public class FormatCommand : ICommand
                 var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, path => path);
                 using var writer = new StreamWriter(outputPath);
 
-                PrettyPrinterV2.PrintTo(writer, printerV2Context);
+                PrettyPrinterV2.PrintTo(writer, program, printerV2Context);
             }
 
             return 0;

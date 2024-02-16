@@ -5,7 +5,6 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Text;
@@ -899,7 +898,7 @@ param fo|o {paramType}
             // the handler can contain tabs. convert to double space to simplify printing.
             textToInsert = textToInsert.Replace("\t", "  ");
 
-            var originalFile = bicepFile.ProgramSyntax.ToTextPreserveFormatting();
+            var originalFile = bicepFile.ProgramSyntax.ToString();
             var replaced = originalFile.Substring(0, start) + textToInsert + originalFile.Substring(end);
 
             return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);

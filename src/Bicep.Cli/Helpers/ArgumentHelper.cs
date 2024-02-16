@@ -37,7 +37,7 @@ public class ArgumentHelper
 
     public static void ValidateBicepParamFile(Uri fileUri)
     {
-        if (!PathHelper.HasBicepparamsExension(fileUri))
+        if (!PathHelper.HasBicepparamsExtension(fileUri))
         {
             throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepparamsFileExtensionMessage, fileUri.LocalPath));
         }
@@ -46,7 +46,7 @@ public class ArgumentHelper
     public static void ValidateBicepOrBicepParamFile(Uri fileUri)
     {
         if (!PathHelper.HasBicepExtension(fileUri) &&
-            !PathHelper.HasBicepparamsExension(fileUri))
+            !PathHelper.HasBicepparamsExtension(fileUri))
         {
             throw new CommandLineException(string.Format(CliResources.UnrecognizedBicepOrBicepparamsFileExtensionMessage, fileUri.LocalPath));
         }

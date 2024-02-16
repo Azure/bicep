@@ -5,7 +5,6 @@ using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Templates.Engines;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
@@ -54,7 +53,7 @@ namespace Bicep.Core.Workspaces
                 return CreateBicepFile(fileUri, fileContents);
             }
 
-            if (PathHelper.HasBicepparamsExension(fileUri))
+            if (PathHelper.HasBicepparamsExtension(fileUri))
             {
                 return CreateBicepParamFile(fileUri, fileContents);
             }

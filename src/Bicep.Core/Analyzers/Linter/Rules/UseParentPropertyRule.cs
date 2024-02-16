@@ -3,7 +3,6 @@
 
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -200,7 +199,7 @@ public sealed class UseParentPropertyRule : LinterRuleBase
             return null;
         }
 
-        var codeReplacement = new CodeReplacement(body.Span, updatedBody.ToTextPreserveFormatting());
+        var codeReplacement = new CodeReplacement(body.Span, updatedBody.ToString());
 
         return CreateFixableDiagnosticForSpan(
             diagnosticLevel,

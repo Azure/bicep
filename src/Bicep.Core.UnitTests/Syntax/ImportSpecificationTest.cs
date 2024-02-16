@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -33,7 +34,7 @@ public class ImportSpecificationTests
         // Arrange
         var syntax = SyntaxFactory.CreateStringLiteral(input);
         // Act
-        var got = ProviderSpecificationFactory.FromSyntax(syntax);
+        var got = ProviderSpecificationSyntaxFactory.CreateProviderSpecificationSyntax(syntax);
         // Assert
         if (isValidDeclaration)
         {

@@ -134,52 +134,61 @@ namespace Bicep.Cli.IntegrationTests
             result.Should().Be(1);
 
             var mainFile = Path.Combine(Path.GetDirectoryName(fileName)!, "main.bicep");
-            File.ReadAllText(mainFile).Should().BeEquivalentToIgnoringNewlines(@"targetScope = 'subscription'
-param rgName string
-param rgLocation string
-param principalId string
-param roleDefinitionId string = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
-param roleAssignmentName string = guid(principalId, roleDefinitionId, rgName)
+            File.ReadAllText(mainFile).Should().BeEquivalentToIgnoringNewlines("""
+                targetScope = 'subscription'
+                param rgName string
+                param rgLocation string
+                param principalId string
+                param roleDefinitionId string = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
+                param roleAssignmentName string = guid(principalId, roleDefinitionId, rgName)
 
-resource rg 'Microsoft.Resources/resourceGroups@2019-10-01' = {
-  name: rgName
-  location: rgLocation
-  properties: {}
-}
+                resource rg 'Microsoft.Resources/resourceGroups@2019-10-01' = {
+                  name: rgName
+                  location: rgLocation
+                  properties: {}
+                }
 
-module applyLock './nested_applyLock.bicep' = {
-  name: 'applyLock'
-  scope: resourceGroup(rgName)
-  params: {
-    principalId: principalId
-    roleDefinitionId: roleDefinitionId
-    roleAssignmentName: roleAssignmentName
-  }
-  dependsOn: [
-    subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)
-  ]
-}");
+                module applyLock './nested_applyLock.bicep' = {
+                  name: 'applyLock'
+                  scope: resourceGroup(rgName)
+                  params: {
+                    principalId: principalId
+                    roleDefinitionId: roleDefinitionId
+                    roleAssignmentName: roleAssignmentName
+                  }
+                  dependsOn: [
+                    subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)
+                  ]
+                }
+
+                """);
 
             var moduleFile = Path.Combine(Path.GetDirectoryName(fileName)!, "nested_applyLock.bicep");
-            File.ReadAllText(moduleFile).Should().BeEquivalentToIgnoringNewlines(@"param principalId string
-param roleDefinitionId string
-param roleAssignmentName string
+            File.ReadAllText(moduleFile).Should().BeEquivalentToIgnoringNewlines("""
+                param principalId string
+                param roleDefinitionId string
+                param roleAssignmentName string
 
-resource DontDelete 'Microsoft.Authorization/locks@2016-09-01' = {
-  name: 'DontDelete'
-  properties: {
-    level: 'CanNotDelete'
-    notes: 'Prevent deletion of the resourceGroup'
-  }
-}
+                resource DontDelete 'Microsoft.Authorization/locks@2016-09-01' = {
+                  name: 'DontDelete'
+                  properties: {
+                    level: 'CanNotDelete'
+                    notes: 'Prevent deletion of the resourceGroup'
+                  }
+                }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(roleAssignmentName)
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
-    principalId: principalId
-  }
-}");
+                resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+                  name: guid(roleAssignmentName)
+                  properties: {
+                    roleDefinitionId: subscriptionResourceId(
+                      'Microsoft.Authorization/roleDefinitions',
+                      roleDefinitionId
+                    )
+                    principalId: principalId
+                  }
+                }
+
+                """);
         }
     }
 }

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -39,7 +38,7 @@ namespace Bicep.LanguageServer.Handlers
         public string? ResourceId { get; init; }
     }
 
-    public class InsertResourceHandler : IJsonRpcNotificationHandler<InsertResourceParams>
+    public partial class InsertResourceHandler : IJsonRpcNotificationHandler<InsertResourceParams>
     {
         private readonly ILanguageServerFacade server;
         private readonly ICompilationManager compilationManager;
@@ -244,12 +243,12 @@ namespace Bicep.LanguageServer.Handlers
 
             return new ResourceDeclarationSyntax(
                 new SyntaxBase[] { description, SyntaxFactory.NewlineToken, },
-                SyntaxFactory.CreateIdentifierToken("resource"),
-                SyntaxFactory.CreateIdentifier(Regex.Replace(resourceId.UnqualifiedName, "[^a-zA-Z]", "")),
+                SyntaxFactory.ResourceKeywordToken,
+                SyntaxFactory.CreateIdentifierWithTrailingSpace(UnifiedNamePattern().Replace(resourceId.UnqualifiedName, "")),
                 SyntaxFactory.CreateStringLiteral(typeReference.FormatName()),
                 null,
                 SyntaxFactory.CreateToken(TokenType.Assignment),
-                ImmutableArray<Token>.Empty,
+                [],
                 SyntaxFactory.CreateObject(properties));
         }
 
@@ -325,5 +324,8 @@ namespace Bicep.LanguageServer.Handlers
                     throw new InvalidOperationException($"Failed to deserialize JSON");
             }
         }
+
+        [GeneratedRegex("[^a-zA-Z]")]
+        private static partial Regex UnifiedNamePattern();
     }
 }

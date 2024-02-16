@@ -18,7 +18,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="20.0.15" />
-    <PackageReference Include="SystemTextJson.JsonDiffPatch.MSTest" Version="2.0.0"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +29,16 @@
     <EmbeddedResource Include="..\vscode-bicep\schemas\bicepconfig.schema.json">
       <Link>bicepconfig.schema.json</Link>
       <WithCulture>false</WithCulture>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Configuration\Links\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\docs\experimental-features.md" Link="Configuration\Links\experimental-features.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
 </Project>
