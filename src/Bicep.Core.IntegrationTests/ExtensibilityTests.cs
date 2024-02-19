@@ -36,97 +36,97 @@ provider 'bar@0.0.1' with {
         [TestMethod]
         public void Bar_import_can_be_duplicated()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(Services, """
             provider 'bar@0.0.1' with {
-              connectionString: 'connectionString1'
+                connectionString: 'connectionString1'
             } as stg
 
             provider 'bar@0.0.1' with {
-              connectionString: 'connectionString2'
+                connectionString: 'connectionString2'
             } as stg2
-            ");
+            """);
             result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public void Bar_import_basic_test()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(Services, """
             provider 'bar@0.0.1' with {
-              connectionString: 'asdf'
+               connectionString: 'asdf'
             } as stg
 
             resource container 'container' = {
-              name: 'myblob'
+               name: 'myblob'
             }
 
             resource blob 'blob' = {
-              name: 'myblob'
-              containerName: container.name
-              base64Content: base64('sadfasdfd')
+               name: 'myblob'
+               containerName: container.name
+               base64Content: base64('sadfasdfd')
             }
-            ");
+            """);
             result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public void Ambiguous_type_references_return_errors()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(Services, """
             provider 'bar@0.0.1' with {
-              connectionString: 'asdf'
+            connectionString: 'asdf'
             } as stg
 
             provider 'bar@0.0.1' with {
-              connectionString: 'asdf'
+            connectionString: 'asdf'
             } as stg2
 
             resource container 'container' = {
-              name: 'myblob'
+            name: 'myblob'
             }
-            ");
+            """);
             result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP264", DiagnosticLevel.Error, "Resource type \"container\" is declared in multiple imported namespaces (\"stg\", \"stg2\"), and must be fully-qualified."),
             });
 
-            result = CompilationHelper.Compile(Services, @"
+            result = CompilationHelper.Compile(Services, """
             provider 'bar@0.0.1' with {
-              connectionString: 'asdf'
+            connectionString: 'asdf'
             } as stg
 
             provider 'bar@0.0.1' with {
-              connectionString: 'asdf'
+            connectionString: 'asdf'
             } as stg2
 
             resource container 'stg2:container' = {
-              name: 'myblob'
+            name: 'myblob'
             }
-            ");
+            """);
             result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public void Bar_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(Services, """
             provider 'bar@0.0.1' with {
-              connectionString: 'asdf'
+                connectionString: 'asdf'
             } as stg
 
             resource container 'container' = {
-              name: 'myblob'
+                name: 'myblob'
             }
 
             resource blobs 'blob' = [for i in range(0, 10): {
-              name: 'myblob-${i}.txt'
-              containerName: container.name
-              base64Content: base64('Hello blob ${i}!')
+                name: 'myblob-${i}.txt'
+                containerName: container.name
+                base64Content: base64('Hello blob ${i}!')
             }]
 
             resource blobs2 'blob' = [for i in range(10, 10): {
-              name: blobs[i - 10].name
-              containerName: container.name
-              base64Content: base64('Hello blob ${i}!')
+                name: blobs[i - 10].name
+                containerName: container.name
+                base64Content: base64('Hello blob ${i}!')
             }]
 
             output sourceContainerName string = container.name
@@ -136,7 +136,7 @@ provider 'bar@0.0.1' with {
             output containerName string = blobs[5].containerName
             #disable-next-line prefer-unquoted-property-names
             output base64Content string = blobs[3]['base64Content']
-            ");
+            """);
             result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerName'].value", "[reference('container').name]");
             result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerNameSquare'].value", "[reference('container').name]");
@@ -148,16 +148,16 @@ provider 'bar@0.0.1' with {
         [TestMethod]
         public void Foo_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(Services, """
             provider 'foo@1.2.3' as foo
             param numApps int
 
             resource myApp 'application' = {
-              uniqueName: 'foo'
+                uniqueName: 'foo'
             }
 
             resource myAppsLoop 'application' = [for i in range(0, numApps): {
-              uniqueName: '${myApp.appId}-bar-${i}'
+                uniqueName: '${myApp.appId}-bar-${i}'
             }]
 
             output myAppId string = myApp.appId
@@ -166,7 +166,7 @@ provider 'bar@0.0.1' with {
             output myAppsLoopId string = myAppsLoop[13 % numApps].appId
             #disable-next-line prefer-unquoted-property-names
             output myAppsLoopId2 string = myAppsLoop[3]['appId']
-            ");
+            """);
             result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['myAppId'].value", "[reference('myApp').appId]");
             result.Template.Should().HaveValueAtPath("$.outputs['myAppId2'].value", "[reference('myApp').appId]");
@@ -178,13 +178,13 @@ provider 'bar@0.0.1' with {
         public void Foo_import_existing_requires_uniqueName()
         {
             // we've accidentally used 'name' even though this resource type doesn't support it
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(Services, """
             provider 'foo@1.2.3'
 
             resource myApp 'application' existing = {
-              name: 'foo'
+            name: 'foo'
             }
-            ");
+            """);
 
             result.Should().NotGenerateATemplate();
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
@@ -194,13 +194,13 @@ provider 'bar@0.0.1' with {
             });
 
             // oops! let's change it to 'uniqueName'
-            result = CompilationHelper.Compile(Services, @"
+            result = CompilationHelper.Compile(Services, """
             provider 'foo@1.2.3' as foo
 
             resource myApp 'application' existing = {
-              uniqueName: 'foo'
+                uniqueName: 'foo'
             }
-            ");
+            """);
 
             result.Should().GenerateATemplate();
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
@@ -211,24 +211,24 @@ provider 'bar@0.0.1' with {
         [TestMethod]
         public void Kubernetes_import_existing_warns_with_readonly_fields()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(Services, """
             provider 'kubernetes@1.0.0' with {
-              namespace: 'default'
-              kubeConfig: ''
+            namespace: 'default'
+            kubeConfig: ''
             }
             resource service 'core/Service@v1' existing = {
-              metadata: {
+            metadata: {
                 name: 'existing-service'
                 namespace: 'default'
                 labels: {
-                  format: 'k8s-extension'
+                format: 'k8s-extension'
                 }
                 annotations: {
-                  foo: 'bar'
+                foo: 'bar'
                 }
-              }
             }
-            ");
+            }
+            """);
 
             result.Should().GenerateATemplate();
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
@@ -242,16 +242,16 @@ provider 'bar@0.0.1' with {
         public void Kubernetes_competing_imports_are_blocked()
         {
             var result = CompilationHelper.Compile(Services, @"
-            provider 'kubernetes@1.0.0' with {
-              namespace: 'default'
-              kubeConfig: ''
-            }
+provider 'kubernetes@1.0.0' with {
+  namespace: 'default'
+  kubeConfig: ''
+}
 
-            provider 'kubernetes@1.0.0' with {
-              namespace: 'default'
-              kubeConfig: ''
-            }
-            ");
+provider 'kubernetes@1.0.0' with {
+  namespace: 'default'
+  kubeConfig: ''
+}
+");
 
             result.Should().NotGenerateATemplate();
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
@@ -266,29 +266,29 @@ provider 'bar@0.0.1' with {
         public void Kubernetes_import_existing_resources()
         {
             var result = CompilationHelper.Compile(Services, @"
-            provider 'kubernetes@1.0.0' with {
-              namespace: 'default'
-              kubeConfig: ''
-            }
-            resource service 'core/Service@v1' existing = {
-              metadata: {
-                name: 'existing-service'
-                namespace: 'default'
-              }
-            }
-            resource secret 'core/Secret@v1' existing = {
-              metadata: {
-                name: 'existing-secret'
-                namespace: 'default'
-              }
-            }
-            resource configmap 'core/ConfigMap@v1' existing = {
-              metadata: {
-                name: 'existing-configmap'
-                namespace: 'default'
-              }
-            }
-            ");
+provider 'kubernetes@1.0.0' with {
+  namespace: 'default'
+  kubeConfig: ''
+}
+resource service 'core/Service@v1' existing = {
+  metadata: {
+    name: 'existing-service'
+    namespace: 'default'
+  }
+}
+resource secret 'core/Secret@v1' existing = {
+  metadata: {
+    name: 'existing-secret'
+    namespace: 'default'
+  }
+}
+resource configmap 'core/ConfigMap@v1' existing = {
+  metadata: {
+    name: 'existing-configmap'
+    namespace: 'default'
+  }
+}
+");
 
             result.Should().GenerateATemplate();
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
@@ -302,35 +302,35 @@ provider 'bar@0.0.1' with {
         public void Kubernetes_import_existing_connectionstring_test()
         {
             var result = CompilationHelper.Compile(Services, @"
-            provider 'kubernetes@1.0.0' with {
-              namespace: 'default'
-              kubeConfig: ''
-            }
-            resource redisService 'core/Service@v1' existing = {
-              metadata: {
-                name: 'redis-service'
-                namespace: 'default'
-              }
-            }
-            resource redisSecret 'core/Secret@v1' existing = {
-              metadata: {
-                name: 'redis-secret'
-                namespace: 'default'
-              }
-            }
-            resource secret 'core/Secret@v1' = {
-              metadata: {
-                name: 'conn-secret'
-                namespace: 'default'
-                labels: {
-                  format: 'k8s-extension'
-                }
-              }
-              stringData: {
-                connectionString: '${redisService.metadata.name}.${redisService.metadata.namespace}.svc.cluster.local,password=${base64ToString(redisSecret.data.redisPassword)}'
-              }
-            }
-            ");
+provider 'kubernetes@1.0.0' with {
+  namespace: 'default'
+  kubeConfig: ''
+}
+resource redisService 'core/Service@v1' existing = {
+  metadata: {
+    name: 'redis-service'
+    namespace: 'default'
+  }
+}
+resource redisSecret 'core/Secret@v1' existing = {
+  metadata: {
+    name: 'redis-secret'
+    namespace: 'default'
+  }
+}
+resource secret 'core/Secret@v1' = {
+  metadata: {
+    name: 'conn-secret'
+    namespace: 'default'
+    labels: {
+      format: 'k8s-extension'
+    }
+  }
+  stringData: {
+    connectionString: '${redisService.metadata.name}.${redisService.metadata.namespace}.svc.cluster.local,password=${base64ToString(redisSecret.data.redisPassword)}'
+  }
+}
+");
 
             result.Should().GenerateATemplate();
             result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
@@ -340,16 +340,16 @@ provider 'bar@0.0.1' with {
         public void Kubernetes_CustomResourceType_EmitWarning()
         {
             var result = CompilationHelper.Compile(Services, """
-            provider 'kubernetes@1.0.0' with {
-                namespace: 'default'
-                kubeConfig: ''
-            }
-            resource crd 'custom/Foo@v1' = {
-                metadata: {
-                name: 'existing-service'
+                provider 'kubernetes@1.0.0' with {
+                  namespace: 'default'
+                  kubeConfig: ''
                 }
-            }
-            """);
+                resource crd 'custom/Foo@v1' = {
+                  metadata: {
+                    name: 'existing-service'
+                  }
+                }
+                """);
 
             result.Should().GenerateATemplate();
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
@@ -361,26 +361,26 @@ provider 'bar@0.0.1' with {
         public void Kubernetes_AmbiguousFallbackType_MustFullyQualify()
         {
             var result = CompilationHelper.Compile(Services, """
-            provider 'kubernetes@1.0.0' with {
-                namespace: 'default'
-                kubeConfig: ''
-            }
-
-            resource ambiguous 'Microsoft.Compute/availabilitySets@2023-01-01' = {
-                metadata: {
-                name: 'existing-service'
+                provider 'kubernetes@1.0.0' with {
+                  namespace: 'default'
+                  kubeConfig: ''
                 }
-            }
 
-            resource availabilitySet 'az:Microsoft.Compute/availabilitySets@2023-01-01' = {
-            }
-
-            resource custom 'kubernetes:Microsoft.Foo/bar@2023-01-01' = {
-                metadata: {
-                name: 'custom'
+                resource ambiguous 'Microsoft.Compute/availabilitySets@2023-01-01' = {
+                  metadata: {
+                    name: 'existing-service'
+                  }
                 }
-            }
-            """);
+
+                resource availabilitySet 'az:Microsoft.Compute/availabilitySets@2023-01-01' = {
+                }
+
+                resource custom 'kubernetes:Microsoft.Foo/bar@2023-01-01' = {
+                  metadata: {
+                    name: 'custom'
+                  }
+                }
+                """);
 
             result.Should().NotGenerateATemplate();
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
@@ -394,42 +394,42 @@ provider 'bar@0.0.1' with {
         [TestMethod]
         public void Bar_import_basic_test_with_qualified_type()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(Services, """
             provider 'bar@0.0.1' with {
-              connectionString: 'asdf'
+            connectionString: 'asdf'
             } as stg
 
             resource container 'stg:container' = {
-              name: 'myblob'
+            name: 'myblob'
             }
 
             resource blob 'stg:blob' = {
-              name: 'myblob'
-              containerName: container.name
-              base64Content: base64('sadfasdfd')
+            name: 'myblob'
+            containerName: container.name
+            base64Content: base64('sadfasdfd')
             }
-            ");
-            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
+            """);
+            result.ExcludingDiagnostics("BCP395").ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public void Invalid_namespace_qualifier_returns_error()
         {
-            var result = CompilationHelper.Compile(Services, @"
+            var result = CompilationHelper.Compile(Services, """
             provider 'bar@0.0.1' with {
-              connectionString: 'asdf'
+            connectionString: 'asdf'
             } as stg
 
             resource container 'foo:container' = {
-              name: 'myblob'
+            name: 'myblob'
             }
 
             resource blob 'bar:blob' = {
-              name: 'myblob'
-              containerName: container.name
-              base64Content: base64('sadfasdfd')
+            name: 'myblob'
+            containerName: container.name
+            base64Content: base64('sadfasdfd')
             }
-            ");
+            """);
 
             result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP208", DiagnosticLevel.Error, "The specified namespace \"foo\" is not recognized. Specify a resource reference using one of the following namespaces: \"az\", \"stg\", \"sys\"."),
@@ -441,18 +441,18 @@ provider 'bar@0.0.1' with {
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
             var result = CompilationHelper.Compile(Services, @"
-            provider 'bar@0.0.1' with {
-              connectionString: 'asdf'
-            } as stg
+provider 'bar@0.0.1' with {
+  connectionString: 'asdf'
+} as stg
 
-            resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
-              name: 'stgParent'
+resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
+  name: 'stgParent'
 
-              resource container 'stg:container' = {
-                name: 'myblob'
-              }
-            }
-            ");
+  resource container 'stg:container' = {
+    name: 'myblob'
+  }
+}
+");
 
             result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2020-01-01\" does not have types available."),
@@ -465,46 +465,46 @@ provider 'bar@0.0.1' with {
         {
             var result = CompilationHelper.Compile(Services,
                 ("main.bicep", @"
-                param accountName string
+param accountName string
 
-                resource stgAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-                  name: toLower(accountName)
-                  location: resourceGroup().location
-                  kind: 'Storage'
-                  sku: {
-                    name: 'Standard_LRS'
-                  }
-                }
+resource stgAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: toLower(accountName)
+  location: resourceGroup().location
+  kind: 'Storage'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
 
-                var connectionString = 'DefaultEndpointsProtocol=https;AccountName=${stgAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${stgAccount.listKeys().keys[0].value}'
+var connectionString = 'DefaultEndpointsProtocol=https;AccountName=${stgAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${stgAccount.listKeys().keys[0].value}'
 
-                module website './website.bicep' = {
-                  name: 'website'
-                  params: {
-                    connectionString: connectionString
-                  }
-                }
-                "),
+module website './website.bicep' = {
+  name: 'website'
+  params: {
+    connectionString: connectionString
+  }
+}
+"),
                 ("website.bicep", @"
-                @secure()
-                param connectionString string
+@secure()
+param connectionString string
 
-                provider 'bar@0.0.1' with {
-                  connectionString: connectionString
-                } as stg
+provider 'bar@0.0.1' with {
+  connectionString: connectionString
+} as stg
 
-                resource container 'container' = {
-                  name: 'bicep'
-                }
+resource container 'container' = {
+  name: 'bicep'
+}
 
-                resource blob 'blob' = {
-                  name: 'blob.txt'
-                  containerName: container.name
-                  base64Content: base64(loadTextContent('blob.txt'))
-                }
-                "),
-                ("blob.txt",
-                "\nHello from Bicep!"));
+resource blob 'blob' = {
+  name: 'blob.txt'
+  containerName: container.name
+  base64Content: base64(loadTextContent('blob.txt'))
+}
+"),
+                ("blob.txt", @"
+Hello from Bicep!"));
 
             result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
             result.Template.Should().DeepEqual(JToken.Parse("""

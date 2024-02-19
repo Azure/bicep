@@ -9,7 +9,15 @@
     },
     "dotnet.defaultSolution": "Bicep.sln",
     "cSpell.words": [
+        "azureacr",
+        "bicepconfig",
+        "contoso",
         "Decorable",
-        "Interpolable"
+        "Interpolable",
+        "Newtonsoft",
+        "outdir",
+        "outfile",
+        "outputdir",
+        "sarif"
     ]
 }
