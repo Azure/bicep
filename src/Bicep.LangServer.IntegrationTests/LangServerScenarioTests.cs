@@ -76,7 +76,6 @@ param foo: string
                 publishSource: false);
 
         var cacheRootPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-
         var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
             TestContext,
             services => services
@@ -84,11 +83,13 @@ param foo: string
                 .WithContainerRegistryClientFactory(clientFactory)
                 .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>());
 
+        // the published module has the wrong param type - this should cause an error
         await setPublishedModuleContents("param foo bool");
 
         var paramsFileUri = new Uri("file:///main.bicepparam");
+
         var diags = await helper.OpenFileOnceAsync(TestContext, """
-        using 'br:mockregistry.io/test/foo:1.1'
+using 'br:mockregistry.io/test/foo:1.1'
 
 param foo = 'abc'
 """, paramsFileUri);
