@@ -11,7 +11,9 @@ param bgppeeringpddress string
 @description('Specifices the VPN Sites VPN Device IP Address')
 param gwipaddress string
 
-@description('Specifices the resource ID of the VPN Gateway to connect to the site to site vpn')
+@description(
+  'Specifices the resource ID of the VPN Gateway to connect to the site to site vpn'
+)
 param vpngwid string
 
 @secure()

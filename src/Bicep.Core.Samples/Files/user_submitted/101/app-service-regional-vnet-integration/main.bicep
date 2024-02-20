@@ -25,9 +25,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnetAddressPrefix
-      ]
+      addressPrefixes: [vnetAddressPrefix]
     }
     subnets: [
       {
@@ -75,9 +73,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
   properties: {
     serverFarmId: appServicePlan.id
   }
-  dependsOn: [
-    vnet
-  ]
+  dependsOn: [vnet]
 }
 
 resource webappVnet 'Microsoft.Web/sites/networkConfig@2020-06-01' = {

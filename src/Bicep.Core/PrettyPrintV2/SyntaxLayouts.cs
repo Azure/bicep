@@ -359,11 +359,11 @@ namespace Bicep.Core.PrettyPrintV2
 
             for (var i = 0; i < syntax.Expressions.Length; i++)
             {
-                writer.Write(syntax.StringTokens[i].Text);
+                writer.Write(syntax.StringTokens[i].Text.ReplaceLineEndings(this.context.Newline));
                 SyntaxStringifier.StringifyTo(writer, syntax.Expressions[i], this.context.Newline);
             }
 
-            writer.Write(syntax.StringTokens[^1].Text);
+            writer.Write(syntax.StringTokens[^1].Text.ReplaceLineEndings(this.context.Newline));
 
             return LayoutWithLeadingAndTrailingTrivia(writer.ToString(), leadingTrivia, trailingTrivia, suffix);
         }
@@ -542,26 +542,46 @@ namespace Bicep.Core.PrettyPrintV2
             => Spread(syntax.Keyword, syntax.Path);
 
         public IEnumerable<Document> LayoutParameterizedTypeInstantiationSyntax(ParameterizedTypeInstantiationSyntax syntax)
-            => Glue(syntax.Name, Bracket(
+        {
+            var tail = this.Bracket(
                 syntax.OpenChevron,
                 syntax.Children,
                 syntax.CloseChevron,
                 separator: CommaLineOrCommaSpace,
                 padding: LineOrEmpty,
-                forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any()));
+                forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any());
 
-        private IEnumerable<Document> LayoutInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax) =>
-            this.Glue(
-                syntax.BaseExpression,
-                syntax.Dot,
-                syntax.PropertyName,
-                this.Bracket(
-                    syntax.OpenChevron,
-                    syntax.Children,
-                    syntax.CloseChevron,
-                    separator: CommaLineOrCommaSpace,
-                    padding: LineOrEmpty,
-                    forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any()));
+            if (tail is GroupDocument)
+            {
+                // ParameterizedTypeInstantiationSyntax is only applied to resource derived types (resource<'xxx'>).
+                // It is more readable to print resource<'xxx'> on a single line, even if it's longer than the max line width.
+                // We may need to revisit this if we introduce generic types later at some point.
+                tail = tail.Flatten().Glue();
+            }
+
+            return this.Glue(syntax.Name, tail);
+        }
+
+        private IEnumerable<Document> LayoutInstanceParameterizedTypeInstantiationSyntax(InstanceParameterizedTypeInstantiationSyntax syntax)
+        {
+            var tail = this.Bracket(
+                syntax.OpenChevron,
+                syntax.Children,
+                syntax.CloseChevron,
+                separator: CommaLineOrCommaSpace,
+                padding: LineOrEmpty,
+                forceBreak: StartsWithNewline(syntax.Children) && syntax.Arguments.Any());
+
+            if (tail is GroupDocument)
+            {
+                // InstanceParameterizedTypeInstantiationSyntax is only applied to resource derived types (resource<'xxx'>).
+                // It is more readable to print resource<'xxx'> on a single line, even if it's longer than the max line width.
+                // We may need to revisit this if we introduce generic types later at some point.
+                tail = tail.Flatten().Glue();
+            }
+
+            return this.Glue(syntax.BaseExpression, syntax.Dot, syntax.PropertyName, tail);
+        }
 
         private IEnumerable<Document> LayoutTypePropertyAccessSyntax(TypePropertyAccessSyntax syntax) =>
             this.Glue(syntax.BaseExpression, syntax.Dot, syntax.PropertyName);
@@ -686,7 +706,7 @@ namespace Bicep.Core.PrettyPrintV2
                 }
 
                 // Trim newlines to handle unterminated multi-line comments.
-                yield return triviaItem.Text.TrimEnd('\r', '\n');
+                yield return triviaItem.Text.TrimEnd('\r', '\n').ReplaceLineEndings(this.context.Newline);
             }
         }
 
@@ -723,7 +743,7 @@ namespace Bicep.Core.PrettyPrintV2
                 }
 
                 // Trim newlines to handle unterminated multi-line comments.
-                trailingTrivia.Add(triviaItem.Text.TrimEnd('\r', '\n'));
+                trailingTrivia.Add(triviaItem.Text.TrimEnd('\r', '\n').ReplaceLineEndings(this.context.Newline));
             }
 
             return trailingTrivia;

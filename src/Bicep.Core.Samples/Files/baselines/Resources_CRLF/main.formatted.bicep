@@ -60,9 +60,7 @@ resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   sku: {
     name: 'Standard_LRS'
   }
-  dependsOn: [
-    myStorageAccount
-  ]
+  dependsOn: [myStorageAccount]
 }
 
 param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
@@ -86,7 +84,10 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   }
 }
 
-var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosDb.account)
+var cosmosDbResourceId = resourceId(
+  'Microsoft.DocumentDB/databaseAccounts',
+  cosmosDb.account
+)
 var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 
 // this variable is not accessed anywhere in this template and depends on a run-time reference
@@ -182,9 +183,7 @@ var varARuntime = {
   aKind: resourceA.kind
 }
 
-var varBRuntime = [
-  varARuntime
-]
+var varBRuntime = [varARuntime]
 
 var resourceCRef = {
   id: resourceC.id
@@ -221,30 +220,32 @@ resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
 param shouldDeployVm bool = true
 
 @sys.description('this is vmWithCondition')
-resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
-  name: 'vmName'
-  location: 'westus'
-  properties: {
-    osProfile: {
-      windowsConfiguration: {
-        enableAutomaticUpdates: true
+resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' =
+  if (shouldDeployVm) {
+    name: 'vmName'
+    location: 'westus'
+    properties: {
+      osProfile: {
+        windowsConfiguration: {
+          enableAutomaticUpdates: true
+        }
       }
     }
   }
-}
 
 @sys.description('this is another vmWithCondition')
-resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
-  name: 'vmName2'
-  location: 'westus'
-  properties: {
-    osProfile: {
-      windowsConfiguration: {
-        enableAutomaticUpdates: true
+resource vmWithCondition2 'Microsoft.Compute/virtualMachines@2020-06-01' =
+  if (shouldDeployVm) {
+    name: 'vmName2'
+    location: 'westus'
+    properties: {
+      osProfile: {
+        windowsConfiguration: {
+          enableAutomaticUpdates: true
+        }
       }
     }
   }
-}
 
 resource extension1 'My.Rp/extensionResource@2020-12-01' = {
   name: 'extension'
@@ -300,95 +301,121 @@ var storageAccounts = [
 
 // just a storage account loop
 @sys.description('this is just a storage account loop')
-resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-  name: account.name
-  location: account.location
-  sku: {
-    name: 'Standard_LRS'
+resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for account in storageAccounts: {
+    name: account.name
+    location: account.location
+    sku: {
+      name: 'Standard_LRS'
+    }
+    kind: 'StorageV2'
   }
-  kind: 'StorageV2'
-}]
+]
 
 // storage account loop with index
 @sys.description('this is just a storage account loop with index')
-resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
-  name: '${account.name}${i}'
-  location: account.location
-  sku: {
-    name: 'Standard_LRS'
+resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [
+  for (account, i) in storageAccounts: {
+    name: '${account.name}${i}'
+    location: account.location
+    sku: {
+      name: 'Standard_LRS'
+    }
+    kind: 'StorageV2'
   }
-  kind: 'StorageV2'
-}]
+]
 
 // basic nested loop
 @sys.description('this is just a basic nested loop')
-resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-  name: 'vnet-${i}'
-  properties: {
-    subnets: [for j in range(0, 4): {
-      // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
+resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [
+  for i in range(0, 3): {
+    name: 'vnet-${i}'
+    properties: {
+      subnets: [
+        for j in range(0, 4): {
+          // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
 
-      // #completionTest(6) -> subnetIdAndPropertiesNoColon
-      name: 'subnet-${i}-${j}'
-    }]
+          // #completionTest(6) -> subnetIdAndPropertiesNoColon
+          name: 'subnet-${i}-${j}'
+        }
+      ]
+    }
   }
-}]
+]
 
 // duplicate identifiers within the loop are allowed
-resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-  name: 'vnet-${i}'
-  properties: {
-    subnets: [for i in range(0, 4): {
-      name: 'subnet-${i}-${i}'
-    }]
+resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [
+  for i in range(0, 3): {
+    name: 'vnet-${i}'
+    properties: {
+      subnets: [
+        for i in range(0, 4): {
+          name: 'subnet-${i}-${i}'
+        }
+      ]
+    }
   }
-}]
+]
 
 // duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
 var canHaveDuplicatesAcrossScopes = 'hello'
-resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
-  name: 'vnet-${canHaveDuplicatesAcrossScopes}'
-  properties: {
-    subnets: [for i in range(0, 4): {
-      name: 'subnet-${i}-${i}'
-    }]
+resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [
+  for canHaveDuplicatesAcrossScopes in range(0, 3): {
+    name: 'vnet-${canHaveDuplicatesAcrossScopes}'
+    properties: {
+      subnets: [
+        for i in range(0, 4): {
+          name: 'subnet-${i}-${i}'
+        }
+      ]
+    }
   }
-}]
+]
 
 // duplicate in global and multiple loop scopes are allowed (inner hides the outer)
 var duplicatesEverywhere = 'hello'
-resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
-  name: 'vnet-${duplicatesEverywhere}'
-  properties: {
-    subnets: [for duplicatesEverywhere in range(0, 4): {
-      name: 'subnet-${duplicatesEverywhere}'
-    }]
+resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [
+  for duplicatesEverywhere in range(0, 3): {
+    name: 'vnet-${duplicatesEverywhere}'
+    properties: {
+      subnets: [
+        for duplicatesEverywhere in range(0, 4): {
+          name: 'subnet-${duplicatesEverywhere}'
+        }
+      ]
+    }
   }
-}]
+]
 
 /*
   Scope values created via array access on a resource collection
 */
-resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0, 4): {
-  name: 'zone${zone}'
-  location: 'global'
-}]
-
-resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in range(0, 2): {
-  name: 'lock${lock}'
-  properties: {
-    level: 'CanNotDelete'
+resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [
+  for zone in range(0, 4): {
+    name: 'zone${zone}'
+    location: 'global'
   }
-  scope: dnsZones[lock]
-}]
+]
 
-resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (lock, i) in range(0, 3): {
-  name: 'another${i}'
-  properties: {
-    level: 'ReadOnly'
+resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [
+  for lock in range(0, 2): {
+    name: 'lock${lock}'
+    properties: {
+      level: 'CanNotDelete'
+    }
+    scope: dnsZones[lock]
   }
-  scope: dnsZones[i]
-}]
+]
+
+resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [
+  for (lock, i) in range(0, 3): {
+    name: 'another${i}'
+    properties: {
+      level: 'ReadOnly'
+    }
+    scope: dnsZones[i]
+  }
+]
 
 resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
   name: 'single-lock'
@@ -403,9 +430,7 @@ resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: 'myVnet'
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/20'
-      ]
+      addressPrefixes: ['10.0.0.0/20']
     }
   }
 }
@@ -488,17 +513,19 @@ output p4_res1childtype string = p4_child1.type
 output p4_res1childid string = p4_child1.id
 
 // parent & nested child with decorators https://github.com/Azure/bicep/issues/10970
-var dbs = [ 'db1', 'db2', 'db3' ]
+var dbs = ['db1', 'db2', 'db3']
 resource sqlServer 'Microsoft.Sql/servers@2021-11-01' = {
   name: 'sql-server-name'
   location: 'polandcentral'
 
   @batchSize(1)
   @description('Sql Databases')
-  resource sqlDatabases 'databases' = [for db in dbs: {
-    name: db
-    location: 'polandcentral'
-  }]
+  resource sqlDatabases 'databases' = [
+    for db in dbs: {
+      name: db
+      location: 'polandcentral'
+    }
+  ]
 
   @description('Primary Sql Database')
   resource primaryDb 'databases' = {

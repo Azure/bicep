@@ -114,10 +114,8 @@ test sample
 
 test sample 'samples/sample1.bicep'
 
-test sample 'samples/sample1.bicep' = 
+test sample 'samples/sample1.bicep' =
 
 test sample 'samples/sample1.bicep' = {
 
 test sample '' = {
-
-

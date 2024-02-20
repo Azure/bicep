@@ -138,9 +138,7 @@ resource bicepExampleDINEpolicy 'Microsoft.Authorization/policyDefinitions@2020-
                       description: metricAlertDescription
                       severity: metricAlertSeverity
                       enabled: metricAlertEnabled
-                      scopes: [
-                        '[parameters(\'resourceId\')]'
-                      ]
+                      scopes: ['[parameters(\'resourceId\')]']
                       evaluationFrequency: metricAlertEvaluationFrequency
                       windowSize: metricAlertWindowSize
                       criteria: {
@@ -158,23 +156,17 @@ resource bicepExampleDINEpolicy 'Microsoft.Authorization/policyDefinitions@2020-
                               {
                                 name: metricAlertDimension1
                                 operator: 'Include'
-                                values: [
-                                  '*'
-                                ]
+                                values: ['*']
                               }
                               {
                                 name: metricAlertDimension2
                                 operator: 'Include'
-                                values: [
-                                  '*'
-                                ]
+                                values: ['*']
                               }
                               {
                                 name: metricAlertDimension3
                                 operator: 'Include'
-                                values: [
-                                  '*'
-                                ]
+                                values: ['*']
                               }
                             ]
                             operator: metricAlertOperator

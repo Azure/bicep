@@ -5,19 +5,17 @@
 param location string
 param accountName string
 
-@allowed([
-  'Standard_LRS'
-  'Standard_GRS'
-  'Standard_ZRS'
-  'Premium_LRS'
-])
+@allowed(['Standard_LRS', 'Standard_GRS', 'Standard_ZRS', 'Premium_LRS'])
 param skuName string
 
 param deploymentScriptTimestamp string = utcNow()
 param indexDocument string = 'index.html'
 param errorDocument404Path string = 'error.html'
 
-var storageAccountContributorRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '17d1049b-9a84-46fb-8f53-869881c3d3ab') // This is the Storage Account Contributor role, which is the minimum role permission we can give. See https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#:~:text=17d1049b-9a84-46fb-8f53-869881c3d3ab
+var storageAccountContributorRoleDefinitionId = subscriptionResourceId(
+  'Microsoft.Authorization/roleDefinitions',
+  '17d1049b-9a84-46fb-8f53-869881c3d3ab'
+) // This is the Storage Account Contributor role, which is the minimum role permission we can give. See https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#:~:text=17d1049b-9a84-46fb-8f53-869881c3d3ab
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: accountName
@@ -53,10 +51,7 @@ resource deploymentScript 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
       '${managedIdentity.id}': {}
     }
   }
-  dependsOn: [
-    roleAssignment
-    storageAccount
-  ]
+  dependsOn: [roleAssignment, storageAccount]
   properties: {
     azPowerShellVersion: '3.0'
     scriptContent: '''
@@ -78,5 +73,13 @@ Enable-AzStorageStaticWebsite -Context $ctx -IndexDocument $IndexDocument -Error
   }
 }
 
-output scriptLogs string = reference('${deploymentScript.id}/logs/default', deploymentScript.apiVersion, 'Full').properties.log
-output staticWebsiteHostName string = replace(replace(storageAccount.properties.primaryEndpoints.web, 'https://', ''), '/', '')
+output scriptLogs string = reference(
+  '${deploymentScript.id}/logs/default',
+  deploymentScript.apiVersion,
+  'Full'
+).properties.log
+output staticWebsiteHostName string = replace(
+  replace(storageAccount.properties.primaryEndpoints.web, 'https://', ''),
+  '/',
+  ''
+)

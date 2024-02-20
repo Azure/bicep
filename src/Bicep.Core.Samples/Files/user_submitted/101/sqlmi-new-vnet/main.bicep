@@ -10,21 +10,10 @@ param virtualNetworkPrefix string = '10.0.0.0/16'
 param subnetName string = 'subnet-01'
 param subnetPrefix string = '10.0.0.0/24'
 
-@allowed([
-  'GP_Gen5'
-  'BC_Gen5'
-])
+@allowed(['GP_Gen5', 'BC_Gen5'])
 param skuName string = 'GP_Gen5'
 
-@allowed([
-  8
-  16
-  24
-  32
-  40
-  64
-  80
-])
+@allowed([8, 16, 24, 32, 40, 64, 80])
 param vCores int = 8
 
 @minValue(32)
@@ -113,9 +102,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        virtualNetworkPrefix
-      ]
+      addressPrefixes: [virtualNetworkPrefix]
     }
   }
 }

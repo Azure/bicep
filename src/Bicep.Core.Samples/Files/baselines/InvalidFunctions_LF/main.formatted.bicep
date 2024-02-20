@@ -16,16 +16,15 @@ func noLambda2 = (sdf 'foo') string => ''
 
 func noLambda3 = string 'asdf'
 
-func argLengthMismatch(a string, b string, c string) array => ([ a, b, c ])
+func argLengthMismatch(a string, b string, c string) array => ([a, b, c])
 var sdf = argLengthMismatch('asdf')
 
 var asdfwdf = noLambda('asd')
 
 func sayHello(name string) string => 'Hi ${name}!'
-output hellos array = map([ 'Evie', 'Casper' ], sayHello) // this syntax not supported currently, but should it be?
+output hellos array = map(['Evie', 'Casper'], sayHello) // this syntax not supported currently, but should it be?
 
-func sayHelloBadNewlines(
-  name string) string => 'Hi ${name}!'
+func sayHelloBadNewlines(name string) string => 'Hi ${name}!'
 
 type validStringLiteralUnion = 'foo' | 'bar' | 'baz'
 func invalidArgs(a validStringLiteralUnion, b string) string => a

@@ -144,39 +144,44 @@ namespace Bicep.LangServer.IntegrationTests
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
             var fileUri = new Uri("file:///template.bicep");
-            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
-param myParam string = 'test'
-resource myRes 'myRp/provider@2019-01-01' = {
-  name: 'te|st'
-}
-module myMod './module.bicep' = {
-  name: 'test'
-}
-output myOutput string = 'myOutput'
-", resourceId.FullyQualifiedId);
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
+                param myParam string = 'test'
+                resource myRes 'myRp/provider@2019-01-01' = {
+                  name: 'te|st'
+                }
+                module myMod './module.bicep' = {
+                  name: 'test'
+                }
+                output myOutput string = 'myOutput'
+
+                """, resourceId.FullyQualifiedId);
 
             var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
-            replacedFile.Should().Be(@"
-param myParam string = 'test'
-resource myRes 'myRp/provider@2019-01-01' = {
-  name: 'test'
-}
-@description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName')
-resource myName 'My.Rp/myTypes@2020-01-01' = {
-  name: 'myName'
-  properties: {
-    readWriteProp: 'def'
-    writeOnlyProp: 'ghi'
-    int64Prop: 9223372036854775807
-    floatProp: json('0.5')
-    bigIntProp: json('3456789871234786124871623847612837461287436')
-  }
-}
-module myMod './module.bicep' = {
-  name: 'test'
-}
-output myOutput string = 'myOutput'
-");
+            replacedFile.Should().BeEquivalentToIgnoringNewlines("""
+                param myParam string = 'test'
+                resource myRes 'myRp/provider@2019-01-01' = {
+                  name: 'test'
+                }
+                @description(
+                  'Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName'
+                )
+                resource myName 'My.Rp/myTypes@2020-01-01' = {
+                  name: 'myName'
+                  properties: {
+                    readOnlyProp: 'abc'
+                    readWriteProp: 'def'
+                    writeOnlyProp: 'ghi'
+                    int64Prop: 9223372036854775807
+                    floatProp: json('0.5')
+                    bigIntProp: json('3456789871234786124871623847612837461287436')
+                  }
+                }
+                module myMod './module.bicep' = {
+                  name: 'test'
+                }
+                output myOutput string = 'myOutput'
+
+                """);
 
             var telemetry = await listeners.Telemetry.WaitForAll();
             telemetry.Should().ContainEvent("InsertResource/success", new JObject
@@ -214,12 +219,16 @@ output myOutput string = 'myOutput'
             var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"|", resourceId.FullyQualifiedId);
 
             var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
-            replacedFile.Should().Be(@"
-@description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName')
-resource myName 'My.Rp/myTypes@2020-01-01' = {
-  name: 'myName'
-  properties: {}
-}");
+            replacedFile.Should().BeEquivalentToIgnoringNewlines("""
+
+                @description(
+                  'Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName'
+                )
+                resource myName 'My.Rp/myTypes@2020-01-01' = {
+                  name: 'myName'
+                  properties: {}
+                }
+                """);
         }
 
         [TestMethod]
@@ -260,36 +269,39 @@ resource myName 'My.Rp/myTypes@2020-01-01' = {
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
             var fileUri = new Uri("file:///template.bicep");
-            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
-param myParam string = 'test'
-resource myRes 'myRp/provider@2019-01-01' = {
-  name: 'te|st'
-}
-module myMod './module.bicep' = {
-  name: 'test'
-}
-output myOutput string = 'myOutput'
-", resourceId.FullyQualifiedId);
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
+                param myParam string = 'test'
+                resource myRes 'myRp/provider@2019-01-01' = {
+                  name: 'te|st'
+                }
+                module myMod './module.bicep' = {
+                  name: 'test'
+                }
+                output myOutput string = 'myOutput'
+                """, resourceId.FullyQualifiedId);
 
             var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
-            replacedFile.Should().Be(@"
-param myParam string = 'test'
-resource myRes 'myRp/provider@2019-01-01' = {
-  name: 'test'
-}
-@description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg')
-resource myRg 'Microsoft.Resources/resourceGroups@2020-01-01' = {
-  name: 'myRg'
-  properties: {
-    readWriteProp: 'def'
-    writeOnlyProp: 'ghi'
-  }
-}
-module myMod './module.bicep' = {
-  name: 'test'
-}
-output myOutput string = 'myOutput'
-");
+            replacedFile.Should().BeEquivalentToIgnoringNewlines("""
+                param myParam string = 'test'
+                resource myRes 'myRp/provider@2019-01-01' = {
+                  name: 'test'
+                }
+                @description(
+                  'Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg'
+                )
+                resource myRg 'Microsoft.Resources/resourceGroups@2020-01-01' = {
+                  name: 'myRg'
+                  properties: {
+                    readOnlyProp: 'abc'
+                    readWriteProp: 'def'
+                    writeOnlyProp: 'ghi'
+                  }
+                }
+                module myMod './module.bicep' = {
+                  name: 'test'
+                }
+                output myOutput string = 'myOutput'
+                """);
 
             var telemetry = await listeners.Telemetry.WaitForAll();
             telemetry.Should().ContainEvent("InsertResource/success", new JObject
@@ -332,36 +344,39 @@ output myOutput string = 'myOutput'
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
             var fileUri = new Uri("file:///template.bicep");
-            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
-param myParam string = 'test'
-resource myRes 'myRp/provider@2019-01-01' = {
-  name: 'te|st'
-}
-module myMod './module.bicep' = {
-  name: 'test'
-}
-output myOutput string = 'myOutput'
-", resourceId.FullyQualifiedId);
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
+                param myParam string = 'test'
+                resource myRes 'myRp/provider@2019-01-01' = {
+                  name: 'te|st'
+                }
+                module myMod './module.bicep' = {
+                  name: 'test'
+                }
+                output myOutput string = 'myOutput'
+                """, resourceId.FullyQualifiedId);
 
             var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
-            replacedFile.Should().Be(@"
-param myParam string = 'test'
-resource myRes 'myRp/provider@2019-01-01' = {
-  name: 'test'
-}
-@description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName/childType/childName')
-resource childName 'My.Rp/myTypes/childType@2020-01-01' = {
-  name: 'myName/childName'
-  properties: {
-    readWriteProp: 'def'
-    writeOnlyProp: 'ghi'
-  }
-}
-module myMod './module.bicep' = {
-  name: 'test'
-}
-output myOutput string = 'myOutput'
-");
+            replacedFile.Should().BeEquivalentToIgnoringNewlines("""
+                param myParam string = 'test'
+                resource myRes 'myRp/provider@2019-01-01' = {
+                  name: 'test'
+                }
+                @description(
+                  'Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName/childType/childName'
+                )
+                resource childName 'My.Rp/myTypes/childType@2020-01-01' = {
+                  name: 'myName/childName'
+                  properties: {
+                    readOnlyProp: 'abc'
+                    readWriteProp: 'def'
+                    writeOnlyProp: 'ghi'
+                  }
+                }
+                module myMod './module.bicep' = {
+                  name: 'test'
+                }
+                output myOutput string = 'myOutput'
+                """);
 
             var telemetry = await listeners.Telemetry.WaitForAll();
             telemetry.Should().ContainEvent("InsertResource/success", new JObject
@@ -387,16 +402,16 @@ output myOutput string = 'myOutput'
             var client = helper.Client;
 
             var fileUri = new Uri("file:///template.bicep");
-            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
-param myParam string = 'test'
-resource myRes 'myRp/provider@2019-01-01' = {
-  name: 'te|st'
-}
-module myMod './module.bicep' = {
-  name: 'test'
-}
-output myOutput string = 'myOutput'
-", "this isn't a resource id!");
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
+                param myParam string = 'test'
+                resource myRes 'myRp/provider@2019-01-01' = {
+                  name: 'te|st'
+                }
+                module myMod './module.bicep' = {
+                  name: 'test'
+                }
+                output myOutput string = 'myOutput'
+                """, "this isn't a resource id!");
 
             var message = await listeners.ShowMessage.WaitNext();
             message.Should().HaveMessageAndType(
@@ -484,36 +499,39 @@ output myOutput string = 'myOutput'
                 .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
 
             var fileUri = new Uri("file:///template.bicep");
-            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
-param myParam string = 'test'
-resource myRes 'myRp/provider@2019-01-01' = {
-  name: 'te|st'
-}
-module myMod './module.bicep' = {
-  name: 'test'
-}
-output myOutput string = 'myOutput'
-", resourceId.FullyQualifiedId);
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
+                param myParam string = 'test'
+                resource myRes 'myRp/provider@2019-01-01' = {
+                  name: 'te|st'
+                }
+                module myMod './module.bicep' = {
+                  name: 'test'
+                }
+                output myOutput string = 'myOutput'
+                """, resourceId.FullyQualifiedId);
 
             var replacedFile = await ApplyWorkspaceEdit(listeners, fileUri, fileContents);
-            replacedFile.Should().Be(@"
-param myParam string = 'test'
-resource myRes 'myRp/provider@2019-01-01' = {
-  name: 'test'
-}
-@description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName')
-resource myName 'My.Rp/myTypes@2020-01-01' = {
-  name: 'myName'
-  properties: {
-    readWriteProp: 'def'
-    writeOnlyProp: 'ghi'
-  }
-}
-module myMod './module.bicep' = {
-  name: 'test'
-}
-output myOutput string = 'myOutput'
-");
+            replacedFile.Should().Be("""
+                param myParam string = 'test'
+                resource myRes 'myRp/provider@2019-01-01' = {
+                  name: 'test'
+                }
+                @description(
+                  'Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName'
+                )
+                resource myName 'My.Rp/myTypes@2020-01-01' = {
+                  name: 'myName'
+                  properties: {
+                    readOnlyProp: 'abc'
+                    readWriteProp: 'def'
+                    writeOnlyProp: 'ghi'
+                  }
+                }
+                module myMod './module.bicep' = {
+                  name: 'test'
+                }
+                output myOutput string = 'myOutput'
+                """);
 
             var telemetry = await listeners.Telemetry.WaitForAll();
             telemetry.Should().ContainEvent("InsertResource/success", new JObject
@@ -547,16 +565,16 @@ output myOutput string = 'myOutput'
                 .Throws(new InvalidOperationException("And something went wrong again!"));
 
             var fileUri = new Uri("file:///template.bicep");
-            var fileContents = await InvokeInsertResource(client, listeners, fileUri, @"
-param myParam string = 'test'
-resource myRes 'myRp/provider@2019-01-01' = {
-  name: 'te|st'
-}
-module myMod './module.bicep' = {
-  name: 'test'
-}
-output myOutput string = 'myOutput'
-", resourceId.FullyQualifiedId);
+            var fileContents = await InvokeInsertResource(client, listeners, fileUri, """
+                param myParam string = 'test'
+                resource myRes 'myRp/provider@2019-01-01' = {
+                  name: 'te|st'
+                }
+                module myMod './module.bicep' = {
+                  name: 'test'
+                }
+                output myOutput string = 'myOutput'
+                """, resourceId.FullyQualifiedId);
 
             var message = await listeners.ShowMessage.WaitNext();
             message.Should().HaveMessageAndType(

@@ -94,20 +94,6 @@ export async function createLanguageService(
     },
     progressOnInitialization: true,
     outputChannel,
-    middleware: {
-      provideDocumentFormattingEdits: (document, options, token, next) =>
-        next(
-          document,
-          {
-            ...options,
-            insertFinalNewline:
-              vscode.workspace
-                .getConfiguration("files")
-                .get("insertFinalNewline") ?? false,
-          },
-          token,
-        ),
-    },
     synchronize: {
       configurationSection: "bicep",
       fileEvents: [

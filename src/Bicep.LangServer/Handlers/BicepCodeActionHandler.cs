@@ -33,11 +33,6 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
         private readonly ICompilationManager compilationManager;
 
-        private static readonly ImmutableArray<ICodeFixProvider> codeFixProviders = new ICodeFixProvider[]
-        {
-            new MultilineObjectsAndArraysCodeFixProvider(),
-        }.ToImmutableArray<ICodeFixProvider>();
-
         public BicepCodeActionHandler(ICompilationManager compilationManager, IClientCapabilitiesProvider clientCapabilitiesProvider)
         {
             this.clientCapabilitiesProvider = clientCapabilitiesProvider;
@@ -116,8 +111,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var matchingNodes = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
-            var codeFixes = codeFixProviders
-                .Concat(GetDecoratorCodeFixProviders(semanticModel))
+            var codeFixes = GetDecoratorCodeFixProviders(semanticModel)
                 .SelectMany(provider => provider.GetFixes(semanticModel, matchingNodes))
                 .Select(fix => CreateCodeFix(request.TextDocument.Uri, compilationContext, fix));
             commandOrCodeActions.AddRange(codeFixes);

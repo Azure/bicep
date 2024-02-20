@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.RegularExpressions;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
@@ -11,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.IntegrationTests.PrettyPrint
 {
     [TestClass]
-    public class PrettyPrinterV2Tests
+    public partial class PrettyPrinterV2Tests
     {
         public TestContext TestContext { get; set; } = null!;
 
@@ -45,18 +46,30 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         public void Print_DataSet_ProducesExpectedOutput(DataSet dataSet)
         {
             var output = Print(dataSet.Bicep, PrettyPrinterV2Options.Default);
-            var outputFileName = $"main.pprint.bicep";
+            var outputFileName = DataSet.TestFileMainFormatted;
             var outputFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, outputFileName), output);
-
-            var expected = dataSet.ReadDataSetFile(outputFileName);
 
             output.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
-                expected,
+                dataSet.Formatted,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, outputFileName),
                 actualLocation: outputFile);
 
             AssertConsistentOutput(output, PrettyPrinterV2Options.Default);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Print_DataSet_ProducesConsistentNewlines(DataSet dataSet)
+        {
+            var output = Print(dataSet.Bicep, PrettyPrinterV2Options.Default);
+
+            NewlinePattern().Matches(output)
+                .Select(x => x.Value)
+                .Distinct()
+                .Should()
+                .HaveCount(1);
         }
 
         [DataTestMethod]
@@ -67,10 +80,25 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var data = baselineData.GetData(TestContext);
             var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, isParamFile: true);
 
-            data.PrettyPrinted.WriteToOutputFolder(output);
-            data.PrettyPrinted.ShouldHaveExpectedValue();
+            data.Formatted.WriteToOutputFolder(output);
+            data.Formatted.ShouldHaveExpectedValue();
 
             AssertConsistentParamsOutput(output, PrettyPrinterV2Options.Default);
+        }
+
+        [DataTestMethod]
+        [BaselineData_Bicepparam.TestData()]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Print_ParamDataSet_ProducesConsistentNewlines(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+            var output = Print(data.Parameters.EmbeddedFile.Contents, PrettyPrinterV2Options.Default, isParamFile: true);
+
+            NewlinePattern().Matches(output)
+                .Select(x => x.Value)
+                .Distinct()
+                .Should()
+                .HaveCount(1);
         }
 
         private static void AssertConsistentOutput(string formatted, PrettyPrinterV2Options options) =>
@@ -93,5 +121,8 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         private static IEnumerable<object[]> GetData() => DataSets.AllDataSets
             .Where(x => !x.Name.Equals(DataSets.PrettyPrint_LF.Name, StringComparison.Ordinal))
             .ToDynamicTestData();
+
+        [GeneratedRegex("\r\n|\r|\n")]
+        private static partial Regex NewlinePattern();
     }
 }

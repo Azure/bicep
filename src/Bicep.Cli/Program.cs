@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using System.IO.Abstractions;
 using System.Runtime;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Commands;
@@ -65,7 +66,7 @@ namespace Bicep.Cli
 
             try
             {
-                switch (ArgumentParser.TryParse(args, this.io))
+                switch (ArgumentParser.TryParse(args, this.io, services.GetRequiredService<IFileSystem>()))
                 {
                     case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
                         return await services.GetRequiredService<BuildCommand>().RunAsync(buildArguments);

@@ -55,7 +55,14 @@ namespace Bicep.Core.Syntax
         {
             foreach (var trivia in triviaList)
             {
-                writer.Write(trivia.Text);
+                if (!string.IsNullOrEmpty(this.newlineReplacement))
+                {
+                    writer.Write(trivia.Text.ReplaceLineEndings(this.newlineReplacement));
+                }
+                else
+                {
+                    writer.Write(trivia.Text);
+                }
             }
         }
     }

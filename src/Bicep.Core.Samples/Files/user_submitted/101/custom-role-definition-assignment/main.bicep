@@ -10,14 +10,10 @@ resource definition 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
     description: 'Custom role create with bicep'
     permissions: [
       {
-        actions: [
-          '*/read'
-        ]
+        actions: ['*/read']
       }
     ]
-    assignableScopes: [
-      subscription().id
-    ]
+    assignableScopes: [subscription().id]
   }
 }
 

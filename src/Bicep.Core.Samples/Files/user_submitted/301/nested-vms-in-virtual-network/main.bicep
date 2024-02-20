@@ -22,32 +22,34 @@ param HostNetworkInterface2Name string = 'HVHOSTNIC2'
 @maxLength(15)
 param HostVirtualMachineName string = 'HVHOST'
 
-@allowed([
-  'Standard_D2_v3'
-  'Standard_D4_v3'
-  'Standard_D8_v3'
-  'Standard_D16_v3'
-  'Standard_D32_v3'
-  'Standard_D2s_v3'
-  'Standard_D4s_v3'
-  'Standard_D8s_v3'
-  'Standard_D16s_v3'
-  'Standard_D32s_v3'
-  'Standard_D64_v3'
-  'Standard_E2_v3'
-  'Standard_E4_v3'
-  'Standard_E8_v3'
-  'Standard_E16_v3'
-  'Standard_E32_v3'
-  'Standard_E64_v3'
-  'Standard_D64s_v3'
-  'Standard_E2s_v3'
-  'Standard_E4s_v3'
-  'Standard_E8s_v3'
-  'Standard_E16s_v3'
-  'Standard_E32s_v3'
-  'Standard_E64s_v3'
-])
+@allowed(
+  [
+    'Standard_D2_v3'
+    'Standard_D4_v3'
+    'Standard_D8_v3'
+    'Standard_D16_v3'
+    'Standard_D32_v3'
+    'Standard_D2s_v3'
+    'Standard_D4s_v3'
+    'Standard_D8s_v3'
+    'Standard_D16s_v3'
+    'Standard_D32s_v3'
+    'Standard_D64_v3'
+    'Standard_E2_v3'
+    'Standard_E4_v3'
+    'Standard_E8_v3'
+    'Standard_E16_v3'
+    'Standard_E32_v3'
+    'Standard_E64_v3'
+    'Standard_D64s_v3'
+    'Standard_E2s_v3'
+    'Standard_E4s_v3'
+    'Standard_E8s_v3'
+    'Standard_E16s_v3'
+    'Standard_E32s_v3'
+    'Standard_E64s_v3'
+  ]
+)
 param HostVirtualMachineSize string = 'Standard_D4s_v3'
 
 param HostAdminUsername string
@@ -60,8 +62,14 @@ var hyperVSubnetNSGName = '${hyperVSubnetName}NSG'
 var ghostedSubnetNSGName = '${ghostedSubnetName}NSG'
 var azureVMsSubnetNSGName = '${azureVMsSubnetName}NSG'
 var azureVMsSubnetUDRName = '${azureVMsSubnetName}UDR'
-var DSCInstallWindowsFeaturesUri = uri(_artifactsLocation, 'dsc/dscinstallwindowsfeatures.zip${_artifactsLocationSasToken}')
-var HVHostSetupScriptUri = uri(_artifactsLocation, 'hvhostsetup.ps1${_artifactsLocationSasToken}')
+var DSCInstallWindowsFeaturesUri = uri(
+  _artifactsLocation,
+  'dsc/dscinstallwindowsfeatures.zip${_artifactsLocationSasToken}'
+)
+var HVHostSetupScriptUri = uri(
+  _artifactsLocation,
+  'hvhostsetup.ps1${_artifactsLocationSasToken}'
+)
 
 resource publicIp 'Microsoft.Network/publicIpAddresses@2019-04-01' = {
   name: HostPublicIPAddressName
@@ -72,7 +80,9 @@ resource publicIp 'Microsoft.Network/publicIpAddresses@2019-04-01' = {
   properties: {
     publicIPAllocationMethod: 'Dynamic'
     dnsSettings: {
-      domainNameLabel: toLower('${HostVirtualMachineName}-${uniqueString(resourceGroup().id)}')
+      domainNameLabel: toLower(
+        '${HostVirtualMachineName}-${uniqueString(resourceGroup().id)}'
+      )
     }
   }
 }
@@ -106,9 +116,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2019-04-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        virtualNetworkAddressPrefix
-      ]
+      addressPrefixes: [virtualNetworkAddressPrefix]
     }
     subnets: [
       {
@@ -299,9 +307,7 @@ resource hostVmSetupExtension 'Microsoft.Compute/virtualMachines/extensions@2019
     typeHandlerVersion: '1.9'
     autoUpgradeMinorVersion: true
     settings: {
-      fileUris: [
-        HVHostSetupScriptUri
-      ]
+      fileUris: [HVHostSetupScriptUri]
       commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress ${createNic1.outputs.assignedIp} -NIC2IPAddress ${createNic2.outputs.assignedIp} -GhostedSubnetPrefix ${ghostedSubnetPrefix} -VirtualNetworkPrefix ${virtualNetworkAddressPrefix}'
     }
   }

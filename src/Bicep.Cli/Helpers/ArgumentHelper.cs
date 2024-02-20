@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions;
 using Bicep.Cli.Arguments;
 using Bicep.Core.FileSystem;
 
@@ -24,8 +25,8 @@ public class ArgumentHelper
     }
 
     [return: NotNullIfNotNull(nameof(filePath))]
-    public static Uri? GetFileUri(string? filePath)
-        => filePath is { } ? PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(filePath)) : null;
+    public static Uri? GetFileUri(string? filePath, IFileSystem? fileSystem = null)
+        => filePath is { } ? PathHelper.FilePathToFileUrl(PathHelper.ResolvePath(filePath, fileSystem: fileSystem)) : null;
 
     public static void ValidateBicepFile(Uri fileUri)
     {

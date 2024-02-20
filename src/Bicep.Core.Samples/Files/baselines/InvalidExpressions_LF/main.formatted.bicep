@@ -17,7 +17,7 @@ var bad = (null) ? !
 var bad = (null)!
 var bad = (null)[0]
 var bad = ()
-var bad = 
+var bad =
 
 // variables not supported
 var x = a + 2
@@ -73,15 +73,15 @@ var ternary = null ? 4 : false
 var complex = test(2 + 3 * 4, true || false && null)
 var complex = -2 && 3 && !4 && 5
 var complex = null ? !4 : false
-var complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || false && null
+var complex = true == false != null == 4 != 'a'
+  ? -2 && 3 && !4 && 5
+  : true || false && null
 
 var nestedTernary = null ? 1 : 2 ? true ? 'a' : 'b' : false ? 'd' : 15
 var nestedTernary = (null ? 1 : 2) ? (true ? 'a' : 'b') : (false ? 'd' : 15)
 
 // bad array access
-var errorInsideArrayAccess = [
-  !null
-][!0]
+var errorInsideArrayAccess = [!null][!0]
 var integerIndexOnNonArray = (null)[0]
 var stringIndexOnNonObject = 'test'['test']
 var malformedStringIndex = {
@@ -150,16 +150,9 @@ var sampleObject = {
   myNull: null
   myInner: {
     anotherStr: 'a'
-    otherArr: [
-      's'
-      'a'
-    ]
+    otherArr: ['s', 'a']
   }
-  myArr: [
-    1
-    2
-    3
-  ]
+  myArr: [1, 2, 3]
 }
 
 var badProperty = sampleObject.myFake
@@ -186,7 +179,10 @@ var bannedFunctions = {
   if: sys.if(null, null)
   obj: sys.createArray()
   arr: sys.createObject()
-  numeric: sys.add(1) + sys.sub(2, 3) + sys.mul(8, 's') + sys.div(true) + sys.mod(null, false)
+  numeric: sys.add(1) + sys.sub(2, 3) + sys.mul(8, 's') + sys.div(true) + sys.mod(
+    null,
+    false
+  )
   relational: sys.less() && sys.lessOrEquals() && sys.greater() && sys.greaterOrEquals()
   equals: sys.equals()
   bool: sys.not() || sys.and() || sys.or()
@@ -215,10 +211,12 @@ var emptyParens = ()
 var anotherEmptyParens = ()
 
 // keywords can't be called like functions
-var nullness = null ()
-var truth = true ()
-var falsehood = false ()
-
+var nullness = null
+()
+var truth = true
+()
+var falsehood = false
+()
 var partialObject = {
   2: true
   +

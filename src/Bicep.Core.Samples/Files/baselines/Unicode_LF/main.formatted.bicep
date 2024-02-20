@@ -11,9 +11,7 @@ var ninjaCat = '🐱‍👤'
 // greek letters in comment: Π π Φ φ plus emoji 😎
 var variousAlphabets = {
   'α': 'α'
-  'Ωω': [
-    'Θμ'
-  ]
+  'Ωω': ['Θμ']
   'ążźćłóę': 'Cześć!'
   'áéóúñü': '¡Hola!'
 

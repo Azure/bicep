@@ -2,14 +2,14 @@
 metadata
 
 // blank identifier name
-metadata 
+metadata
 
 // invalid identifier name
 metadata 2
 metadata _2
 
 // missing value
-metadata missingValueAndType = 
+metadata missingValueAndType =
 
 metadata missingAssignment 'noAssingmentOperator'
 

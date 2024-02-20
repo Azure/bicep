@@ -65,9 +65,7 @@ resource iot 'microsoft.devices/iotHubs@2020-03-01' = {
           name: 'ContosoStorageRoute'
           source: 'DeviceMessages'
           condition: 'level="storage"'
-          endpointNames: [
-            storageEndpoint
-          ]
+          endpointNames: [storageEndpoint]
           isEnabled: true
         }
       ]
@@ -75,9 +73,7 @@ resource iot 'microsoft.devices/iotHubs@2020-03-01' = {
         name: '$fallback'
         source: 'DeviceMessages'
         condition: 'true' // todo - does this need to be a string?
-        endpointNames: [
-          'events'
-        ]
+        endpointNames: ['events']
         isEnabled: true
       }
     }

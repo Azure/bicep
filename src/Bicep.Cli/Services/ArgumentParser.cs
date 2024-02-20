@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Abstractions;
 using System.Text.RegularExpressions;
 using Bicep.Cli.Arguments;
 
@@ -8,7 +9,7 @@ namespace Bicep.Cli.Services
 {
     public static class ArgumentParser
     {
-        public static ArgumentsBase? TryParse(string[] args, IOContext io)
+        public static ArgumentsBase? TryParse(string[] args, IOContext io, IFileSystem fileSystem)
         {
             if (args.Length < 1)
             {
@@ -30,7 +31,7 @@ namespace Bicep.Cli.Services
                 Constants.Command.Build => new BuildArguments(args[1..]),
                 Constants.Command.Test => new TestArguments(args[1..]),
                 Constants.Command.BuildParams => new BuildParamsArguments(args[1..]),
-                Constants.Command.Format => new FormatArguments(args[1..], io),
+                Constants.Command.Format => new FormatArguments(args[1..], io, fileSystem),
                 Constants.Command.GenerateParamsFile => new GenerateParametersFileArguments(args[1..]),
                 Constants.Command.Decompile => new DecompileArguments(args[1..]),
                 Constants.Command.DecompileParams => new DecompileParamsArguments(args[1..]),

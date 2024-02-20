@@ -10,16 +10,11 @@ resource appServiceAppSettings 'Microsoft.Web/sites/config@2020-06-01' = {
   properties: {
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
   }
-  dependsOn: [
-    appInsights
-    appServiceSiteExtension
-  ]
+  dependsOn: [appInsights, appServiceSiteExtension]
 }
 resource appServiceSiteExtension 'Microsoft.Web/sites/siteextensions@2020-06-01' = {
   name: '${appName}/Microsoft.ApplicationInsights.AzureWebsites'
-  dependsOn: [
-    appInsights
-  ]
+  dependsOn: [appInsights]
 }
 resource appInsights 'microsoft.insights/components@2020-02-02-preview' = {
   name: appInsightName

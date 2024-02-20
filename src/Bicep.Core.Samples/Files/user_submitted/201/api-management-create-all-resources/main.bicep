@@ -1,11 +1,7 @@
 param publisherEmail string
 param publisherName string
 
-@allowed([
-  'Developer'
-  'Standard'
-  'Premium'
-])
+@allowed(['Developer', 'Standard', 'Premium'])
 param sku string = 'Standard'
 
 param skuCount int = 1
@@ -66,9 +62,7 @@ resource exampleApi 'Microsoft.ApiManagement/service/apis@2020-06-01-preview' = 
     description: 'Description for example API'
     serviceUrl: 'https://example.net'
     path: 'exampleapipath'
-    protocols: [
-      'https'
-    ]
+    protocols: ['https']
   }
 }
 
@@ -106,9 +100,7 @@ resource exampleApiWithPolicy 'Microsoft.ApiManagement/service/apis@2020-06-01-p
     description: 'Description for example API with policy'
     serviceUrl: 'https://examplewithpolicy.net'
     path: 'exampleapipolicypath'
-    protocols: [
-      'https'
-    ]
+    protocols: ['https']
   }
 }
 
@@ -181,9 +173,7 @@ resource exampleProperty 'Microsoft.ApiManagement/service/properties@2019-01-01'
   properties: {
     displayName: 'propertyExampleName'
     value: 'propertyExampleValue'
-    tags: [
-      'exampleTag'
-    ]
+    tags: ['exampleTag']
   }
 }
 
@@ -250,7 +240,5 @@ resource identityProvider 'Microsoft.ApiManagement/service/identityProviders@202
     clientId: 'googleClientId'
     clientSecret: googleClientSecret
   }
-  dependsOn: [
-    apiManagementService
-  ]
+  dependsOn: [apiManagementService]
 }

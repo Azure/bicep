@@ -60,9 +60,7 @@ resource rt_shared 'Microsoft.Network/virtualHubs/hubRouteTables@2020-05-01' = {
       {
         name: 'route_to_shared_services'
         destinationType: 'CIDR'
-        destinations: [
-          vnet_shared_services_cfg.addressSpacePrefix
-        ]
+        destinations: [vnet_shared_services_cfg.addressSpacePrefix]
         nextHopType: 'ResourceId'
         nextHop: '${virtual_hub.id}/hubVirtualNetworkConnections/${vnet_shared_services_cfg.name}_connection'
       }
@@ -75,9 +73,7 @@ resource vnet_shared_services 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnet_shared_services_cfg.addressSpacePrefix
-      ]
+      addressPrefixes: [vnet_shared_services_cfg.addressSpacePrefix]
     }
     subnets: [
       {
@@ -115,9 +111,7 @@ resource vnet_isolated_1 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnet_isolated_1_cfg.addressSpacePrefix
-      ]
+      addressPrefixes: [vnet_isolated_1_cfg.addressSpacePrefix]
     }
     subnets: [
       {
@@ -155,9 +149,7 @@ resource vnet_isolated_2 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnet_isolated_2_cfg.addressSpacePrefix
-      ]
+      addressPrefixes: [vnet_isolated_2_cfg.addressSpacePrefix]
     }
     subnets: [
       {
@@ -239,9 +231,7 @@ resource vnet_isolated_1_connection 'Microsoft.Network/virtualHubs/hubVirtualNet
     allowRemoteVnetToUseHubVnetGateways: true
     enableInternetSecurity: true
   }
-  dependsOn: [
-    vnet_shared_services_connection
-  ]
+  dependsOn: [vnet_shared_services_connection]
 }
 
 resource vnet_isolated_2_connection 'Microsoft.Network/virtualHubs/hubVirtualNetworkConnections@2020-05-01' = {
@@ -266,7 +256,5 @@ resource vnet_isolated_2_connection 'Microsoft.Network/virtualHubs/hubVirtualNet
     allowRemoteVnetToUseHubVnetGateways: true
     enableInternetSecurity: true
   }
-  dependsOn: [
-    vnet_isolated_1_connection
-  ]
+  dependsOn: [vnet_isolated_1_connection]
 }

@@ -20,15 +20,17 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03
     Environment: environmentName
     CostCenter: costCenterName
   }
-  properties: any({
-    retentionInDays: 30
-    features: {
-      searchVersion: 1
+  properties: any(
+    {
+      retentionInDays: 30
+      features: {
+        searchVersion: 1
+      }
+      sku: {
+        name: 'PerGB2018'
+      }
     }
-    sku: {
-      name: 'PerGB2018'
-    }
-  })
+  )
 }
 
 resource logAnalyticsWorkspaceDiagnostics 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
@@ -62,9 +64,7 @@ resource logAnalyticsWorkspaceDiagnostics 'Microsoft.Insights/diagnosticSettings
 resource solutionsVMInsights 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
   name: vmInsights.name
   location: location
-  dependsOn: [
-    logAnalyticsWorkspace
-  ]
+  dependsOn: [logAnalyticsWorkspace]
   properties: {
     workspaceResourceId: logAnalyticsWorkspace.id
   }
@@ -79,9 +79,7 @@ resource solutionsVMInsights 'Microsoft.OperationsManagement/solutions@2015-11-0
 resource solutionsContainerInsights 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
   name: containerInsights.name
   location: location
-  dependsOn: [
-    logAnalyticsWorkspace
-  ]
+  dependsOn: [logAnalyticsWorkspace]
   properties: {
     workspaceResourceId: logAnalyticsWorkspace.id
   }

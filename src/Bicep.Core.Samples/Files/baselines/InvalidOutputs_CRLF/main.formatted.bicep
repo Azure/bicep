@@ -2,32 +2,32 @@
 bad
 
 // incomplete #completionTest(7) -> empty
-output 
+output
 
 var testSymbol = 42
 
 // #completionTest(28,29) -> symbols
-output missingValueAndType = 
+output missingValueAndType =
 
 // #completionTest(28,29) -> symbols
-output missingValue string = 
+output missingValue string =
 
 // #completionTest(31,32) -> arrayPlusSymbols
-output arrayCompletions array = 
+output arrayCompletions array =
 
 // #completionTest(33,34) -> objectPlusSymbols
-output objectCompletions object = 
+output objectCompletions object =
 
 // #completionTest(29,30) -> boolPlusSymbols
-output boolCompletions bool = 
+output boolCompletions bool =
 
 output foo
 
 // space after identifier #completionTest(20) -> outputTypes
-output spaceAfterId 
+output spaceAfterId
 
 // #completionTest(25) -> outputTypes
-output spacesAfterCursor  
+output spacesAfterCursor
 
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
 output partialType obj
@@ -105,20 +105,22 @@ var attemptToReferenceAnOutput = myOutput
 output notAttachableDecorators int = 32
 
 // nested loops inside output loops are not supported
-output noNestedLoops array = [for thing in things: {
-  something: [
-    [for thing in things: true]
-  ]
-}]
+output noNestedLoops array = [
+  for thing in things: {
+    something: [[for thing in things: true]]
+  }
+]
 
 // loops in inner properties inside outputs are not supported
 output noInnerLoopsInOutputs object = {
   a: [for i in range(0, 10): i]
 }
 output noInnerLoopsInOutputs2 object = {
-  a: [for i in range(0, 10): {
-    b: [for j in range(0, 10): i + j]
-  }]
+  a: [
+    for i in range(0, 10): {
+      b: [for j in range(0, 10): i + j]
+    }
+  ]
 }
 
 //KeyVault Secret Reference
@@ -131,9 +133,7 @@ output keyVaultSecretInterpolatedOutput string = '${kv.getSecret('mySecret')}'
 output keyVaultSecretObjectOutput object = {
   secret: kv.getSecret('mySecret')
 }
-output keyVaultSecretArrayOutput array = [
-  kv.getSecret('mySecret')
-]
+output keyVaultSecretArrayOutput array = [kv.getSecret('mySecret')]
 output keyVaultSecretArrayInterpolatedOutput array = [
   '${kv.getSecret('mySecret')}'
 ]
@@ -144,4 +144,5 @@ output keyVaultSecretArrayInterpolatedOutput array = [
 @
 // #completionTest(5) -> decorators
 @sys.
+
 // WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 

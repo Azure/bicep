@@ -39,13 +39,9 @@ resource gallerydef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
         ]
       }
     ]
-    assignableScopes: [
-      resourceGroup().id
-    ]
+    assignableScopes: [resourceGroup().id]
   }
-  dependsOn: [
-    managedidentity
-  ]
+  dependsOn: [managedidentity]
 }
 
 output sigid string = gallerydef.properties.roleName

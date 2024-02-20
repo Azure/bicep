@@ -10,9 +10,11 @@ var len = length(find)
 var substr = substring(find, index, (len - index))
 //var substrErr = substring( find, index,  15 )  //ERROR - substring cannot return more chars then the string has
 
-output arrayFromString array = [for i in arrayFromString: {
-  element: i
-}]
+output arrayFromString array = [
+  for i in arrayFromString: {
+    element: i
+  }
+]
 
 output found string = found == true ? 'Found "this"' : 'Did not find "This"'
 output index int = index

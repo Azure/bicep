@@ -55,7 +55,7 @@ type objectWithInvalidPropertyDecorators = {
   @secure()
   barProp: string
 
-  @allowed([ 'snap', 'crackle', 'pop' ])
+  @allowed(['snap', 'crackle', 'pop'])
   krispyProp: string
 }
 
@@ -111,7 +111,7 @@ type typeG = {
   value: string
 }
 
-type primitiveUnion = | bool | bool
+type primitiveUnion = bool | bool
 
 type objectUnion = typeA | typeB
 
@@ -166,10 +166,12 @@ type discriminatorTopLevelCycleA = typeA | discriminatorTopLevelCycleB
 type discriminatorTopLevelCycleB = typeB | discriminatorTopLevelCycleA
 
 @discriminator('type')
-type discriminatorInnerSelfCycle1 = typeA | {
-  type: 'b'
-  value: discriminatorInnerSelfCycle1
-}
+type discriminatorInnerSelfCycle1 =
+  | typeA
+  | {
+    type: 'b'
+    value: discriminatorInnerSelfCycle1
+  }
 
 type discriminatorInnerSelfCycle2Helper = {
   type: 'b'
@@ -179,13 +181,13 @@ type discriminatorInnerSelfCycle2Helper = {
 type discriminatorInnerSelfCycle2 = typeA | discriminatorInnerSelfCycle2Helper
 
 @discriminator('type')
-type discriminatorTupleBadType1 = [ typeA, typeB ]
+type discriminatorTupleBadType1 = [typeA, typeB]
 
 @discriminator('type')
-type discriminatorTupleBadType2 = [ typeA | typeB ]
+type discriminatorTupleBadType2 = [typeA | typeB]
 
 @discriminator('type')
-type discriminatorTupleBadType3 = [ typeA | typeB, typeC | typeD ]
+type discriminatorTupleBadType3 = [typeA | typeB, typeC | typeD]
 
 type discriminatorInlineAdditionalPropsBadType1 = {
   @discriminator('type')
@@ -203,10 +205,14 @@ type discriminatorInlineAdditionalPropsBadType3 = {
 }
 
 @discriminator('type')
-type discriminatedUnionDuplicateMemberInsensitive = { type: 'a', value: string } | { type: 'A', value: int }
+type discriminatedUnionDuplicateMemberInsensitive =
+  | { type: 'a', value: string }
+  | { type: 'A', value: int }
 
 @discriminator('TYPE')
-type discriminatedUnionCaseSensitiveDiscriminator = { type: 'a', value: string } | { type: 'b', value: int }
+type discriminatedUnionCaseSensitiveDiscriminator =
+  | { type: 'a', value: string }
+  | { type: 'b', value: int }
 
 @discriminator('type')
 param discriminatorParamBadType1 typeA
@@ -224,7 +230,7 @@ type strings = string[]
 
 type invalidTupleAccess = strings[0]
 
-type stringTuple = [ string, string ]
+type stringTuple = [string, string]
 
 type invalidItemTypeAccess = stringTuple[*]
 

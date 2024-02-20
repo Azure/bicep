@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.IO.Abstractions;
 using Bicep.Core.Emit.Options;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.FileSystem
 {
@@ -23,15 +25,19 @@ namespace Bicep.Core.FileSystem
         /// </summary>
         /// <param name="path">The path.</param>
         /// <param name="baseDirectory">The base directory to use when resolving relative paths. Set to null to use CWD.</param>
-        public static string ResolvePath(string path, string? baseDirectory = null)
+        /// <param name="fileSystem">The file system abstraction.</param>
+        public static string ResolvePath(string path, string? baseDirectory = null, IFileSystem? fileSystem = null)
         {
-            if (Path.IsPathFullyQualified(path))
+            fileSystem ??= new IOFileSystem();
+
+            if (fileSystem.Path.IsPathFullyQualified(path))
             {
                 return path;
             }
 
-            baseDirectory ??= Environment.CurrentDirectory;
-            return Path.Combine(baseDirectory, path);
+            baseDirectory ??= fileSystem.Directory.GetCurrentDirectory() ?? Environment.CurrentDirectory;
+
+            return fileSystem.Path.Combine(baseDirectory, path);
         }
 
         /// <summary>
@@ -46,19 +52,21 @@ namespace Bicep.Core.FileSystem
             return Path.GetFullPath(resolvedPath);
         }
 
-        public static string ResolveDefaultOutputPath(string inputPath, string? outputDir, string? outputFile, Func<string, string> defaultOutputPath)
+        public static string ResolveDefaultOutputPath(string inputPath, string? outputDir, string? outputFile, Func<string, string> defaultOutputPath, IFileSystem? fileSystem = null)
         {
+            fileSystem ??= new IOFileSystem();
+
             if (outputDir is not null)
             {
-                var dir = ResolvePath(outputDir);
-                var file = Path.GetFileName(inputPath);
-                var path = Path.Combine(dir, file);
+                var dir = ResolvePath(outputDir, fileSystem: fileSystem);
+                var file = fileSystem.Path.GetFileName(inputPath);
+                var path = fileSystem.Path.Combine(dir, file);
 
                 return defaultOutputPath(path);
             }
             else if (outputFile is not null)
             {
-                return ResolvePath(outputFile);
+                return ResolvePath(outputFile, fileSystem: fileSystem);
             }
             else
             {
