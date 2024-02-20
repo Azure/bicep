@@ -21,5 +21,3 @@ RmRF -DirectoryName $testResultsDirName
 foreach ($srcSubdir in (Get-ChildItem "src")) {
     RmRF -DirectoryName "$srcSubdir\$testResultsDirName"
 }
-
-RmRF -DirectoryName $env:Temp -Recurse
