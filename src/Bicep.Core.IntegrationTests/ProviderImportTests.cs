@@ -76,9 +76,9 @@ namespace Bicep.Core.IntegrationTests
         public async Task Imports_are_disabled_unless_feature_is_enabled()
         {
             var services = new ServiceBuilder();
-            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            var result = await CompilationHelper.RestoreAndCompile(services, """
             provider 'az@1.0.0'
-            ");
+            """);
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
                 // BCP084 is raised because BCP203 prevented the compiler from binding a namespace to the `az` symbol (an ErrorType was bound instead).
@@ -102,9 +102,9 @@ provider
         public async Task Provider_Statement_With_Invalid_Keyword_Should_Emit_Diagnostic()
         {
             var services = await GetServices();
-            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            var result = await CompilationHelper.RestoreAndCompile(services, """
             provider 'sys@1.0.0' blahblah
-            ");
+            """);
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
             });
@@ -114,9 +114,9 @@ provider
         public async Task Provider_Statement_Without_Brace_Should_Raise_Error()
         {
             var services = await GetServices();
-            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            var result = await CompilationHelper.RestoreAndCompile(services, """
             provider 'kubernetes@1.0.0' with
-            ");
+            """);
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
             });
@@ -126,12 +126,12 @@ provider
         public async Task Provider_Statement_Without_As_Keyword_Should_Raise_Error()
         {
             var services = await GetServices();
-            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            var result = await CompilationHelper.RestoreAndCompile(services, """
             provider 'kubernetes@1.0.0' with {
-            kubeConfig: 'foo'
-            namespace: 'bar'
+                kubeConfig: 'foo'
+                namespace: 'bar'
             } something
-            ");
+            """);
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
             });
@@ -141,12 +141,12 @@ provider
         public async Task Provider_Statement_Without_Alias_Name_Should_Raise_Error()
         {
             var services = await GetServices();
-            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            var result = await CompilationHelper.RestoreAndCompile(services, """
             provider 'kubernetes@1.0.0' with {
-            kubeConfig: 'foo'
-            namespace: 'bar'
+                kubeConfig: 'foo'
+                namespace: 'bar'
             } as
-            ");
+            """);
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
@@ -156,9 +156,9 @@ provider
         public async Task Provider_Statement_Without_Alias_Name_For_Sys_Should_Raise_Error()
         {
             var services = await GetServices();
-            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            var result = await CompilationHelper.RestoreAndCompile(services, """
             provider 'sys@1.0.0' as
-            ");
+            """);
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
@@ -167,9 +167,9 @@ provider
         [TestMethod]
         public async Task Using_import_instead_of_provider_raises_warning()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
             import 'az@1.0.0' as foo
-            ");
+            """);
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP381", DiagnosticLevel.Warning, "Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead."),
             });
@@ -180,9 +180,9 @@ provider
         [TestMethod]
         public async Task Using_legacy_import_syntax_raises_warning_for_az_provider(string providerName)
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), $"""
             provider '{providerName}@1.0.0' as {providerName}
-            ");
+            """);
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
@@ -192,11 +192,11 @@ provider
         [TestMethod]
         public async Task Import_configuration_is_blocked_by_default()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
-            provider 'az@1.0.0' with {{
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
+            provider 'az@1.0.0' with {
               foo: 'bar'
-            }}
-            ");
+            }
+            """);
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
             });
@@ -216,7 +216,7 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public async Task Using_import_statements_frees_up_the_namespace_symbol()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
             provider 'az@1.0.0' as newAz
 
             var az = 'Fake AZ!'
@@ -224,7 +224,7 @@ provider 'madeUpNamespace@1.0.0'
 
             output az string = az
             output rgLocation string = myRg.location
-            ");
+            """);
 
             result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
@@ -232,7 +232,7 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public async Task You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
             provider 'az@1.0.0' as sys
             provider 'sys@1.0.0' as az
 
@@ -240,7 +240,7 @@ provider 'madeUpNamespace@1.0.0'
 
             @az.description('why on earth would you do this?')
             output rgLocation string = myRg.location
-            ");
+            """);
 
             result.Should().GenerateATemplate();
             result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
@@ -250,13 +250,13 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public async Task Overwriting_single_built_in_namespace_with_import_is_prohibited()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
             provider 'az@1.0.0' as sys
 
             var myRg = sys.resourceGroup()
 
             output rgLocation string = myRg.location
-            ");
+            """);
 
             result.Should().ContainDiagnostic("BCP084", DiagnosticLevel.Error, "The symbolic name \"sys\" is reserved. Please use a different symbolic name. Reserved namespaces are \"sys\".");
         }
@@ -264,13 +264,13 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public async Task Singleton_imports_cannot_be_used_multiple_times()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
             provider 'az@1.0.0' as az1
             provider 'az@1.0.0' as az2
 
             provider 'sys@1.0.0' as sys1
             provider 'sys@1.0.0' as sys2
-            ");
+            """);
 
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
@@ -283,13 +283,13 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public async Task Import_names_must_not_conflict_with_other_symbols()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @$"
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
             provider 'az@1.0.0'
-            provider 'kubernetes@1.0.0' with {{
+            provider 'kubernetes@1.0.0' with {
             kubeConfig: ''
             namespace: ''
-            }} as az
-            ");
+            } as az
+            """);
 
             result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
@@ -393,12 +393,12 @@ provider 'madeUpNamespace@1.0.0'
 
             var services = (await GetServices()).WithNamespaceProvider(nsProvider);
 
-            var result = await CompilationHelper.RestoreAndCompile(services, @"
+            var result = await CompilationHelper.RestoreAndCompile(services, """
             provider 'mockNs@1.0.0' with {
               optionalConfig: 'blah blah'
             } as ns1
             provider 'mockNs@1.0.0' as ns2
-            ");
+            """);
 
             result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }

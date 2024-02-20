@@ -5,7 +5,7 @@ namespace Bicep.Core.Configuration
 {
     public static class AnalyzersConfigurationExtensions
     {
-        public static AnalyzersConfiguration WithAllAnalyzersDisabled(this AnalyzersConfiguration analyzersConfiguration)
+        public static AnalyzersConfiguration WithAllAnalyzersDisabled(this AnalyzersConfiguration _)
         {
             return AnalyzersConfiguration.Empty;
         }
@@ -21,52 +21,52 @@ namespace Bicep.Core.Configuration
             return config;
         }
 
-        public static RootConfiguration WithAnalyzers(this RootConfiguration analyzersConfiguration, AnalyzersConfiguration anayzersConfiguration)
+        public static RootConfiguration WithAnalyzers(this RootConfiguration current, AnalyzersConfiguration analyzersConfiguration)
         {
             return new RootConfiguration(
-                analyzersConfiguration.Cloud,
-                analyzersConfiguration.ModuleAliases,
-                analyzersConfiguration.ProviderAliases,
-                analyzersConfiguration.ProvidersConfig,
-                analyzersConfiguration.ImplicitProvidersConfig,
-                anayzersConfiguration,
-                analyzersConfiguration.CacheRootDirectory,
-                analyzersConfiguration.ExperimentalFeaturesEnabled,
-                analyzersConfiguration.Formatting,
-                analyzersConfiguration.ConfigFileUri,
-                analyzersConfiguration.DiagnosticBuilders);
+                current.Cloud,
+                current.ModuleAliases,
+                current.ProviderAliases,
+                current.ProvidersConfig,
+                current.ImplicitProvidersConfig,
+                analyzersConfiguration,
+                current.CacheRootDirectory,
+                current.ExperimentalFeaturesEnabled,
+                current.Formatting,
+                current.ConfigFileUri,
+                current.DiagnosticBuilders);
         }
 
-        public static RootConfiguration WithAllAnalyzersDisabled(this RootConfiguration analyzersConfiguration)
+        public static RootConfiguration WithAllAnalyzersDisabled(this RootConfiguration current)
         {
             return new RootConfiguration(
-                analyzersConfiguration.Cloud,
-                analyzersConfiguration.ModuleAliases,
-                analyzersConfiguration.ProviderAliases,
-                analyzersConfiguration.ProvidersConfig,
-                analyzersConfiguration.ImplicitProvidersConfig,
-                analyzersConfiguration.Analyzers.WithAllAnalyzersDisabled(),
-                analyzersConfiguration.CacheRootDirectory,
-                analyzersConfiguration.ExperimentalFeaturesEnabled,
-                analyzersConfiguration.Formatting,
-                analyzersConfiguration.ConfigFileUri,
-                analyzersConfiguration.DiagnosticBuilders);
+                current.Cloud,
+                current.ModuleAliases,
+                current.ProviderAliases,
+                current.ProvidersConfig,
+                current.ImplicitProvidersConfig,
+                current.Analyzers.WithAllAnalyzersDisabled(),
+                current.CacheRootDirectory,
+                current.ExperimentalFeaturesEnabled,
+                current.Formatting,
+                current.ConfigFileUri,
+                current.DiagnosticBuilders);
         }
 
-        public static RootConfiguration WithAnalyzersDisabled(this RootConfiguration analyzersConfiguration, params string[] analyzerCodesToDisable)
+        public static RootConfiguration WithAnalyzersDisabled(this RootConfiguration current, params string[] analyzerCodesToDisable)
         {
             return new RootConfiguration(
-                analyzersConfiguration.Cloud,
-                analyzersConfiguration.ModuleAliases,
-                analyzersConfiguration.ProviderAliases,
-                analyzersConfiguration.ProvidersConfig,
-                analyzersConfiguration.ImplicitProvidersConfig,
-                analyzersConfiguration.Analyzers.WithAnalyzersDisabled(analyzerCodesToDisable),
-                analyzersConfiguration.CacheRootDirectory,
-                analyzersConfiguration.ExperimentalFeaturesEnabled,
-                analyzersConfiguration.Formatting,
-                analyzersConfiguration.ConfigFileUri,
-                analyzersConfiguration.DiagnosticBuilders);
+                current.Cloud,
+                current.ModuleAliases,
+                current.ProviderAliases,
+                current.ProvidersConfig,
+                current.ImplicitProvidersConfig,
+                current.Analyzers.WithAnalyzersDisabled(analyzerCodesToDisable),
+                current.CacheRootDirectory,
+                current.ExperimentalFeaturesEnabled,
+                current.Formatting,
+                current.ConfigFileUri,
+                current.DiagnosticBuilders);
         }
     }
 }

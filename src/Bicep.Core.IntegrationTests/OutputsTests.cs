@@ -226,11 +226,11 @@ output out resource = resource
             var result = CompilationHelper.Compile(ServicesWithExtensibility,
             """
             provider 'bar@1.0.0' with {
-              connectionString: 'asdf'
+                connectionString: 'asdf'
             } as stg
 
             resource container 'stg:container' = {
-              name: 'myblob'
+                name: 'myblob'
             }
 
             output out resource = container

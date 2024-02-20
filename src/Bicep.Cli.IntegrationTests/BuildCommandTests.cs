@@ -391,7 +391,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
         }
 
         [TestMethod]
-        public async Task Build_WithNonExistantOutDir_ShouldFail_WithExpectedErrorMessage()
+        public async Task Build_WithNonExistentOutDir_ShouldFail_WithExpectedErrorMessage()
         {
             var bicepPath = FileHelper.SaveResultFile(
                 TestContext,

@@ -140,14 +140,14 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         public IEnumerable<ResourceTypeReference> GetAvailableAzureResourceTypes() =>
-            namespaceTypes.Values.SingleOrDefault(x
-                => x.Name.Equals(AzNamespaceType.BuiltInName, StringComparison.Ordinal))?.ResourceTypeProvider.GetAvailableTypes() ?? [];
+            namespaceTypes.Values.SingleOrDefault(x => x.Name.Equals(AzNamespaceType.BuiltInName, StringComparison.Ordinal))?.ResourceTypeProvider.GetAvailableTypes() ??
+            Enumerable.Empty<ResourceTypeReference>();
 
         public ILookup<string, ImmutableArray<ResourceTypeReference>> GetGroupedResourceTypes()
-            => namespaceTypes.Values
+        {
+            return namespaceTypes.Values
                 .SelectMany(x => x.ResourceTypeProvider.TypeReferencesByType)
-                .ToLookup(
-                    x => x.Key,
-                    x => x.Value, StringComparer.OrdinalIgnoreCase);
+                .ToLookup(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
+        }
     }
 }
