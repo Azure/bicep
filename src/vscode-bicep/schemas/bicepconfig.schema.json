@@ -723,9 +723,9 @@
           "type": "boolean",
           "description": "Allows you to define your own custom functions. See https://aka.ms/bicep/experimental-features#userdefinedfunctions"
         },
-        "prettyPrinting": {
+        "legacyFormatter": {
           "type": "boolean",
-          "description": "Activates a formatting mode that utilizes an advanced pretty-printing algorithm. See https://aka.ms/bicep/experimental-features#prettyprinting"
+          "description": "Enables code formatting using the legacy formatter. See https://aka.ms/bicep/experimental-features#legacyformatter"
         },
         "testFramework": {
           "type": "boolean",

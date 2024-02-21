@@ -18,11 +18,11 @@ The provider definitions also support aliasing via `bicepconfig.json` similar to
 ### `extensibility`
 Allows Bicep to use a provider model to deploy non-ARM resources. Currently, we only support a Kubernetes provider. See [Bicep extensibility Kubernetes provider](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/bicep-extensibility-kubernetes-provider).
 
+### `legacyFormatter`
+Enables code formatting with the legacy formatter. This feature flag is introduced to ensure a safer transition to the v2 formatter that implements a pretty-printing algorithm. It is intended for temporary use and will be phased out soon.
+
 ### `optionalModuleNames`
 Enabling this feature makes the `name` property in the body of `module` declarations optional. When a `module` omits the `name` property with the feature enabled, the Bicep compiler will automatically generate an expression for the name of the resulting nested deployment in the JSON. If you specify the `name` property, the compiler will use the specified expression in the resulting JSON. For more information, see [Added optional module names as an experimental feature](https://github.com/Azure/bicep/pull/12600).
-
-### `prettyPrinting`
-Activates a formatting mode that utilizes an advanced pretty-printing algorithm described in [A Prettier Printer](https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf). This algorithm is designed to enhance code structure and intelligently adjust line breaks in accordance with a fixed line width to improve code readability. Users can customize the line width by adjusting the `formatting.width` setting in `bicepconfig.json`.
 
 ### `publishSource`
 Enables publishing source code with modules using the `bicep publish` `--with-source` option. This option must be enabled in the `bicepconfig.json` file that applies to the `.bicep` module file being published. When enabled, Bicep sources will be stored in the target registry along with the module itself.  Users with Bicep v0.25 and higher will be able to view the Bicep source directly when they press F12 ("Go to Definition") on a `module` declaration referencing the published `module`. For modules published without this option, users will only be able to view the compiled JSON.

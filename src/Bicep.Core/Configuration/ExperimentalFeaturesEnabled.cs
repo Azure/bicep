@@ -13,7 +13,7 @@ public record ExperimentalFeaturesEnabled(
     bool ResourceTypedParamsAndOutputs,
     bool SourceMapping,
     bool UserDefinedFunctions,
-    bool PrettyPrinting,
+    bool LegacyFormatter,
     bool TestFramework,
     bool Assertions,
     bool DynamicTypeLoading,
