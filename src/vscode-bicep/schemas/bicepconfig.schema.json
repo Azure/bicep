@@ -723,10 +723,6 @@
           "type": "boolean",
           "description": "Allows you to define your own custom functions. See https://aka.ms/bicep/experimental-features#userdefinedfunctions"
         },
-        "prettyPrinting": {
-          "type": "boolean",
-          "description": "Activates a formatting mode that utilizes an advanced pretty-printing algorithm. See https://aka.ms/bicep/experimental-features#prettyprinting"
-        },
         "testFramework": {
           "type": "boolean",
           "description": "Allows you to author client-side, offline unit-test test blocks. Should be enabled in tandem with `assertions`. See https://aka.ms/bicep/experimental-features#testframework"
