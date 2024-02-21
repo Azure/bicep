@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrintV2;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -27,10 +29,29 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult<TextEditContainer?>(null);
             }
 
+
             var lexingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.LexingErrorLookup;
             var parsingErrorLookup = context.Compilation.SourceFileGrouping.EntryPoint.ParsingErrorLookup;
-
             var printerOptions = context.Compilation.GetEntrypointSemanticModel().Configuration.Formatting.Data;
+            var featureProvider = context.Compilation.FeatureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUriEncoded());
+
+            if (featureProvider.LegacyFormatterEnabled)
+            {
+                var legacyOptions = PrettyPrintOptions.FromV2Options(printerOptions);
+                var legacyOutput = PrettyPrinter.PrintProgram(context.ProgramSyntax, legacyOptions, lexingErrorLookup, parsingErrorLookup);
+
+                if (legacyOutput is null)
+                {
+                    return Task.FromResult<TextEditContainer?>(null);
+                }
+
+                return Task.FromResult<TextEditContainer?>(new TextEditContainer(new TextEdit
+                {
+                    Range = context.ProgramSyntax.Span.ToRange(context.LineStarts),
+                    NewText = legacyOutput,
+                }));
+            }
+
             var printerContext = PrettyPrinterV2Context.Create(printerOptions, lexingErrorLookup, parsingErrorLookup);
             var output = PrettyPrinterV2.Print(context.ProgramSyntax, printerContext);
 

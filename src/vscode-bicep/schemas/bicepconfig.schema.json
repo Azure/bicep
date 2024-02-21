@@ -723,6 +723,10 @@
           "type": "boolean",
           "description": "Allows you to define your own custom functions. See https://aka.ms/bicep/experimental-features#userdefinedfunctions"
         },
+        "legacyFormatter": {
+          "type": "boolean",
+          "description": "Enables code formatting using the legacy formatter. See https://aka.ms/bicep/experimental-features#legacyformatter"
+        },
         "testFramework": {
           "type": "boolean",
           "description": "Allows you to author client-side, offline unit-test test blocks. Should be enabled in tandem with `assertions`. See https://aka.ms/bicep/experimental-features#testframework"

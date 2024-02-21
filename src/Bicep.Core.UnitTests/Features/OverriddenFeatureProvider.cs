@@ -30,6 +30,8 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool UserDefinedFunctionsEnabled => overrides.UserDefinedFunctionsEnabled ?? features.UserDefinedFunctionsEnabled;
 
+    public bool LegacyFormatterEnabled => overrides.LegacyFormatterEnabled ?? features.LegacyFormatterEnabled;
+
     public bool TestFrameworkEnabled => overrides.TestFrameworkEnabled ?? features.TestFrameworkEnabled;
 
     public bool AssertsEnabled => overrides.AssertsEnabled ?? features.AssertsEnabled;

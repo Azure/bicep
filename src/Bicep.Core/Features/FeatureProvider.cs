@@ -28,6 +28,8 @@ namespace Bicep.Core.Features
 
         public bool UserDefinedFunctionsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedFunctions;
 
+        public bool LegacyFormatterEnabled => configuration.ExperimentalFeaturesEnabled.LegacyFormatter;
+
         public bool TestFrameworkEnabled => this.configuration.ExperimentalFeaturesEnabled.TestFramework;
 
         public bool AssertsEnabled => configuration.ExperimentalFeaturesEnabled.Assertions;

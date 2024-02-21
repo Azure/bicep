@@ -8,6 +8,7 @@ using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -33,6 +34,28 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().MatchRegex(@"DEPRECATED: The parameter --indentKind is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-kind instead.");
             error.Should().MatchRegex(@"DEPRECATED: The parameter --indentSize is deprecated and will be removed in a future version of Bicpe CLI. Use --indent-size instead.");
             error.Should().MatchRegex(@"DEPRECATED: The parameter --insertFinalNewline is deprecated and will be removed in a future version of Bicpe CLI. Use --insert-final-newline instead.");
+        }
+
+        [TestMethod]
+        public async Task Format_WithLegacyFormatterEnabled_InvokesLegacyFormatter()
+        {
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+            {
+                ["main.bicep"] = "var obj = {'longString': 'loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong'}",
+            });
+
+            var result = await Bicep(
+                services => services
+                    .WithFeatureOverrides(new FeatureProviderOverrides(LegacyFormatterEnabled: true))
+                    .WithFileSystem(fileSystem),
+                "format",
+                "main.bicep");
+
+            AssertSuccess(result);
+
+            fileSystem.FileExists("main.bicep").Should().BeTrue();
+            fileSystem.File.ReadAllText("main.bicep").Should().Be("var obj = { 'longString': 'loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong' }\n");
+
         }
 
         [TestMethod]

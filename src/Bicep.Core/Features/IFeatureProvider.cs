@@ -23,6 +23,8 @@ public interface IFeatureProvider
 
     bool ProviderRegistryEnabled { get; }
 
+    bool LegacyFormatterEnabled { get; }
+
     bool TestFrameworkEnabled { get; }
 
     bool AssertsEnabled { get; }

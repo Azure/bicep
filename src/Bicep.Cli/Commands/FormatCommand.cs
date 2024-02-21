@@ -6,8 +6,11 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Helpers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrint;
+using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.PrettyPrintV2;
 
 namespace Bicep.Cli.Commands;
@@ -18,17 +21,20 @@ public class FormatCommand : ICommand
     private readonly IFileResolver fileResolver;
     private readonly IFileSystem fileSystem;
     private readonly IConfigurationManager configurationManager;
+    private readonly IFeatureProviderFactory featureProviderFactory;
 
     public FormatCommand(
         IOContext io,
         IFileResolver fileResolver,
         IFileSystem fileSystem,
-        IConfigurationManager configurationManager)
+        IConfigurationManager configurationManager,
+        IFeatureProviderFactory featureProviderFactory)
     {
         this.io = io;
         this.fileResolver = fileResolver;
         this.fileSystem = fileSystem;
         this.configurationManager = configurationManager;
+        this.featureProviderFactory = featureProviderFactory;
     }
 
     public int Run(FormatArguments args)
@@ -44,6 +50,29 @@ public class FormatCommand : ICommand
 
         BaseParser parser = PathHelper.HasBicepExtension(inputUri) ? new Parser(fileContents) : new ParamsParser(fileContents);
         var program = parser.Program();
+        var featureProvider = this.featureProviderFactory.GetFeatureProvider(inputUri);
+
+        if (featureProvider.LegacyFormatterEnabled)
+        {
+            var v2Options = this.GetPrettyPrinterOptions(inputUri, args);
+            var legacyOptions = PrettyPrintOptions.FromV2Options(v2Options);
+            var output = PrettyPrinter.PrintProgram(program, legacyOptions, parser.LexingErrorLookup, parser.ParsingErrorLookup);
+
+            if (args.OutputToStdOut)
+            {
+                io.Output.Write(output);
+                io.Output.Flush();
+            }
+            else
+            {
+                var outputPath = PathHelper.ResolveDefaultOutputPath(inputUri.LocalPath, args.OutputDir, args.OutputFile, path => path, this.fileSystem);
+
+                this.fileSystem.File.WriteAllText(outputPath, output);
+            }
+
+            return 0;
+        }
+
         var options = GetPrettyPrinterOptions(inputUri, args);
         var context = PrettyPrinterV2Context.Create(options, parser.LexingErrorLookup, parser.ParsingErrorLookup);
 
