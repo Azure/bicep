@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.Core.Syntax.Providers;
+using Bicep.Core.Syntax;
 
-public interface IProviderSpecificationSyntax : ISymbolNameSource
+namespace Bicep.Core.TypeSystem.Providers;
+
+public interface IProviderSpecification : ISymbolNameSource
 {
     string NamespaceIdentifier { get; }
     string? Version { get; }

@@ -3,11 +3,11 @@
 
 using Bicep.Core.Parsing;
 
-namespace Bicep.Core.Syntax.Providers;
+namespace Bicep.Core.TypeSystem.Providers;
 
-public record InlinedProviderSpecificationSyntax(
+public record InlinedProviderSpecification(
     string NamespaceIdentifier,
     string Version,
     string UnexpandedArtifactAddress,
     bool IsValid,
-    TextSpan Span) : IProviderSpecificationSyntax;
+    TextSpan Span) : IProviderSpecification;

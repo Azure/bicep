@@ -11,6 +11,7 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Providers;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -207,9 +208,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return ArtifactType.Module;
             }
 
-            if (parameter.ParameterType == typeof(LegacyProviderSpecificationSyntax))
+            if (parameter.ParameterType == typeof(LegacyProviderSpecification))
             {
-                return new LegacyProviderSpecificationSyntax("mock", "1.0.0", true, TextSpan.Nil);
+                return new LegacyProviderSpecification("mock", "1.0.0", true, TextSpan.Nil);
             }
 
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");

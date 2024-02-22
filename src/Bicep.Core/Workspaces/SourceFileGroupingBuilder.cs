@@ -368,7 +368,7 @@ namespace Bicep.Core.Workspaces
                 return new(x => x.ProvidersAreDisabled());
             }
 
-            if (providerDeclarationSyntax.Specification is LegacyProviderSpecificationSyntax { } legacySpecification)
+            if (providerDeclarationSyntax.Specification is LegacyProviderSpecification { } legacySpecification)
             {
                 if (!featureProvider.DynamicTypeLoadingEnabled)
                 {
@@ -386,7 +386,7 @@ namespace Bicep.Core.Workspaces
                 return new(x => x.UnrecognizedProvider(providerDeclarationSyntax.Specification.NamespaceIdentifier));
             }
 
-            if (providerDeclarationSyntax.Specification is InlinedProviderSpecificationSyntax { } inlinedSpecification)
+            if (providerDeclarationSyntax.Specification is InlinedProviderSpecification { } inlinedSpecification)
             {
                 if (!uriResult.IsSuccess(out var typesDataUri, out var uriResolutionError))
                 {
@@ -421,8 +421,7 @@ namespace Bicep.Core.Workspaces
                 return new(new ResourceTypesProviderDescriptor(configLookupValue, file.FileUri));
             }
 
-            var unreachableException = new UnreachableException("artifact path is validated during artifact creation so Source & Version must cannot be null");
-            var providerNamespaceIdentifier = providerEntry.Source?.Split('/')[^1] ?? throw unreachableException;
+            var providerNamespaceIdentifier = providerEntry.Source?.Split('/')[^1] ?? throw new UnreachableException("artifact Source is validated during artifact creation, it cannot be null");
 
             if (!uriResult.IsSuccess(out var uri, out var uriResoulutionError))
             {
@@ -432,7 +431,7 @@ namespace Bicep.Core.Workspaces
             return new(new ResourceTypesProviderDescriptor(
                 providerNamespaceIdentifier,
                 file.FileUri,
-                providerEntry.Version ?? throw unreachableException,
+                providerEntry.Version ?? throw new UnreachableException("artifact Version is validated during artifact creation, it cannot be null"),
                 providerDeclarationSyntax.Alias?.IdentifierName ?? configLookupValue,
                 artifactReference,
                 uri));

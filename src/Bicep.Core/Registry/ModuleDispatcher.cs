@@ -12,6 +12,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Providers;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
@@ -116,7 +117,7 @@ namespace Bicep.Core.Registry
             var config = configurationManager.GetConfiguration(parentModuleUri);
             switch (providerDeclarationSyntax.Specification)
             {
-                case InlinedProviderSpecificationSyntax inlinedSpec:
+                case InlinedProviderSpecification inlinedSpec:
                     return new(inlinedSpec.UnexpandedArtifactAddress);
                 default:
                     if (!config.ProvidersConfig.TryGetProviderSource(providerDeclarationSyntax.Specification.NamespaceIdentifier).IsSuccess(out var providerSource, out var errorBuilder))

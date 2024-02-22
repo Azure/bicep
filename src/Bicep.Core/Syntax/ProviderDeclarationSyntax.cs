@@ -7,6 +7,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax.Providers;
+using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Core.Syntax
 {
@@ -22,7 +23,7 @@ namespace Bicep.Core.Syntax
             this.SpecificationString = specificationString;
             this.WithClause = withClause;
             this.AsClause = asClause;
-            this.Specification = ProviderSpecificationSyntaxFactory.CreateProviderSpecificationSyntax(specificationString);
+            this.Specification = ProviderSpecificationFactory.CreateProviderSpecification(specificationString);
         }
 
         public Token Keyword { get; }
@@ -33,7 +34,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase AsClause { get; }
 
-        public IProviderSpecificationSyntax Specification { get; }
+        public IProviderSpecification Specification { get; }
 
         public ObjectSyntax? Config => (this.WithClause as ProviderWithClauseSyntax)?.Config as ObjectSyntax;
 
@@ -48,6 +49,6 @@ namespace Bicep.Core.Syntax
         public ArtifactType GetArtifactType() => ArtifactType.Provider;
 
         // if the provider specification is inlined return a value otherwise return null
-        public SyntaxBase? Path => this.Specification is InlinedProviderSpecificationSyntax spec ? SyntaxFactory.CreateStringLiteral(spec.UnexpandedArtifactAddress) : null;
+        public SyntaxBase? Path => this.Specification is InlinedProviderSpecification spec ? SyntaxFactory.CreateStringLiteral(spec.UnexpandedArtifactAddress) : null;
     }
 }

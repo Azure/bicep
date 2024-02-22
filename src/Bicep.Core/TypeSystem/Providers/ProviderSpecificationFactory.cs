@@ -3,10 +3,12 @@
 
 using System.Text.RegularExpressions;
 using Bicep.Core.Parsing;
+using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 
-namespace Bicep.Core.Syntax.Providers;
+namespace Bicep.Core.TypeSystem.Providers;
 
-public static partial class ProviderSpecificationSyntaxFactory
+public static partial class ProviderSpecificationFactory
 {
     // The setting below adds syntax highlighting for regex.
     // language=regex
@@ -30,7 +32,7 @@ public static partial class ProviderSpecificationSyntaxFactory
     [GeneratedRegex(@"^\S*[:\/](?<name>\S+)$", RegexOptions.ECMAScript | RegexOptions.Compiled)]
     private static partial Regex RepositoryNamePattern();
 
-    public static IProviderSpecificationSyntax CreateProviderSpecificationSyntax(SyntaxBase syntax)
+    public static IProviderSpecification CreateProviderSpecification(SyntaxBase syntax)
      => syntax switch
      {
          StringSyntax stringSyntax when stringSyntax.TryGetLiteralValue() is { } value &&
@@ -38,15 +40,15 @@ public static partial class ProviderSpecificationSyntaxFactory
              => specification,
 
          IdentifierSyntax identifierSyntax
-             => new ConfigurationManagedProviderSpecificationSyntax(
+             => new ConfigurationManagedProviderSpecification(
                  identifierSyntax.IdentifierName,
                  IsValid: true,
                  identifierSyntax.Span),
 
-         _ => new ProviderSpecificationSyntaxTrivia(syntax.Span)
+         _ => new ProviderSpecificationTrivia(syntax.Span)
      };
 
-    private static IProviderSpecificationSyntax? TryCreateFromStringSyntax(StringSyntax stringSyntax, string value)
+    private static IProviderSpecification? TryCreateFromStringSyntax(StringSyntax stringSyntax, string value)
     {
         if (LegacyBuiltInSpecificationPattern().Match(value) is { Success: true } legacyMatch)
         {
@@ -54,14 +56,14 @@ public static partial class ProviderSpecificationSyntaxFactory
             var version = legacyMatch.Groups["version"].Value;
             var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
 
-            return new LegacyProviderSpecificationSyntax(name, version, IsValid: true, span);
+            return new LegacyProviderSpecification(name, version, IsValid: true, span);
         }
         else if (ConfigManagedSpecificationPattern().Match(value) is { Success: true } builtInMatch)
         {
             var name = builtInMatch.Groups["name"].Value;
             var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
 
-            return new ConfigurationManagedProviderSpecificationSyntax(name, IsValid: true, span);
+            return new ConfigurationManagedProviderSpecification(name, IsValid: true, span);
         }
         else if (InlinedSpecificationPattern().Match(value) is { Success: true } registryMatch)
         {
@@ -74,7 +76,7 @@ public static partial class ProviderSpecificationSyntaxFactory
             var unexpandedArtifactAddress = $"{address}:{version}";
             var name = RepositoryNamePattern().Match(address).Groups["name"].Value;
 
-            return new InlinedProviderSpecificationSyntax(name, version, unexpandedArtifactAddress, IsValid: true, span);
+            return new InlinedProviderSpecification(name, version, unexpandedArtifactAddress, IsValid: true, span);
         }
         return null;
     }

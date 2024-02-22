@@ -15,6 +15,7 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Providers;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Diagnostics
@@ -2148,7 +2149,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP393",
                 $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
 
-            public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecificationSyntax syntax)
+            public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecification syntax)
             {
                 var codeFix = new CodeFix(
                     "Replace the import specification with an configuration backed identifier",

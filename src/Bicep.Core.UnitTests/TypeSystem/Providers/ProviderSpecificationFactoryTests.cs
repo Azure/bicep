@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Syntax;
-using Bicep.Core.Syntax.Providers;
+using Bicep.Core.TypeSystem.Providers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.Syntax;
+namespace Bicep.Core.UnitTests.TypeSystem.Providers;
 
 [TestClass]
-public class ImportSpecificationTests
+public class ProviderSpecificationFactoryTests
 {
     [TestMethod]
     [DataRow("br/public:az@1.0.0", true, "az")]
@@ -34,7 +34,7 @@ public class ImportSpecificationTests
         // Arrange
         var syntax = SyntaxFactory.CreateStringLiteral(input);
         // Act
-        var got = ProviderSpecificationSyntaxFactory.CreateProviderSpecificationSyntax(syntax);
+        var got = ProviderSpecificationFactory.CreateProviderSpecification(syntax);
         // Assert
         if (isValidDeclaration)
         {

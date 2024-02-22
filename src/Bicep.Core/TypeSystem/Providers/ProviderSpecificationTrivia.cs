@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Parsing;
+using Bicep.Core.TypeSystem.Providers;
 
 namespace Bicep.Core.Syntax.Providers;
-public record ProviderSpecificationSyntaxTrivia(TextSpan Span) : IProviderSpecificationSyntax
+public record ProviderSpecificationTrivia(TextSpan Span) : IProviderSpecification
 {
     public string NamespaceIdentifier => LanguageConstants.ErrorName;
     public bool IsValid => false;
