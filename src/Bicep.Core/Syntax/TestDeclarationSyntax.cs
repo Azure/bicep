@@ -58,8 +58,5 @@ namespace Bicep.Core.Syntax
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid test body is not available on this test due to errors. Use {nameof(TryGetBody)}() instead.");
 
         public ArtifactType GetArtifactType() => ArtifactType.Module;
-
-        public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration _)
-            => SyntaxHelper.TryGetForeignTemplatePath(this, x => x.PathHasNotBeenSpecified());
     }
 }

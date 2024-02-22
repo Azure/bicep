@@ -28,15 +28,10 @@ public record ProviderConfigEntry
 
 public partial class ProvidersConfiguration : ConfigurationSection<ImmutableDictionary<string, ProviderConfigEntry>>
 {
-    private readonly Uri? configurationPath;
+    private ProvidersConfiguration(ImmutableDictionary<string, ProviderConfigEntry> data) : base(data) { }
 
-    private ProvidersConfiguration(ImmutableDictionary<string, ProviderConfigEntry> data, Uri? configurationPath) : base(data)
-    {
-        this.configurationPath = configurationPath;
-    }
-
-    public static ProvidersConfiguration Bind(JsonElement element, Uri? configurationPath)
-        => new(element.ToNonNullObject<ImmutableDictionary<string, ProviderConfigEntry>>(), configurationPath);
+    public static ProvidersConfiguration Bind(JsonElement element)
+        => new(element.ToNonNullObject<ImmutableDictionary<string, ProviderConfigEntry>>());
 
     public ResultWithDiagnostic<ProviderConfigEntry> TryGetProviderSource(string providerName)
     {

@@ -288,7 +288,7 @@ namespace Bicep.Core.UnitTests.Registry
             (OciArtifactRegistry OciArtifactRegistry, OciArtifactReference OciArtifactReference) = CreateModuleRegistryWithCachedModuleReference(
                 bicepFileContents,
                 manifestFileContents,
-                $"{LanguageConstants.BicepPublicMcrRegistry}",
+                LanguageConstants.BicepPublicMcrRegistry,
                 "bicep/app/dapr-containerapps-environment/bicep/core",
                 tag: "1.0.1");
 

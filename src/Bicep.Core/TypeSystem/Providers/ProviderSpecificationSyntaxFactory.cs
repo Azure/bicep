@@ -65,12 +65,12 @@ public static partial class ProviderSpecificationSyntaxFactory
         }
         else if (InlinedSpecificationPattern().Match(value) is { Success: true } registryMatch)
         {
-            // NOTE(asilverman): The regex for the registry pattern is intentionally loose since it will be validated by the module resolver.
+            // The regex for the registry pattern is intentionally loose since it will be validated by the module resolver.
             var address = registryMatch.Groups["address"].Value;
             var version = registryMatch.Groups["version"].Value;
 
             var span = new TextSpan(stringSyntax.Span.Position + 1, address.Length);
-            // NOTE(asilverman): I normalize the artifact address to the way we represent module addresses, see https://github.com/Azure/bicep/issues/12202
+            // We normalize the artifact address to the way we represent module addresses, see https://github.com/Azure/bicep/issues/12202
             var unexpandedArtifactAddress = $"{address}:{version}";
             var name = RepositoryNamePattern().Match(address).Groups["name"].Value;
 

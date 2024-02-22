@@ -12,8 +12,6 @@ namespace Bicep.Core.Syntax
 {
     public class ProviderDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax, IArtifactReferenceSyntax
     {
-        private readonly Lazy<IProviderSpecificationSyntax> lazySpecification;
-
         public ProviderDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase specificationString, SyntaxBase withClause, SyntaxBase asClause)
             : base(leadingNodes)
         {
@@ -24,8 +22,7 @@ namespace Bicep.Core.Syntax
             this.SpecificationString = specificationString;
             this.WithClause = withClause;
             this.AsClause = asClause;
-
-            this.lazySpecification = new(() => ProviderSpecificationSyntaxFactory.CreateProviderSpecificationSyntax(specificationString));
+            this.Specification = ProviderSpecificationSyntaxFactory.CreateProviderSpecificationSyntax(specificationString);
         }
 
         public Token Keyword { get; }
@@ -36,7 +33,7 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase AsClause { get; }
 
-        public IProviderSpecificationSyntax Specification => lazySpecification.Value;
+        public IProviderSpecificationSyntax Specification { get; }
 
         public ObjectSyntax? Config => (this.WithClause as ProviderWithClauseSyntax)?.Config as ObjectSyntax;
 
@@ -52,24 +49,5 @@ namespace Bicep.Core.Syntax
 
         // if the provider specification is inlined return a value otherwise return null
         public SyntaxBase? Path => this.Specification is InlinedProviderSpecificationSyntax spec ? SyntaxFactory.CreateStringLiteral(spec.UnexpandedArtifactAddress) : null;
-
-        public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration config)
-        {
-            if (this.Specification is InlinedProviderSpecificationSyntax inlinedSpec)
-            {
-                return new(inlinedSpec.UnexpandedArtifactAddress);
-            }
-
-            if (this.Specification is LegacyProviderSpecificationSyntax legacySpec)
-            {
-                return new("builtin");
-            }
-
-            if (!config.ProvidersConfig.TryGetProviderSource(this.Specification.NamespaceIdentifier).IsSuccess(out var providerSource, out var errorBuilder))
-            {
-                return new(errorBuilder);
-            }
-            return new($"br:{providerSource.Source}:{providerSource.Version}");
-        }
     }
 }

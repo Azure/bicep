@@ -18,6 +18,4 @@ public interface IArtifactReferenceSyntax
     SyntaxBase? Path { get; }
 
     ArtifactType GetArtifactType();
-
-    ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration config);
 }

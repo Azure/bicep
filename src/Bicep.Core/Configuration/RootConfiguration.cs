@@ -60,7 +60,7 @@ namespace Bicep.Core.Configuration
             var cloud = CloudConfiguration.Bind(element.GetProperty(CloudKey));
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configFileUri);
             var providerAliases = ProviderAliasesConfiguration.Bind(element.GetProperty(ProviderAliasesKey), configFileUri);
-            var providersConfig = ProvidersConfiguration.Bind(element.GetProperty(ProvidersConfigurationKey), configFileUri);
+            var providersConfig = ProvidersConfiguration.Bind(element.GetProperty(ProvidersConfigurationKey));
             var implicitProvidersConfig = ImplicitProvidersConfiguration.Bind(element.GetProperty(ImplicitProvidersConfigurationKey));
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;

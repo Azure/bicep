@@ -14,8 +14,6 @@ namespace Bicep.Core.UnitTests.Configuration;
 [TestClass]
 public class ProvidersConfigurationTests
 {
-    private static readonly Uri fakeBicepConfigUri = new("file:///C:/path/to/your/bicepconfig.json");
-
     [TestMethod]
     public void ProviderConfiguration_deserialization()
     {
@@ -33,7 +31,7 @@ public class ProvidersConfigurationTests
         }
         """);
 
-        var providers = ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ProvidersConfigurationKey), fakeBicepConfigUri);
+        var providers = ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ProvidersConfigurationKey));
         providers.Should().NotBeNull();
 
         providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
@@ -69,7 +67,7 @@ public class ProvidersConfigurationTests
         }
         """);
 
-        var providers = ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ProvidersConfigurationKey), fakeBicepConfigUri);
+        var providers = ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ProvidersConfigurationKey));
         providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
         azProvider!.BuiltIn.Should().BeFalse(); // because we must coerce the value for example of a result of a merge
         azProvider.Source.Should().Be("mcr.microsoft.com/bicep/providers/az");

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Buffers;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
@@ -156,13 +157,13 @@ namespace Bicep.Core.Extensions
 
         private static string[] GetPropertyNames(string path) => path.Split('.');
 
-        public static string[]? TryGetStringArray(this JsonElement element)
+        public static ImmutableArray<string>? TryGetStringArray(this JsonElement element)
         {
             if (element.ValueKind != JsonValueKind.Array)
             {
                 return null;
             }
-            return element.EnumerateArray().Select(x => x.GetString()).WhereNotNull().ToArray();
+            return element.EnumerateArray().Select(x => x.GetString()).WhereNotNull().ToImmutableArray();
         }
     }
 }

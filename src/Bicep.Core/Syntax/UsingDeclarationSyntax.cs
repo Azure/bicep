@@ -30,9 +30,6 @@ namespace Bicep.Core.Syntax
 
         public ArtifactType GetArtifactType() => ArtifactType.Module;
 
-        public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration _)
-            => SyntaxHelper.TryGetForeignTemplatePath(this, x => x.UsingPathHasNotBeenSpecified());
-
         public override TextSpan Span => TextSpan.Between(this.Keyword, this.Path);
 
         SyntaxBase IArtifactReferenceSyntax.SourceSyntax => Path;

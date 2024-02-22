@@ -11,6 +11,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
+using Bicep.Core.Syntax.Providers;
 using Bicep.Core.Utils;
 
 namespace Bicep.Core.Registry
@@ -83,13 +84,47 @@ namespace Bicep.Core.Registry
 
         public ResultWithDiagnostic<ArtifactReference> TryGetArtifactReference(IArtifactReferenceSyntax artifactReferenceSyntax, Uri parentModuleUri)
         {
-            var config = configurationManager.GetConfiguration(parentModuleUri);
-            if (!artifactReferenceSyntax.ResolveArtifactPath(config).IsSuccess(out var artifactPath, out var failureBuilder))
+            if (artifactReferenceSyntax is ProviderDeclarationSyntax providerDeclarationSyntax)
+            {
+                var artifactAddressResult = GetArtifactAddress(providerDeclarationSyntax, parentModuleUri);
+                if (!artifactAddressResult.IsSuccess(out var providerArtifactPath, out var providerDeclarationPathFailureBuilder))
+                {
+                    return new(providerDeclarationPathFailureBuilder);
+                }
+                return this.TryGetArtifactReference(artifactReferenceSyntax.GetArtifactType(), providerArtifactPath, parentModuleUri);
+            }
+
+            var artifactPathResult = SyntaxHelper.TryGetForeignTemplatePath(artifactReferenceSyntax, GetErrorBuilderDelegate(artifactReferenceSyntax));
+            if (!artifactPathResult.IsSuccess(out var artifactPath, out var failureBuilder))
             {
                 return new(failureBuilder);
             }
-
             return this.TryGetArtifactReference(artifactReferenceSyntax.GetArtifactType(), artifactPath, parentModuleUri);
+        }
+
+        private static DiagnosticBuilder.ErrorBuilderDelegate GetErrorBuilderDelegate(IArtifactReferenceSyntax artifactReferenceSyntax) => artifactReferenceSyntax switch
+        {
+            UsingDeclarationSyntax => x => x.UsingPathHasNotBeenSpecified(),
+            CompileTimeImportDeclarationSyntax => x => x.PathHasNotBeenSpecified(),
+            ModuleDeclarationSyntax => x => x.ModulePathHasNotBeenSpecified(),
+            TestDeclarationSyntax => x => x.PathHasNotBeenSpecified(),
+            _ => throw new NotImplementedException($"Unexpected artifact reference syntax type '{artifactReferenceSyntax.GetType().Name}'.")
+        };
+
+        private ResultWithDiagnostic<string> GetArtifactAddress(ProviderDeclarationSyntax providerDeclarationSyntax, Uri parentModuleUri)
+        {
+            var config = configurationManager.GetConfiguration(parentModuleUri);
+            switch (providerDeclarationSyntax.Specification)
+            {
+                case InlinedProviderSpecificationSyntax inlinedSpec:
+                    return new(inlinedSpec.UnexpandedArtifactAddress);
+                default:
+                    if (!config.ProvidersConfig.TryGetProviderSource(providerDeclarationSyntax.Specification.NamespaceIdentifier).IsSuccess(out var providerSource, out var errorBuilder))
+                    {
+                        return new(errorBuilder);
+                    }
+                    return new($"br:{providerSource.Source}:{providerSource.Version}");
+            }
         }
 
         public RegistryCapabilities GetRegistryCapabilities(ArtifactReference artifactReference)

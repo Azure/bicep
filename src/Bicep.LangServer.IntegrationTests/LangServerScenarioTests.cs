@@ -67,7 +67,7 @@ param foo: string
         // * The user forces a module restore to fetch the latest contents
 
         var clientFactory = RegistryHelper.CreateMockRegistryClient("mockregistry.io", "test/foo");
-        async Task setPublishedModuleContents(string source)
+        async Task publish(string source)
             => await RegistryHelper.PublishModuleToRegistry(
                 clientFactory,
                 "modulename",
@@ -84,7 +84,7 @@ param foo: string
                 .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>());
 
         // the published module has the wrong param type - this should cause an error
-        await setPublishedModuleContents("param foo bool");
+        await publish("param foo bool");
 
         var paramsFileUri = new Uri("file:///main.bicepparam");
 
@@ -102,9 +102,9 @@ param foo = 'abc'
         allDiags.Should().ContainSingle(x => x.Message.Contains("Expected a value of type \"bool\" but the provided value is of type \"'abc'\"."));
 
         // the published module now has the correct type
-        await setPublishedModuleContents("param foo string");
+        await publish("param foo string");
 
-        await setPublishedModuleContents("param foo string");
+        await publish("param foo string");
         await helper.Client.Workspace.ExecuteCommand(new Command
         {
             Name = "forceModulesRestore",

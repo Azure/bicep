@@ -40,7 +40,4 @@ public class CompileTimeImportDeclarationSyntax : StatementSyntax, ITopLevelDecl
     public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, this.FromClause);
 
     public ArtifactType GetArtifactType() => ArtifactType.Module;
-
-    public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration _)
-        => SyntaxHelper.TryGetForeignTemplatePath(this, x => x.PathHasNotBeenSpecified());
 }

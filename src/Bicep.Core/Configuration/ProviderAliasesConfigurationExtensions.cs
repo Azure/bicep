@@ -13,13 +13,10 @@ public static class ProviderAliasesConfigurationExtensions
                 null);
 
     public static ProvidersConfiguration WithProvidersConfiguration(this ProvidersConfiguration c, string providersJsonString)
-        => ProvidersConfiguration.Bind(
-                JsonDocument.Parse(providersJsonString).RootElement,
-                null);
+        => ProvidersConfiguration.Bind(JsonDocument.Parse(providersJsonString).RootElement);
 
-    public static ImplicitProvidersConfiguration WithImplicitPRovidersConfiguration(this ImplicitProvidersConfiguration c, string implicitProvidersJsonString)
-    => ImplicitProvidersConfiguration.Bind(
-                JsonDocument.Parse(implicitProvidersJsonString).RootElement);
+    public static ImplicitProvidersConfiguration WithImplicitProvidersConfiguration(this ImplicitProvidersConfiguration c, string implicitProvidersJsonString)
+        => ImplicitProvidersConfiguration.Bind(JsonDocument.Parse(implicitProvidersJsonString).RootElement);
 
 
     public static RootConfiguration WithProviderAlias(this RootConfiguration rootConfiguration, string payload)
@@ -61,7 +58,7 @@ public static class ProviderAliasesConfigurationExtensions
             rootConfiguration.ModuleAliases,
             rootConfiguration.ProviderAliases,
             rootConfiguration.ProvidersConfig,
-            rootConfiguration.ImplicitProvidersConfig.WithImplicitPRovidersConfiguration(payload),
+            rootConfiguration.ImplicitProvidersConfig.WithImplicitProvidersConfiguration(payload),
             rootConfiguration.Analyzers,
             rootConfiguration.CacheRootDirectory,
             rootConfiguration.ExperimentalFeaturesEnabled,

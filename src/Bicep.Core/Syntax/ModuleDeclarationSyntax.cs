@@ -74,8 +74,5 @@ namespace Bicep.Core.Syntax
         public bool HasCondition() => this.Value is IfConditionSyntax or ForSyntax { Body: IfConditionSyntax };
 
         public ArtifactType GetArtifactType() => ArtifactType.Module;
-
-        public ResultWithDiagnostic<string> ResolveArtifactPath(RootConfiguration _)
-            => SyntaxHelper.TryGetForeignTemplatePath(this, x => x.ModulePathHasNotBeenSpecified());
     }
 }
