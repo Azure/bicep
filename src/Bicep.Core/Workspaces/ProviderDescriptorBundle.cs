@@ -4,46 +4,42 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
-using System.Collections.Concurrent;
 using System.Collections.Immutable;
 
 namespace Bicep.Core.Workspaces;
 
 public record ProviderDescriptorBundle(
-    IEnumerable<ResultWithDiagnostic<ResourceTypesProviderDescriptor>> ImplicitProviders,
+    ImmutableArray<ResultWithDiagnostic<ResourceTypesProviderDescriptor>> ImplicitProviders,
     ImmutableDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ResourceTypesProviderDescriptor>> ExplicitProviderLookup);
 
 public class ProviderDescriptorBundleBuilder
 {
-    public ProviderDescriptorBundleBuilder(IEnumerable<ResultWithDiagnostic<ResourceTypesProviderDescriptor>> builtInProviders, ImmutableDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ResourceTypesProviderDescriptor>> explicitProviderLookup)
+    public ProviderDescriptorBundleBuilder(ImmutableArray<ResultWithDiagnostic<ResourceTypesProviderDescriptor>> implicitProviders, ImmutableDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ResourceTypesProviderDescriptor>> explicitProviderLookup)
     {
-        foreach (var provider in builtInProviders)
+        this.implicitProviders = implicitProviders.ToBuilder();
+        this.explicitProviderLookup = explicitProviderLookup.ToBuilder();
+    }
+
+    public ProviderDescriptorBundleBuilder()
+    {
+        implicitProviders = ImmutableArray.CreateBuilder<ResultWithDiagnostic<ResourceTypesProviderDescriptor>>();
+        explicitProviderLookup = ImmutableDictionary.CreateBuilder<ProviderDeclarationSyntax, ResultWithDiagnostic<ResourceTypesProviderDescriptor>>();
+    }
+
+    private readonly ImmutableArray<ResultWithDiagnostic<ResourceTypesProviderDescriptor>>.Builder implicitProviders;
+
+    private readonly ImmutableDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ResourceTypesProviderDescriptor>>.Builder explicitProviderLookup;
+
+    public void AddImplicitProvider(ResultWithDiagnostic<ResourceTypesProviderDescriptor> descriptor) => implicitProviders.Add(descriptor);
+
+    public void AddOrUpdateExplicitProvider(ProviderDeclarationSyntax syntax, ResultWithDiagnostic<ResourceTypesProviderDescriptor> descriptor)
+    {
+        if (explicitProviderLookup.ContainsKey(syntax))
         {
-            AddImplicitProvider(provider);
+            explicitProviderLookup.Remove(syntax);
         }
-
-        foreach (var (providerDeclaration, providerDescriptor) in explicitProviderLookup)
-        {
-            AddOrUpdateExplicitProvider(providerDeclaration, providerDescriptor);
-        }
+        explicitProviderLookup.Add(syntax, descriptor);
     }
-
-    public ProviderDescriptorBundleBuilder() { }
-
-    private readonly HashSet<ResultWithDiagnostic<ResourceTypesProviderDescriptor>> implicitProviders = [];
-
-    private readonly ConcurrentDictionary<ProviderDeclarationSyntax, ResultWithDiagnostic<ResourceTypesProviderDescriptor>> explicitProviderLookup = new();
-
-    public void AddImplicitProvider(ResultWithDiagnostic<ResourceTypesProviderDescriptor> descriptor)
-    {
-        implicitProviders.Add(descriptor);
-    }
-
-    public void AddOrUpdateExplicitProvider(ProviderDeclarationSyntax providerDeclaration, ResultWithDiagnostic<ResourceTypesProviderDescriptor> descriptor)
-    {
-        explicitProviderLookup.AddOrUpdate(providerDeclaration, descriptor, (_, _) => descriptor);
-    }
-
     public ProviderDescriptorBundle Build()
         => new(implicitProviders.ToImmutableArray(), explicitProviderLookup.ToImmutableDictionary(pair => pair.Key, pair => pair.Value));
 }

@@ -15,7 +15,9 @@ namespace Bicep.Core.TypeSystem.Providers
 {
     public class ResourceTypeProviderFactory : IResourceTypeProviderFactory
     {
-        private static readonly Lazy<IResourceTypeProvider> azResourceTypeProviderLazy = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), AzNamespaceType.Settings.ArmTemplateProviderVersion));
+        private static readonly Lazy<IResourceTypeProvider> azResourceTypeProviderLazy
+            = new(() => new AzResourceTypeProvider(new AzResourceTypeLoader(new AzTypeLoader()), AzNamespaceType.Settings.ArmTemplateProviderVersion));
+
         private record ResourceTypeLoaderKey(string Name, string Version);
         private readonly ConcurrentDictionary<ResourceTypeLoaderKey, ResultWithDiagnostic<IResourceTypeProvider>> cachedResourceTypeLoaders = new();
         private readonly IFileSystem fileSystem;
@@ -47,14 +49,14 @@ namespace Bicep.Core.TypeSystem.Providers
         private ResultWithDiagnostic<IResourceTypeProvider> GetDynamicallyLoadedResourceTypesProvider(ResourceTypesProviderDescriptor providerDescriptor)
         {
             var fullyQualifiedArtifactReference = providerDescriptor.ArtifactReference?.FullyQualifiedReference ?? throw new UnreachableException($"the reference is validated prior to a call to {nameof(this.GetResourceTypeProvider)}");
-            if (providerDescriptor.TypesDataFileUri is null)
+            if (providerDescriptor.TypesTgzUri is null)
             {
                 return new(x => x.ArtifactRestoreFailedWithMessage(
                     fullyQualifiedArtifactReference,
                     $"Provider {providerDescriptor.Name} requires a types base URI."));
             }
 
-            var typesLoader = OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesDataFileUri);
+            var typesLoader = OciTypeLoader.FromDisk(fileSystem, providerDescriptor.TypesTgzUri);
             if (providerDescriptor.Name == AzNamespaceType.BuiltInName)
             {
                 return new(new AzResourceTypeProvider(new AzResourceTypeLoader(typesLoader), providerDescriptor.Version));

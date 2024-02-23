@@ -284,10 +284,7 @@ namespace Bicep.Core.Parsing
         {
             var providerSpecificationSyntax = reader.Peek().Type switch
             {
-                TokenType.Identifier => this.WithRecovery(
-                    () => IdentifierOrSkip(b => b.ExpectedProviderAliasName()),
-                    RecoveryFlags.None,
-                    TokenType.NewLine),
+                TokenType.Identifier => new IdentifierSyntax(reader.Read()),
 
                 _ => this.WithRecovery(
                     () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification(false)),

@@ -7,6 +7,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Workspaces;
 
@@ -36,7 +37,11 @@ namespace Bicep.Core.Semantics.Namespaces
 
             void TryAddBuiltInNamespace(string @namespace)
             {
-                if (!namespaceProvider.TryGetNamespace(new(@namespace, sourceFile.FileUri), targetScope, features, sourceFile.FileKind).IsSuccess(out var namespaceType))
+                var descriptor = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
+                    @namespace,
+                    ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
+                    sourceFile.FileUri);
+                if (!namespaceProvider.TryGetNamespace(descriptor, targetScope, features, sourceFile.FileKind).IsSuccess(out var namespaceType))
                 {
                     // this namespace doesn't match a known built-in namespace
                     return;
