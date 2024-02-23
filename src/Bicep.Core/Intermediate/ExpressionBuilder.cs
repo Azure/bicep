@@ -779,6 +779,27 @@ public class ExpressionBuilder
                 }
 
                 var resource = Context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax);
+                if (resource is DeclaredResourceMetadata decl && !decl.IsAzResource)
+                {
+                    Expression nameExpression = indexExpression is {} ?
+                        new FunctionCallExpression(baseSyntax, "format", new Expression[] {
+                            new StringLiteralExpression(baseSyntax, $"{decl.Symbol.Name}[{{0}}]"),
+                            ConvertWithoutLowering(indexExpression),
+                        }.ToImmutableArray()) : 
+                        new StringLiteralExpression(baseSyntax, decl.Symbol.Name);
+
+                    return new FunctionCallExpression(
+                        method,
+                        "invokeResourceMethod",
+                        new Expression[] {
+                            nameExpression,
+                            new StringLiteralExpression(method.Name, method.Name.IdentifierName),
+                            new ArrayExpression(
+                                method,
+                                method.Arguments.Select(a => ConvertWithoutLowering(a.Expression)).ToImmutableArray()),
+                        }.ToImmutableArray());
+                }
+
                 var indexContext = resource switch
                 {
                     DeclaredResourceMetadata declaredResource => TryGetReplacementContext(declaredResource.NameSyntax, indexExpression, method),

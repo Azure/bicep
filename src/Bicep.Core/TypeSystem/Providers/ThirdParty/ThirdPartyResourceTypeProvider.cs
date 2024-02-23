@@ -57,7 +57,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
                 objectType.AdditionalPropertiesType,
                 isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
-                functions: null);
+                functions: objectType.MethodResolver.functionOverloads);
         }
 
         private static IEnumerable<TypeProperty> ConvertToReadOnly(IEnumerable<TypeProperty> properties)
