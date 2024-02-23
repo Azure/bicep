@@ -3,6 +3,8 @@
 #   and https://david.gardiner.net.au/2021/05/dependabot-nuget-lockfiles.html
 # Listens for a comment on a pull request beginning with "/{command}" and dispatches that command
 # E.g. commenting "/lockfiles" will dispatch the "lockfiles-command.yml" workflow
+#
+# Note: An "eyes" icon is added when the command has been seen, and a "rocket" icon when the command has been dispatched
 name: Slash Command Dispatch
 on:
   issue_comment:
@@ -10,6 +12,10 @@ on:
 jobs:
   slashCommandDispatch:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: write
     steps:
       - name: Bot Details
         id: bot-details
@@ -24,7 +30,7 @@ jobs:
           COMMENT_CONTEXT: ${{ toJson(steps.comment-branch.outputs) }}
         run: echo "$COMMENT_CONTEXT"
 
-      - name: Slash Command Dispatch
+      - name: Dispatch slash command
         uses: peter-evans/slash-command-dispatch@v4
         id: slash-command
         with:
