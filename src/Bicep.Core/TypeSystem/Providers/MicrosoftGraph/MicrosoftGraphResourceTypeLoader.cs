@@ -12,7 +12,7 @@ namespace Bicep.Core.TypeSystem.Providers.MicrosoftGraph
     {
         private readonly ITypeLoader typeLoader;
         private readonly MicrosoftGraphResourceTypeFactory resourceTypeFactory;
-        private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
+        private readonly ImmutableDictionary<ResourceTypeReference, CrossFileTypeReference> availableTypes;
 
         public MicrosoftGraphResourceTypeLoader()
         {
