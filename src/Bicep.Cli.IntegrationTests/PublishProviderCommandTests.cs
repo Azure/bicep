@@ -120,13 +120,12 @@ public class PublishProviderCommandTests : TestBase
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
 {
-  "Resources": {
+  "resources": {
     "Microsoft.Storage/storageAccounts@2022-05-01": {
-      "RelativePath": "types.json",
-      "Index": 179
+      "$ref": "types.json#/179"
     }
   },
-  "Functions": {}
+  "resourceFunctions": {}
 }
 """, outputDirectory);
 
@@ -140,13 +139,12 @@ public class PublishProviderCommandTests : TestBase
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
 {
-  "Resources": {
+  "resources": {
     "Microsoft.Storage/storageAccounts@2022-05-01": {
-      "RelativePath": "types.json",
-      "Index": 179
+      "$ref": "types.json#/179"
     }
   },
-  "Functions": {}
+  "resourceFunctions": {}
 }
 """, outputDirectory);
         FileHelper.SaveResultFile(TestContext, "types.json", "malformed", outputDirectory);
@@ -161,27 +159,24 @@ public class PublishProviderCommandTests : TestBase
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
 {
-  "Resources": {
+  "resources": {
     "Microsoft.Storage/storageAccounts@2022-05-01": {
-      "RelativePath": "types.json",
-      "Index": 179
+      "$ref": "types.json#/179"
     }
   },
-  "Functions": {}
+  "resourceFunctions": {}
 }
 """, outputDirectory);
         FileHelper.SaveResultFile(TestContext, "types.json", """
 [
   {
-    "13": {
-      "MinLength": 3,
-      "MaxLength": 24
-    }
+    "$type": "StringType",
+    "minLength": 3,
+    "maxLength": 24
   },
   {
-    "6": {
-      "Value": "Microsoft.Storage/storageAccounts"
-    }
+    "$type": "StringLiteralType",
+    "value": "Microsoft.Storage/storageAccounts"
   }
 ]
 """, outputDirectory);

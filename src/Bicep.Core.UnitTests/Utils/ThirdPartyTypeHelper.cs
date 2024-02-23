@@ -42,16 +42,18 @@ public static class ThirdPartyTypeHelper
             ScopeType.Unknown,
             ScopeType.Unknown,
             factory.GetReference(fooBodyType),
-            ResourceFlags.None));
+            ResourceFlags.None,
+            null));
 
-        var index = new TypeIndex(new Dictionary<string, TypeLocation>
-        {
-            [fooType.Name] = new TypeLocation("types.json", factory.GetIndex(fooType)),
-
-        }, new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<TypeLocation>>>());
+        var index = new TypeIndex(new Dictionary<string, CrossFileTypeReference>
+            {
+                [fooType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(fooType)),
+            }, new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+            null!,
+            null!);
 
         return GetTypesTgzBytesFromFiles(
-            ("index.json", StreamHelper.GetString(stream => JsonSerializer.Serialize(stream, index))),
+            ("index.json", StreamHelper.GetString(stream => TypeSerializer.SerializeIndex(stream, index))),
             ("types.json", StreamHelper.GetString(stream => TypeSerializer.Serialize(stream, factory.GetTypes()))));
     }
 

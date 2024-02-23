@@ -10,6 +10,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static class EventNames
         {
             public const string BicepFileOpen = "file/bicepopen";
+            public const string BicepParamFileOpen = "file/bicepparamopen";
 
             public const string NestedResourceDeclarationSnippetInsertion = "snippet/nestedresource";
             public const string TopLevelDeclarationSnippetInsertion = "snippet/toplevel";
