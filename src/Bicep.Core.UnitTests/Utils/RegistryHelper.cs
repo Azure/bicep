@@ -60,15 +60,21 @@ public static class RegistryHelper
 
     public static async Task PublishProviderToRegistryAsync(IDependencyHelper services, string pathToIndexJson, string target)
     {
+        var fileSystem = services.Construct<IFileSystem>();
+
+        var tgzData = await TypesV1Archive.GenerateProviderTarStream(fileSystem, pathToIndexJson);
+
+        await PublishProviderToRegistryAsync(services, target, tgzData);
+    }
+
+    public static async Task PublishProviderToRegistryAsync(IDependencyHelper services, string target, BinaryData tgzData)
+    {
         var dispatcher = services.Construct<IModuleDispatcher>();
         var fileSystem = services.Construct<IFileSystem>();
 
-        var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, PathHelper.FilePathToFileUrl(pathToIndexJson)).IsSuccess(out var @ref) ? @ref
-            : throw new InvalidOperationException($"Invalid target reference '{target}'. Specify a reference to an OCI artifact.");
+        var targetReference = dispatcher.TryGetArtifactReference(ArtifactType.Provider, target, new Uri("file:///main.bicep")).Unwrap();
 
-        var tgzStream = await TypesV1Archive.GenerateProviderTarStream(fileSystem, pathToIndexJson);
-
-        await dispatcher.PublishProvider(targetReference, tgzStream);
+        await dispatcher.PublishProvider(targetReference, tgzData);
     }
 
     private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
