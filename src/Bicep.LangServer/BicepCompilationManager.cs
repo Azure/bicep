@@ -389,7 +389,7 @@ namespace Bicep.LanguageServer
                         if (triggeredByFileOpenEvent)
                         {
                             var model = context.Compilation.GetEntrypointSemanticModel();
-                            SendTelemetryOnBicepFileOpen(model, documentUri.ToUriEncoded(), model.Configuration, sourceFiles, diagnostics);
+                            SendTelemetryOnBicepFileOpen(model, diagnostics);
                         }
 
                         // publish all the diagnostics
@@ -421,33 +421,30 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private void SendTelemetryOnBicepFileOpen(SemanticModel semanticModel, DocumentUri documentUri, RootConfiguration configuration, IEnumerable<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
+        private void SendTelemetryOnBicepFileOpen(SemanticModel model, IEnumerable<Diagnostic> diagnostics)
         {
             // Telemetry on linter state on bicep file open
-            var telemetryEvent = GetLinterStateTelemetryOnBicepFileOpen(configuration);
-            TelemetryProvider.PostEvent(telemetryEvent);
+            var linterEvent = GetLinterStateTelemetryOnBicepFileOpen(model.Configuration);
+            TelemetryProvider.PostEvent(linterEvent);
 
             // Telemetry on open bicep file and the referenced modules
-            telemetryEvent = GetTelemetryAboutSourceFiles(semanticModel, documentUri.ToUriEncoded(), sourceFiles, diagnostics);
+            var openEvent = model.SourceFile switch {
+                BicepFile bicepFile => GetBicepOpenTelemetryEvent(model, bicepFile, diagnostics),
+                BicepParamFile bicepParamFile => GetBicepParamOpenTelemetryEvent(model, bicepParamFile, diagnostics),
+                _ => null
+            };
 
-            if (telemetryEvent is not null)
+            if (openEvent is {})
             {
-                TelemetryProvider.PostEvent(telemetryEvent);
+                TelemetryProvider.PostEvent(openEvent);
             }
         }
 
-        public BicepTelemetryEvent? GetTelemetryAboutSourceFiles(SemanticModel semanticModel, Uri uri, IEnumerable<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
+        public BicepTelemetryEvent GetBicepOpenTelemetryEvent(SemanticModel semanticModel, BicepFile mainFile, IEnumerable<Diagnostic> diagnostics)
         {
-            var mainFile = sourceFiles.First(x => x.FileUri == uri) as BicepFile;
+            var properties = GetTelemetryPropertiesForMainFile(semanticModel, mainFile, diagnostics);
 
-            if (mainFile is null)
-            {
-                return null;
-            }
-
-            Dictionary<string, string> properties = GetTelemetryPropertiesForMainFile(semanticModel, mainFile, diagnostics);
-
-            var referencedFiles = sourceFiles.Where(x => x.FileUri != uri);
+            var referencedFiles = semanticModel.Compilation.SourceFileGrouping.SourceFiles.Where(x => x != mainFile);
             var propertiesFromReferencedFiles = GetTelemetryPropertiesForReferencedFiles(referencedFiles);
 
             properties = properties.Concat(propertiesFromReferencedFiles).ToDictionary(s => s.Key, s => s.Value);
@@ -455,7 +452,14 @@ namespace Bicep.LanguageServer
             return BicepTelemetryEvent.CreateBicepFileOpen(properties);
         }
 
-        private Dictionary<string, string> GetTelemetryPropertiesForMainFile(SemanticModel sematicModel, BicepFile bicepFile, IEnumerable<Diagnostic> diagnostics)
+        public BicepTelemetryEvent GetBicepParamOpenTelemetryEvent(SemanticModel semanticModel, BicepParamFile sourceFile, IEnumerable<Diagnostic> diagnostics)
+        {
+            var properties = GetTelemetryPropertiesForMainFile(semanticModel, sourceFile, diagnostics);
+
+            return BicepTelemetryEvent.CreateBicepParamFileOpen(properties);
+        }
+
+        private Dictionary<string, string> GetTelemetryPropertiesForMainFile(SemanticModel sematicModel, BicepSourceFile bicepFile, IEnumerable<Diagnostic> diagnostics)
         {
             Dictionary<string, string> properties = new();
 
@@ -465,21 +469,7 @@ namespace Bicep.LanguageServer
             properties.Add("Resources", sematicModel.DeclaredResources.Length.ToString());
             properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
 
-            var localPath = bicepFile.FileUri.LocalPath;
-
-            try
-            {
-                if (File.Exists(localPath))
-                {
-                    var fileInfo = new FileInfo(bicepFile.FileUri.LocalPath);
-                    properties.Add("FileSizeInBytes", fileInfo.Length.ToString());
-                }
-            }
-            catch (Exception)
-            {
-                // We should not throw in this case since it will block compilation.
-                properties.Add("FileSizeInBytes", string.Empty);
-            }
+            properties.Add("CharCount", bicepFile.GetOriginalSource().Length.ToString());
 
             properties.Add("LineCount", bicepFile.LineStarts.Length.ToString());
             properties.Add("Errors", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Error).ToString());
@@ -488,6 +478,7 @@ namespace Bicep.LanguageServer
             var disableNextLineDirectiveEndPositionAndCodes = bicepFile.DisabledDiagnosticsCache.GetDisableNextLineDiagnosticDirectivesCache().Values;
             properties.Add("DisableNextLineCount", disableNextLineDirectiveEndPositionAndCodes.Count().ToString());
             properties.Add("DisableNextLineCodes", GetDiagnosticCodesWithCount(disableNextLineDirectiveEndPositionAndCodes));
+            properties.Add("ExperimentalFeatures", string.Join(',', sematicModel.Features.EnabledFeatureMetadata.Select(x => x.name)));
 
             return properties;
         }
