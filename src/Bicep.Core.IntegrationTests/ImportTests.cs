@@ -29,7 +29,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var fileSystem = new Dictionary<string, string>
             {
-                ["/types/index.json"] = """{"Resources": {}, "Functions": {}}""",
+                ["/types/index.json"] = """{"resources": {}, "resourceFunctions": {}}""",
             };
 
             var services = new ServiceBuilder()

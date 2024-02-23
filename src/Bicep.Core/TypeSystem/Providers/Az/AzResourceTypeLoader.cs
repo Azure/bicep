@@ -12,8 +12,8 @@ namespace Bicep.Core.TypeSystem.Providers.Az
     {
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;
-        private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
-        private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<TypeLocation>>> availableFunctions;
+        private readonly ImmutableDictionary<ResourceTypeReference, CrossFileTypeReference> availableTypes;
+        private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<CrossFileTypeReference>>> availableFunctions;
 
         public AzResourceTypeLoader(ITypeLoader typeLoader)
         {
@@ -23,7 +23,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);
-            availableFunctions = indexedTypes.Functions.ToImmutableDictionary(
+            availableFunctions = indexedTypes.ResourceFunctions.ToImmutableDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value.ToImmutableDictionary(
                     x => x.Key,
@@ -44,7 +44,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
                 reference.ApiVersion is null ||
                 !apiFunctions.TryGetValue(reference.ApiVersion, out var functions))
             {
-                functions = ImmutableArray<TypeLocation>.Empty;
+                functions = ImmutableArray<CrossFileTypeReference>.Empty;
             }
 
             var functionOverloads = functions.SelectMany(typeLocation => resourceTypeFactory.GetResourceFunctionOverloads(typeLoader.LoadResourceFunctionType(typeLocation)));

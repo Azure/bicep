@@ -25,7 +25,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private async Task<ServiceBuilder> GetServices()
         {
-            var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"Resources": {}, "Functions": {}}""");
+            var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"resources": {}, "resourceFunctions": {}}""");
 
             var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(cacheRoot);
