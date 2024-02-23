@@ -7,6 +7,10 @@ jobs:
   lockfiles:
     # dotnet restore for src/vs-bicep/BicepInVisualStudio.sln doesn't seem to work well on Linux
     runs-on: windows-latest
+
+    permissions:
+      contents: write      
+
     steps:
       - name: Dump GitHub context
         env:
@@ -31,3 +35,6 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Update lockfiles
+          commit_user_name: ${{ github.actor }}
+          commit_user_email: ${{ github.actor }}@users.noreply.github.com
+          commit_author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
