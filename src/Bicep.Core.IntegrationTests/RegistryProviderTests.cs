@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -53,6 +54,40 @@ public class RegistryProviderTests : TestBase
 
         result.Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public async Task Existing_resources_are_permitted_through_3p_type_registry()
+    {
+        var registry = "example.azurecr.io";
+        var repository = $"providers/foo";
+
+        var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true);
+
+        var tgzData  = ThirdPartyTypeHelper.GetTestTypesTgz();
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+provider 'br:example.azurecr.io/providers/foo@1.2.3'
+
+resource fooRes 'fooType@v1' existing = {
+}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP035", DiagnosticLevel.Warning, """The specified "resource" declaration is missing the following required properties: "identifier". If this is an inaccuracy in the documentation, please report it to the Bicep Team."""),
+        });
+
+        result = await CompilationHelper.RestoreAndCompile(services, """
+provider 'br:example.azurecr.io/providers/foo@1.2.3'
+
+resource fooRes 'fooType@v1' existing = {
+  identifier: 'foo'
+}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
