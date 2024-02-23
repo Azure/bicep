@@ -307,7 +307,7 @@ var useDefaultSettings = true";
                 { "parameters", "2" },
                 { "resources", "3" },
                 { "variables", "2" },
-                { "fileSizeInBytes", "895" },
+                { "charCount", "895" },
                 { "lineCount", "42" },
                 {
                     // #disable-next-line

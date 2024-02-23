@@ -183,6 +183,12 @@ namespace Bicep.LanguageServer.Telemetry
                 properties: properties
             );
 
+        public static BicepTelemetryEvent CreateBicepParamFileOpen(Dictionary<string, string> properties)
+            => new(
+                eventName: TelemetryConstants.EventNames.BicepParamFileOpen,
+                properties: properties
+            );
+
         public static BicepTelemetryEvent CreateDeployStart(string deployId)
             => new(
                 eventName: TelemetryConstants.EventNames.DeployStart,
