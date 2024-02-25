@@ -65,7 +65,7 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static void AssertNoErrors(string error)
         {
-            foreach (var line in error.Split(["\r\n", "\n" ], StringSplitOptions.RemoveEmptyEntries))
+            foreach (var line in error.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries))
             {
                 line.Should().NotContain(") : Error ");
             }

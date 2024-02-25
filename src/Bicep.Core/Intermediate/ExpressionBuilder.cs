@@ -781,11 +781,11 @@ public class ExpressionBuilder
                 var resource = Context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax);
                 if (resource is DeclaredResourceMetadata decl && !decl.IsAzResource)
                 {
-                    Expression nameExpression = indexExpression is {} ?
+                    Expression nameExpression = indexExpression is { } ?
                         new FunctionCallExpression(baseSyntax, "format", new Expression[] {
                             new StringLiteralExpression(baseSyntax, $"{decl.Symbol.Name}[{{0}}]"),
                             ConvertWithoutLowering(indexExpression),
-                        }.ToImmutableArray()) : 
+                        }.ToImmutableArray()) :
                         new StringLiteralExpression(baseSyntax, decl.Symbol.Name);
 
                     return new FunctionCallExpression(

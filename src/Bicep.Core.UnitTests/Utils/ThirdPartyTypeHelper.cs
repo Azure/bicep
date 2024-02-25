@@ -4,7 +4,6 @@
 using System.Formats.Tar;
 using System.IO.Compression;
 using System.Text;
-using System.Text.Json;
 using Azure.Bicep.Types;
 using Azure.Bicep.Types.Concrete;
 using Azure.Bicep.Types.Index;
@@ -13,7 +12,7 @@ using Azure.Bicep.Types.Serialization;
 namespace Bicep.Core.UnitTests.Utils;
 
 public static class ThirdPartyTypeHelper
-{    
+{
     /// <summary>
     /// Returns a .tgz file containing a set of pre-defined types for testing purposes.
     /// </summary>
@@ -37,7 +36,7 @@ public static class ThirdPartyTypeHelper
             ["properties"] = new(factory.GetReference(fooBodyPropertiesType), ObjectTypePropertyFlags.Required, "Resource properties"),
         }, null));
 
-        var barFunctionType = factory.Create(() => new FunctionType([ 
+        var barFunctionType = factory.Create(() => new FunctionType([
             new FunctionParameter("bar", factory.GetReference(stringType), "The bar parameter"),
         ], factory.GetReference(stringType)));
 
@@ -47,14 +46,15 @@ public static class ThirdPartyTypeHelper
             ScopeType.Unknown,
             factory.GetReference(fooBodyType),
             ResourceFlags.None,
-            new Dictionary<string, ResourceTypeFunction>{
+            new Dictionary<string, ResourceTypeFunction>
+            {
                 ["convertBarToBaz"] = new(factory.GetReference(barFunctionType), "Converts a bar into a baz!")
             }));
 
         var index = new TypeIndex(new Dictionary<string, CrossFileTypeReference>
-            {
-                [fooType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(fooType)),
-            }, new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
+        {
+            [fooType.Name] = new CrossFileTypeReference("types.json", factory.GetIndex(fooType)),
+        }, new Dictionary<string, IReadOnlyDictionary<string, IReadOnlyList<CrossFileTypeReference>>>(),
             null!,
             null!);
 

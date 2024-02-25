@@ -22,8 +22,8 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
             var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
 
-            if (bodyType is ObjectType objectType && 
-                GetResourceFunctionOverloads(resourceType) is {} resourceFunctions &&
+            if (bodyType is ObjectType objectType &&
+                GetResourceFunctionOverloads(resourceType) is { } resourceFunctions &&
                 resourceFunctions.Any())
             {
                 bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, objectType.Properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, resourceFunctions);
@@ -47,7 +47,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 }
 
                 var builder = new FunctionOverloadBuilder(key);
-                if (value.Description is {})
+                if (value.Description is { })
                 {
                     builder = builder.WithDescription(value.Description);
                 }
@@ -60,7 +60,7 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                     var paramType = GetTypeSymbol(parameter.Type.Type, false);
                     builder = builder.WithRequiredParameter(parameter.Name, paramType, parameter.Description ?? "");
                 }
-                
+
                 builder = builder.WithFlags(FunctionFlags.RequiresInlining);
 
                 yield return builder.Build();
