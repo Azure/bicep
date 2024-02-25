@@ -10,7 +10,6 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
-using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.PrettyPrintV2;
 
 namespace Bicep.Cli.Commands;

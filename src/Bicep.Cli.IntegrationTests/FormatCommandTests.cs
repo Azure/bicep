@@ -86,7 +86,7 @@ namespace Bicep.Cli.IntegrationTests
                 // this should force an access denied error
                 var result = await Bicep("format", inputFile);
 
-                AssertFailure(result, "Empty.bicep"); 
+                AssertFailure(result, "Empty.bicep");
             }
         }
 

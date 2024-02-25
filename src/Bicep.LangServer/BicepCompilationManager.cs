@@ -428,13 +428,14 @@ namespace Bicep.LanguageServer
             TelemetryProvider.PostEvent(linterEvent);
 
             // Telemetry on open bicep file and the referenced modules
-            var openEvent = model.SourceFile switch {
+            var openEvent = model.SourceFile switch
+            {
                 BicepFile bicepFile => GetBicepOpenTelemetryEvent(model, bicepFile, diagnostics),
                 BicepParamFile bicepParamFile => GetBicepParamOpenTelemetryEvent(model, bicepParamFile, diagnostics),
                 _ => null
             };
 
-            if (openEvent is {})
+            if (openEvent is { })
             {
                 TelemetryProvider.PostEvent(openEvent);
             }

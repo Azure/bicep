@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
-using Azure.Deployments.Templates.Export;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 

@@ -3,17 +3,11 @@
 
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Text.Json;
-using Azure.Bicep.Types;
-using Azure.Bicep.Types.Concrete;
-using Azure.Bicep.Types.Index;
-using Azure.Bicep.Types.Serialization;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests;
@@ -70,7 +64,7 @@ output joke string = dadJoke.body.joke
 
         var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true);
 
-        var tgzData  = ThirdPartyTypeHelper.GetTestTypesTgz();
+        var tgzData = ThirdPartyTypeHelper.GetTestTypesTgz();
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
@@ -137,7 +131,7 @@ output joke string = dadJoke.body.joke
 
         var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true);
 
-        var tgzData  = ThirdPartyTypeHelper.GetTestTypesTgz();
+        var tgzData = ThirdPartyTypeHelper.GetTestTypesTgz();
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
