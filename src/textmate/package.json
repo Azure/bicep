@@ -5,7 +5,7 @@
     "tmlanguage-generator": "^0.5.2",
     "@types/html-escaper": "^3.0.2",
     "@types/jest": "^28.1.8",
-    "@types/node": "^20.11.19",
+    "@types/node": "^20.11.20",
     "@types/plist": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^6.21.0",
