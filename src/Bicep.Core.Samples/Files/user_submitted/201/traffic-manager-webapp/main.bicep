@@ -1,7 +1,11 @@
-@description('Relative DNS name for the traffic manager profile, resulting FQDN will be <uniqueDnsName>.trafficmanager.net, must be globally unique.')
+@description(
+  'Relative DNS name for the traffic manager profile, resulting FQDN will be <uniqueDnsName>.trafficmanager.net, must be globally unique.'
+)
 param uniqueDnsName string
 
-@description('Relative DNS name for the WebApps, must be globally unique.  An index will be appended for each Web App.')
+@description(
+  'Relative DNS name for the WebApps, must be globally unique.  An index will be appended for each Web App.'
+)
 param uniqueDnsNameForWebApp string
 
 @description('Name of the App Service Plan that is being created')

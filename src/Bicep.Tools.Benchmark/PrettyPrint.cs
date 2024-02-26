@@ -3,8 +3,7 @@
 using System.Collections.Immutable;
 using BenchmarkDotNet.Attributes;
 using Bicep.Core;
-using Bicep.Core.PrettyPrint;
-using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
@@ -34,13 +33,10 @@ public class PrettyPrint
 
     private BenchmarkData benchmarkData = null!;
 
-    private PrettyPrintOptions printOptions = null!;
-
     [GlobalSetup]
     public void GlobalSetup()
     {
         this.benchmarkData = CreateBenchmarkData();
-        this.printOptions = new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, true);
     }
 
     [Benchmark(Description = "Pretty-print the main file of each valid dataset")]
@@ -52,8 +48,10 @@ public class PrettyPrint
         foreach (var dataSet in dataSets)
         {
             var compilation = await compiler.CreateCompilation(new Uri($"file:///{dataSet.Name}/main.bicep"), skipRestore: true);
+            var semanticModel = compilation.GetEntrypointSemanticModel();
+            var context = PrettyPrinterV2Context.From(semanticModel);
 
-            PrettyPrinter.PrintValidProgram(compilation.GetEntrypointSemanticModel().Root.Syntax, this.printOptions);
+            PrettyPrinterV2.Print(semanticModel.Root.Syntax, context);
         }
     }
 }

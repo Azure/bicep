@@ -64,9 +64,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/22'
-      ]
+      addressPrefixes: ['10.0.0.0/22']
     }
     subnets: [
       {
@@ -182,7 +180,10 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 resource rbac 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(resourceGroup().id)
   properties: {
-    roleDefinitionId: tenantResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.contributor)
+    roleDefinitionId: tenantResourceId(
+      'Microsoft.Authorization/roleDefinitions',
+      roleDefinitions.contributor
+    )
     principalId: mid.properties.principalId
     principalType: 'ServicePrincipal'
   }

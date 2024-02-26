@@ -14,10 +14,14 @@ var jsonArray = json(jsonString)
 var jsonString2 = '["four","five","six"]'
 var jsonArray2 = json(jsonString2)
 
-output jsonArray array = [for (name, i) in jsonArray: {
-  name: name
-}]
+output jsonArray array = [
+  for (name, i) in jsonArray: {
+    name: name
+  }
+]
 
-output jsonArray2 array = [for (name, i) in jsonArray2: {
-  name: name
-}]
+output jsonArray2 array = [
+  for (name, i) in jsonArray2: {
+    name: name
+  }
+]

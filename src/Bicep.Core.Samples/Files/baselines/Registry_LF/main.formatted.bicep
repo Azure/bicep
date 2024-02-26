@@ -32,27 +32,31 @@ var websites = [
   }
 ]
 
-module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in websites: {
-  name: '${site.name}siteDeploy'
-  scope: rg
-  params: {
-    appPlanId: appPlanDeploy.outputs.planId
-    namePrefix: site.name
-    dockerImage: 'nginxdemos/hello'
-    dockerImageTag: site.tag
+module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [
+  for site in websites: {
+    name: '${site.name}siteDeploy'
+    scope: rg
+    params: {
+      appPlanId: appPlanDeploy.outputs.planId
+      namePrefix: site.name
+      dockerImage: 'nginxdemos/hello'
+      dockerImageTag: site.tag
+    }
   }
-}]
+]
 
-module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
-  name: '${site.name}siteDeploy2'
-  scope: rg
-  params: {
-    appPlanId: appPlanDeploy.outputs.planId
-    namePrefix: site.name
-    dockerImage: 'nginxdemos/hello'
-    dockerImageTag: site.tag
+module siteDeploy2 'br/demo-two:site:v3' = [
+  for site in websites: {
+    name: '${site.name}siteDeploy2'
+    scope: rg
+    params: {
+      appPlanId: appPlanDeploy.outputs.planId
+      namePrefix: site.name
+      dockerImage: 'nginxdemos/hello'
+      dockerImageTag: site.tag
+    }
   }
-}]
+]
 
 module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0' = {
   name: 'storageDeploy'
@@ -81,16 +85,20 @@ var vnets = [
   }
 ]
 
-module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
-  name: '${vnet.name}Deploy'
-  scope: rg
-  params: {
-    vnetName: vnet.name
-    subnetName: vnet.subnetName
+module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [
+  for vnet in vnets: {
+    name: '${vnet.name}Deploy'
+    scope: rg
+    params: {
+      vnetName: vnet.name
+      subnetName: vnet.subnetName
+    }
   }
-}]
+]
 
-output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUrl]
+output siteUrls array = [
+  for (site, i) in websites: siteDeploy[i].outputs.siteUrl
+]
 
 module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
   scope: rg

@@ -6,7 +6,12 @@ param uamiName string = 'alex-test-deny'
 
 param currentTime string = utcNow()
 
-var uamiId = resourceId(subId, rgName, 'Microsoft.ManagedIdentity/userAssignedIdentities', uamiName)
+var uamiId = resourceId(
+  subId,
+  rgName,
+  'Microsoft.ManagedIdentity/userAssignedIdentities',
+  uamiName
+)
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'dscript${uniqueString(resourceGroup().id)}'
@@ -41,4 +46,8 @@ resource dScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
 }
 
 // print logs from script after template is finished deploying
-output scriptLogs string = reference('${dScript.id}/logs/default', dScript.apiVersion, 'Full').properties.log
+output scriptLogs string = reference(
+  '${dScript.id}/logs/default',
+  dScript.apiVersion,
+  'Full'
+).properties.log

@@ -13,7 +13,7 @@ namespace Bicep.Core.TypeSystem.Providers.K8s
     {
         private readonly ITypeLoader typeLoader;
         private readonly ExtensibilityResourceTypeFactory resourceTypeFactory;
-        private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
+        private readonly ImmutableDictionary<ResourceTypeReference, CrossFileTypeReference> availableTypes;
 
         public K8sResourceTypeLoader()
         {

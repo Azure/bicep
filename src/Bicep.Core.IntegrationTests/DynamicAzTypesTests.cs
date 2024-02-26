@@ -1,9 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Formats.Tar;
-using System.IO.Compression;
-using System.Text;
 using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -25,7 +22,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private async Task<ServiceBuilder> GetServices()
         {
-            var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"Resources": {}, "Functions": {}}""");
+            var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"resources": {}, "resourceFunctions": {}}""");
 
             var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(cacheRoot);
@@ -289,25 +286,6 @@ namespace Bicep.Core.IntegrationTests
             };
         }
 
-        private static BinaryData GetTypesTgzBytesFromFiles(params (string filePath, string contents)[] files)
-        {
-            var stream = new MemoryStream();
-            using (var gzStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
-            {
-                using var tarWriter = new TarWriter(gzStream, leaveOpen: true);
-                foreach (var (filePath, contents) in files)
-                {
-                    var tarEntry = new PaxTarEntry(TarEntryType.RegularFile, filePath)
-                    {
-                        DataStream = new MemoryStream(Encoding.ASCII.GetBytes(contents))
-                    };
-                    tarWriter.WriteEntry(tarEntry);
-                }
-            }
-            stream.Position = 0;
-            return BinaryData.FromStream(stream);
-        }
-
         public static IEnumerable<object[]> ArtifactRegistryCorruptedPackageNegativeTestScenarios()
         {
             // Scenario: When OciTypeLoader.FromDisk() throws, the exception is exposed as a diagnostic
@@ -323,7 +301,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: Artifact layer payload is missing an "index.json"
             yield return new object[]
             {
-                GetTypesTgzBytesFromFiles(
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
                     ("unknown.json", "{}")),
                 "The path: index.json was not found in artifact contents"
             };
@@ -331,7 +309,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" is not valid JSON
             yield return new object[]
             {
-                GetTypesTgzBytesFromFiles(
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{"INVALID_JSON": 777""")),
                 "'7' is an invalid end of a number. Expected a delimiter. Path: $.INVALID_JSON | LineNumber: 0 | BytePositionInLine: 20."
             };
@@ -339,7 +317,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" with malformed or missing required data
             yield return new object[]
             {
-                GetTypesTgzBytesFromFiles(
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{ "UnexpectedMember": false}""")),
                 "Value cannot be null. (Parameter 'source')"
             };
@@ -398,7 +376,7 @@ namespace Bicep.Core.IntegrationTests
                 "1.0.0-fake");
             var services = await ServicesWithTestProviderArtifact(
                 artifactRegistryAddress,
-                GetTypesTgzBytesFromFiles(("index.json", """{"Resources": {}, "Functions": {}}""")));
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", """{"resources": {}, "resourceFunctions": {}}""")));
             services = services.WithConfigurationPatch(c => c.WithProvidersConfiguration($$"""
             {
                 "az": {

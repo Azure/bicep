@@ -29,8 +29,6 @@ namespace Bicep.LangServer.UnitTests
     [TestClass]
     public class BicepCompilationManagerTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
-
         private const int BaseVersion = 42;
 
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
@@ -832,9 +830,9 @@ module moduleB './moduleB.bicep' = {
         }
 
         [TestMethod]
-        public void GetTelemetryAboutSourceFiles_ShouldReturnTelemetryEvent()
+        public void GetBicepOpenTelemetryEvent_ShouldReturnTelemetryEvent()
         {
-            string bicepFileContents = @"param appInsightsName string = 'testAppInsightsName'
+            var result = CompilationHelper.Compile(@"param appInsightsName string = 'testAppInsightsName'
 
 resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
   name: appInsightsName
@@ -845,41 +843,70 @@ resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
   }
 }
 
-param location string = 'testLocation'";
-            var testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
-            var mainUri = DocumentUri.FromFileSystemPath(bicepFilePath).ToUriEncoded();
+param location string = 'testLocation'");
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, bicepFileContents);
-
-            var compilation = Services.BuildCompilation(bicepFileContents);
-            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().ToDiagnostics(bicepFile.LineStarts);
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            var sourceFile = (model.SourceFile as BicepFile)!;
 
             var compilationManager = CreateBicepCompilationManager();
-
-            var telemetryEvent = compilationManager.GetTelemetryAboutSourceFiles(compilation.GetEntrypointSemanticModel(),
-                                                                                 bicepFile.FileUri,
-                                                                                 ImmutableHashSet.Create<ISourceFile>(bicepFile),
-                                                                                 diagnostics);
+            var telemetryEvent = compilationManager.GetBicepOpenTelemetryEvent(
+                model,
+                sourceFile,
+                model.GetAllDiagnostics().ToDiagnostics(sourceFile.LineStarts));
 
             var properties = new Dictionary<string, string>
             {
-                { "Modules", "0" },
-                { "Parameters", "2" },
-                { "Resources", "1" },
-                { "Variables", "0" },
-                { "FileSizeInBytes", "294" },
-                { "LineCount", "12" },
-                { "Errors", "0" },
-                { "Warnings", "3" },
-                { "ModulesInReferencedFiles", "0" },
-                { "ParentResourcesInReferencedFiles", "0" },
-                { "ParametersInReferencedFiles", "0" },
-                { "VariablesInReferencedFiles", "0" }
+                ["Modules"] = "0",
+                ["Parameters"] = "2",
+                ["Resources"] = "1",
+                ["Variables"] = "0",
+                ["CharCount"] = "294",
+                ["LineCount"] = "12",
+                ["Errors"] = "0",
+                ["Warnings"] = "2",
+                ["ModulesInReferencedFiles"] = "0",
+                ["ParentResourcesInReferencedFiles"] = "0",
+                ["ParametersInReferencedFiles"] = "0",
+                ["VariablesInReferencedFiles"] = "0",
             };
 
             telemetryEvent.Should().NotBeNull();
             telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
+            telemetryEvent.Properties.Should().Contain(properties);
+        }
+
+        [TestMethod]
+        public void GetBicepParamOpenTelemetryEvent_ShouldReturnTelemetryEvent()
+        {
+            var result = CompilationHelper.CompileParams(
+                ("main.bicep", """
+                    param intParam int
+                    """),
+                ("parameters.bicepparam", """
+                    using 'main.bicep'
+
+                    param intParam = 123
+                    """));
+
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            var sourceFile = (model.SourceFile as BicepParamFile)!;
+
+            var compilationManager = CreateBicepCompilationManager();
+            var telemetryEvent = compilationManager.GetBicepParamOpenTelemetryEvent(
+                model,
+                sourceFile,
+                model.GetAllDiagnostics().ToDiagnostics(sourceFile.LineStarts));
+
+            var properties = new Dictionary<string, string>
+            {
+                ["CharCount"] = "40",
+                ["LineCount"] = "3",
+                ["Errors"] = "0",
+                ["Warnings"] = "0",
+            };
+
+            telemetryEvent.Should().NotBeNull();
+            telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.BicepParamFileOpen);
             telemetryEvent.Properties.Should().Contain(properties);
         }
 

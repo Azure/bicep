@@ -1,16 +1,9 @@
 param namespaceName string
 
-@allowed([
-  'Standard'
-  'Basic'
-])
+@allowed(['Standard', 'Basic'])
 param eventHubSku string = 'Standard'
 
-@allowed([
-  1
-  2
-  4
-])
+@allowed([1, 2, 4])
 param skuCapacity int = 1
 
 param eventHubName string

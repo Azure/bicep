@@ -80,9 +80,5 @@ module activeDeployment './activedeployment.bicep' = {
     app2Name: app2.name
     app3Name: app3.name
   }
-  dependsOn: [
-    app1deployment
-    app2deployment
-    app3deployment
-  ]
+  dependsOn: [app1deployment, app2deployment, app3deployment]
 }

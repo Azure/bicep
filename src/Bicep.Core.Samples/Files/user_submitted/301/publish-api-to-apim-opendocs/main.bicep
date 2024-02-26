@@ -15,17 +15,19 @@ param apiName string
 param apiEndPointURL string = 'http://petstore.swagger.io/v2/swagger.json'
 param apiPath string = 'AzureFunctionsApi'
 
-@allowed([
-  'openapi'
-  'openapi+json'
-  'openapi+json-link'
-  'swagger-json'
-  'swagger-link-json'
-  'wadl-link-json'
-  'wadl-xml'
-  'wsdl'
-  'wsdl-link'
-])
+@allowed(
+  [
+    'openapi'
+    'openapi+json'
+    'openapi+json-link'
+    'swagger-json'
+    'swagger-link-json'
+    'wadl-link-json'
+    'wadl-xml'
+    'wsdl'
+    'wsdl-link'
+  ]
+)
 @description('Type of OpenAPI we are importing')
 param apiFormat string = 'swagger-link-json'
 
@@ -59,19 +61,21 @@ resource apiManagementService 'Microsoft.ApiManagement/service@2020-12-01' exist
 }
 
 //establish one or many products to an existing APIM instance
-resource ProductRecords 'Microsoft.ApiManagement/service/products@2020-12-01' = [for product in productsSet: {
-  parent: apiManagementService
-  name: product.productName
-  properties: {
-    displayName: product.displayName
-    description: product.productDescription
-    terms: product.productTerms
-    subscriptionRequired: product.isSubscriptionRequired
-    approvalRequired: product.isApprovalRequired
-    subscriptionsLimit: product.subscriptionLimit
-    state: product.publishState
+resource ProductRecords 'Microsoft.ApiManagement/service/products@2020-12-01' = [
+  for product in productsSet: {
+    parent: apiManagementService
+    name: product.productName
+    properties: {
+      displayName: product.displayName
+      description: product.productDescription
+      terms: product.productTerms
+      subscriptionRequired: product.isSubscriptionRequired
+      approvalRequired: product.isApprovalRequired
+      subscriptionsLimit: product.subscriptionLimit
+      state: product.publishState
+    }
   }
-}]
+]
 
 //publish the API endpint to APIM
 resource functionAPI 'Microsoft.ApiManagement/service/apis@2020-12-01' = {
@@ -85,12 +89,16 @@ resource functionAPI 'Microsoft.ApiManagement/service/apis@2020-12-01' = {
 }
 
 //attach API to product(s)
-resource attachAPIToProducts 'Microsoft.ApiManagement/service/products/apis@2020-12-01' = [for (product, i) in productsSet: {
-  parent: ProductRecords[i]
-  name: apiName
-}]
+resource attachAPIToProducts 'Microsoft.ApiManagement/service/products/apis@2020-12-01' = [
+  for (product, i) in productsSet: {
+    parent: ProductRecords[i]
+    name: apiName
+  }
+]
 
-output apimProducts array = [for (name, i) in productsSet: {
-  productId: ProductRecords[i].id
-  productName: ProductRecords[i].name
-}]
+output apimProducts array = [
+  for (name, i) in productsSet: {
+    productId: ProductRecords[i].id
+    productName: ProductRecords[i].name
+  }
+]

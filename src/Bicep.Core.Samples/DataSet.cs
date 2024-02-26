@@ -113,9 +113,9 @@ namespace Bicep.Core.Samples
 
         public ImmutableDictionary<string, ExternalModuleInfo> TemplateSpecs => this.lazyTemplateSpecs.Value;
 
-        public bool HasRegistryModules => this.RegistryModules.Any();
+        public bool HasRegistryModules => !this.RegistryModules.IsEmpty;
 
-        public bool HasTemplateSpecs => this.TemplateSpecs.Any();
+        public bool HasTemplateSpecs => !this.TemplateSpecs.IsEmpty;
 
         public bool HasExternalModules => this.HasRegistryModules || this.HasTemplateSpecs;
 

@@ -23,16 +23,20 @@ resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
 }
 
 //APIM Groups
-resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' = [for grp in groupsSet: {
-  parent: parentAPIM
-  name: grp.groupName
-  properties: {
-    displayName: grp.groupDisplayName
-    description: grp.groupDescription
+resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' = [
+  for grp in groupsSet: {
+    parent: parentAPIM
+    name: grp.groupName
+    properties: {
+      displayName: grp.groupDisplayName
+      description: grp.groupDescription
+    }
   }
-}]
+]
 
-output apimGroups array = [for (name, i) in groupsSet: {
-  groupId: apimGroup[i].id
-  groupName: apimGroup[i].name
-}]
+output apimGroups array = [
+  for (name, i) in groupsSet: {
+    groupId: apimGroup[i].id
+    groupName: apimGroup[i].name
+  }
+]

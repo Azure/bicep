@@ -52,9 +52,7 @@ var myObj = {
     'a' =~ 'b'
   ]
   obj: {
-    nested: [
-      'hello'
-    ]
+    nested: ['hello']
   }
 }
 
@@ -66,11 +64,7 @@ var objWithInterp = {
 }
 
 // array
-var myArr = [
-  'pirates'
-  'say'
-  'arr'
-]
+var myArr = ['pirates', 'say', 'arr']
 
 // array with objects
 var myArrWithObjects = [
@@ -100,18 +94,17 @@ var namedPropertyIndexer = {
   foo: 's'
 }['foo']
 
-var intIndexer = [
-  's'
-][0]
+var intIndexer = ['s'][0]
 
-var functionOnIndexer1 = concat([
-    's'
-  ][0], 's')
+var functionOnIndexer1 = concat(['s'][0], 's')
 
 var singleQuote = '\''
 var myPropertyName = '${singleQuote}foo${singleQuote}'
 
-var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
+var unusedIntermediate = listKeys(
+  resourceId('Mock.RP/type', 'steve'),
+  '2020-01-01'
+)
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
 
 // previously this was not possible to emit correctly
@@ -121,19 +114,10 @@ var previousEmitLimit = [
   {
     a: {
       b: base64('s')
-      c: concat([
-          12 + 3
-        ], [
-          !true
-          'hello'
-        ])
+      c: concat([12 + 3], [!true, 'hello'])
       d: az.resourceGroup().location
-      e: concat([
-        true
-      ])
-      f: concat([
-        's' == 12
-      ])
+      e: concat([true])
+      f: concat(['s' == 12])
     }
   }
 ]
@@ -145,19 +129,28 @@ var previousEmitLimit2 = [
   {
     a: {
       b: base64('s')
-      c: union({
+      c: union(
+        {
           a: 12 + 3
-        }, {
+        },
+        {
           b: !true
           c: 'hello'
-        })
+        }
+      )
       d: az.resourceGroup().location
-      e: union({
+      e: union(
+        {
           x: true
-        }, {})
-      f: intersection({
+        },
+        {}
+      )
+      f: intersection(
+        {
           q: 's' == 12
-        }, {})
+        },
+        {}
+      )
     }
   }
 ]
@@ -168,21 +161,25 @@ var previousEmitLimit3 = {
     b: {
       a: az.resourceGroup().location
     } == 2
-    c: concat([], [
-        true
-      ])
+    c: concat([], [true])
   }
 }
 
 // #completionTest(0) -> declarations
 
 var myVar = 'hello'
-var myVar2 = any({
-  something: myVar
-})
-var myVar3 = any(any({
-  something: myVar
-}))
+var myVar2 = any(
+  {
+    something: myVar
+  }
+)
+var myVar3 = any(
+  any(
+    {
+      something: myVar
+    }
+  )
+)
 var myVar4 = length(any(concat('s', 'a')))
 
 // verify that unqualified banned function identifiers can be used as declaration identifiers
@@ -224,7 +221,10 @@ var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
 // Bicep functions that cannot be converted into ARM functions
 var scopesWithoutArmRepresentation = {
   subscription: subscription('10b57a01-6350-4ce2-972a-6a13642f00bf')
-  resourceGroup: az.resourceGroup('10b57a01-6350-4ce2-972a-6a13642f00bf', 'myRgName')
+  resourceGroup: az.resourceGroup(
+    '10b57a01-6350-4ce2-972a-6a13642f00bf',
+    'myRgName'
+  )
 }
 
 var scopesWithArmRepresentation = {
@@ -235,11 +235,13 @@ var scopesWithArmRepresentation = {
 
 // Issue #1332
 var issue1332_propname = 'ptest'
-var issue1332 = true ? {
-  prop1: {
-    '${issue1332_propname}': {}
-  }
-} : {}
+var issue1332 = true
+  ? {
+      prop1: {
+        '${issue1332_propname}': {}
+      }
+    }
+  : {}
 
 // Issue #486
 var myBigInt = 2199023255552
@@ -249,44 +251,35 @@ var myBigIntExpression2 = 2199023255552 * 2199023255552
 
 // variable loops
 var incrementingNumbers = [for i in range(0, 10): i]
-var printToSingleLine1 = [
-for i in range(0, 20): i
-]
-var printToSingleLine2 = [
-/* harmless comment */ for i in range(0, 20): i
-]
-var printToSingleLine3 = [
-for i in range(0, 20): i /* harmless comment */
-]
+var printToSingleLine1 = [for i in range(0, 20): i]
+var printToSingleLine2 = [/* harmless comment */ for i in range(0, 20): i]
+var printToSingleLine3 = [for i in range(0, 20): i /* harmless comment */]
 var forceLineBreaks1 = [
-// force line breaks
-for i in range(0, 30): i
+  // force line breaks
+  for i in range(0, 30): i
 ]
 var forceLineBreaks2 = [
-for i in range(0, 30): i
-// force line breaks
+  for i in range(0, 30): i
+  // force line breaks
 ]
 var forceLineBreaks3 = [
-/* force line breaks */
-for i in range(0, 30): i
-/* force line breaks */
+  /* force line breaks */
+  for i in range(0, 30): i
+  /* force line breaks */
 ]
 
-var loopInput = [
-  'one'
-  'two'
-]
+var loopInput = ['one', 'two']
 var arrayOfStringsViaLoop = [for (name, i) in loopInput: 'prefix-${i}-${name}']
-var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
-  index: i
-  name: name
-  value: 'prefix-${i}-${name}-suffix'
-}]
-var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
-  i
-  name
-  'prefix-${i}-${name}-suffix'
-]]
+var arrayOfObjectsViaLoop = [
+  for (name, i) in loopInput: {
+    index: i
+    name: name
+    value: 'prefix-${i}-${name}-suffix'
+  }
+]
+var arrayOfArraysViaLoop = [
+  for (name, i) in loopInput: [i, name, 'prefix-${i}-${name}-suffix']
+]
 var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
 var arrayOfHardCodedNumbers = [for i in range(0, 10): 3]
 var arrayOfHardCodedBools = [for i in range(0, 10): false]
@@ -350,7 +343,7 @@ var copyBlockInObject = {
   ]
 }
 
-var joinedString = join([ 'I', 'love', 'Bicep!' ], ' ')
+var joinedString = join(['I', 'love', 'Bicep!'], ' ')
 
 var prefix = take('food', 3)
 var isPrefixed = startsWith('food', 'foo')

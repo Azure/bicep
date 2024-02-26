@@ -19,9 +19,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        virtualNetworkCIDR
-      ]
+      addressPrefixes: [virtualNetworkCIDR]
     }
   }
 }
@@ -108,9 +106,7 @@ resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-06-01' = {
         name: privateLinkConnectionName
         properties: {
           privateLinkServiceId: website.id
-          groupIds: [
-            'sites'
-          ]
+          groupIds: ['sites']
         }
       }
     ]

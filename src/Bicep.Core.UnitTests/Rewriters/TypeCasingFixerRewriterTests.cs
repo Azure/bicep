@@ -33,26 +33,26 @@ resource resA 'My.Rp/resA@2020-01-01' = {
         [TestMethod]
         public void Casing_issues_are_corrected()
         {
-            var bicepFile = @"
-resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-  properties: {
-    lowerCaseProp: 'abc'
-    camelcaseprop: 'def'
-    'lowerCaseQuoted=+.Prop': 'ghi'
-    'camelcasequoted=+.prop': 'jkl'
-    lowerCaseEnumProp: 'MyEnum'
-    pascalCaseEnumProp: 'myenum'
-    lowerCaseEnumUnionProp: 'MyEnum'
-    pascalCaseEnumUnionProp: 'myenum'
-  }
-}
+            var bicepFile = """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                  properties: {
+                    lowerCaseProp: 'abc'
+                    camelcaseprop: 'def'
+                    'lowerCaseQuoted=+.Prop': 'ghi'
+                    'camelcasequoted=+.prop': 'jkl'
+                    lowerCaseEnumProp: 'MyEnum'
+                    pascalCaseEnumProp: 'myenum'
+                    lowerCaseEnumUnionProp: 'MyEnum'
+                    pascalCaseEnumUnionProp: 'myenum'
+                  }
+                }
 
-output myObj object = {
-  lowerCaseProp: resA.properties.lowerCaseProp
-  camelcaseprop: resA.properties.camelcaseprop
-}
-";
+                output myObj object = {
+                  lowerCaseProp: resA.properties.lowerCaseProp
+                  camelcaseprop: resA.properties.camelcaseprop
+                }
+                """;
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/resA", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new TypeProperty("lowercaseprop", LanguageConstants.String),
@@ -70,43 +70,46 @@ output myObj object = {
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
-@"resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-  properties: {
-    lowercaseprop: 'abc'
-    camelCaseProp: 'def'
-    'lowercasequoted=+.prop': 'ghi'
-    'camelCaseQuoted=+.Prop': 'jkl'
-    lowerCaseEnumProp: 'myenum'
-    pascalCaseEnumProp: 'MyEnum'
-    lowerCaseEnumUnionProp: 'myenum'
-    pascalCaseEnumUnionProp: 'MyEnum'
-  }
-}
+                """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                  properties: {
+                    lowercaseprop: 'abc'
+                    camelCaseProp: 'def'
+                    'lowercasequoted=+.prop': 'ghi'
+                    'camelCaseQuoted=+.Prop': 'jkl'
+                    lowerCaseEnumProp: 'myenum'
+                    pascalCaseEnumProp: 'MyEnum'
+                    lowerCaseEnumUnionProp: 'myenum'
+                    pascalCaseEnumUnionProp: 'MyEnum'
+                  }
+                }
 
-output myObj object = {
-  lowerCaseProp: resA.properties.lowercaseprop
-  camelcaseprop: resA.properties.camelCaseProp
-}");
+                output myObj object = {
+                  lowerCaseProp: resA.properties.lowercaseprop
+                  camelcaseprop: resA.properties.camelCaseProp
+                }
+
+                """);
         }
 
         [TestMethod]
         public void Nested_casing_issues_take_multiple_passes_to_correct()
         {
-            var bicepFile = @"
-resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-  properties: {
-    lowerCaseObj: {
-      lowerCaseStr: 'test'
-    }
-  }
-}
+            var bicepFile = """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                  properties: {
+                    lowerCaseObj: {
+                      lowerCaseStr: 'test'
+                    }
+                  }
+                }
 
-output myObj object = {
-  lowerCaseProp: resA.properties.lowerCaseObj.lowerCaseStr
-}
-";
+                output myObj object = {
+                  lowerCaseProp: resA.properties.lowerCaseObj.lowerCaseStr
+                }
+                """;
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/resA", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
                 new TypeProperty("lowercaseobj", new ObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, new[] {
@@ -120,36 +123,42 @@ output myObj object = {
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             var firstPassBicepFile = PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax);
             firstPassBicepFile.Should().Be(
-@"resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-  properties: {
-    lowercaseobj: {
-      lowerCaseStr: 'test'
-    }
-  }
-}
+                """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                  properties: {
+                    lowercaseobj: {
+                      lowerCaseStr: 'test'
+                    }
+                  }
+                }
 
-output myObj object = {
-  lowerCaseProp: resA.properties.lowercaseobj.lowerCaseStr
-}");
+                output myObj object = {
+                  lowerCaseProp: resA.properties.lowercaseobj.lowerCaseStr
+                }
+
+                """);
 
             (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", firstPassBicepFile));
             rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
             PrintHelper.PrintAndCheckForParseErrors(newProgramSyntax).Should().Be(
-@"resource resA 'My.Rp/resA@2020-01-01' = {
-  name: 'resA'
-  properties: {
-    lowercaseobj: {
-      lowercasestr: 'test'
-    }
-  }
-}
+                """
+                resource resA 'My.Rp/resA@2020-01-01' = {
+                  name: 'resA'
+                  properties: {
+                    lowercaseobj: {
+                      lowercasestr: 'test'
+                    }
+                  }
+                }
 
-output myObj object = {
-  lowerCaseProp: resA.properties.lowercaseobj.lowercasestr
-}");
+                output myObj object = {
+                  lowerCaseProp: resA.properties.lowercaseobj.lowercasestr
+                }
+
+                """);
         }
     }
 }

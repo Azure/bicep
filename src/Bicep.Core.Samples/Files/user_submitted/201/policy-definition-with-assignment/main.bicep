@@ -1,14 +1,8 @@
 targetScope = 'subscription'
 
-param listOfAllowedLocations array = [
-  'norwayeast'
-  'westeurope'
-]
+param listOfAllowedLocations array = ['norwayeast', 'westeurope']
 
-@allowed([
-  'Audit'
-  'Deny'
-])
+@allowed(['Audit', 'Deny'])
 param policyEffect string
 
 resource locationPolicyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {

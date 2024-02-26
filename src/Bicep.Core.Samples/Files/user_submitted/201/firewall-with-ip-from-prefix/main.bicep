@@ -1,4 +1,6 @@
-@description('Specifies the Azure location where the key vault should be created.')
+@description(
+  'Specifies the Azure location where the key vault should be created.'
+)
 param location string = resourceGroup().location
 
 @description('Specifies the name of the VNet.')
@@ -10,12 +12,7 @@ param vnetaddressprefix string = '10.0.0.0/24'
 @description('Specifies the address prefix to use for the AzureFirewallSubnet')
 param firewallsubnetprefix string = '10.0.0.0/26'
 
-@allowed([
-  28
-  29
-  30
-  31
-])
+@allowed([28, 29, 30, 31])
 @description('Specifies the size of the Public IP Prefix')
 param ipprefixlength int = 31
 
@@ -28,9 +25,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        vnetaddressprefix
-      ]
+      addressPrefixes: [vnetaddressprefix]
     }
     subnets: [
       {

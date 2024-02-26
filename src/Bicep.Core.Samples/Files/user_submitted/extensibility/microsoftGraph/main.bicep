@@ -1,4 +1,4 @@
-provider 'microsoftGraph@1.0.0' as graph
+provider 'microsoftGraph@1.0.0'  as graph
 
 param appRoleId string = 'bc76c90e-eb7f-4a29-943b-49e88762d09d'
 param scopeId string = 'f761933c-643b-424f-a169-f9313d23a913'
@@ -9,7 +9,7 @@ resource resourceApp 'Microsoft.Graph/applications@beta' = {
   appRoles: [
     {
       id: appRoleId
-      allowedMemberTypes: [ 'User', 'Application' ]
+      allowedMemberTypes: ['User', 'Application']
       description: 'Resource app role'
       displayName: 'ResourceApp.Read.All'
       value: 'ResourceApp.Read.All'
@@ -62,10 +62,6 @@ resource group 'Microsoft.Graph/groups@beta' = {
   mailEnabled: false
   mailNickname: 'myGroupMailNickname'
   securityEnabled: false
-  groupTypes: [
-    'Unified'
-  ]
-  owners: [
-    resourceSp.id
-  ]
+  groupTypes: ['Unified']
+  owners: [resourceSp.id]
 }

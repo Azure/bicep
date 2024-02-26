@@ -4,11 +4,7 @@ param proximityPlacementGroupId string
 param subnetId string
 param vmName string
 
-@allowed([
-  1
-  2
-  3
-])
+@allowed([1, 2, 3])
 param zone int
 
 resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
@@ -20,9 +16,7 @@ resource pip 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
   sku: {
     name: 'Standard'
   }
-  zones: [
-    '${zone}'
-  ]
+  zones: ['${zone}']
 }
 
 resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = {
@@ -94,7 +88,5 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
       }
     }
   }
-  zones: [
-    '${zone}'
-  ]
+  zones: ['${zone}']
 }

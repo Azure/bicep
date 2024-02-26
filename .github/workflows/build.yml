@@ -267,23 +267,22 @@ jobs:
         with:
           testAssembly: Bicep.VSLanguageServerClient.UnitTests.dll
           runInParallel: true
-          searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472
-        # Temporary workaround to force a green build - VS tests are flaky
-        # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
-        continue-on-error: true
+          searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/
+          ifNoFilesFound: error
 
-      - name: Install bicep in Visual Studio
-        run: ./src/vs-bicep/Install.cmd
-
-      - name: Run bicep in visual studio integration tests
-        uses: microsoft/vstest-action@v1.0.0
-        with:
-          testAssembly: Bicep.VSLanguageServerClient.IntegrationTests.dll
-          runInParallel: false
-          searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472
-        # Temporary workaround to force a green build - VS tests are flaky
-        # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
-        continue-on-error: true
+      # Temporarily disable VS Bicep integration tests, they're flaky
+      # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
+      #
+      # - name: Install bicep in Visual Studio
+      #   run: ./src/vs-bicep/Install.cmd
+      #
+      # - name: Run bicep in visual studio integration tests
+      #   uses: microsoft/vstest-action@v1.0.0
+      #   with:
+      #     testAssembly: Bicep.VSLanguageServerClient.IntegrationTests.dll
+      #     runInParallel: false
+      #     searchFolder: ./src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/
+      #     ifNoFilesFound: error
 
   build-windows-setup:
     name: Build Windows Setup

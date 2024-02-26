@@ -7,13 +7,7 @@ param publisherEmail string
 param publisherName string
 
 @description('The pricing tier of this API Management service')
-@allowed([
-  'Basic'
-  'Consumption'
-  'Developer'
-  'Standard'
-  'Premium'
-])
+@allowed(['Basic', 'Consumption', 'Developer', 'Standard', 'Premium'])
 param sku string = 'Developer'
 
 @description('The instance size of this API Management service.')

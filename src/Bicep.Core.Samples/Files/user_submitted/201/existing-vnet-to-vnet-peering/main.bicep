@@ -11,7 +11,11 @@ resource peer 'microsoft.network/virtualNetworks/virtualNetworkPeerings@2020-05-
     allowGatewayTransit: false
     useRemoteGateways: false
     remoteVirtualNetwork: {
-      id: resourceId(remoteVnetRg, 'Microsoft.Network/virtualNetworks', remoteVnetName)
+      id: resourceId(
+        remoteVnetRg,
+        'Microsoft.Network/virtualNetworks',
+        remoteVnetName
+      )
     }
   }
 }

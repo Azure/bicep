@@ -34,9 +34,7 @@ resource dashboard 'Microsoft.Portal/dashboards@2015-08-01-preview' = {
                 {
                   name: 'Scope'
                   value: {
-                    resourceIds: [
-                      appinsights.id
-                    ]
+                    resourceIds: [appinsights.id]
                   }
                 }
                 {
@@ -109,9 +107,7 @@ resource dashboard 'Microsoft.Portal/dashboards@2015-08-01-preview' = {
                 {
                   name: 'Scope'
                   value: {
-                    resourceIds: [
-                      appinsights.id
-                    ]
+                    resourceIds: [appinsights.id]
                   }
                 }
                 {

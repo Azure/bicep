@@ -214,15 +214,6 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Pretty printing.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_PrettyPrinting {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_PrettyPrinting", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Provider registry.
         /// </summary>
         internal static string ExperimentalFeatureNames_ProviderRegistry {

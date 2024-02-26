@@ -9,9 +9,7 @@ type test = {
 
 type strangeFormattings = {
   test: resource<
-
     'Astronomer.Astro/organizations@2023-08-01-preview'
-
   >
   test2: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
   test3: resource</*    */ 'Microsoft.Storage/storageAccounts@2023-01-01' /*     */>
@@ -19,9 +17,7 @@ type strangeFormattings = {
 
 @description('I love space(s)')
 type test2 = resource<
-
   'Astronomer.Astro/organizations@2023-08-01-preview'
-
 >
 
 param bar resource<'Microsoft.Resources/tags@2022-09-01'> = {

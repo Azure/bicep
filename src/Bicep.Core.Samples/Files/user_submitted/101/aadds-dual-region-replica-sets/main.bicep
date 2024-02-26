@@ -89,9 +89,7 @@ resource vnetEUS 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: 'East US'
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/24'
-      ]
+      addressPrefixes: ['10.0.0.0/24']
     }
     subnets: [
       {
@@ -160,9 +158,7 @@ resource vnetWEU 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: 'West Europe'
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        '10.1.0.0/24'
-      ]
+      addressPrefixes: ['10.1.0.0/24']
     }
     subnets: [
       {

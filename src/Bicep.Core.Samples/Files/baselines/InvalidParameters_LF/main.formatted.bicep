@@ -17,13 +17,13 @@ param myBool bool
 param missingType
 
 // space after identifier #completionTest(32) -> paramTypes
-param missingTypeWithSpaceAfter 
+param missingTypeWithSpaceAfter
 
 // tab after identifier #completionTest(30) -> paramTypes
-param missingTypeWithTabAfter	
+param missingTypeWithTabAfter
 
 // #completionTest(20) -> paramTypes
-param trailingSpace  
+param trailingSpace
 
 // partial type #completionTest(18, 19, 20, 21) -> paramTypes
 param partialType str
@@ -42,7 +42,7 @@ param myString2 string = 'string value'
 param wrongDefaultValue string = 42
 
 param myInt2 int = 42
-param noValueAfterColon int =   
+param noValueAfterColon int =
 
 param myTruth bool = 'not a boolean'
 param myFalsehood bool = 'false'
@@ -52,17 +52,17 @@ param wrongAssignmentToken string: 'hello'
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 
 // #completionTest(28,29) -> boolPlusSymbols
-param boolCompletions bool = 
+param boolCompletions bool =
 
 // #completionTest(30,31) -> arrayPlusSymbols
-param arrayCompletions array = 
+param arrayCompletions array =
 
 // #completionTest(32,33) -> objectPlusSymbols
-param objectCompletions object = 
+param objectCompletions object =
 
 // badly escaped string
-param wrongType fluffyBunny = 'what' s up doc?'
-
+param wrongType fluffyBunny = 'what'
+s up doc?'
 // invalid escape
 param wrongType fluffyBunny = 'what\s up doc?'
 
@@ -103,10 +103,7 @@ param someArray arra
 param secureInt int
 
 // wrong modifier value types
-@allowed([
-  'test'
-  true
-])
+@allowed(['test', true])
 @minValue({})
 @maxValue([])
 @metadata('wrong')
@@ -117,24 +114,22 @@ param wrongIntModifier int = true
 param fatalErrorInIssue1713
 
 // wrong metadata schema
-@metadata({
-  description: true
-})
+@metadata(
+  {
+    description: true
+  }
+)
 param wrongMetadataSchema string
 
 // expression in modifier
 @maxLength(a + 2)
 @minLength(foo())
-@allowed([
-  i
-])
+@allowed([i])
 param expressionInModifier string = 2 + 3
 
 @maxLength(2 + 3)
 @minLength(length([]))
-@allowed([
-  resourceGroup().id
-])
+@allowed([resourceGroup().id])
 param nonCompileTimeConstant string
 
 @allowed([])
@@ -150,9 +145,7 @@ param paramDefaultOneCycle string = paramDefaultOneCycle
 param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
 param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
 
-@allowed([
-  paramModifierSelfCycle
-])
+@allowed([paramModifierSelfCycle])
 param paramModifierSelfCycle string
 
 // wrong types of "variable"/identifier access
@@ -169,10 +162,10 @@ param paramAccessingResource string = sampleResource
 param paramAccessingOutput string = sampleOutput
 
 // #completionTest(6) -> empty
-param 
+param
 
 // #completionTest(46,47) -> justSymbols
-param defaultValueOneLinerCompletions string = 
+param defaultValueOneLinerCompletions string =
 
 // invalid comma separator (array)
 @metadata({
@@ -229,9 +222,11 @@ param tooManyArguments2 string
 param nonConstantInDecorator string
 
 @minValue(-length('s'))
-@metadata({
-  bool: !true
-})
+@metadata(
+  {
+    bool: !true
+  }
+)
 param unaryMinusOnFunction int
 
 @minLength(1)
@@ -245,33 +240,29 @@ param duplicateDecorators string
 @minLength(-100)
 param invalidLength string
 
-@allowed([
-  'Microsoft.AnalysisServices/servers'
-  'Microsoft.ApiManagement/service'
-  'Microsoft.Network/applicationGateways'
-  'Microsoft.Automation/automationAccounts'
-  'Microsoft.ContainerInstance/containerGroups'
-  'Microsoft.ContainerRegistry/registries'
-  'Microsoft.ContainerService/managedClusters'
-])
-param invalidPermutation array = [
-  'foobar'
-  true
-  100
-]
-
-@allowed([
+@allowed(
   [
     'Microsoft.AnalysisServices/servers'
     'Microsoft.ApiManagement/service'
-  ]
-  [
     'Microsoft.Network/applicationGateways'
     'Microsoft.Automation/automationAccounts'
+    'Microsoft.ContainerInstance/containerGroups'
+    'Microsoft.ContainerRegistry/registries'
+    'Microsoft.ContainerService/managedClusters'
   ]
-])
+)
+param invalidPermutation array = ['foobar', true, 100]
+
+@allowed(
+  [
+    ['Microsoft.AnalysisServices/servers', 'Microsoft.ApiManagement/service']
+    [
+      'Microsoft.Network/applicationGateways'
+      'Microsoft.Automation/automationAccounts'
+    ]
+  ]
+)
 param invalidDefaultWithAllowedArrayDecorator array = true
 
 // unterminated multi-line comment
 /*    
-

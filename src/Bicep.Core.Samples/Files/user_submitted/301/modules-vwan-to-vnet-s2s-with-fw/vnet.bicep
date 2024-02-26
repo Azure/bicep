@@ -39,10 +39,7 @@ var bastionnsgrules = {
         protocol: 'Tcp'
         sourcePortRange: '*'
         sourceAddressPrefix: 'GatewayManager'
-        destinationPortRanges: [
-          '443'
-          '4443'
-        ]
+        destinationPortRanges: ['443', '4443']
         destinationAddressPrefix: '*'
         access: 'Allow'
         priority: 120
@@ -122,9 +119,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        addressprefix
-      ]
+      addressPrefixes: [addressprefix]
     }
     subnets: [
       {
