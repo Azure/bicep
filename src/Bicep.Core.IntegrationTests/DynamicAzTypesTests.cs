@@ -101,11 +101,11 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
 
-            services = services.WithConfigurationPatch(c => c.WithProviderAlias($$"""
+            services = services.WithConfigurationPatch(c => c.WithProviderAlias("""
             {
                 "br": {
                     "customAlias": {
-                        "registry": "{{LanguageConstants.BicepPublicMcrRegistry}}",
+                        "registry": "mcr.microsoft.com",
                         "providerPath": "bicep/providers"
                     }
                 }

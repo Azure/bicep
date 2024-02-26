@@ -138,7 +138,7 @@ namespace Bicep.Cli.IntegrationTests
             var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
             File.WriteAllText(bicepFilePath, bicepFile);
 
-            var bicepConfigFile = $$"""
+            var bicepConfigFile = """
                 {
                     "providerAliases" : {
                         "br": {
@@ -147,7 +147,7 @@ namespace Bicep.Cli.IntegrationTests
                                 "providerPath": "bicep/providers"
                             },
                             "mcr": {
-                                "registry": "{{LanguageConstants.BicepPublicMcrRegistry}}",
+                                "registry": "mcr.microsoft.com",
                                 "providerPath": "bicep/providers"
                             }
                         }
