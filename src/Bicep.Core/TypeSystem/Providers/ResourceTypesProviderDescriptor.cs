@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 
@@ -29,13 +28,13 @@ public record ResourceTypesProviderDescriptor
         this.TypesTgzUri = TypesTgzUri;
     }
 
-    public readonly ArtifactReference? ArtifactReference;
-    public readonly bool IsBuiltIn;
-    public readonly string Alias;
-    public readonly string Name;
-    public readonly Uri ParentModuleUri;
-    public readonly string Version;
-    public readonly Uri? TypesTgzUri;
+    public ArtifactReference? ArtifactReference { get; }
+    public bool IsBuiltIn { get; }
+    public string Alias { get; }
+    public string Name { get; }
+    public Uri ParentModuleUri { get; }
+    public string Version { get; }
+    public Uri? TypesTgzUri { get; }
 
     public static ResourceTypesProviderDescriptor CreateBuiltInProviderDescriptor(string namespaceIdentifier, string version, Uri parentModuleUri, string? alias = null)
     {

@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text.RegularExpressions;
-using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
-using Bicep.Core.Syntax.Providers;
 
 namespace Bicep.Core.TypeSystem.Providers;
 

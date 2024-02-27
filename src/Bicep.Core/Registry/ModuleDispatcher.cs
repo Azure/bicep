@@ -11,7 +11,6 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
-using Bicep.Core.Syntax.Providers;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
 

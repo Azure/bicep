@@ -12,7 +12,7 @@ public partial class ImplicitProvidersConfiguration : ConfigurationSection<Immut
     private ImplicitProvidersConfiguration(ImmutableArray<string> data) : base(data) { }
 
     public static ImplicitProvidersConfiguration Bind(JsonElement element)
-        => new(element.TryGetStringArray()?.ToImmutableArray() ?? []);
+        => new(element.TryGetStringArray() ?? []);
 
     public IEnumerable<string> GetImplicitProviderNames() => this.Data;
 }

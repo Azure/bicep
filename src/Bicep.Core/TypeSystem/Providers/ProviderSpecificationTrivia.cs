@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Parsing;
-using Bicep.Core.TypeSystem.Providers;
 
-namespace Bicep.Core.Syntax.Providers;
+namespace Bicep.Core.TypeSystem.Providers;
 public record ProviderSpecificationTrivia(TextSpan Span) : IProviderSpecification
 {
     public string NamespaceIdentifier => LanguageConstants.ErrorName;
