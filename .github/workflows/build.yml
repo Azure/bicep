@@ -53,14 +53,14 @@ jobs:
         run: dotnet publish --configuration release --self-contained true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Upload Bicep
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli/bin/release/net8.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
 
       - name: Upload Bicep project assets file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bicep-project-assets-${{ matrix.rid }}
           path: ./src/Bicep.Cli/obj/project.assets.json
@@ -83,7 +83,7 @@ jobs:
         run: dotnet pack --configuration release
 
       - name: Upload Packages
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bicep-nupkg-any
           path: out/*
@@ -128,7 +128,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload VSIX
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: vscode-bicep.vsix
           path: ./src/vscode-bicep/vscode-bicep.vsix
@@ -249,14 +249,14 @@ jobs:
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore /p:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
 
       - name: Upload BicepInVisualStudio.sln build binlog
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-binlog-files
           path: ./src/binlog/bicep_in_visual_studio_build.binlog
           if-no-files-found: error
 
       - name: Upload BicepLanguageServerClient VSIX
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Bicep.VSLanguageServerClient.Vsix.vsix
           path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/vs-bicep.vsix
@@ -299,13 +299,13 @@ jobs:
         uses: actions/setup-dotnet@v4
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-release-win-x64
           path: ./src/installer-win/bicep
 
       - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-project-assets-win-x64
           path: ./src/installer-win/bicep
@@ -314,7 +314,7 @@ jobs:
         run: dotnet build --configuration release ./src/installer-win/installer.proj
 
       - name: Upload Windows Installer
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bicep-setup-win-x64
           path: ./src/installer-win/bin/release/net8.0/bicep-setup-win-x64.exe
@@ -382,19 +382,19 @@ jobs:
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-project-assets-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download .Net Packages
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-nupkg-any
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -403,7 +403,7 @@ jobs:
         run: dotnet build --configuration Release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
 
       - name: Upload CLI Package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/*.nupkg
@@ -411,7 +411,7 @@ jobs:
 
       - name: Download CLI Package
         if: matrix.runTests
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -452,7 +452,7 @@ jobs:
         working-directory: ./src/playground
 
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playground
           path: ./src/playground/dist/*
@@ -527,7 +527,7 @@ jobs:
           node-version: 18
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -591,10 +591,10 @@ jobs:
         run: dotnet test --filter '${{ matrix.config.filter}}' --configuration release --settings ./.github/workflows/ci.runsettings --results-directory ./TestResults
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: Bicep.TestResults
+          name: TestResults-${{ matrix.config.name }}-${{ matrix.os }}
           path: ./TestResults/*.trx
           if-no-files-found: error
 
@@ -604,7 +604,7 @@ jobs:
           flags: dotnet
 
   comment-test-summary:
-    name: "PR Comment: Tests Summary"
+    name: "PR Comment: Dotnet Tests Summary"
     needs: test-dotnet
     runs-on: ubuntu-latest
     permissions:
@@ -613,16 +613,24 @@ jobs:
     if: always()
 
     steps:
-      - name: Download Artifacts
-        uses: actions/download-artifact@v3
+      - name: Merge Test Results into Single Artifact (fewer artifacts to deal with in build)
+        uses: actions/upload-artifact/merge@v4
         with:
-          name: Bicep.TestResults
-          path: TestResults
+          name: TestResults
+          pattern: TestResults-*
+          delete-merged: true
 
-      - name: Publish Test Results
+      - name: Download Test Results Artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: TestResults
+          path: TestResults
+          merge-multiple: true
+                    
+      - name: Publish Dotnet Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
         with:
-          check_name: Test Results
+          check_name: Dotnet Test Results
           files: "TestResults/**/*.trx"
   
   comment-preview-links:
@@ -705,7 +713,7 @@ jobs:
           node-version: 18
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -752,7 +760,7 @@ jobs:
         run: apk add --update nodejs npm
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: bicep-release-linux-musl-x64
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
