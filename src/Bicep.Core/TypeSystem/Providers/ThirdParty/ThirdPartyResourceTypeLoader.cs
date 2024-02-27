@@ -26,13 +26,13 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value);
-            availableFunctions = indexedTypes.Functions.ToImmutableDictionary(
+            /*availableFunctions = indexedTypes.Functions.ToImmutableDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value.ToImmutableDictionary(
                     x => x.Key,
                     x => x.Value.ToImmutableArray(),
                     StringComparer.OrdinalIgnoreCase),
-                StringComparer.OrdinalIgnoreCase);
+                StringComparer.OrdinalIgnoreCase);*/
 
             //Is there way to shorten this?
             if (indexedTypes.Settings != null)

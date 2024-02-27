@@ -269,7 +269,7 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 
         var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
 
-        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/typesNewContractChanges/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/typesNewContractChanges/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
         provider 'br:example.azurecr.io/test/provider/http@1.2.3'
