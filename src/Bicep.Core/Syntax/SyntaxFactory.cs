@@ -214,7 +214,7 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
+        public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), []);
 
         public static StringSyntax CreateStringLiteralWithTextSpan(string value)
             => new(new FreeformToken(TokenType.StringComplete, new TextSpan(0, value.Length), value, [], []).AsEnumerable(), [], [value]);

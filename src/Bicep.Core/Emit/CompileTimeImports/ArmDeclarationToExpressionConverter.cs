@@ -188,23 +188,15 @@ internal class ArmDeclarationToExpressionConverter
             // If we've hit the former case, the Bicep type symbol for the node will be an ArrayType whose item type is a union (e.g., ('foo' | 'bar')[])
             if (bicepType is ArrayType bicepArrayType)
             {
-                if (bicepArrayType.Item.Type is not UnionType itemUnion)
-                {
-                    throw new InvalidOperationException("This should have been handled by ArmTemplateTypeLoader");
-                }
+                var itemTypeExpression = GetAllowedValuesTypeExpression(memberTypes, bicepArrayType.Item.Type);
 
                 return new ArrayTypeExpression(sourceSyntax,
-                    new TypedArrayType(itemUnion, TypeSymbolValidationFlags.Default),
-                    new UnionTypeExpression(sourceSyntax, itemUnion, memberTypes));
+                    new TypedArrayType(itemTypeExpression.ExpressedType, TypeSymbolValidationFlags.Default),
+                    itemTypeExpression);
             }
 
             // If we've hit the latter case, the Bicep type symbol for the node will be a UnionType
-            if (bicepType is not UnionType bicepUnionType)
-            {
-                throw new InvalidOperationException("This should have been handled by ArmTemplateTypeLoader");
-            }
-
-            return new UnionTypeExpression(sourceSyntax, bicepUnionType, memberTypes);
+            return GetAllowedValuesTypeExpression(memberTypes, bicepType);
         }
 
         if (schemaNode.Ref?.Value is string @ref)
@@ -223,6 +215,21 @@ internal class ArmDeclarationToExpressionConverter
             TemplateParameterType.SecureObject => ConvertObjectNodeToTypeExpression(schemaNode),
             _ => throw new InvalidOperationException($"Unrecognized ARM template type: {schemaNode.Type.Value}"),
         };
+    }
+
+    private TypeExpression GetAllowedValuesTypeExpression(ImmutableArray<TypeExpression> memberTypes, TypeSymbol bicepType)
+    {
+        if (memberTypes.Length == 1)
+        {
+            return memberTypes.Single();
+        }
+
+        if (bicepType is not UnionType bicepUnionType)
+        {
+            throw new InvalidOperationException("This should have been handled by ArmTemplateTypeLoader");
+        }
+
+        return new UnionTypeExpression(sourceSyntax, bicepUnionType, memberTypes);
     }
 
     private static string? GetDescription(ITemplateSchemaNode schemaNode)

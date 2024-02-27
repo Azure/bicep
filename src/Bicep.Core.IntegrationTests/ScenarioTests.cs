@@ -5626,6 +5626,44 @@ param foo {
         });
     }
 
+    [TestMethod]
+    public void Functions_can_be_imported_in_bicepparam_files()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+import * as func from 'func.bicep'
+import { greetMultiple } from 'func.bicep'
+
+param foo = func.greet('Anthony')
+param foo2 = greetMultiple(['Evie', 'Casper'])
+"""),
+            ("func.bicep", """
+@export()
+@description('Say hi to someone')
+func greet(name string) string => 'Hi, ${name}!'
+
+@export()
+func greetMultiple(names string[]) string[] => map(names, name => greet(name))
+"""),
+            ("main.bicep", """
+param foo string
+param foo2 string[]
+"""),
+            ("bicepconfig.json", """
+{
+  "experimentalFeaturesEnabled": {
+    "userDefinedFunctions": true
+  }
+}
+"""));
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Parameters.Should().HaveValueAtPath("parameters.foo.value", "Hi, Anthony!");
+        result.Parameters.Should().HaveValueAtPath("parameters.foo2.value", JToken.Parse("""["Hi, Evie!", "Hi, Casper!"]"""));
+    }
+
     // https://github.com/Azure/bicep/issues/12347
     [TestMethod]
     public void Test_Issue12347()
@@ -5757,6 +5795,43 @@ var startAndEndBracketInString = 'x[]y'
 
             param test naming = union(defaultNaming, resourceNaming)
             """);
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Test_Issue13462()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import { bar } from 'main-depend.json'
+
+                param parameter bar
+                """),
+            ("main-depend.json", """
+                {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "2.0",
+                  "contentVersion": "1.0.0.0",
+                  "definitions": {
+                    "bar": {
+                      "type": "object",
+                      "properties": {
+                        "foo": {
+                          "type": "string",
+                          "allowedValues": [
+                            "foo"
+                          ]
+                        }
+                      },
+                      "metadata": {
+                        "__bicep_export!": true
+                      }
+                    }
+                  },
+                  "resources": {}
+                }
+                """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }

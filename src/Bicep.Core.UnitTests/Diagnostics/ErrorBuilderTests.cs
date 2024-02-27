@@ -217,7 +217,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");
         }
 
-        private void ExpectDiagnosticWithFixedText(string text, string expectedText)
+        private static void ExpectDiagnosticWithFixedText(string text, string expectedText)
         {
             var result = CompilationHelper.Compile(text);
             result.Diagnostics.Should().HaveCount(1);
