@@ -28,7 +28,7 @@ public class ImportSpecificationTests
     public void TestCreateFromStringSyntax(string input, bool isValidDeclaration, string expectedName = LanguageConstants.ErrorName)
     {
         // Arrange
-        var syntax = SyntaxFactory.CreateStringLiteral(input);
+        var syntax = SyntaxFactory.CreateStringLiteralForStringComplete(input);
         // Act
         var got = ImportSpecification.From(syntax);
         // Assert

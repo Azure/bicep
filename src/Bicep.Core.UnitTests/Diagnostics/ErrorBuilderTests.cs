@@ -186,7 +186,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return new ProviderDeclarationSyntax(
                     Enumerable.Empty<SyntaxBase>(),
                     SyntaxFactory.ImportKeywordToken,
-                    SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
+                    SyntaxFactory.CreateStringLiteralForStringComplete("kubernetes@1.0.0"),
                     withClause: SyntaxFactory.EmptySkippedTrivia,
                     asClause: SyntaxFactory.EmptySkippedTrivia);
             }
@@ -209,7 +209,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");
         }
 
-        private void ExpectDiagnosticWithFixedText(string text, string expectedText)
+        private static void ExpectDiagnosticWithFixedText(string text, string expectedText)
         {
             var result = CompilationHelper.Compile(text);
             result.Diagnostics.Should().HaveCount(1);
