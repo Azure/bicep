@@ -39,3 +39,4 @@ jobs:
           name: results.txt
           path: ./results.txt
           if-no-files-found: error
+          overwrite: true
