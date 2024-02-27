@@ -186,7 +186,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return new ProviderDeclarationSyntax(
                     Enumerable.Empty<SyntaxBase>(),
                     SyntaxFactory.ImportKeywordToken,
-                    SyntaxFactory.CreateStringLiteralForStringComplete("kubernetes@1.0.0"),
+                    SyntaxFactory.CreateStringLiteralWithTextSpan("kubernetes@1.0.0"),
                     withClause: SyntaxFactory.EmptySkippedTrivia,
                     asClause: SyntaxFactory.EmptySkippedTrivia);
             }
@@ -296,7 +296,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                          name: 'D1'
 
                        }
-                       
+
                        location:
                        name:// comment
                  }"
