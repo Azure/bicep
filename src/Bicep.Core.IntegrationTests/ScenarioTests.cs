@@ -5798,4 +5798,41 @@ var startAndEndBracketInString = 'x[]y'
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
+
+    [TestMethod]
+    public void Test_Issue13462()
+    {
+        var result = CompilationHelper.Compile(
+            ("main.bicep", """
+                import { bar } from 'main-depend.json'
+
+                param parameter bar
+                """),
+            ("main-depend.json", """
+                {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "2.0",
+                  "contentVersion": "1.0.0.0",
+                  "definitions": {
+                    "bar": {
+                      "type": "object",
+                      "properties": {
+                        "foo": {
+                          "type": "string",
+                          "allowedValues": [
+                            "foo"
+                          ]
+                        }
+                      },
+                      "metadata": {
+                        "__bicep_export!": true
+                      }
+                    }
+                  },
+                  "resources": {}
+                }
+                """));
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
 }
