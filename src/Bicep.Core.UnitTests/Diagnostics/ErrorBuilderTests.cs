@@ -296,7 +296,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                          name: 'D1'
 
                        }
-
+                       
                        location:
                        name:// comment
                  }"
