@@ -287,7 +287,7 @@ namespace Bicep.Core.Parsing
                 TokenType.Identifier => new IdentifierSyntax(reader.Read()),
 
                 _ => this.WithRecovery(
-                    () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification(false)),
+                    () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification()),
                     RecoveryFlags.None,
                     TokenType.NewLine)
             };

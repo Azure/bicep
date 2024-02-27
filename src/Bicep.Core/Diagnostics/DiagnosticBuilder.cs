@@ -1217,14 +1217,13 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedProviderSpecification(bool isDynamicLoadingEnabled)
+            public ErrorDiagnostic ExpectedProviderSpecification()
             {
-                var message = "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location.";
-                if (isDynamicLoadingEnabled)
-                {
-                    message = "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\""
-                                + " or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location.";
-                }
+                var message = """
+                Expected a provider specification string of with a valid format at this location. Valid formats:
+                * "br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>"
+                * "br/<providerAlias>:<providerName>@<providerVersion>"
+                """;
                 return new(TextSpan, "BCP201", message);
             }
 

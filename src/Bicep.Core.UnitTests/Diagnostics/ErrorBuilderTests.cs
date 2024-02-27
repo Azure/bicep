@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Resources;
@@ -186,9 +187,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
             if (parameter.ParameterType == typeof(ProviderDeclarationSyntax))
             {
                 return new ProviderDeclarationSyntax(
-                    Enumerable.Empty<SyntaxBase>(),
+                    [],
                     SyntaxFactory.ImportKeywordToken,
-                    SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
+                    SyntaxFactory.CreateStringLiteralWithTextSpan("kubernetes@1.0.0"),
                     withClause: SyntaxFactory.EmptySkippedTrivia,
                     asClause: SyntaxFactory.EmptySkippedTrivia);
             }

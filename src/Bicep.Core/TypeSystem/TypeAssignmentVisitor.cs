@@ -801,11 +801,6 @@ namespace Bicep.Core.TypeSystem
         public override void VisitProviderDeclarationSyntax(ProviderDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                if (syntax.IsSkipped)
-                {
-                    diagnostics.Write(syntax.Specification, b => b.ExpectedProviderSpecification(this.features.DynamicTypeLoadingEnabled));
-                }
-
                 if (binder.GetSymbolInfo(syntax) is not ProviderNamespaceSymbol namespaceSymbol)
                 {
                     // We have syntax or binding errors, which should have already been handled.

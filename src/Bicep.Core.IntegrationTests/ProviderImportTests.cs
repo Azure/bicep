@@ -94,7 +94,11 @@ namespace Bicep.Core.IntegrationTests
 provider
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location."),
+                ("BCP201", DiagnosticLevel.Error, """
+                Expected a provider specification string of with a valid format at this location. Valid formats:
+                * "br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>"
+                * "br/<providerAlias>:<providerName>@<providerVersion>"
+                """)
             });
         }
 

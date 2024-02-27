@@ -399,7 +399,7 @@ namespace Bicep.Core.Workspaces
                         file.FileUri,
                         providerDeclarationSyntax.Alias?.IdentifierName));
                 }
-                return new(x => x.ExpectedProviderSpecification(featureProvider.DynamicTypeLoadingEnabled));
+                return new(x => x.ExpectedProviderSpecification());
             }
 
             if (!featureProvider.DynamicTypeLoadingEnabled)

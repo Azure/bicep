@@ -132,8 +132,13 @@ namespace Bicep.Core.IntegrationTests
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(
                 new[] {
-                ("BCP201", DiagnosticLevel.Error, "Expected a provider identifier or a provider specification string of format \"br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>\" or a string of format \"br/<providerAlias>:<providerName>@<providerVersion>\" at this location."),
-                ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
+                ("BCP201", DiagnosticLevel.Error, """
+                Expected a provider specification string of with a valid format at this location. Valid formats:
+                * "br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>"
+                * "br/<providerAlias>:<providerName>@<providerVersion>"
+                """),
+                ("BCP084", DiagnosticLevel.Error,
+                "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
             });
         }
 

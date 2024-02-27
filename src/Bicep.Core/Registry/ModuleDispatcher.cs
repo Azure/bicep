@@ -114,6 +114,11 @@ namespace Bicep.Core.Registry
 
         private ResultWithDiagnostic<string> GetArtifactAddress(ProviderDeclarationSyntax providerDeclarationSyntax, Uri parentModuleUri)
         {
+            if (providerDeclarationSyntax.Specification is null)
+            {
+                return new(x => x.InvalidProviderSpecification());
+            }
+            
             var config = configurationManager.GetConfiguration(parentModuleUri);
             switch (providerDeclarationSyntax.Specification)
             {
