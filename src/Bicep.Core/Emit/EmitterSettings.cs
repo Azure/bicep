@@ -22,6 +22,8 @@ namespace Bicep.Core.Emit
                 model.Features.SymbolicNameCodegenEnabled ||
                 // there are any user-defined type declarations
                 model.Root.TypeDeclarations.Any() ||
+                // there are any user-defined function declarations
+                model.Root.FunctionDeclarations.Any() ||
                 // there are any compile-time imports (imported functions or variables may enclose user-defined types, and determining definitively requires calculating the full import closure)
                 model.Root.ImportedSymbols.Any() ||
                 // there are any wildcard compile-time imports
