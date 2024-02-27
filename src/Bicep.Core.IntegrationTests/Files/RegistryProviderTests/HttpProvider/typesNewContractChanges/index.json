@@ -1,0 +1,22 @@
+{
+    "Resources": {
+        "request@v1": {
+            "RelativePath": "v1/types.json",
+            "Index": 7
+        }
+    },
+    "Functions": {},
+    "Settings": {
+        "Name": "ThirdPartyProvider",
+        "Version": "1.0.0",
+        "IsSingleton": false,
+        "ConfigurationType": {
+            "Index": 0,
+            "RelativePath": "types.json"
+        }
+    },
+    "FallbackResourceType": {
+        "Index": 2,
+        "RelativePath": "types.json"
+    }
+}

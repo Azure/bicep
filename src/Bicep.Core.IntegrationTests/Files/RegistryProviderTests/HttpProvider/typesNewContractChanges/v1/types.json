@@ -1,0 +1,69 @@
+[
+    {
+        "6": {
+            "Value": "raw"
+        }
+    },
+    {
+        "6": {
+            "Value": "json"
+        }
+    },
+    {
+        "5": {
+            "Elements": [
+                0,
+                1
+            ]
+        }
+    },
+    {
+        "13": {}
+    },
+    {
+        "12": {}
+    },
+    {
+        "9": {}
+    },
+    {
+        "2": {
+            "Name": "request@v1",
+            "Properties": {
+                "uri": {
+                    "Type": 3,
+                    "Flags": 1,
+                    "Description": "The HTTP request URI to submit a GET request to."
+                },
+                "format": {
+                    "Type": 2,
+                    "Flags": 0,
+                    "Description": "How to deserialize the response body."
+                },
+                "method": {
+                    "Type": 3,
+                    "Flags": 0,
+                    "Description": "The HTTP method to submit request to the given URI."
+                },
+                "statusCode": {
+                    "Type": 4,
+                    "Flags": 2,
+                    "Description": "The status code of the HTTP request."
+                },
+                "body": {
+                    "Type": 5,
+                    "Flags": 2,
+                    "Description": "The parsed request bodyz."
+                }
+            }
+        }
+    },
+    {
+        "4": {
+            "Name": "request@v1",
+            "ScopeType": 0,
+            "Body": 6,
+            "Flags": 0
+        }
+    }
+]

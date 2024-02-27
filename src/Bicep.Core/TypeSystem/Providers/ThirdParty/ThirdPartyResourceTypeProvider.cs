@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using Azure.Bicep.Types.Index;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem.Types;
 
@@ -17,6 +18,17 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         public ThirdPartyResourceTypeProvider(ThirdPartyResourceTypeLoader resourceTypeLoader, string providerVersion)
             : base(resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet())
         {
+            if (resourceTypeLoader.Settings != null)
+            {
+                Name = resourceTypeLoader.Settings.Name;
+                Version = resourceTypeLoader.Settings.Version;
+                IsSingleton = resourceTypeLoader.Settings.IsSingleton;
+            }
+            else
+            {
+                throw new Exception("throw some exception");
+            }
+
             Version = providerVersion;
             this.resourceTypeLoader = resourceTypeLoader;
             definedTypeCache = new ResourceTypeCache();
@@ -110,6 +122,11 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
 
+        public string Name { get; }
+
         public string Version { get; }
+
+        public bool IsSingleton { get; }
+
     }
 }

@@ -4,6 +4,7 @@
 using System.Formats.Tar;
 using System.IO.Abstractions;
 using System.IO.Compression;
+using System.Security.Policy;
 using System.Text;
 using Azure.Bicep.Types.Serialization;
 
@@ -23,6 +24,15 @@ public static class TypesV1Archive
             await AddFileToTar(tarWriter, "index.json", indexJson);
 
             var indexJsonParentPath = Path.GetDirectoryName(indexJsonPath);
+            var rootTypesPath = indexJsonParentPath != null ? Path.Combine(indexJsonParentPath, "types.json") : null;
+
+
+            if (fileSystem.File.Exists(rootTypesPath))
+            {
+                var rootTypesJson = await fileSystem.File.ReadAllTextAsync(rootTypesPath);
+                await AddFileToTar(tarWriter, "types.json", rootTypesJson);
+            }
+
             var uniqueTypePaths = GetAllUniqueTypePaths(indexJsonPath, fileSystem);
 
             foreach (var relativePath in uniqueTypePaths)
