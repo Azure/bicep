@@ -7,7 +7,7 @@
     "@types/node": "^20.11.20",
     "@types/plist": "^3.0.5",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
-    "@typescript-eslint/parser": "^7.0.2",
+    "@typescript-eslint/parser": "^7.1.0",
     "eslint": "^8.57.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^27.9.0",
