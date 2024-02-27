@@ -1,4 +1,6 @@
-@description('Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)')
+@description(
+  'Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)'
+)
 param virtualMachineSize string = 'Standard_DS1_v2'
 
 @description('Default Admin username')
@@ -9,10 +11,7 @@ param adminUsername string
 param adminPassword string
 
 @description('Storage Account type for the VM and VM diagnostic storage')
-@allowed([
-  'Standard_LRS'
-  'Premium_LRS'
-])
+@allowed(['Standard_LRS', 'Premium_LRS'])
 param storageAccountType string = 'Standard_LRS'
 
 @description('Location for all resources.')
@@ -102,9 +101,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/16'
-      ]
+      addressPrefixes: ['10.0.0.0/16']
     }
     subnets: [
       {
@@ -156,7 +153,11 @@ resource nic1 'Microsoft.Network/networkInterfaces@2020-06-01' = {
         name: 'ipconfig1'
         properties: {
           subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, subnet1Name)
+            id: resourceId(
+              'Microsoft.Network/virtualNetworks/subnets',
+              vnet.name,
+              subnet1Name
+            )
           }
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
@@ -181,7 +182,11 @@ resource nic2 'Microsoft.Network/networkInterfaces@2020-06-01' = {
         name: 'ipconfig1'
         properties: {
           subnet: {
-            id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, subnet2Name)
+            id: resourceId(
+              'Microsoft.Network/virtualNetworks/subnets',
+              vnet.name,
+              subnet2Name
+            )
           }
           privateIPAllocationMethod: 'Dynamic'
         }

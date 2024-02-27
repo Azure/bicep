@@ -15,4 +15,10 @@ echo VSIXInstaller.exe location: "%VSIXInstallerExe%"
 set BicepVsixPath=%ExtensionsRoot%Bicep.VSLanguageServerClient.Vsix\bin\Release\vs-bicep.vsix
 echo Bicep vsix location: %BicepVsixPath%
 
-call "%VSIXInstallerExe%" /quiet "%BicepVsixPath%"
+choice /M "Install? (Y/N)"
+if errorlevel 2 goto skip_install
+
+rem Install the VSIX here
+call "%VSIXInstallerExe%" "%BicepVsixPath%"
+
+:skip_install

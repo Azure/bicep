@@ -16,9 +16,8 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
     {
         private readonly ITypeLoader typeLoader;
         private readonly ExtensibilityResourceTypeFactory resourceTypeFactory;
-        private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
-        private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<TypeLocation>>> availableFunctions;
-     
+        private readonly ImmutableDictionary<ResourceTypeReference, CrossFileTypeReference> availableTypes;
+
         public ThirdPartyResourceTypeLoader(ITypeLoader typeLoader)
         {
             this.typeLoader = typeLoader;

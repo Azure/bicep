@@ -56,13 +56,10 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             var properties = objectType.Properties;
             var isExistingResource = flags.HasFlag(ResourceTypeGenerationFlags.ExistingResource);
 
-            if (isExistingResource)
+            if (!isExistingResource)
             {
-            }
-            else
-            {
-                // TODO: remove 'dependsOn' from the type library
-                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
+                // TODO: Support "dependsOn" for "existing" resources
+                properties = properties.Add(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
             }
 
             return new ObjectType(
@@ -71,18 +68,43 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
                 isExistingResource ? ConvertToReadOnly(properties.Values) : properties.Values,
                 objectType.AdditionalPropertiesType,
                 isExistingResource ? ConvertToReadOnly(objectType.AdditionalPropertiesFlags) : objectType.AdditionalPropertiesFlags,
-                functions: null);
+                functions: objectType.MethodResolver.functionOverloads);
         }
 
         private static IEnumerable<TypeProperty> ConvertToReadOnly(IEnumerable<TypeProperty> properties)
         {
             foreach (var property in properties)
             {
-                yield return new TypeProperty(property.Name, property.TypeReference, ConvertToReadOnly(property.Flags), property.Description);
+                if (!property.Flags.HasFlag(TypePropertyFlags.ResourceIdentifier))
+                {
+                    // this property should be read-only for an "existing" resource
+                    yield return new TypeProperty(property.Name, property.TypeReference, ConvertToReadOnly(property.Flags), property.Description);
+                    continue;
+                }
+
+                if (property.TypeReference.Type is ObjectType objectType)
+                {
+                    // this property is required to identify the resource, but we have to recurse to make non-identifier sub-properties read-only
+                    objectType = new ObjectType(
+                        objectType.Name,
+                        objectType.ValidationFlags,
+                        ConvertToReadOnly(objectType.Properties.Values),
+                        objectType.AdditionalPropertiesType,
+                        ConvertToReadOnly(objectType.AdditionalPropertiesFlags),
+                        functions: null);
+
+                    yield return new TypeProperty(property.Name, objectType, property.Flags, property.Description);
+                    continue;
+                }
+
+                // this property is required to identify the resource and should be left as-is for an "existing" resource
+                yield return property;
+                continue;
             }
         }
 
         private static TypePropertyFlags ConvertToReadOnly(TypePropertyFlags typePropertyFlags)
+            // Add "ReadOnly" flag and remove "Required" flag
             => (typePropertyFlags | TypePropertyFlags.ReadOnly) & ~TypePropertyFlags.Required;
 
         public ResourceType? TryGetDefinedType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)

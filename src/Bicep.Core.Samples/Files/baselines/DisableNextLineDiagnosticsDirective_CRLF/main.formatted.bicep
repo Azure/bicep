@@ -16,9 +16,9 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 }
 #disable-next-line no-unused-params
 param storageAccount1 string = 'testStorageAccount'
-#disable-next-line          no-unused-params
+#disable-next-line no-unused-params
 param storageAccount2 string = 'testStorageAccount'
-#disable-next-line   no-unused-params /* Test comment 1 */
+#disable-next-line no-unused-params /* Test comment 1 */
 param storageAccount3 string = 'testStorageAccount'
-#disable-next-line   no-unused-params // Test comment 2
+#disable-next-line no-unused-params // Test comment 2
 param storageAccount5 string = 'testStorageAccount'

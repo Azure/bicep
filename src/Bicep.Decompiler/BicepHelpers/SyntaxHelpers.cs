@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
@@ -133,7 +132,7 @@ namespace Bicep.Decompiler.BicepHelpers
         {
             var trailingTrivia = new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, TextSpan.Nil, $"/* {trailingComment} */");
 
-            return SyntaxFactory.CreateFreeformToken(tokenType, "?", SyntaxFactory.EmptyTrivia, trailingTrivia.AsEnumerable());
+            return SyntaxFactory.CreateFreeformToken(tokenType, "?", SyntaxFactory.EmptyTrivia, SyntaxFactory.SingleSpaceTrivia.Append(trailingTrivia));
         }
     }
 }

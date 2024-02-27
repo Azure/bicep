@@ -9,11 +9,7 @@ param virtualMachineCount int = 3
 
 param virtualMachineSize string = 'Standard_DS2_v2'
 
-@allowed([
-  'Server2012R2'
-  'Server2016'
-  'Server2019'
-])
+@allowed(['Server2012R2', 'Server2016', 'Server2019'])
 param operatingSystem string = 'Server2019'
 
 param availabilitySetName string = 'MyAvailabilitySet'
@@ -75,9 +71,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        myVNETPrefix
-      ]
+      addressPrefixes: [myVNETPrefix]
     }
   }
 }
@@ -113,84 +107,96 @@ resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-06-01' = {
   }
 }
 
-resource virtualMachines 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in range(0, virtualMachineCount): {
-  name: '${virtualMachineNamePrefix}${i + 1}'
-  location: location
-  properties: {
-    hardwareProfile: {
-      vmSize: virtualMachineSize
-    }
-    storageProfile: {
-      imageReference: {
-        publisher: operatingSystemValues[operatingSystem].PublisherValue
-        offer: operatingSystemValues[operatingSystem].OfferValue
-        sku: operatingSystemValues[operatingSystem].SkuValue
-        version: 'latest'
+resource virtualMachines 'Microsoft.Compute/virtualMachines@2020-06-01' = [
+  for i in range(0, virtualMachineCount): {
+    name: '${virtualMachineNamePrefix}${i + 1}'
+    location: location
+    properties: {
+      hardwareProfile: {
+        vmSize: virtualMachineSize
       }
-      osDisk: {
-        name: '${virtualMachineNamePrefix}${i + 1}'
-        createOption: 'FromImage'
-        managedDisk: {
-          storageAccountType: 'Standard_LRS'
+      storageProfile: {
+        imageReference: {
+          publisher: operatingSystemValues[operatingSystem].PublisherValue
+          offer: operatingSystemValues[operatingSystem].OfferValue
+          sku: operatingSystemValues[operatingSystem].SkuValue
+          version: 'latest'
         }
-        caching: 'ReadWrite'
+        osDisk: {
+          name: '${virtualMachineNamePrefix}${i + 1}'
+          createOption: 'FromImage'
+          managedDisk: {
+            storageAccountType: 'Standard_LRS'
+          }
+          caching: 'ReadWrite'
+        }
+      }
+      osProfile: {
+        computerName: '${virtualMachineNamePrefix}${i + 1}'
+        adminUsername: virtualMachineAdminUserName
+        windowsConfiguration: {
+          provisionVMAgent: true
+        }
+        adminPassword: virtualMachineAdminPassword
+      }
+      networkProfile: {
+        networkInterfaces: [
+          {
+            id: resourceId(
+              'Microsoft.Network/networkInterfaces',
+              '${virtualMachineNamePrefix}${i + 1}-NIC1'
+            )
+          }
+        ]
+      }
+      availabilitySet: {
+        id: availabilitySet.id
+      }
+      diagnosticsProfile: {
+        bootDiagnostics: {
+          enabled: true
+          storageUri: storageAccount.properties.primaryEndpoints.blob
+        }
       }
     }
-    osProfile: {
-      computerName: '${virtualMachineNamePrefix}${i + 1}'
-      adminUsername: virtualMachineAdminUserName
-      windowsConfiguration: {
-        provisionVMAgent: true
-      }
-      adminPassword: virtualMachineAdminPassword
-    }
-    networkProfile: {
-      networkInterfaces: [
+  }
+]
+
+resource networkInterfaces 'Microsoft.Network/networkInterfaces@2020-06-01' = [
+  for i in range(0, virtualMachineCount): {
+    name: '${virtualMachineNamePrefix}${i + 1}-NIC1'
+    location: location
+    properties: {
+      ipConfigurations: [
         {
-          id: resourceId('Microsoft.Network/networkInterfaces', '${virtualMachineNamePrefix}${i + 1}-NIC1')
+          name: 'ipconfig1'
+          properties: {
+            privateIPAllocationMethod: 'Dynamic'
+            publicIPAddress: {
+              id: resourceId(
+                'Microsoft.Network/publicIPAddresses',
+                '${virtualMachineNamePrefix}${i + 1}-PIP1'
+              )
+            }
+            subnet: {
+              id: subNet.id
+            }
+          }
         }
       ]
+      enableIPForwarding: false
     }
-    availabilitySet: {
-      id: availabilitySet.id
-    }
-    diagnosticsProfile: {
-      bootDiagnostics: {
-        enabled: true
-        storageUri: storageAccount.properties.primaryEndpoints.blob
+  }
+]
+resource publicIPAddresses 'Microsoft.Network/publicIPAddresses@2020-06-01' = [
+  for i in range(0, virtualMachineCount): {
+    name: '${virtualMachineNamePrefix}${i + 1}-PIP1'
+    location: location
+    properties: {
+      publicIPAllocationMethod: 'Dynamic'
+      dnsSettings: {
+        domainNameLabel: '${dnsPrefixForPublicIP}${i + 1}'
       }
     }
   }
-}]
-
-resource networkInterfaces 'Microsoft.Network/networkInterfaces@2020-06-01' = [for i in range(0, virtualMachineCount): {
-  name: '${virtualMachineNamePrefix}${i + 1}-NIC1'
-  location: location
-  properties: {
-    ipConfigurations: [
-      {
-        name: 'ipconfig1'
-        properties: {
-          privateIPAllocationMethod: 'Dynamic'
-          publicIPAddress: {
-            id: resourceId('Microsoft.Network/publicIPAddresses', '${virtualMachineNamePrefix}${i + 1}-PIP1')
-          }
-          subnet: {
-            id: subNet.id
-          }
-        }
-      }
-    ]
-    enableIPForwarding: false
-  }
-}]
-resource publicIPAddresses 'Microsoft.Network/publicIPAddresses@2020-06-01' = [for i in range(0, virtualMachineCount): {
-  name: '${virtualMachineNamePrefix}${i + 1}-PIP1'
-  location: location
-  properties: {
-    publicIPAllocationMethod: 'Dynamic'
-    dnsSettings: {
-      domainNameLabel: '${dnsPrefixForPublicIP}${i + 1}'
-    }
-  }
-}]
+]

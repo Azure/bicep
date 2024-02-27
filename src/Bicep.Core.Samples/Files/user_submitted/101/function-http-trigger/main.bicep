@@ -110,9 +110,7 @@ resource function 'Microsoft.Web/sites/functions@2020-06-01' = {
           type: 'httpTrigger'
           direction: 'in'
           authLevel: 'function'
-          methods: [
-            'get'
-          ]
+          methods: ['get']
         }
         {
           name: '$return'

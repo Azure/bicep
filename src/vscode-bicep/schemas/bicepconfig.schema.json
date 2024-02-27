@@ -697,51 +697,62 @@
       "description": "The directory in which Bicep may cache templates downloaded from remote registries"
     },
     "experimentalFeaturesEnabled": {
-      "_comment": "Documentation for these features can be found at https://github.com/Azure/bicep/blob/main/docs/experimental-features.md",
       "type": "object",
-      "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file",
+      "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file. See https://aka.ms/bicep/experimental-features for more information.",
       "properties": {
         "microsoftGraphPreview": {
           "type": "boolean"
         },
         "symbolicNameCodegen": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Allows the ARM template layer to use a new schema to represent resources as an object dictionary rather than an array of objects. See https://aka.ms/bicep/experimental-features#symbolicnamecodegen"
         },
         "extensibility": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Allows Bicep to use a provider model to deploy non-ARM resources. See https://aka.ms/bicep/experimental-features#extensibility"
         },
         "resourceTypedParamsAndOutputs": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Enables the type for a parameter or output to be of type resource to make it easier to pass resource references between modules. See https://aka.ms/bicep/experimental-features#resourcetypedparamsandoutputs"
         },
         "sourceMapping": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Enables basic source mapping to map an error location returned in the ARM template layer back to the relevant location in the Bicep file. See https://aka.ms/bicep/experimental-features#sourcemapping"
         },
         "userDefinedFunctions": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Allows you to define your own custom functions. See https://aka.ms/bicep/experimental-features#userdefinedfunctions"
         },
-        "prettyPrinting": {
-          "type": "boolean"
+        "legacyFormatter": {
+          "type": "boolean",
+          "description": "Enables code formatting using the legacy formatter. See https://aka.ms/bicep/experimental-features#legacyformatter"
         },
         "testFramework": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Allows you to author client-side, offline unit-test test blocks. Should be enabled in tandem with `assertions`. See https://aka.ms/bicep/experimental-features#testframework"
         },
         "assertions": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Allows you to author boolean assertions using the assert keyword. Should be enabled in tandem with 'testFramework'. See https://aka.ms/bicep/experimental-features#assertions"
         },
         "dynamicTypeLoading": {
+          "description": "Enables dynamic type loading for resource type providers. See https://aka.ms/bicep/experimental-features#dynamictypeloading",
           "type": "boolean"
         },
         "providerRegistry": {
           "type": "boolean"
         },
         "publishSource": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Enables publishing source code with modules using the bicep publish `--with-source` option. See https://aka.ms/bicep/experimental-features#publishsource"
         },
         "optionalModuleNames": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Enabling this feature makes the name property in the body of module declarations optional. See https://aka.ms/bicep/experimental-features#optionalmodulenames"
         },
         "resourceDerivedTypes": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "If enabled, templates can reuse resource types wherever a type is expected. See https://aka.ms/bicep/experimental-features#resourcederivedtypes"
         }
       },
       "additionalProperties": false

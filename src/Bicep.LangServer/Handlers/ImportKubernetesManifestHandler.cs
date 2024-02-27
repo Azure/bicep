@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text;
-using Bicep.Core;
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
-using Bicep.Core.PrettyPrint;
-using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Telemetry;
@@ -25,14 +25,12 @@ namespace Bicep.LanguageServer.Handlers
 
     public record ImportKubernetesManifestResponse(string? BicepFilePath);
 
-    public class ImportKubernetesManifestHandler : IJsonRpcRequestHandler<ImportKubernetesManifestRequest, ImportKubernetesManifestResponse>
+    public class ImportKubernetesManifestHandler(
+        ILanguageServerFacade server,
+        ITelemetryProvider telemetryProvider,
+        IConfigurationManager configurationManager) : IJsonRpcRequestHandler<ImportKubernetesManifestRequest, ImportKubernetesManifestResponse>
     {
-        private readonly TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> helper;
-
-        public ImportKubernetesManifestHandler(ILanguageServerFacade server, ITelemetryProvider telemetryProvider)
-        {
-            this.helper = new TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse>(server.Window, telemetryProvider);
-        }
+        private readonly TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> helper = new(server.Window, telemetryProvider);
 
         public Task<ImportKubernetesManifestResponse> Handle(ImportKubernetesManifestRequest request, CancellationToken cancellationToken)
             => helper.ExecuteWithTelemetryAndErrorHandling(async () =>
@@ -40,14 +38,14 @@ namespace Bicep.LanguageServer.Handlers
                 var bicepFilePath = Path.ChangeExtension(request.ManifestFilePath, ".bicep");
                 var manifestContents = await File.ReadAllTextAsync(request.ManifestFilePath);
 
-                var bicepContents = Decompile(manifestContents, this.helper);
+                var bicepContents = this.Decompile(bicepFilePath, manifestContents, this.helper);
 
                 await File.WriteAllTextAsync(bicepFilePath, bicepContents, cancellationToken);
 
                 return new(new(bicepFilePath), BicepTelemetryEvent.ImportKubernetesManifestSuccess());
             });
 
-        public static string Decompile(string manifestContents, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
+        public string Decompile(string bicepFilePath, string manifestContents, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
         {
             var declarations = new List<SyntaxBase>
             {
@@ -56,14 +54,14 @@ namespace Bicep.LanguageServer.Handlers
                         SyntaxFactory.CreateDecorator("secure"),
                         SyntaxFactory.NewlineToken,
                     },
-                    SyntaxFactory.CreateIdentifierToken("param"),
-                    SyntaxFactory.CreateIdentifier("kubeConfig"),
+                    SyntaxFactory.ParameterKeywordToken,
+                    SyntaxFactory.CreateIdentifierWithTrailingSpace("kubeConfig"),
                     new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken("string"))),
                     null),
 
                 new ProviderDeclarationSyntax(
                     Enumerable.Empty<SyntaxBase>(),
-                    SyntaxFactory.CreateIdentifierToken(LanguageConstants.ProviderKeyword),
+                    SyntaxFactory.ProviderKeywordToken,
                     SyntaxFactory.CreateStringLiteral($"{K8sNamespaceType.BuiltInName}@{K8sNamespaceType.BuiltInVersion}"),
                     new ProviderWithClauseSyntax(
                         SyntaxFactory.CreateToken(TokenType.WithKeyword),
@@ -101,7 +99,11 @@ namespace Bicep.LanguageServer.Handlers
                 declarations.SelectMany(x => new SyntaxBase[] { x, SyntaxFactory.DoubleNewlineToken }),
                 SyntaxFactory.CreateToken(TokenType.EndOfFile));
 
-            return PrettyPrinter.PrintValidProgram(program, new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false));
+            var configuration = configurationManager.GetConfiguration(PathHelper.FilePathToFileUrl(bicepFilePath));
+            var printerOptions = configuration.Formatting.Data;
+            var printerContext = PrettyPrinterV2Context.Create(printerOptions, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+
+            return PrettyPrinterV2.Print(program, printerContext);
         }
 
         private static ResourceDeclarationSyntax ProcessResourceYaml(YamlDocument yamlDocument, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
@@ -142,12 +144,12 @@ namespace Bicep.LanguageServer.Handlers
 
             return new ResourceDeclarationSyntax(
                 Enumerable.Empty<SyntaxBase>(),
-                SyntaxFactory.CreateIdentifierToken("resource"),
-                SyntaxFactory.CreateIdentifier(symbolName),
+                SyntaxFactory.ResourceKeywordToken,
+                SyntaxFactory.CreateIdentifierWithTrailingSpace(symbolName),
                 SyntaxFactory.CreateStringLiteral($"{type}@{apiVersion}"),
                 null,
                 SyntaxFactory.AssignmentToken,
-                ImmutableArray<Token>.Empty,
+                [],
                 resourceBody);
         }
 

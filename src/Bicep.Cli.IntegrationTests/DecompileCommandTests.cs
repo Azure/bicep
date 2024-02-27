@@ -50,20 +50,26 @@ namespace Bicep.Cli.IntegrationTests
             ""outputs"": {}
         }";
 
-        private const string ValidTemplateExpectedDecompilation = @"resource res 'My.Rp/testType@2020-01-01' = {
-  name: 'resName'
-  location: resourceGroup().location
-  properties: {
-    prop1: 'val1'
-  }
-}";
+        private const string ValidTemplateExpectedDecompilation = """
+            resource res 'My.Rp/testType@2020-01-01' = {
+              name: 'resName'
+              location: resourceGroup().location
+              properties: {
+                prop1: 'val1'
+              }
+            }
 
-        private const string InvalidTemplateExpectedDecompilation = @"resource res 'My.Rp/testType@2020-01-01' = {
-  name: 'resName'
-  properties: {
-    cyclicDependency: res.properties
-  }
-}";
+            """;
+
+        private const string InvalidTemplateExpectedDecompilation = """
+            resource res 'My.Rp/testType@2020-01-01' = {
+              name: 'resName'
+              properties: {
+                cyclicDependency: res.properties
+              }
+            }
+
+            """;
 
         private const string EmptyTemplate = @"{
     ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -103,7 +109,7 @@ namespace Bicep.Cli.IntegrationTests
                 result.Should().Be(0);
             }
 
-            File.ReadAllText(bicepPath).Should().BeEquivalentTo("");
+            File.ReadAllText(bicepPath).Should().BeEquivalentToIgnoringNewlines("\n");
         }
 
         [TestMethod]

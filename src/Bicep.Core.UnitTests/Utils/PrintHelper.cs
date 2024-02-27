@@ -2,11 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Text;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
-using Bicep.Core.PrettyPrint;
-using Bicep.Core.PrettyPrint.Options;
+using Bicep.Core.PrettyPrintV2;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
@@ -16,15 +13,9 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class PrintHelper
     {
-        private static PrettyPrintOptions DefaultOptions { get; } = new PrettyPrintOptions(
-            NewlineOption.Auto,
-            IndentKindOption.Space,
-            2,
-            false);
-
         public static string PrintAndCheckForParseErrors(ProgramSyntax programSyntax)
         {
-            var asString = PrettyPrinter.PrintProgram(programSyntax, DefaultOptions, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+            var asString = PrettyPrinterV2.PrintValid(programSyntax, PrettyPrinterV2Options.Default);
 
             ParserHelper.Parse(asString, out var syntaxErrors);
             syntaxErrors.Should().BeEmpty();

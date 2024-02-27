@@ -19,4 +19,4 @@ param objWithExpressions = {
   }
 }
 
-param arrayWithExpressions = [ 1 + 1, 'ok' ]
+param arrayWithExpressions = [1 + 1, 'ok']

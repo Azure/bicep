@@ -24,20 +24,11 @@ param publisherEmail string
 @description('The name of the owner of the service')
 param publisherName string
 
-@allowed([
-  'Consumption'
-  'Developer'
-  'Basic'
-  'Standard'
-  'Premium'
-])
+@allowed(['Consumption', 'Developer', 'Basic', 'Standard', 'Premium'])
 @description('The pricing tier of this API Management service')
 param sku string = 'Developer'
 
-@allowed([
-  1
-  2
-])
+@allowed([1, 2])
 @description('The instance size of this API Management service.')
 param skuCount int = 1
 
@@ -105,27 +96,30 @@ resource apimInstanceDiagnostics 'Microsoft.ApiManagement/service/diagnostics@20
 //optional modules
 
 //Include Group modules
-module apimGroups './groups.bicep' = if (deployGroups) {
-  params: {
-    apimInstanceName: apiManagement.name
+module apimGroups './groups.bicep' =
+  if (deployGroups) {
+    params: {
+      apimInstanceName: apiManagement.name
+    }
+    name: 'apimGroups'
   }
-  name: 'apimGroups'
-}
 
 //Include users modules
-module apimUsers './users.bicep' = if (deployUsers) {
-  params: {
-    apimInstanceName: apiManagement.name
+module apimUsers './users.bicep' =
+  if (deployUsers) {
+    params: {
+      apimInstanceName: apiManagement.name
+    }
+    name: 'apimUsers'
   }
-  name: 'apimUsers'
-}
 
 //include Name value pair modules
-module apimNVPairs './NameValues.bicep' = if (deployNameValuePairs) {
-  params: {
-    apimInstanceName: apiManagement.name
+module apimNVPairs './NameValues.bicep' =
+  if (deployNameValuePairs) {
+    params: {
+      apimInstanceName: apiManagement.name
+    }
+    name: 'apimNameValuePairs'
   }
-  name: 'apimNameValuePairs'
-}
 output appInsightsInstrumentationKey string = applicationInsights.properties.InstrumentationKey
 output apimURL string = apiManagement.properties.portalUrl

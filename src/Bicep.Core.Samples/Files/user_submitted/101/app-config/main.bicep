@@ -8,10 +8,7 @@ param keyValueNames array = [
 ]
 
 // Specifies the values of the key-value resources. It's optional
-param keyValueValues array = [
-  'key-value without label'
-  'key-value with label'
-]
+param keyValueValues array = ['key-value without label', 'key-value with label']
 
 param contentType string = 'the-content-type' // suprised this isn't an enum value?
 

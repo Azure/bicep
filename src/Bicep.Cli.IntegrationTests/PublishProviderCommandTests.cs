@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.UnitTests.Assertions;
-using Bicep.Core.Samples;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Providers.Az;
 using Bicep.Core.TypeSystem.Types;
@@ -30,7 +29,7 @@ public class PublishProviderCommandTests : TestBase
         var repository = $"test/provider";
         var version = "0.0.1";
 
-        var (clientFactory, blobClientMocks) = DataSetsExtensions.CreateMockRegistryClients((registryStr, repository));
+        var (clientFactory, blobClientMocks) = RegistryHelper.CreateMockRegistryClients((registryStr, repository));
         var mockBlobClient = blobClientMocks[(registryUri, repository)];
 
         var indexPath = Path.Combine(outputDirectory, "index.json");
@@ -121,13 +120,12 @@ public class PublishProviderCommandTests : TestBase
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
 {
-  "Resources": {
+  "resources": {
     "Microsoft.Storage/storageAccounts@2022-05-01": {
-      "RelativePath": "types.json",
-      "Index": 179
+      "$ref": "types.json#/179"
     }
   },
-  "Functions": {}
+  "resourceFunctions": {}
 }
 """, outputDirectory);
 
@@ -141,13 +139,12 @@ public class PublishProviderCommandTests : TestBase
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
 {
-  "Resources": {
+  "resources": {
     "Microsoft.Storage/storageAccounts@2022-05-01": {
-      "RelativePath": "types.json",
-      "Index": 179
+      "$ref": "types.json#/179"
     }
   },
-  "Functions": {}
+  "resourceFunctions": {}
 }
 """, outputDirectory);
         FileHelper.SaveResultFile(TestContext, "types.json", "malformed", outputDirectory);
@@ -162,27 +159,24 @@ public class PublishProviderCommandTests : TestBase
         var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
         var indexPath = FileHelper.SaveResultFile(TestContext, "index.json", """
 {
-  "Resources": {
+  "resources": {
     "Microsoft.Storage/storageAccounts@2022-05-01": {
-      "RelativePath": "types.json",
-      "Index": 179
+      "$ref": "types.json#/179"
     }
   },
-  "Functions": {}
+  "resourceFunctions": {}
 }
 """, outputDirectory);
         FileHelper.SaveResultFile(TestContext, "types.json", """
 [
   {
-    "13": {
-      "MinLength": 3,
-      "MaxLength": 24
-    }
+    "$type": "StringType",
+    "minLength": 3,
+    "maxLength": 24
   },
   {
-    "6": {
-      "Value": "Microsoft.Storage/storageAccounts"
-    }
+    "$type": "StringLiteralType",
+    "value": "Microsoft.Storage/storageAccounts"
   }
 ]
 """, outputDirectory);

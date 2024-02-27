@@ -8,3 +8,4 @@ resource defaultDataLakeStorageAccount 'Microsoft.Storage/storageAccounts@2021-0
   name: defaultDataLakeStorageAccountName
   properties: workspaceStorageAccountProperties
 }
+

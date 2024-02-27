@@ -27,6 +27,9 @@ updates:
       day: "sunday"
     ignore:
       - dependency-name: "Moq"
+    labels:
+      - vs-bicep-dependencies
+      - dependencies
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -72,3 +75,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "sunday"
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: weekly

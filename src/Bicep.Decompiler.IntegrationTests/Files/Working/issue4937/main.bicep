@@ -27,3 +27,4 @@ resource dataFactoryName_Backup_Trigger 'Microsoft.DataFactory/factories/trigger
     }
   }
 }
+

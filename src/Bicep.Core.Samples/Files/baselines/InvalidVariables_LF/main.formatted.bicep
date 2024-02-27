@@ -5,7 +5,7 @@ bad
 var
 
 // missing identifier #completionTest(4) -> empty
-var 
+var
 
 // incomplete keyword
 // #completionTest(0,1) -> declarations
@@ -17,10 +17,10 @@ va
 var foo
 
 // #completionTest(18,19) -> symbols
-var missingValue = 
+var missingValue =
 
 // malformed identifier
-var 2 
+var 2
 var $ = 23
 var # 33 = 43
 
@@ -88,8 +88,8 @@ var doubleString = "bad string"
 
 // invalid index on array literal
 var nonExistentIndex1 = [][0]
-var nonExistentIndex2 = [ 'foo' ][1]
-var nonExistentIndex3 = [ 'foo', 'bar' ][-1]
+var nonExistentIndex2 = ['foo'][1]
+var nonExistentIndex3 = ['foo', 'bar'][-1]
 
 var resourceGroup = ''
 var rgName = resourceGroup().name
@@ -152,8 +152,8 @@ var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
 var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 
 // Issue 486
-var myFloat = 3. 14
-
+var myFloat = 3.
+14
 // secure cannot be used as a variable decorator
 @sys.secure()
 var something = 1
@@ -179,9 +179,11 @@ var nonTopLevelLoop = {
 var noFilteredLoopsInVariables = [for thing in stuff: if]
 
 // nested loops are also not allowed
-var noNestedVariableLoopsEither = [for thing in stuff: {
-  hello: [for thing in []: 4]
-}]
+var noNestedVariableLoopsEither = [
+  for thing in stuff: {
+    hello: [for thing in []: 4]
+  }
+]
 
 // loops in inner properties of a variable are also not supported
 var innerPropertyLoop = {
@@ -201,27 +203,31 @@ var runtimeLoop = [for (item, index) in []: indirection]
 var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 
 var zoneInput = []
-resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
-  name: zone
-  location: az.resourceGroup().location
-}]
+resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [
+  for (zone, i) in zoneInput: {
+    name: zone
+    location: az.resourceGroup().location
+  }
+]
 var inlinedVariable = zones[0].properties.zoneType
 
-var runtimeLoop3 = [for (zone, i) in zoneInput: {
-  a: inlinedVariable
-}]
+var runtimeLoop3 = [
+  for (zone, i) in zoneInput: {
+    a: inlinedVariable
+  }
+]
 
-var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
-  a: 0
-}]
+var runtimeLoop4 = [
+  for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
+    a: 0
+  }
+]
 
 var notRuntime = concat('a', 'b')
 var evenMoreIndirection = concat(notRuntime, string(moreIndirection))
 var moreIndirection = reference('s', 's', 'Full')
 
-var myRef = [
-  evenMoreIndirection
-]
+var myRef = [evenMoreIndirection]
 var runtimeLoop5 = [for (item, index) in myRef: 's']
 
 // cannot use loops in expressions
@@ -240,12 +246,8 @@ var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
 var keyVaultSecretObjectVar = {
   secret: kv.getSecret('mySecret')
 }
-var keyVaultSecretArrayVar = [
-  kv.getSecret('mySecret')
-]
-var keyVaultSecretArrayInterpolatedVar = [
-  '${kv.getSecret('mySecret')}'
-]
+var keyVaultSecretArrayVar = [kv.getSecret('mySecret')]
+var keyVaultSecretArrayInterpolatedVar = ['${kv.getSecret('mySecret')}']
 
 var listSecrets = ''
 var listSecretsVar = listSecrets()

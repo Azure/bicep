@@ -473,12 +473,6 @@
   <data name="ExperimentalFeatureNames_UserDefinedFunctions" xml:space="preserve">
     <value>User-defined functions</value>
   </data>
-  <data name="ExperimentalFeatureNames_CompileTimeImports" xml:space="preserve">
-    <value>Compile-time imports</value>
-  </data>
-  <data name="ExperimentalFeatureNames_PrettyPrinting" xml:space="preserve">
-    <value>Pretty printing</value>
-  </data>
   <data name="ExperimentalFeatureNames_SymbolicNameCodegen" xml:space="preserve">
     <value>Symbolic name code generation</value>
   </data>

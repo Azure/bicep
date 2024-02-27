@@ -34,7 +34,11 @@ namespace Bicep.Core.Syntax
         public static FreeformToken CreateIdentifierToken(string text, IEnumerable<SyntaxTrivia>? leadingTrivia = null, IEnumerable<SyntaxTrivia>? trailingTrivia = null) =>
             CreateFreeformToken(TokenType.Identifier, text, leadingTrivia, trailingTrivia);
 
-        public static IdentifierSyntax CreateIdentifier(string text) => new(CreateFreeformToken(TokenType.Identifier, text));
+        public static FreeformToken CreateIdentifierTokenWithTrailingSpace(string text) => CreateIdentifierToken(text, EmptyTrivia, SingleSpaceTrivia);
+
+        public static IdentifierSyntax CreateIdentifier(string text) => new(CreateIdentifierToken(text));
+
+        public static IdentifierSyntax CreateIdentifierWithTrailingSpace(string text) => new(CreateIdentifierTokenWithTrailingSpace(text));
 
         public static VariableAccessSyntax CreateVariableAccess(string text) => new(CreateIdentifier(text));
 
@@ -62,7 +66,7 @@ namespace Bicep.Core.Syntax
         public static Token QuestionToken => CreateToken(TokenType.Question);
         public static Token ColonToken => CreateToken(TokenType.Colon);
         public static Token SemicolonToken => CreateToken(TokenType.Semicolon);
-        public static Token AssignmentToken => CreateToken(TokenType.Assignment);
+        public static Token AssignmentToken => CreateToken(TokenType.Assignment, EmptyTrivia, SingleSpaceTrivia);
         public static Token PlusToken => CreateToken(TokenType.Plus);
         public static Token MinusToken => CreateToken(TokenType.Minus);
         public static Token AsteriskToken => CreateToken(TokenType.Asterisk);
@@ -84,6 +88,20 @@ namespace Bicep.Core.Syntax
         public static Token NullKeywordToken => CreateToken(TokenType.NullKeyword);
         public static Token ArrowToken => CreateToken(TokenType.Arrow);
         public static Token EndOfFileToken => CreateToken(TokenType.EndOfFile);
+
+        public static Token TargetScopeKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.TargetScopeKeyword);
+        public static Token ImportKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ImportKeyword);
+        public static Token ProviderKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ProviderKeyword);
+        public static Token UsingKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.UsingKeyword);
+        public static Token MetadataKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.MetadataKeyword);
+        public static Token ParameterKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ParameterKeyword);
+        public static Token VariableKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.VariableKeyword);
+        public static Token ResourceKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ResourceKeyword);
+        public static Token ModuleKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ModuleKeyword);
+        public static Token OutputKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.OutputKeyword);
+        public static Token IfKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.IfKeyword);
+        public static Token ForKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.ForKeyword);
+        public static Token InKeywordToken => CreateIdentifierTokenWithTrailingSpace(LanguageConstants.InKeyword);
 
         public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
         {
@@ -135,14 +153,14 @@ namespace Bicep.Core.Syntax
             // generates "[for <identifier> in <inSyntax>: <body>]"
             return new(
                 LeftSquareToken,
-                ImmutableArray<Token>.Empty,
-                CreateFreeformToken(TokenType.Identifier, "for"),
-                new LocalVariableSyntax(new IdentifierSyntax(CreateFreeformToken(TokenType.Identifier, indexIdentifier))),
-                CreateFreeformToken(TokenType.Identifier, "in"),
+                [],
+                ForKeywordToken,
+                new LocalVariableSyntax(CreateIdentifierWithTrailingSpace(indexIdentifier)),
+                InKeywordToken,
                 inSyntax,
                 ColonToken,
                 body,
-                ImmutableArray<Token>.Empty,
+                [],
                 RightSquareToken);
         }
 
@@ -196,7 +214,10 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
+        public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), []);
+
+        public static StringSyntax CreateStringLiteralWithTextSpan(string value)
+            => new(new FreeformToken(TokenType.StringComplete, new TextSpan(0, value.Length), value, [], []).AsEnumerable(), [], [value]);
 
         public static BooleanLiteralSyntax CreateBooleanLiteral(bool value) => new(value ? TrueKeywordToken : FalseKeywordToken, value);
 
@@ -227,7 +248,7 @@ namespace Bicep.Core.Syntax
         private static StringSyntax CreateStringSyntaxWithComment(string value, string comment)
         {
             var trailingTrivia = new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, TextSpan.Nil, $"/*{comment.Replace("*/", "*\\/")}*/");
-            var stringToken = CreateFreeformToken(TokenType.StringComplete, value, EmptyTrivia, trailingTrivia.AsEnumerable());
+            var stringToken = CreateFreeformToken(TokenType.StringComplete, value, EmptyTrivia, SyntaxFactory.SingleSpaceTrivia.Append(trailingTrivia));
 
             return new StringSyntax(stringToken.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), value.AsEnumerable());
         }
@@ -416,8 +437,8 @@ namespace Bicep.Core.Syntax
 
         public static ParameterAssignmentSyntax CreateParameterAssignmentSyntax(string name, SyntaxBase value)
             => new(
-                CreateIdentifierToken(LanguageConstants.ParameterKeyword, EmptyTrivia, SingleSpaceTrivia),
-                CreateIdentifier(name),
+                ParameterKeywordToken,
+                CreateIdentifierWithTrailingSpace(name),
                 AssignmentToken,
                 value);
     }

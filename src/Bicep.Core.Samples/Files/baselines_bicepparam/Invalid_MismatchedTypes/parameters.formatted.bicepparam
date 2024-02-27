@@ -6,7 +6,7 @@ param bool = 'hello'
 
 param int = false
 
-param object = [ 'abc', 'def' ]
+param object = ['abc', 'def']
 
 param array = {
   isThis: 'correct?'

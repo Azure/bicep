@@ -41,178 +41,186 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         #region Simple JSON
 
-        private const string SimpleJson = @"
-{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""location"": {
-      ""type"": ""string"",
-      ""defaultValue"": ""[resourceGroup().location]""
-    }
-  },
-  ""resources"": [
-    {
-      ""type"": ""Microsoft.Storage/storageAccounts"",
-      ""apiVersion"": ""2021-02-01"",
-      ""name"": ""name"",
-      ""location"": ""[parameters('location')]"",
-      ""kind"": ""StorageV2"",
-      ""sku"": {
-        ""name"": ""Premium_LRS""
-      }
-    }
-  ]
-}";
-        private const string SimpleExpectedBicep = @"param location string = resourceGroup().location
+        private const string SimpleJson = """
+            {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "location": {
+                  "type": "string",
+                  "defaultValue": "[resourceGroup().location]"
+                }
+              },
+              "resources": [
+                {
+                  "type": "Microsoft.Storage/storageAccounts",
+                  "apiVersion": "2021-02-01",
+                  "name": "name",
+                  "location": "[parameters('location')]",
+                  "kind": "StorageV2",
+                  "sku": {
+                    "name": "Premium_LRS"
+                  }
+                }
+              ]
+            }
+            """;
+        private const string SimpleExpectedBicep = """
+            param location string = resourceGroup().location
 
-resource name 'Microsoft.Storage/storageAccounts@2021-02-01' = {
-  name: 'name'
-  location: location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Premium_LRS'
-  }
-}";
+            resource name 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+              name: 'name'
+              location: location
+              kind: 'StorageV2'
+              sku: {
+                name: 'Premium_LRS'
+              }
+            }
+
+            """;
 
         #endregion
 
         #region Complex JSON (multi-file output)
 
-        private const string ComplexJson = @"
-{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""contentVersion"": ""1.0.0.0"",
-  ""resources"": [
-    {
-      ""name"": ""nestedDeploymentInner"",
-      ""type"": ""Microsoft.Resources/deployments"",
-      ""apiVersion"": ""2021-04-01"",
-      ""properties"": {
-        ""expressionEvaluationOptions"": {
-          ""scope"": ""inner""
-        },
-        ""mode"": ""Incremental"",
-        ""parameters"": {},
-        ""template"": {
-          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-          ""contentVersion"": ""1.0.0.0"",
-          ""parameters"": {},
-          ""variables"": {},
-          ""resources"": [
+        private const string ComplexJson = """
             {
-              ""name"": ""storageaccount1"",
-              ""type"": ""Microsoft.Storage/storageAccounts"",
-              ""apiVersion"": ""2021-04-01"",
-              ""tags"": {
-                ""displayName"": ""storageaccount1""
-              },
-              ""location"": ""[resourceGroup().location]"",
-              ""kind"": ""StorageV2"",
-              ""sku"": {
-                ""name"": ""Premium_LRS"",
-                ""tier"": ""Premium""
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "resources": [
+                {
+                  "name": "nestedDeploymentInner",
+                  "type": "Microsoft.Resources/deployments",
+                  "apiVersion": "2021-04-01",
+                  "properties": {
+                    "expressionEvaluationOptions": {
+                      "scope": "inner"
+                    },
+                    "mode": "Incremental",
+                    "parameters": {},
+                    "template": {
+                      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                      "contentVersion": "1.0.0.0",
+                      "parameters": {},
+                      "variables": {},
+                      "resources": [
+                        {
+                          "name": "storageaccount1",
+                          "type": "Microsoft.Storage/storageAccounts",
+                          "apiVersion": "2021-04-01",
+                          "tags": {
+                            "displayName": "storageaccount1"
+                          },
+                          "location": "[resourceGroup().location]",
+                          "kind": "StorageV2",
+                          "sku": {
+                            "name": "Premium_LRS",
+                            "tier": "Premium"
+                          }
+                        }
+                      ],
+                      "outputs": {}
+                    }
+                  }
+                },
+                {
+                  "name": "nestedDeploymentOuter",
+                  "type": "Microsoft.Resources/deployments",
+                  "apiVersion": "2021-04-01",
+                  "properties": {
+                    "mode": "Incremental",
+                    "template": {
+                      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                      "contentVersion": "1.0.0.0",
+                      "variables": {},
+                      "resources": [
+                        {
+                          "name": "storageaccount2",
+                          "type": "Microsoft.Storage/storageAccounts",
+                          "apiVersion": "2021-04-01",
+                          "tags": {
+                            "displayName": "storageaccount2"
+                          },
+                          "location": "[resourceGroup().location]",
+                          "kind": "StorageV2",
+                          "sku": {
+                            "name": "Premium_LRS",
+                            "tier": "Premium"
+                          }
+                        }
+                      ],
+                      "outputs": {}
+                    }
+                  }
+                },
+                {
+                  "name": "storageaccount",
+                  "type": "Microsoft.Storage/storageAccounts",
+                  "apiVersion": "2021-04-01",
+                  "tags": {
+                    "displayName": "storageaccount"
+                  },
+                  "location": "[resourceGroup().location]",
+                  "kind": "StorageV2",
+                  "sku": {
+                    "name": "Premium_LRS",
+                    "tier": "Premium"
+                  }
+                },
+                {
+                  "name": "nestedDeploymentInner2",
+                  "type": "Microsoft.Resources/deployments",
+                  "apiVersion": "2021-04-01",
+                  "properties": {
+                    "expressionEvaluationOptions": {
+                      "scope": "inner"
+                    },
+                    "mode": "Incremental",
+                    "parameters": {},
+                    "template": {
+                      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                      "contentVersion": "1.0.0.0",
+                      "parameters": {},
+                      "variables": {},
+                      "resources": [],
+                      "outputs": {}
+                    }
+                  }
+                }
+              ]
+            }
+            """;
+
+        private const string ComplexExpectedBicep_MainOutput = """
+            module nestedDeploymentInner './nested_nestedDeploymentInner.bicep' = {
+              name: 'nestedDeploymentInner'
+              params: {}
+            }
+
+            module nestedDeploymentOuter './nested_nestedDeploymentOuter.bicep' = {
+              name: 'nestedDeploymentOuter'
+              params: {}
+            }
+
+            resource storageaccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+              name: 'storageaccount'
+              tags: {
+                displayName: 'storageaccount'
+              }
+              location: resourceGroup().location
+              kind: 'StorageV2'
+              sku: {
+                name: 'Premium_LRS'
+                tier: 'Premium'
               }
             }
-          ],
-          ""outputs"": {}
-        }
-      }
-    },
-    {
-      ""name"": ""nestedDeploymentOuter"",
-      ""type"": ""Microsoft.Resources/deployments"",
-      ""apiVersion"": ""2021-04-01"",
-      ""properties"": {
-        ""mode"": ""Incremental"",
-        ""template"": {
-          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-          ""contentVersion"": ""1.0.0.0"",
-          ""variables"": {},
-          ""resources"": [
-            {
-              ""name"": ""storageaccount2"",
-              ""type"": ""Microsoft.Storage/storageAccounts"",
-              ""apiVersion"": ""2021-04-01"",
-              ""tags"": {
-                ""displayName"": ""storageaccount2""
-              },
-              ""location"": ""[resourceGroup().location]"",
-              ""kind"": ""StorageV2"",
-              ""sku"": {
-                ""name"": ""Premium_LRS"",
-                ""tier"": ""Premium""
-              }
+
+            module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
+              name: 'nestedDeploymentInner2'
+              params: {}
             }
-          ],
-          ""outputs"": {}
-        }
-      }
-    },
-    {
-      ""name"": ""storageaccount"",
-      ""type"": ""Microsoft.Storage/storageAccounts"",
-      ""apiVersion"": ""2021-04-01"",
-      ""tags"": {
-        ""displayName"": ""storageaccount""
-      },
-      ""location"": ""[resourceGroup().location]"",
-      ""kind"": ""StorageV2"",
-      ""sku"": {
-        ""name"": ""Premium_LRS"",
-        ""tier"": ""Premium""
-      }
-    },
-    {
-      ""name"": ""nestedDeploymentInner2"",
-      ""type"": ""Microsoft.Resources/deployments"",
-      ""apiVersion"": ""2021-04-01"",
-      ""properties"": {
-        ""expressionEvaluationOptions"": {
-          ""scope"": ""inner""
-        },
-        ""mode"": ""Incremental"",
-        ""parameters"": {},
-        ""template"": {
-          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-          ""contentVersion"": ""1.0.0.0"",
-          ""parameters"": {},
-          ""variables"": {},
-          ""resources"": [],
-          ""outputs"": {}
-        }
-      }
-    }
-  ]
-}";
 
-        private const string ComplexExpectedBicep_MainOutput = @"module nestedDeploymentInner './nested_nestedDeploymentInner.bicep' = {
-  name: 'nestedDeploymentInner'
-  params: {}
-}
-
-module nestedDeploymentOuter './nested_nestedDeploymentOuter.bicep' = {
-  name: 'nestedDeploymentOuter'
-  params: {}
-}
-
-resource storageaccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-  name: 'storageaccount'
-  tags: {
-    displayName: 'storageaccount'
-  }
-  location: resourceGroup().location
-  kind: 'StorageV2'
-  sku: {
-    name: 'Premium_LRS'
-    tier: 'Premium'
-  }
-}
-
-module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
-  name: 'nestedDeploymentInner2'
-  params: {}
-}";
+            """;
 
         private const string ComplexExpectedBicep_Filename2 = "nested_nestedDeploymentInner.bicep";
         private const string ComplexExpectedBicep_Output2Regex = @"resource storageaccount1 'Microsoft.Storage/storageAccounts@2021-04-01'";

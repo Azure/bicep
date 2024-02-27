@@ -66,5 +66,10 @@ namespace Bicep.Core.TypeSystem.Types
         /// Language system property, i.e. id, type, api-version
         /// </summary>
         SystemProperty = 1 << 10,
+
+        /// <summary>
+        /// Resource identifier property (e.g. name, uniqueName)
+        /// </summary>
+        ResourceIdentifier = 1 << 11,
     }
 }

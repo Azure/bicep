@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
 using FluentAssertions;

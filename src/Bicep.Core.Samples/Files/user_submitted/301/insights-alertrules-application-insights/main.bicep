@@ -41,9 +41,7 @@ resource metricAlert 'Microsoft.Insights/metricAlerts@2018-03-01' = {
     description: 'Response time alert'
     severity: 0
     enabled: true
-    scopes: [
-      applicationInsights.id
-    ]
+    scopes: [applicationInsights.id]
     evaluationFrequency: 'PT1M'
     windowSize: 'PT5M'
     criteria: {

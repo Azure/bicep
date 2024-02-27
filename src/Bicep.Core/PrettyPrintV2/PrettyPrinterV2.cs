@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Text;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.PrettyPrintV2.Documents;
 using Bicep.Core.Syntax;
 
@@ -20,6 +21,23 @@ namespace Bicep.Core.PrettyPrintV2
         {
             this.writer = new(writer, context);
             this.context = context;
+        }
+
+        /// <summary>
+        /// Outputs a formatted string representation of a syntactically correct syntax node.
+        /// </summary>
+        /// <remarks>
+        /// This method is intended for formatting manually created syntax nodes that are confirmed to be free of lexing and parsing errors. 
+        /// Supplying a syntax node that contains errors could result in improperly formatted output.
+        /// </remarks>
+        /// <param name="validSyntaxToPrint">The syntax node to format, which must be free of syntax errors.</param>
+        /// <param name="options">The formatting options.</param>
+        /// <returns>A string that represents the formatted syntax node.</returns>
+        public static string PrintValid(SyntaxBase validSyntaxToPrint, PrettyPrinterV2Options options)
+        {
+            var context = PrettyPrinterV2Context.Create(options, EmptyDiagnosticLookup.Instance, EmptyDiagnosticLookup.Instance);
+
+            return Print(validSyntaxToPrint, context);
         }
 
         public static string Print(SyntaxBase syntaxToPrint, PrettyPrinterV2Context context)
@@ -55,7 +73,7 @@ namespace Bicep.Core.PrettyPrintV2
                 }
             }
 
-            if (context.Options.InsertFinalNewline)
+            if (syntaxToPrint is ProgramSyntax && context.Options.InsertFinalNewline)
             {
                 writer.Write(context.Newline);
             }

@@ -5,12 +5,16 @@ param dnsPrefix string = 'cl01'
 @description('The name of the Managed Cluster resource.')
 param clusterName string = 'aks101'
 
-@description('Specifies the Azure location where the key vault should be created.')
+@description(
+  'Specifies the Azure location where the key vault should be created.'
+)
 param location string = resourceGroup().location
 
 @minValue(1)
 @maxValue(50)
-@description('The number of nodes for the cluster. 1 Node is enough for Dev/Test and minimum 3 nodes, is recommended for Production')
+@description(
+  'The number of nodes for the cluster. 1 Node is enough for Dev/Test and minimum 3 nodes, is recommended for Production'
+)
 param agentCount int = 1
 
 @description('The size of the Virtual Machine.')
@@ -36,9 +40,7 @@ resource vn 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   tags: tags
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        addressPrefix
-      ]
+      addressPrefixes: [addressPrefix]
     }
     subnets: [
       {

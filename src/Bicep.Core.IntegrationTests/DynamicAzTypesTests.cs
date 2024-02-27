@@ -1,13 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Formats.Tar;
-using System.IO.Compression;
-using System.Text;
 using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -26,16 +22,16 @@ namespace Bicep.Core.IntegrationTests
     {
         private async Task<ServiceBuilder> GetServices()
         {
-            var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"Resources": {}, "Functions": {}}""");
+            var indexJson = FileHelper.SaveResultFile(TestContext, "types/index.json", """{"resources": {}, "resourceFunctions": {}}""");
 
             var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(cacheRoot);
 
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true, CacheRootDirectory: cacheRoot))
-                .WithContainerRegistryClientFactory(DataSetsExtensions.CreateOciClientForAzProvider());
+                .WithContainerRegistryClientFactory(RegistryHelper.CreateOciClientForAzProvider());
 
-            await DataSetsExtensions.PublishAzProvider(services.Build(), indexJson);
+            await RegistryHelper.PublishAzProvider(services.Build(), indexJson);
 
             return services;
         }
@@ -125,12 +121,12 @@ namespace Bicep.Core.IntegrationTests
         {
             // ARRANGE
             var testArtifact = new ArtifactRegistryAddress(LanguageConstants.BicepPublicMcrRegistry, "bicep/providers/az", "0.2.661");
-            var clientFactory = DataSetsExtensions.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
+            var clientFactory = RegistryHelper.CreateMockRegistryClients((testArtifact.RegistryAddress, testArtifact.RepositoryPath)).factoryMock;
             var services = new ServiceBuilder()
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
-            await DataSetsExtensions.PublishModuleToRegistryAsync(
+            await RegistryHelper.PublishModuleToRegistry(
                 clientFactory,
                 moduleName: "az",
                 target: testArtifact.ToSpecificationString(':'),
@@ -266,25 +262,6 @@ namespace Bicep.Core.IntegrationTests
             };
         }
 
-        private static BinaryData GetTypesTgzBytesFromFiles(params (string filePath, string contents)[] files)
-        {
-            var stream = new MemoryStream();
-            using (var gzStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen: true))
-            {
-                using var tarWriter = new TarWriter(gzStream, leaveOpen: true);
-                foreach (var (filePath, contents) in files)
-                {
-                    var tarEntry = new PaxTarEntry(TarEntryType.RegularFile, filePath)
-                    {
-                        DataStream = new MemoryStream(Encoding.ASCII.GetBytes(contents))
-                    };
-                    tarWriter.WriteEntry(tarEntry);
-                }
-            }
-            stream.Position = 0;
-            return BinaryData.FromStream(stream);
-        }
-
         public static IEnumerable<object[]> ArtifactRegistryCorruptedPackageNegativeTestScenarios()
         {
             // Scenario: When OciTypeLoader.FromDisk() throws, the exception is exposed as a diagnostic
@@ -300,7 +277,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: Artifact layer payload is missing an "index.json"
             yield return new object[]
             {
-                GetTypesTgzBytesFromFiles(
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
                     ("unknown.json", "{}")),
                 "The path: index.json was not found in artifact contents"
             };
@@ -308,7 +285,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" is not valid JSON
             yield return new object[]
             {
-                GetTypesTgzBytesFromFiles(
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{"INVALID_JSON": 777""")),
                 "'7' is an invalid end of a number. Expected a delimiter. Path: $.INVALID_JSON | LineNumber: 0 | BytePositionInLine: 20."
             };
@@ -316,7 +293,7 @@ namespace Bicep.Core.IntegrationTests
             // Scenario: "index.json" with malformed or missing required data
             yield return new object[]
             {
-                GetTypesTgzBytesFromFiles(
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(
                     ("index.json", """{ "UnexpectedMember": false}""")),
                 "Value cannot be null. (Parameter 'source')"
             };

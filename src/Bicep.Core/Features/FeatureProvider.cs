@@ -28,7 +28,7 @@ namespace Bicep.Core.Features
 
         public bool UserDefinedFunctionsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedFunctions;
 
-        public bool PrettyPrintingEnabled => this.configuration.ExperimentalFeaturesEnabled.PrettyPrinting;
+        public bool LegacyFormatterEnabled => configuration.ExperimentalFeaturesEnabled.LegacyFormatter;
 
         public bool TestFrameworkEnabled => this.configuration.ExperimentalFeaturesEnabled.TestFramework;
 

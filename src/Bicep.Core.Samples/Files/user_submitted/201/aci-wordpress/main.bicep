@@ -1,8 +1,4 @@
-@allowed([
-  'Standard_LRS'
-  'Standard_GRS'
-  'Standard_ZRS'
-])
+@allowed(['Standard_LRS', 'Standard_GRS', 'Standard_ZRS'])
 param storageAccountType string = 'Standard_LRS'
 
 param storageAccountName string = uniqueString(resourceGroup().id)
@@ -24,7 +20,10 @@ resource mi 'microsoft.managedIdentity/userAssignedIdentities@2018-11-30' = {
   location: location
 }
 
-var roleDefinitionId = resourceId('microsoft.authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
+var roleDefinitionId = resourceId(
+  'microsoft.authorization/roleDefinitions',
+  'b24988ac-6180-42a0-ab88-20f7382dd24c'
+)
 var roleAssignmentName = guid(mi.name, roleDefinitionId, resourceGroup().id)
 
 resource miRoleAssign 'microsoft.authorization/roleAssignments@2020-04-01-preview' = {
@@ -39,9 +38,7 @@ resource miRoleAssign 'microsoft.authorization/roleAssignments@2020-04-01-previe
 var uamiId = resourceId(mi.type, mi.name)
 
 resource stg 'microsoft.storage/storageAccounts@2019-06-01' = {
-  dependsOn: [
-    miRoleAssign
-  ]
+  dependsOn: [miRoleAssign]
   name: storageAccountName
   location: location
   sku: {
@@ -102,10 +99,7 @@ resource dScriptSql 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' =
 }
 
 resource wpAci 'microsoft.containerInstance/containerGroups@2019-12-01' = {
-  dependsOn: [
-    dScriptSql
-    dScriptWp
-  ]
+  dependsOn: [dScriptSql, dScriptWp]
   name: 'wordpress-containerinstance'
   location: location
   properties: {

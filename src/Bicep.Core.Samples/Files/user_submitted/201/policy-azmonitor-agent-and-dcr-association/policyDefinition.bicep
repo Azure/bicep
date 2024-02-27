@@ -156,10 +156,7 @@ resource deployAzureMonitorAgentWindowsDCR 'Microsoft.Authorization/policyDefini
                   }
                   {
                     field: 'Microsoft.Compute/imageOffer'
-                    in: [
-                      'VisualStudio'
-                      'Windows'
-                    ]
+                    in: ['VisualStudio', 'Windows']
                   }
                 ]
               }

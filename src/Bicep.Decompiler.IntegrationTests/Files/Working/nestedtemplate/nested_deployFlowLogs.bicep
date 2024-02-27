@@ -24,3 +24,4 @@ resource NetworkWatcherName_FlowLog 'Microsoft.Network/networkWatchers/flowLogs@
     }
   }
 }
+

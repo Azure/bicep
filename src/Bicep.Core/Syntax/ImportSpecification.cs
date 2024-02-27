@@ -70,7 +70,7 @@ namespace Bicep.Core.Syntax
             if (BuiltInSpecificationPattern().Match(value) is { } builtInMatch && builtInMatch.Success)
             {
                 var name = builtInMatch.Groups["name"].Value;
-                var span = new TextSpan(stringSyntax.Span.Position + 1, name.Length);
+                var span = stringSyntax.GetInnerSpan();
                 var version = builtInMatch.Groups["version"].Value;
                 // built-in providers (e.g. kubernetes@1.0.0 or sys@1.0.0) are allowed as long as the name is not 'az'
                 return new(name, version, null, span, isValid: name != AzNamespaceType.BuiltInName);
@@ -82,7 +82,7 @@ namespace Bicep.Core.Syntax
                 var address = registryMatch.Groups["address"].Value;
                 var version = registryMatch.Groups["version"].Value;
 
-                var span = new TextSpan(stringSyntax.Span.Position + 1, address.Length);
+                var span = stringSyntax.GetInnerSpan();
                 // NOTE(asilverman): I normalize the artifact address to the way we represent module addresses, see https://github.com/Azure/bicep/issues/12202
                 var unexpandedArtifactAddress = $"{address}:{version}";
                 var name = RepositoryNamePattern().Match(address).Groups["name"].Value;

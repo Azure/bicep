@@ -1,9 +1,6 @@
 param workspaceName string
 
-@allowed([
-  'standard'
-  'premium'
-])
+@allowed(['standard', 'premium'])
 param pricingTier string = 'premium'
 
 param location string = resourceGroup().location

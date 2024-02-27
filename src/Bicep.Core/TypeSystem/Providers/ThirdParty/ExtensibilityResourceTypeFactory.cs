@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Types;
 
 namespace Bicep.Core.TypeSystem.Providers.ThirdParty
@@ -21,7 +22,49 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
             var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
             var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
 
+            if (bodyType is ObjectType objectType &&
+                GetResourceFunctionOverloads(resourceType) is { } resourceFunctions &&
+                resourceFunctions.Any())
+            {
+                bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, objectType.Properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, resourceFunctions);
+            }
+
             return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);
+        }
+
+        private IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceType resourceType)
+        {
+            if (resourceType.Functions is null)
+            {
+                yield break;
+            }
+
+            foreach (var (key, value) in resourceType.Functions)
+            {
+                if (value.Type.Type is not Azure.Bicep.Types.Concrete.FunctionType functionType)
+                {
+                    throw new ArgumentException();
+                }
+
+                var builder = new FunctionOverloadBuilder(key);
+                if (value.Description is { })
+                {
+                    builder = builder.WithDescription(value.Description);
+                }
+
+                var returnType = GetTypeSymbol(functionType.Output.Type, false);
+                builder = builder.WithReturnType(returnType);
+
+                foreach (var parameter in functionType.Parameters)
+                {
+                    var paramType = GetTypeSymbol(parameter.Type.Type, false);
+                    builder = builder.WithRequiredParameter(parameter.Name, paramType, parameter.Description ?? "");
+                }
+
+                builder = builder.WithFlags(FunctionFlags.RequiresInlining);
+
+                yield return builder.Build();
+            }
         }
 
         private TypeSymbol GetTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase serializedType, bool isResourceBodyType)
@@ -39,6 +82,11 @@ namespace Bicep.Core.TypeSystem.Providers.ThirdParty
         {
             var flags = TypePropertyFlags.None;
 
+            if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.Identifier))
+            {
+                flags |= TypePropertyFlags.ResourceIdentifier;
+                flags |= TypePropertyFlags.LoopVariant;
+            }
             if (input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectTypePropertyFlags.Required))
             {
                 flags |= TypePropertyFlags.Required;

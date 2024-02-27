@@ -53,9 +53,7 @@ resource gallerydef 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview'
         ]
       }
     ]
-    assignableScopes: [
-      templateImageResourceGroupId
-    ]
+    assignableScopes: [templateImageResourceGroupId]
   }
 }
 

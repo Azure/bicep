@@ -3,7 +3,6 @@
 
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.Navigation;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
@@ -948,23 +947,23 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
                     [
-                         // TTK results:
-                         // [-] apiVersions Should Be Recent In Reference Functions(24 ms)
-                         //       Api versions must be the latest or under 2 years old(730 days) - API version used by:
-                         //           list(resourceId('Microsoft.Network/publicIPAddresses', 'test'), '2015-06-15')
-                         //       is 2612 days old Line: 11, Column: 24
-                         //       Valid Api Versions for Microsoft.Network/publicIPAddresses :
-                         //       2422 - 01 - 01
-                         //       2422 - 01 - 01
-                         //       2021 - 12 - 01
-                         //       2021 - 08 - 01
-                         //       2021 - 06 - 01
-                         //       2021 - 05 - 01
-                         //       2021 - 04 - 01
-                         //       2021 - 03 - 01
-                         //       2021 - 02 - 01
-                         //       2021 - 01 - 01
-                         //       2020 - 11 - 01
+                        // TTK results:
+                        // [-] apiVersions Should Be Recent In Reference Functions(24 ms)
+                        //       Api versions must be the latest or under 2 years old(730 days) - API version used by:
+                        //           list(resourceId('Microsoft.Network/publicIPAddresses', 'test'), '2015-06-15')
+                        //       is 2612 days old Line: 11, Column: 24
+                        //       Valid Api Versions for Microsoft.Network/publicIPAddresses :
+                        //       2422 - 01 - 01
+                        //       2422 - 01 - 01
+                        //       2021 - 12 - 01
+                        //       2021 - 08 - 01
+                        //       2021 - 06 - 01
+                        //       2021 - 05 - 01
+                        //       2021 - 04 - 01
+                        //       2021 - 03 - 01
+                        //       2021 - 02 - 01
+                        //       2021 - 01 - 01
+                        //       2020 - 11 - 01
                         "[2] Use more recent API version for 'Fake.Network/publicIPAddresses'. '2415-06-15' is 2576 days old, should be no more than 730 days old, or the most recent. Acceptable versions: 2420-11-01, 2420-08-01",
                     ]);
             }

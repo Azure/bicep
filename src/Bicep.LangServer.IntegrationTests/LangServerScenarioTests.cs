@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Assertions;
+using Bicep.LanguageServer.Registry;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -50,5 +54,60 @@ public class LangServerScenarioTests
         hover!.Contents.MarkupContent!.Value.Should().Contain(@"```bicep
 param foo: string
 ```");
+    }
+
+    [TestMethod]
+    public async Task Test_Issue13254()
+    {
+        var clientFactory = RegistryHelper.CreateMockRegistryClient("mockregistry.io", "test/foo");
+        async Task publish(string source)
+            => await RegistryHelper.PublishModuleToRegistry(
+                clientFactory,
+                "modulename",
+                "br:mockregistry.io/test/foo:1.1",
+                source,
+                publishSource: false);
+
+        var cacheRootPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+        var helper = await MultiFileLanguageServerHelper.StartLanguageServer(
+            TestContext,
+            services => services
+                .WithFeatureOverrides(new(CacheRootDirectory: cacheRootPath))
+                .WithContainerRegistryClientFactory(clientFactory)
+                .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>());
+
+        // the published module has the wrong param type - this should cause an error
+        await publish("param foo bool");
+
+        var paramsFileUri = new Uri("file:///main.bicepparam");
+
+        var diags = await helper.OpenFileOnceAsync(TestContext, """
+using 'br:mockregistry.io/test/foo:1.1'
+
+param foo = 'abc'
+""", paramsFileUri);
+
+        var diags2 = await helper.WaitForDiagnostics(paramsFileUri);
+
+        // diagnostics are published twice (once on open, once when restoration complete).
+        // in this test, they can come back out of order, so we just combine and assert on either.
+        var allDiags = diags.Diagnostics.Concat(diags2.Diagnostics);
+        allDiags.Should().ContainSingle(x => x.Message.Contains("Expected a value of type \"bool\" but the provided value is of type \"'abc'\"."));
+
+        // the published module now has the correct type
+        await publish("param foo string");
+
+        await helper.Client.Workspace.ExecuteCommand(new Command
+        {
+            Name = "forceModulesRestore",
+            Arguments = [
+                paramsFileUri.LocalPath,
+            ]
+        });
+
+        // diagnostics being published indicates that we refreshed the compilation.
+        // the diagnostics being empty indicates that compilation succeeded (e.g. we picked up the new changes)
+        diags = await helper.WaitForDiagnostics(paramsFileUri);
+        diags.Diagnostics.Should().BeEmpty();
     }
 }

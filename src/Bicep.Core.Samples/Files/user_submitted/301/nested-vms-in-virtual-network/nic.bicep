@@ -3,10 +3,7 @@ param location string = resourceGroup().location
 param subnetId string
 param pipId string = ''
 
-@allowed([
-  'Dynamic'
-  'Static'
-])
+@allowed(['Dynamic', 'Static'])
 param ipAllocationMethod string = 'Dynamic'
 
 param staticIpAddress string = ''
@@ -28,9 +25,13 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-06-01' = {
             id: subnetId
           }
           // pip looks to be optional
-          publicIPAddress: any((pipId == '') ? null : {
-            id: pipId
-          })
+          publicIPAddress: any(
+            (pipId == '')
+              ? null
+              : {
+                  id: pipId
+                }
+          )
         }
       }
     ]

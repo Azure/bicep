@@ -1,19 +1,29 @@
 @description('Specifies the location of AKS cluster.')
 param location string = resourceGroup().location
 
-@description('Specifies the Bastion subnet IP prefix. This prefix must be within vnet IP prefix address space.')
+@description(
+  'Specifies the Bastion subnet IP prefix. This prefix must be within vnet IP prefix address space.'
+)
 param bastionSubnetAddressPrefix string = '10.1.1.0/26'
 
-@description('Specifies the name of the subnet which contains the virtual machine.')
+@description(
+  'Specifies the name of the subnet which contains the virtual machine.'
+)
 param vmSubnetName string = 'VmSubnet'
 
-@description('Specifies the address prefix of the subnet which contains the virtual machine.')
+@description(
+  'Specifies the address prefix of the subnet which contains the virtual machine.'
+)
 param vmSubnetAddressPrefix string = '10.1.0.0/24'
 
-@description('Specifies the name of the default subnet hosting the AKS cluster.')
+@description(
+  'Specifies the name of the default subnet hosting the AKS cluster.'
+)
 param aksSubnetName string = 'AksSubnet'
 
-@description('Specifies the address prefix of the subnet hosting the AKS cluster.')
+@description(
+  'Specifies the address prefix of the subnet hosting the AKS cluster.'
+)
 param aksSubnetAddressPrefix string = '10.0.0.0/16'
 
 @description('Specifies the name of the virtual network.')
@@ -24,11 +34,23 @@ param virtualNetworkAddressPrefixes string = '10.0.0.0/8'
 
 var bastionSubnetName = 'AzureBastionSubnet'
 var bastionSubnetNsgName = '${bastionSubnetName}Nsg'
-var bastionSubnetId = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, bastionSubnetName)
+var bastionSubnetId = resourceId(
+  'Microsoft.Network/virtualNetworks/subnets',
+  virtualNetwork.name,
+  bastionSubnetName
+)
 
 var vmSubnetNsgName = '${vmSubnetName}Nsg'
-var vmSubnetId = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, vmSubnetName)
-var aksSubnetId = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, aksSubnetName)
+var vmSubnetId = resourceId(
+  'Microsoft.Network/virtualNetworks/subnets',
+  virtualNetwork.name,
+  vmSubnetName
+)
+var aksSubnetId = resourceId(
+  'Microsoft.Network/virtualNetworks/subnets',
+  virtualNetwork.name,
+  aksSubnetName
+)
 
 resource vmSubnetNsg 'Microsoft.Network/networkSecurityGroups@2020-08-01' = {
   name: vmSubnetNsgName
@@ -76,10 +98,7 @@ resource bastionSubnetNsg 'Microsoft.Network/networkSecurityGroups@2020-08-01' =
           protocol: 'Tcp'
           sourcePortRange: '*'
           sourceAddressPrefix: 'GatewayManager'
-          destinationPortRanges: [
-            '443'
-            '4443'
-          ]
+          destinationPortRanges: ['443', '4443']
           destinationAddressPrefix: '*'
           access: 'Allow'
           priority: 120
@@ -105,10 +124,7 @@ resource bastionSubnetNsg 'Microsoft.Network/networkSecurityGroups@2020-08-01' =
           protocol: '*'
           sourcePortRange: '*'
           sourceAddressPrefix: 'VirtualNetwork'
-          destinationPortRanges: [
-            '8080'
-            '5701'
-          ]
+          destinationPortRanges: ['8080', '5701']
           destinationAddressPrefix: 'VirtualNetwork'
           access: 'Allow'
           priority: 140
@@ -134,10 +150,7 @@ resource bastionSubnetNsg 'Microsoft.Network/networkSecurityGroups@2020-08-01' =
           protocol: 'Tcp'
           sourcePortRange: '*'
           sourceAddressPrefix: '*'
-          destinationPortRanges: [
-            '22'
-            '3389'
-          ]
+          destinationPortRanges: ['22', '3389']
           destinationAddressPrefix: 'VirtualNetwork'
           access: 'Allow'
           priority: 100
@@ -166,9 +179,7 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-08-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        virtualNetworkAddressPrefixes
-      ]
+      addressPrefixes: [virtualNetworkAddressPrefixes]
     }
     subnets: [
       {

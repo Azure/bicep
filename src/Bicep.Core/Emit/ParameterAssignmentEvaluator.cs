@@ -6,15 +6,17 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Diagnostics;
+using Azure.Deployments.Core.ErrorResponses;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Templates.Expressions;
-using Bicep.Core.ArmHelpers;
+using Azure.Deployments.Templates.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit.CompileTimeImports;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -48,10 +50,9 @@ public class ParameterAssignmentEvaluator
     private readonly ConcurrentDictionary<WildcardImportPropertyReference, Result> wildcardImportVariableResults = new();
     private readonly ConcurrentDictionary<Expression, Result> synthesizedVariableResults = new();
     private readonly ConcurrentDictionary<SemanticModel, ResultWithDiagnostic<Template>> templateResults = new();
-    private readonly ConcurrentDictionary<Template, TemplateVariablesEvaluator> armEvaluators = new();
     private readonly ImmutableDictionary<string, ParameterAssignmentSymbol> paramsByName;
     private readonly ImmutableDictionary<string, VariableSymbol> variablesByName;
-    private readonly ImmutableDictionary<string, ImportedVariableSymbol> importsByName;
+    private readonly ImmutableDictionary<string, ImportedSymbol> importsByName;
     private readonly ImmutableDictionary<string, WildcardImportPropertyReference> wildcardImportPropertiesByName;
     private readonly ImmutableDictionary<string, Expression> synthesizedVariableValuesByName;
     private readonly ExpressionConverter converter;
@@ -68,7 +69,6 @@ public class ParameterAssignmentEvaluator
         EmitterContext context = new(model);
         this.converter = new(context);
         this.importsByName = context.ImportClosureInfo.ImportedSymbolNames.Keys
-            .OfType<ImportedVariableSymbol>()
             .Select(importedVariable => (context.ImportClosureInfo.ImportedSymbolNames[importedVariable], importedVariable))
             .GroupBy(x => x.Item1, LanguageConstants.IdentifierComparer)
             .ToImmutableDictionary(x => x.Key, x => x.First().importedVariable, LanguageConstants.IdentifierComparer);
@@ -139,6 +139,16 @@ public class ParameterAssignmentEvaluator
                 }
             });
 
+    private ResultWithDiagnostic<Template> GetTemplateWithCaching(ISemanticModel model)
+        => model switch
+        {
+            SemanticModel bicepModel => templateResults.GetOrAdd(bicepModel, GetTemplate),
+            ArmTemplateSemanticModel armModel when armModel.SourceFile.Template is Template template => new(template),
+            TemplateSpecSemanticModel tsModel when tsModel.SourceFile.MainTemplateFile.Template is Template template => new(template),
+            ArmTemplateSemanticModel or TemplateSpecSemanticModel => new(x => x.ReferencedArmTemplateHasErrors()),
+            _ => throw new UnreachableException(),
+        };
+
     private Result EvaluateImport(ImportedVariableSymbol import) => importResults.GetOrAdd(import, import =>
     {
         if (import.Kind == SymbolKind.Variable)
@@ -179,7 +189,7 @@ public class ParameterAssignmentEvaluator
 
         try
         {
-            return Result.For(armEvaluators.GetOrAdd(importedFrom, t => new(t)).GetEvaluatedVariableValue(originalSymbolName));
+            return Result.For(importedFrom.Variables[originalSymbolName].Value);
         }
         catch (Exception e)
         {
@@ -218,10 +228,9 @@ public class ParameterAssignmentEvaluator
             return Result.For(diagnostic);
         }
 
-        var evaluator = armEvaluators.GetOrAdd(importedFrom, t => new(t));
         try
         {
-            return Result.For(evaluator.GetEvaluatedVariableValue(propertyReference.PropertyName));
+            return Result.For(importedFrom.Variables[propertyReference.PropertyName].Value);
         }
         catch (Exception e)
         {
@@ -254,9 +263,9 @@ public class ParameterAssignmentEvaluator
                 return EvaluateVariable(variable).Value ?? throw new InvalidOperationException($"Variable {name} has an invalid value");
             }
 
-            if (importsByName.TryGetValue(name, out var imported))
+            if (importsByName.TryGetValue(name, out var imported) && imported is ImportedVariableSymbol importedVariable)
             {
-                return EvaluateImport(imported).Value ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
+                return EvaluateImport(importedVariable).Value ?? throw new InvalidOperationException($"Imported variable {name} has an invalid value");
             }
 
             if (wildcardImportPropertiesByName.TryGetValue(name, out var wildcardImportProperty))
@@ -278,7 +287,59 @@ public class ParameterAssignmentEvaluator
             return EvaluateParameter(paramsByName[name]).Value ?? throw new InvalidOperationException($"Parameter {name} has an invalid value");
         };
 
+        var defaultEvaluateFunction = helper.EvaluationContext.EvaluateFunction;
+        helper.EvaluationContext.EvaluateFunction = (expression, parameters, additionalProperties) => {
+            if (TemplateFunction.IsTemplateFunction(expression.Function))
+            {
+                return EvaluateTemplateFunction(expression, parameters, additionalProperties);
+            }
+
+            return defaultEvaluateFunction(expression, parameters, additionalProperties);
+        };
+
         return helper.EvaluationContext;
+    }
+
+    private JToken EvaluateTemplateFunction(FunctionExpression expression, FunctionArgument[] parameters, TemplateErrorAdditionalInfo additionalProperties)
+    {
+        JToken evaluateFunction(Template template, string originalFunctionName)
+        {
+            var functionsLookup = template.GetFunctionDefinitions().ToOrdinalInsensitiveDictionary(x => x.Key, x => x.Function);
+
+            var rewrittenExpression = new FunctionExpression(
+                $"{EmitConstants.UserDefinedFunctionsNamespace}.{originalFunctionName}",
+                expression.Parameters,
+                expression.Properties);
+
+            // we must explicitly ensure the evaluation takes place in the context of the referenced template,
+            // so that accessing scoped functions works as expected
+            var helper = new TemplateExpressionEvaluationHelper
+            {
+                OnGetFunction = (name, _) => functionsLookup[name],
+                ValidationContext = SchemaValidationContext.ForTemplate(template),
+            };
+
+            return helper.EvaluationContext.EvaluateFunction(rewrittenExpression, parameters, additionalProperties);
+        }
+
+        if (expression.Function.StartsWith($"{EmitConstants.UserDefinedFunctionsNamespace}.") &&
+            expression.Function.Substring($"{EmitConstants.UserDefinedFunctionsNamespace}.".Length) is {} functionName &&
+            importsByName.TryGetValue(functionName, out var imported) &&
+            imported.OriginalSymbolName is {} originalSymbolName)
+        {
+            var template = GetTemplateWithCaching(imported.SourceModel).Unwrap();
+
+            return evaluateFunction(template, originalSymbolName);
+        }
+
+        if (wildcardImportPropertiesByName.TryGetValue(expression.Function, out var wildcardImportProperty))
+        {
+            var template = GetTemplateWithCaching(wildcardImportProperty.WildcardImport.SourceModel).Unwrap();
+
+            return evaluateFunction(template, wildcardImportProperty.PropertyName);
+        }
+
+        throw new InvalidOperationException($"Function {expression.Function} not found");
     }
 
     private static ResultWithDiagnostic<Template> GetTemplate(SemanticModel model)

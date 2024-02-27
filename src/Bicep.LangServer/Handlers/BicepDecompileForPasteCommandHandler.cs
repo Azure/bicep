@@ -84,19 +84,19 @@ namespace Bicep.LanguageServer.Handlers
             return telemetryHelper.ExecuteWithTelemetryAndErrorHandling((Func<Task<(BicepDecompileForPasteCommandResult result, BicepTelemetryEvent? successTelemetry)>>)(async () =>
             {
                 var (result, successTelemetry) = await TryDecompileForPaste(
-                    (string)parameters.bicepContent,
+                    parameters.bicepContent,
                     parameters.rangeOffset,
                     parameters.rangeLength,
                     parameters.jsonContent,
                     parameters.queryCanPaste);
-                return (result: (BicepDecompileForPasteCommandResult)result, successTelemetry: (BicepTelemetryEvent?)successTelemetry);
+                return (result, successTelemetry);
             }));
         }
 
-        private PasteContext GetPasteContext(string bicepContents, int offset, int length)
+        private static PasteContext GetPasteContext(string bicepContents, int offset, int length)
         {
             var contents = bicepContents;
-            var newContents = contents.Substring(0, offset) + contents.Substring(offset + length);
+            var newContents = string.Concat(contents.AsSpan()[..offset], contents.AsSpan(offset + length));
             var parser = new Parser(newContents);
             var program = parser.Program();
 
@@ -142,7 +142,7 @@ namespace Bicep.LanguageServer.Handlers
 
             return stringSyntax is null ? PasteContext.None : PasteContext.String;
         }
-        private string DisclaimerMessage => $"{BicepDecompiler.DecompilerDisclaimerMessage}";
+        private static string DisclaimerMessage => BicepDecompiler.DecompilerDisclaimerMessage;
 
         private static void Log(StringBuilder output, string message)
         {
@@ -262,7 +262,7 @@ namespace Bicep.LanguageServer.Handlers
                 BicepTelemetryEvent.DecompileForPaste(decompileId, PasteContextAsString(pasteContext), pasteType, json.Length, bicep?.Length);
         }
 
-        private DecompileOptions GetDecompileOptions(string pasteType)
+        private static DecompileOptions GetDecompileOptions(string pasteType)
         {
             return new DecompileOptions()
             {
@@ -271,17 +271,16 @@ namespace Bicep.LanguageServer.Handlers
                 AllowMissingParamsAndVars = pasteType != PasteType_FullTemplate,
                 // ... but don't allow them in nested templates, which should be fully complete and valid
                 AllowMissingParamsAndVarsInNestedTemplates = false,
-                IgnoreTrailingInput = pasteType == PasteType_JsonValue ? false : true,
+                IgnoreTrailingInput = pasteType != PasteType_JsonValue,
             };
         }
 
         private ResultAndTelemetry? TryConvertFromJsonValue(StringBuilder output, string json, string decompileId, PasteContext pasteContext, bool queryCanPaste)
         {
             // Is it valid JSON that we can convert into Bicep?
-            var decompiler = new BicepDecompiler(this.bicepCompiler);
             var pasteType = PasteType_JsonValue;
             var options = GetDecompileOptions(pasteType);
-            var bicep = decompiler.DecompileJsonValue(json, options);
+            var bicep = BicepDecompiler.DecompileJsonValue(json, options);
             if (bicep is not null)
             {
                 // Technically we've already converted, but we only want to show this message if we think the pasted text is convertible
@@ -384,7 +383,7 @@ namespace Bicep.LanguageServer.Handlers
         ///
         /// Note that this is not a valid JSON construct by itself, unless it's just a single resource
         /// </summary>
-        private (string pasteType, string constructedJsonTemplate) ConstructFullTemplateFromSequenceOfResources(JObject firstResourceObject, JsonTextReader reader)
+        private static (string pasteType, string constructedJsonTemplate) ConstructFullTemplateFromSequenceOfResources(JObject firstResourceObject, JsonTextReader reader)
         {
             Debug.Assert(IsResourceObject(firstResourceObject));
             Debug.Assert(reader.TokenType == JsonToken.EndObject, "Reader should be on end squiggly of first resource object");

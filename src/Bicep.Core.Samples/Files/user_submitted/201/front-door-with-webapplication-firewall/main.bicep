@@ -5,10 +5,7 @@ param frontDoorWafDeployed bool = false // Used for conditions once available in
 param frontDoorWafNamePrefix string = 'AzFdWafTestingBicep'
 param frontDoorWafEnabledState bool = true
 
-@allowed([
-  'Prevention'
-  'Detection'
-])
+@allowed(['Prevention', 'Detection'])
 param frontDoorWafMode string = 'Prevention'
 
 var frontDoorNameLower = toLower(frontDoorName)
@@ -65,10 +62,18 @@ resource resAzFd 'Microsoft.Network/frontdoors@2020-01-01' = {
             }
           ]
           healthProbeSettings: {
-            id: resourceId('Microsoft.Network/frontDoors/healthProbeSettings', frontDoorNameLower, healthProbe1Name)
+            id: resourceId(
+              'Microsoft.Network/frontDoors/healthProbeSettings',
+              frontDoorNameLower,
+              healthProbe1Name
+            )
           }
           loadBalancingSettings: {
-            id: resourceId('Microsoft.Network/frontDoors/LoadBalancingSettings', frontDoorNameLower, loadBalancing1Name)
+            id: resourceId(
+              'Microsoft.Network/frontDoors/LoadBalancingSettings',
+              frontDoorNameLower,
+              loadBalancing1Name
+            )
           }
         }
       }
@@ -101,21 +106,25 @@ resource resAzFd 'Microsoft.Network/frontdoors@2020-01-01' = {
         properties: {
           frontendEndpoints: [
             {
-              id: resourceId('Microsoft.Network/frontDoors/FrontendEndpoints', frontDoorNameLower, frontendEndpoint1Name)
+              id: resourceId(
+                'Microsoft.Network/frontDoors/FrontendEndpoints',
+                frontDoorNameLower,
+                frontendEndpoint1Name
+              )
             }
           ]
-          acceptedProtocols: [
-            'Https'
-          ]
-          patternsToMatch: [
-            '/*'
-          ]
+          acceptedProtocols: ['Https']
+          patternsToMatch: ['/*']
           enabledState: 'Enabled'
           routeConfiguration: {
             '@odata.type': '#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration'
             forwardingProtocol: 'HttpsOnly'
             backendPool: {
-              id: resourceId('Microsoft.Network/frontDoors/BackendPools', frontDoorNameLower, backendPool1Name)
+              id: resourceId(
+                'Microsoft.Network/frontDoors/BackendPools',
+                frontDoorNameLower,
+                backendPool1Name
+              )
             }
           }
         }
@@ -125,16 +134,15 @@ resource resAzFd 'Microsoft.Network/frontdoors@2020-01-01' = {
         properties: {
           frontendEndpoints: [
             {
-              id: resourceId('Microsoft.Network/frontDoors/FrontendEndpoints', frontDoorNameLower, frontendEndpoint1Name)
+              id: resourceId(
+                'Microsoft.Network/frontDoors/FrontendEndpoints',
+                frontDoorNameLower,
+                frontendEndpoint1Name
+              )
             }
           ]
-          acceptedProtocols: [
-            'Https'
-          ]
-          patternsToMatch: [
-            '/redirect/*'
-            '/redirect'
-          ]
+          acceptedProtocols: ['Https']
+          patternsToMatch: ['/redirect/*', '/redirect']
           enabledState: 'Enabled'
           routeConfiguration: {
             '@odata.type': '#Microsoft.Azure.FrontDoor.Models.FrontdoorRedirectConfiguration'

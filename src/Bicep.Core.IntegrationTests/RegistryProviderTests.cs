@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -17,7 +17,7 @@ public class RegistryProviderTests : TestBase
 {
     private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registryHost, string repositoryPath, bool extensibilityEnabledBool, bool providerRegistryBool)
     {
-        var (clientFactory, _) = DataSetsExtensions.CreateMockRegistryClients((registryHost, repositoryPath));
+        var clientFactory = RegistryHelper.CreateMockRegistryClient(registryHost, repositoryPath);
 
         return new ServiceBuilder()
             .WithFeatureOverrides(new(ExtensibilityEnabled: extensibilityEnabledBool, ProviderRegistry: providerRegistryBool))
@@ -38,22 +38,56 @@ public class RegistryProviderTests : TestBase
 
         var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
 
-        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-        provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+provider 'br:example.azurecr.io/test/provider/http@1.2.3'
 
-        resource dadJoke 'request@v1' = {
-        uri: 'https://icanhazdadjoke.com'
-        method: 'GET'
-        format: 'json'
-        }
+resource dadJoke 'request@v1' = {
+  uri: 'https://icanhazdadjoke.com'
+  method: 'GET'
+  format: 'json'
+}
 
-        output joke string = dadJoke.body.joke
-        """);
+output joke string = dadJoke.body.joke
+""");
 
         result.Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
+    }
+
+    [TestMethod]
+    public async Task Existing_resources_are_permitted_through_3p_type_registry()
+    {
+        var registry = "example.azurecr.io";
+        var repository = $"providers/foo";
+
+        var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true);
+
+        var tgzData = ThirdPartyTypeHelper.GetTestTypesTgz();
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+provider 'br:example.azurecr.io/providers/foo@1.2.3'
+
+resource fooRes 'fooType@v1' existing = {
+}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP035", DiagnosticLevel.Warning, """The specified "resource" declaration is missing the following required properties: "identifier". If this is an inaccuracy in the documentation, please report it to the Bicep Team."""),
+        });
+
+        result = await CompilationHelper.RestoreAndCompile(services, """
+provider 'br:example.azurecr.io/providers/foo@1.2.3'
+
+resource fooRes 'fooType@v1' existing = {
+  identifier: 'foo'
+}
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     [TestMethod]
@@ -69,24 +103,49 @@ public class RegistryProviderTests : TestBase
 
         var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
 
-        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, """
-        provider 'br:example.azurecr.io/test/provider/http@1.2.3' with {}
+provider 'br:example.azurecr.io/test/provider/http@1.2.3' with {}
 
-        resource dadJoke 'request@v1' = {
-        uri: 'https://icanhazdadjoke.com'
-        method: 'GET'
-        format: 'json'
-        }
+resource dadJoke 'request@v1' = {
+  uri: 'https://icanhazdadjoke.com'
+  method: 'GET'
+  format: 'json'
+}
 
-        output joke string = dadJoke.body.joke
-        """);
+output joke string = dadJoke.body.joke
+""");
 
         result.Should().NotGenerateATemplate();
         result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
             ("BCP205", DiagnosticLevel.Error, "Provider namespace \"http\" does not support configuration.")
         });
+    }
+
+    [TestMethod]
+    public async Task Resource_function_types_are_permitted_through_3p_type_registry()
+    {
+        var registry = "example.azurecr.io";
+        var repository = $"providers/foo";
+
+        var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true);
+
+        var tgzData = ThirdPartyTypeHelper.GetTestTypesTgz();
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.2.3", tgzData);
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+provider 'br:example.azurecr.io/providers/foo@1.2.3'
+
+resource fooRes 'fooType@v1' existing = {
+  identifier: 'foo'
+}
+
+output baz string = fooRes.convertBarToBaz('bar')
+""");
+
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.Template.Should().HaveValueAtPath("$.outputs['baz'].value", "[invokeResourceMethod('fooRes', 'convertBarToBaz', createArray('bar'))]");
     }
 
     [TestMethod]
@@ -101,38 +160,38 @@ public class RegistryProviderTests : TestBase
 
         var services = GetServiceBuilder(fileSystem, registry, repository, true, true);
 
-        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, @$"
-        provider 'br:example.azurecr.io/test/provider/http@1.2.3'
-        ");
+provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+");
         result.Should().NotHaveAnyDiagnostics();
         result.Template.Should().NotBeNull();
         result.Template.Should().DeepEqual(JToken.Parse("""
-        {
-        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-        "languageVersion": "2.1-experimental",
-        "contentVersion": "1.0.0.0",
-        "metadata": {
-            "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
-            "_EXPERIMENTAL_FEATURES_ENABLED": [
-            "Extensibility"
-            ],
-            "_generator": {
-            "name": "bicep",
-            "version": "dev",
-            "templateHash": "14577456470128607958"
-            }
-        },
-        "imports": {
-            "http": {
-            "provider": "http",
-            "version": "1.2.3"
-            }
-        },
-        "resources": {}
-        }
-        """));
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.1-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "This template uses ARM features that are experimental. Experimental features should be enabled for testing purposes only, as there are no guarantees about the quality or stability of these features. Do not enable these settings for any production usage, or your production environment may be subject to breaking.",
+    "_EXPERIMENTAL_FEATURES_ENABLED": [
+      "Extensibility"
+    ],
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14577456470128607958"
+    }
+  },
+  "imports": {
+    "http": {
+    "provider": "http",
+    "version": "1.2.3"
+    }
+  },
+  "resources": {}
+}
+"""));
     }
 
     [TestMethod]
@@ -147,7 +206,7 @@ public class RegistryProviderTests : TestBase
 
         var services = GetServiceBuilder(fileSystem, registry, repository, false, false);
 
-        await DataSetsExtensions.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/types/index.json", $"br:{registry}/{repository}:1.2.3");
 
         var result = await CompilationHelper.RestoreAndCompile(services, @$"
         provider 'br:example.azurecr.io/test/provider/http@1.2.3'

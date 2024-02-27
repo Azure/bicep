@@ -10,7 +10,9 @@ param bgppeeringpddress string
 @description('Specifices the VPN Sites VPN Device IP Address')
 param ipaddress string
 
-@description('Specifices the resource ID of the Virtual WAN where the VPN Site should be created')
+@description(
+  'Specifices the resource ID of the Virtual WAN where the VPN Site should be created'
+)
 param wanid string
 
 @description('BGP AS-Number used by the remote site')
@@ -21,9 +23,7 @@ resource vpnsite 'Microsoft.Network/vpnSites@2020-06-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [
-        addressprefix
-      ]
+      addressPrefixes: [addressprefix]
     }
     bgpProperties: {
       asn: remotesiteasn

@@ -4,7 +4,9 @@ param location string
 @description('Base name that will appear for all resources.')
 param baseName string = 'adecosmosapp2'
 
-@description('Three letter environment abreviation to denote environment that will appear in all resource names')
+@description(
+  'Three letter environment abreviation to denote environment that will appear in all resource names'
+)
 param environmentName string = 'cicd'
 
 @description('App Service Plan Sku')
@@ -35,7 +37,9 @@ var regionReference = {
   westus2: 'wus2'
 }
 var language = 'Bicep'
-var nameSuffix = (empty(adeName) ? toLower('${baseName}-${environmentName}-${regionReference[location]}') : '${devCenterProjectName}-${adeName}')
+var nameSuffix = (empty(adeName)
+  ? toLower('${baseName}-${environmentName}-${regionReference[location]}')
+  : '${devCenterProjectName}-${adeName}')
 
 module userAssignedIdentityModule './nested_userAssignedIdentityModule.bicep' = {
   name: 'userAssignedIdentityModule'
@@ -104,7 +108,11 @@ module appInsightsModule './nested_appInsightsModule.bicep' = {
   params: {
     location: location
     appInsightsName: nameSuffix
-    logAnalyticsWorkspaceID: extensionResourceId('/subscriptions/${subscription().subscriptionId}/resourceGroups/${logAnalyticsResourceGroup}', 'Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspace)
+    logAnalyticsWorkspaceID: extensionResourceId(
+      '/subscriptions/${subscription().subscriptionId}/resourceGroups/${logAnalyticsResourceGroup}',
+      'Microsoft.OperationalInsights/workspaces',
+      logAnalyticsWorkspace
+    )
     language: language
   }
 }
@@ -119,3 +127,4 @@ module cosmosRBACModule './nested_cosmosRBACModule.bicep' = {
 //@[44:46) [BCP053 (Error)] The type "module" does not contain property "id". Available properties include "name", "outputs". (CodeDescription: none) |id|
   }
 }
+

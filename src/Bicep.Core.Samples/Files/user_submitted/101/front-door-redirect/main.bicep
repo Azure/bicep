@@ -60,10 +60,18 @@ resource frontDoor 'Microsoft.Network/frontDoors@2020-01-01' = {
             }
           ]
           loadBalancingSettings: {
-            id: resourceId('Microsoft.Network/frontDoors/loadBalancingSettings', frontDoorName, loadBalancingSettingsName)
+            id: resourceId(
+              'Microsoft.Network/frontDoors/loadBalancingSettings',
+              frontDoorName,
+              loadBalancingSettingsName
+            )
           }
           healthProbeSettings: {
-            id: resourceId('Microsoft.Network/frontDoors/healthProbeSettings', frontDoorName, healthProbeSettingsName)
+            id: resourceId(
+              'Microsoft.Network/frontDoors/healthProbeSettings',
+              frontDoorName,
+              healthProbeSettingsName
+            )
           }
         }
       }
@@ -75,16 +83,15 @@ resource frontDoor 'Microsoft.Network/frontDoors@2020-01-01' = {
         properties: {
           frontendEndpoints: [
             {
-              id: resourceId('Microsoft.Network/frontDoors/frontEndEndpoints', frontDoorName, frontEndEndpointName)
+              id: resourceId(
+                'Microsoft.Network/frontDoors/frontEndEndpoints',
+                frontDoorName,
+                frontEndEndpointName
+              )
             }
           ]
-          acceptedProtocols: [
-            'Http'
-            'Https'
-          ]
-          patternsToMatch: [
-            '/*'
-          ]
+          acceptedProtocols: ['Http', 'Https']
+          patternsToMatch: ['/*']
           routeConfiguration: {
             '@odata.type': '#Microsoft.Azure.FrontDoor.Models.FrontdoorRedirectConfiguration'
             redirectProtocol: 'HttpsOnly'
