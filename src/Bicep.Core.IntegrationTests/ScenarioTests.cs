@@ -4798,9 +4798,7 @@ var foo = map([], resourceGroup => resourceGroup('test'))
     [TestMethod]
     public void Typed_lambda_variable_declarations_should_overwrite_globally_scoped_functions()
     {
-        var services = new ServiceBuilder().WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true));
-
-        var result = CompilationHelper.Compile(services, @"
+        var result = CompilationHelper.Compile(@"
 func foo(resourceGroup string) string => resourceGroup('test')
 ");
 
@@ -5424,7 +5422,6 @@ type vnet = {
     {
 
         var result = CompilationHelper.Compile(
-            Services.WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true)),
             ("main.bicep", """
 func test() object => loadJsonContent('./repro-data.json')
 func test2() string => loadTextContent('./repro-data.json')
@@ -5449,7 +5446,6 @@ func test4() string => loadFileAsBase64('./repro-data.json')
     {
 
         var result = CompilationHelper.Compile(
-            Services.WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true)),
             ("main.bicep", """
 import { MyFunction } from 'export.bicep'
 
@@ -5492,17 +5488,17 @@ param two bool
 output bothTrue bool = one && two
 """),
             ("bicepconfig.bicep", """
-var json = loadJsonContent('bicepconfig.json')
+var json = loadJsonContent('foo.json')
 func testFunction(b bool) bool => b
 @export()
-var directExport = json.experimentalFeaturesEnabled.userDefinedFunctions
+var directExport = json.bar.baz
 @export()
-var functionExport = testFunction(json.experimentalFeaturesEnabled.userDefinedFunctions)
+var functionExport = testFunction(json.bar.baz)
 """),
-            ("bicepconfig.json", """
+            ("foo.json", """
 {
-  "experimentalFeaturesEnabled": {
-    "userDefinedFunctions": true
+  "bar": {
+    "baz": true
   }
 }
 """));
@@ -5650,13 +5646,6 @@ func greetMultiple(names string[]) string[] => map(names, name => greet(name))
             ("main.bicep", """
 param foo string
 param foo2 string[]
-"""),
-            ("bicepconfig.json", """
-{
-  "experimentalFeaturesEnabled": {
-    "userDefinedFunctions": true
-  }
-}
 """));
 
         result.Should().NotHaveAnyDiagnostics();

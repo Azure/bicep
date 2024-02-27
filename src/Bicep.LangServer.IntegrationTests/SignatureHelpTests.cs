@@ -150,8 +150,8 @@ func isTrue(input bool) bool => !(input == false)
 var test = isTrue(|)
 ");
 
-            using var server = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFeatureOverrides(new(UserDefinedFunctionsEnabled: true)));
-            var file = await new ServerRequestHelper(TestContext, server).OpenFile(text);
+            var helper = await DefaultServer.GetAsync();
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(text);
 
             var signatureHelp = await file.RequestSignatureHelp(cursor);
             var signature = signatureHelp!.Signatures.Single();

@@ -277,15 +277,6 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to User-defined functions.
-        /// </summary>
-        internal static string ExperimentalFeatureNames_UserDefinedFunctions {
-            get {
-                return ResourceManager.GetString("ExperimentalFeatureNames_UserDefinedFunctions", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Use string interpolation: {0}.
         /// </summary>
         internal static string InterpolateNotConcatFixTitle {

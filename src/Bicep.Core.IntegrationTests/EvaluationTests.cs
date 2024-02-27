@@ -1134,7 +1134,6 @@ param location = 'westus'
     [TestMethod]
     public void Functions_are_evaluated_correctly()
     {
-        var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, UserDefinedFunctionsEnabled: true));
         var bicepFile = @"
 // yeah, this is a bit pointless
 func joinWithSpace(values string[]) string => join(values, ' ')
@@ -1152,7 +1151,7 @@ output sayHiWithLambdas string = replaceMultiple('Hi, $firstName $lastName!', {
 })
 ";
 
-        var (template, _, _) = CompilationHelper.Compile(services, bicepFile);
+        var (template, _, _) = CompilationHelper.Compile(bicepFile);
 
         using (new AssertionScope())
         {
