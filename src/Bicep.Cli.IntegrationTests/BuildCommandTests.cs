@@ -103,7 +103,7 @@ namespace Bicep.Cli.IntegrationTests
         [DataRow("br/mcr:az", true, LanguageConstants.BicepPublicMcrRegistry)]
         [DataRow("br:contoso.azurecr.io/bicep/providers/az", true, "contoso.azurecr.io")]
         // Negative
-        [DataRow("az", false)]
+        // [DataRow("az", false)] - commented out while we graciously deprecate the legacy provider declaration syntax.
         [DataRow("br:invalid.azureacr.io/bicep/providers/az", false)]
         [DataRow("br/unknown:az", false)]
         public async Task Build_Valid_SingleFile_WithProviderDeclarationStatement(
@@ -138,7 +138,7 @@ namespace Bicep.Cli.IntegrationTests
             var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
             File.WriteAllText(bicepFilePath, bicepFile);
 
-            var bicepConfigFile = $$"""
+            var bicepConfigFile = """
                 {
                     "providerAliases" : {
                         "br": {
@@ -392,7 +392,7 @@ module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
         }
 
         [TestMethod]
-        public async Task Build_WithNonExistantOutDir_ShouldFail_WithExpectedErrorMessage()
+        public async Task Build_WithNonExistentOutDir_ShouldFail_WithExpectedErrorMessage()
         {
             var bicepPath = FileHelper.SaveResultFile(
                 TestContext,

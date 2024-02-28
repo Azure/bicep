@@ -49,24 +49,24 @@ namespace Bicep.Core.UnitTests
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
-        public static ResourceTypesProviderDescriptor BuiltInAzProviderDescriptor { get; } = new(
+        public static ResourceTypesProviderDescriptor BuiltInAzProviderDescriptor { get; } = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
             AzNamespaceType.BuiltInName,
-            AzNamespaceType.Settings.ArmTemplateProviderVersion,
-            isImplicitImport: true);
+            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
+            new Uri("file:///dev/null"));
 
-        public static ResourceTypesProviderDescriptor BuiltInSysProviderDescriptor { get; } = new(
+        public static ResourceTypesProviderDescriptor BuiltInSysProviderDescriptor { get; } = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
             SystemNamespaceType.BuiltInName,
-            SystemNamespaceType.Settings.ArmTemplateProviderVersion,
-            isImplicitImport: true);
+            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
+            new Uri("file:///dev/null"));
 
-        public static ResourceTypesProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = new(
+        public static ResourceTypesProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
             MicrosoftGraphNamespaceType.BuiltInName,
-            MicrosoftGraphNamespaceType.Settings.ArmTemplateProviderVersion,
-            isImplicitImport: true);
+            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
+            new Uri("file:///dev/null"));
 
         // Linter rules added to this list will be automatically disabled for most tests.
         // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
-        public static readonly string[] AnalyzerRulesToDisableInTests = Array.Empty<string>();
+        public static readonly string[] AnalyzerRulesToDisableInTests = [];
 
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = IConfigurationManager.GetBuiltInConfiguration();
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
@@ -102,6 +102,8 @@ namespace Bicep.Core.UnitTests
                 ["cloud.credentialPrecedence"] = new[] { "AzureCLI", "AzurePowerShell" },
                 ["moduleAliases"] = new Dictionary<string, object>(),
                 ["providerAliases"] = new Dictionary<string, object>(),
+                ["providers"] = new Dictionary<string, object>(),
+                ["implicitProviders"] = new[] { "az" },
                 ["analyzers"] = new Dictionary<string, object>(),
                 ["experimentalFeaturesEnabled"] = new Dictionary<string, bool>(),
                 ["formatting"] = new Dictionary<string, bool>(),

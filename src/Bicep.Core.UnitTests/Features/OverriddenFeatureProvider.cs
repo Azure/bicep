@@ -28,8 +28,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool SourceMappingEnabled => overrides.SourceMappingEnabled ?? features.SourceMappingEnabled;
 
-    public bool UserDefinedFunctionsEnabled => overrides.UserDefinedFunctionsEnabled ?? features.UserDefinedFunctionsEnabled;
-
     public bool LegacyFormatterEnabled => overrides.LegacyFormatterEnabled ?? features.LegacyFormatterEnabled;
 
     public bool TestFrameworkEnabled => overrides.TestFrameworkEnabled ?? features.TestFrameworkEnabled;

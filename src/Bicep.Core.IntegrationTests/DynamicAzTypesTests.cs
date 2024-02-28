@@ -36,6 +36,28 @@ namespace Bicep.Core.IntegrationTests
             return services;
         }
 
+        private async Task<ServiceBuilder> ServicesWithTestProviderArtifact(ArtifactRegistryAddress artifactRegistryAddress, BinaryData artifactPayload)
+        {
+            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(artifactRegistryAddress.ClientDescriptor());
+
+            (_, var client) = blobClients.First();
+            var blobResult = await client.UploadBlobAsync(artifactPayload);
+            var manifest = BicepTestConstants.GetBicepProviderManifest(
+                            blobResult.Value.Digest,
+                            blobResult.Value.SizeInBytes);
+            await client.SetManifestAsync(manifest, artifactRegistryAddress.ProviderVersion);
+
+            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(cacheRoot);
+
+            return new ServiceBuilder()
+                .WithFeatureOverrides(new(
+                    ExtensibilityEnabled: true,
+                    DynamicTypeLoadingEnabled: true,
+                    CacheRootDirectory: cacheRoot))
+           .WithContainerRegistryClientFactory(clientFactory);
+        }
+
         [TestMethod]
         public async Task Az_namespace_can_be_used_without_configuration()
         {
@@ -79,11 +101,11 @@ namespace Bicep.Core.IntegrationTests
         {
             var services = await GetServices();
 
-            services = services.WithConfigurationPatch(c => c.WithProviderAlias($$"""
+            services = services.WithConfigurationPatch(c => c.WithProviderAlias("""
             {
                 "br": {
                     "customAlias": {
-                        "registry": "{{LanguageConstants.BicepPublicMcrRegistry}}",
+                        "registry": "mcr.microsoft.com",
                         "providerPath": "bicep/providers"
                     }
                 }
@@ -104,14 +126,37 @@ namespace Bicep.Core.IntegrationTests
             var services = new ServiceBuilder()
                .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
 
+            var result = await CompilationHelper.RestoreAndCompile(services, @$"
+            provider 'az@{BicepTestConstants.BuiltinAzProviderVersion}'
+            ");
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(
+                new[] {
+                ("BCP201", DiagnosticLevel.Error, """
+                Expected a provider specification string of with a valid format at this location. Valid formats:
+                * "br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>"
+                * "br/<providerAlias>:<providerName>@<providerVersion>"
+                """),
+                ("BCP084", DiagnosticLevel.Error,
+                "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
+            });
+        }
+
+        [TestMethod]
+        public async Task Inlined_Az_namespace_alias_is_not_specified_in_config_yields_diagnostic()
+        {
+            var services = new ServiceBuilder()
+               .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true));
+
             var result = await CompilationHelper.RestoreAndCompile(services, @"
-            provider 'az@0.2.661'
+            provider 'br/notFound:az@0.2.661'
             ");
 
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(
                 new[] {
-                ("BCP304", DiagnosticLevel.Error, "Invalid provider specifier string. Specify a valid provider of format \"<providerName>@<providerVersion>\"."),
+                    ("BCP379", DiagnosticLevel.Error, "The OCI artifact provider alias name \"notFound\" does not exist in the built-in Bicep configuration."),
+                    ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
             });
 
         }
@@ -155,36 +200,20 @@ namespace Bicep.Core.IntegrationTests
             string innerErrorMessage)
         {
             // ARRANGE
-            var testArtifact = new ArtifactRegistryAddress("biceptestdf.azurecr.io", "bicep/providers/az", "0.0.0-corruptpng");
-            (var clientFactory, var blobClients) = RegistryUtils.CreateMockRegistryClients(testArtifact.ClientDescriptor());
+            var testArtifactAddress = new ArtifactRegistryAddress("biceptestdf.azurecr.io", "bicep/providers/az", "0.0.0-corruptpng");
 
-            (_, var client) = blobClients.First();
-            var blobResult = await client.UploadBlobAsync(payload);
-            var manifest = BicepTestConstants.GetBicepProviderManifest(
-                            blobResult.Value.Digest,
-                            blobResult.Value.SizeInBytes);
-            await client.SetManifestAsync(manifest, testArtifact.ProviderVersion);
-
-            var cacheRoot = FileHelper.GetUniqueTestOutputPath(TestContext);
-            Directory.CreateDirectory(cacheRoot);
-
-            var services = new ServiceBuilder()
-                .WithFeatureOverrides(new(
-                    ExtensibilityEnabled: true,
-                    DynamicTypeLoadingEnabled: true,
-                    CacheRootDirectory: cacheRoot))
-           .WithContainerRegistryClientFactory(clientFactory);
+            var services = await ServicesWithTestProviderArtifact(testArtifactAddress, payload);
 
             // ACT
             var result = await CompilationHelper.RestoreAndCompile(services, @$"
-            provider '{testArtifact.ToSpecificationString('@')}'
+            provider '{testArtifactAddress.ToSpecificationString('@')}'
             ");
 
             // ASSERT
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP192", DiagnosticLevel.Error, $"Unable to restore the artifact with reference \"{testArtifact.ToSpecificationString(':')}\": The OCI artifact is not a valid Bicep artifact. {innerErrorMessage}"),
+                ("BCP192", DiagnosticLevel.Error, $"Unable to restore the artifact with reference \"{testArtifactAddress.ToSpecificationString(':')}\": The OCI artifact is not a valid Bicep artifact. {innerErrorMessage}"),
                 ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
             });
 
@@ -297,6 +326,78 @@ namespace Bicep.Core.IntegrationTests
                     ("index.json", """{ "UnexpectedMember": false}""")),
                 "Value cannot be null. (Parameter 'source')"
             };
+        }
+
+        [TestMethod]
+        public async Task External_Az_namespace_can_be_loaded_from_configuration()
+        {
+            var services = await GetServices();
+            // Built-In Config contains the following entry:
+            // {
+            //   "implicitProviders": ["az"]
+            // }
+            services = services.WithConfigurationPatch(c => c.WithProvidersConfiguration($$"""
+            {
+                "az": {
+                    "source": "{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/providers/az",
+                    "version": "{{BicepTestConstants.BuiltinAzProviderVersion}}"
+                }
+            }
+            """));
+            var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
+            provider az
+            "));
+
+            result.Should().GenerateATemplate();
+        }
+
+        [TestMethod]
+        public async Task BuiltIn_Az_namespace_can_be_loaded_from_configuration()
+        {
+            var services = await GetServices();
+            // Built-In Config contains the following entries:
+            // {
+            //   "providers": {
+            //     "az": {
+            //       "builtIn": true
+            //     }
+            //   },
+            //   "implicitProviders": ["az"]
+            // }
+            var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
+            provider az
+            "));
+
+            result.Should().GenerateATemplate();
+        }
+
+        [TestMethod]
+        public async Task Az_namespace_can_be_loaded_dynamically_using_provider_configuration()
+        {
+            //ARRANGE
+            var artifactRegistryAddress = new ArtifactRegistryAddress(
+                "fake.azurecr.io",
+                "fake/path/az",
+                "1.0.0-fake");
+            var services = await ServicesWithTestProviderArtifact(
+                artifactRegistryAddress,
+                ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", """{"resources": {}, "resourceFunctions": {}}""")));
+            services = services.WithConfigurationPatch(c => c.WithProvidersConfiguration($$"""
+            {
+                "az": {
+                    "source": "{{artifactRegistryAddress.RegistryAddress}}/{{artifactRegistryAddress.RepositoryPath}}",
+                    "version": "{{artifactRegistryAddress.ProviderVersion}}"
+                }
+            }
+            """));
+            //ACT
+            var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
+            provider az
+            "));
+            //ASSERT
+            result.Should().GenerateATemplate();
+            result.Template.Should().NotBeNull();
+            result.Template.Should().HaveValueAtPath("$.imports.az.version", artifactRegistryAddress.ProviderVersion);
         }
     }
 }

@@ -18,6 +18,8 @@ public class RootConfigurationTests
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 BicepTestConstants.BuiltInConfiguration.ModuleAliases,
                 BicepTestConstants.BuiltInConfiguration.ProviderAliases,
+                BicepTestConstants.BuiltInConfiguration.ProvidersConfig,
+                BicepTestConstants.BuiltInConfiguration.ImplicitProvidersConfig,
                 BicepTestConstants.BuiltInConfiguration.Analyzers,
                 cacheRootDirectory,
                 BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesEnabled,

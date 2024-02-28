@@ -62,7 +62,13 @@ namespace Bicep.Core.Semantics
             // This allows the binder to create the right kind of symbol for compile-time imports.
             var cycleBlockingModelLookup = ISemanticModelLookup.Excluding(compilation, sourceFile);
             this.SymbolContext = symbolContext;
-            this.Binder = new Binder(compilation.NamespaceProvider, Features, compilation.SourceFileGrouping, cycleBlockingModelLookup, sourceFile, this.SymbolContext, compilation.ArtifactReferenceFactory);
+            this.Binder = new Binder(
+                compilation.NamespaceProvider,
+                Features,
+                compilation.SourceFileGrouping,
+                cycleBlockingModelLookup,
+                sourceFile,
+                this.SymbolContext);
 
             // TODO(#13239): ApiVersionProvider is only used by UseRecentApiVersionRule. Coupling the linter with the semantic model is suboptimal. A better approach would be to integrate ApiVersionProvider into IResourceTypeProvider.
             this.apiVersionProviderLazy = new Lazy<IApiVersionProvider>(() => new ApiVersionProvider(Features, this.Binder.NamespaceResolver.GetAvailableAzureResourceTypes()));

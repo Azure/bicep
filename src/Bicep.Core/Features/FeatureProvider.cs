@@ -26,8 +26,6 @@ namespace Bicep.Core.Features
 
         public bool SourceMappingEnabled => this.configuration.ExperimentalFeaturesEnabled.SourceMapping;
 
-        public bool UserDefinedFunctionsEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedFunctions;
-
         public bool LegacyFormatterEnabled => configuration.ExperimentalFeaturesEnabled.LegacyFormatter;
 
         public bool TestFrameworkEnabled => this.configuration.ExperimentalFeaturesEnabled.TestFramework;

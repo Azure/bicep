@@ -16,7 +16,7 @@ namespace Bicep.Core.IntegrationTests
     public class ExtensibilityTests : TestBase
     {
         private ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true))
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.ResourceTypeProviderFactory));
 
         [TestMethod]
@@ -27,117 +27,117 @@ provider 'bar@0.0.1' with {
   madeUpProperty: 'asdf'
 } as stg
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"connectionString\"."),
-                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"configuration\". Permissible properties include \"connectionString\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"configuration\". Permissible properties include \"connectionString\".")
             });
         }
 
         [TestMethod]
         public void Bar_import_can_be_duplicated()
         {
-            var result = CompilationHelper.Compile(Services, @"
-provider 'bar@0.0.1' with {
-  connectionString: 'connectionString1'
-} as stg
+            var result = CompilationHelper.Compile(Services, """
+            provider 'bar@0.0.1' with {
+                connectionString: 'connectionString1'
+            } as stg
 
-provider 'bar@0.0.1' with {
-  connectionString: 'connectionString2'
-} as stg2
-");
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            provider 'bar@0.0.1' with {
+                connectionString: 'connectionString2'
+            } as stg2
+            """);
+            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public void Bar_import_basic_test()
         {
-            var result = CompilationHelper.Compile(Services, @"
-provider 'bar@0.0.1' with {
-  connectionString: 'asdf'
-} as stg
+            var result = CompilationHelper.Compile(Services, """
+            provider 'bar@0.0.1' with {
+               connectionString: 'asdf'
+            } as stg
 
-resource container 'container' = {
-  name: 'myblob'
-}
+            resource container 'container' = {
+               name: 'myblob'
+            }
 
-resource blob 'blob' = {
-  name: 'myblob'
-  containerName: container.name
-  base64Content: base64('sadfasdfd')
-}
-");
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            resource blob 'blob' = {
+               name: 'myblob'
+               containerName: container.name
+               base64Content: base64('sadfasdfd')
+            }
+            """);
+            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public void Ambiguous_type_references_return_errors()
         {
-            var result = CompilationHelper.Compile(Services, @"
-provider 'bar@0.0.1' with {
-  connectionString: 'asdf'
-} as stg
+            var result = CompilationHelper.Compile(Services, """
+            provider 'bar@0.0.1' with {
+            connectionString: 'asdf'
+            } as stg
 
-provider 'bar@0.0.1' with {
-  connectionString: 'asdf'
-} as stg2
+            provider 'bar@0.0.1' with {
+            connectionString: 'asdf'
+            } as stg2
 
-resource container 'container' = {
-  name: 'myblob'
-}
-");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            resource container 'container' = {
+            name: 'myblob'
+            }
+            """);
+            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP264", DiagnosticLevel.Error, "Resource type \"container\" is declared in multiple imported namespaces (\"stg\", \"stg2\"), and must be fully-qualified."),
             });
 
-            result = CompilationHelper.Compile(Services, @"
-provider 'bar@0.0.1' with {
-  connectionString: 'asdf'
-} as stg
+            result = CompilationHelper.Compile(Services, """
+            provider 'bar@0.0.1' with {
+            connectionString: 'asdf'
+            } as stg
 
-provider 'bar@0.0.1' with {
-  connectionString: 'asdf'
-} as stg2
+            provider 'bar@0.0.1' with {
+            connectionString: 'asdf'
+            } as stg2
 
-resource container 'stg2:container' = {
-  name: 'myblob'
-}
-");
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            resource container 'stg2:container' = {
+            name: 'myblob'
+            }
+            """);
+            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public void Bar_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(Services, @"
-provider 'bar@0.0.1' with {
-  connectionString: 'asdf'
-} as stg
+            var result = CompilationHelper.Compile(Services, """
+            provider 'bar@0.0.1' with {
+                connectionString: 'asdf'
+            } as stg
 
-resource container 'container' = {
-  name: 'myblob'
-}
+            resource container 'container' = {
+                name: 'myblob'
+            }
 
-resource blobs 'blob' = [for i in range(0, 10): {
-  name: 'myblob-${i}.txt'
-  containerName: container.name
-  base64Content: base64('Hello blob ${i}!')
-}]
+            resource blobs 'blob' = [for i in range(0, 10): {
+                name: 'myblob-${i}.txt'
+                containerName: container.name
+                base64Content: base64('Hello blob ${i}!')
+            }]
 
-resource blobs2 'blob' = [for i in range(10, 10): {
-  name: blobs[i - 10].name
-  containerName: container.name
-  base64Content: base64('Hello blob ${i}!')
-}]
+            resource blobs2 'blob' = [for i in range(10, 10): {
+                name: blobs[i - 10].name
+                containerName: container.name
+                base64Content: base64('Hello blob ${i}!')
+            }]
 
-output sourceContainerName string = container.name
-#disable-next-line prefer-unquoted-property-names
-output sourceContainerNameSquare string = container['name']
-output miscBlobContainerName string = blobs[13 % 10].containerName
-output containerName string = blobs[5].containerName
-#disable-next-line prefer-unquoted-property-names
-output base64Content string = blobs[3]['base64Content']
-");
-            result.Should().NotHaveAnyDiagnostics();
+            output sourceContainerName string = container.name
+            #disable-next-line prefer-unquoted-property-names
+            output sourceContainerNameSquare string = container['name']
+            output miscBlobContainerName string = blobs[13 % 10].containerName
+            output containerName string = blobs[5].containerName
+            #disable-next-line prefer-unquoted-property-names
+            output base64Content string = blobs[3]['base64Content']
+            """);
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerName'].value", "[reference('container').name]");
             result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerNameSquare'].value", "[reference('container').name]");
             result.Template.Should().HaveValueAtPath("$.outputs['miscBlobContainerName'].value", "[reference(format('blobs[{0}]', mod(13, 10))).containerName]");
@@ -148,26 +148,26 @@ output base64Content string = blobs[3]['base64Content']
         [TestMethod]
         public void Foo_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(Services, @"
-provider 'foo@1.2.3' as foo
-param numApps int
+            var result = CompilationHelper.Compile(Services, """
+            provider 'foo@1.2.3' as foo
+            param numApps int
 
-resource myApp 'application' = {
-  uniqueName: 'foo'
-}
+            resource myApp 'application' = {
+                uniqueName: 'foo'
+            }
 
-resource myAppsLoop 'application' = [for i in range(0, numApps): {
-  uniqueName: '${myApp.appId}-bar-${i}'
-}]
+            resource myAppsLoop 'application' = [for i in range(0, numApps): {
+                uniqueName: '${myApp.appId}-bar-${i}'
+            }]
 
-output myAppId string = myApp.appId
-#disable-next-line prefer-unquoted-property-names
-output myAppId2 string = myApp['appId']
-output myAppsLoopId string = myAppsLoop[13 % numApps].appId
-#disable-next-line prefer-unquoted-property-names
-output myAppsLoopId2 string = myAppsLoop[3]['appId']
-");
-            result.Should().NotHaveAnyDiagnostics();
+            output myAppId string = myApp.appId
+            #disable-next-line prefer-unquoted-property-names
+            output myAppId2 string = myApp['appId']
+            output myAppsLoopId string = myAppsLoop[13 % numApps].appId
+            #disable-next-line prefer-unquoted-property-names
+            output myAppsLoopId2 string = myAppsLoop[3]['appId']
+            """);
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['myAppId'].value", "[reference('myApp').appId]");
             result.Template.Should().HaveValueAtPath("$.outputs['myAppId2'].value", "[reference('myApp').appId]");
             result.Template.Should().HaveValueAtPath("$.outputs['myAppsLoopId'].value", "[reference(format('myAppsLoop[{0}]', mod(13, parameters('numApps')))).appId]");
@@ -178,32 +178,32 @@ output myAppsLoopId2 string = myAppsLoop[3]['appId']
         public void Foo_import_existing_requires_uniqueName()
         {
             // we've accidentally used 'name' even though this resource type doesn't support it
-            var result = CompilationHelper.Compile(Services, @"
-provider 'foo@1.2.3'
+            var result = CompilationHelper.Compile(Services, """
+            provider 'foo@1.2.3'
 
-resource myApp 'application' existing = {
-  name: 'foo'
-}
-");
+            resource myApp 'application' existing = {
+            name: 'foo'
+            }
+            """);
 
             result.Should().NotGenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"uniqueName\"."),
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"myApp\" is declared but never used."),
                 ("BCP037", DiagnosticLevel.Error, "The property \"name\" is not allowed on objects of type \"application\". Permissible properties include \"uniqueName\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             });
 
             // oops! let's change it to 'uniqueName'
-            result = CompilationHelper.Compile(Services, @"
-provider 'foo@1.2.3' as foo
+            result = CompilationHelper.Compile(Services, """
+            provider 'foo@1.2.3' as foo
 
-resource myApp 'application' existing = {
-  uniqueName: 'foo'
-}
-");
+            resource myApp 'application' existing = {
+                uniqueName: 'foo'
+            }
+            """);
 
             result.Should().GenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"myApp\" is declared but never used."),
             });
         }
@@ -211,27 +211,27 @@ resource myApp 'application' existing = {
         [TestMethod]
         public void Kubernetes_import_existing_warns_with_readonly_fields()
         {
-            var result = CompilationHelper.Compile(Services, @"
-provider 'kubernetes@1.0.0' with {
-  namespace: 'default'
-  kubeConfig: ''
-}
-resource service 'core/Service@v1' existing = {
-  metadata: {
-    name: 'existing-service'
-    namespace: 'default'
-    labels: {
-      format: 'k8s-extension'
-    }
-    annotations: {
-      foo: 'bar'
-    }
-  }
-}
-");
+            var result = CompilationHelper.Compile(Services, """
+            provider 'kubernetes@1.0.0' with {
+            namespace: 'default'
+            kubeConfig: ''
+            }
+            resource service 'core/Service@v1' existing = {
+            metadata: {
+                name: 'existing-service'
+                namespace: 'default'
+                labels: {
+                format: 'k8s-extension'
+                }
+                annotations: {
+                foo: 'bar'
+                }
+            }
+            }
+            """);
 
             result.Should().GenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"service\" is declared but never used."),
                 ("BCP073", DiagnosticLevel.Warning, "The property \"labels\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP073", DiagnosticLevel.Warning, "The property \"annotations\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
@@ -254,7 +254,7 @@ provider 'kubernetes@1.0.0' with {
 ");
 
             result.Should().NotGenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"kubernetes\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"kubernetes\" is declared multiple times. Remove the duplicates."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"kubernetes\" is declared multiple times. Remove or rename the duplicates."),
@@ -291,7 +291,7 @@ resource configmap 'core/ConfigMap@v1' existing = {
 ");
 
             result.Should().GenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"service\" is declared but never used."),
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"secret\" is declared but never used."),
                 ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"configmap\" is declared but never used."),
@@ -333,7 +333,7 @@ resource secret 'core/Secret@v1' = {
 ");
 
             result.Should().GenerateATemplate();
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -352,7 +352,7 @@ resource secret 'core/Secret@v1' = {
                 """);
 
             result.Should().GenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP081", DiagnosticLevel.Warning, @"Resource type ""custom/Foo@v1"" does not have types available."),
             });
         }
@@ -383,7 +383,7 @@ resource secret 'core/Secret@v1' = {
                 """);
 
             result.Should().NotGenerateATemplate();
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP264", DiagnosticLevel.Error, @"Resource type ""Microsoft.Compute/availabilitySets@2023-01-01"" is declared in multiple imported namespaces (""az"", ""kubernetes""), and must be fully-qualified."),
                 ("BCP035", DiagnosticLevel.Error, @"The specified ""resource"" declaration is missing the following required properties: ""name""."),
                 ("BCP081", DiagnosticLevel.Warning, @"Resource type ""Microsoft.Compute/availabilitySets@2023-01-01"" does not have types available."),
@@ -394,44 +394,44 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Bar_import_basic_test_with_qualified_type()
         {
-            var result = CompilationHelper.Compile(Services, @"
-provider 'bar@0.0.1' with {
-  connectionString: 'asdf'
-} as stg
+            var result = CompilationHelper.Compile(Services, """
+            provider 'bar@0.0.1' with {
+            connectionString: 'asdf'
+            } as stg
 
-resource container 'stg:container' = {
-  name: 'myblob'
-}
+            resource container 'stg:container' = {
+            name: 'myblob'
+            }
 
-resource blob 'stg:blob' = {
-  name: 'myblob'
-  containerName: container.name
-  base64Content: base64('sadfasdfd')
-}
-");
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            resource blob 'stg:blob' = {
+            name: 'myblob'
+            containerName: container.name
+            base64Content: base64('sadfasdfd')
+            }
+            """);
+            result.ExcludingDiagnostics("BCP395").ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public void Invalid_namespace_qualifier_returns_error()
         {
-            var result = CompilationHelper.Compile(Services, @"
-provider 'bar@0.0.1' with {
-  connectionString: 'asdf'
-} as stg
+            var result = CompilationHelper.Compile(Services, """
+            provider 'bar@0.0.1' with {
+            connectionString: 'asdf'
+            } as stg
 
-resource container 'foo:container' = {
-  name: 'myblob'
-}
+            resource container 'foo:container' = {
+            name: 'myblob'
+            }
 
-resource blob 'bar:blob' = {
-  name: 'myblob'
-  containerName: container.name
-  base64Content: base64('sadfasdfd')
-}
-");
+            resource blob 'bar:blob' = {
+            name: 'myblob'
+            containerName: container.name
+            base64Content: base64('sadfasdfd')
+            }
+            """);
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP208", DiagnosticLevel.Error, "The specified namespace \"foo\" is not recognized. Specify a resource reference using one of the following namespaces: \"az\", \"stg\", \"sys\"."),
                 ("BCP208", DiagnosticLevel.Error, "The specified namespace \"bar\" is not recognized. Specify a resource reference using one of the following namespaces: \"az\", \"stg\", \"sys\"."),
             });
@@ -454,7 +454,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 }
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2020-01-01\" does not have types available."),
                 ("BCP210", DiagnosticLevel.Error, "Resource type belonging to namespace \"stg\" cannot have a parent resource type belonging to different namespace \"az\"."),
             });
@@ -506,7 +506,7 @@ resource blob 'blob' = {
                 ("blob.txt", @"
 Hello from Bicep!"));
 
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
             result.Template.Should().DeepEqual(JToken.Parse("""
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",

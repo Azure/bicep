@@ -1,6 +1,6 @@
-var json = loadJsonContent('bicepconfig.json')
+var json = loadJsonContent('foo.json')
 func testFunction(b bool) bool => b
 @export()
-var directExport = json.experimentalFeaturesEnabled.userDefinedFunctions
+var directExport = json.bar.baz
 @export()
-var functionExport = testFunction(json.experimentalFeaturesEnabled.userDefinedFunctions)
+var functionExport = testFunction(json.bar.baz)

@@ -20,9 +20,6 @@ namespace Bicep.Core.IntegrationTests;
 [TestClass]
 public class CompileTimeImportTests
 {
-    private ServiceBuilder ServicesWithUserDefinedFunctions => new ServiceBuilder()
-        .WithFeatureOverrides(new(TestContext, UserDefinedFunctionsEnabled: true));
-
     [NotNull]
     public TestContext? TestContext { get; set; }
 
@@ -194,7 +191,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_function_symbols_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {greet} from 'mod.bicep'
                 """),
@@ -232,64 +229,6 @@ public class CompileTimeImportTests
                 }
             ]
             """));
-    }
-
-    [TestMethod]
-    public void Importing_functions_should_be_blocked_if_user_defined_functions_feature_not_enabled()
-    {
-        var featureProviderFactory = StrictMock.Of<IFeatureProviderFactory>();
-        var defaultFeatures = new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration());
-        featureProviderFactory
-            .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("main.bicep"))))
-            .Returns(defaultFeatures);
-        featureProviderFactory
-            .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("mod.bicep"))))
-            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(UserDefinedFunctionsEnabled: true)));
-
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureProviderFactory(featureProviderFactory.Object),
-            ("main.bicep", """
-                import {greet} from 'mod.bicep'
-                """),
-            ("mod.bicep", """
-                @export()
-                @description('Say hi to someone')
-                func greet(name string) string => 'Hi, ${name}!'
-                """));
-
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP343", DiagnosticLevel.Error, $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".")
-        });
-    }
-
-    [TestMethod]
-    public void Calling_methods_on_wildcard_imports_should_be_blocked_if_user_defined_functions_feature_not_enabled()
-    {
-        var featureProviderFactory = StrictMock.Of<IFeatureProviderFactory>();
-        var defaultFeatures = new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration());
-        featureProviderFactory
-            .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("main.bicep"))))
-            .Returns(defaultFeatures);
-        featureProviderFactory
-            .Setup(m => m.GetFeatureProvider(It.Is<System.Uri>(uri => uri.AbsolutePath.EndsWith("mod.bicep"))))
-            .Returns(new OverriddenFeatureProvider(defaultFeatures, new(UserDefinedFunctionsEnabled: true)));
-
-        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureProviderFactory(featureProviderFactory.Object),
-            ("main.bicep", """
-                import * as mod from 'mod.bicep'
-
-                output greeting string = mod.greet('friend')
-                """),
-            ("mod.bicep", """
-                @export()
-                @description('Say hi to someone')
-                func greet(name string) string => 'Hi, ${name}!'
-                """));
-
-        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
-        {
-            ("BCP343", DiagnosticLevel.Error, $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".")
-        });
     }
 
     [TestMethod]
@@ -467,7 +406,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Function_symbols_imported_from_ARM_json_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {greet, 'ns.cow_say' as cowSay} from 'mod.json'
                 """),
@@ -686,7 +625,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Symbols_imported_via_wildcard_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import * as foo from 'mod.bicep'
                 """),
@@ -1009,7 +948,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Imported_function_symbols_with_a_lengthy_reference_chain_should_have_declarations_injected_into_compiled_template()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {foo} from 'mod.bicep'
 
@@ -1835,7 +1774,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void Symbolic_name_target_is_used_when_function_import_closure_includes_a_user_defined_type()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import { capitalizer } from 'function.bicep'
                 """),
@@ -1956,7 +1895,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void User_defined_function_calls_parameters_to_other_user_defined_function_calls_are_migrated_during_import()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {getSubnetNumber, isWindows} from 'types.bicep'
 
@@ -2042,7 +1981,7 @@ public class CompileTimeImportTests
     [TestMethod]
     public void LanguageVersion_2_should_be_used_if_types_imported_via_wildcard()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import * as types from 'types.bicep'
                 """),
@@ -2080,7 +2019,7 @@ INVALID FILE
     [TestMethod]
     public void LanguageVersion_2_should_be_used_if_types_imported_via_closure()
     {
-        var result = CompilationHelper.Compile(ServicesWithUserDefinedFunctions,
+        var result = CompilationHelper.Compile(
             ("main.bicep", """
                 import {a} from 'shared.bicep'
                 """),

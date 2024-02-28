@@ -14,6 +14,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Diagnostics
@@ -1215,10 +1216,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedProviderSpecification() => new(
-                TextSpan,
-                "BCP201",
-                "Expected a provider specification string of format \"<providerName>@<providerVersion>\" at this location.");
+            public ErrorDiagnostic ExpectedProviderSpecification()
+            {
+                var message = """
+                Expected a provider specification string of with a valid format at this location. Valid formats:
+                * "br:<providerRegistryHost>/<providerRepositoryPath>@<providerVersion>"
+                * "br/<providerAlias>:<providerName>@<providerVersion>"
+                """;
+                return new(TextSpan, "BCP201", message);
+            }
 
             public ErrorDiagnostic ExpectedProviderAliasName() => new(
                 TextSpan,
@@ -1896,11 +1902,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP342",
                 $"""User-defined types are not supported in user-defined function parameters or outputs.""");
 
-            public ErrorDiagnostic FuncDeclarationStatementsUnsupported() => new(
-                TextSpan,
-                "BCP343",
-                $@"Using a func declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedFunctions)}"".");
-
             public ErrorDiagnostic ExpectedAssertIdentifier() => new(
                 TextSpan,
                 "BCP344",
@@ -2140,6 +2141,24 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP393",
                 $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
+
+            public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecification syntax)
+            {
+                var codeFix = new CodeFix(
+                    "Replace the import specification with an configuration backed identifier",
+                    true,
+                    CodeFixKind.QuickFix,
+                    new CodeReplacement(syntax.Span, syntax.NamespaceIdentifier));
+
+                return new FixableDiagnostic(
+                    TextSpan,
+                    DiagnosticLevel.Warning,
+                    "BCP395",
+                    $"Declaring provider namespaces using the \'<providerName>@<version>\' expression has been deprecated. Please use an identifier instead.",
+                    documentationUri: null,
+                    DiagnosticStyling.Default,
+                    codeFix);
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -17,8 +17,6 @@ public interface IFeatureProvider
 
     bool SourceMappingEnabled { get; }
 
-    bool UserDefinedFunctionsEnabled { get; }
-
     bool DynamicTypeLoadingEnabled { get; }
 
     bool ProviderRegistryEnabled { get; }
@@ -49,7 +47,6 @@ public interface IFeatureProvider
                 (ExtensibilityEnabled, CoreResources.ExperimentalFeatureNames_Extensibility, true, true),
                 (ResourceTypedParamsAndOutputsEnabled, CoreResources.ExperimentalFeatureNames_ResourceTypedParamsAndOutputs, true, false),
                 (SourceMappingEnabled, CoreResources.ExperimentalFeatureNames_SourceMapping, true, false),
-                (UserDefinedFunctionsEnabled, CoreResources.ExperimentalFeatureNames_UserDefinedFunctions, true, false),
                 (DynamicTypeLoadingEnabled, CoreResources.ExperimentalFeatureNames_DynamicTypeLoading, true, false),
                 (ProviderRegistryEnabled, CoreResources.ExperimentalFeatureNames_ProviderRegistry, true, false),
                 (TestFrameworkEnabled, CoreResources.ExperimentalFeatureNames_TestFramework, false, false),

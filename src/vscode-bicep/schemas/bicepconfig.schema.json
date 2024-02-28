@@ -2,9 +2,9 @@
   "$comment1": "=========================================================================================================",
   "$comment2": "IMPORTANT: This file is for intelliSense only (for VS Code), it does *not* affect the actual bicepconfig.json defaults.",
   "$comment3": "  Actual defaults picked up by configuration at runtime are in src/Bicep.Core/Configuration/bicepconfig.json",
-  "$comment4": "If you make changes to this file, remember to update the rule documentation.",
+  "$comment4": "  If you make changes to this file, remember to update the rule documentation.",
   "$comment5": "                                                                                                        ",
-  "$comment6": "Also, please add appropriate tests in Bicep.Core.UnitTests.Diagnostics.BicepConfigSchemaTests to verify this file's contents'",
+  "$comment6": "Also, please add appropriate tests in Bicep.Core.UnitTests.Configuration.BicepConfigSchemaTests to verify this file's contents'",
   "$comment9": "=========================================================================================================",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Bicep Configuration",
@@ -121,6 +121,29 @@
           "minLength": 1
         }
       }
+    },
+    "providerConfig": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": ["source", "version"],
+      "additionalProperties": false
+    },
+    "builtInConfig": {
+      "type": "object",
+      "properties": {
+        "builtIn": {
+          "type": "boolean"
+        }
+      },
+      "required": ["builtIn"],
+      "additionalProperties": false
     },
     "bicepRegistryProviderAlias": {
       "type": "object",
@@ -267,6 +290,44 @@
           }
         }
       }
+    },
+    "providers": {
+      "title": "Resource Type Providers Configuration",
+      "description": "Resource type providers configuration",
+      "type": "object",
+      "patternProperties": {
+        "^(?!sys$).*": {
+          "oneOf": [
+            {
+              "$ref": "#/definitions/providerConfig"
+            },
+            {
+              "$ref": "#/definitions/builtInConfig"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "default": {
+        "az": {
+          "builtIn": true
+        },
+        "kubernetes": {
+          "builtIn": true
+        },
+        "microsoftGraph": {
+          "builtIn": true
+        }
+      }
+    },
+    "implicitProviders": {
+      "description": "Resource type providers that should be implicitly imported",
+      "type": "array",
+      "default": ["az"],
+      "items": {
+        "type": "string"
+      },
+      "additionalProperties": false
     },
     "analyzers": {
       "title": "Analyzers",
@@ -718,10 +779,6 @@
         "sourceMapping": {
           "type": "boolean",
           "description": "Enables basic source mapping to map an error location returned in the ARM template layer back to the relevant location in the Bicep file. See https://aka.ms/bicep/experimental-features#sourcemapping"
-        },
-        "userDefinedFunctions": {
-          "type": "boolean",
-          "description": "Allows you to define your own custom functions. See https://aka.ms/bicep/experimental-features#userdefinedfunctions"
         },
         "legacyFormatter": {
           "type": "boolean",

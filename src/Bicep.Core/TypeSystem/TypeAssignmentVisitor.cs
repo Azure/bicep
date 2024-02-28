@@ -16,7 +16,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
-using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
@@ -26,7 +25,6 @@ namespace Bicep.Core.TypeSystem
         private readonly IFeatureProvider features;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
-        private readonly IEnvironment environment;
         private readonly SemanticModel model;
         private readonly IDiagnosticLookup parsingErrorLookup;
         private readonly IArtifactFileLookup sourceFileLookup;
@@ -43,7 +41,6 @@ namespace Bicep.Core.TypeSystem
             this.model = model;
             this.features = model.Features;
             this.binder = model.Binder;
-            this.environment = model.Environment;
             this.parsingErrorLookup = model.ParsingErrorLookup;
             this.sourceFileLookup = model.Compilation.SourceFileGrouping;
             this.semanticModelLookup = model.Compilation;
@@ -107,7 +104,7 @@ namespace Bicep.Core.TypeSystem
                 return new TypeAssignment(reference, diagnosticWriter.GetDiagnostics());
             });
 
-        private TypeSymbol? CheckForCyclicError(SyntaxBase syntax)
+        private ErrorType? CheckForCyclicError(SyntaxBase syntax)
         {
             if (this.binder.GetSymbolInfo(syntax) is not DeclaredSymbol declaredSymbol)
             {
@@ -820,6 +817,11 @@ namespace Bicep.Core.TypeSystem
                 if (syntax.Keyword.Text.Equals(LanguageConstants.ImportKeyword))
                 {
                     diagnostics.Write(syntax.Keyword, x => x.ProviderDeclarationViaImportKeywordIsDeprecated(syntax));
+                }
+
+                if (syntax.Specification is LegacyProviderSpecification specificationSyntax)
+                {
+                    diagnostics.Write(syntax.SpecificationString, x => x.LegacyProviderSpecificationIsDeprecated(specificationSyntax));
                 }
 
                 if (syntax.Config is not null)
@@ -1829,11 +1831,6 @@ namespace Bicep.Core.TypeSystem
                 {
                     // can only access methods on objects
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name).ObjectRequiredForMethodAccess(baseType));
-                }
-
-                if (binder.GetSymbolInfo(syntax.BaseExpression) is WildcardImportSymbol && !features.UserDefinedFunctionsEnabled)
-                {
-                    errors.Add(DiagnosticBuilder.ForPosition(syntax).FuncDeclarationStatementsUnsupported());
                 }
 
                 foreach (TypeSymbol argumentType in this.GetArgumentTypes(syntax.Arguments).ToArray())

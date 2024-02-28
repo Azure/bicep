@@ -15,7 +15,7 @@ namespace Bicep.Core.Registry
 
         ResultWithDiagnostic<Uri> TryGetLocalArtifactEntryPointUri(ArtifactReference reference);
 
-        Task<bool> RestoreModules(IEnumerable<ArtifactReference> references, bool forceRestore);
+        Task<bool> RestoreArtifacts(IEnumerable<ArtifactReference> references, bool forceRestore);
 
         Task<bool> CheckModuleExists(ArtifactReference reference);
 

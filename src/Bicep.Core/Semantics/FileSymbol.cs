@@ -322,7 +322,7 @@ namespace Bicep.Core.Semantics
                 // TODO: validation for alias x name.
                 this.Diagnostics.AddRange(
                     FindDuplicateNamespaceImports(namespaceDeclarations)
-                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringProvider.Specification).NamespaceMultipleDeclarations(decl.DeclaringProvider.Specification.Name)));
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringProvider.Specification).NamespaceMultipleDeclarations(decl.DeclaringProvider.Specification.NamespaceIdentifier)));
             }
 
             private static IEnumerable<DeclaredSymbol> FindDuplicateNamedSymbols(IEnumerable<DeclaredSymbol> symbols)
@@ -346,7 +346,7 @@ namespace Bicep.Core.Semantics
 
                 return typeBySymbol
                     .Where(kvp => kvp.Value.Settings.IsSingleton)
-                    .GroupBy(kvp => kvp.Key.DeclaringProvider.Specification.Name, LanguageConstants.IdentifierComparer)
+                    .GroupBy(kvp => kvp.Key.DeclaringProvider.Specification.NamespaceIdentifier, LanguageConstants.IdentifierComparer)
                     .Where(group => group.Count() > 1)
                     .SelectMany(group => group.Select(kvp => kvp.Key));
             }

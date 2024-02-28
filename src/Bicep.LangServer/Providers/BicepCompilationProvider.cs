@@ -56,6 +56,7 @@ namespace Bicep.LanguageServer.Providers
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 fileResolver,
                 moduleDispatcher,
+                configurationManager,
                 workspace,
                 documentUri.ToUriEncoded(),
                 featureProviderFactory);
@@ -71,6 +72,7 @@ namespace Bicep.LanguageServer.Providers
             var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(
                 featureProviderFactory,
                 moduleDispatcher,
+                configurationManager,
                 workspace,
                 current.Compilation.SourceFileGrouping);
             return this.CreateContext(fileCache, sourceFileGrouping, modelLookup);

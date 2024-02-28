@@ -156,14 +156,11 @@ namespace Bicep.LanguageServer.Completions
                             yield return CreateKeywordCompletion(LanguageConstants.TestKeyword, "Test keyword", context.ReplacementRange);
                         }
 
-                        if (model.Features.UserDefinedFunctionsEnabled)
-                        {
-                            yield return CreateContextualSnippetCompletion(
-                                LanguageConstants.FunctionKeyword,
-                                "Function declaration",
-                                "func ${1:name}() ${2:outputType} => $0",
-                                context.ReplacementRange);
-                        }
+                        yield return CreateContextualSnippetCompletion(
+                            LanguageConstants.FunctionKeyword,
+                            "Function declaration",
+                            "func ${1:name}() ${2:outputType} => $0",
+                            context.ReplacementRange);
 
                         if (model.Features.AssertsEnabled)
                         {
