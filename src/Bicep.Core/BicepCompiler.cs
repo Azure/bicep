@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -69,11 +70,11 @@ public class BicepCompiler
         // however we still want to surface as many errors as we can for the module refs that are valid
         // so we will try to restore modules with valid refs and skip everything else
         // (the diagnostics will be collected during compilation)
-        var artifactsToRestore = moduleDispatcher.GetValidModuleReferences(
+        var artifactsToRestore = moduleDispatcher.GetValidArtifactReferences(
             sourceFileGrouping.GetExplicitArtifactsToRestore()).Concat(
                 sourceFileGrouping.GetImplicitArtifactsToRestore());
 
-        if (await moduleDispatcher.RestoreModules(artifactsToRestore, forceRestore: forceRestore))
+        if (await moduleDispatcher.RestoreArtifacts(artifactsToRestore, forceRestore: forceRestore))
         {
             // modules had to be restored - recompile
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, ConfigurationManager, workspace, sourceFileGrouping);
@@ -85,14 +86,16 @@ public class BicepCompiler
     {
         var workspace = new Workspace();
         var sourceFileGrouping = compilation.SourceFileGrouping;
-        var originalModulesToRestore = sourceFileGrouping.GetExplicitArtifactsToRestore().ToImmutableHashSet();
-        if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(originalModulesToRestore), forceArtifactRestore))
+        var artifactResolutionInfoList = sourceFileGrouping.GetExplicitArtifactsToRestore(forceArtifactRestore);
+        var explicitArtifactReferencesToRestore = moduleDispatcher.GetValidArtifactReferences(artifactResolutionInfoList);
+        var originalArtifactReferencesToRestore = sourceFileGrouping.GetImplicitArtifactsToRestore().Concat(explicitArtifactReferencesToRestore);
+        if (await moduleDispatcher.RestoreArtifacts(originalArtifactReferencesToRestore, forceArtifactRestore))
         {
-            // modules had to be restored - recompile
+            // artifacts had to be restored - recompile
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(featureProviderFactory, moduleDispatcher, ConfigurationManager, workspace, sourceFileGrouping);
         }
 
-        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceArtifactRestore);
+        return GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, artifactResolutionInfoList.ToImmutableHashSet(), forceArtifactRestore);
     }
 
     private Compilation Create(SourceFileGrouping sourceFileGrouping)

@@ -80,7 +80,7 @@ namespace Bicep.LanguageServer.Handlers
                 .Distinct();
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging
-            var artifactReferencesToRestore = this.moduleDispatcher.GetValidModuleReferences(artifactsToRestore)
+            var artifactReferencesToRestore = this.moduleDispatcher.GetValidArtifactReferences(artifactsToRestore)
                 .Distinct()
                 .OrderBy(key => key.FullyQualifiedReference);
 
@@ -90,7 +90,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await this.moduleDispatcher.RestoreModules(artifactReferencesToRestore, forceRestore: true);
+            await this.moduleDispatcher.RestoreArtifacts(artifactReferencesToRestore, forceRestore: true);
 
             // if all are marked as success
             var sbRestoreSummary = new StringBuilder();

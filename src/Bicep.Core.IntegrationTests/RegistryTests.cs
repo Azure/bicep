@@ -185,7 +185,7 @@ namespace Bicep.Core.IntegrationTests
             var tasks = new List<Task<bool>>();
             for (int i = 0; i < ConcurrentTasks; i++)
             {
-                tasks.Add(Task.Run(() => dispatcher.RestoreModules(moduleReferences, forceRestore: false)));
+                tasks.Add(Task.Run(() => dispatcher.RestoreArtifacts(moduleReferences, forceRestore: false)));
             }
 
             var result = await Task.WhenAll(tasks);
@@ -255,7 +255,7 @@ namespace Bicep.Core.IntegrationTests
             // let's try to restore a module while holding a lock
             using (@lock)
             {
-                (await dispatcher.RestoreModules(moduleReferences, forceRestore: false)).Should().BeTrue();
+                (await dispatcher.RestoreArtifacts(moduleReferences, forceRestore: false)).Should().BeTrue();
             }
 
             // the first module should have failed due to a timeout
@@ -326,7 +326,7 @@ namespace Bicep.Core.IntegrationTests
             // let's try to restore a module while holding a lock
             using (@lock)
             {
-                (await dispatcher.RestoreModules(moduleReferences, forceRestore: true)).Should().BeTrue();
+                (await dispatcher.RestoreArtifacts(moduleReferences, forceRestore: true)).Should().BeTrue();
             }
 
             // REF: FileLockTests.cs/FileLockShouldNotThrowIfLockFileIsDeleted()
@@ -396,7 +396,7 @@ namespace Bicep.Core.IntegrationTests
             var moduleDirectory = Path.GetDirectoryName(moduleFilePath)!;
             Directory.CreateDirectory(moduleDirectory);
 
-            (await dispatcher.RestoreModules(moduleReferences, forceRestore: true)).Should().BeTrue();
+            (await dispatcher.RestoreArtifacts(moduleReferences, forceRestore: true)).Should().BeTrue();
 
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences)
