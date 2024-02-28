@@ -68,6 +68,18 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
+        "providers": {
+          "az": {
+            "builtIn": true
+          },
+          "kubernetes": {
+            "builtIn": true
+          },
+          "microsoftGraph": {
+            "builtIn": true
+          }
+        },
+        "implicitProviders": ["az"],
         "analyzers": {
           "core": {
             "verbose": false,
@@ -180,6 +192,20 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
+        "providers": {
+            "az": {
+                "builtIn": true
+            },
+            "kubernetes": {
+                "builtIn": true
+            },
+            "microsoftGraph": {
+                "builtIn": true
+            }
+        },
+        "implicitProviders": [
+            "az"
+        ],
         "analyzers": {},
         "experimentalFeaturesEnabled": {
           "symbolicNameCodegen": false,
@@ -254,6 +280,20 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
+        "providers": {
+            "az": {
+                "builtIn": true
+            },
+            "kubernetes": {
+                "builtIn": true
+            },
+            "microsoftGraph": {
+                "builtIn": true
+            }
+        },
+        "implicitProviders": [
+            "az"
+        ],
         "analyzers": {
           "core": {
             "verbose": false,
@@ -596,40 +636,39 @@ namespace Bicep.Core.UnitTests.Configuration
               }
             }
           },
-          "analyzers": {
-            "core": {
-              "enabled": false,
-              "rules": {
-                "no-hardcoded-env-urls": {
-                  "level": "warning",
-                  "disallowedhosts": [
-                    "datalake.azure.net",
-                    "azuredatalakestore.net",
-                    "azuredatalakeanalytics.net",
-                    "vault.azure.net",
-                    "api.loganalytics.io",
-                    "asazure.windows.net",
-                    "region.asazure.windows.net",
-                    "batch.core.windows.net"
-                  ]
-                }
-              }
+        "analyzers": {
+        "core": {
+            "enabled": false,
+            "rules": {
+            "no-hardcoded-env-urls": {
+                "level": "warning",
+                "disallowedhosts": [
+                "datalake.azure.net",
+                "azuredatalakestore.net",
+                "azuredatalakeanalytics.net",
+                "vault.azure.net",
+                "api.loganalytics.io",
+                "asazure.windows.net",
+                "region.asazure.windows.net",
+                "batch.core.windows.net"
+                ]
             }
-          },
-          "cacheRootDirectory": "/home/username/.bicep/cache",
-          "experimentalFeaturesEnabled": {
-            "extensibility": true
-          },
-          "formatting": {
-            "indentKind": "Space",
-            "newlineKind": "LF",
-            "insertFinalNewline": true,
-            "indentSize": 2,
-            "width": 80
-          }
+            }
         }
-        """
-            });
+        },
+        "cacheRootDirectory": "/home/username/.bicep/cache",
+        "experimentalFeaturesEnabled": {
+        "extensibility": true
+        },
+        "formatting": {
+        "indentKind": "Space",
+        "newlineKind": "LF",
+        "insertFinalNewline": true,
+        "indentSize": 2,
+        "width": 80
+        }
+    }
+    """});
 
             // Act.
             var sut = new ConfigurationManager(fileSystem);
@@ -698,6 +737,20 @@ namespace Bicep.Core.UnitTests.Configuration
             }
           }
         },
+        "providers": {
+            "az": {
+                "builtIn": true
+            },
+            "kubernetes": {
+                "builtIn": true
+            },
+            "microsoftGraph": {
+                "builtIn": true
+            }
+        },
+        "implicitProviders": [
+            "az"
+        ],
         "analyzers": {
           "core": {
             "verbose": false,

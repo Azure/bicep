@@ -40,6 +40,18 @@
       }
     }
   },
+  "providers": {
+    "az": {
+      "builtIn": true
+    },
+    "kubernetes": {
+      "builtIn": true
+    },
+    "microsoftGraph": {
+      "builtIn": true
+    }
+  },
+  "implicitProviders": ["az"],
   "analyzers": {
     "core": {
       "verbose": false,

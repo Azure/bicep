@@ -43,7 +43,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
         BicepSourceFileKind sourceFileKind)
     {
         // If we don't have a types path, we're loading a 'built-in' type
-        if (descriptor.TypesBaseUri is null &&
+        if (descriptor.IsBuiltIn &&
             builtInNamespaceLookup.TryGetValue(descriptor.Name) is { } getProviderFn)
         {
             return new(getProviderFn(descriptor, resourceScope, features, sourceFileKind));
@@ -52,24 +52,24 @@ public class DefaultNamespaceProvider : INamespaceProvider
         // Special-case the 'az' provider being loaded from registry - we need add-on functionality delivered via the namespace provider
         if (descriptor.Name == AzNamespaceType.BuiltInName)
         {
-            if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+            if (resourceTypeLoaderFactory.GetResourceTypeProvider(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
                 return new(AzNamespaceType.Create(descriptor.Alias, resourceScope, dynamicallyLoadedProvider, sourceFileKind));
             }
 
-            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}");
+            Trace.WriteLine($"Failed to load types from {descriptor.TypesTgzUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}");
             return new(errorBuilder);
         }
 
         // If the feature is enabled, try to load a third-party provider
         if (features.ProviderRegistryEnabled)
         {
-            if (resourceTypeLoaderFactory.GetResourceTypeProviderFromFilePath(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
+            if (resourceTypeLoaderFactory.GetResourceTypeProvider(descriptor).IsSuccess(out var dynamicallyLoadedProvider, out var errorBuilder))
             {
                 return new(ThirdPartyNamespaceType.Create(descriptor.Name, descriptor.Alias, dynamicallyLoadedProvider));
             }
 
-            Trace.WriteLine($"Failed to load types from {descriptor.TypesBaseUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}");
+            Trace.WriteLine($"Failed to load types from {descriptor.TypesTgzUri}: {errorBuilder(DiagnosticBuilder.ForDocumentStart()).Message}");
             return new(errorBuilder);
         }
 

@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -26,8 +25,7 @@ namespace Bicep.Core.Semantics
             IArtifactFileLookup sourceFileLookup,
             ISemanticModelLookup modelLookup,
             BicepSourceFile sourceFile,
-            ISymbolContext symbolContext,
-            IArtifactReferenceFactory artifactReferenceFactory)
+            ISymbolContext symbolContext)
         {
             // TODO use lazy or some other pattern for init
             this.bicepFile = sourceFile;
@@ -39,8 +37,7 @@ namespace Bicep.Core.Semantics
                 modelLookup,
                 TargetScope,
                 sourceFile,
-                symbolContext,
-                artifactReferenceFactory);
+                symbolContext);
             this.NamespaceResolver = NamespaceResolver.Create(features, namespaceProvider, sourceFile, this.TargetScope, fileScope);
             this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, NamespaceResolver, fileScope);
             this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);

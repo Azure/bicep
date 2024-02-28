@@ -5700,7 +5700,7 @@ param foo2 string[]
                 }
                 """));
 
-        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
     }
 
     // https://github.com/Azure/bicep/issues/13250

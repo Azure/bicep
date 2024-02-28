@@ -50,26 +50,26 @@ namespace Bicep.LanguageServer.Handlers
             var declarations = new List<SyntaxBase>
             {
                 new ParameterDeclarationSyntax(
-                    new SyntaxBase[] {
+                    [
                         SyntaxFactory.CreateDecorator("secure"),
                         SyntaxFactory.NewlineToken,
-                    },
+                    ],
                     SyntaxFactory.ParameterKeywordToken,
                     SyntaxFactory.CreateIdentifierWithTrailingSpace("kubeConfig"),
                     new VariableAccessSyntax(new(SyntaxFactory.CreateIdentifierToken("string"))),
                     null),
 
                 new ProviderDeclarationSyntax(
-                    Enumerable.Empty<SyntaxBase>(),
+                    [],
                     SyntaxFactory.ProviderKeywordToken,
-                    SyntaxFactory.CreateStringLiteral($"{K8sNamespaceType.BuiltInName}@{K8sNamespaceType.BuiltInVersion}"),
+                    SyntaxFactory.CreateStringLiteralWithTextSpan($"'{K8sNamespaceType.BuiltInName}@{K8sNamespaceType.BuiltInVersion}'"),
                     new ProviderWithClauseSyntax(
                         SyntaxFactory.CreateToken(TokenType.WithKeyword),
-                        SyntaxFactory.CreateObject(new[]
-                        {
+                        SyntaxFactory.CreateObject(
+                        [
                             SyntaxFactory.CreateObjectProperty("namespace", SyntaxFactory.CreateStringLiteral("default")),
                             SyntaxFactory.CreateObjectProperty("kubeConfig", SyntaxFactory.CreateIdentifier("kubeConfig"))
-                        })),
+                        ])),
                     asClause: SyntaxFactory.EmptySkippedTrivia)
             };
 

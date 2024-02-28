@@ -4,12 +4,10 @@ using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
@@ -29,7 +27,15 @@ namespace Bicep.Core.Semantics
 
         private readonly Stack<ScopeInfo> activeScopes = new();
 
-        private DeclarationVisitor(INamespaceProvider namespaceProvider, IFeatureProvider features, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, ISymbolContext context, IList<ScopeInfo> localScopes, BicepSourceFileKind sourceFileKind, IArtifactReferenceFactory factory)
+        private DeclarationVisitor(
+            INamespaceProvider namespaceProvider,
+            IFeatureProvider features,
+            IArtifactFileLookup sourceFileLookup,
+            ISemanticModelLookup modelLookup,
+            ResourceScope targetScope,
+            ISymbolContext context,
+            IList<ScopeInfo> localScopes,
+            BicepSourceFileKind sourceFileKind)
         {
             this.namespaceProvider = namespaceProvider;
             this.features = features;
@@ -42,11 +48,26 @@ namespace Bicep.Core.Semantics
         }
 
         // Returns the list of top level declarations as well as top level scopes.
-        public static LocalScope GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, IArtifactFileLookup sourceFileLookup, ISemanticModelLookup modelLookup, ResourceScope targetScope, BicepSourceFile sourceFile, ISymbolContext symbolContext, IArtifactReferenceFactory factory)
+        public static LocalScope GetDeclarations(
+            INamespaceProvider namespaceProvider,
+            IFeatureProvider features,
+            IArtifactFileLookup sourceFileLookup,
+            ISemanticModelLookup modelLookup,
+            ResourceScope targetScope,
+            BicepSourceFile sourceFile,
+            ISymbolContext symbolContext)
         {
             // collect declarations
             var localScopes = new List<ScopeInfo>();
-            var declarationVisitor = new DeclarationVisitor(namespaceProvider, features, sourceFileLookup, modelLookup, targetScope, symbolContext, localScopes, sourceFile.FileKind, factory);
+            var declarationVisitor = new DeclarationVisitor(
+                namespaceProvider,
+                features,
+                sourceFileLookup,
+                modelLookup,
+                targetScope,
+                symbolContext,
+                localScopes,
+                sourceFile.FileKind);
             declarationVisitor.Visit(sourceFile.ProgramSyntax);
 
             return MakeImmutable(localScopes.Single());
@@ -55,7 +76,13 @@ namespace Bicep.Core.Semantics
         public override void VisitProgramSyntax(ProgramSyntax syntax)
         {
             // create new scope without any descendants
-            var scope = new LocalScope(string.Empty, syntax, syntax, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty, ScopeResolution.GlobalsOnly);
+            var scope = new LocalScope(
+                string.Empty,
+                syntax,
+                syntax,
+                ImmutableArray<DeclaredSymbol>.Empty,
+                ImmutableArray<LocalScope>.Empty,
+                ScopeResolution.GlobalsOnly);
             this.PushScope(scope);
 
             base.VisitProgramSyntax(syntax);
@@ -184,31 +211,15 @@ namespace Bicep.Core.Semantics
             }
 
             // Check if the MSGraph provider is recognized and enabled
-            if (syntax.Specification.Name == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled)
+            if (syntax.Specification.NamespaceIdentifier == MicrosoftGraphNamespaceType.BuiltInName && !features.MicrosoftGraphPreviewEnabled)
             {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.NamespaceIdentifier));
             }
 
-            // Check if the Az provider is recognized and enabled
-            if (syntax.Specification.Name == AzNamespaceType.BuiltInName && !features.DynamicTypeLoadingEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.Name));
-            }
-
-            Uri? typesBaseUri = null;
-            if (syntax.Path is not null &&
-                !this.artifactFileLookup.TryGetResourceTypesFileUri(syntax).IsSuccess(out typesBaseUri, out var errorBuilder))
+            if (!this.artifactFileLookup.TryGetProviderDescriptor(syntax).IsSuccess(out var providerDescriptor, out var errorBuilder))
             {
                 return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
             }
-
-            ResourceTypesProviderDescriptor providerDescriptor = new(
-                syntax.Specification.Name,
-                syntax.Specification.Version,
-                isImplicitImport: false,
-                syntax.Alias?.IdentifierName,
-                syntax.Specification.BicepRegistryAddress,
-                typesBaseUri);
 
             if (!namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind).IsSuccess(out var namespaceType, out errorBuilder))
             {

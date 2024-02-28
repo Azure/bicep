@@ -31,7 +31,7 @@ public static class SourceCodeDocumentLinkHelper
     {
         var dictionary = new Dictionary<Uri, SourceCodeDocumentUriLink[]>();
 
-        foreach (var sourceAndDictPair in sourceFileGrouping.FileUriResultByArtifactReference)
+        foreach (var sourceAndDictPair in sourceFileGrouping.FileUriResultByBicepSourceFileByArtifactReferenceSyntax)
         {
             ISourceFile referencingFile = sourceAndDictPair.Key;
             IDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>> referenceSyntaxToUri = sourceAndDictPair.Value;

@@ -57,8 +57,13 @@ param foo: string
     }
 
     [TestMethod]
-    public async Task Test_Issue13254()
+    public async Task Test_Issue13254() // https://github.com/Azure/bicep/issues/13254
     {
+        // This test exercises the following scenario:
+        // * The user authors a file that references a module sourced from a registry
+        // * The module is re-published with different contents. The module cache (on disk) is not aware of this change
+        // * The user forces a module restore to fetch the latest contents
+
         var clientFactory = RegistryHelper.CreateMockRegistryClient("mockregistry.io", "test/foo");
         async Task publish(string source)
             => await RegistryHelper.PublishModuleToRegistry(
@@ -97,6 +102,7 @@ param foo = 'abc'
         // the published module now has the correct type
         await publish("param foo string");
 
+        await publish("param foo string");
         await helper.Client.Workspace.ExecuteCommand(new Command
         {
             Name = "forceModulesRestore",

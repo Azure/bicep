@@ -24,6 +24,14 @@ namespace Bicep.Core.UnitTests.Assertions
                 result.Compilation);
         }
 
+        public static CompilationResult ExcludingDiagnostics(this CompilationResult result, params string[] codes)
+        {
+            return new CompilationResult(
+                result.Template,
+                result.Diagnostics.Where(d => !codes.Contains(d.Code)),
+                result.Compilation);
+        }
+
         public static CompilationResult WithFilteredDiagnostics(this CompilationResult result, Func<IDiagnostic, bool> filterFunc)
         {
             return new CompilationResult(

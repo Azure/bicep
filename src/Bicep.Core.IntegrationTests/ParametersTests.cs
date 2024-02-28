@@ -166,15 +166,15 @@ output id string = p.id
         [TestMethod]
         public void Parameter_cannot_use_extensibility_resource_type()
         {
-            var result = CompilationHelper.Compile(ServicesWithExtensibility, @"
-provider 'bar@1.0.0' with {
-  connectionString: 'asdf'
-} as stg
+            var result = CompilationHelper.Compile(ServicesWithExtensibility, """
+            provider 'bar@1.0.0' with {
+            connectionString: 'asdf'
+            } as stg
 
-param container resource 'stg:container'
-output name string = container.name // silence unused params warning
-");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+            param container resource 'stg:container'
+            output name string = container.name // silence unused params warning
+            """);
+            result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[]
             {
                 ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"container\" is not valid."),

@@ -3,6 +3,7 @@
 using System.Collections.Immutable;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Resources;
@@ -10,6 +11,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -184,7 +186,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             if (parameter.ParameterType == typeof(ProviderDeclarationSyntax))
             {
                 return new ProviderDeclarationSyntax(
-                    Enumerable.Empty<SyntaxBase>(),
+                    [],
                     SyntaxFactory.ImportKeywordToken,
                     SyntaxFactory.CreateStringLiteralWithTextSpan("kubernetes@1.0.0"),
                     withClause: SyntaxFactory.EmptySkippedTrivia,
@@ -204,6 +206,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
             if (parameter.ParameterType == typeof(ArtifactType))
             {
                 return ArtifactType.Module;
+            }
+
+            if (parameter.ParameterType == typeof(LegacyProviderSpecification))
+            {
+                return new LegacyProviderSpecification("mock", "1.0.0", true, TextSpan.Nil);
             }
 
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");
