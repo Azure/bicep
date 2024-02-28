@@ -1,4 +1,4 @@
-type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
+type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
 //@[00:04) Identifier |type|
 //@[05:08) Identifier |foo|
 //@[09:10) Assignment |=|
@@ -6,7 +6,9 @@ type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
 //@[19:20) LeftChevron |<|
 //@[20:66) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
 //@[66:67) RightChevron |>|
-//@[67:69) NewLine |\n\n|
+//@[67:68) Dot |.|
+//@[68:72) Identifier |name|
+//@[72:74) NewLine |\n\n|
 
 type test = {
 //@[00:04) Identifier |type|
@@ -14,15 +16,17 @@ type test = {
 //@[10:11) Assignment |=|
 //@[12:13) LeftBrace |{|
 //@[13:14) NewLine |\n|
-  resA: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
+  resA: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
 //@[02:06) Identifier |resA|
 //@[06:07) Colon |:|
 //@[08:16) Identifier |resource|
 //@[16:17) LeftChevron |<|
 //@[17:63) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
 //@[63:64) RightChevron |>|
-//@[64:65) NewLine |\n|
-  resB: sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
+//@[64:65) Dot |.|
+//@[65:69) Identifier |name|
+//@[69:70) NewLine |\n|
+  resB: sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
 //@[02:06) Identifier |resB|
 //@[06:07) Colon |:|
 //@[08:11) Identifier |sys|
@@ -31,7 +35,9 @@ type test = {
 //@[20:21) LeftChevron |<|
 //@[21:67) StringComplete |'Microsoft.Storage/storageAccounts@2022-09-01'|
 //@[67:68) RightChevron |>|
-//@[68:69) NewLine |\n|
+//@[68:69) Dot |.|
+//@[69:73) Identifier |name|
+//@[73:74) NewLine |\n|
   resC: sys.array
 //@[02:06) Identifier |resC|
 //@[06:07) Colon |:|
@@ -39,7 +45,7 @@ type test = {
 //@[11:12) Dot |.|
 //@[12:17) Identifier |array|
 //@[17:18) NewLine |\n|
-  resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>
+  resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
 //@[02:06) Identifier |resD|
 //@[06:07) Colon |:|
 //@[08:11) Identifier |sys|
@@ -48,7 +54,9 @@ type test = {
 //@[20:21) LeftChevron |<|
 //@[21:70) StringComplete |'az:Microsoft.Storage/storageAccounts@2022-09-01'|
 //@[70:71) RightChevron |>|
-//@[71:72) NewLine |\n|
+//@[71:72) Dot |.|
+//@[72:76) Identifier |name|
+//@[76:77) NewLine |\n|
 }
 //@[00:01) RightBrace |}|
 //@[01:03) NewLine |\n\n|
@@ -70,25 +78,31 @@ type strangeFormattings = {
 //@[02:53) StringComplete |'Astronomer.Astro/organizations@2023-08-01-preview'|
 //@[53:55) NewLine |\n\n|
 
->
+>.name
 //@[00:01) RightChevron |>|
-//@[01:02) NewLine |\n|
-  test2: resource    <'Microsoft.Storage/storageAccounts@2023-01-01'>
+//@[01:02) Dot |.|
+//@[02:06) Identifier |name|
+//@[06:07) NewLine |\n|
+  test2: resource    <'Microsoft.Storage/storageAccounts@2023-01-01'>.name
 //@[02:07) Identifier |test2|
 //@[07:08) Colon |:|
 //@[09:17) Identifier |resource|
 //@[21:22) LeftChevron |<|
 //@[22:68) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
 //@[68:69) RightChevron |>|
-//@[69:70) NewLine |\n|
-  test3: resource</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>
+//@[69:70) Dot |.|
+//@[70:74) Identifier |name|
+//@[74:75) NewLine |\n|
+  test3: resource</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>.name
 //@[02:07) Identifier |test3|
 //@[07:08) Colon |:|
 //@[09:17) Identifier |resource|
 //@[17:18) LeftChevron |<|
 //@[26:72) StringComplete |'Microsoft.Storage/storageAccounts@2023-01-01'|
 //@[81:82) RightChevron |>|
-//@[82:83) NewLine |\n|
+//@[82:83) Dot |.|
+//@[83:87) Identifier |name|
+//@[87:88) NewLine |\n|
 }
 //@[00:01) RightBrace |}|
 //@[01:03) NewLine |\n\n|
@@ -112,48 +126,39 @@ type test2 = resource<
 //@[05:56) StringComplete |'Astronomer.Astro/organizations@2023-08-01-preview'|
 //@[56:58) NewLine |\n\n|
 
->
+>.name
 //@[00:01) RightChevron |>|
-//@[01:03) NewLine |\n\n|
+//@[01:02) Dot |.|
+//@[02:06) Identifier |name|
+//@[06:08) NewLine |\n\n|
 
-param bar resource<'Microsoft.Resources/tags@2022-09-01'> = {
+param bar resource<'Microsoft.Resources/tags@2022-09-01'>.properties = {
 //@[00:05) Identifier |param|
 //@[06:09) Identifier |bar|
 //@[10:18) Identifier |resource|
 //@[18:19) LeftChevron |<|
 //@[19:56) StringComplete |'Microsoft.Resources/tags@2022-09-01'|
 //@[56:57) RightChevron |>|
-//@[58:59) Assignment |=|
-//@[60:61) LeftBrace |{|
-//@[61:62) NewLine |\n|
-  name: 'default'
-//@[02:06) Identifier |name|
+//@[57:58) Dot |.|
+//@[58:68) Identifier |properties|
+//@[69:70) Assignment |=|
+//@[71:72) LeftBrace |{|
+//@[72:73) NewLine |\n|
+  tags: {
+//@[02:06) Identifier |tags|
 //@[06:07) Colon |:|
-//@[08:17) StringComplete |'default'|
-//@[17:18) NewLine |\n|
-  properties: {
-//@[02:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:16) NewLine |\n|
-    tags: {
-//@[04:08) Identifier |tags|
+//@[08:09) LeftBrace |{|
+//@[09:10) NewLine |\n|
+    fizz: 'buzz'
+//@[04:08) Identifier |fizz|
 //@[08:09) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
-      fizz: 'buzz'
-//@[06:10) Identifier |fizz|
-//@[10:11) Colon |:|
-//@[12:18) StringComplete |'buzz'|
-//@[18:19) NewLine |\n|
-      snap: 'crackle'
-//@[06:10) Identifier |snap|
-//@[10:11) Colon |:|
-//@[12:21) StringComplete |'crackle'|
-//@[21:22) NewLine |\n|
-    }
-//@[04:05) RightBrace |}|
-//@[05:06) NewLine |\n|
+//@[10:16) StringComplete |'buzz'|
+//@[16:17) NewLine |\n|
+    snap: 'crackle'
+//@[04:08) Identifier |snap|
+//@[08:09) Colon |:|
+//@[10:19) StringComplete |'crackle'|
+//@[19:20) NewLine |\n|
   }
 //@[02:03) RightBrace |}|
 //@[03:04) NewLine |\n|
@@ -161,29 +166,18 @@ param bar resource<'Microsoft.Resources/tags@2022-09-01'> = {
 //@[00:01) RightBrace |}|
 //@[01:03) NewLine |\n\n|
 
-output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'> = {
+output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'>.name = 'myId'
 //@[00:06) Identifier |output|
 //@[07:10) Identifier |baz|
 //@[11:19) Identifier |resource|
 //@[19:20) LeftChevron |<|
 //@[20:81) StringComplete |'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'|
 //@[81:82) RightChevron |>|
-//@[83:84) Assignment |=|
-//@[85:86) LeftBrace |{|
-//@[86:87) NewLine |\n|
-  name: 'myId'
-//@[02:06) Identifier |name|
-//@[06:07) Colon |:|
-//@[08:14) StringComplete |'myId'|
-//@[14:15) NewLine |\n|
-  location: 'eastus'
-//@[02:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:20) StringComplete |'eastus'|
-//@[20:21) NewLine |\n|
-}
-//@[00:01) RightBrace |}|
-//@[01:03) NewLine |\n\n|
+//@[82:83) Dot |.|
+//@[83:87) Identifier |name|
+//@[88:89) Assignment |=|
+//@[90:96) StringComplete |'myId'|
+//@[96:98) NewLine |\n\n|
 
 type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
 //@[00:04) Identifier |type|
