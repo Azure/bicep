@@ -30,5 +30,7 @@
       "version": "lts",
       "nodeGypDependencies": true
     }
-  }
+  },
+  "runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined", "--privileged" ],
+  "postAttachCommand": "sudo bash -c \"echo 0 > /proc/sys/kernel/yama/ptrace_scope\""
 }
