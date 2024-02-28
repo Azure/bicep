@@ -185,7 +185,7 @@ namespace Bicep.Cli.IntegrationTests
             string digest = client.Manifests.Single().Key;
 
             var bicep = $@"
-module empty 'br:{registry}/{repository}@{digest}' = {{
+module empty 'br:{registry}/{repository}@{digest}' = {{ //asdfgasdfg
   name: 'empty'
 }}
 ";
@@ -583,7 +583,7 @@ module empty 'br:{registry}/{repository}@{moduleDigest}' = {{
             var result = await Bicep(settings, "restore", baselineFolder.EntryFile.OutputFilePath);
 
             result.Should().Fail().And.NotHaveStdout();
-            result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure.");
+            result.Stderr.Should().Contain("main.bicepparam(1,7) : Error BCP192: Unable to restore the artifact with reference \"br:mockregistry.io/parameters/basic:v1\": Mock registry request failure."); //asdfgasdfg
         }
 
         private static IEnumerable<object[]> GetAllDataSetsWithPublishSource()

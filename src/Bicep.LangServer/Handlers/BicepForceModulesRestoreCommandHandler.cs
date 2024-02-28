@@ -69,8 +69,8 @@ namespace Bicep.LanguageServer.Handlers
             var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(force: true);
 
             var artifactUris = sourceFileGrouping
-                .FileUriResultByArtifactReference.SelectMany(x => x.Value)
-                .Select(x => x.Value.TryUnwrap())
+                .ArtifactResolutionPerFileBySyntax.SelectMany(x => x.Value)
+                .Select(x => x.Value.TryUnwrap()?.Uri)
                 .WhereNotNull()
                 .Distinct();
 
@@ -84,7 +84,7 @@ namespace Bicep.LanguageServer.Handlers
                 return $"Restore (force) skipped. No modules references in input file.";
             }
 
-            // restore is supposed to only restore the module references that are syntactically valid
+            // restore will only restore the module references that are syntactically valid
             await this.moduleDispatcher.RestoreModules(artifactReferencesToRestore, forceRestore: true);
 
             // if all are marked as success

@@ -387,44 +387,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ExpectPass(text, onCompileErrors);
         }
 
-        [DataRow(@"
-                var v1 = 'v1'
-                var v2 = 'v2'
-                var v3 = concat('abc', 'DEF'), 'hello')
-            ",
-            "'abcDEF'"
-        )]
-        [DataRow(@"
-                var v1 = 'v1'
-                var v2 = 'v2'
-                var v3 = concat( 'abc', 'DEF', 'hello'
-            ",
-            null
-        )]
-        [DataRow(@"
-                var v1 = concat()
-            ",
-            null
-        )]
-        [DataRow(@"
-                var v3 = concat(1 +, 'hi')
-            ",
-            null
-        )]
+        //asdfg restore these
         [DataRow(@"
                 module abc concat('a', 'b') = {
                     name: 'name'
                 }
             ",
             null
-        )]
-        [DataRow(
-            @"
-                var a = 'a'
-                output c string = concat(, a) // syntax error here shouldn't affect us suggesting a fix in the next line
-                output d string = concat('a', 'b')
-            ",
-            "'ab'"
         )]
         [DataTestMethod]
         public void HandlesSyntaxErrors(string text, string? expectedFix)

@@ -70,14 +70,18 @@ namespace Bicep.Core.Registry.Oci
         public override bool IsExternal => true;
 
         // unqualifiedReference is the reference without a scheme or alias, e.g. "example.azurecr.invalid/foo/bar:v3"
-        public static ResultWithDiagnostic<OciArtifactReference> TryParseModule(string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
+        // The configuration and parentModuleUri are needed to resolve aliases and experimental features  asdfg can we get rid of parentModuleUri?
+        public static ResultWithDiagnostic<OciArtifactReference> TryParseModuleAndAlias(string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
             => TryParse(ArtifactType.Module, aliasName, unqualifiedReference, configuration, parentModuleUri);
 
-        public static ResultWithDiagnostic<OciArtifactReference> TryParse(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration configuration, Uri parentModuleUri)
+        public static ResultWithDiagnostic<OciArtifactReference> TryParseModule(string unqualifiedReference)
+            => TryParse(ArtifactType.Module, null, unqualifiedReference, null, null);
+
+        public static ResultWithDiagnostic<OciArtifactReference> TryParse(ArtifactType type, string? aliasName, string unqualifiedReference, RootConfiguration? configuration, Uri? parentModuleUri)
         {
             if (TryParseParts(type, aliasName, unqualifiedReference, configuration).IsSuccess(out var parts, out var errorBuilder))
             {
-                return new(new OciArtifactReference(type, parts.Registry, parts.Repository, parts.Tag, parts.Digest, parentModuleUri));
+                return new(new OciArtifactReference(type, parts.Registry, parts.Repository, parts.Tag, parts.Digest, parentModuleUri ?? new Uri("file:///no-parent-file-is-available.bicep")));
             }
             else
             {

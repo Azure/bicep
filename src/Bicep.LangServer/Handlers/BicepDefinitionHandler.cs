@@ -191,7 +191,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             //TODO(#12811): set defaultToDisplayingBicep back to default of true when removing experimental flag for publishing source
-            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(ociReference, moduleDispatcher?.TryGetModuleSources(reference).TryUnwrap(), defaultToDisplayingBicep: false);
+            return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(ociReference, moduleDispatcher?.TryGetModuleSources(reference).TryUnwrap(), defaultToDisplayingBicep: true);
         }
 
         private LocationOrLocationLinks HandleWildcardImportDeclaration(CompilationContext context, DefinitionParams request, SymbolResolutionResult result, WildcardImportSymbol wildcardImport)

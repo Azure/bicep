@@ -4,6 +4,7 @@
 using Bicep.Core.FileSystem;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Workspaces;
+using static Bicep.Core.SourceCode.SourceArchive;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -41,13 +42,24 @@ namespace Bicep.Core.UnitTests.Utils
 
         public SourceArchive Build()
         {
-            var stream = SourceArchive.PackSourcesIntoStream(
+            var stream = BuildStream();
+            return SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
+        }
+
+        public Stream BuildStream()
+        {
+            return SourceArchive.PackSourcesIntoStream(
                 entrypointUri,
                 cacheRoot,
-                new Core.Workspaces.ISourceFile[] {
-                    SourceFileFactory.CreateBicepFile(entrypointUri, entrypointBicepContents)});
+                new SourceFileWithArtifactReference[] {
+                    new SourceFileWithArtifactReference(
+                        SourceFileFactory.CreateBicepFile(entrypointUri, entrypointBicepContents),
+                    null)});
+        }
 
-            return SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
+        public BinaryData BuildBinaryData()
+        {
+            return BinaryData.FromStream(BuildStream());
         }
     }
 }

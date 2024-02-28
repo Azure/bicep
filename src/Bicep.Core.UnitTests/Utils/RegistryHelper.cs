@@ -35,7 +35,7 @@ public static class RegistryHelper
         return containerRegistryFactoryBuilder.Build();
     }
 
-    public static async Task PublishModuleToRegistry(IContainerRegistryClientFactory clientFactory, string moduleName, string target, string moduleSource, bool publishSource, string? documentationUri = null)
+    public static async Task PublishModuleToRegistry(IContainerRegistryClientFactory clientFactory, string moduleName, string target, string moduleSource, bool publishSource, string? documentationUri = null) //asdfgasdfg
     {
         var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: publishSource));
         var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
@@ -54,7 +54,7 @@ public static class RegistryHelper
         }
 
         var features = featureProviderFactory.GetFeatureProvider(result.BicepFile.FileUri);
-        BinaryData? sourcesStream = publishSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
+        BinaryData? sourcesStream = publishSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(dispatcher, result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
         await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, documentationUri);
     }
 

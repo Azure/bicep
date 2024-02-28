@@ -302,7 +302,7 @@ namespace Bicep.Cli.IntegrationTests
             var publishedBicepFilePath = Path.Combine(tempDirectory, "published.bicep");
             File.WriteAllText(publishedBicepFilePath, string.Empty);
 
-            var (publishOutput, publishError, publishResult) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1");
+            var (publishOutput, publishError, publishResult) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1"); //asdfgasdfg
             using (new AssertionScope())
             {
                 publishResult.Should().Be(0);
@@ -317,7 +317,7 @@ namespace Bicep.Cli.IntegrationTests
             string digest = client.ModuleManifestObjects.Single().Key;
 
             var bicep = $$"""
-module empty 'br:{{registry}}/{{repository}}@{{digest}}' = {
+module empty 'br:{{registry}}/{{repository}}@{{digest}}' = { //asdfgasdfg
     name: 'empty'
 }
 """;

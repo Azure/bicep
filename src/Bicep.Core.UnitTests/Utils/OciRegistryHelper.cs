@@ -19,20 +19,29 @@ namespace Bicep.Core.UnitTests.Utils
     public static class OciRegistryHelper
     {
         public static OciArtifactReference CreateModuleReferenceMock(string registry, string repository, Uri parentModuleUri, string? digest, string? tag)
-            => new(ArtifactType.Module, registry, repository, tag, digest, parentModuleUri);
+            => new (ArtifactType.Module, registry, repository, tag, digest, parentModuleUri);
 
 
-        public static OciArtifactReference CreateModuleReference(string registry, string repository, string? tag, string? digest)
+        public static OciArtifactReference CreateModuleReference(string moduleId /* with or without br: */, Uri? parentModuleUri = null)
         {
-            var rawValue = $"{registry}/{repository}" + (tag is null ? $"@{digest}" : $":{tag}");
+            if (moduleId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
+            {
+                moduleId = moduleId.Substring(OciArtifactReferenceFacts.SchemeWithColon.Length);
+            }
+
             OciArtifactReference.TryParse(
                 ArtifactType.Module,
                 null,
-                rawValue,
+                moduleId,
                 BicepTestConstants.BuiltInConfiguration,
-                new Uri("file:///main.bicep"))
+                parentModuleUri ?? new Uri("file:///main.bicep"))
                     .IsSuccess(out var moduleReference).Should().BeTrue();
             return moduleReference!;
+        }
+
+        public static OciArtifactReference CreateModuleReference(string registry, string repository, string? tag, string? digest, Uri? parentModuleUri = null)
+        {
+            return CreateModuleReference($"{registry}/{repository}" + (tag is null ? $"@{digest}" : $":{tag}"), parentModuleUri);
         }
 
         public static void SaveManifestFileToModuleRegistryCache(

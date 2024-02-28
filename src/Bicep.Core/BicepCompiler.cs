@@ -109,9 +109,8 @@ public class BicepCompiler
         static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, IArtifactReferenceSyntax moduleDeclaration)
             => grouping.TryGetSourceFile(moduleDeclaration).IsSuccess(out _, out var errorBuilder) ? null : errorBuilder(DiagnosticBuilder.ForPosition(moduleDeclaration.SourceSyntax));
 
-        static IEnumerable<(BicepSourceFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ArtifactResolutionInfo> originalArtifactsToRestore)
+        static IEnumerable<(BicepSourceFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ArtifactResolutionInfo> originalModulesToRestore)
         {
-            var originalModulesToRestore = originalArtifactsToRestore.OfType<ArtifactResolutionInfo>();
             foreach (var (module, sourceFile) in originalModulesToRestore)
             {
                 if (sourceFile is BicepSourceFile bicepFile &&

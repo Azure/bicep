@@ -251,7 +251,7 @@ namespace Bicep.Core.Registry
             // as the user is typing, the modules will keep getting recompiled
             // we can't keep retrying syntactically correct references to non-existent modules on every key press
             // absolute expiration here will ensure that the next retry is delayed until the specified interval passes
-            // we're not not doing sliding expiration because we want a retry to happen eventually
+            // we're not doing sliding expiration because we want a retry to happen eventually
             // (we may consider adding an ability to immediately retry to the UX in the future as well)
             var expiration = DateTime.UtcNow.Add(FailureExpirationInterval);
             this.restoreFailures.TryAdd(new(configuration.Cloud, reference), new RestoreFailureInfo(reference, failureBuilder, expiration));

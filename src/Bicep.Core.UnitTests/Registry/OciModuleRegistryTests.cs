@@ -9,7 +9,6 @@ using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -308,7 +307,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataTestMethod]
         public void GetDescription_WithInvalidManifestContents_ShouldReturnNull(string manifestFileContents)
         {
-            (OciArtifactRegistry OciArtifactRegistry, OciArtifactReference OciArtifactReference) = CreateModuleRegistryWithCachedModuleReference(
+            (OciArtifactRegistry OciArtifactRegistry, OciArtifactReference OciArtifactReference) = CreateModuleRegistryWithCachedModuleReference(//asdfgasdfg
                 "output myOutput string = 'hello!'",
                 manifestFileContents,
                 "test.azurecr.io",
@@ -662,8 +661,9 @@ namespace Bicep.Core.UnitTests.Registry
             if (publishSource)
             {
                 var uri = new Uri("file://path/to/bicep.bicep", UriKind.Absolute);
-                var stream = SourceArchive.PackSourcesIntoStream(uri, cacheRoot: null, new ISourceFile[] { SourceFileFactory.CreateBicepFile(uri, "// contents") });
-                sources = BinaryData.FromStream(stream);
+                sources = new SourceArchiveBuilder()
+                    .WithEntrypointFile(uri, "// contents")
+                    .BuildBinaryData();
             }
 
             await ociRegistry.PublishModule(moduleReference, template, sources, "http://documentation", "description");

@@ -126,7 +126,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var configuration = IConfigurationManager.GetBuiltInConfiguration();
             var parentModuleLocalPath = "/foo/main.bicep";
             var parentModuleUri = new Uri($"file://{parentModuleLocalPath}");
-            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, parentModuleUri).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParseModuleAndAlias(null, UnqualifiedModuleRefStr, configuration, parentModuleUri).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -162,7 +162,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var configuration = IConfigurationManager.GetBuiltInConfiguration();
             var parentModuleLocalPath = "/main.bicep";
             var parentModuleUri = new Uri($"file://{parentModuleLocalPath}");
-            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, parentModuleUri).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParseModuleAndAlias(null, UnqualifiedModuleRefStr, configuration, parentModuleUri).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -201,7 +201,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
             var configuration = IConfigurationManager.GetBuiltInConfiguration();
-            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParseModuleAndAlias(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -242,7 +242,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var configuration = ConfigurationManager.GetConfiguration(compiledJsonUri);
 
-            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParseModuleAndAlias(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -291,7 +291,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var configuration = ConfigurationManager.GetConfiguration(compiledJsonUri);
 
-            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParseModuleAndAlias(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -301,9 +301,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = PathHelper.FilePathToFileUrl(Root("foo/bar/entrypoint.bicep"));
-            var sourceArchive = SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(bicepUri, cacheRoot: null, new Core.Workspaces.ISourceFile[] {
-                        SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
-            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
+            var sourceArchive = new SourceArchiveBuilder().WithEntrypointFile(bicepUri, bicepSource).Build();
+            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new ResultWithException<SourceArchive>(sourceArchive ));
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
@@ -343,7 +342,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var configuration = ConfigurationManager.GetConfiguration(compiledJsonUri);
 
-            OciArtifactReference.TryParseModule(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
+            OciArtifactReference.TryParseModuleAndAlias(null, UnqualifiedModuleRefStr, configuration, compiledJsonUri).IsSuccess(out var moduleReference).Should().BeTrue();
             moduleReference.Should().NotBeNull();
 
             ArtifactReference? outRef = moduleReference;
@@ -353,9 +352,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var bicepSource = "metadata hi = 'This is the bicep source file'";
             var bicepUri = PathHelper.FilePathToFileUrl(Root("foo/bar/entrypoint.bicep"));
-            var sourceArchive = SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(bicepUri, cacheRoot: null, new Core.Workspaces.ISourceFile[] {
-                        SourceFileFactory.CreateBicepFile(bicepUri, bicepSource)}));
-            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(sourceArchive);
+            var sourceArchive = new SourceArchiveBuilder().WithEntrypointFile(bicepUri, bicepSource).Build();
+            dispatcher.Setup(m => m.TryGetModuleSources(moduleReference!)).Returns(new ResultWithException<SourceArchive>(sourceArchive));
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(compiledJsonUri)).Returns(ResultHelper.Create(compiledJsonContents, nullBuilder));
@@ -498,12 +496,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new Uri("file:///parent.bicep", UriKind.Absolute));
 
             SourceArchive? sourceArchive = entrypointUri is { } ?
-                SourceArchive.UnpackFromStream(SourceArchive.PackSourcesIntoStream(
-                    entrypointUri,
-                    cacheRoot: null,
-                    new ISourceFile[] {
-                                SourceFileFactory.CreateBicepFile(entrypointUri, "metadata description = 'bicep module'")
-                    })).TryUnwrap()
+                new SourceArchiveBuilder().WithEntrypointFile(entrypointUri, "metadata description = 'bicep module'").Build()
                 : null;
 
             return BicepExternalSourceRequestHandler.GetExternalSourceLinkUri(reference, sourceArchive, defaultToDisplayingBicep);

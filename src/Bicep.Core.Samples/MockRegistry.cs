@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Baselines;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -31,7 +32,7 @@ public class MockRegistry
         var index = registryFiles.First(x => x.StreamPath == "Files/mockregistry/index.json").Contents.FromJson<MockRegistryIndex>();
 
         var modules = new Dictionary<string, DataSet.ExternalModuleInfo>();
-        foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith("br:")))
+        foreach (var (registryPath, filePath) in index.modules.Where(x => x.Key.StartsWith(OciArtifactReferenceFacts.SchemeWithColon)))
         {
             var sourceFile = registryFiles.First(x => x.StreamPath == $"Files/mockregistry/{filePath}");
 
