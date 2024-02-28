@@ -867,15 +867,15 @@ param myParam string
     {
         var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             """
-            type myType = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
+            type myType = resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
             """);
 
         result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
             {
                 "myType": {
-                    "type": "object",
+                    "type": "string",
                     "metadata": {
-                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01"
+                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
                     }
                 }
             }
@@ -888,15 +888,15 @@ param myParam string
         var result = CompilationHelper.Compile(new UnitTests.ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
             """
             var resource = 'foo'
-            type myType = sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
+            type myType = sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
             """);
 
         result.Template.Should().HaveValueAtPath("definitions", JToken.Parse($$"""
             {
                 "myType": {
-                    "type": "object",
+                    "type": "string",
                     "metadata": {
-                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01"
+                        "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
                     }
                 }
             }
@@ -1534,5 +1534,20 @@ param myParam string
               }
             }
             """));
+    }
+
+    [TestMethod]
+    public void Using_a_complete_resource_body_as_a_type_should_not_throw_exception()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            ("main.bicep", """
+                param subnets resource<'Microsoft.Network/virtualNetworks/subnets@2023-09-01'>[]
+                """));
+
+        result.Template.Should().BeNull();
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+            ("BCP394", DiagnosticLevel.Error, "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted."),
+        });
     }
 }
