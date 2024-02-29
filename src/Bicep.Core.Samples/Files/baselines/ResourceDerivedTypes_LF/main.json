@@ -6,38 +6,38 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2731586199777586135"
+      "templateHash": "14278942243521340475"
     }
   },
   "definitions": {
     "foo": {
-      "type": "object",
+      "type": "string",
       "metadata": {
-        "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+        "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
       }
     },
     "test": {
       "type": "object",
       "properties": {
         "resA": {
-          "type": "object",
+          "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
           }
         },
         "resB": {
-          "type": "object",
+          "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01"
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
           }
         },
         "resC": {
           "type": "array"
         },
         "resD": {
-          "type": "object",
+          "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01"
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
           }
         }
       }
@@ -46,29 +46,29 @@
       "type": "object",
       "properties": {
         "test": {
-          "type": "object",
+          "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview"
+            "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview#properties/name"
           }
         },
         "test2": {
-          "type": "object",
+          "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
           }
         },
         "test3": {
-          "type": "object",
+          "type": "string",
           "metadata": {
-            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
           }
         }
       }
     },
     "test2": {
-      "type": "object",
+      "type": "string",
       "metadata": {
-        "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview",
+        "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview#properties/name",
         "description": "I love space(s)"
       }
     },
@@ -95,15 +95,12 @@
     "bar": {
       "type": "object",
       "metadata": {
-        "__bicep_resource_derived_type!": "Microsoft.Resources/tags@2022-09-01"
+        "__bicep_resource_derived_type!": "Microsoft.Resources/tags@2022-09-01#properties/properties"
       },
       "defaultValue": {
-        "name": "default",
-        "properties": {
-          "tags": {
-            "fizz": "buzz",
-            "snap": "crackle"
-          }
+        "tags": {
+          "fizz": "buzz",
+          "snap": "crackle"
         }
       }
     }
@@ -111,14 +108,11 @@
   "resources": {},
   "outputs": {
     "baz": {
-      "type": "object",
+      "type": "string",
       "metadata": {
-        "__bicep_resource_derived_type!": "Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31"
+        "__bicep_resource_derived_type!": "Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31#properties/name"
       },
-      "value": {
-        "name": "myId",
-        "location": "eastus"
-      }
+      "value": "myId"
     }
   }
 }
