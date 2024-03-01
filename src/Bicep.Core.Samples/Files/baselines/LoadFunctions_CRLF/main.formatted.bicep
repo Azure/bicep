@@ -22,10 +22,16 @@ var loadedBinaryInObject = {
   file: loadFileAsBase64('Assets/binary')
 }
 
-var loadedTextArray = [loadTextContent('Assets/TextFile.LF.txt'), loadFileAsBase64('Assets/binary')]
+var loadedTextArray = [
+  loadTextContent('Assets/TextFile.LF.txt')
+  loadFileAsBase64('Assets/binary')
+]
 
 var loadedTextArrayInObject = {
-  'files': [loadTextContent('Assets/TextFile.CRLF.txt'), loadFileAsBase64('Assets/binary')]
+  'files': [
+    loadTextContent('Assets/TextFile.CRLF.txt')
+    loadFileAsBase64('Assets/binary')
+  ]
 }
 
 var loadedTextArrayInObjectFunctions = {

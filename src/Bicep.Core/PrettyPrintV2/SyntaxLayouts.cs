@@ -33,7 +33,11 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Children,
                 syntax.CloseBracket,
                 separator: LineOrCommaSpace,
-                padding: LineOrEmpty);
+                padding: LineOrEmpty,
+                forceBreak:
+                    // If the array contains a newline before the first property, always break the the object.
+                    StartsWithNewline(syntax.Children) &&
+                    syntax.Items.Any());
 
         private IEnumerable<Document> LayoutArrayTypeSyntax(ArrayTypeSyntax syntax) =>
             this.Glue(

@@ -6,9 +6,9 @@ var w38 = [true, /* xxxxx */ true, 12]      // suffix
 var w39 = [true, true
 //@[04:07) Variable w39. Type: [true, true, true, true, 123]. Declaration start char: 0, length: 42
     true, true, 123]
-var w40 =[
-//@[04:07) Variable w40. Type: [true, true, 1234]. Declaration start char: 0, length: 43
-    true, true, 1234/* xxxxx */]  // suffix
+var w40 =[true
+//@[04:07) Variable w40. Type: [true, true, 1234]. Declaration start char: 0, length: 41
+    true, 1234/* xxxxx */]  // suffix
 var w41 =[ true, true, true, true, 12345 ]
 //@[04:07) Variable w41. Type: [true, true, true, true, 12345]. Declaration start char: 0, length: 42
 var w42 =[true, /* xxx */ 12 /* xx */, 1]
@@ -57,9 +57,8 @@ var w42___ = true ? 'xxxxxxx':'xxxxxxxx'
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// Baselines for width 80 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-var w78 = [
-//@[04:07) Variable w78. Type: [true, object, 'xxxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 84
-    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
+var w78 = [true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
+//@[04:07) Variable w78. Type: [true, object, 'xxxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 79
 var w79 = [true
 //@[04:07) Variable w79. Type: [true, object, 'xxxxxxxxxxxxxxxxxx']. Declaration start char: 0, length: 85
     { /* xxxx */ foo: 'object width: 38' }
@@ -76,9 +75,9 @@ var w78_ ={ foo: 123, /* xxxx */ baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxx'] }
 //@[04:08) Variable w78_. Type: object. Declaration start char: 0, length: 77
 var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
 //@[04:08) Variable w79_. Type: object. Declaration start char: 0, length: 68
-var w80_ = { foo: 123, bar: true, baz: [
-//@[04:08) Variable w80_. Type: object. Declaration start char: 0, length: 85
-    'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx'] } // suffix
+var w80_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx'
+//@[04:08) Variable w80_. Type: object. Declaration start char: 0, length: 79
+'xxxxxxxxxxxxxxxxxxxx'] } // suffix
 var w81_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxxx'] }
 //@[04:08) Variable w81_. Type: object. Declaration start char: 0, length: 81
 var w82_ = { foo: 123, bar: true, baz: ['array length: 41', 'xxxxxxxxxxxxxxxxx'] }
@@ -115,6 +114,10 @@ var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 12345678
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+var forceBreak0 = [
+//@[04:15) Variable forceBreak0. Type: [1]. Declaration start char: 0, length: 25
+  1 ]
+
 var forceBreak1 = {
 //@[04:15) Variable forceBreak1. Type: object. Declaration start char: 0, length: 35
     foo: true
@@ -170,5 +173,4 @@ var forceBreak14 = true ? {
 var forceBreak15 = true ? { foo: 0 } : {
 //@[04:16) Variable forceBreak15. Type: object | object. Declaration start char: 0, length: 52
     bar: 1}
-
 

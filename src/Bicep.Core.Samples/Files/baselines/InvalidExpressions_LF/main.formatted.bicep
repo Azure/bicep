@@ -79,7 +79,9 @@ var nestedTernary = null ? 1 : 2 ? true ? 'a' : 'b' : false ? 'd' : 15
 var nestedTernary = (null ? 1 : 2) ? (true ? 'a' : 'b') : (false ? 'd' : 15)
 
 // bad array access
-var errorInsideArrayAccess = [!null][!0]
+var errorInsideArrayAccess = [
+  !null
+][!0]
 var integerIndexOnNonArray = (null)[0]
 var stringIndexOnNonObject = 'test'['test']
 var malformedStringIndex = {
@@ -148,9 +150,16 @@ var sampleObject = {
   myNull: null
   myInner: {
     anotherStr: 'a'
-    otherArr: ['s', 'a']
+    otherArr: [
+      's'
+      'a'
+    ]
   }
-  myArr: [1, 2, 3]
+  myArr: [
+    1
+    2
+    3
+  ]
 }
 
 var badProperty = sampleObject.myFake

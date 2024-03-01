@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "213441293532098572"
+      "templateHash": "5286759569488172146"
     }
   },
   "variables": {
@@ -150,6 +150,9 @@
     "w80___": "[if(true(), createObject('foo', true(), 'bar', false()), createArray(123, 234, 456, createObject('xyz', 'xxxx')))]",
     "w81___": "[if(true(), 1234567890, 1234567890)]",
     "w82___": "[if(true(), 1234567890, 1234567890)]",
+    "forceBreak0": [
+      1
+    ],
     "forceBreak1": {
       "foo": true
     },

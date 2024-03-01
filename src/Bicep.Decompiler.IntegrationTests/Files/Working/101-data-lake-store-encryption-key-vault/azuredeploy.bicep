@@ -62,6 +62,8 @@ module updateAdlsAccount './nested_updateAdlsAccount.bicep' = {
     keyName: keyName
     keyVersion: keyVersion
   }
-  dependsOn: [addAccessPolicy]
+  dependsOn: [
+    addAccessPolicy
+  ]
 }
 

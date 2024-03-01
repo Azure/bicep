@@ -16,11 +16,11 @@ var w39 = [true, true
 //@      true,
 //@      true,
 //@      123
-var w40 =[
+var w40 =[true
 //@    "w40": [
-//@    ],
-    true, true, 1234/* xxxxx */]  // suffix
 //@      true,
+//@    ],
+    true, 1234/* xxxxx */]  // suffix
 //@      true,
 //@      1234
 var w41 =[ true, true, true, true, 12345 ]
@@ -96,15 +96,14 @@ var w42___ = true ? 'xxxxxxx':'xxxxxxxx'
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// Baselines for width 80 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-var w78 = [
+var w78 = [true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
 //@    "w78": [
-//@    ],
-    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
 //@      true,
 //@      {
 //@        "foo": "object width: 37"
 //@      },
 //@      "xxxxxxxxxxxxxxxxxxx"
+//@    ],
 var w79 = [true
 //@    "w79": [
 //@      true,
@@ -155,15 +154,15 @@ var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
 //@        "xxxxxxxx"
 //@      ]
 //@    },
-var w80_ = { foo: 123, bar: true, baz: [
+var w80_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx'
 //@    "w80_": {
 //@      "foo": 123,
 //@      "bar": true,
 //@      "baz": [
+//@        "xxxxxxxxxxx",
 //@      ]
 //@    },
-    'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx'] } // suffix
-//@        "xxxxxxxxxxx",
+'xxxxxxxxxxxxxxxxxxxx'] } // suffix
 //@        "xxxxxxxxxxxxxxxxxxxx"
 var w81_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxxx'] }
 //@    "w81_": {
@@ -215,6 +214,12 @@ var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 12345678
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+var forceBreak0 = [
+//@    "forceBreak0": [
+//@    ],
+  1 ]
+//@      1
+
 var forceBreak1 = {
 //@    "forceBreak1": {
 //@    },
@@ -309,5 +314,4 @@ var forceBreak14 = true ? {
 var forceBreak15 = true ? { foo: 0 } : {
 //@    "forceBreak15": "[if(true(), createObject('foo', 0), createObject('bar', 1))]"
     bar: 1}
-
 

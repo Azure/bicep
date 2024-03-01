@@ -227,7 +227,9 @@ var notRuntime = concat('a', 'b')
 var evenMoreIndirection = concat(notRuntime, string(moreIndirection))
 var moreIndirection = reference('s', 's', 'Full')
 
-var myRef = [evenMoreIndirection]
+var myRef = [
+  evenMoreIndirection
+]
 var runtimeLoop5 = [for (item, index) in myRef: 's']
 
 // cannot use loops in expressions
@@ -246,8 +248,12 @@ var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
 var keyVaultSecretObjectVar = {
   secret: kv.getSecret('mySecret')
 }
-var keyVaultSecretArrayVar = [kv.getSecret('mySecret')]
-var keyVaultSecretArrayInterpolatedVar = ['${kv.getSecret('mySecret')}']
+var keyVaultSecretArrayVar = [
+  kv.getSecret('mySecret')
+]
+var keyVaultSecretArrayInterpolatedVar = [
+  '${kv.getSecret('mySecret')}'
+]
 
 var listSecrets = ''
 var listSecretsVar = listSecrets()

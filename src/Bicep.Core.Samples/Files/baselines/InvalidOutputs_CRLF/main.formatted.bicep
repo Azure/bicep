@@ -107,7 +107,9 @@ output notAttachableDecorators int = 32
 // nested loops inside output loops are not supported
 output noNestedLoops array = [
   for thing in things: {
-    something: [[for thing in things: true]]
+    something: [
+      [for thing in things: true]
+    ]
   }
 ]
 
@@ -133,8 +135,12 @@ output keyVaultSecretInterpolatedOutput string = '${kv.getSecret('mySecret')}'
 output keyVaultSecretObjectOutput object = {
   secret: kv.getSecret('mySecret')
 }
-output keyVaultSecretArrayOutput array = [kv.getSecret('mySecret')]
-output keyVaultSecretArrayInterpolatedOutput array = ['${kv.getSecret('mySecret')}']
+output keyVaultSecretArrayOutput array = [
+  kv.getSecret('mySecret')
+]
+output keyVaultSecretArrayInterpolatedOutput array = [
+  '${kv.getSecret('mySecret')}'
+]
 
 // WARNING!!!!! dangling decorators
 

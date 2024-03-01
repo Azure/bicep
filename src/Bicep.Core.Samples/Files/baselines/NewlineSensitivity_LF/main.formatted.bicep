@@ -12,7 +12,10 @@ var nestedTest = concat(concat(concat(concat(concat('level', 'one'), 'two'), 'th
 var singleLineArray = ['abc', 'def']
 var singleLineArrayTrailingCommas = ['abc', 'def']
 
-var multiLineArray = ['abc', 'def']
+var multiLineArray = [
+  'abc'
+  'def'
+]
 
 var mixedArray = ['abc', 'def', 'ghi', 'jkl', 'lmn']
 
@@ -25,7 +28,14 @@ var multiLineObject = {
 var mixedObject = { abc: 'abc', def: 'def', ghi: 'ghi', jkl: 'jkl', lmn: 'lmn' }
 
 var nestedMixed = {
-  abc: { 'def': 'ghi', abc: 'def', foo: ['bar', 'blah'] }
+  abc: {
+    'def': 'ghi'
+    abc: 'def'
+    foo: [
+      'bar'
+      'blah'
+    ]
+  }
 }
 
 var brokenFormatting = [/*foo */ 'bar' /*

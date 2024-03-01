@@ -44,7 +44,10 @@ param foo object = {
     'string item'
     12
     true
-    ['inner', false]
+    [
+      'inner'
+      false
+    ]
     {
       a: 'b'
     }
@@ -52,7 +55,11 @@ param foo object = {
 }
 
 // array default value
-param myArrayParam array = ['a', 'b', 'c']
+param myArrayParam array = [
+  'a'
+  'b'
+  'c'
+]
 
 // secure string
 @secure()
@@ -63,10 +70,21 @@ param password string
 param secretObject object
 
 // enum parameter
-@allowed(['Standard_LRS', 'Standard_GRS'])
+@allowed(
+  [
+    'Standard_LRS'
+    'Standard_GRS'
+  ]
+)
 param storageSku string
 
-@allowed([1, 2, 3])
+@allowed(
+  [
+    1
+    2
+    3
+  ]
+)
 param intEnum int
 
 // length constraint on a string
@@ -112,7 +130,13 @@ param additionalMetadata string
 @secure()
 @minLength(3)
 @maxLength(24)
-@allowed(['one', 'two', 'three'])
+@allowed(
+  [
+    'one'
+    'two'
+    'three'
+  ]
+)
 @metadata(
   {
     description: 'Name of the storage account'
@@ -122,16 +146,32 @@ param someParameter string
 
 param defaultExpression bool = 18 != (true || false)
 
-@allowed(['abc', 'def'])
+@allowed(
+  [
+    'abc'
+    'def'
+  ]
+)
 param stringLiteral string
 
-@allowed(['abc', 'def', 'ghi'])
+@allowed(
+  [
+    'abc'
+    'def'
+    'ghi'
+  ]
+)
 param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 
 @secure()
 @minLength(2)
 @maxLength(10)
-@allowed(['Apple', 'Banana'])
+@allowed(
+  [
+    'Apple'
+    'Banana'
+  ]
+)
 param decoratedString string
 
 @minValue(100)
@@ -147,7 +187,11 @@ param negativeValues int
   {
     description: 'I will be overrode.'
     foo: 'something'
-    bar: [{}, true, 123]
+    bar: [
+      {}
+      true
+      123
+    ]
   }
 )
 param decoratedBool bool = /* comment1 */ /* comment2*/ /* comment3 */ /* comment4 */ (true && false) != true
@@ -165,7 +209,10 @@ param decoratedObject object = {
     'string item'
     12
     true
-    ['inner', false]
+    [
+      'inner'
+      false
+    ]
     {
       a: 'b'
     }
@@ -179,4 +226,7 @@ param decoratedObject object = {
 )
 @sys.maxLength(20)
 @sys.description('An array.')
-param decoratedArray array = [utcNow(), newGuid()]
+param decoratedArray array = [
+  utcNow()
+  newGuid()
+]

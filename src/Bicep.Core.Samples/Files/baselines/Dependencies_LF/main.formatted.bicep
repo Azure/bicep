@@ -1,11 +1,20 @@
 param deployTimeParam string = 'steve'
 var deployTimeVar = 'nigel'
 var dependentVar = {
-  dependencies: [deployTimeVar, deployTimeParam]
+  dependencies: [
+    deployTimeVar
+    deployTimeParam
+  ]
 }
 
 var resourceDependency = {
-  dependenciesA: [resA.id, resA.name, resA.type, resA.properties.deployTime, resA.properties.eTag]
+  dependenciesA: [
+    resA.id
+    resA.name
+    resA.type
+    resA.properties.deployTime
+    resA.properties.eTag
+  ]
 }
 
 output resourceAType string = resA.type

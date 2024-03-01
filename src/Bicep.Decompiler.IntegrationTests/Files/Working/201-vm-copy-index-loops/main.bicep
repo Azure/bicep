@@ -7,14 +7,24 @@ param adminUsername string
 param numberOfInstances int = 4
 
 @description('OS Platform for the VM')
-@allowed(['Ubuntu', 'Windows'])
+@allowed(
+  [
+    'Ubuntu'
+    'Windows'
+  ]
+)
 param OS string = 'Ubuntu'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
 @description('Type of authentication to use on the Virtual Machine. SSH key is recommended.')
-@allowed(['sshPublicKey', 'password'])
+@allowed(
+  [
+    'sshPublicKey'
+    'password'
+  ]
+)
 param authenticationType string = 'sshPublicKey'
 
 @description('SSH Key or password for the Virtual Machine. SSH key is recommended.')
@@ -105,7 +115,9 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: [addressPrefix]
+      addressPrefixes: [
+        addressPrefix
+      ]
     }
     subnets: [
       {
@@ -147,7 +159,9 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [
         }
       ]
     }
-    dependsOn: [virtualNetwork]
+    dependsOn: [
+      virtualNetwork
+    ]
   }
 ]
 
@@ -183,8 +197,11 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [
         ]
       }
     }
-    dependsOn: [resourceId('Microsoft.Network/networkInterfaces', 'nic${i}'), availabilitySet]
-//@[16:76) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
+    dependsOn: [
+      resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')
+//@[06:66) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
+      availabilitySet
+    ]
   }
 ]
 

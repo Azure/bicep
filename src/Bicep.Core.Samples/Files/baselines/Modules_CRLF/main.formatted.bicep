@@ -86,7 +86,10 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep' =
     optionalObj: {}
     optionalArray: []
   }
-  dependsOn: [resWithDependencies, optionalWithAllParams]
+  dependsOn: [
+    resWithDependencies
+    optionalWithAllParams
+  ]
 }
 
 module optionalWithImplicitDependency './child/optionalParams.bicep' = {
@@ -157,7 +160,9 @@ module storageResourcesWithIndex 'modulea.bicep' = [
   for (module, i) in myModules: {
     name: module.name
     params: {
-      arrayParam: [i + 1]
+      arrayParam: [
+        i + 1
+      ]
       objParam: module
       stringParamB: module.location
       stringParamA: concat('a', i)

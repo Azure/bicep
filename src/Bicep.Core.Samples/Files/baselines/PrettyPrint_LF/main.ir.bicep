@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:4175) ProgramExpression
+//@[00:4188) ProgramExpression
 //////////////////////////// Baselines for width 40 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var w38 = [true, /* xxxxx */ true, 12]      // suffix
@@ -17,13 +17,13 @@ var w39 = [true, true
 //@[04:0008) |   ├─BooleanLiteralExpression { Value = True }
 //@[10:0014) |   ├─BooleanLiteralExpression { Value = True }
 //@[16:0019) |   └─IntegerLiteralExpression { Value = 123 }
-var w40 =[
-//@[00:0043) ├─DeclaredVariableExpression { Name = w40 }
-//@[09:0043) | └─ArrayExpression
-    true, true, 1234/* xxxxx */]  // suffix
-//@[04:0008) |   ├─BooleanLiteralExpression { Value = True }
+var w40 =[true
+//@[00:0041) ├─DeclaredVariableExpression { Name = w40 }
+//@[09:0041) | └─ArrayExpression
 //@[10:0014) |   ├─BooleanLiteralExpression { Value = True }
-//@[16:0020) |   └─IntegerLiteralExpression { Value = 1234 }
+    true, 1234/* xxxxx */]  // suffix
+//@[04:0008) |   ├─BooleanLiteralExpression { Value = True }
+//@[10:0014) |   └─IntegerLiteralExpression { Value = 1234 }
 var w41 =[ true, true, true, true, 12345 ]
 //@[00:0042) ├─DeclaredVariableExpression { Name = w41 }
 //@[09:0042) | └─ArrayExpression
@@ -151,16 +151,15 @@ var w42___ = true ? 'xxxxxxx':'xxxxxxxx'
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////// Baselines for width 80 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-var w78 = [
-//@[00:0084) ├─DeclaredVariableExpression { Name = w78 }
-//@[10:0084) | └─ArrayExpression
-    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
-//@[04:0008) |   ├─BooleanLiteralExpression { Value = True }
-//@[10:0047) |   ├─ObjectExpression
-//@[12:0035) |   | └─ObjectPropertyExpression
-//@[12:0015) |   |   ├─StringLiteralExpression { Value = foo }
-//@[17:0035) |   |   └─StringLiteralExpression { Value = object width: 37 }
-//@[49:0070) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxxx }
+var w78 = [true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
+//@[00:0079) ├─DeclaredVariableExpression { Name = w78 }
+//@[10:0079) | └─ArrayExpression
+//@[11:0015) |   ├─BooleanLiteralExpression { Value = True }
+//@[17:0054) |   ├─ObjectExpression
+//@[19:0042) |   | └─ObjectPropertyExpression
+//@[19:0022) |   |   ├─StringLiteralExpression { Value = foo }
+//@[24:0042) |   |   └─StringLiteralExpression { Value = object width: 37 }
+//@[56:0077) |   └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxxx }
 var w79 = [true
 //@[00:0085) ├─DeclaredVariableExpression { Name = w79 }
 //@[10:0085) | └─ArrayExpression
@@ -224,21 +223,21 @@ var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
 //@[39:0066) |     └─ArrayExpression
 //@[40:0053) |       ├─StringLiteralExpression { Value = xxxxxxxxxxx }
 //@[55:0065) |       └─StringLiteralExpression { Value = xxxxxxxx }
-var w80_ = { foo: 123, bar: true, baz: [
-//@[00:0085) ├─DeclaredVariableExpression { Name = w80_ }
-//@[11:0085) | └─ObjectExpression
+var w80_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx'
+//@[00:0079) ├─DeclaredVariableExpression { Name = w80_ }
+//@[11:0079) | └─ObjectExpression
 //@[13:0021) |   ├─ObjectPropertyExpression
 //@[13:0016) |   | ├─StringLiteralExpression { Value = foo }
 //@[18:0021) |   | └─IntegerLiteralExpression { Value = 123 }
 //@[23:0032) |   ├─ObjectPropertyExpression
 //@[23:0026) |   | ├─StringLiteralExpression { Value = bar }
 //@[28:0032) |   | └─BooleanLiteralExpression { Value = True }
-//@[34:0083) |   └─ObjectPropertyExpression
+//@[34:0077) |   └─ObjectPropertyExpression
 //@[34:0037) |     ├─StringLiteralExpression { Value = baz }
-//@[39:0083) |     └─ArrayExpression
-    'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx'] } // suffix
-//@[04:0017) |       ├─StringLiteralExpression { Value = xxxxxxxxxxx }
-//@[19:0041) |       └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxxxx }
+//@[39:0077) |     └─ArrayExpression
+//@[40:0053) |       ├─StringLiteralExpression { Value = xxxxxxxxxxx }
+'xxxxxxxxxxxxxxxxxxxx'] } // suffix
+//@[00:0022) |       └─StringLiteralExpression { Value = xxxxxxxxxxxxxxxxxxxx }
 var w81_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxxx'] }
 //@[00:0081) ├─DeclaredVariableExpression { Name = w81_ }
 //@[11:0081) | └─ObjectExpression
@@ -396,6 +395,12 @@ var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 12345678
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+var forceBreak0 = [
+//@[00:0025) ├─DeclaredVariableExpression { Name = forceBreak0 }
+//@[18:0025) | └─ArrayExpression
+  1 ]
+//@[02:0003) |   └─IntegerLiteralExpression { Value = 1 }
+
 var forceBreak1 = {
 //@[00:0035) ├─DeclaredVariableExpression { Name = forceBreak1 }
 //@[18:0035) | └─ObjectExpression
@@ -552,5 +557,4 @@ var forceBreak15 = true ? { foo: 0 } : {
 //@[04:0010)       └─ObjectPropertyExpression
 //@[04:0007)         ├─StringLiteralExpression { Value = bar }
 //@[09:0010)         └─IntegerLiteralExpression { Value = 1 }
-
 

@@ -114,7 +114,11 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   properties: {
     x: foo()
     y: true && (null || !4)
-    a: [a, !null, true && true || true + -true * 4]
+    a: [
+      a
+      !null
+      true && true || true + -true * 4
+    ]
   }
 }
 
@@ -151,7 +155,9 @@ resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-0
   properties: {
     resourceGuid: 'assigning-to-read-only-value'
     addressSpace: {
-      addressPrefixes: ['10.0.0.0/16']
+      addressPrefixes: [
+        '10.0.0.0/16'
+      ]
     }
     subnets: []
   }
@@ -159,12 +165,17 @@ resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-0
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-  dependsOn: [baz.id]
+  dependsOn: [
+    baz.id
+  ]
 }
 
 resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-  dependsOn: ['hello', true]
+  dependsOn: [
+    'hello'
+    true
+  ]
 }
 
 resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
@@ -173,7 +184,9 @@ resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-  dependsOn: [badDepends3]
+  dependsOn: [
+    badDepends3
+  ]
 }
 
 resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
@@ -1273,7 +1286,9 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
     name: 'vnet-${i}'
     properties: {
       subnets: premiumStorages
-      dependsOn: [premiumStorages]
+      dependsOn: [
+        premiumStorages
+      ]
     }
     dependsOn: []
   }
@@ -1421,7 +1436,11 @@ resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extension
 resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'anyTypeInDependsOn'
   location: resourceGroup().location
-  dependsOn: [any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion), 's', any(true)]
+  dependsOn: [
+    any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
+    's'
+    any(true)
+  ]
 }
 
 resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
@@ -1498,8 +1517,14 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
   sku: {}
   kind: 'V1'
   managedBy: 'string'
-  mangedByExtended: ['str1', 'str2']
-  zones: ['str1', 'str2']
+  mangedByExtended: [
+    'str1'
+    'str2'
+  ]
+  zones: [
+    'str1'
+    'str2'
+  ]
   plan: {}
   eTag: ''
   scale: {}
@@ -1519,11 +1544,19 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
     name: 'V1'
   }
   managedBy: {}
-  mangedByExtended: [{}, {}]
-  zones: [{}, {}]
+  mangedByExtended: [
+    {}
+    {}
+  ]
+  zones: [
+    {}
+    {}
+  ]
   plan: ''
   eTag: {}
-  scale: [{}]
+  scale: [
+    {}
+  ]
 }
 
 resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
@@ -1601,7 +1634,12 @@ resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-
 }
 
 @description('The language of the Deployment Script. AzurePowerShell or AzureCLI.')
-@allowed(['AzureCLI', 'AzurePowerShell'])
+@allowed(
+  [
+    'AzureCLI'
+    'AzurePowerShell'
+  ]
+)
 param issue4668_kind string = 'AzureCLI'
 @description('The identity that will be used to execute the Deployment Script.')
 param issue4668_identity object

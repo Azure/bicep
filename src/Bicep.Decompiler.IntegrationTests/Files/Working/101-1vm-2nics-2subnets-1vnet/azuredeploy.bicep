@@ -9,7 +9,12 @@ param adminUsername string
 param adminPassword string
 
 @description('Storage Account type for the VM and VM diagnostic storage')
-@allowed(['Standard_LRS', 'Premium_LRS'])
+@allowed(
+  [
+    'Standard_LRS'
+    'Premium_LRS'
+  ]
+)
 param storageAccountType string = 'Standard_LRS'
 
 @description('Location for all resources.')
@@ -102,7 +107,9 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
   location: location
   properties: {
     addressSpace: {
-      addressPrefixes: ['10.0.0.0/16']
+      addressPrefixes: [
+        '10.0.0.0/16'
+      ]
     }
     subnets: [
       {
@@ -166,7 +173,9 @@ resource nic1 'Microsoft.Network/networkInterfaces@2020-05-01' = {
       id: networkSecurityGroup.id
     }
   }
-  dependsOn: [virtualNetwork]
+  dependsOn: [
+    virtualNetwork
+  ]
 }
 
 resource nic2 'Microsoft.Network/networkInterfaces@2020-05-01' = {
@@ -185,7 +194,9 @@ resource nic2 'Microsoft.Network/networkInterfaces@2020-05-01' = {
       }
     ]
   }
-  dependsOn: [virtualNetwork]
+  dependsOn: [
+    virtualNetwork
+  ]
 }
 
 resource publicIpAddress 'Microsoft.Network/publicIPAddresses@2020-05-01' = {

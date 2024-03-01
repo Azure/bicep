@@ -6,7 +6,9 @@ param coalesceObjectToTest object = {
   object: {
     first: 'default'
   }
-  array: [1]
+  array: [
+    1
+  ]
 }
 param insensitiveToTest object = {
   left: 'value'

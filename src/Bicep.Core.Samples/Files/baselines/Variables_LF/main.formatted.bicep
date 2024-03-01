@@ -52,7 +52,9 @@ var myObj = {
     'a' =~ 'b'
   ]
   obj: {
-    nested: ['hello']
+    nested: [
+      'hello'
+    ]
   }
 }
 
@@ -64,7 +66,11 @@ var objWithInterp = {
 }
 
 // array
-var myArr = ['pirates', 'say', 'arr']
+var myArr = [
+  'pirates'
+  'say'
+  'arr'
+]
 
 // array with objects
 var myArrWithObjects = [
@@ -94,9 +100,16 @@ var namedPropertyIndexer = {
   foo: 's'
 }['foo']
 
-var intIndexer = ['s'][0]
+var intIndexer = [
+  's'
+][0]
 
-var functionOnIndexer1 = concat(['s'][0], 's')
+var functionOnIndexer1 = concat(
+  [
+    's'
+  ][0],
+  's'
+)
 
 var singleQuote = '\''
 var myPropertyName = '${singleQuote}foo${singleQuote}'
@@ -111,10 +124,26 @@ var previousEmitLimit = [
   {
     a: {
       b: base64('s')
-      c: concat([12 + 3], [!true, 'hello'])
+      c: concat(
+        [
+          12 + 3
+        ],
+        [
+          !true
+          'hello'
+        ]
+      )
       d: az.resourceGroup().location
-      e: concat([true])
-      f: concat(['s' == 12])
+      e: concat(
+        [
+          true
+        ]
+      )
+      f: concat(
+        [
+          's' == 12
+        ]
+      )
     }
   }
 ]
@@ -158,7 +187,12 @@ var previousEmitLimit3 = {
     b: {
       a: az.resourceGroup().location
     } == 2
-    c: concat([], [true])
+    c: concat(
+      [],
+      [
+        true
+      ]
+    )
   }
 }
 
@@ -262,7 +296,10 @@ var forceLineBreaks3 = [
   /* force line breaks */
 ]
 
-var loopInput = ['one', 'two']
+var loopInput = [
+  'one'
+  'two'
+]
 var arrayOfStringsViaLoop = [for (name, i) in loopInput: 'prefix-${i}-${name}']
 var arrayOfObjectsViaLoop = [
   for (name, i) in loopInput: {
@@ -271,7 +308,13 @@ var arrayOfObjectsViaLoop = [
     value: 'prefix-${i}-${name}-suffix'
   }
 ]
-var arrayOfArraysViaLoop = [for (name, i) in loopInput: [i, name, 'prefix-${i}-${name}-suffix']]
+var arrayOfArraysViaLoop = [
+  for (name, i) in loopInput: [
+    i
+    name
+    'prefix-${i}-${name}-suffix'
+  ]
+]
 var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
 var arrayOfHardCodedNumbers = [for i in range(0, 10): 3]
 var arrayOfHardCodedBools = [for i in range(0, 10): false]

@@ -18,11 +18,22 @@ param existingNSG string
 param RetentionDays int = 0
 
 @description('FlowLogs Version. Correct values are 1 or 2 (default)')
-@allowed(['1', '2'])
+@allowed(
+  [
+    '1'
+    '2'
+  ]
+)
 param FlowLogsversion string = '2'
 
 @description('Storage Account type')
-@allowed(['Standard_LRS', 'Standard_GRS', 'Standard_ZRS'])
+@allowed(
+  [
+    'Standard_LRS'
+    'Standard_GRS'
+    'Standard_ZRS'
+  ]
+)
 param storageAccountType string = 'Standard_LRS'
 
 var storageAccountName = 'flowlogs${uniqueString(resourceGroup().id)}'

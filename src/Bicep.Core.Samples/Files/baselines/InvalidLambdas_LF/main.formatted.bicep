@@ -46,7 +46,10 @@ var inObject = {
   a: i => i
 }
 
-var inArray = [i => i, j => j]
+var inArray = [
+  i => i
+  j => j
+]
 
 resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' = [
   for i in range(0, 2): {

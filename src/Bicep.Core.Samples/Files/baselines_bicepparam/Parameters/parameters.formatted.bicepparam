@@ -23,7 +23,12 @@ param secretObject = {
 }
 param storageSku = 'Standard_LRS'
 param storageName = 'myStorage'
-param someArray = ['a', 'b', 'c', 'd']
+param someArray = [
+  'a'
+  'b'
+  'c'
+  'd'
+]
 param emptyMetadata = 'empty!'
 param description = 'descriptive description'
 param description2 = 'also descriptive'

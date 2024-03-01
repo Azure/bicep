@@ -11,9 +11,14 @@ func objReturnType(name string) object => {
   hello: 'Hi ${name}!'
 }
 
-func arrayReturnType(name string) array => [name]
+func arrayReturnType(name string) array => [
+  name
+]
 
-func asdf(name string) array => ['asdf', name]
+func asdf(name string) array => [
+  'asdf'
+  name
+]
 
 @minValue(0)
 type positiveInt = int

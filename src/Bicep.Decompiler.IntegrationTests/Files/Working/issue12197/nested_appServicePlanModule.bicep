@@ -40,7 +40,13 @@ param language string
 param appServicePlanSKU string = 'D1'
 
 @description('AppService Plan Kind')
-@allowed(['windows', 'linux', 'windowscontainer'])
+@allowed(
+  [
+    'windows'
+    'linux'
+    'windowscontainer'
+  ]
+)
 param appServiceKind string = 'windows'
 
 resource asp_appServicePlan 'Microsoft.Web/serverfarms@2022-09-01' = {

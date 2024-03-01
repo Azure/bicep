@@ -78,7 +78,11 @@ module modANoInputs './modulea.bicep' = {
 }
 
 module modANoInputsWithCondition './modulea.bicep' =
-  if (length(['foo']) == 1) {
+  if (length(
+    [
+      'foo'
+    ]
+  ) == 1) {
     name: 'modANoInputs'
     // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
   }
@@ -371,7 +375,9 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [
   for (x, i) in emptyArray: {
     name: 'hello-${x}'
     params: {
-      arrayParam: [i]
+      arrayParam: [
+        i
+      ]
       objParam: {}
       stringParamA: 'test'
       stringParamB: 'test'
@@ -444,7 +450,9 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [
       arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
       objParam: {}
       stringParamB: ''
-      dependsOn: [nonexistentArrays]
+      dependsOn: [
+        nonexistentArrays
+      ]
     }
     dependsOn: []
   }
@@ -457,21 +465,27 @@ module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 
 module anyTypeInScope 'empty.bicep' = {
-  dependsOn: [any('s')]
+  dependsOn: [
+    any('s')
+  ]
 
   scope: any(42)
 }
 
 module anyTypeInScopeConditional 'empty.bicep' =
   if (false) {
-    dependsOn: [any('s')]
+    dependsOn: [
+      any('s')
+    ]
 
     scope: any(42)
   }
 
 module anyTypeInScopeLoop 'empty.bicep' = [
   for thing in []: {
-    dependsOn: [any('s')]
+    dependsOn: [
+      any('s')
+    ]
 
     scope: any(42)
   }
@@ -514,8 +528,14 @@ module issue3000 'empty.bicep' = {
   sku: {}
   kind: 'V1'
   managedBy: 'string'
-  mangedByExtended: ['str1', 'str2']
-  zones: ['str1', 'str2']
+  mangedByExtended: [
+    'str1'
+    'str2'
+  ]
+  zones: [
+    'str1'
+    'str2'
+  ]
   plan: {}
   eTag: ''
   scale: {}

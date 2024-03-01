@@ -40,7 +40,9 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [
     sku: {
       name: 'Standard_LRS'
     }
-    dependsOn: [singleResource]
+    dependsOn: [
+      singleResource
+    ]
   }
 ]
 
@@ -104,7 +106,9 @@ resource storageAccounts2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
     sku: {
       name: 'Standard_LRS'
     }
-    dependsOn: [storageAccounts]
+    dependsOn: [
+      storageAccounts
+    ]
   }
 ]
 
@@ -128,7 +132,9 @@ resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [
     sku: {
       name: 'Standard_LRS'
     }
-    dependsOn: [firstSet[iii]]
+    dependsOn: [
+      firstSet[iii]
+    ]
   }
 ]
 
@@ -140,7 +146,10 @@ resource anotherSingleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = 
   sku: {
     name: 'Standard_LRS'
   }
-  dependsOn: [secondSet, secondSet[0]]
+  dependsOn: [
+    secondSet
+    secondSet[0]
+  ]
 }
 
 // vnets
@@ -189,7 +198,9 @@ resource combinedDependencies 'Microsoft.Network/dnsZones@2018-05-01' = {
       }
     ]
   }
-  dependsOn: [vnets]
+  dependsOn: [
+    vnets
+  ]
 }
 
 // single module
@@ -200,7 +211,11 @@ module singleModule 'passthrough.bicep' = {
   }
 }
 
-var moduleSetup = ['one', 'two', 'three']
+var moduleSetup = [
+  'one'
+  'two'
+  'three'
+]
 
 // module collection plus explicit dependency on single module
 @sys.batchSize(3)
@@ -210,7 +225,10 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [
     params: {
       myInput: 'in-${moduleName}-${moduleIndex}'
     }
-    dependsOn: [singleModule, singleResource]
+    dependsOn: [
+      singleModule
+      singleResource
+    ]
   }
 ]
 
@@ -221,7 +239,10 @@ module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [
     params: {
       myInput: 'in-${moduleName}-${moduleIndex}'
     }
-    dependsOn: [storageAccounts, moduleCollectionWithSingleDependency]
+    dependsOn: [
+      storageAccounts
+      moduleCollectionWithSingleDependency
+    ]
   }
 ]
 
@@ -233,7 +254,9 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
       storageAccounts[index * 3].properties.accessTier
     )
   }
-  dependsOn: [storageAccounts2[index - 10]]
+  dependsOn: [
+    storageAccounts2[index - 10]
+  ]
 }
 
 module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [
@@ -242,7 +265,9 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [
     params: {
       myInput: '${moduleCollectionWithCollectionDependencies[index].outputs.myOutput} - ${storageAccounts[index * 3].properties.accessTier} - ${moduleName} - ${moduleIndex}'
     }
-    dependsOn: [storageAccounts2[index - 9]]
+    dependsOn: [
+      storageAccounts2[index - 9]
+    ]
   }
 ]
 
@@ -275,11 +300,16 @@ resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [
   for (zone, i) in []: {
     name: 'no loop variable 2'
     location: 'eastus'
-    dependsOn: [duplicatedNames[index]]
+    dependsOn: [
+      duplicatedNames[index]
+    ]
   }
 ]
 
-var regions = ['eastus', 'westus']
+var regions = [
+  'eastus'
+  'westus'
+]
 
 module apim 'passthrough.bicep' = [
   for (region, i) in regions: {

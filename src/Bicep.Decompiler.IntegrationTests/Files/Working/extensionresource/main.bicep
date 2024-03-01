@@ -22,7 +22,9 @@ resource site 'Microsoft.Web/sites@2020-06-01' = {
   properties: {
     serverFarmId: hostingPlanName
   }
-  dependsOn: [hostingPlan]
+  dependsOn: [
+    hostingPlan
+  ]
 }
 
 resource siteLock 'Microsoft.Authorization/locks@2016-09-01' = {

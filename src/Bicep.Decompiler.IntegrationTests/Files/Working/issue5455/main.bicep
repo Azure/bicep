@@ -11,11 +11,21 @@ param createManagedPrivateEndpoint bool
 param defaultAdlsGen2AccountResourceId string = ''
 param allowAllConnections bool = true
 
-@allowed(['default', ''])
+@allowed(
+  [
+    'default'
+    ''
+  ]
+)
 param managedVirtualNetwork string
 param tagValues object = {}
 
-@allowed(['Enabled', 'Disabled'])
+@allowed(
+  [
+    'Enabled'
+    'Disabled'
+  ]
+)
 param publicNetworkAccess string
 param storageSubscriptionID string = subscription().subscriptionId
 param storageResourceGroupName string = resourceGroup().name
@@ -63,7 +73,10 @@ resource name_resource 'Microsoft.Synapse/workspaces@2021-06-01' = {
     sqlAdministratorLoginPassword: sqlAdministratorLoginPassword
   }
   tags: tagValues
-  dependsOn: [defaultDataLakeStorageAccount, defaultDataLakeStorageFilesystem]
+  dependsOn: [
+    defaultDataLakeStorageAccount
+    defaultDataLakeStorageFilesystem
+  ]
 }
 
 resource name_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' =
@@ -101,7 +114,9 @@ module StorageRoleDeploymentResource './nested_StorageRoleDeploymentResource.bic
       setSbdcRbacOnStorageAccount: setSbdcRbacOnStorageAccount
       userObjectId: userObjectId
     }
-    dependsOn: [name_resource]
+    dependsOn: [
+      name_resource
+    ]
   }
 
 module UpdateStorageAccountNetworkingAcls './nested_UpdateStorageAccountNetworkingAcls.bicep' =
@@ -113,7 +128,9 @@ module UpdateStorageAccountNetworkingAcls './nested_UpdateStorageAccountNetworki
       defaultDataLakeStorageAccountName: defaultDataLakeStorageAccountName
       workspaceStorageAccountProperties: workspaceStorageAccountProperties
     }
-    dependsOn: [name_resource]
+    dependsOn: [
+      name_resource
+    ]
   }
 
 resource defaultDataLakeStorageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' =
@@ -139,7 +156,9 @@ resource defaultDataLakeStorageAccountName_default_defaultDataLakeStorageFilesys
     properties: {
       publicAccess: 'None'
     }
-    dependsOn: [defaultDataLakeStorageAccount]
+    dependsOn: [
+      defaultDataLakeStorageAccount
+    ]
   }
 
 module defaultDataLakeStorageFilesystem './nested_defaultDataLakeStorageFilesystem.bicep' =
