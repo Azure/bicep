@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Settings;
@@ -114,7 +115,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // Top-level Bicep registry completions
-            AddCompletionItem("br:", null, "Bicep registry", ModuleCompletionPriority.FullPath, "module registry completion");
+            AddCompletionItem(OciArtifactReferenceFacts.SchemeWithColon, null, "Bicep registry", ModuleCompletionPriority.FullPath, "module registry completion");
             if (bicepModuleAliases.Any())
             {
                 // br/<alias>

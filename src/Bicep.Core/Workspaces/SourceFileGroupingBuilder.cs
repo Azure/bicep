@@ -177,6 +177,15 @@ namespace Bicep.Core.Workspaces
                 }
                 uriResultByArtifactReferenceSyntaxLookup[restorable] = uriResult;
 
+                if (childArtifactReference is { }) {
+                    if (!uriResultByBicepSourceFileByArtifactReference.TryGetValue(file, out var uriResultByArtifactReferenceLookup))
+                    {
+                        uriResultByArtifactReferenceLookup = [];
+                        uriResultByBicepSourceFileByArtifactReference[file] = uriResultByArtifactReferenceLookup;
+                    }
+                    uriResultByArtifactReferenceLookup[childArtifactReference] = uriResult;
+                }
+
                 if (!uriResult.IsSuccess(out var artifactUri))
                 {
                     continue;
