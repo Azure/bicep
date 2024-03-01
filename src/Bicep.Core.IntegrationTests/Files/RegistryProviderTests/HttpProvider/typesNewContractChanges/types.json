@@ -1,0 +1,34 @@
+[
+    {
+        "2": {
+            "Name": "config",
+            "Properties": {
+                "configProp": {
+                    "Type": 0,
+                    "Flags": 1,
+                    "Description": "Config property"
+                }
+            }
+        }
+    },
+    {
+        "2": {
+            "Name": "fallback body",
+            "Properties": {
+                "bodyProp": {
+                    "Type": 0,
+                    "Flags": 1,
+                    "Description": "Body property"
+                }
+            }
+        }
+    },
+    {
+        "4": {
+            "Name": "fallback",
+            "ScopeType": 0,
+            "Body": 1,
+            "Flags": 0
+        }
+    }
+]

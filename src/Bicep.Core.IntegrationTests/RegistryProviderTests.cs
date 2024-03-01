@@ -260,4 +260,36 @@ provider 'br:example.azurecr.io/test/provider/http@1.2.3'
             ("BCP084",DiagnosticLevel.Error,"The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\".")
         });
     }
+
+    [TestMethod]
+    //Change test name
+    public async Task Contract_changes()
+    {
+        // types taken from https://github.com/Azure/bicep-registry-providers/tree/21aadf24cd6e8c9c5da2db0d1438df9def548b09/providers/http
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(
+            typeof(RegistryProviderTests).Assembly,
+            "Files/RegistryProviderTests/HttpProvider");
+
+        var registry = "example.azurecr.io";
+        var repository = $"test/provider/http";
+
+        var services = GetServiceBuilder(fileSystem, registry, repository, true, true, true);
+
+        await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), "/typesNewContractChanges/index.json", $"br:{registry}/{repository}:1.2.3");
+
+        var result = await CompilationHelper.RestoreAndCompile(services, """
+        provider 'br:example.azurecr.io/test/provider/http@1.2.3'
+
+        resource dadJoke 'request@v1' = {
+        uri: 'https://icanhazdadjoke.com'
+        method: 'GET'
+        format: 'json'
+        }
+
+        output joke string = dadJoke.body.joke
+        """);
+
+        result.Should().NotHaveAnyDiagnostics();
+        result.Template.Should().NotBeNull();
+    }
 }
