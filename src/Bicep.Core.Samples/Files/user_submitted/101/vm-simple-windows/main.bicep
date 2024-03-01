@@ -21,24 +21,22 @@ param publicIPAllocationMethod string = 'Dynamic'
 param publicIpSku string = 'Basic'
 
 @description('The Windows version for the VM. This will pick a fully patched image of this given Windows version.')
-@allowed(
-  [
-    '2008-R2-SP1'
-    '2012-Datacenter'
-    '2012-R2-Datacenter'
-    '2016-Nano-Server'
-    '2016-Datacenter-with-Containers'
-    '2016-Datacenter'
-    '2019-Datacenter'
-    '2019-Datacenter-Core'
-    '2019-Datacenter-Core-smalldisk'
-    '2019-Datacenter-Core-with-Containers'
-    '2019-Datacenter-Core-with-Containers-smalldisk'
-    '2019-Datacenter-smalldisk'
-    '2019-Datacenter-with-Containers'
-    '2019-Datacenter-with-Containers-smalldisk'
-  ]
-)
+@allowed([
+  '2008-R2-SP1'
+  '2012-Datacenter'
+  '2012-R2-Datacenter'
+  '2016-Nano-Server'
+  '2016-Datacenter-with-Containers'
+  '2016-Datacenter'
+  '2019-Datacenter'
+  '2019-Datacenter-Core'
+  '2019-Datacenter-Core-smalldisk'
+  '2019-Datacenter-Core-with-Containers'
+  '2019-Datacenter-Core-with-Containers-smalldisk'
+  '2019-Datacenter-smalldisk'
+  '2019-Datacenter-with-Containers'
+  '2019-Datacenter-with-Containers-smalldisk'
+])
 param OSVersion string = '2019-Datacenter'
 
 @description('Size of the virtual machine.')

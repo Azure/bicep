@@ -37,8 +37,8 @@ var w40__ = concat('xxxxxx',
 //@[04:09) Variable w40__. Type: string. Declaration start char: 0, length: 40
 'xxxxxxxx') // suffix
 
-var        w41__= concat('xxxxx'/* xxxxxxx */)
-//@[11:16) Variable w41__. Type: string. Declaration start char: 0, length: 46
+var        w41__= concat('xxxxx', 'xxxxxxxxxx')
+//@[11:16) Variable w41__. Type: string. Declaration start char: 0, length: 47
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //@[04:09) Variable w42__. Type: string. Declaration start char: 0, length: 42
 

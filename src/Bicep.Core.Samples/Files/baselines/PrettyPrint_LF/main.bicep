@@ -24,7 +24,7 @@ var w39__ = concat('xxxxxx', 'xxxxxxx'
 var w40__ = concat('xxxxxx',
 'xxxxxxxx') // suffix
 
-var        w41__= concat('xxxxx'/* xxxxxxx */)
+var        w41__= concat('xxxxx', 'xxxxxxxxxx')
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 
 var w38___ = true? 'xxxxx' : 'xxxxxx'

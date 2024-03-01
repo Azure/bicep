@@ -1295,7 +1295,11 @@ name: 'Premium_LRS'
         )]
         [DataRow(
             @"[""[resourceGroup().location]""]",
-            @"[resourceGroup().location]",
+            """
+            [
+              resourceGroup().location
+            ]
+            """,
             DisplayName = "Array with string expression"
         )]
         [DataRow(
@@ -1363,7 +1367,13 @@ name: 'Premium_LRS'
     1, 2,
     3
 ]",
-            @"[1, 2, 3]",
+            """
+            [
+              1
+              2
+              3
+            ]
+            """,
             DisplayName = "Multiline array"
         )]
         [DataRow(
@@ -1481,11 +1491,18 @@ name: 'Premium_LRS'
         [DataRow(
             "[1]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
-            @"[1]")]
+            @"[
+              1
+            ]")]
         [DataRow(
             "[1, 1]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
-            @"[1, 1]")]
+            """
+            [
+              1
+              1
+            ]
+            """)]
         [DataRow(
             "[      /* */  ]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
@@ -1499,7 +1516,11 @@ name: 'Premium_LRS'
             @"[
   1]",
             PasteType.BicepValue, // Valid json and valid Bicep expression
-            @"[1]")]
+            """
+            [
+              1
+            ]
+            """)]
         [DataRow(
             "null",
             PasteType.BicepValue, // Valid json and valid Bicep expression

@@ -103,12 +103,10 @@ param someArray arra
 param secureInt int
 
 // wrong modifier value types
-@allowed(
-  [
-    'test'
-    true
-  ]
-)
+@allowed([
+  'test'
+  true
+])
 @minValue({})
 @maxValue([])
 @metadata('wrong')
@@ -119,30 +117,24 @@ param wrongIntModifier int = true
 param fatalErrorInIssue1713
 
 // wrong metadata schema
-@metadata(
-  {
-    description: true
-  }
-)
+@metadata({
+  description: true
+})
 param wrongMetadataSchema string
 
 // expression in modifier
 @maxLength(a + 2)
 @minLength(foo())
-@allowed(
-  [
-    i
-  ]
-)
+@allowed([
+  i
+])
 param expressionInModifier string = 2 + 3
 
 @maxLength(2 + 3)
 @minLength(length([]))
-@allowed(
-  [
-    resourceGroup().id
-  ]
-)
+@allowed([
+  resourceGroup().id
+])
 param nonCompileTimeConstant string
 
 @allowed([])
@@ -158,11 +150,9 @@ param paramDefaultOneCycle string = paramDefaultOneCycle
 param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
 param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
 
-@allowed(
-  [
-    paramModifierSelfCycle
-  ]
-)
+@allowed([
+  paramModifierSelfCycle
+])
 param paramModifierSelfCycle string
 
 // wrong types of "variable"/identifier access
@@ -239,11 +229,9 @@ param tooManyArguments2 string
 param nonConstantInDecorator string
 
 @minValue(-length('s'))
-@metadata(
-  {
-    bool: !true
-  }
-)
+@metadata({
+  bool: !true
+})
 param unaryMinusOnFunction int
 
 @minLength(1)
@@ -257,35 +245,31 @@ param duplicateDecorators string
 @minLength(-100)
 param invalidLength string
 
-@allowed(
-  [
-    'Microsoft.AnalysisServices/servers'
-    'Microsoft.ApiManagement/service'
-    'Microsoft.Network/applicationGateways'
-    'Microsoft.Automation/automationAccounts'
-    'Microsoft.ContainerInstance/containerGroups'
-    'Microsoft.ContainerRegistry/registries'
-    'Microsoft.ContainerService/managedClusters'
-  ]
-)
+@allowed([
+  'Microsoft.AnalysisServices/servers'
+  'Microsoft.ApiManagement/service'
+  'Microsoft.Network/applicationGateways'
+  'Microsoft.Automation/automationAccounts'
+  'Microsoft.ContainerInstance/containerGroups'
+  'Microsoft.ContainerRegistry/registries'
+  'Microsoft.ContainerService/managedClusters'
+])
 param invalidPermutation array = [
   'foobar'
   true
   100
 ]
 
-@allowed(
+@allowed([
   [
-    [
-      'Microsoft.AnalysisServices/servers'
-      'Microsoft.ApiManagement/service'
-    ]
-    [
-      'Microsoft.Network/applicationGateways'
-      'Microsoft.Automation/automationAccounts'
-    ]
+    'Microsoft.AnalysisServices/servers'
+    'Microsoft.ApiManagement/service'
   ]
-)
+  [
+    'Microsoft.Network/applicationGateways'
+    'Microsoft.Automation/automationAccounts'
+  ]
+])
 param invalidDefaultWithAllowedArrayDecorator array = true
 
 // unterminated multi-line comment

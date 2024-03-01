@@ -72,9 +72,7 @@ module azureDefender 'azure-defender.bicep' = {
 
 // Get existing storage account
 resource storageAccountVulnerabilityAssessments 'Microsoft.Storage/storageAccounts@2021-04-01' existing =
-  if (sqlDatabase.azureDefender.enabled && sqlDatabase.azureDefender.vulnerabilityAssessments.recurringScans && !empty(
-    sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name
-  )) {
+  if (sqlDatabase.azureDefender.enabled && sqlDatabase.azureDefender.vulnerabilityAssessments.recurringScans && !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name)) {
     scope: resourceGroup(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName)
     name: sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name
   }
@@ -82,9 +80,7 @@ resource storageAccountVulnerabilityAssessments 'Microsoft.Storage/storageAccoun
 // Vulnerability Assessments
 // Can be enabled only if Azure Defender is enabled as well
 resource vulnerabilityAssessments 'Microsoft.Sql/servers/databases/vulnerabilityAssessments@2021-02-01-preview' =
-  if (sqlDatabase.azureDefender.enabled && sqlDatabase.azureDefender.vulnerabilityAssessments.recurringScans && !empty(
-    sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name
-  )) {
+  if (sqlDatabase.azureDefender.enabled && sqlDatabase.azureDefender.vulnerabilityAssessments.recurringScans && !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name)) {
     dependsOn: [transparentDataEncryption, azureDefender]
     name: 'default'
     parent: sqlDb

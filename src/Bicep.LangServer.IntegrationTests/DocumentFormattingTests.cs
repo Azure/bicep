@@ -110,7 +110,11 @@ output myOutput string = 'value'", 0));
                   def: [1, 2, 3]
                 }
 
-                param baz = ['abc', { def: 'ghi' }, 'test']
+                param baz = [
+                  'abc'
+                  { def: 'ghi' }
+                  'test'
+                ]
 
                 """);
         }

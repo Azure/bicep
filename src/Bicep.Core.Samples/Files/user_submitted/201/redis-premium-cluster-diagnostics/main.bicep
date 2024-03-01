@@ -12,18 +12,14 @@ param redisCacheSKU string = 'Premium'
 @allowed(['C', 'P'])
 param redisCacheFamily string = 'P'
 
-@description(
-  'Specify the size of the new Azure Redis Cache instance. Valid values: for C (Basic/Standard) family (0, 1, 2, 3, 4, 5, 6), for P (Premium) family (1, 2, 3, 4)'
-)
+@description('Specify the size of the new Azure Redis Cache instance. Valid values: for C (Basic/Standard) family (0, 1, 2, 3, 4, 5, 6), for P (Premium) family (1, 2, 3, 4)')
 @allowed([0, 1, 2, 3, 4, 5, 6])
 param redisCacheCapacity int = 1
 
 @description('Set to true to allow access to redis on port 6379, without SSL tunneling (less secure).')
 param enableNonSslPort bool = false
 
-@description(
-  'Specify a boolean value that indicates whether diagnostics should be saved to the specified storage account.'
-)
+@description('Specify a boolean value that indicates whether diagnostics should be saved to the specified storage account.')
 param diagnosticsEnabled bool = true
 
 @description('Specify an existing storage account for diagnostics. Must be in the same subscription.')

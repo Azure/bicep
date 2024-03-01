@@ -7,24 +7,20 @@ param adminUsername string
 param numberOfInstances int = 4
 
 @description('OS Platform for the VM')
-@allowed(
-  [
-    'Ubuntu'
-    'Windows'
-  ]
-)
+@allowed([
+  'Ubuntu'
+  'Windows'
+])
 param OS string = 'Ubuntu'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
 @description('Type of authentication to use on the Virtual Machine. SSH key is recommended.')
-@allowed(
-  [
-    'sshPublicKey'
-    'password'
-  ]
-)
+@allowed([
+  'sshPublicKey'
+  'password'
+])
 param authenticationType string = 'sshPublicKey'
 
 @description('SSH Key or password for the Virtual Machine. SSH key is recommended.')

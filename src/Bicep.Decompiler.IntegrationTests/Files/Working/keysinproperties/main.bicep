@@ -1,10 +1,8 @@
 @description('Storage account type')
-@allowed(
-  [
-    'Standard_LRS'
-    'Standard_GRS'
-  ]
-)
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+])
 param storageAccountType string = 'Standard_LRS'
 
 @description('Name of file share to be created')

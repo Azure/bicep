@@ -13,12 +13,10 @@ param subscriptionAlias string
 param subscriptionDisplayName string
 
 @description('Workload type for the subscription')
-@allowed(
-  [
-    'Production'
-    'DevTest'
-  ]
-)
+@allowed([
+  'Production'
+  'DevTest'
+])
 param subscriptionWorkload string = 'Production'
 
 resource subscriptionAlias_resource 'Microsoft.Subscription/aliases@2020-09-01' = {

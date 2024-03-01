@@ -156,7 +156,9 @@ namespace Bicep.Cli.IntegrationTests
                     roleDefinitionId: roleDefinitionId
                     roleAssignmentName: roleAssignmentName
                   }
-                  dependsOn: [subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)]
+                  dependsOn: [
+                    subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)
+                  ]
                 }
 
                 """);

@@ -4,9 +4,7 @@ param redisCacheName string
 @description('Name of the storage account.')
 param storageAccountName string
 
-@description(
-  'The location of the Redis Cache. For best performance, use the same location as the app to be used with the cache.'
-)
+@description('The location of the Redis Cache. For best performance, use the same location as the app to be used with the cache.')
 param location string = resourceGroup().location
 
 @description('Specify the pricing tier of the new Azure Redis Cache.')
@@ -17,18 +15,14 @@ param redisCacheSKU string = 'Premium'
 @allowed(['C', 'P'])
 param redisCacheFamily string = 'P'
 
-@description(
-  'Specify the size of the new Azure Redis Cache instance. Valid values: for C (Basic/Standard) family (0, 1, 2, 3, 4, 5, 6), for P (Premium) family (1, 2, 3, 4)'
-)
+@description('Specify the size of the new Azure Redis Cache instance. Valid values: for C (Basic/Standard) family (0, 1, 2, 3, 4, 5, 6), for P (Premium) family (1, 2, 3, 4)')
 @allowed([0, 1, 2, 3, 4, 5, 6])
 param redisCacheCapacity int = 1
 
 @description('Specify a boolean value that indicates whether to allow access via non-SSL ports.')
 param enableNonSslPort bool = false
 
-@description(
-  'Specify a boolean value that indicates whether diagnostics should be saved to the specified storage account.'
-)
+@description('Specify a boolean value that indicates whether diagnostics should be saved to the specified storage account.')
 param diagnosticsEnabled bool = true
 
 @description('Specify an existing storage account for diagnostics.')

@@ -1,6 +1,4 @@
-@description(
-  'Name of the Media Services account. A Media Services account name is globally unique, all lowercase letters or numbers with no spaces.'
-)
+@description('Name of the Media Services account. A Media Services account name is globally unique, all lowercase letters or numbers with no spaces.')
 param mediaServiceName string = 'mediaService${uniqueString(resourceGroup().id)}'
 
 @description('Location for all resources.')

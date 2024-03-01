@@ -76,8 +76,8 @@ var w40__ = concat('xxxxxx',
 //@    "w40__": "[concat('xxxxxx', 'xxxxxxxx')]",
 'xxxxxxxx') // suffix
 
-var        w41__= concat('xxxxx'/* xxxxxxx */)
-//@    "w41__": "[concat('xxxxx')]",
+var        w41__= concat('xxxxx', 'xxxxxxxxxx')
+//@    "w41__": "[concat('xxxxx', 'xxxxxxxxxx')]",
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //@    "w42__": "[concat('xxxxx', 'xxxxxxxxxxx')]",
 

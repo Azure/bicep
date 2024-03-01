@@ -105,9 +105,7 @@ resource azureDefender 'Microsoft.Sql/servers/securityAlertPolicies@2021-02-01-p
 
 // Get existing storage account
 resource storageAccountVulnerabilityAssessments 'Microsoft.Storage/storageAccounts@2021-04-01' existing =
-  if (sqlLogicalServer.azureDefender.enabled && sqlLogicalServer.azureDefender.vulnerabilityAssessments.recurringScans && !empty(
-    sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name
-  )) {
+  if (sqlLogicalServer.azureDefender.enabled && sqlLogicalServer.azureDefender.vulnerabilityAssessments.recurringScans && !empty(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name)) {
     scope: resourceGroup(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName)
     name: sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name
   }
@@ -115,9 +113,7 @@ resource storageAccountVulnerabilityAssessments 'Microsoft.Storage/storageAccoun
 // Vulnerability Assessments
 // Can be enabled only if Azure Defender is enabled as well
 resource vulnerabilityAssessments 'Microsoft.Sql/servers/vulnerabilityAssessments@2021-02-01-preview' =
-  if (sqlLogicalServer.azureDefender.enabled && sqlLogicalServer.azureDefender.vulnerabilityAssessments.recurringScans && !empty(
-    sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name
-  )) {
+  if (sqlLogicalServer.azureDefender.enabled && sqlLogicalServer.azureDefender.vulnerabilityAssessments.recurringScans && !empty(sqlLogicalServer.azureDefender.vulnerabilityAssessments.storageAccount.name)) {
     dependsOn: [azureDefender]
     name: 'default'
     parent: sqlLogicalServerRes
@@ -182,9 +178,7 @@ module sqlDatabases 'sql-database.bicep' = [
 // Empty deployment that serves as artificial delay until master database resource is created
 @batchSize(1)
 resource dummyDeployments 'Microsoft.Resources/deployments@2021-04-01' = [
-  for (dummyDeployment, index) in range(0, 5): if (sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs && !empty(
-    sqlLogicalServer.diagnosticLogsAndMetrics.name
-  )) {
+  for (dummyDeployment, index) in range(0, 5): if (sqlLogicalServer.diagnosticLogsAndMetrics.auditLogs && !empty(sqlLogicalServer.diagnosticLogsAndMetrics.name)) {
     dependsOn: [sqlLogicalServerRes]
     name: 'dummyTemplateSqlServer-${uniqueString(sqlLogicalServer.name)}-${index}'
     properties: {

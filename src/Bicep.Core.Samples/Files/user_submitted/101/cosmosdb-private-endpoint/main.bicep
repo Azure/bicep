@@ -49,25 +49,23 @@ resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-previ
   name: accountName
   location: location
   kind: 'GlobalDocumentDB'
-  properties: any(
-    {
-      createMode: 'Default'
-      consistencyPolicy: {
-        defaultConsistencyLevel: 'Session'
-      }
-      locations: [
-        {
-          locationName: location
-          failoverPriority: 0
-          isZoneRedundant: false
-        }
-      ]
-      databaseAccountOfferType: 'Standard'
-      enableAutomaticFailover: false
-      enableMultipleWriteLocations: false
-      publicNetworkAccess: publicNetworkAccess
+  properties: any({
+    createMode: 'Default'
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
     }
-  )
+    locations: [
+      {
+        locationName: location
+        failoverPriority: 0
+        isZoneRedundant: false
+      }
+    ]
+    databaseAccountOfferType: 'Standard'
+    enableAutomaticFailover: false
+    enableMultipleWriteLocations: false
+    publicNetworkAccess: publicNetworkAccess
+  })
 }
 
 resource privateEndpoint 'Microsoft.Network/privateEndpoints@2020-06-01' = {

@@ -14,23 +14,21 @@ var evenDoggosNestedLambdas = map(
   filter(numbers, i => contains(filter(numbers, j => (0 == (j % 2))), i)),
   x => doggos[x]
 )
-var flattenedArrayOfArrays = flatten(
+var flattenedArrayOfArrays = flatten([
 //@[04:26) [no-unused-vars (Warning)] Variable "flattenedArrayOfArrays" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |flattenedArrayOfArrays|
   [
-    [
-      0
-      1
-    ]
-    [
-      2
-      3
-    ]
-    [
-      4
-      5
-    ]
+    0
+    1
   ]
-)
+  [
+    2
+    3
+  ]
+  [
+    4
+    5
+  ]
+])
 var flattenedEmptyArray = flatten([])
 //@[04:23) [no-unused-vars (Warning)] Variable "flattenedEmptyArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |flattenedEmptyArray|
 var mapSayHi = map(
@@ -52,27 +50,23 @@ var mapObject = map(
     greeting: 'Ahoy, ${doggos[i]}!'
   }
 )
-var mapArray = flatten(
+var mapArray = flatten(map(
 //@[04:12) [no-unused-vars (Warning)] Variable "mapArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mapArray|
-  map(
-    range(1, 3),
-    i => [
-      (i * 2)
-      ((i * 2) + 1)
-    ]
-  )
-)
-var mapMultiLineArray = flatten(
+  range(1, 3),
+  i => [
+    (i * 2)
+    ((i * 2) + 1)
+  ]
+))
+var mapMultiLineArray = flatten(map(
 //@[04:21) [no-unused-vars (Warning)] Variable "mapMultiLineArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mapMultiLineArray|
-  map(
-    range(1, 3),
-    i => [
-      (i * 3)
-      ((i * 3) + 1)
-      ((i * 3) + 2)
-    ]
-  )
-)
+  range(1, 3),
+  i => [
+    (i * 3)
+    ((i * 3) + 1)
+    ((i * 3) + 2)
+  ]
+))
 var filterEqualityCheck = filter(
 //@[04:23) [no-unused-vars (Warning)] Variable "filterEqualityCheck" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |filterEqualityCheck|
   [

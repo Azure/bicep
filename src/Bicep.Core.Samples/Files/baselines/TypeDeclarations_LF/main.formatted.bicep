@@ -24,13 +24,11 @@ type fooProperty = foo.objectProp.intProp
 
 @minLength(3)
 @description('An array of array of arrays of arrays of ints')
-@metadata(
-  {
-    examples: [
-      [[[[1]]], [[[2]]], [[[3]]]]
-    ]
-  }
-)
+@metadata({
+  examples: [
+    [[[[1]]], [[[2]]], [[[3]]]]
+  ]
+})
 type bar = int[][][][]
 
 type barElement = bar[*]

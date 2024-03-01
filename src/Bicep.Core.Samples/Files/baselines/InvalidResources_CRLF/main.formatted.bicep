@@ -1225,13 +1225,11 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [
     kind: 'StorageV2'
     properties: {
       networkAcls: {
-        virtualNetworkRules: concat(
-          [
-            for lol in []: {
-              id: '${account.name}-${account.location}'
-            }
-          ]
-        )
+        virtualNetworkRules: concat([
+          for lol in []: {
+            id: '${account.name}-${account.location}'
+          }
+        ])
       }
     }
   }
@@ -1634,12 +1632,10 @@ resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-
 }
 
 @description('The language of the Deployment Script. AzurePowerShell or AzureCLI.')
-@allowed(
-  [
-    'AzureCLI'
-    'AzurePowerShell'
-  ]
-)
+@allowed([
+  'AzureCLI'
+  'AzurePowerShell'
+])
 param issue4668_kind string = 'AzureCLI'
 @description('The identity that will be used to execute the Deployment Script.')
 param issue4668_identity object

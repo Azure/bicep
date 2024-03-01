@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:4188) ProgramExpression
+//@[00:4189) ProgramExpression
 //////////////////////////// Baselines for width 40 ////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 var w38 = [true, /* xxxxx */ true, 12]      // suffix
@@ -106,10 +106,11 @@ var w40__ = concat('xxxxxx',
 'xxxxxxxx') // suffix
 //@[00:0010) |   └─StringLiteralExpression { Value = xxxxxxxx }
 
-var        w41__= concat('xxxxx'/* xxxxxxx */)
-//@[00:0046) ├─DeclaredVariableExpression { Name = w41__ }
-//@[18:0046) | └─FunctionCallExpression { Name = concat }
-//@[25:0032) |   └─StringLiteralExpression { Value = xxxxx }
+var        w41__= concat('xxxxx', 'xxxxxxxxxx')
+//@[00:0047) ├─DeclaredVariableExpression { Name = w41__ }
+//@[18:0047) | └─FunctionCallExpression { Name = concat }
+//@[25:0032) |   ├─StringLiteralExpression { Value = xxxxx }
+//@[34:0046) |   └─StringLiteralExpression { Value = xxxxxxxxxx }
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //@[00:0042) ├─DeclaredVariableExpression { Name = w42__ }
 //@[12:0042) | └─FunctionCallExpression { Name = concat }

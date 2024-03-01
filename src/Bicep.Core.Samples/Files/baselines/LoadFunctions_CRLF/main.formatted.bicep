@@ -57,12 +57,8 @@ module module2 'modulea.bicep' = {
   }
 }
 
-var textFileInSubdirectories = loadTextContent(
-  'Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/TextFile.txt'
-)
-var binaryFileInSubdirectories = loadFileAsBase64(
-  'Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/binary'
-)
+var textFileInSubdirectories = loadTextContent('Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/TextFile.txt')
+var binaryFileInSubdirectories = loadFileAsBase64('Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/binary')
 
 var loadWithEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'iso-8859-1')
 var loadWithEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'us-ascii')

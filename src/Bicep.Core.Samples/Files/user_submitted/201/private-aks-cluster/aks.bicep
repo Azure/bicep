@@ -24,19 +24,13 @@ param aksClusterNetworkPolicy string = 'azure'
 @description('Specifies the CIDR notation IP range from which to assign pod IPs when kubenet is used.')
 param aksClusterPodCidr string = '10.244.0.0/16'
 
-@description(
-  'A CIDR notation IP range from which to assign service cluster IPs. It must not overlap with any Subnet IP ranges.'
-)
+@description('A CIDR notation IP range from which to assign service cluster IPs. It must not overlap with any Subnet IP ranges.')
 param aksClusterServiceCidr string = '10.2.0.0/16'
 
-@description(
-  'Specifies the IP address assigned to the Kubernetes DNS service. It must be within the Kubernetes service address range specified in serviceCidr.'
-)
+@description('Specifies the IP address assigned to the Kubernetes DNS service. It must be within the Kubernetes service address range specified in serviceCidr.')
 param aksClusterDnsServiceIP string = '10.2.0.10'
 
-@description(
-  'Specifies the CIDR notation IP range assigned to the Docker bridge network. It must not overlap with any Subnet IP ranges or the Kubernetes service address range.'
-)
+@description('Specifies the CIDR notation IP range assigned to the Docker bridge network. It must not overlap with any Subnet IP ranges or the Kubernetes service address range.')
 param aksClusterDockerBridgeCidr string = '172.17.0.1/16'
 
 @allowed(['basic', 'standard'])
@@ -74,31 +68,23 @@ param aadProfileManaged bool = false
 @description('Specifies whether to  to enable Azure RBAC for Kubernetes authorization.')
 param aadProfileEnableAzureRBAC bool = false
 
-@description(
-  'Specifies the unique name of the node pool profile in the context of the subscription and resource group.'
-)
+@description('Specifies the unique name of the node pool profile in the context of the subscription and resource group.')
 param nodePoolName string = 'nodepool1'
 
 @description('Specifies the vm size of nodes in the node pool.')
 param nodePoolVmSize string = 'Standard_DS3_v2'
 
-@description(
-  'Specifies the OS Disk Size in GB to be used to specify the disk size for every machine in this master/agent pool. If you specify 0, it will apply the default osDisk size according to the vmSize specified..'
-)
+@description('Specifies the OS Disk Size in GB to be used to specify the disk size for every machine in this master/agent pool. If you specify 0, it will apply the default osDisk size according to the vmSize specified..')
 param nodePoolOsDiskSizeGB int = 100
 
-@description(
-  'Specifies the number of agents (VMs) to host docker containers. Allowed values must be in the range of 1 to 100 (inclusive). The default value is 1.'
-)
+@description('Specifies the number of agents (VMs) to host docker containers. Allowed values must be in the range of 1 to 100 (inclusive). The default value is 1.')
 param nodePoolCount int = 3
 
 @allowed(['Linux', 'Windows'])
 @description('Specifies the OS type for the vms in the node pool. Choose from Linux and Windows. Default to Linux.')
 param nodePoolOsType string = 'Linux'
 
-@description(
-  'Specifies the maximum number of pods that can run on a node. The maximum number of pods per node in an AKS cluster is 250. The default maximum number of pods per node varies between kubenet and Azure CNI networking, and the method of cluster deployment.'
-)
+@description('Specifies the maximum number of pods that can run on a node. The maximum number of pods per node in an AKS cluster is 250. The default maximum number of pods per node varies between kubenet and Azure CNI networking, and the method of cluster deployment.')
 param nodePoolMaxPods int = 30
 
 @description('Specifies the maximum number of nodes for auto-scaling for the node pool.')
@@ -117,9 +103,7 @@ param nodePoolScaleSetPriority string = 'Regular'
 @description('Specifies the Agent pool node labels to be persisted across all nodes in agent pool.')
 param nodePoolNodeLabels object = {}
 
-@description(
-  'Specifies the taints added to new nodes during node pool create and scale. For example, key=value:NoSchedule. - string'
-)
+@description('Specifies the taints added to new nodes during node pool create and scale. For example, key=value:NoSchedule. - string')
 param nodePoolNodeTaints array = []
 
 @allowed(['System', 'User'])
@@ -130,9 +114,7 @@ param nodePoolMode string = 'System'
 @description('Specifies the type of a node pool: VirtualMachineScaleSets or AvailabilitySet')
 param nodePoolType string = 'VirtualMachineScaleSets'
 
-@description(
-  'Specifies the availability zones for nodes. Requirese the use of VirtualMachineScaleSets as node pool type.'
-)
+@description('Specifies the availability zones for nodes. Requirese the use of VirtualMachineScaleSets as node pool type.')
 param nodePoolAvailabilityZones array = []
 
 @description('Specifies the id of the virtual network.')

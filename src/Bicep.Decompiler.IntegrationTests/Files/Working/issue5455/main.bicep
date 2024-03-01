@@ -11,21 +11,17 @@ param createManagedPrivateEndpoint bool
 param defaultAdlsGen2AccountResourceId string = ''
 param allowAllConnections bool = true
 
-@allowed(
-  [
-    'default'
-    ''
-  ]
-)
+@allowed([
+  'default'
+  ''
+])
 param managedVirtualNetwork string
 param tagValues object = {}
 
-@allowed(
-  [
-    'Enabled'
-    'Disabled'
-  ]
-)
+@allowed([
+  'Enabled'
+  'Disabled'
+])
 param publicNetworkAccess string
 param storageSubscriptionID string = subscription().subscriptionId
 param storageResourceGroupName string = resourceGroup().name

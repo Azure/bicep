@@ -95,7 +95,8 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.Children,
                     syntax.CloseParen,
                     separator: CommaLineOrCommaSpace,
-                    padding: LineOrEmpty));
+                    padding: LineOrEmpty,
+                    indentSingleItem: false));
 
         private IEnumerable<Document> LayoutIfConditionSyntax(IfConditionSyntax syntax) =>
             this.Spread(
@@ -131,7 +132,8 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.Children,
                     syntax.CloseParen,
                     separator: CommaLineOrCommaSpace,
-                    padding: LineOrEmpty));
+                    padding: LineOrEmpty,
+                    indentSingleItem: false));
 
         private IEnumerable<Document> LayoutLambdaSyntax(LambdaSyntax syntax)
         {

@@ -169,21 +169,19 @@ resource vm 'Microsoft.Compute/virtualMachines@2017-03-30' = {
       computerName: vmName
       adminUsername: adminUsername
       adminPassword: adminPasswordOrKey
-      linuxConfiguration: any(
-        authenticationType != 'password'
-          ? {
-              disablePasswordAuthentication: true
-              ssh: {
-                publicKeys: [
-                  {
-                    path: '/home/${adminUsername}/.ssh/authorized_keys'
-                    keyData: adminPasswordOrKey
-                  }
-                ]
-              }
+      linuxConfiguration: any(authenticationType != 'password'
+        ? {
+            disablePasswordAuthentication: true
+            ssh: {
+              publicKeys: [
+                {
+                  path: '/home/${adminUsername}/.ssh/authorized_keys'
+                  keyData: adminPasswordOrKey
+                }
+              ]
             }
-          : null
-      )
+          }
+        : null)
     }
     storageProfile: {
       imageReference: {

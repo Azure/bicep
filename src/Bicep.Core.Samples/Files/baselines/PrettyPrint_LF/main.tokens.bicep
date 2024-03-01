@@ -188,15 +188,17 @@ var w40__ = concat('xxxxxx',
 //@[10:11) RightParen |)|
 //@[21:23) NewLine |\n\n|
 
-var        w41__= concat('xxxxx'/* xxxxxxx */)
+var        w41__= concat('xxxxx', 'xxxxxxxxxx')
 //@[00:03) Identifier |var|
 //@[11:16) Identifier |w41__|
 //@[16:17) Assignment |=|
 //@[18:24) Identifier |concat|
 //@[24:25) LeftParen |(|
 //@[25:32) StringComplete |'xxxxx'|
-//@[45:46) RightParen |)|
-//@[46:47) NewLine |\n|
+//@[32:33) Comma |,|
+//@[34:46) StringComplete |'xxxxxxxxxx'|
+//@[46:47) RightParen |)|
+//@[47:48) NewLine |\n|
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //@[00:03) Identifier |var|
 //@[04:09) Identifier |w42__|

@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5286759569488172146"
+      "templateHash": "16341082260007805379"
     }
   },
   "variables": {
@@ -62,7 +62,7 @@
     "w38__": "[concat('xxxxxx', 'xxxxxx')]",
     "w39__": "[concat('xxxxxx', 'xxxxxxx')]",
     "w40__": "[concat('xxxxxx', 'xxxxxxxx')]",
-    "w41__": "[concat('xxxxx')]",
+    "w41__": "[concat('xxxxx', 'xxxxxxxxxx')]",
     "w42__": "[concat('xxxxx', 'xxxxxxxxxxx')]",
     "w38___": "[if(true(), 'xxxxx', 'xxxxxx')]",
     "w39___": "[if(true(), 'xxxxxx', 'xxxxxx')]",

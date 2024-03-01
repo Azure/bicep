@@ -134,16 +134,12 @@ var previousEmitLimit = [
         ]
       )
       d: az.resourceGroup().location
-      e: concat(
-        [
-          true
-        ]
-      )
-      f: concat(
-        [
-          's' == 12
-        ]
-      )
+      e: concat([
+        true
+      ])
+      f: concat([
+        's' == 12
+      ])
     }
   }
 ]
@@ -199,18 +195,12 @@ var previousEmitLimit3 = {
 // #completionTest(0) -> declarations
 
 var myVar = 'hello'
-var myVar2 = any(
-  {
-    something: myVar
-  }
-)
-var myVar3 = any(
-  any(
-    {
-      something: myVar
-    }
-  )
-)
+var myVar2 = any({
+  something: myVar
+})
+var myVar3 = any(any({
+  something: myVar
+}))
 var myVar4 = length(any(concat('s', 'a')))
 
 // verify that unqualified banned function identifiers can be used as declaration identifiers

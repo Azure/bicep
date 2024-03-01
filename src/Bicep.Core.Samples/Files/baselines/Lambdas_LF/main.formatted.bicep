@@ -27,16 +27,14 @@ var mapObject = map(
   }
 )
 var mapArray = flatten(map(range(1, 3), i => [i * 2, (i * 2) + 1]))
-var mapMultiLineArray = flatten(
-  map(
-    range(1, 3),
-    i => [
-      i * 3
-      (i * 3) + 1
-      (i * 3) + 2
-    ]
-  )
-)
+var mapMultiLineArray = flatten(map(
+  range(1, 3),
+  i => [
+    i * 3
+    (i * 3) + 1
+    (i * 3) + 2
+  ]
+))
 
 var filterEqualityCheck = filter(['abc', 'def', 'ghi'], foo => 'def' == foo)
 var filterEmpty = filter([], foo => 'def' == foo)

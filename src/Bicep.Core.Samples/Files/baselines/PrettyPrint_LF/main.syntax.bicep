@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:4188) ProgramSyntax
+//@[00:4189) ProgramSyntax
 //@[80:0081) ├─Token(NewLine) |\n|
 //////////////////////////// Baselines for width 40 ////////////////////////////
 //@[80:0081) ├─Token(NewLine) |\n|
@@ -311,21 +311,25 @@ var w40__ = concat('xxxxxx',
 //@[10:0011) |   └─Token(RightParen) |)|
 //@[21:0023) ├─Token(NewLine) |\n\n|
 
-var        w41__= concat('xxxxx'/* xxxxxxx */)
-//@[00:0046) ├─VariableDeclarationSyntax
+var        w41__= concat('xxxxx', 'xxxxxxxxxx')
+//@[00:0047) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[11:0016) | ├─IdentifierSyntax
 //@[11:0016) | | └─Token(Identifier) |w41__|
 //@[16:0017) | ├─Token(Assignment) |=|
-//@[18:0046) | └─FunctionCallSyntax
+//@[18:0047) | └─FunctionCallSyntax
 //@[18:0024) |   ├─IdentifierSyntax
 //@[18:0024) |   | └─Token(Identifier) |concat|
 //@[24:0025) |   ├─Token(LeftParen) |(|
 //@[25:0032) |   ├─FunctionArgumentSyntax
 //@[25:0032) |   | └─StringSyntax
 //@[25:0032) |   |   └─Token(StringComplete) |'xxxxx'|
-//@[45:0046) |   └─Token(RightParen) |)|
-//@[46:0047) ├─Token(NewLine) |\n|
+//@[32:0033) |   ├─Token(Comma) |,|
+//@[34:0046) |   ├─FunctionArgumentSyntax
+//@[34:0046) |   | └─StringSyntax
+//@[34:0046) |   |   └─Token(StringComplete) |'xxxxxxxxxx'|
+//@[46:0047) |   └─Token(RightParen) |)|
+//@[47:0048) ├─Token(NewLine) |\n|
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //@[00:0042) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|

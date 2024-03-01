@@ -78,11 +78,9 @@ module modANoInputs './modulea.bicep' = {
 }
 
 module modANoInputsWithCondition './modulea.bicep' =
-  if (length(
-    [
-      'foo'
-    ]
-  ) == 1) {
+  if (length([
+    'foo'
+  ]) == 1) {
     name: 'modANoInputs'
     // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
   }

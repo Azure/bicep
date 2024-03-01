@@ -11,9 +11,7 @@ param fwpolicyid string
 @description('Virtual Hub Resource ID, used when deploying Azure Firewall to Virtual WAN')
 param hubid string = ''
 
-@description(
-  'Specifies the number of public IPs to allocate to the firewall when deploying Azure Firewall to Virtual WAN'
-)
+@description('Specifies the number of public IPs to allocate to the firewall when deploying Azure Firewall to Virtual WAN')
 param hubpublicipcount int = 1
 
 @description('AzureFirewallSubnet ID, used when deploying Azure Firewall to Virtual Network')

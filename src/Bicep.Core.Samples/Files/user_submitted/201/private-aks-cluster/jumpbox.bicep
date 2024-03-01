@@ -19,9 +19,7 @@ param imagePublisher string = 'Canonical'
 @description('Specifies the offer of the platform image or marketplace image used to create the virtual machine.')
 param imageOffer string = 'UbuntuServer'
 
-@description(
-  'Specifies the Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.'
-)
+@description('Specifies the Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.')
 param imageSku string = '18.04-LTS'
 
 @description('Specifies the name of the administrator account of the virtual machine.')
@@ -49,9 +47,7 @@ param dataDiskSize int = 50
 @description('Specifies the caching requirements for the data disks.')
 param dataDiskCaching string = 'ReadWrite'
 
-@description(
-  'Specifies the globally unique name for the storage account used to store the boot diagnostics logs of the virtual machine.'
-)
+@description('Specifies the globally unique name for the storage account used to store the boot diagnostics logs of the virtual machine.')
 param blobStorageAccountName string = 'blob${uniqueString(resourceGroup().id)}'
 
 @description('Specifies the name of the private link to the boot diagnostics storage account.')
