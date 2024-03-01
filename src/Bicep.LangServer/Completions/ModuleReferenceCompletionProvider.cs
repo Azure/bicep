@@ -116,7 +116,7 @@ namespace Bicep.LanguageServer.Completions
 
             // Top-level Bicep registry completions
             AddCompletionItem(OciArtifactReferenceFacts.SchemeWithColon, null, "Bicep registry", ModuleCompletionPriority.FullPath, "module registry completion");
-            if (bicepModuleAliases.Any())
+            if (!bicepModuleAliases.IsEmpty)
             {
                 // br/<alias>
                 foreach (var kvp in bicepModuleAliases)
