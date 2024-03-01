@@ -1,9 +1,7 @@
 @description('Region where you resources are located')
 param location string = resourceGroup().location
 
-@description(
-  'Name of the Network Watcher attached to your subscription. Format: NetworkWatcher_<region_name>'
-)
+@description('Name of the Network Watcher attached to your subscription. Format: NetworkWatcher_<region_name>')
 param NetworkWatcherName string = 'NetworkWatcher_${location}'
 
 @description('Chosen name of your Flow log resource')

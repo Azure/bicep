@@ -256,10 +256,7 @@ param invalidPermutation array = ['foobar', true, 100]
 @allowed(
   [
     ['Microsoft.AnalysisServices/servers', 'Microsoft.ApiManagement/service']
-    [
-      'Microsoft.Network/applicationGateways'
-      'Microsoft.Automation/automationAccounts'
-    ]
+    ['Microsoft.Network/applicationGateways', 'Microsoft.Automation/automationAccounts']
   ]
 )
 param invalidDefaultWithAllowedArrayDecorator array = true

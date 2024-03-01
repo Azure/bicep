@@ -134,9 +134,7 @@ output keyVaultSecretObjectOutput object = {
   secret: kv.getSecret('mySecret')
 }
 output keyVaultSecretArrayOutput array = [kv.getSecret('mySecret')]
-output keyVaultSecretArrayInterpolatedOutput array = [
-  '${kv.getSecret('mySecret')}'
-]
+output keyVaultSecretArrayInterpolatedOutput array = ['${kv.getSecret('mySecret')}']
 
 // WARNING!!!!! dangling decorators
 

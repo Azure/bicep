@@ -1,6 +1,4 @@
-@description(
-  'The base URI where artifacts required by this template are located.'
-)
+@description('The base URI where artifacts required by this template are located.')
 param artifactsLocation string = 'https://raw.githubusercontent.com/Azure/RDS-Templates/master/ARM-wvd-templates/DSC/Configuration.zip'
 
 @description('The name of the Hostpool to be created.')
@@ -60,18 +58,12 @@ param availabilitySetName string = ''
 @description('Whether to create a new availability set for the VMs.')
 param createAvailabilitySet bool = false
 
-@allowed(
-  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-)
-@description(
-  'The platform update domain count of avaiability set to be created.'
-)
+@allowed([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
+@description('The platform update domain count of avaiability set to be created.')
 param availabilitySetUpdateDomainCount int = 5
 
 @allowed([1, 2, 3])
-@description(
-  'The platform fault domain count of avaiability set to be created.'
-)
+@description('The platform fault domain count of avaiability set to be created.')
 param availabilitySetFaultDomainCount int = 2
 
 @allowed([1, 2, 3])
@@ -87,9 +79,7 @@ param vmLocation string = ''
 @description('The size of the session host VMs.')
 param vmSize string = ''
 
-@description(
-  'Number of session hosts that will be created and added to the hostpool.'
-)
+@description('Number of session hosts that will be created and added to the hostpool.')
 param vmNumberOfInstances int = 0
 
 @description(
@@ -117,9 +107,7 @@ param vmGalleryImageSKU string = ''
 )
 param vmImageVhdUri string = ''
 
-@description(
-  '(Required when vmImageType = CustomImage) Resource ID of the image'
-)
+@description('(Required when vmImageType = CustomImage) Resource ID of the image')
 param vmCustomImageSourceId string = ''
 
 @allowed(['Premium_LRS', 'StandardSSD_LRS', 'Standard_LRS'])
@@ -145,9 +133,7 @@ param existingSubnetName string = ''
 @description('The resource group containing the existing virtual network.')
 param virtualNetworkResourceGroupName string = ''
 
-@description(
-  'Whether to create a new network security group or use an existing one'
-)
+@description('Whether to create a new network security group or use an existing one')
 param createNetworkSecurityGroup bool = false
 
 @description('The resource id of an existing network security group')
@@ -232,9 +218,7 @@ param aadJoin bool = false
 param intune bool = false
 
 var createVMs = (vmNumberOfInstances > 0)
-var rdshManagedDisks = ((vmImageType == 'CustomVHD')
-  ? vmUseManagedDisks
-  : bool('true'))
+var rdshManagedDisks = ((vmImageType == 'CustomVHD') ? vmUseManagedDisks : bool('true'))
 var rdshPrefix = '${vmNamePrefix}-'
 var avSetSKU = (rdshManagedDisks ? 'Aligned' : 'Classic')
 var vhds = 'vhds/${rdshPrefix}'
@@ -251,15 +235,8 @@ var rdshVmNamesOutput = [
   }
 ]
 var appGroupName_var = '${hostpoolName_var}-DAG'
-var appGroupResourceId = [
-  resourceId(
-    'Microsoft.DesktopVirtualization/applicationgroups/',
-    appGroupName_var
-  )
-]
-var workspaceResourceGroup_var = (empty(workspaceResourceGroup)
-  ? resourceGroup().name
-  : workspaceResourceGroup)
+var appGroupResourceId = [resourceId('Microsoft.DesktopVirtualization/applicationgroups/', appGroupName_var)]
+var workspaceResourceGroup_var = (empty(workspaceResourceGroup) ? resourceGroup().name : workspaceResourceGroup)
 var applicationGroupReferencesArr = (('' == allApplicationGroupReferences)
   ? appGroupResourceId
   : concat(split(allApplicationGroupReferences, ','), appGroupResourceId))
@@ -288,9 +265,7 @@ resource hostpool 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview'
   name: hostpoolName
   location: location
   tags: hostpoolTags
-  properties: (empty(customRdpProperty)
-    ? hostpoolRequiredProps
-    : union(hostpoolOptionalProps, hostpoolRequiredProps))
+  properties: (empty(customRdpProperty) ? hostpoolRequiredProps : union(hostpoolOptionalProps, hostpoolRequiredProps))
 }
 
 resource appGroupName 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {

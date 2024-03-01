@@ -156,9 +156,7 @@ namespace Bicep.Cli.IntegrationTests
                     roleDefinitionId: roleDefinitionId
                     roleAssignmentName: roleAssignmentName
                   }
-                  dependsOn: [
-                    subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)
-                  ]
+                  dependsOn: [subscriptionResourceId('Microsoft.Resources/resourceGroups', rgName)]
                 }
 
                 """);
@@ -180,10 +178,7 @@ namespace Bicep.Cli.IntegrationTests
                 resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
                   name: guid(roleAssignmentName)
                   properties: {
-                    roleDefinitionId: subscriptionResourceId(
-                      'Microsoft.Authorization/roleDefinitions',
-                      roleDefinitionId
-                    )
+                    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
                     principalId: principalId
                   }
                 }

@@ -36,24 +36,16 @@ param enableDeleteLock bool = false
 @description('Enable diagnostic logs')
 param enableDiagnostics bool = false
 
-@description(
-  'Storage account name. Only required if enableDiagnostics is set to true.'
-)
+@description('Storage account name. Only required if enableDiagnostics is set to true.')
 param diagnosticStorageAccountName string = ''
 
-@description(
-  'Storage account resource group. Only required if enableDiagnostics is set to true.'
-)
+@description('Storage account resource group. Only required if enableDiagnostics is set to true.')
 param diagnosticStorageAccountResourceGroup string = ''
 
-@description(
-  'Log analytics workspace name. Only required if enableDiagnostics is set to true.'
-)
+@description('Log analytics workspace name. Only required if enableDiagnostics is set to true.')
 param logAnalyticsWorkspaceName string = ''
 
-@description(
-  'Log analytics workspace resource group. Only required if enableDiagnostics is set to true.'
-)
+@description('Log analytics workspace resource group. Only required if enableDiagnostics is set to true.')
 param logAnalyticsResourceGroup string = ''
 
 @description(

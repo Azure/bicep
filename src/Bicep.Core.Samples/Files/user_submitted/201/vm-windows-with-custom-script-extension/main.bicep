@@ -33,14 +33,7 @@ param virtualMachinePublisher string = 'MicrosoftWindowsDesktop'
 param virtualMachineOffer string = 'Windows-10'
 
 // The Windows version for the VM. This will pick a fully patched image of this given Windows version.
-@allowed(
-  [
-    'vs-2019-comm-latest-ws2019'
-    'vs-2019-ent-latest-ws2019'
-    '20h1-pro-g2'
-    '20h1-ent-g2'
-  ]
-)
+@allowed(['vs-2019-comm-latest-ws2019', 'vs-2019-ent-latest-ws2019', '20h1-pro-g2', '20h1-ent-g2'])
 param virtualMachineSku string = '20h1-pro-g2'
 
 // The URI of the PowerShell Custom Script.
@@ -78,9 +71,7 @@ resource pip 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   properties: {
     publicIPAllocationMethod: 'Static'
     dnsSettings: {
-      domainNameLabel: (publicIpDnsLabel ?? '') == ''
-        ? replace(metadata.shortName, '{0}', 'vm')
-        : publicIpDnsLabel
+      domainNameLabel: (publicIpDnsLabel ?? '') == '' ? replace(metadata.shortName, '{0}', 'vm') : publicIpDnsLabel
     }
   }
 }
@@ -157,11 +148,7 @@ var networkInterface = {
           id: pip.id
         }
         subnet: {
-          id: resourceId(
-            'Microsoft.Network/virtualNetworks/subnets',
-            vnet.name,
-            subnetName
-          )
+          id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, subnetName)
         }
       }
     }

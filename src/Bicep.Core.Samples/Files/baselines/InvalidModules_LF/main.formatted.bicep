@@ -68,8 +68,7 @@ module modANoNameWithCondition './modulea.bicep' =
 module modWithReferenceInCondition './main.bicep' =
   if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {}
 
-module modWithListKeysInCondition './main.bicep' =
-  if (listKeys('foo', '2020-05-01').bar == true) {}
+module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-01').bar == true) {}
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {}
 
@@ -178,10 +177,7 @@ resource runtimeValidRes1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 }
 
 module runtimeValidModule1 'empty.bicep' = {
-  name: concat(
-    concat(runtimeValidRes1.id, runtimeValidRes1.name),
-    runtimeValidRes1.type
-  )
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
 }
 
 module runtimeInvalidModule1 'empty.bicep' = {
@@ -231,10 +227,7 @@ module moduleLoopForRuntimeCheck2 'modulea.bicep' = [
 
 module moduleLoopForRuntimeCheck3 'modulea.bicep' = [
   for thing in []: {
-    name: concat(
-      moduleLoopForRuntimeCheck[1].outputs.stringOutputB,
-      moduleLoopForRuntimeCheck[1].outputs.stringOutputA
-    )
+    name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA)
   }
 ]
 
@@ -333,9 +326,7 @@ module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {}]
-module missingLoopBodyProperties2 'modulea.bicep' = [
-  for (x, i) in emptyArray: {}
-]
+module missingLoopBodyProperties2 'modulea.bicep' = [for (x, i) in emptyArray: {}]
 
 // wrong array type
 var notAnArray = true

@@ -20,13 +20,8 @@ resource automationAccountName_automationModules_modules 'Microsoft.Automation/a
         uri: automationModules.modules[i].url
       }
     }
-    dependsOn: [
-      resourceId(
-//@[6:107) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId(\n        'Microsoft.Automation/automationAccounts/',\n        automationAccountName\n      )|
-        'Microsoft.Automation/automationAccounts/',
-        automationAccountName
-      )
-    ]
+    dependsOn: [resourceId('Microsoft.Automation/automationAccounts/', automationAccountName)]
+//@[16:93) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Automation/automationAccounts/', automationAccountName)|
   }
 ]
 

@@ -97,15 +97,7 @@ resource cluster 'Microsoft.HDInsight/clusters@2018-06-01-preview' = {
     storageProfile: {
       storageaccounts: [
         {
-          name: replace(
-            replace(
-              defaultStorageAccount.properties.primaryEndpoints.blob,
-              'https://',
-              ''
-            ),
-            '/',
-            ''
-          )
+          name: replace(replace(defaultStorageAccount.properties.primaryEndpoints.blob, 'https://', ''), '/', '')
           isDefault: true
           container: clusterName
           key: defaultStorageAccount.listKeys('2021-04-01').keys[0].value

@@ -3,9 +3,7 @@
 )
 param uniqueDnsName string
 
-@description(
-  'Relative DNS name for the WebApps, must be globally unique.  An index will be appended for each Web App.'
-)
+@description('Relative DNS name for the WebApps, must be globally unique.  An index will be appended for each Web App.')
 param uniqueDnsNameForWebApp string
 
 @description('Name of the App Service Plan that is being created')

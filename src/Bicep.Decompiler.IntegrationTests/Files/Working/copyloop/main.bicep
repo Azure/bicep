@@ -65,10 +65,7 @@ resource vmPrefix_resource 'Microsoft.Compute/virtualMachines@2020-06-01' = [
       networkProfile: {
         networkInterfaces: [
           {
-            id: resourceId(
-              'Microsoft.Network/networkInterfaces',
-              '${vmPrefix}-${i}'
-            )
+            id: resourceId('Microsoft.Network/networkInterfaces', '${vmPrefix}-${i}')
           }
         ]
       }

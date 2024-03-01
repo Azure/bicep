@@ -27,10 +27,8 @@ var mapObject = map(
 )
 var mapArray = flatten(map(range(1, 3), i => [(i * 2), ((i * 2) + 1)]))
 //@[04:12) [no-unused-vars (Warning)] Variable "mapArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mapArray|
-var mapMultiLineArray = flatten(
+var mapMultiLineArray = flatten(map(range(1, 3), i => [(i * 3), ((i * 3) + 1), ((i * 3) + 2)]))
 //@[04:21) [no-unused-vars (Warning)] Variable "mapMultiLineArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mapMultiLineArray|
-  map(range(1, 3), i => [(i * 3), ((i * 3) + 1), ((i * 3) + 2)])
-)
 var filterEqualityCheck = filter(['abc', 'def', 'ghi'], foo => ('def' == foo))
 //@[04:23) [no-unused-vars (Warning)] Variable "filterEqualityCheck" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |filterEqualityCheck|
 var filterEmpty = filter([], foo => ('def' == foo))
@@ -64,13 +62,9 @@ var sortByObjectKey = sort(
 )
 var sortEmpty = sort([], (x, y) => (int(x) < int(y)))
 //@[04:13) [no-unused-vars (Warning)] Variable "sortEmpty" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sortEmpty|
-var reduceStringConcat = reduce(
+var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat(cur, next))
 //@[04:22) [no-unused-vars (Warning)] Variable "reduceStringConcat" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |reduceStringConcat|
-  ['abc', 'def', 'ghi'],
-  '',
-  (cur, next) => concat(cur, next)
-//@[17:34) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(cur, next)|
-)
+//@[74:91) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(cur, next)|
 var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => (cur * next))
 //@[04:19) [no-unused-vars (Warning)] Variable "reduceFactorial" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |reduceFactorial|
 var reduceObjectUnion = reduce(

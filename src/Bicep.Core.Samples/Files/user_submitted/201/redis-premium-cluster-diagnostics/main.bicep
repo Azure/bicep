@@ -18,9 +18,7 @@ param redisCacheFamily string = 'P'
 @allowed([0, 1, 2, 3, 4, 5, 6])
 param redisCacheCapacity int = 1
 
-@description(
-  'Set to true to allow access to redis on port 6379, without SSL tunneling (less secure).'
-)
+@description('Set to true to allow access to redis on port 6379, without SSL tunneling (less secure).')
 param enableNonSslPort bool = false
 
 @description(
@@ -28,9 +26,7 @@ param enableNonSslPort bool = false
 )
 param diagnosticsEnabled bool = true
 
-@description(
-  'Specify an existing storage account for diagnostics. Must be in the same subscription.'
-)
+@description('Specify an existing storage account for diagnostics. Must be in the same subscription.')
 param existingDiagnosticsStorageAccountId string
 
 resource cache 'Microsoft.Cache/Redis@2020-06-01' = {

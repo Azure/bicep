@@ -14,9 +14,7 @@ param name string
 )
 param sku string = 'Standard_LRS'
 
-@allowed(
-  ['Storage', 'StorageV2', 'BlobStorage', 'FileStorage', 'BlockBlobStorage']
-)
+@allowed(['Storage', 'StorageV2', 'BlobStorage', 'FileStorage', 'BlockBlobStorage'])
 param kind string = 'StorageV2'
 
 @allowed(['Hot', 'Cool'])

@@ -60,19 +60,10 @@ resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' = [
 ]
 
 output stgKeys array = map(range(0, 2), i => stg[i].listKeys().keys[0].value)
-output stgKeys2 array = map(
-  range(0, 2),
-  j => stg[((j + 2) % 123)].listKeys().keys[0].value
-)
-output stgKeys3 array = map(
-  ids,
-  id => listKeys(id, stg[0].apiVersion).keys[0].value
-)
+output stgKeys2 array = map(range(0, 2), j => stg[((j + 2) % 123)].listKeys().keys[0].value)
+output stgKeys3 array = map(ids, id => listKeys(id, stg[0].apiVersion).keys[0].value)
 output accessTiers array = map(range(0, 2), k => stg[k].properties.accessTier)
-output accessTiers2 array = map(
-  range(0, 2),
-  x => map(range(0, 2), y => stg[x / y].properties.accessTier)
-)
+output accessTiers2 array = map(range(0, 2), x => map(range(0, 2), y => stg[x / y].properties.accessTier))
 output accessTiers3 array = map(ids, foo => reference('${foo}').accessTier)
 
 module modLoop './empty.bicep' = [

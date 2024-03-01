@@ -5,9 +5,7 @@ param dnsPrefix string = 'cl01'
 @description('The name of the Managed Cluster resource.')
 param clusterName string = 'aks101'
 
-@description(
-  'Specifies the Azure location where the key vault should be created.'
-)
+@description('Specifies the Azure location where the key vault should be created.')
 param location string = resourceGroup().location
 
 @minValue(1)

@@ -1,6 +1,4 @@
-@description(
-  'Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)'
-)
+@description('Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)')
 param virtualMachineSize string = 'Standard_DS1_v2'
 
 @description('Default Admin username')
@@ -26,16 +24,8 @@ var virtualNetworkName = 'virtualNetwork'
 var subnet1Name = 'subnet-1'
 var subnet2Name = 'subnet-2'
 var publicIPAddressName = 'publicIp'
-var subnet1Ref = resourceId(
-  'Microsoft.Network/virtualNetworks/subnets',
-  virtualNetworkName,
-  subnet1Name
-)
-var subnet2Ref = resourceId(
-  'Microsoft.Network/virtualNetworks/subnets',
-  virtualNetworkName,
-  subnet2Name
-)
+var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet1Name)
+var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet2Name)
 var diagStorageAccountName = 'diags${uniqueString(resourceGroup().id)}'
 var networkSecurityGroupName = 'NSG'
 var networkSecurityGroupName2 = '${subnet2Name}-nsg'

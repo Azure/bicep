@@ -286,9 +286,7 @@ namespace Bicep.LangServer.IntegrationTests
                 resource myRes 'myRp/provider@2019-01-01' = {
                   name: 'test'
                 }
-                @description(
-                  'Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg'
-                )
+                @description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg')
                 resource myRg 'Microsoft.Resources/resourceGroups@2020-01-01' = {
                   name: 'myRg'
                   properties: {

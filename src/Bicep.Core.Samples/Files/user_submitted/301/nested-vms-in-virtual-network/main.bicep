@@ -66,10 +66,7 @@ var DSCInstallWindowsFeaturesUri = uri(
   _artifactsLocation,
   'dsc/dscinstallwindowsfeatures.zip${_artifactsLocationSasToken}'
 )
-var HVHostSetupScriptUri = uri(
-  _artifactsLocation,
-  'hvhostsetup.ps1${_artifactsLocationSasToken}'
-)
+var HVHostSetupScriptUri = uri(_artifactsLocation, 'hvhostsetup.ps1${_artifactsLocationSasToken}')
 
 resource publicIp 'Microsoft.Network/publicIpAddresses@2019-04-01' = {
   name: HostPublicIPAddressName
@@ -80,9 +77,7 @@ resource publicIp 'Microsoft.Network/publicIpAddresses@2019-04-01' = {
   properties: {
     publicIPAllocationMethod: 'Dynamic'
     dnsSettings: {
-      domainNameLabel: toLower(
-        '${HostVirtualMachineName}-${uniqueString(resourceGroup().id)}'
-      )
+      domainNameLabel: toLower('${HostVirtualMachineName}-${uniqueString(resourceGroup().id)}')
     }
   }
 }

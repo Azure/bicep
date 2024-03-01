@@ -544,14 +544,7 @@ name: 'Premium_LRS'
                     expectedBicep: """
                     resource name 'Microsoft.Storage/storageAccounts@2021-02-01' = {
                       name: 'name'
-                      location: concat(
-                        location,
-                        location_var,
-                        location_var,
-                        location_var_var,
-                        location_param,
-                        location_param_var
-                      )
+                      location: concat(location, location_var, location_var, location_var_var, location_param, location_param_var)
                       kind: location_var
                       sku: {
                         name: 'Premium_LRS'

@@ -4,9 +4,7 @@ param location string = resourceGroup().location
 @description('Base URL for the reference templates and scripts')
 param baseUrl string = 'https://my.base/url'
 
-@description(
-  'Name of the Network Watcher attached to your subscription. Format: NetworkWatcher_<region_name>'
-)
+@description('Name of the Network Watcher attached to your subscription. Format: NetworkWatcher_<region_name>')
 param NetworkWatcherName string = 'NetworkWatcher_${location}'
 
 @description('Chosen name of your Flow log resource')

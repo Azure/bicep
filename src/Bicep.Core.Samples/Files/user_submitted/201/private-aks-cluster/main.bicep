@@ -4,9 +4,7 @@ param location string = resourceGroup().location
 @description('Specifies the name of the AKS cluster.')
 param aksClusterName string = 'aks-${uniqueString(resourceGroup().id)}'
 
-@description(
-  'Specifies the DNS prefix specified when creating the managed cluster.'
-)
+@description('Specifies the DNS prefix specified when creating the managed cluster.')
 param aksClusterDnsPrefix string = aksClusterName
 
 @description('Specifies the tags of the AKS cluster.')
@@ -16,20 +14,14 @@ param aksClusterTags object = {
 }
 
 @allowed(['azure', 'kubenet'])
-@description(
-  'Specifies the network plugin used for building Kubernetes network. - azure or kubenet.'
-)
+@description('Specifies the network plugin used for building Kubernetes network. - azure or kubenet.')
 param aksClusterNetworkPlugin string = 'azure'
 
 @allowed(['azure', 'calico'])
-@description(
-  'Specifies the network policy used for building Kubernetes network. - calico or azure'
-)
+@description('Specifies the network policy used for building Kubernetes network. - calico or azure')
 param aksClusterNetworkPolicy string = 'azure'
 
-@description(
-  'Specifies the CIDR notation IP range from which to assign pod IPs when kubenet is used.'
-)
+@description('Specifies the CIDR notation IP range from which to assign pod IPs when kubenet is used.')
 param aksClusterPodCidr string = '10.244.0.0/16'
 
 @description(
@@ -48,18 +40,14 @@ param aksClusterDnsServiceIP string = '10.2.0.10'
 param aksClusterDockerBridgeCidr string = '172.17.0.1/16'
 
 @allowed(['basic', 'standard'])
-@description(
-  'Specifies the sku of the load balancer used by the virtual machine scale sets used by nodepools.'
-)
+@description('Specifies the sku of the load balancer used by the virtual machine scale sets used by nodepools.')
 param aksClusterLoadBalancerSku string = 'standard'
 
 @allowed(['Paid', 'Free'])
 @description('Specifies the tier of a managed cluster SKU: Paid or Free')
 param aksClusterSkuTier string = 'Paid'
 
-@description(
-  'Specifies the version of Kubernetes specified when creating the managed cluster.'
-)
+@description('Specifies the version of Kubernetes specified when creating the managed cluster.')
 param aksClusterKubernetesVersion string = '1.19.7'
 
 @description('Specifies the administrator username of Linux virtual machines.')
@@ -71,27 +59,19 @@ param aksClusterSshPublicKey string
 @description('Specifies whether enabling AAD integration.')
 param aadEnabled bool = false
 
-@description(
-  'Specifies the tenant id of the Azure Active Directory used by the AKS cluster for authentication.'
-)
+@description('Specifies the tenant id of the Azure Active Directory used by the AKS cluster for authentication.')
 param aadProfileTenantId string = subscription().tenantId
 
-@description(
-  'Specifies the AAD group object IDs that will have admin role of the cluster.'
-)
+@description('Specifies the AAD group object IDs that will have admin role of the cluster.')
 param aadProfileAdminGroupObjectIDs array = []
 
-@description(
-  'Specifies whether to create the cluster as a private cluster or not.'
-)
+@description('Specifies whether to create the cluster as a private cluster or not.')
 param aksClusterEnablePrivateCluster bool = true
 
 @description('Specifies whether to enable managed AAD integration.')
 param aadProfileManaged bool = false
 
-@description(
-  'Specifies whether to  to enable Azure RBAC for Kubernetes authorization.'
-)
+@description('Specifies whether to  to enable Azure RBAC for Kubernetes authorization.')
 param aadProfileEnableAzureRBAC bool = false
 
 @description(
@@ -113,9 +93,7 @@ param nodePoolOsDiskSizeGB int = 100
 param nodePoolCount int = 3
 
 @allowed(['Linux', 'Windows'])
-@description(
-  'Specifies the OS type for the vms in the node pool. Choose from Linux and Windows. Default to Linux.'
-)
+@description('Specifies the OS type for the vms in the node pool. Choose from Linux and Windows. Default to Linux.')
 param nodePoolOsType string = 'Linux'
 
 @description(
@@ -123,28 +101,20 @@ param nodePoolOsType string = 'Linux'
 )
 param nodePoolMaxPods int = 30
 
-@description(
-  'Specifies the maximum number of nodes for auto-scaling for the node pool.'
-)
+@description('Specifies the maximum number of nodes for auto-scaling for the node pool.')
 param nodePoolMaxCount int = 5
 
-@description(
-  'Specifies the minimum number of nodes for auto-scaling for the node pool.'
-)
+@description('Specifies the minimum number of nodes for auto-scaling for the node pool.')
 param nodePoolMinCount int = 3
 
 @description('Specifies whether to enable auto-scaling for the node pool.')
 param nodePoolEnableAutoScaling bool = true
 
 @allowed(['Spot', 'Regular'])
-@description(
-  'Specifies the virtual machine scale set priority: Spot or Regular.'
-)
+@description('Specifies the virtual machine scale set priority: Spot or Regular.')
 param nodePoolScaleSetPriority string = 'Regular'
 
-@description(
-  'Specifies the Agent pool node labels to be persisted across all nodes in agent pool.'
-)
+@description('Specifies the Agent pool node labels to be persisted across all nodes in agent pool.')
 param nodePoolNodeLabels object = {}
 
 @description(
@@ -157,9 +127,7 @@ param nodePoolNodeTaints array = []
 param nodePoolMode string = 'System'
 
 @allowed(['VirtualMachineScaleSets', 'AvailabilitySet'])
-@description(
-  'Specifies the type of a node pool: VirtualMachineScaleSets or AvailabilitySet'
-)
+@description('Specifies the type of a node pool: VirtualMachineScaleSets or AvailabilitySet')
 param nodePoolType string = 'VirtualMachineScaleSets'
 
 @description(
@@ -173,23 +141,17 @@ param virtualNetworkName string = '${aksClusterName}Vnet'
 @description('Specifies the address prefixes of the virtual network.')
 param virtualNetworkAddressPrefixes string = '10.0.0.0/8'
 
-@description(
-  'Specifies the name of the default subnet hosting the AKS cluster.'
-)
+@description('Specifies the name of the default subnet hosting the AKS cluster.')
 param aksSubnetName string = 'AksSubnet'
 
-@description(
-  'Specifies the address prefix of the subnet hosting the AKS cluster.'
-)
+@description('Specifies the address prefix of the subnet hosting the AKS cluster.')
 param aksSubnetAddressPrefix string = '10.0.0.0/16'
 
 @description('Specifies the name of the Log Analytics Workspace.')
 param logAnalyticsWorkspaceName string
 
 @allowed(['Free', 'Standalone', 'PerNode', 'PerGB2018'])
-@description(
-  'Specifies the service tier of the workspace: Free, Standalone, PerNode, Per-GB.'
-)
+@description('Specifies the service tier of the workspace: Free, Standalone, PerNode, Per-GB.')
 param logAnalyticsSku string = 'PerGB2018'
 
 @description(
@@ -197,14 +159,10 @@ param logAnalyticsSku string = 'PerGB2018'
 )
 param logAnalyticsRetentionInDays int = 60
 
-@description(
-  'Specifies the name of the subnet which contains the virtual machine.'
-)
+@description('Specifies the name of the subnet which contains the virtual machine.')
 param vmSubnetName string = 'VmSubnet'
 
-@description(
-  'Specifies the address prefix of the subnet which contains the virtual machine.'
-)
+@description('Specifies the address prefix of the subnet which contains the virtual machine.')
 param vmSubnetAddressPrefix string = '10.1.0.0/24'
 
 @description('Specifies the name of the virtual machine.')
@@ -213,14 +171,10 @@ param vmName string = 'TestVm'
 @description('Specifies the size of the virtual machine.')
 param vmSize string = 'Standard_DS3_v2'
 
-@description(
-  'Specifies the image publisher of the disk image used to create the virtual machine.'
-)
+@description('Specifies the image publisher of the disk image used to create the virtual machine.')
 param imagePublisher string = 'Canonical'
 
-@description(
-  'Specifies the offer of the platform image or marketplace image used to create the virtual machine.'
-)
+@description('Specifies the offer of the platform image or marketplace image used to create the virtual machine.')
 param imageOffer string = 'UbuntuServer'
 
 @description(
@@ -228,14 +182,10 @@ param imageOffer string = 'UbuntuServer'
 )
 param imageSku string = '18.04-LTS'
 
-@description(
-  'Specifies the name of the administrator account of the virtual machine.'
-)
+@description('Specifies the name of the administrator account of the virtual machine.')
 param vmAdminUsername string
 
-@description(
-  'Specifies the SSH Key or password for the virtual machine. SSH key is recommended.'
-)
+@description('Specifies the SSH Key or password for the virtual machine. SSH key is recommended.')
 @secure()
 param vmSshKey string
 
@@ -262,14 +212,10 @@ param dataDiskCaching string = 'ReadWrite'
 )
 param blobStorageAccountName string = 'blob${uniqueString(resourceGroup().id)}'
 
-@description(
-  'Specifies the name of the private link to the boot diagnostics storage account.'
-)
+@description('Specifies the name of the private link to the boot diagnostics storage account.')
 param blobStorageAccountPrivateEndpointName string = 'BlobStorageAccountPrivateEndpoint'
 
-@description(
-  'Specifies the Bastion subnet IP prefix. This prefix must be within vnet IP prefix address space.'
-)
+@description('Specifies the Bastion subnet IP prefix. This prefix must be within vnet IP prefix address space.')
 param bastionSubnetAddressPrefix string = '10.1.1.0/26'
 
 @description('Specifies the name of the Azure Bastion resource.')

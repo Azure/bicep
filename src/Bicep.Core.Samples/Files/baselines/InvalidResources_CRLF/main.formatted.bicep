@@ -28,8 +28,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {}
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (name == 'value') {}
 
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' =
-  if ({ 'a': b }.a == 'foo') {}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if ({ 'a': b }.a == 'foo') {}
 
 // simulate typing if condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
@@ -205,10 +204,7 @@ resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 }
 
 resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: concat(
-    concat(runtimeValidRes1.id, runtimeValidRes1.name),
-    runtimeValidRes1.type
-  )
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
   kind: 'AzureCLI'
   location: 'eastus'
   properties: {
@@ -1058,26 +1054,16 @@ resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for
 resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
 
 // duplicate variable in the same scope
-resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [
-  for (same, same) in emptyArray: {}
-]
+resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {}]
 
 // errors in the array expression
-resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for account in union([], 2): {}
-]
-resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for (account, k) in union([], 2): {}
-]
+resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {}]
+resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, k) in union([], 2): {}]
 
 // wrong array type
 var notAnArray = true
-resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for account in notAnArray: {}
-]
-resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for (account, i) in notAnArray: {}
-]
+resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {}]
+resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in notAnArray: {}]
 
 // wrong filter expression type
 resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [
@@ -1088,12 +1074,8 @@ resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-0
 ]
 
 // missing required properties
-resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for account in []: {}
-]
-resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for (account, j) in []: {}
-]
+resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {}]
+resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, j) in []: {}]
 
 // fewer missing required properties and a wrong property
 resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [
@@ -1302,9 +1284,7 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
   name: 'hello'
   location: 'eastus'
   properties: {
-    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [
-      for thing in []: {}
-    ]
+    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
   }
 }
 
@@ -1441,11 +1421,7 @@ resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extension
 resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'anyTypeInDependsOn'
   location: resourceGroup().location
-  dependsOn: [
-    any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
-    's'
-    any(true)
-  ]
+  dependsOn: [any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion), 's', any(true)]
 }
 
 resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
@@ -1624,9 +1600,7 @@ resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-
   }
 }
 
-@description(
-  'The language of the Deployment Script. AzurePowerShell or AzureCLI.'
-)
+@description('The language of the Deployment Script. AzurePowerShell or AzureCLI.')
 @allowed(['AzureCLI', 'AzurePowerShell'])
 param issue4668_kind string = 'AzureCLI'
 @description('The identity that will be used to execute the Deployment Script.')

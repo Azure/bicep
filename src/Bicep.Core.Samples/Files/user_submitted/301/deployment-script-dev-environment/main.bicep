@@ -1,9 +1,5 @@
-param storageName string = toLower(
-  '${take('deployscript${uniqueString(resourceGroup().id)}', 22)}st'
-)
-param containerName string = toLower(
-  '${take('deployscript${uniqueString(resourceGroup().id)}', 22)}ci'
-)
+param storageName string = toLower('${take('deployscript${uniqueString(resourceGroup().id)}', 22)}st')
+param containerName string = toLower('${take('deployscript${uniqueString(resourceGroup().id)}', 22)}ci')
 
 @description('Specify which type of dev environment to deploy')
 @allowed(['AzureCLI', 'AzurePowerShell'])

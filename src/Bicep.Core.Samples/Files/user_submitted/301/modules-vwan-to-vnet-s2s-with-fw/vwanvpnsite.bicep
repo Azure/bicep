@@ -10,9 +10,7 @@ param bgppeeringpddress string
 @description('Specifices the VPN Sites VPN Device IP Address')
 param ipaddress string
 
-@description(
-  'Specifices the resource ID of the Virtual WAN where the VPN Site should be created'
-)
+@description('Specifices the resource ID of the Virtual WAN where the VPN Site should be created')
 param wanid string
 
 @description('BGP AS-Number used by the remote site')

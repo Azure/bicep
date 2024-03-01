@@ -1,6 +1,4 @@
-@description(
-  'The base URI where artifacts required by this template are located.'
-)
+@description('The base URI where artifacts required by this template are located.')
 param artifactsLocation string = 'ttps://raw.githubusercontent.com/Azure/RDS-Templates/master/ARM-wvd-templates/DSC/Configuration.zip'
 
 @allowed(['None', 'AvailabilitySet', 'AvailabilityZone'])
@@ -36,9 +34,7 @@ param vmGalleryImageSKU string = ''
 )
 param rdshPrefix string = take(toLower(resourceGroup().name), 10)
 
-@description(
-  'Number of session hosts that will be created and added to the hostpool.'
-)
+@description('Number of session hosts that will be created and added to the hostpool.')
 param rdshNumberOfInstances int
 
 @allowed(['Premium_LRS', 'StandardSSD_LRS', 'Standard_LRS'])
@@ -83,9 +79,7 @@ param rdshImageSourceId string = ''
 @description('Location for all resources to be created in.')
 param location string = ''
 
-@description(
-  'Whether to create a new network security group or use an existing one'
-)
+@description('Whether to create a new network security group or use an existing one')
 param createNetworkSecurityGroup bool = false
 
 @description('The resource id of an existing network security group')
@@ -133,16 +127,10 @@ param aadJoin bool = false
 param intune bool = false
 
 var emptyArray = []
-var domain_var = ((domain == '')
-  ? last(split(administratorAccountUsername, '@'))!
-  : domain)
+var domain_var = ((domain == '') ? last(split(administratorAccountUsername, '@'))! : domain)
 var storageAccountName = split(split(vmImageVhdUri, '/')[2], '.')[0]
 var storageaccount = concat(
-  resourceId(
-    storageAccountResourceGroupName,
-    'Microsoft.Storage/storageAccounts',
-    storageAccountName
-  )
+  resourceId(storageAccountResourceGroupName, 'Microsoft.Storage/storageAccounts', storageAccountName)
 )
 var newNsgName = '${rdshPrefix}nsg-${guidValue}'
 var nsgId = (createNetworkSecurityGroup
@@ -188,9 +176,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2018-11-01' = [
         }
       ]
       enableAcceleratedNetworking: enableAcceleratedNetworking
-      networkSecurityGroup: (empty(networkSecurityGroupId)
-        ? null
-        : json('{"id": "${nsgId}"}'))
+      networkSecurityGroup: (empty(networkSecurityGroupId) ? null : json('{"id": "${nsgId}"}'))
     }
     dependsOn: [NSG]
   }
@@ -208,9 +194,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2018-10-01' = [
       hardwareProfile: {
         vmSize: rdshVmSize
       }
-      availabilitySet: ((availabilityOption == 'AvailabilitySet')
-        ? vmAvailabilitySetResourceId
-        : null)
+      availabilitySet: ((availabilityOption == 'AvailabilitySet') ? vmAvailabilitySetResourceId : null)
       osProfile: {
         computerName: concat(rdshPrefix, (i + vmInitialNumber))
         adminUsername: vmAdministratorUsername
@@ -233,10 +217,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2018-10-01' = [
       networkProfile: {
         networkInterfaces: [
           {
-            id: resourceId(
-              'Microsoft.Network/networkInterfaces',
-              '${rdshPrefix}${(i + vmInitialNumber)}-nic'
-            )
+            id: resourceId('Microsoft.Network/networkInterfaces', '${rdshPrefix}${(i + vmInitialNumber)}-nic')
           }
         ]
       }
@@ -247,9 +228,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2018-10-01' = [
       }
       licenseType: 'Windows_Client'
     }
-    zones: ((availabilityOption == 'AvailabilityZone')
-      ? array(availabilityZone)
-      : emptyArray)
+    zones: ((availabilityOption == 'AvailabilityZone') ? array(availabilityZone) : emptyArray)
     dependsOn: [nic]
   }
 ]

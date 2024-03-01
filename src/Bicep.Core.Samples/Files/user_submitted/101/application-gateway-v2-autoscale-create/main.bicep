@@ -111,11 +111,7 @@ resource applicationGateway 'Microsoft.Network/applicationGateways@2020-06-01' =
         name: 'appGatewayIpConfig'
         properties: {
           subnet: {
-            id: resourceId(
-              'Microsoft.Network/virtualNetworks/subnets',
-              virtualNetwork.name,
-              subnetName
-            )
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, subnetName)
           }
         }
       }

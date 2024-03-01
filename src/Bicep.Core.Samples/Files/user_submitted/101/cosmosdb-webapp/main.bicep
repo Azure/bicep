@@ -5,9 +5,7 @@ param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-@allowed(
-  ['F1', 'D1', 'B1', 'B2', 'B3', 'S1', 'S2', 'S3', 'P1', 'P2', 'P3', 'P4']
-)
+@allowed(['F1', 'D1', 'B1', 'B2', 'B3', 'S1', 'S2', 'S3', 'P1', 'P2', 'P3', 'P4'])
 @description(
   'App Service Plan\'s pricing tier. Details at https://azure.microsoft.com/en-us/pricing/details/app-service/'
 )
@@ -18,9 +16,7 @@ param appServicePlanTier string = 'F1'
 @description('App Service Plan\'s instance count')
 param appServicePlanInstances int = 1
 
-@description(
-  'The URL for the GitHub repository that contains the project to deploy.'
-)
+@description('The URL for the GitHub repository that contains the project to deploy.')
 param repositoryUrl string = 'https://github.com/Azure-Samples/cosmos-dotnet-core-todo-app.git'
 
 @description('The branch of the GitHub repository to use.')

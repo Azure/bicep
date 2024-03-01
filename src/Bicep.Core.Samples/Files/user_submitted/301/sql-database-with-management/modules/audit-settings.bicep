@@ -11,9 +11,7 @@ var defaultAuditActionsAndGroups = [
 resource auditSettings 'Microsoft.Sql/servers/databases/auditingSettings@2021-02-01-preview' = {
   name: '${sqlServerName}/${sqlDatabase.name}/Default'
   properties: {
-    state: sqlDatabase.diagnosticLogsAndMetrics.auditLogs
-      ? 'Enabled'
-      : 'Disabled'
+    state: sqlDatabase.diagnosticLogsAndMetrics.auditLogs ? 'Enabled' : 'Disabled'
     auditActionsAndGroups: !empty(sqlDatabase.auditActionsAndGroups)
       ? sqlDatabase.auditActionsAndGroups
       : defaultAuditActionsAndGroups

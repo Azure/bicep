@@ -1,6 +1,4 @@
-@description(
-  'Name of new or existing vnet to which Azure Bastion should be deployed'
-)
+@description('Name of new or existing vnet to which Azure Bastion should be deployed')
 param vnetName string = 'vnet01'
 
 @description('IP prefix for available addresses in vnet address space')
@@ -10,9 +8,7 @@ param vnetIpPrefix string = '10.1.0.0/16'
 @allowed(['new', 'existing'])
 param vnetNewOrExisting string = 'new'
 
-@description(
-  'Bastion subnet IP prefix MUST be within vnet IP prefix address space'
-)
+@description('Bastion subnet IP prefix MUST be within vnet IP prefix address space')
 param bastionSubnetIpPrefix string = '10.1.1.0/27'
 
 @description('Name of Azure Bastion resource')

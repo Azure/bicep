@@ -4,9 +4,7 @@ param location string = resourceGroup().location
 @description('Specifies the id of the virtual network.')
 param virtualNetworkId string
 
-@description(
-  'Specifies the idof the subnet which contains the virtual machine.'
-)
+@description('Specifies the idof the subnet which contains the virtual machine.')
 param vmSubnetId string
 
 @description('Specifies the name of the virtual machine.')
@@ -15,14 +13,10 @@ param vmName string = 'TestVm'
 @description('Specifies the size of the virtual machine.')
 param vmSize string = 'Standard_DS3_v2'
 
-@description(
-  'Specifies the image publisher of the disk image used to create the virtual machine.'
-)
+@description('Specifies the image publisher of the disk image used to create the virtual machine.')
 param imagePublisher string = 'Canonical'
 
-@description(
-  'Specifies the offer of the platform image or marketplace image used to create the virtual machine.'
-)
+@description('Specifies the offer of the platform image or marketplace image used to create the virtual machine.')
 param imageOffer string = 'UbuntuServer'
 
 @description(
@@ -30,14 +24,10 @@ param imageOffer string = 'UbuntuServer'
 )
 param imageSku string = '18.04-LTS'
 
-@description(
-  'Specifies the name of the administrator account of the virtual machine.'
-)
+@description('Specifies the name of the administrator account of the virtual machine.')
 param vmAdminUsername string
 
-@description(
-  'Specifies the SSH Key or password for the virtual machine. SSH key is recommended.'
-)
+@description('Specifies the SSH Key or password for the virtual machine. SSH key is recommended.')
 @secure()
 param vmSshKey string
 
@@ -64,9 +54,7 @@ param dataDiskCaching string = 'ReadWrite'
 )
 param blobStorageAccountName string = 'blob${uniqueString(resourceGroup().id)}'
 
-@description(
-  'Specifies the name of the private link to the boot diagnostics storage account.'
-)
+@description('Specifies the name of the private link to the boot diagnostics storage account.')
 param blobStorageAccountPrivateEndpointName string = 'BlobStorageAccountPrivateEndpoint'
 
 @description('Specifies the id of the Log Analytics Workspace.')

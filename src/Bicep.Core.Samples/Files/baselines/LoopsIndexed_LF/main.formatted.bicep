@@ -93,9 +93,7 @@ output indexedEndpointPair object = {
 }
 
 // nested indexer?
-output indexViaReference string = storageAccounts[int(
-  storageAccounts[index].properties.creationTime
-)].properties.accessTier
+output indexViaReference string = storageAccounts[int(storageAccounts[index].properties.creationTime)].properties.accessTier
 
 // dependency on a resource collection
 resource storageAccounts2 'Microsoft.Storage/storageAccounts@2019-06-01' = [

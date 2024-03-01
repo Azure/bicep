@@ -11,9 +11,7 @@ param administratorLogin string
 @secure()
 param administratorLoginPassword string
 
-@description(
-  'Azure database for MySQL compute capacity in vCores (2,4,8,16,32)'
-)
+@description('Azure database for MySQL compute capacity in vCores (2,4,8,16,32)')
 @allowed([2, 4, 8, 16, 32])
 param databaseSkucapacity int = 2
 

@@ -31,11 +31,7 @@ var imageOffer = 'WindowsServer'
 var windowsOSVersion = '2019-Datacenter'
 var nicName = '${dnsLabelPrefix}-nic'
 var publicIpName = '${dnsLabelPrefix}-pip'
-var subnetId = resourceId(
-  'Microsoft.Network/virtualNetworks/subnets',
-  existingVnetName,
-  existingSubnetName
-)
+var subnetId = resourceId('Microsoft.Network/virtualNetworks/subnets', existingVnetName, existingSubnetName)
 
 resource publicIp 'Microsoft.Network/publicIPAddresses@2020-06-01' = {
   name: publicIpName

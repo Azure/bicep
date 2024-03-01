@@ -4,9 +4,7 @@ param location string = resourceGroup().location
 @description('Specifies the name of the AKS cluster.')
 param aksClusterName string = 'aks-${uniqueString(resourceGroup().id)}'
 
-@description(
-  'Specifies the DNS prefix specified when creating the managed cluster.'
-)
+@description('Specifies the DNS prefix specified when creating the managed cluster.')
 param aksClusterDnsPrefix string = aksClusterName
 
 @description('Specifies the tags of the AKS cluster.')
@@ -16,20 +14,14 @@ param aksClusterTags object = {
 }
 
 @allowed(['azure', 'kubenet'])
-@description(
-  'Specifies the network plugin used for building Kubernetes network. - azure or kubenet.'
-)
+@description('Specifies the network plugin used for building Kubernetes network. - azure or kubenet.')
 param aksClusterNetworkPlugin string = 'azure'
 
 @allowed(['azure', 'calico'])
-@description(
-  'Specifies the network policy used for building Kubernetes network. - calico or azure'
-)
+@description('Specifies the network policy used for building Kubernetes network. - calico or azure')
 param aksClusterNetworkPolicy string = 'azure'
 
-@description(
-  'Specifies the CIDR notation IP range from which to assign pod IPs when kubenet is used.'
-)
+@description('Specifies the CIDR notation IP range from which to assign pod IPs when kubenet is used.')
 param aksClusterPodCidr string = '10.244.0.0/16'
 
 @description(
@@ -48,18 +40,14 @@ param aksClusterDnsServiceIP string = '10.2.0.10'
 param aksClusterDockerBridgeCidr string = '172.17.0.1/16'
 
 @allowed(['basic', 'standard'])
-@description(
-  'Specifies the sku of the load balancer used by the virtual machine scale sets used by nodepools.'
-)
+@description('Specifies the sku of the load balancer used by the virtual machine scale sets used by nodepools.')
 param aksClusterLoadBalancerSku string = 'standard'
 
 @allowed(['Paid', 'Free'])
 @description('Specifies the tier of a managed cluster SKU: Paid or Free')
 param aksClusterSkuTier string = 'Paid'
 
-@description(
-  'Specifies the version of Kubernetes specified when creating the managed cluster.'
-)
+@description('Specifies the version of Kubernetes specified when creating the managed cluster.')
 param aksClusterKubernetesVersion string = '1.19.7'
 
 @description('Specifies the administrator username of Linux virtual machines.')
@@ -71,27 +59,19 @@ param aksClusterSshPublicKey string
 @description('Specifies whether enabling AAD integration.')
 param aadEnabled bool = false
 
-@description(
-  'Specifies the tenant id of the Azure Active Directory used by the AKS cluster for authentication.'
-)
+@description('Specifies the tenant id of the Azure Active Directory used by the AKS cluster for authentication.')
 param aadProfileTenantId string = subscription().tenantId
 
-@description(
-  'Specifies the AAD group object IDs that will have admin role of the cluster.'
-)
+@description('Specifies the AAD group object IDs that will have admin role of the cluster.')
 param aadProfileAdminGroupObjectIDs array = []
 
-@description(
-  'Specifies whether to create the cluster as a private cluster or not.'
-)
+@description('Specifies whether to create the cluster as a private cluster or not.')
 param aksClusterEnablePrivateCluster bool = true
 
 @description('Specifies whether to enable managed AAD integration.')
 param aadProfileManaged bool = false
 
-@description(
-  'Specifies whether to  to enable Azure RBAC for Kubernetes authorization.'
-)
+@description('Specifies whether to  to enable Azure RBAC for Kubernetes authorization.')
 param aadProfileEnableAzureRBAC bool = false
 
 @description(
@@ -113,9 +93,7 @@ param nodePoolOsDiskSizeGB int = 100
 param nodePoolCount int = 3
 
 @allowed(['Linux', 'Windows'])
-@description(
-  'Specifies the OS type for the vms in the node pool. Choose from Linux and Windows. Default to Linux.'
-)
+@description('Specifies the OS type for the vms in the node pool. Choose from Linux and Windows. Default to Linux.')
 param nodePoolOsType string = 'Linux'
 
 @description(
@@ -123,28 +101,20 @@ param nodePoolOsType string = 'Linux'
 )
 param nodePoolMaxPods int = 30
 
-@description(
-  'Specifies the maximum number of nodes for auto-scaling for the node pool.'
-)
+@description('Specifies the maximum number of nodes for auto-scaling for the node pool.')
 param nodePoolMaxCount int = 5
 
-@description(
-  'Specifies the minimum number of nodes for auto-scaling for the node pool.'
-)
+@description('Specifies the minimum number of nodes for auto-scaling for the node pool.')
 param nodePoolMinCount int = 3
 
 @description('Specifies whether to enable auto-scaling for the node pool.')
 param nodePoolEnableAutoScaling bool = true
 
 @allowed(['Spot', 'Regular'])
-@description(
-  'Specifies the virtual machine scale set priority: Spot or Regular.'
-)
+@description('Specifies the virtual machine scale set priority: Spot or Regular.')
 param nodePoolScaleSetPriority string = 'Regular'
 
-@description(
-  'Specifies the Agent pool node labels to be persisted across all nodes in agent pool.'
-)
+@description('Specifies the Agent pool node labels to be persisted across all nodes in agent pool.')
 param nodePoolNodeLabels object = {}
 
 @description(
@@ -157,9 +127,7 @@ param nodePoolNodeTaints array = []
 param nodePoolMode string = 'System'
 
 @allowed(['VirtualMachineScaleSets', 'AvailabilitySet'])
-@description(
-  'Specifies the type of a node pool: VirtualMachineScaleSets or AvailabilitySet'
-)
+@description('Specifies the type of a node pool: VirtualMachineScaleSets or AvailabilitySet')
 param nodePoolType string = 'VirtualMachineScaleSets'
 
 @description(
@@ -170,9 +138,7 @@ param nodePoolAvailabilityZones array = []
 @description('Specifies the id of the virtual network.')
 param virtualNetworkId string
 
-@description(
-  'Specifies the name of the default subnet hosting the AKS cluster.'
-)
+@description('Specifies the name of the default subnet hosting the AKS cluster.')
 param aksSubnetName string = 'AksSubnet'
 
 @description('Specifies the name of the Log Analytics Workspace.')
@@ -226,9 +192,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-02-01' = {
         enableAutoScaling: nodePoolEnableAutoScaling
         mode: nodePoolMode
         type: nodePoolType
-        availabilityZones: any(
-          empty(nodePoolAvailabilityZones) ? null : nodePoolAvailabilityZones
-        )
+        availabilityZones: any(empty(nodePoolAvailabilityZones) ? null : nodePoolAvailabilityZones)
         nodeLabels: nodePoolNodeLabels
         nodeTaints: nodePoolNodeTaints
       }

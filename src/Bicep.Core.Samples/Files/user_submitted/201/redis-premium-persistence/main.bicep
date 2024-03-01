@@ -23,9 +23,7 @@ param redisCacheFamily string = 'P'
 @allowed([0, 1, 2, 3, 4, 5, 6])
 param redisCacheCapacity int = 1
 
-@description(
-  'Specify a boolean value that indicates whether to allow access via non-SSL ports.'
-)
+@description('Specify a boolean value that indicates whether to allow access via non-SSL ports.')
 param enableNonSslPort bool = false
 
 @description(

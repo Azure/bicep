@@ -57,18 +57,7 @@ param myObject = {
 param myBool = true
 param myInt = sys.int(myBool ? 123 : 456)
 
-param myArray = [
-  (true ? 'a' : 'b')
-  !true
-  123 + 456
-  456 - 123
-  2 * 3
-  10 / 2
-  1 < 2
-  1 > 2
-  1 >= 2
-  1 <= 2
-]
+param myArray = [(true ? 'a' : 'b'), !true, 123 + 456, 456 - 123, 2 * 3, 10 / 2, 1 < 2, 1 > 2, 1 >= 2, 1 <= 2]
 param myString = '''
 THis
   is

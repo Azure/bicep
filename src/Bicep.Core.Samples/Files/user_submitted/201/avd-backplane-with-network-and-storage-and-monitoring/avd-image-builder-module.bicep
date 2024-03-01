@@ -1,10 +1,7 @@
 param siglocation string
 param roleNameAIBCustom string = '${'BicepAIB'}${utcNow()}'
 param uamiName string
-param uamiId string = resourceId(
-  'Microsoft.ManagedIdentity/userAssignedIdentities',
-  uamiName
-)
+param uamiId string = resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', uamiName)
 param imageTemplateName string = '${'AVDBicep'}${utcNow()}'
 param outputname string = uniqueString(resourceGroup().name)
 param galleryImageId string

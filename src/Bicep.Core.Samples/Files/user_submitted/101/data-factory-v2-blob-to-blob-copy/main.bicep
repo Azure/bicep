@@ -4,9 +4,7 @@ param dataFactoryName string = 'datafactory${uniqueString(resourceGroup().id)}'
 @description('Location of the data factory.')
 param location string = resourceGroup().location
 
-@description(
-  'Name of the Azure storage account that contains the input/output data.'
-)
+@description('Name of the Azure storage account that contains the input/output data.')
 param storageAccountName string = 'storage${uniqueString(resourceGroup().id)}'
 
 @description('Name of the blob container in the Azure Storage account.')

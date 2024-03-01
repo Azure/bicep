@@ -17,16 +17,12 @@ resource sqlDb 'Microsoft.Sql/servers/databases@2020-02-02-preview' = {
   properties: {
     zoneRedundant: sqlDatabase.zoneRedundant
     collation: sqlDatabase.collation
-    maxSizeBytes: sqlDatabase.dataMaxSize == 0
-      ? null
-      : 1024 * 1024 * 1024 * sqlDatabase.dataMaxSize
+    maxSizeBytes: sqlDatabase.dataMaxSize == 0 ? null : 1024 * 1024 * 1024 * sqlDatabase.dataMaxSize
     licenseType: sqlDatabase.hybridBenefit ? 'BasePrice' : 'LicenseIncluded'
     readScale: sqlDatabase.readReplicas == 0 ? 'Disabled' : 'Enabled'
     readReplicaCount: sqlDatabase.readReplicas
     minCapacity: sqlDatabase.minimumCores == 0 ? null : sqlDatabase.minimumCores
-    autoPauseDelay: sqlDatabase.autoPauseDelay == 0
-      ? null
-      : sqlDatabase.autoPauseDelay
+    autoPauseDelay: sqlDatabase.autoPauseDelay == 0 ? null : sqlDatabase.autoPauseDelay
   }
 }
 
@@ -79,9 +75,7 @@ resource storageAccountVulnerabilityAssessments 'Microsoft.Storage/storageAccoun
   if (sqlDatabase.azureDefender.enabled && sqlDatabase.azureDefender.vulnerabilityAssessments.recurringScans && !empty(
     sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name
   )) {
-    scope: resourceGroup(
-      sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName
-    )
+    scope: resourceGroup(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName)
     name: sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name
   }
 
@@ -100,14 +94,10 @@ resource vulnerabilityAssessments 'Microsoft.Sql/servers/databases/vulnerability
         emailSubscriptionAdmins: sqlDatabase.azureDefender.vulnerabilityAssessments.emailSubscriptionAdmins
         emails: sqlDatabase.azureDefender.vulnerabilityAssessments.emails
       }
-      storageContainerPath: !empty(
-          sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name
-        )
+      storageContainerPath: !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name)
         ? '${storageAccountVulnerabilityAssessments.properties.primaryEndpoints.blob}${sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.containerName}'
         : ''
-      storageAccountAccessKey: !empty(
-          sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name
-        )
+      storageAccountAccessKey: !empty(sqlDatabase.azureDefender.vulnerabilityAssessments.storageAccount.name)
         ? storageAccountVulnerabilityAssessments.listKeys().keys[0].value
         : ''
     }
@@ -125,9 +115,7 @@ module auditSettings 'audit-settings.bicep' = {
 
 // Get existing Log Analytics workspace
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing =
-  if (sqlDatabase.diagnosticLogsAndMetrics.auditLogs || !empty(
-    sqlDatabase.diagnosticLogsAndMetrics.name
-  )) {
+  if (sqlDatabase.diagnosticLogsAndMetrics.auditLogs || !empty(sqlDatabase.diagnosticLogsAndMetrics.name)) {
     scope: resourceGroup(
       sqlDatabase.diagnosticLogsAndMetrics.subscriptionId,
       sqlDatabase.diagnosticLogsAndMetrics.resourceGroupName

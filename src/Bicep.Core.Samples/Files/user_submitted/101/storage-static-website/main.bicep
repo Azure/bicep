@@ -73,11 +73,7 @@ Enable-AzStorageStaticWebsite -Context $ctx -IndexDocument $IndexDocument -Error
   }
 }
 
-output scriptLogs string = reference(
-  '${deploymentScript.id}/logs/default',
-  deploymentScript.apiVersion,
-  'Full'
-).properties.log
+output scriptLogs string = reference('${deploymentScript.id}/logs/default', deploymentScript.apiVersion, 'Full').properties.log
 output staticWebsiteHostName string = replace(
   replace(storageAccount.properties.primaryEndpoints.web, 'https://', ''),
   '/',

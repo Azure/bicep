@@ -101,10 +101,7 @@ var functionOnIndexer1 = concat(['s'][0], 's')
 var singleQuote = '\''
 var myPropertyName = '${singleQuote}foo${singleQuote}'
 
-var unusedIntermediate = listKeys(
-  resourceId('Mock.RP/type', 'steve'),
-  '2020-01-01'
-)
+var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01')
 var unusedIntermediateRef = unusedIntermediate.secondaryKey
 
 // previously this was not possible to emit correctly
@@ -221,10 +218,7 @@ var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
 // Bicep functions that cannot be converted into ARM functions
 var scopesWithoutArmRepresentation = {
   subscription: subscription('10b57a01-6350-4ce2-972a-6a13642f00bf')
-  resourceGroup: az.resourceGroup(
-    '10b57a01-6350-4ce2-972a-6a13642f00bf',
-    'myRgName'
-  )
+  resourceGroup: az.resourceGroup('10b57a01-6350-4ce2-972a-6a13642f00bf', 'myRgName')
 }
 
 var scopesWithArmRepresentation = {
@@ -277,9 +271,7 @@ var arrayOfObjectsViaLoop = [
     value: 'prefix-${i}-${name}-suffix'
   }
 ]
-var arrayOfArraysViaLoop = [
-  for (name, i) in loopInput: [i, name, 'prefix-${i}-${name}-suffix']
-]
+var arrayOfArraysViaLoop = [for (name, i) in loopInput: [i, name, 'prefix-${i}-${name}-suffix']]
 var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
 var arrayOfHardCodedNumbers = [for i in range(0, 10): 3]
 var arrayOfHardCodedBools = [for i in range(0, 10): false]
