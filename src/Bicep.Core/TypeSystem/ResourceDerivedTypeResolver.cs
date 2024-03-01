@@ -297,6 +297,7 @@ public class ResourceDerivedTypeResolver
                 UnionType union => ContainsUnboundTypes(union),
                 TypeType typeType => ContainsUnboundTypes(typeType),
                 LambdaType lambda => ContainsUnboundTypes(lambda),
+                ResourceType or ModuleType or ResourceScopeType or ResourceParentType => false,
                 _ when IsPrimitiveType(type) => false,
                 _ => throw new UnreachableException($"Unexpected type ({type.GetType().FullName}) encountered"),
             };

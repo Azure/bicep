@@ -1,8 +1,8 @@
-type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
+type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
 //@    "foo": {
-//@      "type": "object",
+//@      "type": "string",
 //@      "metadata": {
-//@        "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+//@        "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
 //@      }
 //@    },
 
@@ -18,24 +18,24 @@ type test = {
 //@        }
 //@      }
 //@    },
-  resA: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
-//@          "type": "object",
+  resA: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@          "type": "string",
 //@          "metadata": {
-//@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+//@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
 //@          }
-  resB: sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
-//@          "type": "object",
+  resB: sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+//@          "type": "string",
 //@          "metadata": {
-//@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01"
+//@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
 //@          }
   resC: sys.array
 //@        "resC": {
 //@          "type": "array"
 //@        },
-  resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>
-//@          "type": "object",
+  resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
+//@          "type": "string",
 //@          "metadata": {
-//@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01"
+//@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2022-09-01#properties/name"
 //@          }
 }
 
@@ -52,23 +52,23 @@ type strangeFormattings = {
 //@      }
 //@    },
   test: resource<
-//@          "type": "object",
+//@          "type": "string",
 //@          "metadata": {
-//@            "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview"
+//@            "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview#properties/name"
 //@          }
 
   'Astronomer.Astro/organizations@2023-08-01-preview'
 
->
-  test2: resource    <'Microsoft.Storage/storageAccounts@2023-01-01'>
-//@          "type": "object",
+>.name
+  test2: resource    <'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@          "type": "string",
 //@          "metadata": {
-//@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+//@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
 //@          }
-  test3: resource</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>
-//@          "type": "object",
+  test3: resource</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>.name
+//@          "type": "string",
 //@          "metadata": {
-//@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01"
+//@            "__bicep_resource_derived_type!": "Microsoft.Storage/storageAccounts@2023-01-01#properties/name"
 //@          }
 }
 
@@ -76,55 +76,43 @@ type strangeFormattings = {
 //@        "description": "I love space(s)"
 type test2 = resource<
 //@    "test2": {
-//@      "type": "object",
+//@      "type": "string",
 //@      "metadata": {
-//@        "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview",
+//@        "__bicep_resource_derived_type!": "Astronomer.Astro/organizations@2023-08-01-preview#properties/name",
 //@      }
 //@    },
 
      'Astronomer.Astro/organizations@2023-08-01-preview'
 
->
+>.name
 
-param bar resource<'Microsoft.Resources/tags@2022-09-01'> = {
+param bar resource<'Microsoft.Resources/tags@2022-09-01'>.properties = {
 //@    "bar": {
 //@      "type": "object",
 //@      "metadata": {
-//@        "__bicep_resource_derived_type!": "Microsoft.Resources/tags@2022-09-01"
+//@        "__bicep_resource_derived_type!": "Microsoft.Resources/tags@2022-09-01#properties/properties"
 //@      },
 //@      "defaultValue": {
 //@      }
 //@    }
-  name: 'default'
-//@        "name": "default",
-  properties: {
-//@        "properties": {
+  tags: {
+//@        "tags": {
 //@        }
-    tags: {
-//@          "tags": {
-//@          }
-      fizz: 'buzz'
-//@            "fizz": "buzz",
-      snap: 'crackle'
-//@            "snap": "crackle"
-    }
+    fizz: 'buzz'
+//@          "fizz": "buzz",
+    snap: 'crackle'
+//@          "snap": "crackle"
   }
 }
 
-output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'> = {
+output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'>.name = 'myId'
 //@    "baz": {
-//@      "type": "object",
+//@      "type": "string",
 //@      "metadata": {
-//@        "__bicep_resource_derived_type!": "Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31"
+//@        "__bicep_resource_derived_type!": "Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31#properties/name"
 //@      },
-//@      "value": {
-//@      }
+//@      "value": "myId"
 //@    }
-  name: 'myId'
-//@        "name": "myId",
-  location: 'eastus'
-//@        "location": "eastus"
-}
 
 type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
 //@    "storageAccountName": {
