@@ -144,14 +144,21 @@ namespace Bicep.Core.SourceCode
 
         public static ResultWithException<SourceArchive> UnpackFromStream(Stream stream)
         {
-            var archive = new SourceArchive(stream);
-            if (archive.GetRequiredBicepVersionMessage() is string message)
+            try
             {
-                return new(new Exception(message));
+                var archive = new SourceArchive(stream);
+                if (archive.GetRequiredBicepVersionMessage() is string message)
+                {
+                    return new(new Exception(message));
+                }
+                else
+                {
+                    return new(archive);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return new(archive);
+                return new(ex);
             }
         }
 
@@ -172,8 +179,8 @@ namespace Bicep.Core.SourceCode
                 // Only those that were published with source
                 .Where(pair => moduleDispatcher.TryGetModuleSources(pair.artifactReference).IsSuccess())
                 .ToDictionary(x => x.uri, x => x.artifactReference);
-            var sourceFilesWithArtifactReference  =
-                sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.FileUri, out var reference)? reference:null));
+            var sourceFilesWithArtifactReference =
+                sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.FileUri, out var reference) ? reference : null));
 
             var documentLinks = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(sourceFileGrouping);
             return PackSourcesIntoStream(sourceFileGrouping.EntryFileUri, cacheRoot, documentLinks, sourceFilesWithArtifactReference.ToArray());

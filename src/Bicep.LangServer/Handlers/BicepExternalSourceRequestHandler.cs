@@ -53,29 +53,22 @@ namespace Bicep.LanguageServer.Handlers
             if (!moduleDispatcher.TryGetArtifactReference(ArtifactType.Module, request.Target, new Uri("file:///no-parent-file-is-available.bicep")).IsSuccess(out var moduleReference))
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetArtifactReference)));
-                throw new InvalidOperationException(
-                    $"The client specified an invalid module reference '{request.Target}'.");
+                return Task.FromResult(new BicepExternalSourceResponse(null,
+                    $"The client specified an invalid module reference '{request.Target}'."));
             }
 
             if (!moduleReference.IsExternal)
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure("localNotSupported"));
-                throw new InvalidOperationException(
-                    $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests.");
-            }
-
-            if (this.moduleDispatcher.GetArtifactRestoreStatus(moduleReference, out _) != ArtifactRestoreStatus.Succeeded)
-            {
-                telemetryProvider.PostEvent(ExternalSourceRequestFailure("notRestored"));
-                throw new InvalidOperationException(
-                    $"The module '{moduleReference.FullyQualifiedReference}' has not yet been successfully restored.");
+                return Task.FromResult(new BicepExternalSourceResponse(null, 
+                    $"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepExternalSourceLspMethodName} requests."));
             }
 
             if (!moduleDispatcher.TryGetLocalArtifactEntryPointUri(moduleReference).IsSuccess(out var compiledJsonUri))
             {
                 telemetryProvider.PostEvent(ExternalSourceRequestFailure(nameof(moduleDispatcher.TryGetLocalArtifactEntryPointUri)));
-                throw new InvalidOperationException(
-                    $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
+                return Task.FromResult(new BicepExternalSourceResponse(null, 
+                    $"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'."));
             }
 
             var success = moduleDispatcher.TryGetModuleSources(moduleReference).IsSuccess(out var sourceArchive, out var ex);
@@ -106,7 +99,7 @@ namespace Bicep.LanguageServer.Handlers
             if (!this.fileResolver.TryRead(compiledJsonUri).IsSuccess(out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
-                throw new InvalidOperationException($"Unable to read file '{compiledJsonUri}'. {message}");
+                return Task.FromResult(new BicepExternalSourceResponse(null, $"Unable to read file '{compiledJsonUri}'. {message}"));
             }
 
             telemetryProvider.PostEvent(CreateSuccessTelemetry(sourceArchive, request.requestedSourceFile));
