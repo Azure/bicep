@@ -151,8 +151,8 @@ namespace Bicep.Core.IntegrationTests
             // act
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
-            sourceArchive.FindExpectedSourceFile("local.bicep").SourceArtifactId.Should().BeNull();
-            sourceArchive.FindExpectedSourceFile("modules/local.bicep").SourceArtifactId.Should().BeNull();
+            sourceArchive.FindExpectedSourceFile("local.bicep").SourceArtifact.Should().BeNull();
+            sourceArchive.FindExpectedSourceFile("modules/local.bicep").SourceArtifact.Should().BeNull();
         }
 
         [TestMethod]
@@ -178,7 +178,7 @@ namespace Bicep.Core.IntegrationTests
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
             var file = sourceArchive.FindExpectedSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
-            file.SourceArtifactId.Should().BeNull();
+            file.SourceArtifact.Should().BeNull();
             file.Kind.Should().Be("armTemplate");
         }
 
@@ -205,7 +205,7 @@ namespace Bicep.Core.IntegrationTests
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
             var file = sourceArchive.FindExpectedSourceFile("<cache>/br/mockregistry.io/test$module1/v1$/main.json");
-            file.SourceArtifactId.Should().Be("br:mockregistry.io/test/module1:v1");
+            file.SourceArtifact!.ArtifactId.Should().Be("br:mockregistry.io/test/module1:v1");
             file.Kind.Should().Be("armTemplate");
 
         }
@@ -277,7 +277,7 @@ namespace Bicep.Core.IntegrationTests
             // act
             var sourceArchive = CreateSourceArchive(moduleDispatcher, result);
 
-            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifactId))
+            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.ArtifactId))
                 .Should().BeEquivalentTo(new[] {
                     ("main.bicep", null),
                     ("<cache>/br/mockregistry.io/test$module1/v1$/main.json", "br:mockregistry.io/test/module1:v1"),
@@ -315,7 +315,7 @@ namespace Bicep.Core.IntegrationTests
             // act
             var sourceArchive = CreateSourceArchive(moduleDispatcher,result);
 
-            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifactId))
+            sourceArchive.SourceFiles.Select(sf => (sf.Path, sf.SourceArtifact?.ArtifactId))
                 .Should().BeEquivalentTo(new[] {
                     ("main.bicep", null),
                     ("<cache>/br/mockregistry.io/test$module1/v1$/main.json", "br:mockregistry.io/test/module1:v1"),

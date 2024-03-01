@@ -103,10 +103,10 @@ namespace Bicep.LanguageServer.Handlers
                                 .WithRequestForSourceFile(targetFileInfo.Path).ToUri().ToString();
 
                             // Does this nested link have a pointer to its artifact so we can try restoring it and get the source?
-                            if (targetFileInfo.SourceArtifactId is { } && targetFileInfo.SourceArtifactId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
+                            if (targetFileInfo.SourceArtifact is { })
                             {
                                 // Yes, it's an external module with source.  We won't set the target now - we'll wait until the user clicks on it to resolve it, to give us a chance to restore the module.
-                                var sourceId = targetFileInfo.SourceArtifactId.Substring(OciArtifactReferenceFacts.SchemeWithColon.Length);
+                                var sourceId = targetFileInfo.SourceArtifact?.ArtifactId;
                                 yield return new DocumentLink<ExternalSourceDocumentLinkData>()
                                 {
                                     Range = nestedLink.Range.ToRange(),

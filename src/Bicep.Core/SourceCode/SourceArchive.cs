@@ -107,7 +107,7 @@ namespace Bicep.Core.SourceCode
             string ArchivePath, // The location (relative to root) of where the file is stored in the archive (munged from Path, e.g. in case Path starts with "../")
             string Kind,        // Kind of source (SourceKind)
             string Contents,    // File contents
-            string? SourceArtifactId // Points to an external artifact that contains the source for this module (e.g. "br:contoso.io/test/module1:v1"), appears in v0.26 and higher
+            IOciArtifactReference? SourceArtifact // Points to an external artifact that contains the source for this module (e.g. "br:contoso.io/test/module1:v1"), appears in v0.26 and higher
         );
 
         public record SourceFileWithArtifactReference(
@@ -415,11 +415,24 @@ namespace Bicep.Core.SourceCode
             {
                 var contents = dictionary[info.ArchivePath]
                     ?? throw new BicepException("Incorrectly formatted source file: File entry not found: \"{info.ArchivePath}\"");
-                infos.Add(new SourceFileInfo(info.Path, info.ArchivePath, info.Kind, contents, info.SourceArtifactId));
+                var artifactId = TrimScheme(info.SourceArtifactId ?? string.Empty);
+                var artifactReference = artifactId is { } ? OciArtifactReference.TryParseModule(artifactId).TryUnwrap() : null;
+                infos.Add(new SourceFileInfo(info.Path, info.ArchivePath, info.Kind, contents, artifactReference));
             }
 
             this.InstanceMetadata = metadata;
             this.SourceFiles = infos.ToImmutableArray();
+        }
+
+        private string? TrimScheme(string artifactId)
+        {
+            if (artifactId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
+            {
+                return artifactId[OciArtifactReferenceFacts.SchemeWithColon.Length..];
+            }
+
+            // Skip unknown schemes for possible future compatibility
+            return null;
         }
 
         private static string CreateMetadataFileContents(

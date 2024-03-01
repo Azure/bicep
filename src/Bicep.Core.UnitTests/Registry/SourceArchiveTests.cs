@@ -6,6 +6,7 @@ using System.IO.Abstractions.TestingHelpers;
 using System.IO.Compression;
 using System.Text;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.SourceCode;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -141,7 +142,7 @@ public class SourceArchiveTests
 
     private SourceFileWithArtifactReference CreateSourceFile(MockFileSystem fs, Uri? projectFolderUri, string relativePath, string sourceKind, string content, string? artifactReferenceId = null)
     {
-        var artifactReference = artifactReferenceId is null ? null : OciRegistryHelper.CreateModuleReference(artifactReferenceId);
+        var artifactReference = artifactReferenceId is null ? null : OciRegistryHelper.ParseModuleReference(artifactReferenceId);
         projectFolderUri?.AbsolutePath.Should().EndWith("/");
         Uri uri = projectFolderUri is null ? PathHelper.FilePathToFileUrl(relativePath) : PathHelper.FilePathToFileUrl(Path.Combine(projectFolderUri.LocalPath, relativePath));
         fs.AddFile(uri.LocalPath, content);
@@ -193,7 +194,7 @@ public class SourceArchiveTests
                 new ("standalone.json", "files/standalone.json", SourceArchive.SourceKind_ArmTemplate, StandaloneJsonSource, null),
                 new ("localModule.json", "files/localModule.json", SourceArchive.SourceKind_ArmTemplate,  LocalModuleDotJsonSource, null),
                 new ("<cache>/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json", "files/_cache_/br/mcr.microsoft.com/bicep$storage$storage-account/1.0.1$/main.json",
-                    SourceArchive.SourceKind_ArmTemplate, ExternalModuleDotJsonSource, "br:mcr.microsoft.com/bicep/storage/storage-account:1.0.1"),
+                    SourceArchive.SourceKind_ArmTemplate, ExternalModuleDotJsonSource, OciRegistryHelper.ParseModuleReference("br:mcr.microsoft.com/bicep/storage/storage-account:1.0.1")),
             });
     }
 

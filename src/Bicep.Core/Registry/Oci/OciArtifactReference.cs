@@ -102,7 +102,7 @@ namespace Bicep.Core.Registry.Oci
 
             static string DecodeSegment(string segment) => HttpUtility.UrlDecode(segment);
 
-            if (configuration is { } && aliasName is not null)
+            if (configuration is { } && aliasName is { })
             {
                 switch (type)
                 {

@@ -22,7 +22,7 @@ namespace Bicep.Core.UnitTests.Utils
             => new (ArtifactType.Module, registry, repository, tag, digest, parentModuleUri);
 
 
-        public static OciArtifactReference CreateModuleReference(string moduleId /* with or without br: */, Uri? parentModuleUri = null)
+        public static OciArtifactReference ParseModuleReference(string moduleId /* with or without br: */, Uri? parentModuleUri = null)
         {
             if (moduleId.StartsWith(OciArtifactReferenceFacts.SchemeWithColon))
             {
@@ -41,7 +41,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static OciArtifactReference CreateModuleReference(string registry, string repository, string? tag, string? digest, Uri? parentModuleUri = null)
         {
-            return CreateModuleReference($"{registry}/{repository}" + (tag is null ? $"@{digest}" : $":{tag}"), parentModuleUri);
+            return ParseModuleReference($"{registry}/{repository}" + (tag is null ? $"@{digest}" : $":{tag}"), parentModuleUri);
         }
 
         public static void SaveManifestFileToModuleRegistryCache(
