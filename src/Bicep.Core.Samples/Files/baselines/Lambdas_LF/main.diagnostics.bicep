@@ -126,3 +126,11 @@ var multiLine = reduce(['abc', 'def', 'ghi'], '', (
 ) => concat(cur, next))
 //@[05:22) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(cur, next)|
 
+var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
+//@[04:24) [no-unused-vars (Warning)] Variable "multiLineWithComment" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |multiLineWithComment|
+  // comment
+  cur,
+  next
+) => concat(cur, next))
+//@[05:22) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(cur, next)|
+

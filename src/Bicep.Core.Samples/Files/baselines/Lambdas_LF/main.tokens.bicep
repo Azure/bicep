@@ -1027,6 +1027,45 @@ var multiLine = reduce(['abc', 'def', 'ghi'], '', (
 //@[017:021) Identifier |next|
 //@[021:022) RightParen |)|
 //@[022:023) RightParen |)|
+//@[023:025) NewLine |\n\n|
+
+var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
+//@[000:003) Identifier |var|
+//@[004:024) Identifier |multiLineWithComment|
+//@[025:026) Assignment |=|
+//@[027:033) Identifier |reduce|
+//@[033:034) LeftParen |(|
+//@[034:035) LeftSquare |[|
+//@[035:040) StringComplete |'abc'|
+//@[040:041) Comma |,|
+//@[042:047) StringComplete |'def'|
+//@[047:048) Comma |,|
+//@[049:054) StringComplete |'ghi'|
+//@[054:055) RightSquare |]|
+//@[055:056) Comma |,|
+//@[057:059) StringComplete |''|
+//@[059:060) Comma |,|
+//@[061:062) LeftParen |(|
+//@[062:063) NewLine |\n|
+  // comment
+//@[012:013) NewLine |\n|
+  cur,
+//@[002:005) Identifier |cur|
+//@[005:006) Comma |,|
+//@[006:007) NewLine |\n|
+  next
+//@[002:006) Identifier |next|
+//@[006:007) NewLine |\n|
+) => concat(cur, next))
+//@[000:001) RightParen |)|
+//@[002:004) Arrow |=>|
+//@[005:011) Identifier |concat|
+//@[011:012) LeftParen |(|
+//@[012:015) Identifier |cur|
+//@[015:016) Comma |,|
+//@[017:021) Identifier |next|
+//@[021:022) RightParen |)|
+//@[022:023) RightParen |)|
 //@[023:024) NewLine |\n|
 
 //@[000:000) EndOfFile ||

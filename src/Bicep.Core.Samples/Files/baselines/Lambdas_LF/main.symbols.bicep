@@ -179,3 +179,12 @@ var multiLine = reduce(['abc', 'def', 'ghi'], '', (
 //@[002:006) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 2, length: 4
 ) => concat(cur, next))
 
+var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
+//@[004:024) Variable multiLineWithComment. Type: string. Declaration start char: 0, length: 113
+  // comment
+  cur,
+//@[002:005) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 2, length: 3
+  next
+//@[002:006) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 2, length: 4
+) => concat(cur, next))
+

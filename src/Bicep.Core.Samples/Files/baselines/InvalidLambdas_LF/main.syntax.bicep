@@ -1750,15 +1750,13 @@ var multiLineTrailingCommas = map([0], (
 //@[039:0059) |   | └─LambdaSyntax
 //@[039:0050) |   |   ├─VariableBlockSyntax
 //@[039:0040) |   |   | ├─Token(LeftParen) |(|
-//@[040:0041) |   |   | ├─SkippedTriviaSyntax
-//@[040:0041) |   |   | | └─Token(NewLine) |\n|
+//@[040:0041) |   |   | ├─Token(NewLine) |\n|
   a,
 //@[002:0003) |   |   | ├─LocalVariableSyntax
 //@[002:0003) |   |   | | └─IdentifierSyntax
 //@[002:0003) |   |   | |   └─Token(Identifier) |a|
 //@[003:0004) |   |   | ├─Token(Comma) |,|
-//@[004:0005) |   |   | ├─SkippedTriviaSyntax
-//@[004:0005) |   |   | | └─Token(NewLine) |\n|
+//@[004:0005) |   |   | ├─Token(NewLine) |\n|
   ,) => 'foo')
 //@[002:0002) |   |   | ├─SkippedTriviaSyntax
 //@[002:0003) |   |   | ├─Token(Comma) |,|

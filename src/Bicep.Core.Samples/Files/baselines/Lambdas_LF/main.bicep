@@ -93,3 +93,9 @@ var multiLine = reduce(['abc', 'def', 'ghi'], '', (
   cur,
   next
 ) => concat(cur, next))
+
+var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
+  // comment
+  cur,
+  next
+) => concat(cur, next))
