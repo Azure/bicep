@@ -35,7 +35,7 @@ namespace Bicep.Core.PrettyPrintV2
                 separator: LineOrCommaSpace,
                 padding: LineOrEmpty,
                 forceBreak:
-                    // If the array contains a newline before the first property, always break the the object.
+                    // If the array contains a newline before the first item, always break the array.
                     StartsWithNewline(syntax.Children) &&
                     syntax.Items.Any());
 
@@ -210,7 +210,7 @@ namespace Bicep.Core.PrettyPrintV2
                 padding: LineOrSpace,
                 forceBreak:
                     // Special case for objects: if the object contains a newline before
-                    // the first property, always break the the object.
+                    // the first property, always break the object.
                     StartsWithNewline(syntax.Children) &&
                     syntax.Properties.Any());
 

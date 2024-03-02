@@ -79,14 +79,14 @@ namespace Bicep.Core.PrettyPrintV2
                 .CollapseNewlines(onHardLine: this.ForceBreak)
                 .Concat(danglingComments)
                 .SeparateBy(separator)
-                .ToImmutableArray();
+                .ToArray();
 
-            if (items.Length is 0)
+            if (items.Length == 0)
             {
                 return DocumentOperators.Glue(openBracket, closeBracket);
             }
 
-            if (items.Length is 1 && !indentSingleItem) 
+            if (items.Length == 1 && !indentSingleItem) 
             {
                 if (items[0] is not ContainerDocument container || !container.HasSuffix())
                 {
