@@ -7,17 +7,7 @@ param accessPolicies array = [
     tenantId: tenant
     objectId: 'caeebed6-cfa8-45ff-9d8a-03dba4ef9a7d' // replace with your objectId
     permissions: {
-      keys: [
-        'Get'
-        'List'
-        'Update'
-        'Create'
-        'Import'
-        'Delete'
-        'Recover'
-        'Backup'
-        'Restore'
-      ]
+      keys: ['Get', 'List', 'Update', 'Create', 'Import', 'Delete', 'Recover', 'Backup', 'Restore']
       secrets: ['Get', 'List', 'Set', 'Delete', 'Recover', 'Backup', 'Restore']
       certificates: [
         'Get'

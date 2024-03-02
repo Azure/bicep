@@ -33,7 +33,11 @@ namespace Bicep.Core.PrettyPrintV2
                 syntax.Children,
                 syntax.CloseBracket,
                 separator: LineOrCommaSpace,
-                padding: LineOrEmpty);
+                padding: LineOrEmpty,
+                forceBreak:
+                    // If the array contains a newline before the first item, always break the array.
+                    StartsWithNewline(syntax.Children) &&
+                    syntax.Items.Any());
 
         private IEnumerable<Document> LayoutArrayTypeSyntax(ArrayTypeSyntax syntax) =>
             this.Glue(
@@ -91,7 +95,8 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.Children,
                     syntax.CloseParen,
                     separator: CommaLineOrCommaSpace,
-                    padding: LineOrEmpty));
+                    padding: LineOrEmpty,
+                    indentSingleItem: false));
 
         private IEnumerable<Document> LayoutIfConditionSyntax(IfConditionSyntax syntax) =>
             this.Spread(
@@ -127,7 +132,8 @@ namespace Bicep.Core.PrettyPrintV2
                     syntax.Children,
                     syntax.CloseParen,
                     separator: CommaLineOrCommaSpace,
-                    padding: LineOrEmpty));
+                    padding: LineOrEmpty,
+                    indentSingleItem: false));
 
         private IEnumerable<Document> LayoutLambdaSyntax(LambdaSyntax syntax)
         {
@@ -204,7 +210,7 @@ namespace Bicep.Core.PrettyPrintV2
                 padding: LineOrSpace,
                 forceBreak:
                     // Special case for objects: if the object contains a newline before
-                    // the first property, always break the the object.
+                    // the first property, always break the object.
                     StartsWithNewline(syntax.Children) &&
                     syntax.Properties.Any());
 

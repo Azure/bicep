@@ -4,11 +4,7 @@ param location string = resourceGroup().location
 var storageAccountName = 'storage${uniqueString(resourceGroup().id)}'
 var endpointName = 'endpoint-${uniqueString(resourceGroup().id)}'
 var profileName = 'cdn-${uniqueString(resourceGroup().id)}'
-var storageAccountHostName = replace(
-  replace(storageAccount.properties.primaryEndpoints.blob, 'https://', ''),
-  '/',
-  ''
-)
+var storageAccountHostName = replace(replace(storageAccount.properties.primaryEndpoints.blob, 'https://', ''), '/', '')
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   name: storageAccountName
@@ -45,13 +41,7 @@ resource endpoint 'Microsoft.Cdn/profiles/endpoints@2020-09-01' = {
     isHttpAllowed: true
     isHttpsAllowed: true
     queryStringCachingBehavior: 'IgnoreQueryString'
-    contentTypesToCompress: [
-      'text/plain'
-      'text/html'
-      'text/css'
-      'application/x-javascript'
-      'text/javascript'
-    ]
+    contentTypesToCompress: ['text/plain', 'text/html', 'text/css', 'application/x-javascript', 'text/javascript']
     isCompressionEnabled: true
     origins: [
       {

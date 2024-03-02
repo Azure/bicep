@@ -36,13 +36,11 @@ resource initiativeDefinition 'Microsoft.Authorization/policySetDefinitions@2019
       }
       listOfAllowedSKUs: {
         type: 'Array'
-        metadata: any(
-          {
-            description: 'The List of Allowed SKUs for Virtual Machines.'
-            strongtype: 'vmSKUs'
-            displayName: 'Allowed Virtual Machine Size SKUs'
-          }
-        )
+        metadata: any({
+          description: 'The List of Allowed SKUs for Virtual Machines.'
+          strongtype: 'vmSKUs'
+          displayName: 'Allowed Virtual Machine Size SKUs'
+        })
       }
     }
     policyDefinitions: [

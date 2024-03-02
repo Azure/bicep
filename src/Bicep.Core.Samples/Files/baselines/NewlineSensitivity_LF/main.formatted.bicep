@@ -7,15 +7,15 @@ var multiLineFunction = concat('abc', 'def')
 
 var multiLineFunctionUnusualFormatting = concat('abc', any(['hello']), 'def')
 
-var nestedTest = concat(
-  concat(concat(concat(concat('level', 'one'), 'two'), 'three'), 'four'),
-  'five'
-)
+var nestedTest = concat(concat(concat(concat(concat('level', 'one'), 'two'), 'three'), 'four'), 'five')
 
 var singleLineArray = ['abc', 'def']
 var singleLineArrayTrailingCommas = ['abc', 'def']
 
-var multiLineArray = ['abc', 'def']
+var multiLineArray = [
+  'abc'
+  'def'
+]
 
 var mixedArray = ['abc', 'def', 'ghi', 'jkl', 'lmn']
 
@@ -28,23 +28,21 @@ var multiLineObject = {
 var mixedObject = { abc: 'abc', def: 'def', ghi: 'ghi', jkl: 'jkl', lmn: 'lmn' }
 
 var nestedMixed = {
-  abc: { 'def': 'ghi', abc: 'def', foo: ['bar', 'blah'] }
+  abc: {
+    'def': 'ghi'
+    abc: 'def'
+    foo: [
+      'bar'
+      'blah'
+    ]
+  }
 }
 
-var brokenFormatting = [
-  /*foo */ 'bar' /*
+var brokenFormatting = [/*foo */ 'bar' /*
 
 hello
 
-*/
-  'asdfdsf'
-  12324
-  /*   asdf*/ ''
-  '''
+*/, 'asdfdsf', 12324, /*   asdf*/ '', '''
 
 
-'''
-  123
-  233535
-  true
-]
+''', 123, 233535, true]

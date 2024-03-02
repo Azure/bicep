@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.PrettyPrintV2.Documents;
 using Bicep.Core.Syntax;
 
@@ -65,7 +66,7 @@ namespace Bicep.Core.PrettyPrintV2
         private Document IndentTail(IEnumerable<SyntaxBase> syntaxes) =>
             this.IndentTail(() => this.LayoutMany(syntaxes));
 
-        private Document Bracket(SyntaxBase openSyntax, Func<IEnumerable<Document>> itemsLayoutSpecifier, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false)
+        private Document Bracket(SyntaxBase openSyntax, Func<IEnumerable<Document>> itemsLayoutSpecifier, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false, bool indentSingleItem = true)
         {
             var openBracket = this.LayoutSingle(openSyntax);
             var closeParts = this.Layout(closeSyntax).ToArray();
@@ -77,11 +78,25 @@ namespace Bicep.Core.PrettyPrintV2
                 .TrimNewlines()
                 .CollapseNewlines(onHardLine: this.ForceBreak)
                 .Concat(danglingComments)
-                .SeparateBy(separator);
+                .SeparateBy(separator)
+                .ToArray();
 
-            if (!items.Any())
+            if (items.Length == 0)
             {
                 return DocumentOperators.Glue(openBracket, closeBracket);
+            }
+
+            if (items.Length == 1 && !indentSingleItem) 
+            {
+                if (items[0] is not ContainerDocument container || !container.HasSuffix())
+                {
+                    return DocumentOperators.Glue(
+                        openBracket,
+                        padding.Flatten().Glue(),
+                        items[0],
+                        padding.Flatten().Glue(),
+                        closeBracket);
+                }
             }
 
             if (forceBreak || danglingComments.Length > 0)
@@ -106,8 +121,8 @@ namespace Bicep.Core.PrettyPrintV2
                 : DocumentOperators.Group(documents);
         }
 
-        private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false) =>
-            this.Bracket(openSyntax, () => this.LayoutMany(syntaxes), closeSyntax, separator, padding, forceBreak);
+        private Document Bracket(SyntaxBase openSyntax, IEnumerable<SyntaxBase> syntaxes, SyntaxBase closeSyntax, Document separator, Document padding, bool forceBreak = false, bool indentSingleItem = true) =>
+            this.Bracket(openSyntax, () => this.LayoutMany(syntaxes), closeSyntax, separator, padding, forceBreak, indentSingleItem);
 
 
         /// <summary>

@@ -133,7 +133,9 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
                   if (condB) {
                     parent: resA
                     name: 'resB'
-                    dependsOn: [resA]
+                    dependsOn: [
+                      resA
+                    ]
                   }
 
                 """);
@@ -172,7 +174,9 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
                 resource resB 'My.Rp/resA/childB@2020-01-01' = {
                   parent: resA
                   name: 'resB'
-                  dependsOn: [resA]
+                  dependsOn: [
+                    resA
+                  ]
                 }
 
                 """);

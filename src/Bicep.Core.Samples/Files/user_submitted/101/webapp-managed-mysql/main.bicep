@@ -11,27 +11,23 @@ param administratorLogin string
 @secure()
 param administratorLoginPassword string
 
-@description(
-  'Azure database for MySQL compute capacity in vCores (2,4,8,16,32)'
-)
+@description('Azure database for MySQL compute capacity in vCores (2,4,8,16,32)')
 @allowed([2, 4, 8, 16, 32])
 param databaseSkucapacity int = 2
 
 @description('Azure database for MySQL sku name ')
-@allowed(
-  [
-    'GP_Gen5_2'
-    'GP_Gen5_4'
-    'GP_Gen5_8'
-    'GP_Gen5_16'
-    'GP_Gen5_32'
-    'MO_Gen5_2'
-    'MO_Gen5_4'
-    'MO_Gen5_8'
-    'MO_Gen5_16'
-    'MO_Gen5_32'
-  ]
-)
+@allowed([
+  'GP_Gen5_2'
+  'GP_Gen5_4'
+  'GP_Gen5_8'
+  'GP_Gen5_16'
+  'GP_Gen5_32'
+  'MO_Gen5_2'
+  'MO_Gen5_4'
+  'MO_Gen5_8'
+  'MO_Gen5_16'
+  'MO_Gen5_32'
+])
 param databaseSkuName string = 'GP_Gen5_2'
 
 @description('Azure database for MySQL Sku Size ')

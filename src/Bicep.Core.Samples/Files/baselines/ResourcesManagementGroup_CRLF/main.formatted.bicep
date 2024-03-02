@@ -20,7 +20,9 @@ resource contributors 'Microsoft.Authorization/roleAssignments@2020-04-01-previe
       principalId: contributor
       roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
     }
-    dependsOn: [owner]
+    dependsOn: [
+      owner
+    ]
   }
 ]
 
@@ -31,7 +33,10 @@ resource readers 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = 
       principalId: reader
       roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
     }
-    dependsOn: [owner, contributors[0]]
+    dependsOn: [
+      owner
+      contributors[0]
+    ]
   }
 ]
 

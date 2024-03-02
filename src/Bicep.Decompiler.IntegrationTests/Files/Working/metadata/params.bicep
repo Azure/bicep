@@ -1,5 +1,8 @@
 @description('Name of skuName')
-@allowed(['Premium_AzureFrontDoor', 'Standard_AzureFrontDoor'])
+@allowed([
+  'Premium_AzureFrontDoor'
+  'Standard_AzureFrontDoor'
+])
 param skuName string
 
 @description('Name of cdnProfileName')

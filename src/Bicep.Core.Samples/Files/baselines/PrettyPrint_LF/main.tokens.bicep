@@ -33,20 +33,19 @@ var w39 = [true, true
 //@[16:19) Integer |123|
 //@[19:20) RightSquare |]|
 //@[20:21) NewLine |\n|
-var w40 =[
+var w40 =[true
 //@[00:03) Identifier |var|
 //@[04:07) Identifier |w40|
 //@[08:09) Assignment |=|
 //@[09:10) LeftSquare |[|
-//@[10:11) NewLine |\n|
-    true, true, 1234/* xxxxx */]  // suffix
+//@[10:14) TrueKeyword |true|
+//@[14:15) NewLine |\n|
+    true, 1234/* xxxxx */]  // suffix
 //@[04:08) TrueKeyword |true|
 //@[08:09) Comma |,|
-//@[10:14) TrueKeyword |true|
-//@[14:15) Comma |,|
-//@[16:20) Integer |1234|
-//@[31:32) RightSquare |]|
-//@[43:44) NewLine |\n|
+//@[10:14) Integer |1234|
+//@[25:26) RightSquare |]|
+//@[37:38) NewLine |\n|
 var w41 =[ true, true, true, true, 12345 ]
 //@[00:03) Identifier |var|
 //@[04:07) Identifier |w41|
@@ -189,15 +188,17 @@ var w40__ = concat('xxxxxx',
 //@[10:11) RightParen |)|
 //@[21:23) NewLine |\n\n|
 
-var        w41__= concat('xxxxx'/* xxxxxxx */)
+var        w41__= concat('xxxxx', 'xxxxxxxxxx')
 //@[00:03) Identifier |var|
 //@[11:16) Identifier |w41__|
 //@[16:17) Assignment |=|
 //@[18:24) Identifier |concat|
 //@[24:25) LeftParen |(|
 //@[25:32) StringComplete |'xxxxx'|
-//@[45:46) RightParen |)|
-//@[46:47) NewLine |\n|
+//@[32:33) Comma |,|
+//@[34:46) StringComplete |'xxxxxxxxxx'|
+//@[46:47) RightParen |)|
+//@[47:48) NewLine |\n|
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //@[00:03) Identifier |var|
 //@[04:09) Identifier |w42__|
@@ -269,24 +270,22 @@ var w42___ = true ? 'xxxxxxx':'xxxxxxxx'
 //@[80:81) NewLine |\n|
 ////////////////////////////////////////////////////////////////////////////////
 //@[80:81) NewLine |\n|
-var w78 = [
+var w78 = [true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
 //@[00:03) Identifier |var|
 //@[04:07) Identifier |w78|
 //@[08:09) Assignment |=|
 //@[10:11) LeftSquare |[|
-//@[11:12) NewLine |\n|
-    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
-//@[04:08) TrueKeyword |true|
-//@[08:09) Comma |,|
-//@[10:11) LeftBrace |{|
-//@[12:15) Identifier |foo|
-//@[15:16) Colon |:|
-//@[17:35) StringComplete |'object width: 37'|
-//@[46:47) RightBrace |}|
-//@[47:48) Comma |,|
-//@[49:70) StringComplete |'xxxxxxxxxxxxxxxxxxx'|
-//@[71:72) RightSquare |]|
-//@[72:73) NewLine |\n|
+//@[11:15) TrueKeyword |true|
+//@[15:16) Comma |,|
+//@[17:18) LeftBrace |{|
+//@[19:22) Identifier |foo|
+//@[22:23) Colon |:|
+//@[24:42) StringComplete |'object width: 37'|
+//@[53:54) RightBrace |}|
+//@[54:55) Comma |,|
+//@[56:77) StringComplete |'xxxxxxxxxxxxxxxxxxx'|
+//@[78:79) RightSquare |]|
+//@[79:80) NewLine |\n|
 var w79 = [true
 //@[00:03) Identifier |var|
 //@[04:07) Identifier |w79|
@@ -394,7 +393,7 @@ var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
 //@[65:66) RightSquare |]|
 //@[67:68) RightBrace |}|
 //@[68:69) NewLine |\n|
-var w80_ = { foo: 123, bar: true, baz: [
+var w80_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx'
 //@[00:03) Identifier |var|
 //@[04:08) Identifier |w80_|
 //@[09:10) Assignment |=|
@@ -410,14 +409,13 @@ var w80_ = { foo: 123, bar: true, baz: [
 //@[34:37) Identifier |baz|
 //@[37:38) Colon |:|
 //@[39:40) LeftSquare |[|
-//@[40:41) NewLine |\n|
-    'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx'] } // suffix
-//@[04:17) StringComplete |'xxxxxxxxxxx'|
-//@[17:18) Comma |,|
-//@[19:41) StringComplete |'xxxxxxxxxxxxxxxxxxxx'|
-//@[41:42) RightSquare |]|
-//@[43:44) RightBrace |}|
-//@[54:55) NewLine |\n|
+//@[40:53) StringComplete |'xxxxxxxxxxx'|
+//@[53:54) NewLine |\n|
+'xxxxxxxxxxxxxxxxxxxx'] } // suffix
+//@[00:22) StringComplete |'xxxxxxxxxxxxxxxxxxxx'|
+//@[22:23) RightSquare |]|
+//@[24:25) RightBrace |}|
+//@[35:36) NewLine |\n|
 var w81_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxxx'] }
 //@[00:03) Identifier |var|
 //@[04:08) Identifier |w81_|
@@ -682,6 +680,17 @@ var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 12345678
 //@[80:81) NewLine |\n|
 ////////////////////////////////////////////////////////////////////////////////
 //@[80:81) NewLine |\n|
+var forceBreak0 = [
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |forceBreak0|
+//@[16:17) Assignment |=|
+//@[18:19) LeftSquare |[|
+//@[19:20) NewLine |\n|
+  1 ]
+//@[02:03) Integer |1|
+//@[04:05) RightSquare |]|
+//@[05:07) NewLine |\n\n|
+
 var forceBreak1 = {
 //@[00:03) Identifier |var|
 //@[04:15) Identifier |forceBreak1|
@@ -944,7 +953,6 @@ var forceBreak15 = true ? { foo: 0 } : {
 //@[07:08) Colon |:|
 //@[09:10) Integer |1|
 //@[10:11) RightBrace |}|
-//@[11:13) NewLine |\n\n|
-
+//@[11:12) NewLine |\n|
 
 //@[00:00) EndOfFile ||

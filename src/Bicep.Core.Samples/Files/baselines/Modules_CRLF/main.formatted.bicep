@@ -86,16 +86,16 @@ module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep' =
     optionalObj: {}
     optionalArray: []
   }
-  dependsOn: [resWithDependencies, optionalWithAllParams]
+  dependsOn: [
+    resWithDependencies
+    optionalWithAllParams
+  ]
 }
 
 module optionalWithImplicitDependency './child/optionalParams.bicep' = {
   name: 'optionalWithImplicitDependency'
   params: {
-    optionalString: concat(
-      resWithDependencies.id,
-      optionalWithAllParamsAndManualDependency.name
-    )
+    optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
     optionalInt: 42
     optionalObj: {}
     optionalArray: []
@@ -105,10 +105,7 @@ module optionalWithImplicitDependency './child/optionalParams.bicep' = {
 module moduleWithCalculatedName './child/optionalParams.bicep' = {
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
   params: {
-    optionalString: concat(
-      resWithDependencies.id,
-      optionalWithAllParamsAndManualDependency.name
-    )
+    optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
     optionalInt: 42
     optionalObj: {}
     optionalArray: []
@@ -163,7 +160,9 @@ module storageResourcesWithIndex 'modulea.bicep' = [
   for (module, i) in myModules: {
     name: module.name
     params: {
-      arrayParam: [i + 1]
+      arrayParam: [
+        i + 1
+      ]
       objParam: module
       stringParamB: module.location
       stringParamA: concat('a', i)
@@ -218,9 +217,7 @@ module duplicatesEverywhere 'modulea.bicep' = [
     params: {
       objParam: {}
       stringParamB: 'test'
-      arrayParam: [
-        for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}'
-      ]
+      arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
     }
   }
 ]
@@ -372,9 +369,7 @@ module secureModuleCondition 'child/secureParams.bicep' = {
   name: 'secureModuleCondition'
   params: {
     secureStringParam1: true ? kv.getSecret('mySecret') : 'notTrue'
-    secureStringParam2: true
-      ? false ? 'false' : kv.getSecret('mySecret', 'secretVersion')
-      : 'notTrue'
+    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret', 'secretVersion') : 'notTrue'
   }
 }
 

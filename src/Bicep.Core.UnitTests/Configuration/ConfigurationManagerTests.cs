@@ -131,7 +131,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "newlineKind": "LF",
           "insertFinalNewline": true,
           "indentSize": 2,
-          "width": 80
+          "width": 120
         }
       }
       """);
@@ -227,7 +227,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "newlineKind": "LF",
           "insertFinalNewline": true,
           "indentSize": 2,
-          "width": 80
+          "width": 120
         }
       }
       """);
@@ -348,7 +348,7 @@ namespace Bicep.Core.UnitTests.Configuration
           "newlineKind": "LF",
           "insertFinalNewline": true,
           "indentSize": 2,
-          "width": 80
+          "width": 120
         }
       }
       """);

@@ -4,9 +4,7 @@ param location string = resourceGroup().location
 @description('Base URL for the reference templates and scripts')
 param baseUrl string = 'https://my.base/url'
 
-@description(
-  'Name of the Network Watcher attached to your subscription. Format: NetworkWatcher_<region_name>'
-)
+@description('Name of the Network Watcher attached to your subscription. Format: NetworkWatcher_<region_name>')
 param NetworkWatcherName string = 'NetworkWatcher_${location}'
 
 @description('Chosen name of your Flow log resource')
@@ -15,20 +13,25 @@ param FlowLogName string = 'FlowLog1'
 @description('Resource ID of the target NSG')
 param existingNSG string
 
-@description(
-  'Retention period in days. Default is zero which stands for permanent retention. Can be any Integer from 0 to 365'
-)
+@description('Retention period in days. Default is zero which stands for permanent retention. Can be any Integer from 0 to 365')
 @metadata({ range: 'From 0 to 365.' })
 @minValue(0)
 @maxValue(365)
 param RetentionDays int = 0
 
 @description('FlowLogs Version. Correct values are 1 or 2 (default)')
-@allowed(['1', '2'])
+@allowed([
+  '1'
+  '2'
+])
 param FlowLogsversion string = '2'
 
 @description('Storage Account type')
-@allowed(['Standard_LRS', 'Standard_GRS', 'Standard_ZRS'])
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+  'Standard_ZRS'
+])
 param storageAccountType string = 'Standard_LRS'
 
 var foo = 'foo'
@@ -40,7 +43,10 @@ var module2Url = '${armBaseUrl}/nested/module2.json'
 var objectVar = {
   val1: 'a${location}b'
 }
-var arrayVar = ['abc', location]
+var arrayVar = [
+  'abc'
+  location
+]
 var storageAccountName_var = 'flowlogs${uniqueString(resourceGroup().id)}'
 //@[04:26) [decompiler-cleanup (Warning)] The name of variable 'storageAccountName_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |storageAccountName_var|
 
@@ -61,7 +67,9 @@ resource baz 'Foo.Rp/bar@2019-06-01' =
     name: 'baz'
     location: 'westus'
 //@[14:22) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
-    dependsOn: [foo_bar]
+    dependsOn: [
+      foo_bar
+    ]
   }
 
 module module1Deploy 'nested/module1.json' =

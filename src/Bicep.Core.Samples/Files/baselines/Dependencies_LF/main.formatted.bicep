@@ -1,7 +1,10 @@
 param deployTimeParam string = 'steve'
 var deployTimeVar = 'nigel'
 var dependentVar = {
-  dependencies: [deployTimeVar, deployTimeParam]
+  dependencies: [
+    deployTimeVar
+    deployTimeParam
+  ]
 }
 
 var resourceDependency = {

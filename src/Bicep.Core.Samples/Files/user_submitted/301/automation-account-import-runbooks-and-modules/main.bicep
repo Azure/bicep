@@ -9,25 +9,21 @@ param name string
 param sku string = 'Basic'
 
 @description('Modules to import into automation account')
-@metadata(
-  {
-    name: 'Module name'
-    version: 'Module version or specify latest to get the latest version'
-    uri: 'Module package uri, e.g. https://www.powershellgallery.com/api/v2/package'
-  }
-)
+@metadata({
+  name: 'Module name'
+  version: 'Module version or specify latest to get the latest version'
+  uri: 'Module package uri, e.g. https://www.powershellgallery.com/api/v2/package'
+})
 param modules array = []
 
 @description('Runbooks to import into automation account')
-@metadata(
-  {
-    runbookName: 'Runbook name'
-    runbookUri: 'Runbook URI'
-    runbookType: 'Runbook type: Graph, Graph PowerShell, Graph PowerShellWorkflow, PowerShell, PowerShell Workflow, Script'
-    logProgress: 'Enable progress logs'
-    logVerbose: 'Enable verbose logs'
-  }
-)
+@metadata({
+  runbookName: 'Runbook name'
+  runbookUri: 'Runbook URI'
+  runbookType: 'Runbook type: Graph, Graph PowerShell, Graph PowerShellWorkflow, PowerShell, PowerShell Workflow, Script'
+  logProgress: 'Enable progress logs'
+  logVerbose: 'Enable verbose logs'
+})
 param runbooks array = []
 
 @description('Enable delete lock')
@@ -36,29 +32,19 @@ param enableDeleteLock bool = false
 @description('Enable diagnostic logs')
 param enableDiagnostics bool = false
 
-@description(
-  'Storage account name. Only required if enableDiagnostics is set to true.'
-)
+@description('Storage account name. Only required if enableDiagnostics is set to true.')
 param diagnosticStorageAccountName string = ''
 
-@description(
-  'Storage account resource group. Only required if enableDiagnostics is set to true.'
-)
+@description('Storage account resource group. Only required if enableDiagnostics is set to true.')
 param diagnosticStorageAccountResourceGroup string = ''
 
-@description(
-  'Log analytics workspace name. Only required if enableDiagnostics is set to true.'
-)
+@description('Log analytics workspace name. Only required if enableDiagnostics is set to true.')
 param logAnalyticsWorkspaceName string = ''
 
-@description(
-  'Log analytics workspace resource group. Only required if enableDiagnostics is set to true.'
-)
+@description('Log analytics workspace resource group. Only required if enableDiagnostics is set to true.')
 param logAnalyticsResourceGroup string = ''
 
-@description(
-  'Log analytics workspace subscription id (if differs from current subscription). Only required if enableDiagnostics is set to true.'
-)
+@description('Log analytics workspace subscription id (if differs from current subscription). Only required if enableDiagnostics is set to true.')
 param logAnalyticsSubscriptionId string = subscription().subscriptionId
 
 var lockName = '${automationAccount.name}-lck'

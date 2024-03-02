@@ -28,8 +28,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {}
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (name == 'value') {}
 
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' =
-  if ({ 'a': b }.a == 'foo') {}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if ({ 'a': b }.a == 'foo') {}
 
 // simulate typing if condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
@@ -115,7 +114,11 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   properties: {
     x: foo()
     y: true && (null || !4)
-    a: [a, !null, true && true || true + -true * 4]
+    a: [
+      a
+      !null
+      true && true || true + -true * 4
+    ]
   }
 }
 
@@ -152,7 +155,9 @@ resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-0
   properties: {
     resourceGuid: 'assigning-to-read-only-value'
     addressSpace: {
-      addressPrefixes: ['10.0.0.0/16']
+      addressPrefixes: [
+        '10.0.0.0/16'
+      ]
     }
     subnets: []
   }
@@ -160,12 +165,17 @@ resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-0
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-  dependsOn: [baz.id]
+  dependsOn: [
+    baz.id
+  ]
 }
 
 resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-  dependsOn: ['hello', true]
+  dependsOn: [
+    'hello'
+    true
+  ]
 }
 
 resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
@@ -174,7 +184,9 @@ resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 
 resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
-  dependsOn: [badDepends3]
+  dependsOn: [
+    badDepends3
+  ]
 }
 
 resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
@@ -205,10 +217,7 @@ resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 }
 
 resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-  name: concat(
-    concat(runtimeValidRes1.id, runtimeValidRes1.name),
-    runtimeValidRes1.type
-  )
+  name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
   kind: 'AzureCLI'
   location: 'eastus'
   properties: {
@@ -1058,26 +1067,16 @@ resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for
 resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
 
 // duplicate variable in the same scope
-resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [
-  for (same, same) in emptyArray: {}
-]
+resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {}]
 
 // errors in the array expression
-resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for account in union([], 2): {}
-]
-resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for (account, k) in union([], 2): {}
-]
+resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {}]
+resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, k) in union([], 2): {}]
 
 // wrong array type
 var notAnArray = true
-resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for account in notAnArray: {}
-]
-resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for (account, i) in notAnArray: {}
-]
+resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {}]
+resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in notAnArray: {}]
 
 // wrong filter expression type
 resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [
@@ -1088,12 +1087,8 @@ resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-0
 ]
 
 // missing required properties
-resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for account in []: {}
-]
-resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [
-  for (account, j) in []: {}
-]
+resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {}]
+resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, j) in []: {}]
 
 // fewer missing required properties and a wrong property
 resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [
@@ -1230,13 +1225,11 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [
     kind: 'StorageV2'
     properties: {
       networkAcls: {
-        virtualNetworkRules: concat(
-          [
-            for lol in []: {
-              id: '${account.name}-${account.location}'
-            }
-          ]
-        )
+        virtualNetworkRules: concat([
+          for lol in []: {
+            id: '${account.name}-${account.location}'
+          }
+        ])
       }
     }
   }
@@ -1291,7 +1284,9 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
     name: 'vnet-${i}'
     properties: {
       subnets: premiumStorages
-      dependsOn: [premiumStorages]
+      dependsOn: [
+        premiumStorages
+      ]
     }
     dependsOn: []
   }
@@ -1302,9 +1297,7 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
   name: 'hello'
   location: 'eastus'
   properties: {
-    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [
-      for thing in []: {}
-    ]
+    'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
   }
 }
 
@@ -1522,8 +1515,14 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
   sku: {}
   kind: 'V1'
   managedBy: 'string'
-  mangedByExtended: ['str1', 'str2']
-  zones: ['str1', 'str2']
+  mangedByExtended: [
+    'str1'
+    'str2'
+  ]
+  zones: [
+    'str1'
+    'str2'
+  ]
   plan: {}
   eTag: ''
   scale: {}
@@ -1543,11 +1542,19 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
     name: 'V1'
   }
   managedBy: {}
-  mangedByExtended: [{}, {}]
-  zones: [{}, {}]
+  mangedByExtended: [
+    {}
+    {}
+  ]
+  zones: [
+    {}
+    {}
+  ]
   plan: ''
   eTag: {}
-  scale: [{}]
+  scale: [
+    {}
+  ]
 }
 
 resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
@@ -1624,10 +1631,11 @@ resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-
   }
 }
 
-@description(
-  'The language of the Deployment Script. AzurePowerShell or AzureCLI.'
-)
-@allowed(['AzureCLI', 'AzurePowerShell'])
+@description('The language of the Deployment Script. AzurePowerShell or AzureCLI.')
+@allowed([
+  'AzureCLI'
+  'AzurePowerShell'
+])
 param issue4668_kind string = 'AzureCLI'
 @description('The identity that will be used to execute the Deployment Script.')
 param issue4668_identity object

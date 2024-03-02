@@ -4,9 +4,7 @@ param dataFactoryName string = 'datafactory${uniqueString(resourceGroup().id)}'
 @description('Location of the data factory.')
 param location string = resourceGroup().location
 
-@description(
-  'Name of the Azure storage account that contains the input/output data.'
-)
+@description('Name of the Azure storage account that contains the input/output data.')
 param storageAccountName string = 'storage${uniqueString(resourceGroup().id)}'
 
 @description('Name of the blob container in the Azure Storage account.')
@@ -93,47 +91,45 @@ resource dataFactoryPipeline 'Microsoft.DataFactory/factories/pipelines@2018-06-
   name: pipelineName
   properties: {
     activities: [
-      any(
-        {
-          name: 'MyCopyActivity'
-          type: 'Copy'
-          policy: {
-            timeout: '7.00:00:00'
-            retry: 0
-            retryIntervalInSeconds: 30
-            secureOutput: false
-            secureInput: false
-          }
-          typeProperties: {
-            source: {
-              type: 'BinarySource'
-              storeSettings: {
-                type: 'AzureBlobStorageReadSettings'
-                recursive: true
-              }
-            }
-            sink: {
-              type: 'BinarySink'
-              storeSettings: {
-                type: 'AzureBlobStorageWriterSettings'
-              }
-            }
-            enableStaging: false
-          }
-          inputs: [
-            {
-              referenceName: dataFactoryDataSetIn.name
-              type: 'DatasetReference'
-            }
-          ]
-          outputs: [
-            {
-              referenceName: dataFactoryDataSetOut.name
-              type: 'DatasetReference'
-            }
-          ]
+      any({
+        name: 'MyCopyActivity'
+        type: 'Copy'
+        policy: {
+          timeout: '7.00:00:00'
+          retry: 0
+          retryIntervalInSeconds: 30
+          secureOutput: false
+          secureInput: false
         }
-      )
+        typeProperties: {
+          source: {
+            type: 'BinarySource'
+            storeSettings: {
+              type: 'AzureBlobStorageReadSettings'
+              recursive: true
+            }
+          }
+          sink: {
+            type: 'BinarySink'
+            storeSettings: {
+              type: 'AzureBlobStorageWriterSettings'
+            }
+          }
+          enableStaging: false
+        }
+        inputs: [
+          {
+            referenceName: dataFactoryDataSetIn.name
+            type: 'DatasetReference'
+          }
+        ]
+        outputs: [
+          {
+            referenceName: dataFactoryDataSetOut.name
+            type: 'DatasetReference'
+          }
+        ]
+      })
     ]
   }
 }

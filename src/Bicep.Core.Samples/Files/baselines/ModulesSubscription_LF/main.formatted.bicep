@@ -1,7 +1,12 @@
 targetScope = 'subscription'
 
 param prefix string = 'majastrz'
-var groups = ['bicep1', 'bicep2', 'bicep3', 'bicep4']
+var groups = [
+  'bicep1'
+  'bicep2'
+  'bicep3'
+  'bicep4'
+]
 
 var scripts = take(groups, 2)
 

@@ -1,8 +1,6 @@
 targetScope = 'subscription'
 
-@description(
-  'Specify the location for the hub Virtual Network and its related resources'
-)
+@description('Specify the location for the hub Virtual Network and its related resources')
 param location string = 'westeurope'
 
 @description('Specify the location for the vWAN and its related resources')
@@ -12,9 +10,7 @@ param vwanlocation string = 'eastus'
 param nameprefix string = 'contoso'
 
 @secure()
-@description(
-  'Pre-Shared Key used to establish the site to site tunnel between the Virtual Hub and On-Prem VNet'
-)
+@description('Pre-Shared Key used to establish the site to site tunnel between the Virtual Hub and On-Prem VNet')
 param psk string = uniqueString(subscription().id)
 
 var vnetname = '${nameprefix}-vnet'

@@ -237,11 +237,7 @@ resource existingVirtualMachineNames_resource 'Microsoft.SqlVirtualMachine/SqlVi
     name: trim(item)
     location: location
     properties: {
-      virtualMachineResourceId: resourceId(
-        existingVmResourceGroup,
-        'Microsoft.Compute/virtualMachines',
-        trim(item)
-      )
+      virtualMachineResourceId: resourceId(existingVmResourceGroup, 'Microsoft.Compute/virtualMachines', trim(item))
       sqlServerLicenseType: sqlServerLicenseType
       sqlVirtualMachineGroupResourceId: groupResourceId
       wsfcDomainCredentials: {

@@ -28,7 +28,10 @@ metadata foo = {
     'string item'
     12
     true
-    ['inner', false]
+    [
+      'inner'
+      false
+    ]
     {
       a: 'b'
     }
@@ -36,7 +39,11 @@ metadata foo = {
 }
 
 // array value
-metadata myArrayMetadata = ['a', 'b', 'c']
+metadata myArrayMetadata = [
+  'a'
+  'b'
+  'c'
+]
 
 // emtpy object and array
 metadata myEmptyObj = {}

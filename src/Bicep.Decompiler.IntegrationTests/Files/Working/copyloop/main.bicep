@@ -8,7 +8,11 @@ param vmSize string
 @secure()
 param adminPassword string
 
-var items = ['a', 'b', 'c']
+var items = [
+  'a'
+  'b'
+  'c'
+]
 var itemTest = [for item in items: item]
 //@[04:12) [no-unused-vars (Warning)] Variable "itemTest" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |itemTest|
 var indexTest = [for i in range(0, length(items)): i]
@@ -65,10 +69,7 @@ resource vmPrefix_resource 'Microsoft.Compute/virtualMachines@2020-06-01' = [
       networkProfile: {
         networkInterfaces: [
           {
-            id: resourceId(
-              'Microsoft.Network/networkInterfaces',
-              '${vmPrefix}-${i}'
-            )
+            id: resourceId('Microsoft.Network/networkInterfaces', '${vmPrefix}-${i}')
           }
         ]
       }
