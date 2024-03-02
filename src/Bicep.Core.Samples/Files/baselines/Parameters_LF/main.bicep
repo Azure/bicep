@@ -138,7 +138,9 @@ param defaultExpression bool = 18 != (true || false)
 ])
 param stringLiteral string
 
-@allowed([
+@allowed(
+    // some comment
+    [
   'abc'
   'def'
   'ghi'

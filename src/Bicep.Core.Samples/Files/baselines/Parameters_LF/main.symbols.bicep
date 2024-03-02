@@ -161,13 +161,15 @@ param defaultExpression bool = 18 != (true || false)
 param stringLiteral string
 //@[6:19) Parameter stringLiteral. Type: 'abc' | 'def'. Declaration start char: 0, length: 56
 
-@allowed([
+@allowed(
+    // some comment
+    [
   'abc'
   'def'
   'ghi'
 ])
 param stringLiteralWithAllowedValuesSuperset string = stringLiteral
-//@[6:44) Parameter stringLiteralWithAllowedValuesSuperset. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 0, length: 105
+//@[6:44) Parameter stringLiteralWithAllowedValuesSuperset. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 0, length: 130
 
 @secure()
 @minLength(2)

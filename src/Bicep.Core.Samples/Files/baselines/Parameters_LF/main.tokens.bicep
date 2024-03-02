@@ -562,12 +562,16 @@ param stringLiteral string
 //@[020:026) Identifier |string|
 //@[026:028) NewLine |\n\n|
 
-@allowed([
+@allowed(
 //@[000:001) At |@|
 //@[001:008) Identifier |allowed|
 //@[008:009) LeftParen |(|
-//@[009:010) LeftSquare |[|
-//@[010:011) NewLine |\n|
+//@[009:010) NewLine |\n|
+    // some comment
+//@[019:020) NewLine |\n|
+    [
+//@[004:005) LeftSquare |[|
+//@[005:006) NewLine |\n|
   'abc'
 //@[002:007) StringComplete |'abc'|
 //@[007:008) NewLine |\n|

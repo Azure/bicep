@@ -403,7 +403,7 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
 
-var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosDb.account)
+var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts',
 //@[000:003) Identifier |var|
 //@[004:022) Identifier |cosmosDbResourceId|
 //@[023:024) Assignment |=|
@@ -411,11 +411,15 @@ var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cos
 //@[035:036) LeftParen |(|
 //@[036:075) StringComplete |'Microsoft.DocumentDB/databaseAccounts'|
 //@[075:076) Comma |,|
-//@[077:085) Identifier |cosmosDb|
-//@[085:086) Dot |.|
-//@[086:093) Identifier |account|
-//@[093:094) RightParen |)|
-//@[094:096) NewLine |\r\n|
+//@[076:078) NewLine |\r\n|
+// comment
+//@[010:012) NewLine |\r\n|
+cosmosDb.account)
+//@[000:008) Identifier |cosmosDb|
+//@[008:009) Dot |.|
+//@[009:016) Identifier |account|
+//@[016:017) RightParen |)|
+//@[017:019) NewLine |\r\n|
 var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 //@[000:003) Identifier |var|
 //@[004:015) Identifier |cosmosDbRef|
