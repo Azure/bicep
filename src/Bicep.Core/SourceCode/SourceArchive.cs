@@ -11,6 +11,7 @@ using System.Text.Json.Serialization;
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Utils;
@@ -112,7 +113,7 @@ namespace Bicep.Core.SourceCode
 
         public record SourceFileWithArtifactReference(
             ISourceFile SourceFile,
-            ArtifactReference? SourceArtifactId);
+            ArtifactReference? SourceArtifact);
 
         #region Serialization
 
@@ -170,15 +171,21 @@ namespace Bicep.Core.SourceCode
         public static Stream PackSourcesIntoStream(IModuleDispatcher moduleDispatcher, SourceFileGrouping sourceFileGrouping, string? cacheRoot)
         {
             // Find the artifact reference for each source file of an external module that was published with sources
-            var artifactReferenceUriResultPairs = sourceFileGrouping.FileUriResultByBicepSourceFileByArtifactReference.Values.SelectMany(x => x);
-            var uriToArtifactReference = artifactReferenceUriResultPairs.Where(pair => pair.Value.IsSuccess())
-                .Select(pair => (artifactReference: pair.Key, uri: pair.Value.Unwrap()))
-                .Distinct()
-                // Only deal with OCI module references
-                .Where(pair => pair.artifactReference is OciArtifactReference ociReference && ociReference.Type == ArtifactType.Module)
+            var uriToArtifactReference = sourceFileGrouping.FileUriResultByBicepSourceFileByArtifactReferenceSyntax
+                .SelectMany(outerKvp => outerKvp.Value, (outerKvp, innerKvp) => (bicep: outerKvp.Key, syntax: innerKvp.Key, uri: innerKvp.Value.TryUnwrap()))
+                .Where(tuple => tuple.uri is not null)
+                .Distinct(tuple => tuple.uri)
+                .Select(tuple =>
+                    (uri: tuple.uri!,
+                    artifactReference: moduleDispatcher.TryGetArtifactReference(tuple.syntax, tuple.bicep.FileUri).TryUnwrap()
+                        // Only Oci modules
+                        as OciArtifactReference))
+                .Where(tuple => tuple.artifactReference is not null)
+                .Select(tuple => (uri: tuple.uri!, artifactReference: tuple.artifactReference!))
                 // Only those that were published with source
                 .Where(pair => moduleDispatcher.TryGetModuleSources(pair.artifactReference).IsSuccess())
-                .ToDictionary(x => x.uri, x => x.artifactReference);
+                .ToDictionary(x => x.uri, x => x.artifactReference); 
+
             var sourceFilesWithArtifactReference =
                 sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.FileUri, out var reference) ? reference : null));
 
