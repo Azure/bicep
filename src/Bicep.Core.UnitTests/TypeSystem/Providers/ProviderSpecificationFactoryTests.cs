@@ -4,7 +4,6 @@
 using System.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
-using DiffMatchPatch;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

@@ -3,11 +3,11 @@
 
 using System.IO.Abstractions.TestingHelpers;
 using Bicep.Core.Configuration;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
+using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.FileSystem;
 
 namespace Bicep.Core.UnitTests.Configuration;
 

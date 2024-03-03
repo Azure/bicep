@@ -288,7 +288,8 @@ public class ParameterAssignmentEvaluator
         };
 
         var defaultEvaluateFunction = helper.EvaluationContext.EvaluateFunction;
-        helper.EvaluationContext.EvaluateFunction = (expression, parameters, additionalProperties) => {
+        helper.EvaluationContext.EvaluateFunction = (expression, parameters, additionalProperties) =>
+        {
             if (TemplateFunction.IsTemplateFunction(expression.Function))
             {
                 return EvaluateTemplateFunction(expression, parameters, additionalProperties);
@@ -323,9 +324,9 @@ public class ParameterAssignmentEvaluator
         }
 
         if (expression.Function.StartsWith($"{EmitConstants.UserDefinedFunctionsNamespace}.") &&
-            expression.Function.Substring($"{EmitConstants.UserDefinedFunctionsNamespace}.".Length) is {} functionName &&
+            expression.Function.Substring($"{EmitConstants.UserDefinedFunctionsNamespace}.".Length) is { } functionName &&
             importsByName.TryGetValue(functionName, out var imported) &&
-            imported.OriginalSymbolName is {} originalSymbolName)
+            imported.OriginalSymbolName is { } originalSymbolName)
         {
             var template = GetTemplateWithCaching(imported.SourceModel).Unwrap();
 

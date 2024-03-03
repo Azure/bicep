@@ -668,7 +668,8 @@ namespace Bicep.Core.UnitTests.Configuration
         "width": 80
         }
     }
-    """});
+    """
+            });
 
             // Act.
             var sut = new ConfigurationManager(fileSystem);
