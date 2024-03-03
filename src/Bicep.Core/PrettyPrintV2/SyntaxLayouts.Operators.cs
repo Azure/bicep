@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using Bicep.Core.PrettyPrintV2.Documents;
 using Bicep.Core.Syntax;
 
@@ -86,7 +85,7 @@ namespace Bicep.Core.PrettyPrintV2
                 return DocumentOperators.Glue(openBracket, closeBracket);
             }
 
-            if (items.Length == 1 && !indentSingleItem) 
+            if (items.Length == 1 && !indentSingleItem)
             {
                 if (items[0] is not ContainerDocument container || !container.HasSuffix())
                 {

@@ -117,7 +117,7 @@ namespace Bicep.Core.Registry
             {
                 return new(x => x.InvalidProviderSpecification());
             }
-            
+
             var config = configurationManager.GetConfiguration(parentModuleUri);
             switch (providerDeclarationSyntax.Specification)
             {
