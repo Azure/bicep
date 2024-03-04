@@ -64,6 +64,7 @@ namespace Bicep.Core.Semantics
             this.SymbolContext = symbolContext;
             this.Binder = new Binder(
                 compilation.NamespaceProvider,
+                Configuration,
                 Features,
                 compilation.SourceFileGrouping,
                 cycleBlockingModelLookup,

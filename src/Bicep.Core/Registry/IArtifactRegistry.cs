@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
 
@@ -89,7 +90,7 @@ namespace Bicep.Core.Registry
         /// Returns description for the module.
         /// </summary>
         /// <param name="reference">The module reference</param>
-        Task<string?> TryGetDescription(ArtifactReference reference);
+        Task<string?> TryGetDescription(ModuleSymbol module, ArtifactReference reference);
 
         /// <summary>
         /// Returns the source code for the module, if available.

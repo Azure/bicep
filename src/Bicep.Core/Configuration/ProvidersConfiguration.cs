@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.Configuration;
 
@@ -41,6 +42,9 @@ public partial class ProvidersConfiguration : ConfigurationSection<ImmutableDict
         }
         return new(providerConfigEntry);
     }
+
+    public bool IsSysOrBuiltIn(string providerName)
+        => providerName == SystemNamespaceType.BuiltInName || this.Data.TryGetValue(providerName)?.BuiltIn == true;
 }
 
 

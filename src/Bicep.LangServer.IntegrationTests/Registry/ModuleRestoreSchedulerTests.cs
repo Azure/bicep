@@ -8,7 +8,9 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
+using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
@@ -69,7 +71,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             Action startFail = () => scheduler.Start();
             startFail.Should().Throw<ObjectDisposedException>();
 
-            Action requestFail = () => scheduler.RequestModuleRestore(Repository.Create<ICompilationManager>().Object, DocumentUri.From("untitled://one"), Enumerable.Empty<ArtifactResolutionInfo>());
+            Action requestFail = () => scheduler.RequestModuleRestore(Repository.Create<ICompilationManager>().Object, DocumentUri.From("untitled://one"), Enumerable.Empty<ArtifactReference>());
             requestFail.Should().Throw<ObjectDisposedException>();
         }
 
@@ -96,9 +98,9 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             compilationManager.Setup(m => m.RefreshCompilation(secondUri, false)).Callback<DocumentUri, bool>((uri, _) => secondSource.SetResult(true));
             compilationManager.Setup(m => m.RefreshCompilation(thirdUri, false)).Callback<DocumentUri, bool>((uri, _) => thirdSource.SetResult(true));
 
-            var firstFileSet = CreateModules("mock:one", "mock:two");
-            var secondFileSet = CreateModules("mock:three", "mock:four");
-            var thirdFileSet = CreateModules("mock:five", "mock:six");
+            var firstFileSet = CreateArtifactReferences(mockRegistry, "one", "two");
+            var secondFileSet = CreateArtifactReferences(mockRegistry, "three", "four");
+            var thirdFileSet = CreateArtifactReferences(mockRegistry, "five", "six");
 
             await using (var scheduler = new ModuleRestoreScheduler(dispatcher))
             {
@@ -150,16 +152,11 @@ namespace Bicep.LangServer.IntegrationTests.Registry
             }
         }
 
-        private static ImmutableArray<ArtifactResolutionInfo> CreateModules(params string[] references)
+        private static ImmutableArray<ArtifactReference> CreateArtifactReferences(MockRegistry mockRegistry, params string[] references)
         {
-            var buffer = new StringBuilder();
-            foreach (var reference in references)
-            {
-                buffer.AppendLine($"module foo '{reference}' = {{}}");
-            }
-
-            var file = SourceFileFactory.CreateBicepFile(new Uri("untitled://hello"), buffer.ToString());
-            return file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Select(mds => new ArtifactResolutionInfo(mds, file)).ToImmutableArray();
+            return references
+                .Select(x => mockRegistry.TryParseArtifactReference(ArtifactType.Module, null, x).Unwrap())
+                .ToImmutableArray<ArtifactReference>();
         }
 
         private class MockRegistry : IArtifactRegistry
@@ -198,7 +195,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public string? GetDocumentationUri(ArtifactReference _) => null;
 
-            public Task<string?> TryGetDescription(ArtifactReference _) => Task.FromResult<string?>(null);
+            public Task<string?> TryGetDescription(ModuleSymbol module, ArtifactReference _) => Task.FromResult<string?>(null);
 
             public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType _, string? __, string reference)
             {

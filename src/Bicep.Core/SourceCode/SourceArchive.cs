@@ -172,8 +172,8 @@ namespace Bicep.Core.SourceCode
         public static Stream PackSourcesIntoStream(IModuleDispatcher moduleDispatcher, SourceFileGrouping sourceFileGrouping, string? cacheRoot)
         {
             // Find the artifact reference for each source file of an external module that was published with sources
-            Dictionary<Uri, OciArtifactReference> uriToArtifactReference = sourceFileGrouping.FileUriResultByBicepSourceFileByArtifactReferenceSyntax
-                .SelectMany(outerKvp => outerKvp.Value, (outerKvp, innerKvp) => (bicep: outerKvp.Key, syntax: innerKvp.Key, uri: innerKvp.Value.TryUnwrap()))
+            Dictionary<Uri, OciArtifactReference> uriToArtifactReference = sourceFileGrouping.ArtifactLookup.Values
+                .Select(artifact => (bicep: artifact.Origin, syntax: artifact.Syntax, uri: artifact.Result.TryUnwrap()))
                 .Where(tuple => tuple.uri is not null && tuple.syntax is ModuleDeclarationSyntax)
                 .Distinct(tuple => tuple.uri)
                 // Resolve syntax to artifact references
@@ -192,7 +192,7 @@ namespace Bicep.Core.SourceCode
                 sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.FileUri, out var reference) ? reference : null));
 
             var documentLinks = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(sourceFileGrouping);
-            return PackSourcesIntoStream(sourceFileGrouping.EntryFileUri, cacheRoot, documentLinks, sourceFilesWithArtifactReference.ToArray());
+            return PackSourcesIntoStream(sourceFileGrouping.EntryPoint.FileUri, cacheRoot, documentLinks, sourceFilesWithArtifactReference.ToArray());
         }
 
         public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, params SourceFileWithArtifactReference[] sourceFiles)

@@ -70,6 +70,7 @@ namespace Bicep.LanguageServer.Providers
             ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(
+                fileResolver,
                 featureProviderFactory,
                 moduleDispatcher,
                 configurationManager,

@@ -31,20 +31,16 @@ public static class SourceCodeDocumentLinkHelper
     {
         var dictionary = new Dictionary<Uri, SourceCodeDocumentUriLink[]>();
 
-        foreach (var sourceAndDictPair in sourceFileGrouping.FileUriResultByBicepSourceFileByArtifactReferenceSyntax)
+        foreach (var grouping in sourceFileGrouping.ArtifactLookup.Values.GroupBy(x => x.Origin))
         {
-            ISourceFile referencingFile = sourceAndDictPair.Key;
-            IDictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>> referenceSyntaxToUri = sourceAndDictPair.Value;
-
+            var referencingFile = grouping.Key;
             var referencingFileLineStarts = TextCoordinateConverter.GetLineStarts(referencingFile.GetOriginalSource());
-
             var linksForReferencingFile = new List<SourceCodeDocumentUriLink>();
 
-            foreach (var syntaxAndUriPair in referenceSyntaxToUri)
+            foreach (var artifact in grouping)
             {
-                IArtifactReferenceSyntax syntax = syntaxAndUriPair.Key;
-                Result<Uri, UriResolutionError> uriResult = syntaxAndUriPair.Value;
-                if (syntax.Path is { } && uriResult.IsSuccess(out var uri))
+                var syntax = artifact.Syntax;
+                if (syntax.Path is { } && artifact.Result.IsSuccess(out var uri))
                 {
                     var start = new SourceCodePosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position));
                     var end = new SourceCodePosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position + syntax.Path.Span.Length));
