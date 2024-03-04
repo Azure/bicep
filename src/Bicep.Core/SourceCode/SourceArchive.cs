@@ -14,6 +14,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
+using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -171,18 +172,20 @@ namespace Bicep.Core.SourceCode
         public static Stream PackSourcesIntoStream(IModuleDispatcher moduleDispatcher, SourceFileGrouping sourceFileGrouping, string? cacheRoot)
         {
             // Find the artifact reference for each source file of an external module that was published with sources
-            Dictionary<Uri, ArtifactReference> uriToArtifactReference = sourceFileGrouping.FileUriResultByBicepSourceFileByArtifactReferenceSyntax
+            Dictionary<Uri, OciArtifactReference> uriToArtifactReference = sourceFileGrouping.FileUriResultByBicepSourceFileByArtifactReferenceSyntax
                 .SelectMany(outerKvp => outerKvp.Value, (outerKvp, innerKvp) => (bicep: outerKvp.Key, syntax: innerKvp.Key, uri: innerKvp.Value.TryUnwrap()))
-                .Where(tuple => tuple.uri is not null)
+                .Where(tuple => tuple.uri is not null && tuple.syntax is ModuleDeclarationSyntax)
                 .Distinct(tuple => tuple.uri)
+                // Resolve syntax to artifact references
                 .Select(tuple =>
                     (uri: tuple.uri,
-                    artifactReference: moduleDispatcher.TryGetArtifactReference(tuple.syntax, tuple.bicep.FileUri).TryUnwrap()))
-                // Only Oci modules
-                .Where(tuple => tuple.artifactReference is OciArtifactReference oci && oci.Type == ArtifactType.Module)
+                    artifactReference: moduleDispatcher.TryGetArtifactReference(tuple.syntax, tuple.bicep.FileUri).TryUnwrap() as OciArtifactReference))
+                .Where(tuple => tuple.artifactReference is not null && tuple.artifactReference.Type == ArtifactType.Module)
+                // Force the compiler to recognize these are guaranteed non-null
                 .Select(tuple => (uri: tuple.uri!, artifactReference: tuple.artifactReference!))
                 // Only those that were published with source
                 .Where(pair => moduleDispatcher.TryGetModuleSources(pair.artifactReference).IsSuccess())
+                // Map from uri to artifactReference
                 .ToDictionary(x => x.uri, x => x.artifactReference);
 
             var sourceFilesWithArtifactReference =
