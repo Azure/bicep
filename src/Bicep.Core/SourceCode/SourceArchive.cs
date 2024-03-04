@@ -171,20 +171,19 @@ namespace Bicep.Core.SourceCode
         public static Stream PackSourcesIntoStream(IModuleDispatcher moduleDispatcher, SourceFileGrouping sourceFileGrouping, string? cacheRoot)
         {
             // Find the artifact reference for each source file of an external module that was published with sources
-            var uriToArtifactReference = sourceFileGrouping.FileUriResultByBicepSourceFileByArtifactReferenceSyntax
+            Dictionary<Uri, ArtifactReference> uriToArtifactReference = sourceFileGrouping.FileUriResultByBicepSourceFileByArtifactReferenceSyntax
                 .SelectMany(outerKvp => outerKvp.Value, (outerKvp, innerKvp) => (bicep: outerKvp.Key, syntax: innerKvp.Key, uri: innerKvp.Value.TryUnwrap()))
                 .Where(tuple => tuple.uri is not null)
                 .Distinct(tuple => tuple.uri)
                 .Select(tuple =>
-                    (uri: tuple.uri!,
-                    artifactReference: moduleDispatcher.TryGetArtifactReference(tuple.syntax, tuple.bicep.FileUri).TryUnwrap()
-                        // Only Oci modules
-                        as OciArtifactReference))
-                .Where(tuple => tuple.artifactReference is not null)
+                    (uri: tuple.uri,
+                    artifactReference: moduleDispatcher.TryGetArtifactReference(tuple.syntax, tuple.bicep.FileUri).TryUnwrap()))
+                // Only Oci modules
+                .Where(tuple => tuple.artifactReference is OciArtifactReference oci && oci.Type == ArtifactType.Module)
                 .Select(tuple => (uri: tuple.uri!, artifactReference: tuple.artifactReference!))
                 // Only those that were published with source
                 .Where(pair => moduleDispatcher.TryGetModuleSources(pair.artifactReference).IsSuccess())
-                .ToDictionary(x => x.uri, x => x.artifactReference); 
+                .ToDictionary(x => x.uri, x => x.artifactReference);
 
             var sourceFilesWithArtifactReference =
                 sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.FileUri, out var reference) ? reference : null));
