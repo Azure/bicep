@@ -1,5 +1,5 @@
 var doggos = [
-//@[000:2938) ProgramExpression
+//@[000:3053) ProgramExpression
 //@[000:0054) ├─DeclaredVariableExpression { Name = doggos }
 //@[013:0054) | └─ArrayExpression
   'Evie'
@@ -496,6 +496,23 @@ var multiLine = reduce(['abc', 'def', 'ghi'], '', (
 //@[038:0043) |   | └─StringLiteralExpression { Value = ghi }
 //@[046:0048) |   ├─StringLiteralExpression { Value =  }
 //@[050:0088) |   └─LambdaExpression
+  cur,
+  next
+) => concat(cur, next))
+//@[005:0022) |     └─FunctionCallExpression { Name = concat }
+//@[012:0015) |       ├─LambdaVariableReferenceExpression { Variable = cur }
+//@[017:0021) |       └─LambdaVariableReferenceExpression { Variable = next }
+
+var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
+//@[000:0113) ├─DeclaredVariableExpression { Name = multiLineWithComment }
+//@[027:0113) | └─FunctionCallExpression { Name = reduce }
+//@[034:0055) |   ├─ArrayExpression
+//@[035:0040) |   | ├─StringLiteralExpression { Value = abc }
+//@[042:0047) |   | ├─StringLiteralExpression { Value = def }
+//@[049:0054) |   | └─StringLiteralExpression { Value = ghi }
+//@[057:0059) |   ├─StringLiteralExpression { Value =  }
+//@[061:0112) |   └─LambdaExpression
+  // comment
   cur,
   next
 ) => concat(cur, next))

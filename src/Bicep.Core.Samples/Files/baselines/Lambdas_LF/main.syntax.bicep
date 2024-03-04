@@ -1,5 +1,5 @@
 var doggos = [
-//@[000:2938) ProgramSyntax
+//@[000:3053) ProgramSyntax
 //@[000:0054) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0010) | ├─IdentifierSyntax
@@ -1871,21 +1871,86 @@ var multiLine = reduce(['abc', 'def', 'ghi'], '', (
 //@[050:0088) |   | └─LambdaSyntax
 //@[050:0067) |   |   ├─VariableBlockSyntax
 //@[050:0051) |   |   | ├─Token(LeftParen) |(|
-//@[051:0052) |   |   | ├─SkippedTriviaSyntax
-//@[051:0052) |   |   | | └─Token(NewLine) |\n|
+//@[051:0052) |   |   | ├─Token(NewLine) |\n|
   cur,
 //@[002:0005) |   |   | ├─LocalVariableSyntax
 //@[002:0005) |   |   | | └─IdentifierSyntax
 //@[002:0005) |   |   | |   └─Token(Identifier) |cur|
 //@[005:0006) |   |   | ├─Token(Comma) |,|
-//@[006:0007) |   |   | ├─SkippedTriviaSyntax
-//@[006:0007) |   |   | | └─Token(NewLine) |\n|
+//@[006:0007) |   |   | ├─Token(NewLine) |\n|
   next
 //@[002:0006) |   |   | ├─LocalVariableSyntax
 //@[002:0006) |   |   | | └─IdentifierSyntax
 //@[002:0006) |   |   | |   └─Token(Identifier) |next|
-//@[006:0007) |   |   | ├─SkippedTriviaSyntax
-//@[006:0007) |   |   | | └─Token(NewLine) |\n|
+//@[006:0007) |   |   | ├─Token(NewLine) |\n|
+) => concat(cur, next))
+//@[000:0001) |   |   | └─Token(RightParen) |)|
+//@[002:0004) |   |   ├─Token(Arrow) |=>|
+//@[005:0022) |   |   └─FunctionCallSyntax
+//@[005:0011) |   |     ├─IdentifierSyntax
+//@[005:0011) |   |     | └─Token(Identifier) |concat|
+//@[011:0012) |   |     ├─Token(LeftParen) |(|
+//@[012:0015) |   |     ├─FunctionArgumentSyntax
+//@[012:0015) |   |     | └─VariableAccessSyntax
+//@[012:0015) |   |     |   └─IdentifierSyntax
+//@[012:0015) |   |     |     └─Token(Identifier) |cur|
+//@[015:0016) |   |     ├─Token(Comma) |,|
+//@[017:0021) |   |     ├─FunctionArgumentSyntax
+//@[017:0021) |   |     | └─VariableAccessSyntax
+//@[017:0021) |   |     |   └─IdentifierSyntax
+//@[017:0021) |   |     |     └─Token(Identifier) |next|
+//@[021:0022) |   |     └─Token(RightParen) |)|
+//@[022:0023) |   └─Token(RightParen) |)|
+//@[023:0025) ├─Token(NewLine) |\n\n|
+
+var multiLineWithComment = reduce(['abc', 'def', 'ghi'], '', (
+//@[000:0113) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0024) | ├─IdentifierSyntax
+//@[004:0024) | | └─Token(Identifier) |multiLineWithComment|
+//@[025:0026) | ├─Token(Assignment) |=|
+//@[027:0113) | └─FunctionCallSyntax
+//@[027:0033) |   ├─IdentifierSyntax
+//@[027:0033) |   | └─Token(Identifier) |reduce|
+//@[033:0034) |   ├─Token(LeftParen) |(|
+//@[034:0055) |   ├─FunctionArgumentSyntax
+//@[034:0055) |   | └─ArraySyntax
+//@[034:0035) |   |   ├─Token(LeftSquare) |[|
+//@[035:0040) |   |   ├─ArrayItemSyntax
+//@[035:0040) |   |   | └─StringSyntax
+//@[035:0040) |   |   |   └─Token(StringComplete) |'abc'|
+//@[040:0041) |   |   ├─Token(Comma) |,|
+//@[042:0047) |   |   ├─ArrayItemSyntax
+//@[042:0047) |   |   | └─StringSyntax
+//@[042:0047) |   |   |   └─Token(StringComplete) |'def'|
+//@[047:0048) |   |   ├─Token(Comma) |,|
+//@[049:0054) |   |   ├─ArrayItemSyntax
+//@[049:0054) |   |   | └─StringSyntax
+//@[049:0054) |   |   |   └─Token(StringComplete) |'ghi'|
+//@[054:0055) |   |   └─Token(RightSquare) |]|
+//@[055:0056) |   ├─Token(Comma) |,|
+//@[057:0059) |   ├─FunctionArgumentSyntax
+//@[057:0059) |   | └─StringSyntax
+//@[057:0059) |   |   └─Token(StringComplete) |''|
+//@[059:0060) |   ├─Token(Comma) |,|
+//@[061:0112) |   ├─FunctionArgumentSyntax
+//@[061:0112) |   | └─LambdaSyntax
+//@[061:0091) |   |   ├─VariableBlockSyntax
+//@[061:0062) |   |   | ├─Token(LeftParen) |(|
+//@[062:0063) |   |   | ├─Token(NewLine) |\n|
+  // comment
+//@[012:0013) |   |   | ├─Token(NewLine) |\n|
+  cur,
+//@[002:0005) |   |   | ├─LocalVariableSyntax
+//@[002:0005) |   |   | | └─IdentifierSyntax
+//@[002:0005) |   |   | |   └─Token(Identifier) |cur|
+//@[005:0006) |   |   | ├─Token(Comma) |,|
+//@[006:0007) |   |   | ├─Token(NewLine) |\n|
+  next
+//@[002:0006) |   |   | ├─LocalVariableSyntax
+//@[002:0006) |   |   | | └─IdentifierSyntax
+//@[002:0006) |   |   | |   └─Token(Identifier) |next|
+//@[006:0007) |   |   | ├─Token(NewLine) |\n|
 ) => concat(cur, next))
 //@[000:0001) |   |   | └─Token(RightParen) |)|
 //@[002:0004) |   |   ├─Token(Arrow) |=>|

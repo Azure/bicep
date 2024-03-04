@@ -136,11 +136,14 @@ param defaultExpression bool = 18 != (true || false)
 ])
 param stringLiteral string
 
-@allowed([
-  'abc'
-  'def'
-  'ghi'
-])
+@allowed(
+  // some comment
+  [
+    'abc'
+    'def'
+    'ghi'
+  ]
+)
 param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 
 @secure()

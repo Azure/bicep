@@ -1,5 +1,5 @@
 /*
-//@[000:3137) ProgramExpression
+//@[000:3162) ProgramExpression
   This is a block comment.
 */
 
@@ -283,8 +283,10 @@ param defaultExpression bool = 18 != (true || false)
 param stringLiteral string
 //@[020:0026) | └─AmbientTypeReferenceExpression { Name = string }
 
-@allowed([
-//@[000:0105) ├─DeclaredParameterExpression { Name = stringLiteralWithAllowedValuesSuperset }
+@allowed(
+//@[000:0130) ├─DeclaredParameterExpression { Name = stringLiteralWithAllowedValuesSuperset }
+    // some comment
+    [
   'abc'
   'def'
   'ghi'

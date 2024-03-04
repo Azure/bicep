@@ -1,5 +1,5 @@
 
-//@[000:13313) ProgramExpression
+//@[000:13326) ProgramExpression
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
 //@[000:00000) |   └─ResourceReferenceExpression [UNPARENTED]
 //@[000:00000) | └─ResourceDependencyExpression [UNPARENTED]
@@ -290,12 +290,14 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   }
 }
 
-var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosDb.account)
-//@[000:00094) ├─DeclaredVariableExpression { Name = cosmosDbResourceId }
-//@[025:00094) | └─FunctionCallExpression { Name = resourceId }
+var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts',
+//@[000:00107) ├─DeclaredVariableExpression { Name = cosmosDbResourceId }
+//@[025:00107) | └─FunctionCallExpression { Name = resourceId }
 //@[036:00075) |   ├─StringLiteralExpression { Value = Microsoft.DocumentDB/databaseAccounts }
-//@[077:00093) |   └─PropertyAccessExpression { PropertyName = account }
-//@[077:00085) |     └─ParametersReferenceExpression { Parameter = cosmosDb }
+// comment
+cosmosDb.account)
+//@[000:00016) |   └─PropertyAccessExpression { PropertyName = account }
+//@[000:00008) |     └─ParametersReferenceExpression { Parameter = cosmosDb }
 var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 
 // this variable is not accessed anywhere in this template and depends on a run-time reference

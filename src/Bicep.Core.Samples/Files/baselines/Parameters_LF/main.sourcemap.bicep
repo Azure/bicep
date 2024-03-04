@@ -292,7 +292,9 @@ param stringLiteral string
 //@      "type": "string",
 //@    },
 
-@allowed([
+@allowed(
+    // some comment
+    [
 //@      "allowedValues": [
 //@      ]
   'abc'
