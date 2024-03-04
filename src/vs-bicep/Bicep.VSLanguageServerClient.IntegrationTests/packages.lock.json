@@ -32,11 +32,11 @@
       },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
-        "requested": "[17.2.0, )",
-        "resolved": "17.2.0",
-        "contentHash": "kYmkDYbcDd+jNvmMH4TMtgHjsUYbIsWENM2VcjB0X7TawXbehL5I8OIsu2TgFS/nQCgZE94InrqMxrm7WDy+Lw==",
+        "requested": "[17.9.0, )",
+        "resolved": "17.9.0",
+        "contentHash": "7GUNAUbJYn644jzwLm5BD3a2p9C1dmP8Hr6fDPDxgItQk9hBs1Svdxzz07KQ/UphMSmgza9AbijBJGmw5D658A==",
         "dependencies": {
-          "Microsoft.CodeCoverage": "17.2.0"
+          "Microsoft.CodeCoverage": "17.9.0"
         }
       },
       "Microsoft.SourceLink.GitHub": {
@@ -213,8 +213,8 @@
       },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
-        "resolved": "17.2.0",
-        "contentHash": "MsKhJmwIfHxNDbTIlgQy29UpWSWPpbZOQPhQ7xalRy+ABnl8/neFHZGzSP3XlpW2dKAXHTFrtIcKzW/kopY2Bg=="
+        "resolved": "17.9.0",
+        "contentHash": "RGD37ZSrratfScYXm7M0HjvxMxZyWZL4jm+XgMZbkIY1UPgjUpbNA/t+WTGj/rC/0Hm9A3IrH3ywbKZkOCnoZA=="
       },
       "Microsoft.CSharp": {
         "type": "Transitive",
@@ -1092,7 +1092,7 @@
         "type": "Project",
         "dependencies": {
           "Bicep.VSLanguageServerClient": "[1.0.0, )",
-          "Microsoft.NET.Test.Sdk": "[17.2.0, )",
+          "Microsoft.NET.Test.Sdk": "[17.9.0, )",
           "Microsoft.Test.Apex.VisualStudio": "[17.6.33619.290, )",
           "Microsoft.VisualStudio.Composition": "[17.7.40, )",
           "Microsoft.VisualStudio.Editor": "[17.2.3194, )",
