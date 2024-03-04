@@ -2,7 +2,8 @@
 
 1. (**end-of-month releases only**) Update Bicep Az types:
     1. Run the [Update Types](https://github.com/Azure/bicep-types-az/actions/workflows/update-types.yml) GitHub Action to generate the latest type definitions.
-        1. Wait ~3hrs for it to complete. Ensure it runs successfully and that it generates + merges a PR (example [here](https://github.com/Azure/bicep-types-az/pull/1299)).
+        1. Wait ~3hrs for it to complete. Ensure it runs successfully.
+        2. Submit a PR to merge the `autogenerate` branch to `main`. You can use [this link](https://github.com/Azure/bicep-types-az/compare/main...autogenerate) to start the PR.
     1. Run the Official Build for BicepMirror-Types-Az(see [this README](https://msazure.visualstudio.com/One/_git/BicepMirror-Types-Az) for instructions).
         Note: There are several (non-blocking) known issues:
           - https://msazure.visualstudio.com/One/_workitems/edit/25142078
