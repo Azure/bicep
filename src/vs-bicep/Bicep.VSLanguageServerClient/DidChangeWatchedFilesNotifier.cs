@@ -51,9 +51,8 @@ namespace Bicep.VSLanguageServerClient
                 {
                     var workspaceServices = componentModel.DefaultExportProvider.GetExports<IVsFolderWorkspaceService>();
 
-                    if (workspaceServices is not null && workspaceServices.Any())
+                    if (workspaceServices is not null && workspaceServices.FirstOrDefault() is { } workspace)
                     {
-                        var workspace = workspaceServices.First();
                         var currentWorkspace = workspace.Value.CurrentWorkspace;
 
                         if (currentWorkspace is not null)
