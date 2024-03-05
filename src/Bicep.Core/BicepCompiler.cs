@@ -115,7 +115,8 @@ public class BicepCompiler
         {
             foreach (var artifact in originalArtifactsToRestore)
             {
-                if (DiagnosticForModule(grouping, artifact.Syntax) is { } diagnostic)
+                if (artifact.Syntax is {} &&
+                    DiagnosticForModule(grouping, artifact.Syntax) is { } diagnostic)
                 {
                     yield return (artifact.Origin, diagnostic);
                 }

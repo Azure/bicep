@@ -502,11 +502,6 @@ namespace Bicep.Core.Semantics
 
             var artifact = artifactFileLookup.ArtifactLookup[syntax];
 
-            if (!features.DynamicTypeLoadingEnabled && !features.ProviderRegistryEnabled)
-            {
-                return new(x => x.UnrecognizedProvider(syntax.Specification.NamespaceIdentifier));
-            }
-
             if (!artifact.Result.IsSuccess(out var typesTgzUri, out var errorBuilder))
             {
                 return new(errorBuilder);

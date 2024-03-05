@@ -39,8 +39,9 @@ public static class SourceCodeDocumentLinkHelper
 
             foreach (var artifact in grouping)
             {
-                var syntax = artifact.Syntax;
-                if (syntax.Path is { } && artifact.Result.IsSuccess(out var uri))
+                if (artifact.Syntax is {} syntax &&
+                    syntax.Path is { } &&
+                    artifact.Result.IsSuccess(out var uri))
                 {
                     var start = new SourceCodePosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position));
                     var end = new SourceCodePosition(TextCoordinateConverter.GetPosition(referencingFileLineStarts, syntax.Path.Span.Position + syntax.Path.Span.Length));

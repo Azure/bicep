@@ -11,7 +11,7 @@ namespace Bicep.Core.Workspaces;
 
 public record ArtifactResolutionInfo(
     BicepSourceFile Origin,
-    IArtifactReferenceSyntax Syntax,
+    IArtifactReferenceSyntax? Syntax,
     ArtifactReference? Reference,
     ResultWithDiagnostic<Uri> Result,
     bool RequiresRestore);
@@ -21,11 +21,14 @@ public record SourceFileGrouping(
     ImmutableArray<ISourceFile> SourceFiles,
     ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup,
     ImmutableDictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> ArtifactLookup,
+    ImmutableArray<ArtifactResolutionInfo> ImplicitArtifacts,
     ImmutableDictionary<Uri, ResultWithDiagnostic<ISourceFile>> SourceFileLookup) : IArtifactFileLookup
 {
     public IEnumerable<ArtifactResolutionInfo> GetArtifactsToRestore(bool force = false)
     {
-        foreach (var (syntax, artifact) in ArtifactLookup)
+        var artifacts = ArtifactLookup.Values.Concat(ImplicitArtifacts);
+
+        foreach (var artifact in artifacts)
         {
             if (force || !artifact.Result.IsSuccess(out _, out var failure) && artifact.RequiresRestore)
             {

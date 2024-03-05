@@ -9,6 +9,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
@@ -24,6 +25,7 @@ namespace Bicep.Core.Workspaces
 
         private readonly Dictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri;
         private readonly Dictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> artifactLookup;
+        private readonly HashSet<ArtifactResolutionInfo> implicitArtifacts;
         private readonly bool forceRestore;
 
         private SourceFileGroupingBuilder(
@@ -36,6 +38,7 @@ namespace Bicep.Core.Workspaces
             this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
             this.artifactLookup = new();
+            this.implicitArtifacts = new();
             this.fileResultByUri = new();
             this.forceRestore = forceModulesRestore;
         }
@@ -51,6 +54,7 @@ namespace Bicep.Core.Workspaces
             this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
             this.artifactLookup = current.ArtifactLookup.Where(x => x.Value.Result.IsSuccess()).ToDictionary();
+            this.implicitArtifacts = current.ImplicitArtifacts.ToHashSet();
             this.fileResultByUri = current.SourceFileLookup.ToDictionary();
             this.forceRestore = forceArtifactRestore;
         }
@@ -65,16 +69,23 @@ namespace Bicep.Core.Workspaces
         public static SourceFileGrouping Rebuild(IFileResolver fileResolver, IFeatureProviderFactory featuresFactory, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IReadOnlyWorkspace workspace, SourceFileGrouping current)
         {
             var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, current);
-            var artifactsToRestore = current.GetArtifactsToRestore().ToDictionary(x => x.Syntax, x => x);
+            var artifactsToRestore = current.GetArtifactsToRestore();
 
-            foreach (var syntax in artifactsToRestore.Keys)
+            foreach (var artifact in artifactsToRestore)
             {
-                builder.artifactLookup.Remove(syntax);
+                if (artifact.Syntax is {})
+                {
+                    builder.artifactLookup.Remove(artifact.Syntax);
+                }
+                else
+                {
+                    builder.implicitArtifacts.Remove(artifact);
+                }
             }
 
             // Rebuild source files that contain external artifact references restored during the initial build.
-            var sourceFilesToRebuild = current.SourceFiles
-                .Where(sourceFile => GetArtifactReferenceDeclarations(sourceFile).Any(artifactsToRestore.ContainsKey))
+            var sourceFilesToRebuild = artifactsToRestore
+                .Select(artifact => artifact.Origin)
                 .Distinct()
                 .SelectMany(current.GetFilesDependingOn)
                 .ToImmutableHashSet();
@@ -105,6 +116,7 @@ namespace Bicep.Core.Workspaces
                 fileResultByUri.Values.Select(x => x.TryUnwrap()).WhereNotNull().ToImmutableArray(),
                 sourceFileGraph.InvertLookup().ToImmutableDictionary(),
                 artifactLookup.ToImmutableDictionary(),
+                implicitArtifacts.ToImmutableArray(),
                 fileResultByUri.ToImmutableDictionary());
         }
 
@@ -149,9 +161,9 @@ namespace Bicep.Core.Workspaces
 
         private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild)
         {
+            var config = configurationManager.GetConfiguration(file.FileUri);
             foreach (var restorable in GetArtifactReferences(file.ProgramSyntax))
             {
-                var config = configurationManager.GetConfiguration(file.FileUri);
                 if (restorable is ProviderDeclarationSyntax providerDeclaration)
                 {
                     var isBuiltInProvider = providerDeclaration.Specification switch {
@@ -188,6 +200,36 @@ namespace Bicep.Core.Workspaces
                 }
                 fileResultByUri[artifactUri] = childResult;
             }
+
+            foreach (var providerName in config.ImplicitProvidersConfig.GetImplicitProviderNames())
+            {
+                if (TryGetImplicitProvider(providerName, file, config) is { } implicitProvider)
+                {
+                    implicitArtifacts.Add(implicitProvider);
+                }
+            }
+        }
+
+        private ArtifactResolutionInfo? TryGetImplicitProvider(string providerName, BicepSourceFile file, RootConfiguration config)
+        {
+            if (!config.ProvidersConfig.TryGetProviderSource(providerName).IsSuccess(out var providerEntry, out var errorBuilder))
+            {
+                return new(file, null, null, new(errorBuilder), RequiresRestore: false);
+            }
+
+            if (providerEntry.BuiltIn)
+            {
+                return null;
+            }
+
+            if (!OciArtifactReference.TryParse(ArtifactType.Provider, null, $"{providerEntry.Source}:{providerEntry.Version}", config, file.FileUri).IsSuccess(out var artifactReference, out errorBuilder))
+            {
+                // reference is not valid
+                return new(file, null, null, new(errorBuilder), RequiresRestore: false);
+            }
+
+            var (result, requiresRestore) = GetArtifactRestoreResult(artifactReference);
+            return new(file, null, artifactReference, result, RequiresRestore: requiresRestore);
         }
 
         private ArtifactResolutionInfo GetArtifactRestoreResult(BicepSourceFile sourceFile, IArtifactReferenceSyntax referenceSyntax)
