@@ -24,7 +24,7 @@ namespace Bicep.Core.Registry
             this.bicepCompiler = bicepCompiler;
         }
 
-        public override string Scheme => ModuleReferenceSchemes.Local;
+        public override string Scheme => ArtifactReferenceSchemes.Local;
 
         public override RegistryCapabilities GetCapabilities(LocalModuleReference reference) => RegistryCapabilities.Default;
 

@@ -35,7 +35,7 @@ namespace Bicep.Core.Registry
             this.parentModuleUri = parentModuleUri;
         }
 
-        public override string Scheme => ModuleReferenceSchemes.TemplateSpecs;
+        public override string Scheme => ArtifactReferenceSchemes.TemplateSpecs;
 
         public override RegistryCapabilities GetCapabilities(TemplateSpecModuleReference reference) => RegistryCapabilities.Default;
 

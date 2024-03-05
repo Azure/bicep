@@ -343,7 +343,7 @@ namespace Bicep.Core.Workspaces
                     file.FileUri));
             }
 
-            if (!OciArtifactReference.TryParse(ArtifactType.Provider, null, $"{providerEntry.Source}:{providerEntry.Version}", config, file.FileUri).IsSuccess(out var artifactReference, out errorBuilder))
+            if (!OciArtifactReference.TryParse(ArtifactType.Provider, null, providerEntry.Path, config, file.FileUri).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 return new(errorBuilder);
             }

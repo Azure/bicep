@@ -5,7 +5,7 @@ using Bicep.Core.Registry.Oci;
 
 namespace Bicep.Core.Modules
 {
-    public static class ModuleReferenceSchemes
+    public static class ArtifactReferenceSchemes
     {
         public const string Local = "";
 

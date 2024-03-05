@@ -1142,12 +1142,12 @@ namespace Bicep.Core.Diagnostics
 
             public ErrorDiagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes)
             {
-                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ModuleReferenceSchemes.Local)));
+                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local)));
 
                 return new(
                     TextSpan,
                     "BCP189",
-                    (allowedSchemes.Contains(ModuleReferenceSchemes.Local, StringComparer.Ordinal), allowedSchemes.Any(scheme => !string.Equals(scheme, ModuleReferenceSchemes.Local, StringComparison.Ordinal))) switch
+                    (allowedSchemes.Contains(ArtifactReferenceSchemes.Local, StringComparer.Ordinal), allowedSchemes.Any(scheme => !string.Equals(scheme, ArtifactReferenceSchemes.Local, StringComparison.Ordinal))) switch
                     {
                         (false, false) => "Module references are not supported in this context.",
                         (false, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a module reference using one of the following schemes: {FormatSchemes()}",
@@ -1179,12 +1179,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidOciArtifactReference(string? aliasName, string badRef) => new(
                 TextSpan,
                 "BCP193",
-                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ModuleReferenceSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ModuleReferenceSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactReferenceSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ArtifactReferenceSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
 
             public ErrorDiagnostic InvalidTemplateSpecReference(string? aliasName, string badRef) => new(
                 TextSpan,
                 "BCP194",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ModuleReferenceSchemes.TemplateSpecs}:<subscription-ID>/<resource-group-name>/<template-spec-name>:<version>\", or \"{ModuleReferenceSchemes.TemplateSpecs}/<module-alias>:<template-spec-name>:<version>\".");
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ArtifactReferenceSchemes.TemplateSpecs}:<subscription-ID>/<resource-group-name>/<template-spec-name>:<version>\", or \"{ArtifactReferenceSchemes.TemplateSpecs}/<module-alias>:<template-spec-name>:<version>\".");
 
             public ErrorDiagnostic InvalidOciArtifactReferenceInvalidPathSegment(string? aliasName, string badRef, string badSegment) => new(
                 TextSpan,
