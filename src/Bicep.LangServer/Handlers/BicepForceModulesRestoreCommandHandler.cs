@@ -82,9 +82,10 @@ namespace Bicep.LanguageServer.Handlers
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging
             var artifactReferencesToRestore = this.moduleDispatcher.GetValidArtifactReferences(artifactsToRestore)
                 .Distinct()
-                .OrderBy(key => key.FullyQualifiedReference);
+                .OrderBy(key => key.FullyQualifiedReference)
+                .ToArray();
 
-            if (!artifactReferencesToRestore.Any())
+            if (artifactReferencesToRestore.Length == 0)
             {
                 return $"Restore (force) skipped. No modules references in input file.";
             }

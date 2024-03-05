@@ -28,13 +28,13 @@ namespace Bicep.Core.Modules
 
             // Ignore layers we don't recognize for now.
             var expectedLayerMediaType = BicepModuleMediaTypes.BicepModuleLayerV1Json;
-            var mainLayers = this.Layers.Where(l => l.MediaType.Equals(expectedLayerMediaType, MediaTypeComparison));
+            var mainLayers = this.Layers.Where(l => l.MediaType.Equals(expectedLayerMediaType, MediaTypeComparison)).ToArray();
 
-            this.mainLayer = mainLayers.Count() switch
+            this.mainLayer = mainLayers.Length switch
             {
                 0 => throw new InvalidArtifactException($"Expected to find a layer with media type {expectedLayerMediaType}, but found none.", InvalidArtifactExceptionKind.UnknownLayerMediaType),
                 1 => mainLayers.Single(),
-                _ => throw new InvalidArtifactException($"Did not expect to find multiple layer media types of {string.Join(", ", mainLayers.Select(l => l.MediaType).Order().Distinct().ToArray())}", InvalidArtifactExceptionKind.UnknownLayerMediaType)
+                _ => throw new InvalidArtifactException($"Did not expect to find multiple layer media types of {string.Join(", ", mainLayers.Select(l => l.MediaType).Order().Distinct())}", InvalidArtifactExceptionKind.UnknownLayerMediaType)
             };
         }
 

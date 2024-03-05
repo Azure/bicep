@@ -123,7 +123,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static IEnumerable<SemanticTokenInfo> CalculateSemanticTokenInfos(IReadOnlyList<int> lineStarts, IEnumerable<int> semanticTokenData, SemanticTokensLegend legend)
+        private static IEnumerable<SemanticTokenInfo> CalculateSemanticTokenInfos(IReadOnlyList<int> lineStarts, IReadOnlyList<int> semanticTokenData, SemanticTokensLegend legend)
         {
             var tokenTypesLegend = legend.TokenTypes.ToImmutableArray();
             var tokenModifiersLegend = legend.TokenModifiers.ToImmutableArray();

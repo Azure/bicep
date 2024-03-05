@@ -45,12 +45,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 {
                     UseRecentApiVersionRuleTests.VerifyAllTypesAndDatesAreFake(result.BicepFile.GetOriginalSource());
 
-                    var actual = UseRecentApiVersionRule.GetFunctionCallInfos(result.Compilation.GetEntrypointSemanticModel());
+                    var actual = UseRecentApiVersionRule.GetFunctionCallInfos(result.Compilation.GetEntrypointSemanticModel()).ToArray();
                     actual.Should().HaveCount(1, "Expecting a single function call per test");
                     var typedActual = new ExpectedFunctionInfo(
-                            actual.First().FunctionCallSyntax.ToString(),
-                            actual.First().ResourceType,
-                            actual.First().ApiVersion?.ToString());
+                            actual[0].FunctionCallSyntax.ToString(),
+                            actual[0].ResourceType,
+                            actual[0].ApiVersion?.ToString());
 
                     typedActual.Should().BeEquivalentTo(typedExpected);
                 }

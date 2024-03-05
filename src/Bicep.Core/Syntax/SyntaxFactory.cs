@@ -407,11 +407,11 @@ namespace Bicep.Core.Syntax
         public static Token CreateNewLineWithIndent(string indent) => GetNewlineToken(
             trailingTrivia: new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, indent).AsEnumerable());
 
-        public static LambdaSyntax CreateLambdaSyntax(IEnumerable<string> parameterNames, SyntaxBase functionExpression)
+        public static LambdaSyntax CreateLambdaSyntax(IList<string> parameterNames, SyntaxBase functionExpression)
         {
-            SyntaxBase variableBlock = parameterNames.Count() switch
+            SyntaxBase variableBlock = parameterNames.Count switch
             {
-                1 => new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(parameterNames.First())),
+                1 => new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(parameterNames[0])),
                 _ => new VariableBlockSyntax(
                     SyntaxFactory.LeftParenToken,
                     SyntaxFactory.Interleave(parameterNames

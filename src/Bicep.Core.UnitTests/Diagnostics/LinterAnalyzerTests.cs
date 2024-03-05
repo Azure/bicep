@@ -60,7 +60,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         public void AllRulesHaveUniqueDetails()
         {
             var analyzer = new LinterAnalyzer();
-            var ruleSet = analyzer.GetRuleSet();
+            var ruleSet = analyzer.GetRuleSet().ToArray();
 
             var codeSet = ruleSet.Select(r => r.Code).ToHashSet();
             codeSet.Should().HaveSameCount(ruleSet);
@@ -73,9 +73,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
         public void MostRulesEnabledByDefault()
         {
             var analyzer = new LinterAnalyzer();
-            var ruleSet = analyzer.GetRuleSet();
+            var ruleSet = analyzer.GetRuleSet().ToArray();
             var numberEnabled = ruleSet.Where(r => r.DefaultDiagnosticLevel != DiagnosticLevel.Off).Count();
-            numberEnabled.Should().BeGreaterThan(ruleSet.Count() / 2, "most rules should probably be enabled by default");
+            numberEnabled.Should().BeGreaterThan(ruleSet.Length / 2, "most rules should probably be enabled by default");
         }
 
         [TestMethod]

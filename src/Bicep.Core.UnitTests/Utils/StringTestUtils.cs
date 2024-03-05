@@ -6,10 +6,8 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.UnitTests.Utils
 {
-    public static class StringTestUtils
+    public static partial class StringTestUtils
     {
-        private static Regex LineIndentRegex { get; } = new Regex("^\\s*", RegexOptions.CultureInvariant | RegexOptions.Compiled);
-
         /// <summary>
         /// Shifts all lines to the left by removing whitespace until the line with the least amount of indent is
         /// flush left (finds the minimum indent of any line and removes that amount of indent from all lines)
@@ -19,7 +17,7 @@ namespace Bicep.Core.UnitTests.Utils
             s = StringUtils.ReplaceNewlines(s, "\n");
             var lines = s.Split('\n');
             var nonEmptyLines = lines.Where(l => !string.IsNullOrWhiteSpace(l));
-            int minIndent = nonEmptyLines.Any() ? nonEmptyLines.Min(l => LineIndentRegex.Match(l).Value.Length) : 0;
+            int minIndent = nonEmptyLines.DefaultIfEmpty("").Min(l => LineIndentPattern().Match(l).Value.Length);
             var minIndentationRegex = new Regex($"^\\s{{{minIndent}}}");
             var unindentedLines = lines.Select(l => minIndentationRegex.Replace(l, "")).ToArray();
             return string.Join("\n", unindentedLines);
@@ -34,5 +32,8 @@ namespace Bicep.Core.UnitTests.Utils
             var lines = s.Split('\n');
             return string.Join("\n", lines.Select(l => l.Trim()));
         }
+
+        [GeneratedRegex("^\\s*", RegexOptions.Compiled | RegexOptions.CultureInvariant)]
+        private static partial Regex LineIndentPattern();
     }
 }

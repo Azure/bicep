@@ -132,7 +132,7 @@ public class ExpressionBuilder
             case ResourceAccessSyntax resourceAccess:
                 return ConvertResourceAccess(resourceAccess);
             case LambdaSyntax lambda:
-                var variables = lambda.GetLocalVariables();
+                var variables = lambda.GetLocalVariables().ToArray();
 
                 return new LambdaExpression(
                     lambda,
@@ -141,7 +141,7 @@ public class ExpressionBuilder
                     ConvertWithoutLowering(lambda.Body),
                     null);
             case TypedLambdaSyntax lambda:
-                var typedVariables = lambda.GetLocalVariables();
+                var typedVariables = lambda.GetLocalVariables().ToArray();
 
                 return new LambdaExpression(
                     lambda,

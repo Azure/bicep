@@ -801,7 +801,7 @@ namespace Bicep.Core.PrettyPrint
             Spread(combinators as IEnumerable<ILinkedDocument>);
 
         private static ILinkedDocument Spread(IEnumerable<ILinkedDocument> combinators) =>
-            combinators.Any() ? combinators.Aggregate((a, b) => a.Concat(Space).Concat(b)) : Nil;
+            combinators.DefaultIfEmpty(Nil).Aggregate((a, b) => a.Concat(Space).Concat(b));
 
         private void BuildWithConcat(Action visitAciton) => this.Build(visitAciton, Concat);
 

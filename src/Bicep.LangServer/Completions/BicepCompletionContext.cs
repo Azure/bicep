@@ -1308,7 +1308,7 @@ namespace Bicep.LanguageServer.Completions
                 return true;
             }
 
-            var nodes = objectSyntax.OpenBrace.AsEnumerable().Concat(objectSyntax.Children).Concat(objectSyntax.CloseBrace);
+            var nodes = objectSyntax.Children.Prepend(objectSyntax.OpenBrace).Append(objectSyntax.CloseBrace).ToArray();
             var lastNodeBeforeOffset = nodes.LastOrDefault(node => node.GetEndPosition() <= offset);
             var firstNodeAfterOffset = nodes.FirstOrDefault(node => node.GetPosition() >= offset);
 
