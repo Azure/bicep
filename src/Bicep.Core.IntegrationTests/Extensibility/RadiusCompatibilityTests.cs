@@ -13,20 +13,12 @@ namespace Bicep.Core.IntegrationTests.Extensibility;
 [TestClass]
 public class RadiusCompatibilityTests
 {
-    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem,
-        string registryHost,
-        string repositoryPath,
-        bool extensibilityEnabledBool,
-        bool providerRegistryBool,
-        bool dynamicTypeLoadingEnabled)
+    private static ServiceBuilder GetServiceBuilder(IFileSystem fileSystem, string registryHost, string repositoryPath)
     {
         var clientFactory = RegistryHelper.CreateMockRegistryClient(registryHost, repositoryPath);
 
         return new ServiceBuilder()
-            .WithFeatureOverrides(new(
-                ExtensibilityEnabled: extensibilityEnabledBool,
-                ProviderRegistry: providerRegistryBool,
-                DynamicTypeLoadingEnabled: dynamicTypeLoadingEnabled))
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true, ProviderRegistry: true, DynamicTypeLoadingEnabled: true))
             .WithFileSystem(fileSystem)
             .WithContainerRegistryClientFactory(clientFactory);
     }
@@ -38,7 +30,7 @@ public class RadiusCompatibilityTests
         var registry = "example.azurecr.io";
         var repository = $"test/radius";
 
-        var services = GetServiceBuilder(new MockFileSystem(), registry, repository, true, true, true);
+        var services = GetServiceBuilder(new MockFileSystem(), registry, repository);
 
         var tgzData = ThirdPartyTypeHelper.GetMockRadiusTypesTgz();
         await RegistryHelper.PublishProviderToRegistryAsync(services.Build(), $"br:{registry}/{repository}:1.0.0", tgzData);

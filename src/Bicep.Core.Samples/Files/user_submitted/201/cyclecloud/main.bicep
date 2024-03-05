@@ -45,10 +45,7 @@ module vm './cycleserver-vm.bicep' = {
 resource rbac 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(resourceGroup().id)
   properties: {
-    roleDefinitionId: tenantResourceId(
-      'Microsoft.Authorization/roleDefinitions',
-      roleDefinitions.contributor
-    )
+    roleDefinitionId: tenantResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.contributor)
     principalId: mid.properties.principalId
     principalType: 'ServicePrincipal'
   }

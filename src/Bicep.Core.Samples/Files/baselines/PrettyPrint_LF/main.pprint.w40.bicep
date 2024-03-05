@@ -34,7 +34,8 @@ var w39__ = concat('xxxxxx', 'xxxxxxx') // suffix
 var w40__ = concat('xxxxxx', 'xxxxxxxx') // suffix
 
 var w41__ = concat(
-  'xxxxx' /* xxxxxxx */
+  'xxxxx',
+  'xxxxxxxxxx'
 )
 var w42__ = concat(
   'xxxxx',
@@ -144,9 +145,7 @@ var w81__ = union(
 )
 var w82__ = union(
   { foo: 'x', bar: 'x' },
-  any(
-    { baz: 'func call length: 39   ' }
-  )
+  any({ baz: 'func call length: 39   ' })
 )
 
 var w78___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
@@ -168,6 +167,10 @@ var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// Baselines for line breakers /////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+var forceBreak0 = [
+  1
+]
+
 var forceBreak1 = {
   foo: true
 }

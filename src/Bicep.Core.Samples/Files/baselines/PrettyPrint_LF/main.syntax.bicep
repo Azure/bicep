@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////////
-//@[00:4175) ProgramSyntax
+//@[00:4189) ProgramSyntax
 //@[80:0081) ├─Token(NewLine) |\n|
 //////////////////////////// Baselines for width 40 ////////////////////////////
 //@[80:0081) ├─Token(NewLine) |\n|
@@ -56,29 +56,28 @@ var w39 = [true, true
 //@[16:0019) |   |   └─Token(Integer) |123|
 //@[19:0020) |   └─Token(RightSquare) |]|
 //@[20:0021) ├─Token(NewLine) |\n|
-var w40 =[
-//@[00:0043) ├─VariableDeclarationSyntax
+var w40 =[true
+//@[00:0041) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0007) | ├─IdentifierSyntax
 //@[04:0007) | | └─Token(Identifier) |w40|
 //@[08:0009) | ├─Token(Assignment) |=|
-//@[09:0043) | └─ArraySyntax
+//@[09:0041) | └─ArraySyntax
 //@[09:0010) |   ├─Token(LeftSquare) |[|
-//@[10:0011) |   ├─Token(NewLine) |\n|
-    true, true, 1234/* xxxxx */]  // suffix
+//@[10:0014) |   ├─ArrayItemSyntax
+//@[10:0014) |   | └─BooleanLiteralSyntax
+//@[10:0014) |   |   └─Token(TrueKeyword) |true|
+//@[14:0015) |   ├─Token(NewLine) |\n|
+    true, 1234/* xxxxx */]  // suffix
 //@[04:0008) |   ├─ArrayItemSyntax
 //@[04:0008) |   | └─BooleanLiteralSyntax
 //@[04:0008) |   |   └─Token(TrueKeyword) |true|
 //@[08:0009) |   ├─Token(Comma) |,|
 //@[10:0014) |   ├─ArrayItemSyntax
-//@[10:0014) |   | └─BooleanLiteralSyntax
-//@[10:0014) |   |   └─Token(TrueKeyword) |true|
-//@[14:0015) |   ├─Token(Comma) |,|
-//@[16:0020) |   ├─ArrayItemSyntax
-//@[16:0020) |   | └─IntegerLiteralSyntax
-//@[16:0020) |   |   └─Token(Integer) |1234|
-//@[31:0032) |   └─Token(RightSquare) |]|
-//@[43:0044) ├─Token(NewLine) |\n|
+//@[10:0014) |   | └─IntegerLiteralSyntax
+//@[10:0014) |   |   └─Token(Integer) |1234|
+//@[25:0026) |   └─Token(RightSquare) |]|
+//@[37:0038) ├─Token(NewLine) |\n|
 var w41 =[ true, true, true, true, 12345 ]
 //@[00:0042) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -312,21 +311,25 @@ var w40__ = concat('xxxxxx',
 //@[10:0011) |   └─Token(RightParen) |)|
 //@[21:0023) ├─Token(NewLine) |\n\n|
 
-var        w41__= concat('xxxxx'/* xxxxxxx */)
-//@[00:0046) ├─VariableDeclarationSyntax
+var        w41__= concat('xxxxx', 'xxxxxxxxxx')
+//@[00:0047) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[11:0016) | ├─IdentifierSyntax
 //@[11:0016) | | └─Token(Identifier) |w41__|
 //@[16:0017) | ├─Token(Assignment) |=|
-//@[18:0046) | └─FunctionCallSyntax
+//@[18:0047) | └─FunctionCallSyntax
 //@[18:0024) |   ├─IdentifierSyntax
 //@[18:0024) |   | └─Token(Identifier) |concat|
 //@[24:0025) |   ├─Token(LeftParen) |(|
 //@[25:0032) |   ├─FunctionArgumentSyntax
 //@[25:0032) |   | └─StringSyntax
 //@[25:0032) |   |   └─Token(StringComplete) |'xxxxx'|
-//@[45:0046) |   └─Token(RightParen) |)|
-//@[46:0047) ├─Token(NewLine) |\n|
+//@[32:0033) |   ├─Token(Comma) |,|
+//@[34:0046) |   ├─FunctionArgumentSyntax
+//@[34:0046) |   | └─StringSyntax
+//@[34:0046) |   |   └─Token(StringComplete) |'xxxxxxxxxx'|
+//@[46:0047) |   └─Token(RightParen) |)|
+//@[47:0048) ├─Token(NewLine) |\n|
 var w42__ = concat('xxxxx', 'xxxxxxxxxxx')
 //@[00:0042) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -436,36 +439,34 @@ var w42___ = true ? 'xxxxxxx':'xxxxxxxx'
 //@[80:0081) ├─Token(NewLine) |\n|
 ////////////////////////////////////////////////////////////////////////////////
 //@[80:0081) ├─Token(NewLine) |\n|
-var w78 = [
-//@[00:0084) ├─VariableDeclarationSyntax
+var w78 = [true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
+//@[00:0079) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0007) | ├─IdentifierSyntax
 //@[04:0007) | | └─Token(Identifier) |w78|
 //@[08:0009) | ├─Token(Assignment) |=|
-//@[10:0084) | └─ArraySyntax
+//@[10:0079) | └─ArraySyntax
 //@[10:0011) |   ├─Token(LeftSquare) |[|
-//@[11:0012) |   ├─Token(NewLine) |\n|
-    true, { foo: 'object width: 37' /* xxx */ }, 'xxxxxxxxxxxxxxxxxxx' ]
-//@[04:0008) |   ├─ArrayItemSyntax
-//@[04:0008) |   | └─BooleanLiteralSyntax
-//@[04:0008) |   |   └─Token(TrueKeyword) |true|
-//@[08:0009) |   ├─Token(Comma) |,|
-//@[10:0047) |   ├─ArrayItemSyntax
-//@[10:0047) |   | └─ObjectSyntax
-//@[10:0011) |   |   ├─Token(LeftBrace) |{|
-//@[12:0035) |   |   ├─ObjectPropertySyntax
-//@[12:0015) |   |   | ├─IdentifierSyntax
-//@[12:0015) |   |   | | └─Token(Identifier) |foo|
-//@[15:0016) |   |   | ├─Token(Colon) |:|
-//@[17:0035) |   |   | └─StringSyntax
-//@[17:0035) |   |   |   └─Token(StringComplete) |'object width: 37'|
-//@[46:0047) |   |   └─Token(RightBrace) |}|
-//@[47:0048) |   ├─Token(Comma) |,|
-//@[49:0070) |   ├─ArrayItemSyntax
-//@[49:0070) |   | └─StringSyntax
-//@[49:0070) |   |   └─Token(StringComplete) |'xxxxxxxxxxxxxxxxxxx'|
-//@[71:0072) |   └─Token(RightSquare) |]|
-//@[72:0073) ├─Token(NewLine) |\n|
+//@[11:0015) |   ├─ArrayItemSyntax
+//@[11:0015) |   | └─BooleanLiteralSyntax
+//@[11:0015) |   |   └─Token(TrueKeyword) |true|
+//@[15:0016) |   ├─Token(Comma) |,|
+//@[17:0054) |   ├─ArrayItemSyntax
+//@[17:0054) |   | └─ObjectSyntax
+//@[17:0018) |   |   ├─Token(LeftBrace) |{|
+//@[19:0042) |   |   ├─ObjectPropertySyntax
+//@[19:0022) |   |   | ├─IdentifierSyntax
+//@[19:0022) |   |   | | └─Token(Identifier) |foo|
+//@[22:0023) |   |   | ├─Token(Colon) |:|
+//@[24:0042) |   |   | └─StringSyntax
+//@[24:0042) |   |   |   └─Token(StringComplete) |'object width: 37'|
+//@[53:0054) |   |   └─Token(RightBrace) |}|
+//@[54:0055) |   ├─Token(Comma) |,|
+//@[56:0077) |   ├─ArrayItemSyntax
+//@[56:0077) |   | └─StringSyntax
+//@[56:0077) |   |   └─Token(StringComplete) |'xxxxxxxxxxxxxxxxxxx'|
+//@[78:0079) |   └─Token(RightSquare) |]|
+//@[79:0080) ├─Token(NewLine) |\n|
 var w79 = [true
 //@[00:0085) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -650,13 +651,13 @@ var w79_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxx'] }
 //@[65:0066) |   |   └─Token(RightSquare) |]|
 //@[67:0068) |   └─Token(RightBrace) |}|
 //@[68:0069) ├─Token(NewLine) |\n|
-var w80_ = { foo: 123, bar: true, baz: [
-//@[00:0085) ├─VariableDeclarationSyntax
+var w80_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx'
+//@[00:0079) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0008) | ├─IdentifierSyntax
 //@[04:0008) | | └─Token(Identifier) |w80_|
 //@[09:0010) | ├─Token(Assignment) |=|
-//@[11:0085) | └─ObjectSyntax
+//@[11:0079) | └─ObjectSyntax
 //@[11:0012) |   ├─Token(LeftBrace) |{|
 //@[13:0021) |   ├─ObjectPropertySyntax
 //@[13:0016) |   | ├─IdentifierSyntax
@@ -672,24 +673,23 @@ var w80_ = { foo: 123, bar: true, baz: [
 //@[28:0032) |   | └─BooleanLiteralSyntax
 //@[28:0032) |   |   └─Token(TrueKeyword) |true|
 //@[32:0033) |   ├─Token(Comma) |,|
-//@[34:0083) |   ├─ObjectPropertySyntax
+//@[34:0077) |   ├─ObjectPropertySyntax
 //@[34:0037) |   | ├─IdentifierSyntax
 //@[34:0037) |   | | └─Token(Identifier) |baz|
 //@[37:0038) |   | ├─Token(Colon) |:|
-//@[39:0083) |   | └─ArraySyntax
+//@[39:0077) |   | └─ArraySyntax
 //@[39:0040) |   |   ├─Token(LeftSquare) |[|
-//@[40:0041) |   |   ├─Token(NewLine) |\n|
-    'xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxx'] } // suffix
-//@[04:0017) |   |   ├─ArrayItemSyntax
-//@[04:0017) |   |   | └─StringSyntax
-//@[04:0017) |   |   |   └─Token(StringComplete) |'xxxxxxxxxxx'|
-//@[17:0018) |   |   ├─Token(Comma) |,|
-//@[19:0041) |   |   ├─ArrayItemSyntax
-//@[19:0041) |   |   | └─StringSyntax
-//@[19:0041) |   |   |   └─Token(StringComplete) |'xxxxxxxxxxxxxxxxxxxx'|
-//@[41:0042) |   |   └─Token(RightSquare) |]|
-//@[43:0044) |   └─Token(RightBrace) |}|
-//@[54:0055) ├─Token(NewLine) |\n|
+//@[40:0053) |   |   ├─ArrayItemSyntax
+//@[40:0053) |   |   | └─StringSyntax
+//@[40:0053) |   |   |   └─Token(StringComplete) |'xxxxxxxxxxx'|
+//@[53:0054) |   |   ├─Token(NewLine) |\n|
+'xxxxxxxxxxxxxxxxxxxx'] } // suffix
+//@[00:0022) |   |   ├─ArrayItemSyntax
+//@[00:0022) |   |   | └─StringSyntax
+//@[00:0022) |   |   |   └─Token(StringComplete) |'xxxxxxxxxxxxxxxxxxxx'|
+//@[22:0023) |   |   └─Token(RightSquare) |]|
+//@[24:0025) |   └─Token(RightBrace) |}|
+//@[35:0036) ├─Token(NewLine) |\n|
 var w81_ = { foo: 123, bar: true, baz: ['xxxxxxxxxxx', 'xxxxxxxxxxxxxxxxxxxxx'] }
 //@[00:0081) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -1132,6 +1132,22 @@ var w82___ = /* xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx */ true ? 1234567890 : 12345678
 //@[80:0081) ├─Token(NewLine) |\n|
 ////////////////////////////////////////////////////////////////////////////////
 //@[80:0081) ├─Token(NewLine) |\n|
+var forceBreak0 = [
+//@[00:0025) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |forceBreak0|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0025) | └─ArraySyntax
+//@[18:0019) |   ├─Token(LeftSquare) |[|
+//@[19:0020) |   ├─Token(NewLine) |\n|
+  1 ]
+//@[02:0003) |   ├─ArrayItemSyntax
+//@[02:0003) |   | └─IntegerLiteralSyntax
+//@[02:0003) |   |   └─Token(Integer) |1|
+//@[04:0005) |   └─Token(RightSquare) |]|
+//@[05:0007) ├─Token(NewLine) |\n\n|
+
 var forceBreak1 = {
 //@[00:0035) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -1543,7 +1559,6 @@ var forceBreak15 = true ? { foo: 0 } : {
 //@[09:0010) |     | └─IntegerLiteralSyntax
 //@[09:0010) |     |   └─Token(Integer) |1|
 //@[10:0011) |     └─Token(RightBrace) |}|
-//@[11:0013) ├─Token(NewLine) |\n\n|
-
+//@[11:0012) ├─Token(NewLine) |\n|
 
 //@[00:0000) └─Token(EndOfFile) ||

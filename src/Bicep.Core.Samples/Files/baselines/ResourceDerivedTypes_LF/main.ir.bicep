@@ -1,94 +1,86 @@
-type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
-//@[00:1238) ProgramExpression
-//@[00:0067) ├─DeclaredTypeExpression { Name = foo }
-//@[11:0067) | └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
+type foo = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[00:1215) ProgramExpression
+//@[00:0072) ├─DeclaredTypeExpression { Name = foo }
+//@[11:0072) | └─TypeReferencePropertyAccessExpression { Name = string }
+//@[11:0067) |   └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
 
 type test = {
-//@[00:0239) ├─DeclaredTypeExpression { Name = test }
-//@[12:0239) | └─ObjectTypeExpression { Name = { resA: Microsoft.Storage/storageAccounts, resB: Microsoft.Storage/storageAccounts, resC: array, resD: Microsoft.Storage/storageAccounts } }
-  resA: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>
-//@[02:0064) |   ├─ObjectTypePropertyExpression
-//@[08:0064) |   | └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
-  resB: sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>
-//@[02:0068) |   ├─ObjectTypePropertyExpression
-//@[08:0068) |   | └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
+//@[00:0254) ├─DeclaredTypeExpression { Name = test }
+//@[12:0254) | └─ObjectTypeExpression { Name = { resA: string, resB: string, resC: array, resD: string } }
+  resA: resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[02:0069) |   ├─ObjectTypePropertyExpression
+//@[08:0069) |   | └─TypeReferencePropertyAccessExpression { Name = string }
+//@[08:0064) |   |   └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
+  resB: sys.resource<'Microsoft.Storage/storageAccounts@2022-09-01'>.name
+//@[02:0073) |   ├─ObjectTypePropertyExpression
+//@[08:0073) |   | └─TypeReferencePropertyAccessExpression { Name = string }
+//@[08:0068) |   |   └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
   resC: sys.array
 //@[02:0017) |   ├─ObjectTypePropertyExpression
 //@[08:0017) |   | └─FullyQualifiedAmbientTypeReferenceExpression { Name = sys.array }
-  resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>
-//@[02:0071) |   └─ObjectTypePropertyExpression
-//@[08:0071) |     └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
+  resD: sys.resource<'az:Microsoft.Storage/storageAccounts@2022-09-01'>.name
+//@[02:0076) |   └─ObjectTypePropertyExpression
+//@[08:0076) |     └─TypeReferencePropertyAccessExpression { Name = string }
+//@[08:0071) |       └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
 }
 
 type strangeFormattings = {
-//@[00:0258) ├─DeclaredTypeExpression { Name = strangeFormattings }
-//@[26:0258) | └─ObjectTypeExpression { Name = { test: Astronomer.Astro/organizations, test2: Microsoft.Storage/storageAccounts, test3: Microsoft.Storage/storageAccounts } }
+//@[00:0273) ├─DeclaredTypeExpression { Name = strangeFormattings }
+//@[26:0273) | └─ObjectTypeExpression { Name = { test: string, test2: string, test3: string } }
   test: resource<
-//@[02:0075) |   ├─ObjectTypePropertyExpression
-//@[08:0075) |   | └─ResourceDerivedTypeExpression { Name = Astronomer.Astro/organizations }
+//@[02:0080) |   ├─ObjectTypePropertyExpression
+//@[08:0080) |   | └─TypeReferencePropertyAccessExpression { Name = string }
+//@[08:0075) |   |   └─ResourceDerivedTypeExpression { Name = Astronomer.Astro/organizations }
 
   'Astronomer.Astro/organizations@2023-08-01-preview'
 
->
-  test2: resource    <'Microsoft.Storage/storageAccounts@2023-01-01'>
-//@[02:0069) |   ├─ObjectTypePropertyExpression
-//@[09:0069) |   | └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
-  test3: resource</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>
-//@[02:0082) |   └─ObjectTypePropertyExpression
-//@[09:0082) |     └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
+>.name
+  test2: resource    <'Microsoft.Storage/storageAccounts@2023-01-01'>.name
+//@[02:0074) |   ├─ObjectTypePropertyExpression
+//@[09:0074) |   | └─TypeReferencePropertyAccessExpression { Name = string }
+//@[09:0069) |   |   └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
+  test3: resource</*    */'Microsoft.Storage/storageAccounts@2023-01-01'/*     */>.name
+//@[02:0087) |   └─ObjectTypePropertyExpression
+//@[09:0087) |     └─TypeReferencePropertyAccessExpression { Name = string }
+//@[09:0082) |       └─ResourceDerivedTypeExpression { Name = Microsoft.Storage/storageAccounts }
 }
 
 @description('I love space(s)')
-//@[00:0115) ├─DeclaredTypeExpression { Name = test2 }
+//@[00:0120) ├─DeclaredTypeExpression { Name = test2 }
 //@[13:0030) | ├─StringLiteralExpression { Value = I love space(s) }
 type test2 = resource<
-//@[13:0083) | └─ResourceDerivedTypeExpression { Name = Astronomer.Astro/organizations }
+//@[13:0088) | └─TypeReferencePropertyAccessExpression { Name = string }
+//@[13:0083) |   └─ResourceDerivedTypeExpression { Name = Astronomer.Astro/organizations }
 
      'Astronomer.Astro/organizations@2023-08-01-preview'
 
->
+>.name
 
-param bar resource<'Microsoft.Resources/tags@2022-09-01'> = {
-//@[00:0160) ├─DeclaredParameterExpression { Name = bar }
-//@[10:0057) | ├─ResourceDerivedTypeExpression { Name = Microsoft.Resources/tags }
-//@[60:0160) | └─ObjectExpression
-  name: 'default'
-//@[02:0017) |   ├─ObjectPropertyExpression
-//@[02:0006) |   | ├─StringLiteralExpression { Value = name }
-//@[08:0017) |   | └─StringLiteralExpression { Value = default }
-  properties: {
-//@[02:0078) |   └─ObjectPropertyExpression
-//@[02:0012) |     ├─StringLiteralExpression { Value = properties }
-//@[14:0078) |     └─ObjectExpression
-    tags: {
-//@[04:0058) |       └─ObjectPropertyExpression
-//@[04:0008) |         ├─StringLiteralExpression { Value = tags }
-//@[10:0058) |         └─ObjectExpression
-      fizz: 'buzz'
-//@[06:0018) |           ├─ObjectPropertyExpression
-//@[06:0010) |           | ├─StringLiteralExpression { Value = fizz }
-//@[12:0018) |           | └─StringLiteralExpression { Value = buzz }
-      snap: 'crackle'
-//@[06:0021) |           └─ObjectPropertyExpression
-//@[06:0010) |             ├─StringLiteralExpression { Value = snap }
-//@[12:0021) |             └─StringLiteralExpression { Value = crackle }
-    }
+param bar resource<'Microsoft.Resources/tags@2022-09-01'>.properties = {
+//@[00:0125) ├─DeclaredParameterExpression { Name = bar }
+//@[10:0068) | ├─TypeReferencePropertyAccessExpression { Name = Tags }
+//@[10:0057) | | └─ResourceDerivedTypeExpression { Name = Microsoft.Resources/tags }
+//@[71:0125) | └─ObjectExpression
+  tags: {
+//@[02:0050) |   └─ObjectPropertyExpression
+//@[02:0006) |     ├─StringLiteralExpression { Value = tags }
+//@[08:0050) |     └─ObjectExpression
+    fizz: 'buzz'
+//@[04:0016) |       ├─ObjectPropertyExpression
+//@[04:0008) |       | ├─StringLiteralExpression { Value = fizz }
+//@[10:0016) |       | └─StringLiteralExpression { Value = buzz }
+    snap: 'crackle'
+//@[04:0019) |       └─ObjectPropertyExpression
+//@[04:0008) |         ├─StringLiteralExpression { Value = snap }
+//@[10:0019) |         └─StringLiteralExpression { Value = crackle }
   }
 }
 
-output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'> = {
-//@[00:0124) └─DeclaredOutputExpression { Name = baz }
-//@[11:0082)   ├─ResourceDerivedTypeExpression { Name = Microsoft.ManagedIdentity/userAssignedIdentities }
-//@[85:0124)   └─ObjectExpression
-  name: 'myId'
-//@[02:0014)     ├─ObjectPropertyExpression
-//@[02:0006)     | ├─StringLiteralExpression { Value = name }
-//@[08:0014)     | └─StringLiteralExpression { Value = myId }
-  location: 'eastus'
-//@[02:0020)     └─ObjectPropertyExpression
-//@[02:0010)       ├─StringLiteralExpression { Value = location }
-//@[12:0020)       └─StringLiteralExpression { Value = eastus }
-}
+output baz resource<'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31'>.name = 'myId'
+//@[00:0096) └─DeclaredOutputExpression { Name = baz }
+//@[11:0087)   ├─TypeReferencePropertyAccessExpression { Name = string }
+//@[11:0082)   | └─ResourceDerivedTypeExpression { Name = Microsoft.ManagedIdentity/userAssignedIdentities }
+//@[90:0096)   └─StringLiteralExpression { Value = myId }
 
 type storageAccountName = resource<'Microsoft.Storage/storageAccounts@2023-01-01'>.name
 //@[00:0087) ├─DeclaredTypeExpression { Name = storageAccountName }

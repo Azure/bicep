@@ -1,19 +1,10 @@
 var loadedText1 = loadTextContent('Assets/TextFile.CRLF.txt')
 var loadedText2 = sys.loadTextContent('Assets/TextFile.LF.txt')
-var loadedTextEncoding1 = loadTextContent(
-  'Assets/encoding-ascii.txt',
-  'us-ascii'
-)
+var loadedTextEncoding1 = loadTextContent('Assets/encoding-ascii.txt', 'us-ascii')
 var loadedTextEncoding2 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
 var loadedTextEncoding3 = loadTextContent('Assets/encoding-utf16.txt', 'utf-16')
-var loadedTextEncoding4 = loadTextContent(
-  'Assets/encoding-utf16be.txt',
-  'utf-16BE'
-)
-var loadedTextEncoding5 = loadTextContent(
-  'Assets/encoding-iso.txt',
-  'iso-8859-1'
-)
+var loadedTextEncoding4 = loadTextContent('Assets/encoding-utf16be.txt', 'utf-16BE')
+var loadedTextEncoding5 = loadTextContent('Assets/encoding-iso.txt', 'iso-8859-1')
 
 var loadedBinary1 = loadFileAsBase64('Assets/binary')
 var loadedBinary2 = sys.loadFileAsBase64('Assets/binary')
@@ -66,31 +57,15 @@ module module2 'modulea.bicep' = {
   }
 }
 
-var textFileInSubdirectories = loadTextContent(
-  'Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/TextFile.txt'
-)
-var binaryFileInSubdirectories = loadFileAsBase64(
-  'Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/binary'
-)
+var textFileInSubdirectories = loadTextContent('Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/TextFile.txt')
+var binaryFileInSubdirectories = loadFileAsBase64('Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/binary')
 
-var loadWithEncoding01 = loadTextContent(
-  'Assets/encoding-iso.txt',
-  'iso-8859-1'
-)
-var loadWithEncoding06 = loadTextContent(
-  'Assets/encoding-ascii.txt',
-  'us-ascii'
-)
-var loadWithEncoding07 = loadTextContent(
-  'Assets/encoding-ascii.txt',
-  'iso-8859-1'
-)
+var loadWithEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'iso-8859-1')
+var loadWithEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'us-ascii')
+var loadWithEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-1')
 var loadWithEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
 var loadWithEncoding11 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
-var loadWithEncoding12 = loadTextContent(
-  'Assets/encoding-utf8-bom.txt',
-  'utf-8'
-)
+var loadWithEncoding12 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-8')
 
 var testJson = json(loadTextContent('./Assets/test.json.txt'))
 var testJsonString = testJson.string
@@ -110,15 +85,9 @@ var testJsonObject2 = testJson.object
 var testJsonObject2_1 = loadJsonContent('./Assets/test.json.txt', '.object')
 var testJsonNestedString2 = testJson.object.nestedString
 var testJsonNestedString2_1 = testJsonObject2_1.nestedString
-var testJsonNestedString2_2 = loadJsonContent(
-  './Assets/test.json.txt',
-  '.object.nestedString'
-)
+var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object.nestedString')
 
-var testJsonTokensAsArray = loadJsonContent(
-  './Assets/test2.json.txt',
-  '.products[?(@.price > 3)].name'
-)
+var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
 
 var testYaml = loadYamlContent('./Assets/test.yaml.txt')
 var testYamlString = testYaml.string

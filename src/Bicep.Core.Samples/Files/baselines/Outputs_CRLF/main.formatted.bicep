@@ -20,13 +20,25 @@ output obj object = {
   b: 12
   c: true
   d: null
-  list: [1, 2, 3, null, {}]
+  list: [
+    1
+    2
+    3
+    null
+    {}
+  ]
   obj: {
-    nested: ['hello']
+    nested: [
+      'hello'
+    ]
   }
 }
 
-output myArr array = ['pirates', 'say', false ? 'arr2' : 'arr']
+output myArr array = [
+  'pirates'
+  'say'
+  false ? 'arr2' : 'arr'
+]
 
 output rgLocation string = resourceGroup().location
 
@@ -41,15 +53,9 @@ output expressionBasedIndexer string = {
   }
 }[resourceGroup().location].foo
 
-var secondaryKeyIntermediateVar = listKeys(
-  resourceId('Mock.RP/type', 'steve'),
-  '2020-01-01'
-).secondaryKey
+var secondaryKeyIntermediateVar = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01').secondaryKey
 
-output primaryKey string = listKeys(
-  resourceId('Mock.RP/type', 'nigel'),
-  '2020-01-01'
-).primaryKey
+output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-01-01').primaryKey
 output secondaryKey string = secondaryKeyIntermediateVar
 
 var varWithOverlappingOutput = 'hello'

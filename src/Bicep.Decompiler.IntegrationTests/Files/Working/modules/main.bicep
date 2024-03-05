@@ -10,7 +10,10 @@ var module2Url = '${armBaseUrl}/nested/module2.jsonc'
 var objectVar = {
   val1: 'a${location}b'
 }
-var arrayVar = ['abc', location]
+var arrayVar = [
+  'abc'
+  location
+]
 
 module module1Deploy 'nested/module1.json' = {
   name: 'module1Deploy'

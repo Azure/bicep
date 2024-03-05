@@ -62,18 +62,10 @@ resource resAzFd 'Microsoft.Network/frontdoors@2020-01-01' = {
             }
           ]
           healthProbeSettings: {
-            id: resourceId(
-              'Microsoft.Network/frontDoors/healthProbeSettings',
-              frontDoorNameLower,
-              healthProbe1Name
-            )
+            id: resourceId('Microsoft.Network/frontDoors/healthProbeSettings', frontDoorNameLower, healthProbe1Name)
           }
           loadBalancingSettings: {
-            id: resourceId(
-              'Microsoft.Network/frontDoors/LoadBalancingSettings',
-              frontDoorNameLower,
-              loadBalancing1Name
-            )
+            id: resourceId('Microsoft.Network/frontDoors/LoadBalancingSettings', frontDoorNameLower, loadBalancing1Name)
           }
         }
       }
@@ -120,11 +112,7 @@ resource resAzFd 'Microsoft.Network/frontdoors@2020-01-01' = {
             '@odata.type': '#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration'
             forwardingProtocol: 'HttpsOnly'
             backendPool: {
-              id: resourceId(
-                'Microsoft.Network/frontDoors/BackendPools',
-                frontDoorNameLower,
-                backendPool1Name
-              )
+              id: resourceId('Microsoft.Network/frontDoors/BackendPools', frontDoorNameLower, backendPool1Name)
             }
           }
         }

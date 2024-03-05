@@ -15,19 +15,17 @@ param apiName string
 param apiEndPointURL string = 'http://petstore.swagger.io/v2/swagger.json'
 param apiPath string = 'AzureFunctionsApi'
 
-@allowed(
-  [
-    'openapi'
-    'openapi+json'
-    'openapi+json-link'
-    'swagger-json'
-    'swagger-link-json'
-    'wadl-link-json'
-    'wadl-xml'
-    'wsdl'
-    'wsdl-link'
-  ]
-)
+@allowed([
+  'openapi'
+  'openapi+json'
+  'openapi+json-link'
+  'swagger-json'
+  'swagger-link-json'
+  'wadl-link-json'
+  'wadl-xml'
+  'wsdl'
+  'wsdl-link'
+])
 @description('Type of OpenAPI we are importing')
 param apiFormat string = 'swagger-link-json'
 

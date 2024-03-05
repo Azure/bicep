@@ -1,6 +1,4 @@
-@description(
-  'Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)'
-)
+@description('Virtual machine size (has to be at least the size of Standard_A3 to support 2 NICs)')
 param virtualMachineSize string = 'Standard_DS1_v2'
 
 @description('Default Admin username')
@@ -153,11 +151,7 @@ resource nic1 'Microsoft.Network/networkInterfaces@2020-06-01' = {
         name: 'ipconfig1'
         properties: {
           subnet: {
-            id: resourceId(
-              'Microsoft.Network/virtualNetworks/subnets',
-              vnet.name,
-              subnet1Name
-            )
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, subnet1Name)
           }
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
@@ -182,11 +176,7 @@ resource nic2 'Microsoft.Network/networkInterfaces@2020-06-01' = {
         name: 'ipconfig1'
         properties: {
           subnet: {
-            id: resourceId(
-              'Microsoft.Network/virtualNetworks/subnets',
-              vnet.name,
-              subnet2Name
-            )
+            id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, subnet2Name)
           }
           privateIPAllocationMethod: 'Dynamic'
         }

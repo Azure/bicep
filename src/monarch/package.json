@@ -4,7 +4,7 @@
   "devDependencies": {
     "@types/html-escaper": "^3.0.2",
     "@types/jest": "^29.5.12",
-    "@types/node": "^20.11.20",
+    "@types/node": "^20.11.24",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.1.0",
     "eslint": "^8.57.0",
@@ -28,7 +28,7 @@
     "lint:fix": "eslint src"
   },
   "dependencies": {
-    "@babel/core": "^7.23.9",
+    "@babel/core": "^7.24.0",
     "@babel/plugin-transform-modules-commonjs": "^7.23.3",
     "babel-jest": "^29.6.4"
   }

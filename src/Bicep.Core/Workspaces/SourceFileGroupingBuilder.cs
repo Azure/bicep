@@ -301,7 +301,7 @@ namespace Bicep.Core.Workspaces
                 this.providerDescriptorBundleBuilderBySourceFile[file] = providerBundleBuilder = new ProviderDescriptorBundleBuilder();
 
             }
-            if (featureProvider.DynamicTypeLoadingEnabled)
+            if (featureProvider.DynamicTypeLoadingEnabled || featureProvider.ProviderRegistryEnabled)
             {
                 ProcessImplicitProviderDeclarations(file, providerBundleBuilder, config);
                 var descriptor = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
@@ -391,7 +391,7 @@ namespace Bicep.Core.Workspaces
 
             if (providerDeclarationSyntax.Specification is LegacyProviderSpecification { } legacySpecification)
             {
-                if (!featureProvider.DynamicTypeLoadingEnabled)
+                if (!featureProvider.DynamicTypeLoadingEnabled && !featureProvider.ProviderRegistryEnabled)
                 {
                     return new(ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
                         legacySpecification.NamespaceIdentifier,
@@ -402,7 +402,7 @@ namespace Bicep.Core.Workspaces
                 return new(x => x.ExpectedProviderSpecification());
             }
 
-            if (!featureProvider.DynamicTypeLoadingEnabled)
+            if (!featureProvider.DynamicTypeLoadingEnabled && !featureProvider.ProviderRegistryEnabled)
             {
                 return new(x => x.UnrecognizedProvider(providerDeclarationSyntax.Specification.NamespaceIdentifier));
             }

@@ -12,10 +12,7 @@ resource roleassignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 
   properties: {
     principalType: 'ServicePrincipal'
-    roleDefinitionId: subscriptionResourceId(
-      'Microsoft.Authorization/roleDefinitions',
-      roleDefinitionId
-    )
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)
     principalId: msi.properties.principalId
   }
 }

@@ -152,7 +152,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void InvalidReferencesShouldProduceExpectedError(string value, string expectedCode, string expectedError)
         {
-            OciArtifactReference.TryParseModule(null, value, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var @ref, out var failureBuilder).Should().BeFalse();
+            OciArtifactReference.TryParseModuleAndAlias(null, value, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri()).IsSuccess(out var @ref, out var failureBuilder).Should().BeFalse();
             @ref.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 

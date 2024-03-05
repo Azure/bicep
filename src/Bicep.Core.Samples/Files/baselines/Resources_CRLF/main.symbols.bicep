@@ -97,8 +97,10 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   }
 }
 
-var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosDb.account)
-//@[04:022) Variable cosmosDbResourceId. Type: string. Declaration start char: 0, length: 94
+var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts',
+//@[04:022) Variable cosmosDbResourceId. Type: string. Declaration start char: 0, length: 107
+// comment
+cosmosDb.account)
 var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 //@[04:015) Variable cosmosDbRef. Type: any. Declaration start char: 0, length: 64
 

@@ -34,12 +34,12 @@ namespace Bicep.Core.TypeSystem.Providers
             var resolved = TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax);
 
             if (resolved is (ResourceSymbol resourceSymbol, { } bodyType) &&
-                resourceSymbol.TryGetResourceType() is {} resourceType &&
+                resourceSymbol.TryGetResourceType() is { } resourceType &&
                 // this validation only applies to resources under the "az" provider
-                resourceType.IsAzResource() && 
+                resourceType.IsAzResource() &&
                 resourceSymbol.DeclaringResource.IsExistingResource())
             {
-                
+
                 foreach (var identifierPropertyName in AzResourceTypeProvider.UniqueIdentifierProperties)
                 {
                     if (bodyType.Properties.TryGetValue(identifierPropertyName, out var identifierPropertyType) &&

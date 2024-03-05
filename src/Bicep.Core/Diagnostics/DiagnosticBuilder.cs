@@ -2142,6 +2142,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP393",
                 $"""The type pointer segment "{unrecognizedSegment}" was not recognized. Supported pointer segments are: "properties", "items", "prefixItems", and "additionalProperties".""");
 
+            public ErrorDiagnostic CannotUseEntireResourceBodyAsType() => new(
+                TextSpan,
+                "BCP394",
+                "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted.");
+
             public FixableDiagnostic LegacyProviderSpecificationIsDeprecated(LegacyProviderSpecification syntax)
             {
                 var codeFix = new CodeFix(

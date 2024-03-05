@@ -20,10 +20,7 @@ resource mi 'microsoft.managedIdentity/userAssignedIdentities@2018-11-30' = {
   location: location
 }
 
-var roleDefinitionId = resourceId(
-  'microsoft.authorization/roleDefinitions',
-  'b24988ac-6180-42a0-ab88-20f7382dd24c'
-)
+var roleDefinitionId = resourceId('microsoft.authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
 var roleAssignmentName = guid(mi.name, roleDefinitionId, resourceGroup().id)
 
 resource miRoleAssign 'microsoft.authorization/roleAssignments@2020-04-01-preview' = {

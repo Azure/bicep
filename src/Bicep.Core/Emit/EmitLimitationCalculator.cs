@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Intermediate;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -51,6 +52,8 @@ namespace Bicep.Core.Emit
             BlockTestFrameworkWithoutExperimentalFeaure(model, diagnostics);
             BlockAssertsWithoutExperimentalFeatures(model, diagnostics);
             BlockNamesDistinguishedOnlyByCase(model, diagnostics);
+            BlockResourceDerivedTypesThatDoNotDereferenceProperties(model, diagnostics);
+
             var paramAssignments = CalculateParameterAssignments(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData, paramAssignments);
@@ -510,6 +513,13 @@ namespace Bicep.Core.Emit
 
             foreach (var symbol in GetTopologicallySortedSymbols(referencesInValues))
             {
+                if (symbol.Type is ErrorType)
+                {
+                    // no point evaluating if we're already reporting an error
+                    erroredSymbols.Add(symbol);
+                    continue;
+                }
+
                 var referencedValueHasError = false;
                 foreach (var referenced in referencesInValues[symbol])
                 {
@@ -541,13 +551,6 @@ namespace Bicep.Core.Emit
 
                 if (symbol is not ParameterAssignmentSymbol parameter)
                 {
-                    continue;
-                }
-
-                if (parameter.Type is ErrorType)
-                {
-                    // no point evaluating if we're already reporting an error
-                    erroredSymbols.Add(parameter);
                     continue;
                 }
 
@@ -658,6 +661,26 @@ namespace Bicep.Core.Emit
                 diagnostics.WriteMultiple(grouping.Select(
                     item => DiagnosticBuilder.ForPosition(nameSyntaxExtractor(item)).ItemsMustBeCaseInsensitivelyUnique(itemTypePluralName, clashingNames)));
             }
+        }
+
+        private static void BlockResourceDerivedTypesThatDoNotDereferenceProperties(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            static bool IsPermittedResourceDerivedTypeParent(IBinder binder, SyntaxBase? syntax) => syntax switch
+            {
+                ParenthesizedExpressionSyntax or
+                NonNullAssertionSyntax or
+                NullableTypeSyntax => IsPermittedResourceDerivedTypeParent(binder, binder.GetParent(syntax)),
+                TypePropertyAccessSyntax or
+                TypeItemsAccessSyntax or
+                TypeAdditionalPropertiesAccessSyntax or
+                TypeArrayAccessSyntax => true,
+                _ => false,
+            };
+
+            diagnostics.WriteMultiple(SyntaxAggregator.AggregateByType<ParameterizedTypeInstantiationSyntaxBase>(model.Root.Syntax)
+                .Where(typeInstantiation => model.TypeManager.TryGetReifiedType(typeInstantiation) is ResourceDerivedTypeExpression &&
+                    !IsPermittedResourceDerivedTypeParent(model.Binder, model.Binder.GetParent(typeInstantiation)))
+                .Select(typeInstantiaion => DiagnosticBuilder.ForPosition(typeInstantiaion).CannotUseEntireResourceBodyAsType()));
         }
     }
 }

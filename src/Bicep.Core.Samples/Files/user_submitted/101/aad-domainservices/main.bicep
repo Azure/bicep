@@ -47,12 +47,7 @@ var PSRemotingSlicePIPAddresses = [
   '40.83.144.56'
   '13.64.151.161'
 ]
-var RDPIPAddresses = [
-  '207.68.190.32/27'
-  '13.106.78.32/27'
-  '13.106.174.32/27'
-  '13.106.4.96/27'
-]
+var RDPIPAddresses = ['207.68.190.32/27', '13.106.78.32/27', '13.106.174.32/27', '13.106.4.96/27']
 
 var PSRemotingSliceTIPAddresses = [
   '52.180.183.67'

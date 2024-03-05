@@ -177,7 +177,9 @@ namespace Bicep.Core.UnitTests.Rewriters
 
                 resource resB 'My.Rp/resB@2020-01-01' = {
                   name: 'resB'
-                  dependsOn: [resA]
+                  dependsOn: [
+                    resA
+                  ]
                 }
 
                 """);
@@ -211,7 +213,9 @@ namespace Bicep.Core.UnitTests.Rewriters
 
                 module modB 'modb.bicep' = {
                   name: 'modB'
-                  dependsOn: [resA]
+                  dependsOn: [
+                    resA
+                  ]
                 }
 
                 """);

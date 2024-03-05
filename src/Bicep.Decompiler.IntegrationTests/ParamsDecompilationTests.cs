@@ -59,7 +59,10 @@ namespace Bicep.Core.IntegrationTests
 
                 param second = 1
 
-                param third = [1, 'foo']
+                param third = [
+                  1
+                  'foo'
+                ]
 
                 param fourth = {
                   firstKey: 'bar'
@@ -228,7 +231,10 @@ namespace Bicep.Core.IntegrationTests
                   "displayName": "List of regions"
                 }
                 */
-                param regions = ['North Europe', 'West Europe']
+                param regions = [
+                  'North Europe'
+                  'West Europe'
+                ]
                 
                 """;
 

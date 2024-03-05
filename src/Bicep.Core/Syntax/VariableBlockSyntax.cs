@@ -15,7 +15,7 @@ namespace Bicep.Core.Syntax
             this.OpenParen = openParen;
             this.Children = children.ToImmutableArray();
             this.CloseParen = closeParen;
-            this.Arguments = Children.OfType<LocalVariableSyntax>().ToImmutableArray();
+            this.Arguments = this.Children.OfType<LocalVariableSyntax>().ToImmutableArray();
         }
 
         public Token OpenParen { get; }

@@ -57,7 +57,10 @@ namespace Bicep.Cli.IntegrationTests
 
                 param second = 1
 
-                param third = [1, 'foo']
+                param third = [
+                  1
+                  'foo'
+                ]
 
                 param fourth = {
                   firstKey: 'bar'

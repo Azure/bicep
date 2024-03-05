@@ -4,22 +4,14 @@ param vmName string = 'simpleLinuxVM'
 @description('Username for the Virtual Machine.')
 param adminUsername string
 
-@description(
-  'SSH Key or password for the Virtual Machine. SSH key is recommended.'
-)
+@description('SSH Key or password for the Virtual Machine. SSH key is recommended.')
 @secure()
 param vmSshKey string
 
-@description(
-  'Unique DNS Name for the Public IP used to access the Virtual Machine.'
-)
-param dnsLabelPrefix string = toLower(
-  'simplelinuxvm-${uniqueString(resourceGroup().id)}'
-)
+@description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
+param dnsLabelPrefix string = toLower('simplelinuxvm-${uniqueString(resourceGroup().id)}')
 
-@description(
-  'The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.'
-)
+@description('The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.')
 @allowed(['12.04.5-LTS', '14.04.5-LTS', '16.04.0-LTS', '18.04-LTS'])
 param ubuntuOSVersion string = '18.04-LTS'
 

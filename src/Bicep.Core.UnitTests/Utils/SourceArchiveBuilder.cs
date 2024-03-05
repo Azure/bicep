@@ -1,9 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Workspaces;
+using FluentAssertions;
+using static Bicep.Core.SourceCode.SourceArchive;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -16,8 +20,11 @@ namespace Bicep.Core.UnitTests.Utils
 #endif
 
         private string? cacheRoot = null;
-        private Uri entrypointUri = PathHelper.FilePathToFileUrl(Rooted("foo/bar/entrypoint.bicep"));
-        private string entrypointBicepContents = "metadata hi = 'This is the bicep entrypoint source file'";
+
+        // First will be entrypoint, must be a bicep file
+        private List<ISourceFile> SourceFiles = new();
+
+        private ISourceFile EntrypointFile => SourceFiles[0];
 
         public SourceArchiveBuilder WithCacheRoot(string cacheRoot)
         {
@@ -25,29 +32,43 @@ namespace Bicep.Core.UnitTests.Utils
             return this;
         }
 
-        public SourceArchiveBuilder WithEntrypointFile(Uri entrypoint, string entrypointBicepContents)
+        public SourceArchiveBuilder WithBicepFile(Uri fileUri, string contents)
         {
-            this.entrypointUri = entrypoint;
-            this.entrypointBicepContents = entrypointBicepContents;
+            SourceFiles.Add(SourceFileFactory.CreateBicepFile(fileUri, contents));
             return this;
         }
 
-        public SourceArchiveBuilder WithEntrypointFile(string entrypoint, string entrypointBicepContents)
+        public SourceArchiveBuilder WithBicepFile(string entrypoint, string contents)
         {
-            this.entrypointUri = PathHelper.FilePathToFileUrl(Rooted(entrypoint));
-            this.entrypointBicepContents = entrypointBicepContents;
+            WithBicepFile(PathHelper.FilePathToFileUrl(Rooted(entrypoint)), contents);
             return this;
         }
 
         public SourceArchive Build()
         {
-            var stream = SourceArchive.PackSourcesIntoStream(
-                entrypointUri,
-                cacheRoot,
-                new Core.Workspaces.ISourceFile[] {
-                    SourceFileFactory.CreateBicepFile(entrypointUri, entrypointBicepContents)});
-
+            var stream = BuildStream();
             return SourceArchive.UnpackFromStream(stream).UnwrapOrThrow();
+        }
+
+        public Stream BuildStream()
+        {
+            if (SourceFiles.Count == 0)
+            {
+                // Add a default entrypoint
+                WithBicepFile("foo/bar/entrypoint.bicep", "metadata hi = 'This is the bicep entrypoint source file'");
+            }
+
+            SourceFiles[0].Should().BeOfType<BicepFile>("Entrypoint should be a bicep file");
+
+            return SourceArchive.PackSourcesIntoStream(
+                EntrypointFile.FileUri,
+                cacheRoot,
+                SourceFiles.Select(x => new SourceFileWithArtifactReference(x, null)).ToArray());
+        }
+
+        public BinaryData BuildBinaryData()
+        {
+            return BinaryData.FromStream(BuildStream());
         }
     }
 }

@@ -4,14 +4,10 @@ param name string
 @allowed(['AzureCLI', 'AzurePowerShell'])
 param type string = 'AzureCLI'
 
-@description(
-  'Use to overide the version to use for Azure CLI or AzurePowerShell'
-)
+@description('Use to overide the version to use for Azure CLI or AzurePowerShell')
 param toolVersion string = ''
 
-@description(
-  'This is the path in the container instance where it\'s mounted to the file share.'
-)
+@description('This is the path in the container instance where it\'s mounted to the file share.')
 param mountPath string = '/mnt/azscripts/azscriptinput'
 
 @description('Time in second before the container instance is suspended')
@@ -30,11 +26,7 @@ var version = (type == 'AzureCLI' && toolVersion == ''
 var azcliImage = 'mcr.microsoft.com/azure-cli:${version}'
 var azpwshImage = 'mcr.microsoft.com/azuredeploymentscripts-powershell:az${version}'
 
-var azpwshCommand = [
-  '/bin/sh'
-  '-c'
-  'pwsh -c \'Start-Sleep -Seconds ${sessionTime}\''
-]
+var azpwshCommand = ['/bin/sh', '-c', 'pwsh -c \'Start-Sleep -Seconds ${sessionTime}\'']
 
 var azcliCommand = ['/bin/bash', '-c', 'echo hello; sleep ${sessionTime}']
 
@@ -46,9 +38,7 @@ resource containerGroupName 'Microsoft.ContainerInstance/containerGroups@2019-12
       {
         name: '${name}cg'
         properties: {
-          image: type == 'AzureCLI'
-            ? azcliImage
-            : type == 'AzurePowerShell' ? azpwshImage : ''
+          image: type == 'AzureCLI' ? azcliImage : type == 'AzurePowerShell' ? azpwshImage : ''
           resources: {
             requests: {
               cpu: 1
@@ -67,9 +57,7 @@ resource containerGroupName 'Microsoft.ContainerInstance/containerGroups@2019-12
               mountPath: mountPath
             }
           ]
-          command: type == 'AzureCLI'
-            ? azcliCommand
-            : type == 'AzurePowerShell' ? azpwshCommand : null
+          command: type == 'AzureCLI' ? azcliCommand : type == 'AzurePowerShell' ? azpwshCommand : null
         }
       }
     ]

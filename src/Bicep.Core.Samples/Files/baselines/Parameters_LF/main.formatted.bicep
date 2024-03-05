@@ -13,11 +13,9 @@ param myBool bool
 
 // parameters with default value
 @sys.description('this is myString2')
-@metadata(
-  {
-    description: 'overwrite but still valid'
-  }
-)
+@metadata({
+  description: 'overwrite but still valid'
+})
 param myString2 string = 'string value'
 param myInt2 int = 42
 param myTruth bool = true
@@ -26,12 +24,10 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 
 // object default value
 @sys.description('this is foo')
-@metadata(
-  {
-    description: 'overwrite but still valid'
-    another: 'just for fun'
-  }
-)
+@metadata({
+  description: 'overwrite but still valid'
+  another: 'just for fun'
+})
 param foo object = {
   enabled: true
   name: 'this is my object'
@@ -44,7 +40,10 @@ param foo object = {
     'string item'
     12
     true
-    ['inner', false]
+    [
+      'inner'
+      false
+    ]
     {
       a: 'b'
     }
@@ -52,7 +51,11 @@ param foo object = {
 }
 
 // array default value
-param myArrayParam array = ['a', 'b', 'c']
+param myArrayParam array = [
+  'a'
+  'b'
+  'c'
+]
 
 // secure string
 @secure()
@@ -63,10 +66,17 @@ param password string
 param secretObject object
 
 // enum parameter
-@allowed(['Standard_LRS', 'Standard_GRS'])
+@allowed([
+  'Standard_LRS'
+  'Standard_GRS'
+])
 param storageSku string
 
-@allowed([1, 2, 3])
+@allowed([
+  1
+  2
+  3
+])
 param intEnum int
 
 // length constraint on a string
@@ -84,54 +94,65 @@ param someArray array
 param emptyMetadata string
 
 // description
-@metadata(
-  {
-    description: 'my description'
-  }
-)
+@metadata({
+  description: 'my description'
+})
 param description string
 
 @sys.description('my description')
 param description2 string
 
 // random extra metadata
-@metadata(
-  {
-    description: 'my description'
-    a: 1
-    b: true
-    c: []
-    d: {
-      test: 'abc'
-    }
+@metadata({
+  description: 'my description'
+  a: 1
+  b: true
+  c: []
+  d: {
+    test: 'abc'
   }
-)
+})
 param additionalMetadata string
 
 // all modifiers together
 @secure()
 @minLength(3)
 @maxLength(24)
-@allowed(['one', 'two', 'three'])
-@metadata(
-  {
-    description: 'Name of the storage account'
-  }
-)
+@allowed([
+  'one'
+  'two'
+  'three'
+])
+@metadata({
+  description: 'Name of the storage account'
+})
 param someParameter string
 
 param defaultExpression bool = 18 != (true || false)
 
-@allowed(['abc', 'def'])
+@allowed([
+  'abc'
+  'def'
+])
 param stringLiteral string
 
-@allowed(['abc', 'def', 'ghi'])
+@allowed(
+  // some comment
+  [
+    'abc'
+    'def'
+    'ghi'
+  ]
+)
 param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 
 @secure()
 @minLength(2)
 @maxLength(10)
-@allowed(['Apple', 'Banana'])
+@allowed([
+  'Apple'
+  'Banana'
+])
 param decoratedString string
 
 @minValue(100)
@@ -143,13 +164,15 @@ param decoratedInt int = 123
 param negativeValues int
 
 @sys.description('A boolean.')
-@metadata(
-  {
-    description: 'I will be overrode.'
-    foo: 'something'
-    bar: [{}, true, 123]
-  }
-)
+@metadata({
+  description: 'I will be overrode.'
+  foo: 'something'
+  bar: [
+    {}
+    true
+    123
+  ]
+})
 param decoratedBool bool = /* comment1 */ /* comment2*/ /* comment3 */ /* comment4 */ (true && false) != true
 
 @secure()
@@ -165,18 +188,22 @@ param decoratedObject object = {
     'string item'
     12
     true
-    ['inner', false]
+    [
+      'inner'
+      false
+    ]
     {
       a: 'b'
     }
   ]
 }
 
-@sys.metadata(
-  {
-    description: 'I will be overrode.'
-  }
-)
+@sys.metadata({
+  description: 'I will be overrode.'
+})
 @sys.maxLength(20)
 @sys.description('An array.')
-param decoratedArray array = [utcNow(), newGuid()]
+param decoratedArray array = [
+  utcNow()
+  newGuid()
+]

@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<IDiagnosticCollectionAssertions> ContainDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs)
         {
-            AssertionExtensions.Should(Subject).Contain(x => x.Code == code && x.Level == level && x.Message == message, because, becauseArgs);
+            AssertionExtensions.Should(Subject).Contain(x => x.Code == code && x.Level == level && DiagnosticAssertions.DiagnosticMessageMatches(x.Message, message), because, becauseArgs);
 
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
         }
@@ -44,14 +44,14 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<IDiagnosticCollectionAssertions> ContainSingleDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs)
         {
-            AssertionExtensions.Should(Subject).ContainSingle(x => x.Code == code && x.Level == level && x.Message == message, because, becauseArgs);
+            AssertionExtensions.Should(Subject).ContainSingle(x => x.Code == code && x.Level == level && DiagnosticAssertions.DiagnosticMessageMatches(x.Message, message), because, becauseArgs);
 
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
         }
 
         public AndConstraint<IDiagnosticCollectionAssertions> NotHaveAnyDiagnostics(string because = "", params object[] becauseArgs)
         {
-            AssertionExtensions.Should(Subject).BeEmpty();
+            AssertionExtensions.Should(Subject).BeEmpty(because, becauseArgs);
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
         }
 

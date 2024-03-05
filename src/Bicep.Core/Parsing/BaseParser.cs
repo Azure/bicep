@@ -489,7 +489,7 @@ namespace Bicep.Core.Parsing
             var rewritten = expressionsOrCommas.Select(item => item switch
             {
                 VariableAccessSyntax varAccess => new LocalVariableSyntax(varAccess.Name),
-                Token { Type: TokenType.Comma } => item,
+                Token { Type: TokenType.Comma or TokenType.NewLine } => item,
                 SkippedTriviaSyntax => item,
                 _ => new SkippedTriviaSyntax(item.Span, item.AsEnumerable()),
             });

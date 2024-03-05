@@ -1,6 +1,4 @@
-@description(
-  'The base URI where artifacts required by this template are located.'
-)
+@description('The base URI where artifacts required by this template are located.')
 param artifactsLocation string = 'https://raw.githubusercontent.com/Azure/RDS-Templates/master/ARM-wvd-templates/DSC/Configuration.zip'
 
 @description('The name of the Hostpool to be created.')
@@ -30,23 +28,17 @@ param allApplicationGroupReferences string = ''
 @description('Whether to add applicationGroup to workspace.')
 param addToWorkspace bool
 
-@description(
-  'A username in the domain that has privileges to join the session hosts to the domain. For example, \'vmjoiner@contoso.com\'.'
-)
+@description('A username in the domain that has privileges to join the session hosts to the domain. For example, \'vmjoiner@contoso.com\'.')
 param administratorAccountUsername string = ''
 
 @description('The password that corresponds to the existing domain username.')
 @secure()
 param administratorAccountPassword string = ''
 
-@description(
-  'A username to be used as the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used.'
-)
+@description('A username to be used as the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used.')
 param vmAdministratorAccountUsername string = ''
 
-@description(
-  'The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used.'
-)
+@description('The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used.')
 @secure()
 param vmAdministratorAccountPassword string = ''
 
@@ -60,18 +52,12 @@ param availabilitySetName string = ''
 @description('Whether to create a new availability set for the VMs.')
 param createAvailabilitySet bool = false
 
-@allowed(
-  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-)
-@description(
-  'The platform update domain count of avaiability set to be created.'
-)
+@allowed([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
+@description('The platform update domain count of avaiability set to be created.')
 param availabilitySetUpdateDomainCount int = 5
 
 @allowed([1, 2, 3])
-@description(
-  'The platform fault domain count of avaiability set to be created.'
-)
+@description('The platform fault domain count of avaiability set to be created.')
 param availabilitySetFaultDomainCount int = 2
 
 @allowed([1, 2, 3])
@@ -87,20 +73,14 @@ param vmLocation string = ''
 @description('The size of the session host VMs.')
 param vmSize string = ''
 
-@description(
-  'Number of session hosts that will be created and added to the hostpool.'
-)
+@description('Number of session hosts that will be created and added to the hostpool.')
 param vmNumberOfInstances int = 0
 
-@description(
-  'This prefix will be used in combination with the VM number to create the VM name. If using \'rdsh\' as the prefix, VMs would be named \'rdsh-0\', \'rdsh-1\', etc. You should use a unique prefix to reduce name collisions in Active Directory.'
-)
+@description('This prefix will be used in combination with the VM number to create the VM name. If using \'rdsh\' as the prefix, VMs would be named \'rdsh-0\', \'rdsh-1\', etc. You should use a unique prefix to reduce name collisions in Active Directory.')
 param vmNamePrefix string = ''
 
 @allowed(['CustomVHD', 'CustomImage', 'Gallery'])
-@description(
-  'Select the image source for the session host vms. VMs from a Gallery image will be created with Managed Disks.'
-)
+@description('Select the image source for the session host vms. VMs from a Gallery image will be created with Managed Disks.')
 param vmImageType string = 'Gallery'
 
 @description('(Required when vmImageType = Gallery) Gallery image Offer.')
@@ -112,28 +92,20 @@ param vmGalleryImagePublisher string = ''
 @description('(Required when vmImageType = Gallery) Gallery image SKU.')
 param vmGalleryImageSKU string = ''
 
-@description(
-  '(Required when vmImageType = CustomVHD) URI of the sysprepped image vhd file to be used to create the session host VMs. For example, https://rdsstorage.blob.core.windows.net/vhds/sessionhostimage.vhd'
-)
+@description('(Required when vmImageType = CustomVHD) URI of the sysprepped image vhd file to be used to create the session host VMs. For example, https://rdsstorage.blob.core.windows.net/vhds/sessionhostimage.vhd')
 param vmImageVhdUri string = ''
 
-@description(
-  '(Required when vmImageType = CustomImage) Resource ID of the image'
-)
+@description('(Required when vmImageType = CustomImage) Resource ID of the image')
 param vmCustomImageSourceId string = ''
 
 @allowed(['Premium_LRS', 'StandardSSD_LRS', 'Standard_LRS'])
 @description('The VM disk type for the VM: HDD or SSD.')
 param vmDiskType string = 'StandardSSD_LRS'
 
-@description(
-  'True indicating you would like to use managed disks or false indicating you would like to use unmanaged disks.'
-)
+@description('True indicating you would like to use managed disks or false indicating you would like to use unmanaged disks.')
 param vmUseManagedDisks bool = true
 
-@description(
-  '(Required when vmUseManagedDisks = False) The resource group containing the storage account of the image vhd file.'
-)
+@description('(Required when vmUseManagedDisks = False) The resource group containing the storage account of the image vhd file.')
 param storageAccountResourceGroupName string = ''
 
 @description('The name of the virtual network the VMs will be connected to.')
@@ -145,9 +117,7 @@ param existingSubnetName string = ''
 @description('The resource group containing the existing virtual network.')
 param virtualNetworkResourceGroupName string = ''
 
-@description(
-  'Whether to create a new network security group or use an existing one'
-)
+@description('Whether to create a new network security group or use an existing one')
 param createNetworkSecurityGroup bool = false
 
 @description('The resource id of an existing network security group')
@@ -157,9 +127,7 @@ param networkSecurityGroupId string = ''
 param networkSecurityGroupRules array = []
 
 @allowed(['Personal', 'Pooled'])
-@description(
-  'Set this parameter to Personal if you would like to enable Persistent Desktop experience. Defaults to false.'
-)
+@description('Set this parameter to Personal if you would like to enable Persistent Desktop experience. Defaults to false.')
 param hostpoolType string
 
 @allowed(['Automatic', 'Direct', ''])
@@ -221,20 +189,14 @@ param ouPath string = ''
 @description('Domain to join')
 param domain string = ''
 
-@description(
-  'IMPORTANT: Please don\'t use this parameter as AAD Join is not supported yet. True if AAD Join, false if AD join'
-)
+@description('IMPORTANT: Please don\'t use this parameter as AAD Join is not supported yet. True if AAD Join, false if AD join')
 param aadJoin bool = false
 
-@description(
-  'IMPORTANT: Please don\'t use this parameter as intune enrollment is not supported yet. True if intune enrollment is selected.  False otherwise'
-)
+@description('IMPORTANT: Please don\'t use this parameter as intune enrollment is not supported yet. True if intune enrollment is selected.  False otherwise')
 param intune bool = false
 
 var createVMs = (vmNumberOfInstances > 0)
-var rdshManagedDisks = ((vmImageType == 'CustomVHD')
-  ? vmUseManagedDisks
-  : bool('true'))
+var rdshManagedDisks = ((vmImageType == 'CustomVHD') ? vmUseManagedDisks : bool('true'))
 var rdshPrefix = '${vmNamePrefix}-'
 var avSetSKU = (rdshManagedDisks ? 'Aligned' : 'Classic')
 var vhds = 'vhds/${rdshPrefix}'
@@ -251,15 +213,8 @@ var rdshVmNamesOutput = [
   }
 ]
 var appGroupName_var = '${hostpoolName_var}-DAG'
-var appGroupResourceId = [
-  resourceId(
-    'Microsoft.DesktopVirtualization/applicationgroups/',
-    appGroupName_var
-  )
-]
-var workspaceResourceGroup_var = (empty(workspaceResourceGroup)
-  ? resourceGroup().name
-  : workspaceResourceGroup)
+var appGroupResourceId = [resourceId('Microsoft.DesktopVirtualization/applicationgroups/', appGroupName_var)]
+var workspaceResourceGroup_var = (empty(workspaceResourceGroup) ? resourceGroup().name : workspaceResourceGroup)
 var applicationGroupReferencesArr = (('' == allApplicationGroupReferences)
   ? appGroupResourceId
   : concat(split(allApplicationGroupReferences, ','), appGroupResourceId))
@@ -288,9 +243,7 @@ resource hostpool 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview'
   name: hostpoolName
   location: location
   tags: hostpoolTags
-  properties: (empty(customRdpProperty)
-    ? hostpoolRequiredProps
-    : union(hostpoolOptionalProps, hostpoolRequiredProps))
+  properties: (empty(customRdpProperty) ? hostpoolRequiredProps : union(hostpoolOptionalProps, hostpoolRequiredProps))
 }
 
 resource appGroupName 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {

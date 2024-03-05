@@ -3,9 +3,7 @@
 @description('Name of the azure container registry (must be globally unique)')
 param acrName string
 
-@description(
-  'Enable an admin user that has push/pull permission to the registry.'
-)
+@description('Enable an admin user that has push/pull permission to the registry.')
 param acrAdminUserEnabled bool = false
 
 @description('Location for all resources.')

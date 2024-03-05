@@ -1,5 +1,5 @@
 
-//@[000:13313) ProgramSyntax
+//@[000:13326) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 @sys.description('this is basicStorage')
 //@[000:00225) ├─ResourceDeclarationSyntax
@@ -618,13 +618,13 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
-var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosDb.account)
-//@[000:00094) ├─VariableDeclarationSyntax
+var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts',
+//@[000:00107) ├─VariableDeclarationSyntax
 //@[000:00003) | ├─Token(Identifier) |var|
 //@[004:00022) | ├─IdentifierSyntax
 //@[004:00022) | | └─Token(Identifier) |cosmosDbResourceId|
 //@[023:00024) | ├─Token(Assignment) |=|
-//@[025:00094) | └─FunctionCallSyntax
+//@[025:00107) | └─FunctionCallSyntax
 //@[025:00035) |   ├─IdentifierSyntax
 //@[025:00035) |   | └─Token(Identifier) |resourceId|
 //@[035:00036) |   ├─Token(LeftParen) |(|
@@ -632,16 +632,20 @@ var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cos
 //@[036:00075) |   | └─StringSyntax
 //@[036:00075) |   |   └─Token(StringComplete) |'Microsoft.DocumentDB/databaseAccounts'|
 //@[075:00076) |   ├─Token(Comma) |,|
-//@[077:00093) |   ├─FunctionArgumentSyntax
-//@[077:00093) |   | └─PropertyAccessSyntax
-//@[077:00085) |   |   ├─VariableAccessSyntax
-//@[077:00085) |   |   | └─IdentifierSyntax
-//@[077:00085) |   |   |   └─Token(Identifier) |cosmosDb|
-//@[085:00086) |   |   ├─Token(Dot) |.|
-//@[086:00093) |   |   └─IdentifierSyntax
-//@[086:00093) |   |     └─Token(Identifier) |account|
-//@[093:00094) |   └─Token(RightParen) |)|
-//@[094:00096) ├─Token(NewLine) |\r\n|
+//@[076:00078) |   ├─Token(NewLine) |\r\n|
+// comment
+//@[010:00012) |   ├─Token(NewLine) |\r\n|
+cosmosDb.account)
+//@[000:00016) |   ├─FunctionArgumentSyntax
+//@[000:00016) |   | └─PropertyAccessSyntax
+//@[000:00008) |   |   ├─VariableAccessSyntax
+//@[000:00008) |   |   | └─IdentifierSyntax
+//@[000:00008) |   |   |   └─Token(Identifier) |cosmosDb|
+//@[008:00009) |   |   ├─Token(Dot) |.|
+//@[009:00016) |   |   └─IdentifierSyntax
+//@[009:00016) |   |     └─Token(Identifier) |account|
+//@[016:00017) |   └─Token(RightParen) |)|
+//@[017:00019) ├─Token(NewLine) |\r\n|
 var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 //@[000:00064) ├─VariableDeclarationSyntax
 //@[000:00003) | ├─Token(Identifier) |var|
