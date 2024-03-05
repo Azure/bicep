@@ -46,12 +46,12 @@ namespace Bicep.Core.Registry
             {
                 case 1:
                     // local path reference
-                    if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
+                    if (registries.TryGetValue(ArtifactReferenceSchemes.Local, out var localRegistry))
                     {
                         return localRegistry.TryParseArtifactReference(artifactType, null, parts[0]);
                     }
 
-                    return new(x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes(parentModuleUri)));
+                    return new(x => x.UnknownModuleReferenceScheme(ArtifactReferenceSchemes.Local, this.AvailableSchemes(parentModuleUri)));
 
                 case 2:
                     string scheme = parts[0];
@@ -117,7 +117,7 @@ namespace Bicep.Core.Registry
             {
                 return new(x => x.InvalidProviderSpecification());
             }
-            
+
             var config = configurationManager.GetConfiguration(parentModuleUri);
             switch (providerDeclarationSyntax.Specification)
             {
@@ -128,7 +128,7 @@ namespace Bicep.Core.Registry
                     {
                         return new(errorBuilder);
                     }
-                    return new($"br:{providerSource.Source}:{providerSource.Version}");
+                    return new($"{providerSource.Scheme}:{providerSource.Path}");
             }
         }
 

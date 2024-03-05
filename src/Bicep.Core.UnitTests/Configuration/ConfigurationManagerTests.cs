@@ -69,15 +69,9 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "providers": {
-          "az": {
-            "builtIn": true
-          },
-          "kubernetes": {
-            "builtIn": true
-          },
-          "microsoftGraph": {
-            "builtIn": true
-          }
+          "az": "builtin:",
+          "kubernetes": "builtin:",
+          "microsoftGraph": "builtin:"
         },
         "implicitProviders": ["az"],
         "analyzers": {
@@ -193,15 +187,9 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "providers": {
-            "az": {
-                "builtIn": true
-            },
-            "kubernetes": {
-                "builtIn": true
-            },
-            "microsoftGraph": {
-                "builtIn": true
-            }
+            "az": "builtin:",
+            "kubernetes": "builtin:",
+            "microsoftGraph": "builtin:"
         },
         "implicitProviders": [
             "az"
@@ -281,15 +269,9 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "providers": {
-            "az": {
-                "builtIn": true
-            },
-            "kubernetes": {
-                "builtIn": true
-            },
-            "microsoftGraph": {
-                "builtIn": true
-            }
+            "az": "builtin:",
+            "kubernetes": "builtin:",
+            "microsoftGraph": "builtin:"
         },
         "implicitProviders": [
             "az"
@@ -668,7 +650,8 @@ namespace Bicep.Core.UnitTests.Configuration
         "width": 80
         }
     }
-    """});
+    """
+            });
 
             // Act.
             var sut = new ConfigurationManager(fileSystem);
@@ -738,15 +721,9 @@ namespace Bicep.Core.UnitTests.Configuration
           }
         },
         "providers": {
-            "az": {
-                "builtIn": true
-            },
-            "kubernetes": {
-                "builtIn": true
-            },
-            "microsoftGraph": {
-                "builtIn": true
-            }
+            "az": "builtin:",
+            "kubernetes": "builtin:",
+            "microsoftGraph": "builtin:"
         },
         "implicitProviders": [
             "az"

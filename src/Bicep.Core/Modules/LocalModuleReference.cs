@@ -16,7 +16,7 @@ namespace Bicep.Core.Modules
         private static readonly IEqualityComparer<string> PathComparer = StringComparer.Ordinal;
 
         private LocalModuleReference(string path, Uri parentModuleUri)
-            : base(ModuleReferenceSchemes.Local, parentModuleUri)
+            : base(ArtifactReferenceSchemes.Local, parentModuleUri)
         {
             this.Path = path;
         }
