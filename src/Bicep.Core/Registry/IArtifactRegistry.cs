@@ -87,10 +87,9 @@ namespace Bicep.Core.Registry
         string? GetDocumentationUri(ArtifactReference reference);
 
         /// <summary>
-        /// Returns description for the module.
+        /// Returns description for a module.
         /// </summary>
-        /// <param name="reference">The module reference</param>
-        Task<string?> TryGetDescription(ModuleSymbol module, ArtifactReference reference);
+        Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference reference);
 
         /// <summary>
         /// Returns the source code for the module, if available.

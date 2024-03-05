@@ -162,6 +162,17 @@ namespace Bicep.Core.Workspaces
         private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild)
         {
             var config = configurationManager.GetConfiguration(file.FileUri);
+
+            // process "implicit" providers (providers defined in bicepconfig.json)
+            foreach (var providerName in config.ImplicitProvidersConfig.GetImplicitProviderNames())
+            {
+                if (TryGetImplicitProvider(providerName, file, config) is { } implicitProvider)
+                {
+                    implicitArtifacts.Add(implicitProvider);
+                }
+            }
+
+            // process all artifact references - modules & providers
             foreach (var restorable in GetArtifactReferences(file.ProgramSyntax))
             {
                 if (restorable is ProviderDeclarationSyntax providerDeclaration)
@@ -192,6 +203,7 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
+                // recurse into child modules, to ensure we have an exhaustive list of restorable artifacts for the full compilation
                 if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
                     (childResult.IsSuccess(out var childFile) && sourceFilesToRebuild is not null && sourceFilesToRebuild.Contains(childFile)))
                 {
@@ -199,14 +211,6 @@ namespace Bicep.Core.Workspaces
                     childResult = PopulateRecursive(artifactUri, resolutionInfo.Reference, sourceFilesToRebuild, featureProviderFactory, configurationManager);
                 }
                 fileResultByUri[artifactUri] = childResult;
-            }
-
-            foreach (var providerName in config.ImplicitProvidersConfig.GetImplicitProviderNames())
-            {
-                if (TryGetImplicitProvider(providerName, file, config) is { } implicitProvider)
-                {
-                    implicitArtifacts.Add(implicitProvider);
-                }
             }
         }
 
@@ -236,7 +240,7 @@ namespace Bicep.Core.Workspaces
         {
             if (!dispatcher.TryGetArtifactReference(referenceSyntax, sourceFile.FileUri).IsSuccess(out var artifactReference, out var errorBuilder))
             {
-                // module reference is not valid
+                // artifact reference is not valid
                 return new(sourceFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
             }
 
@@ -249,6 +253,7 @@ namespace Bicep.Core.Workspaces
         {
             if (!dispatcher.TryGetLocalArtifactEntryPointUri(artifactReference).IsSuccess(out var artifactFileUri, out var artifactGetPathFailureBuilder))
             {
+                // invalid artifact reference - exit early to show the user the diagnostic
                 return (new(artifactGetPathFailureBuilder), requiresRestore: false);
             }
 

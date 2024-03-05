@@ -81,7 +81,7 @@ namespace Bicep.Core.Registry
 
         public override string? TryGetDocumentationUri(LocalModuleReference moduleReference) => null;
 
-        public override Task<string?> TryGetDescription(ModuleSymbol module, LocalModuleReference moduleReference)
+        public override Task<string?> TryGetModuleDescription(ModuleSymbol module, LocalModuleReference moduleReference)
         {
             if (module.TryGetSemanticModel().TryUnwrap() is {} model)
             {

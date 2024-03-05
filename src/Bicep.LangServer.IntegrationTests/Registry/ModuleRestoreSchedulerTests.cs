@@ -195,7 +195,7 @@ namespace Bicep.LangServer.IntegrationTests.Registry
 
             public string? GetDocumentationUri(ArtifactReference _) => null;
 
-            public Task<string?> TryGetDescription(ModuleSymbol module, ArtifactReference _) => Task.FromResult<string?>(null);
+            public Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference _) => Task.FromResult<string?>(null);
 
             public ResultWithDiagnostic<ArtifactReference> TryParseArtifactReference(ArtifactType _, string? __, string reference)
             {
