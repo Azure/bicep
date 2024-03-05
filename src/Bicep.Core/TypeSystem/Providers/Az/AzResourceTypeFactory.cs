@@ -57,6 +57,7 @@ namespace Bicep.Core.TypeSystem.Providers.Az
         }
 
         private TypeSymbol GetTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase serializedType, bool isResourceBodyType, bool isResourceBodyTopLevelPropertyType)
+            // The cache key should always include *all* arguments passed to this function
             => typeCache.GetOrAdd((serializedType, isResourceBodyType, isResourceBodyTopLevelPropertyType),
                 t => ToTypeSymbol(t.definedType, t.isResourceBodyType, t.isResourceBodyTopLevelPropertyType));
 
