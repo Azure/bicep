@@ -24,27 +24,7 @@ public static class ArmTemplateTypeLoader
         {
             var resolved = TemplateEngine.ResolveSchemaReferences(context, armTemplateSchemaNode);
 
-            if (TryGetResourceDerivedType(context, resolved, flags) is ITypeReference resourceDerivedType)
-            {
-                return resourceDerivedType;
-            }
-
-            if (resolved.Type.Value == TemplateParameterType.SecureString || resolved.Type.Value == TemplateParameterType.SecureObject)
-            {
-                flags = TypeSymbolValidationFlags.IsSecure | flags;
-            }
-
-            var bicepType = resolved.Type.Value switch
-            {
-                TemplateParameterType.String or
-                TemplateParameterType.SecureString => GetStringType(resolved, flags),
-                TemplateParameterType.Int => GetIntegerType(resolved, flags),
-                TemplateParameterType.Bool => GetBooleanType(resolved, flags),
-                TemplateParameterType.Array => GetArrayType(context, resolved),
-                TemplateParameterType.Object or
-                TemplateParameterType.SecureObject => GetObjectType(context, resolved, flags),
-                _ => ErrorType.Empty(),
-            };
+            var bicepType = ToTypeReferenceIgnoringNullability(context, resolved, flags);
 
             if (resolved.Nullable?.Value == true)
             {
@@ -57,6 +37,26 @@ public static class ArmTemplateTypeLoader
         {
             return ErrorType.Create(DiagnosticBuilder.ForDocumentStart().UnresolvableArmJsonType(tve.TemplateErrorAdditionalInfo.Path ?? "<unknown location>", tve.Message));
         }
+    }
+
+    private static ITypeReference ToTypeReferenceIgnoringNullability(SchemaValidationContext context, ITemplateSchemaNode withResolvedRefs, TypeSymbolValidationFlags flags)
+    {
+        if (TryGetResourceDerivedType(context, withResolvedRefs, flags) is ITypeReference resourceDerivedType)
+        {
+            return resourceDerivedType;
+        }
+
+        return withResolvedRefs.Type.Value switch
+        {
+            TemplateParameterType.String => GetStringType(withResolvedRefs, flags),
+            TemplateParameterType.SecureString => GetStringType(withResolvedRefs, flags | TypeSymbolValidationFlags.IsSecure),
+            TemplateParameterType.Int => GetIntegerType(withResolvedRefs, flags),
+            TemplateParameterType.Bool => GetBooleanType(withResolvedRefs, flags),
+            TemplateParameterType.Array => GetArrayType(context, withResolvedRefs),
+            TemplateParameterType.Object => GetObjectType(context, withResolvedRefs, flags),
+            TemplateParameterType.SecureObject => GetObjectType(context, withResolvedRefs, flags | TypeSymbolValidationFlags.IsSecure),
+            _ => ErrorType.Empty(),
+        };
     }
 
     private static ITypeReference? TryGetResourceDerivedType(SchemaValidationContext context, ITemplateSchemaNode schemaNode, TypeSymbolValidationFlags flags)
