@@ -5622,6 +5622,27 @@ param foo {
         });
     }
 
+    // https://github.com/Azure/bicep/issues/13531
+    [TestMethod]
+    public void Test_Issue13531()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param location = location
+"""),
+            ("main.bicep", """
+#disable-next-line no-unused-params
+param location string
+"""));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP079", DiagnosticLevel.Error, """This expression is referencing its own declaration, which is not allowed."""),
+        });
+    }
+
     [TestMethod]
     public void Functions_can_be_imported_in_bicepparam_files()
     {
