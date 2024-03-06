@@ -226,7 +226,7 @@ namespace Bicep.Core.Workspaces
                 return null;
             }
 
-            if (!OciArtifactReference.TryParse(ArtifactType.Provider, null, $"{providerEntry.Source}:{providerEntry.Version}", config, file.FileUri).IsSuccess(out var artifactReference, out errorBuilder))
+            if (!OciArtifactReference.TryParse(ArtifactType.Provider, null, providerEntry.Path, config, file.FileUri).IsSuccess(out var artifactReference, out errorBuilder))
             {
                 // reference is not valid
                 return new(file, null, null, new(errorBuilder), RequiresRestore: false);

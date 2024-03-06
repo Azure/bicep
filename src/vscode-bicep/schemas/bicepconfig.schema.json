@@ -123,17 +123,8 @@
       }
     },
     "providerConfig": {
-      "type": "object",
-      "properties": {
-        "source": {
-          "type": "string"
-        },
-        "version": {
-          "type": "string"
-        }
-      },
-      "required": ["source", "version"],
-      "additionalProperties": false
+      "type": "string",
+      "pattern": "^(builtin:|br:.*)$"
     },
     "builtInConfig": {
       "type": "object",
@@ -297,27 +288,14 @@
       "type": "object",
       "patternProperties": {
         "^(?!sys$).*": {
-          "oneOf": [
-            {
-              "$ref": "#/definitions/providerConfig"
-            },
-            {
-              "$ref": "#/definitions/builtInConfig"
-            }
-          ]
+          "$ref": "#/definitions/providerConfig"
         }
       },
       "additionalProperties": false,
       "default": {
-        "az": {
-          "builtIn": true
-        },
-        "kubernetes": {
-          "builtIn": true
-        },
-        "microsoftGraph": {
-          "builtIn": true
-        }
+        "az": "builtin:",
+        "kubernetes": "builtin:",
+        "microsoftGraph": "builtin:"
       }
     },
     "implicitProviders": {

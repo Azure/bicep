@@ -20,13 +20,8 @@ public class ProvidersConfigurationTests
         var data = JsonElementFactory.CreateElement("""
         {
             "providers": {
-                "az": {
-                    "source": "mcr.microsoft.com/bicep/providers/az",
-                    "version": "0.2.3"
-                },
-                "kubernetes": {
-                    "builtIn": true
-                }
+                "az": "br:mcr.microsoft.com/bicep/providers/az:0.2.3",
+                "kubernetes": "builtin:"
             }
         }
         """);
@@ -35,44 +30,19 @@ public class ProvidersConfigurationTests
         providers.Should().NotBeNull();
 
         providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
-        azProvider!.Source.Should().Be("mcr.microsoft.com/bicep/providers/az");
-        azProvider.Version.Should().Be("0.2.3");
+        azProvider!.Path.Should().Be("mcr.microsoft.com/bicep/providers/az:0.2.3");
         azProvider.BuiltIn.Should().BeFalse();
 
         providers.TryGetProviderSource("kubernetes").IsSuccess(out var k8sProvider).Should().BeTrue();
         k8sProvider.Should().NotBeNull();
         k8sProvider!.BuiltIn.Should().BeTrue();
-        k8sProvider.Source.Should().BeNull();
-        k8sProvider.Version.Should().BeNull();
+        k8sProvider.Path.Should().BeEmpty();
 
         providers.TryGetProviderSource("unspecified").IsSuccess(out var provider, out var errorBuilder).Should().BeFalse();
         provider.Should().BeNull();
         errorBuilder!.Should().NotBeNull();
         errorBuilder!.Should().HaveCode("BCP204");
         errorBuilder!.Should().HaveMessage($"Provider namespace \"unspecified\" is not recognized.");
-    }
-
-    [TestMethod]
-    public void ProviderConfiguration_deserialization_enforces_mutually_exclusive_properties()
-    {
-        var data = JsonElementFactory.CreateElement("""
-        {
-            "providers": {
-                "az": {
-                    "source": "mcr.microsoft.com/bicep/providers/az",
-                    "version": "0.2.3",
-                    "builtIn": true
-                }
-            }
-        }
-        """);
-
-        var providers = ProvidersConfiguration.Bind(data.GetProperty(RootConfiguration.ProvidersConfigurationKey));
-        providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
-        azProvider!.BuiltIn.Should().BeFalse(); // because we must coerce the value for example of a result of a merge
-        azProvider.Source.Should().Be("mcr.microsoft.com/bicep/providers/az");
-        azProvider.Version.Should().Be("0.2.3");
-
     }
 
     [TestMethod]
@@ -87,8 +57,7 @@ public class ProvidersConfigurationTests
         {
             config.ProvidersConfig!.TryGetProviderSource(providerName).IsSuccess(out var provider).Should().BeTrue();
             provider!.BuiltIn.Should().BeTrue();
-            provider.Source.Should().BeNull();
-            provider.Version.Should().BeNull();
+            provider.Path.Should().BeEmpty();
         }
 
         // assert that 'sys' is not present in the default configuration
@@ -104,14 +73,8 @@ public class ProvidersConfigurationTests
             [bicepConfigFileName] = new("""
             {
                 "providers": {
-                    "foo": {
-                        "source": "example.azurecr.io/some/fake/path",
-                        "version": "1.0.0"
-                    },
-                    "az": {
-                        "source": "mcr.microsoft.com/bicep/providers/az",
-                        "version": "0.2.3"
-                    }
+                    "foo": "br:example.azurecr.io/some/fake/path:1.0.0",
+                    "az": "br:mcr.microsoft.com/bicep/providers/az:0.2.3"
                 }
             }
             """)
@@ -127,13 +90,11 @@ public class ProvidersConfigurationTests
         var providers = config.ProvidersConfig!;
         // assert 'source' and 'version' are valid properties for 'foo'
         providers.TryGetProviderSource("foo").IsSuccess(out var fooProvider).Should().BeTrue();
-        fooProvider!.Source.Should().Be("example.azurecr.io/some/fake/path");
-        fooProvider.Version.Should().Be("1.0.0");
+        fooProvider!.Path.Should().Be("example.azurecr.io/some/fake/path:1.0.0");
 
         // assert 'az' provider properties are overridden by the user provided configuration
         providers.TryGetProviderSource("az").IsSuccess(out var azProvider).Should().BeTrue();
-        azProvider!.Source.Should().Be("mcr.microsoft.com/bicep/providers/az");
-        azProvider.Version.Should().Be("0.2.3");
+        azProvider!.Path.Should().Be("mcr.microsoft.com/bicep/providers/az:0.2.3");
 
         // assert that 'sys' is not present in the merged configuration
         providers.TryGetProviderSource("sys").IsSuccess(out var provider, out var errorBuilder).Should().BeFalse();

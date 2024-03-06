@@ -41,14 +41,14 @@ namespace Bicep.Core.Registry
             Uri parentModuleUri)
             : base(FileResolver, fileSystem)
         {
-            this.cachePath = fileSystem.Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
+            this.cachePath = fileSystem.Path.Combine(features.CacheRootDirectory, ArtifactReferenceSchemes.Oci);
             this.client = new AzureContainerRegistryManager(clientFactory);
             this.configuration = configuration;
             this.features = features;
             this.parentModuleUri = parentModuleUri;
         }
 
-        public override string Scheme => ModuleReferenceSchemes.Oci;
+        public override string Scheme => ArtifactReferenceSchemes.Oci;
 
         public string CacheRootDirectory => this.features.CacheRootDirectory;
 
