@@ -183,20 +183,20 @@
       },
       "Azure.ResourceManager": {
         "type": "Transitive",
-        "resolved": "1.6.0",
-        "contentHash": "pd7DRK7UpsQagSwgkXiWl6k5v3aXTcEwLvyjAtozd/pr86bsmaWEtcA2aa+kt82wMH2L8nw1ByfRIY0hQQSIVg==",
+        "resolved": "1.9.0",
+        "contentHash": "Ki3ethQJOkr0JuKnkazhKP5/bV849x1scwDSS61rrzf2/nmDM56jJmmCARHsFBoZfYQPd4lwCC2SeYfmLOY2wQ==",
         "dependencies": {
-          "Azure.Core": "1.32.0",
+          "Azure.Core": "1.36.0",
           "System.Text.Json": "4.7.2"
         }
       },
       "Azure.ResourceManager.Resources": {
         "type": "Transitive",
-        "resolved": "1.6.0",
-        "contentHash": "QC1DAa8X1pQTJRC5clCWX+mfV0DJDE4hPTrgnGmBniLxLDOv9Bd143ydUliiBEYDp5u3QsQNth3O0VXIMG/b8A==",
+        "resolved": "1.7.0",
+        "contentHash": "eH/Com2x8hkIW7TIMHXAuJ2GE3kXbYXXzr+gmSbBY+FaKGFx0KkvnN+KNiDVlJd9yNEElFIAhF2Ral2oTK+hcQ==",
         "dependencies": {
-          "Azure.Core": "1.32.0",
-          "Azure.ResourceManager": "1.6.0",
+          "Azure.Core": "1.36.0",
+          "Azure.ResourceManager": "1.9.0",
           "System.Text.Json": "4.7.2"
         }
       },
@@ -1888,7 +1888,7 @@
           "Azure.Deployments.Expression": "[1.0.1158, )",
           "Azure.Deployments.Templates": "[1.0.1158, )",
           "Azure.Identity": "[1.10.4, )",
-          "Azure.ResourceManager.Resources": "[1.6.0, )",
+          "Azure.ResourceManager.Resources": "[1.7.0, )",
           "JsonPatch.Net": "[2.1.0, )",
           "JsonPath.Net": "[0.7.0, )",
           "Microsoft.Extensions.Configuration": "[8.0.0, )",
