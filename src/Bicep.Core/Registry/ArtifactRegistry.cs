@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Reflection;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
 using Bicep.Core.SourceCode;
 using Bicep.Core.Utils;
 
@@ -31,7 +33,7 @@ namespace Bicep.Core.Registry
 
         public abstract string? TryGetDocumentationUri(T reference);
 
-        public abstract Task<string?> TryGetDescription(T reference);
+        public abstract Task<string?> TryGetModuleDescription(ModuleSymbol module, T reference);
 
         public abstract ResultWithException<SourceArchive> TryGetSource(T reference);
 
@@ -56,7 +58,8 @@ namespace Bicep.Core.Registry
 
         public string? GetDocumentationUri(ArtifactReference reference) => this.TryGetDocumentationUri(ConvertReference(reference));
 
-        public async Task<string?> TryGetDescription(ArtifactReference reference) => await this.TryGetDescription(ConvertReference(reference));
+        public async Task<string?> TryGetModuleDescription(ModuleSymbol module, ArtifactReference reference) => 
+            await this.TryGetModuleDescription(module, ConvertReference(reference));
 
         public ResultWithException<SourceArchive> TryGetSource(ArtifactReference reference) => this.TryGetSource(ConvertReference(reference));
 

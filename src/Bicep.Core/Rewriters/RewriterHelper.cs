@@ -12,7 +12,6 @@ namespace Bicep.Core.Rewriters
         public static (BicepFile bicepFile, bool hasChanges) Rewrite(Compilation prevCompilation, BicepFile bicepFile, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
         {
             // Sometimes bicepFile does not exist in the previous compilation, in which case we fall back on the compilation's entry point model
-            var prevModel = prevCompilation.SourceFileGrouping.FileResultByUri.ContainsKey(bicepFile.FileUri) ? prevCompilation.GetSemanticModel(bicepFile) : prevCompilation.GetEntrypointSemanticModel();
             var semanticModel = new SemanticModel(prevCompilation, bicepFile);
             var newProgramSyntax = rewriteVisitorBuilder(semanticModel).Rewrite(bicepFile.ProgramSyntax);
 

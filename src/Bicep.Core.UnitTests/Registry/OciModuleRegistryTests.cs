@@ -170,7 +170,7 @@ namespace Bicep.Core.UnitTests.Registry
             var documentation = OciArtifactRegistry.TryGetDocumentationUri(OciArtifactReference);
             documentation.Should().BeNull();
 
-            var description = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var description = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
             description.Should().BeNull();
         }
 
@@ -209,7 +209,7 @@ namespace Bicep.Core.UnitTests.Registry
             var documentation = OciArtifactRegistry.TryGetDocumentationUri(OciArtifactReference);
             documentation.Should().BeNull();
 
-            var description = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var description = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
             description.Should().BeNull();
         }
 
@@ -329,7 +329,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 digest: "sha:12345");
 
-            var result = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var result = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             result.Should().BeNull();
         }
@@ -362,7 +362,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var result = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             result.Should().BeNull();
         }
@@ -397,7 +397,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var result = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             result.Should().BeNull();
         }
@@ -434,7 +434,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var result = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             result.Should().NotBeNull();
             result.Should().BeEquivalentTo(description);
@@ -473,7 +473,7 @@ namespace Bicep.Core.UnitTests.Registry
                 "bicep/modules/storage",
                 "sha:12345");
 
-            var result = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var result = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             result.Should().BeNull();
         }
@@ -517,7 +517,7 @@ namespace Bicep.Core.UnitTests.Registry
             actualDocumentationUri.Should().NotBeNull();
             actualDocumentationUri.Should().BeEquivalentTo(documentationUri);
 
-            var actualDescription = await OciArtifactRegistry.TryGetDescription(OciArtifactReference);
+            var actualDescription = await OciArtifactRegistry.TryGetModuleDescription(null!, OciArtifactReference);
 
             actualDescription.Should().NotBeNull();
             actualDescription.Should().BeEquivalentTo(description.Replace("\\", "")); // unencode json

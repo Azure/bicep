@@ -175,7 +175,7 @@ namespace Bicep.Core.Registry
             return $"https://github.com/Azure/bicep-registry-modules/tree/{publicModuleName}/{tag}/modules/{publicModuleName}/README.md";
         }
 
-        public override Task<string?> TryGetDescription(OciArtifactReference ociArtifactModuleReference)
+        public override Task<string?> TryGetModuleDescription(ModuleSymbol module, OciArtifactReference ociArtifactModuleReference)
         {
             var ociAnnotations = TryGetOciAnnotations(ociArtifactModuleReference);
             return Task.FromResult(DescriptionHelper.TryGetFromOciManifestAnnotations(ociAnnotations));

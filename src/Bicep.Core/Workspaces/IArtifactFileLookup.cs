@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
@@ -10,7 +11,7 @@ namespace Bicep.Core.Workspaces;
 
 public interface IArtifactFileLookup
 {
-    public ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference);
+    ResultWithDiagnostic<ISourceFile> TryGetSourceFile(IArtifactReferenceSyntax foreignTemplateReference);
 
-    public ResultWithDiagnostic<ResourceTypesProviderDescriptor> TryGetProviderDescriptor(ProviderDeclarationSyntax providerDeclarationSyntax);
+    ImmutableDictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> ArtifactLookup { get; }
 }

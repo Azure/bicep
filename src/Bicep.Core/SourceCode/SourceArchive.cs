@@ -172,27 +172,27 @@ namespace Bicep.Core.SourceCode
         public static Stream PackSourcesIntoStream(IModuleDispatcher moduleDispatcher, SourceFileGrouping sourceFileGrouping, string? cacheRoot)
         {
             // Find the artifact reference for each source file of an external module that was published with sources
-            Dictionary<Uri, OciArtifactReference> uriToArtifactReference = sourceFileGrouping.FileUriResultByBicepSourceFileByArtifactReferenceSyntax
-                .SelectMany(outerKvp => outerKvp.Value, (outerKvp, innerKvp) => (bicep: outerKvp.Key, syntax: innerKvp.Key, uri: innerKvp.Value.TryUnwrap()))
-                .Where(tuple => tuple.uri is not null && tuple.syntax is ModuleDeclarationSyntax)
-                .Distinct(tuple => tuple.uri)
-                // Resolve syntax to artifact references
-                .Select(tuple =>
-                    (uri: tuple.uri,
-                    artifactReference: moduleDispatcher.TryGetArtifactReference(tuple.syntax, tuple.bicep.FileUri).TryUnwrap() as OciArtifactReference))
-                .Where(tuple => tuple.artifactReference is not null && tuple.artifactReference.Type == ArtifactType.Module)
-                // Force the compiler to recognize these are guaranteed non-null
-                .Select(tuple => (uri: tuple.uri!, artifactReference: tuple.artifactReference!))
-                // Only those that were published with source
-                .Where(pair => moduleDispatcher.TryGetModuleSources(pair.artifactReference).IsSuccess())
-                // Map from uri to artifactReference
-                .ToDictionary(x => x.uri, x => x.artifactReference);
+            Dictionary<Uri, OciArtifactReference> uriToArtifactReference = new();
+            foreach (var artifact in sourceFileGrouping.ArtifactLookup.Values)
+            {
+                if (artifact.Syntax is not ModuleDeclarationSyntax module ||
+                    artifact.Reference is not OciArtifactReference artifactReference ||
+                    !artifact.Result.IsSuccess(out var uri) ||
+                    uriToArtifactReference.ContainsKey(uri) ||
+                    // Only those that were published with source
+                    !moduleDispatcher.TryGetModuleSources(artifact.Reference).IsSuccess(out var archive))
+                {
+                    continue;
+                }
+
+                uriToArtifactReference[uri] = artifactReference;
+            }
 
             var sourceFilesWithArtifactReference =
                 sourceFileGrouping.SourceFiles.Select(x => new SourceFileWithArtifactReference(x, uriToArtifactReference.TryGetValue(x.FileUri, out var reference) ? reference : null));
 
             var documentLinks = SourceCodeDocumentLinkHelper.GetAllModuleDocumentLinks(sourceFileGrouping);
-            return PackSourcesIntoStream(sourceFileGrouping.EntryFileUri, cacheRoot, documentLinks, sourceFilesWithArtifactReference.ToArray());
+            return PackSourcesIntoStream(sourceFileGrouping.EntryPoint.FileUri, cacheRoot, documentLinks, sourceFilesWithArtifactReference.ToArray());
         }
 
         public static Stream PackSourcesIntoStream(Uri entrypointFileUri, string? cacheRoot, params SourceFileWithArtifactReference[] sourceFiles)

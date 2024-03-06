@@ -1,13 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Registry.Oci;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.TypeSystem.Types;
 using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
@@ -17,39 +20,43 @@ namespace Bicep.Core.Semantics
     public sealed class DeclarationVisitor : AstVisitor
     {
         private readonly INamespaceProvider namespaceProvider;
+        private readonly RootConfiguration configuration;
         private readonly IFeatureProvider features;
         private readonly IArtifactFileLookup artifactFileLookup;
         private readonly ISemanticModelLookup modelLookup;
         private readonly ResourceScope targetScope;
         private readonly ISymbolContext context;
-        private readonly BicepSourceFileKind sourceFileKind;
+        private readonly BicepSourceFile sourceFile;
         private readonly IList<ScopeInfo> localScopes;
 
         private readonly Stack<ScopeInfo> activeScopes = new();
 
         private DeclarationVisitor(
             INamespaceProvider namespaceProvider,
+            RootConfiguration configuration,
             IFeatureProvider features,
             IArtifactFileLookup sourceFileLookup,
             ISemanticModelLookup modelLookup,
             ResourceScope targetScope,
             ISymbolContext context,
             IList<ScopeInfo> localScopes,
-            BicepSourceFileKind sourceFileKind)
+            BicepSourceFile sourceFile)
         {
             this.namespaceProvider = namespaceProvider;
+            this.configuration = configuration;
             this.features = features;
             this.artifactFileLookup = sourceFileLookup;
             this.modelLookup = modelLookup;
             this.targetScope = targetScope;
             this.context = context;
             this.localScopes = localScopes;
-            this.sourceFileKind = sourceFileKind;
+            this.sourceFile = sourceFile;
         }
 
         // Returns the list of top level declarations as well as top level scopes.
         public static LocalScope GetDeclarations(
             INamespaceProvider namespaceProvider,
+            RootConfiguration configuration,
             IFeatureProvider features,
             IArtifactFileLookup sourceFileLookup,
             ISemanticModelLookup modelLookup,
@@ -61,13 +68,14 @@ namespace Bicep.Core.Semantics
             var localScopes = new List<ScopeInfo>();
             var declarationVisitor = new DeclarationVisitor(
                 namespaceProvider,
+                configuration,
                 features,
                 sourceFileLookup,
                 modelLookup,
                 targetScope,
                 symbolContext,
                 localScopes,
-                sourceFile.FileKind);
+                sourceFile);
             declarationVisitor.Visit(sourceFile.ProgramSyntax);
 
             return MakeImmutable(localScopes.Single());
@@ -216,12 +224,12 @@ namespace Bicep.Core.Semantics
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedProvider(syntax.Specification.NamespaceIdentifier));
             }
 
-            if (!this.artifactFileLookup.TryGetProviderDescriptor(syntax).IsSuccess(out var providerDescriptor, out var errorBuilder))
+            if (!TryGetProviderDescriptor(syntax).IsSuccess(out var providerDescriptor, out var errorBuilder))
             {
                 return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
             }
 
-            if (!namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFileKind).IsSuccess(out var namespaceType, out errorBuilder))
+            if (!namespaceProvider.TryGetNamespace(providerDescriptor, targetScope, features, sourceFile.FileKind).IsSuccess(out var namespaceType, out errorBuilder))
             {
                 return ErrorType.Create(errorBuilder(DiagnosticBuilder.ForPosition(syntax)));
             }
@@ -460,6 +468,81 @@ namespace Bicep.Core.Semantics
             public IList<DeclaredSymbol> Locals { get; } = new List<DeclaredSymbol>();
 
             public IList<ScopeInfo> Children { get; } = new List<ScopeInfo>();
+        }
+
+        private ResultWithDiagnostic<ResourceTypesProviderDescriptor> TryGetProviderDescriptor(ProviderDeclarationSyntax syntax)
+        {
+            // LegacyProviderSpecification will be deprecated in the future
+            if (syntax.Specification is LegacyProviderSpecification legacySpecification)
+            {
+                if (!features.DynamicTypeLoadingEnabled && !features.ProviderRegistryEnabled)
+                {
+                    return new(ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
+                        legacySpecification.NamespaceIdentifier,
+                        legacySpecification.Version,
+                        syntax.Alias?.IdentifierName));
+                }
+
+                return new(x => x.ExpectedProviderSpecification());
+            }
+
+            if (syntax.Specification is ConfigurationManagedProviderSpecification configSpec && 
+                configuration.ProvidersConfig.IsSysOrBuiltIn(configSpec.NamespaceIdentifier))
+            {
+                return new(ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
+                    configSpec.NamespaceIdentifier,
+                    ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
+                    syntax.Alias?.IdentifierName));
+            }
+
+            if (!features.DynamicTypeLoadingEnabled && !features.ProviderRegistryEnabled)
+            {
+                return new(x => x.UnrecognizedProvider(syntax.Specification.NamespaceIdentifier));
+            }
+
+            var artifact = artifactFileLookup.ArtifactLookup[syntax];
+
+            if (!artifact.Result.IsSuccess(out var typesTgzUri, out var errorBuilder))
+            {
+                return new(errorBuilder);
+            }
+
+            if (syntax.Specification is InlinedProviderSpecification { } inlinedSpecification)
+            {
+                // TODO block usage of 'sys'
+
+                return new(ResourceTypesProviderDescriptor.CreateDynamicallyLoadedProviderDescriptor(
+                    inlinedSpecification.NamespaceIdentifier,
+                    inlinedSpecification.Version,
+                    artifact.Reference,
+                    typesTgzUri,
+                    syntax.Alias?.IdentifierName));
+            }
+
+            // The provider is configuration managed, fetch the provider source & version from the configuration
+            var providerName = syntax.Specification.NamespaceIdentifier;
+
+            // Special case the "sys" provider for backwards compatibility
+            if (providerName == SystemNamespaceType.BuiltInName)
+            {
+                return new(ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
+                    SystemNamespaceType.BuiltInName,
+                    ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
+                    syntax.Alias?.IdentifierName));
+            }
+
+            if (artifact.Reference is not OciArtifactReference ociArtifactReference ||
+                ociArtifactReference.Tag is null)
+            {
+                return new(x => x.UnrecognizedProvider(providerName));
+            }
+
+            return new(ResourceTypesProviderDescriptor.CreateDynamicallyLoadedProviderDescriptor(
+                ociArtifactReference.Repository.Split('/')[^1],
+                ociArtifactReference.Tag,
+                ociArtifactReference,
+                typesTgzUri,
+                providerName));
         }
     }
 }

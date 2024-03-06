@@ -192,7 +192,7 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     try
                     {
-                        descriptionLines.Add(await registry.TryGetDescription(moduleReference));
+                        descriptionLines.Add(await registry.TryGetModuleDescription(module, moduleReference));
                     }
                     catch
                     {
