@@ -1550,4 +1550,34 @@ param myParam string
             ("BCP394", DiagnosticLevel.Error, "Resource-derived type expressions must derefence a property within the resource body. Using the entire resource body type is not permitted."),
         });
     }
+
+    [TestMethod]
+    public void Resource_derived_type_nullability_should_be_preserved_when_loading_from_ARM_JSON()
+    {
+        var result = CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceDerivedTypesEnabled: true)),
+            ("main.bicep", """
+                module mod 'mod.json' = {
+                    name: 'mod'
+                }
+                """),
+            ("mod.json", $$"""
+                {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "languageVersion": "2.0",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "foo": {
+                            "type": "string",
+                            "metadata": {
+                                "{{LanguageConstants.MetadataResourceDerivedTypePropertyName}}": "Microsoft.Storage/storageAccounts@2022-09-01#properties/sku/properties/name"
+                            },
+                            "nullable": true
+                        }
+                    },
+                    "resources": []
+                }
+                """));
+
+        result.Should().NotHaveAnyDiagnostics();
+    }
 }

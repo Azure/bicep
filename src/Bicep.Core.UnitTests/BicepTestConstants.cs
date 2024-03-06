@@ -51,18 +51,15 @@ namespace Bicep.Core.UnitTests
 
         public static ResourceTypesProviderDescriptor BuiltInAzProviderDescriptor { get; } = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
             AzNamespaceType.BuiltInName,
-            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
-            new Uri("file:///dev/null"));
+            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder);
 
         public static ResourceTypesProviderDescriptor BuiltInSysProviderDescriptor { get; } = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
             SystemNamespaceType.BuiltInName,
-            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
-            new Uri("file:///dev/null"));
+            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder);
 
         public static ResourceTypesProviderDescriptor MicrosoftGraphProviderDescriptor { get; } = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
             MicrosoftGraphNamespaceType.BuiltInName,
-            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
-            new Uri("file:///dev/null"));
+            ResourceTypesProviderDescriptor.LegacyVersionPlaceholder);
 
         // Linter rules added to this list will be automatically disabled for most tests.
         // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here

@@ -5622,6 +5622,27 @@ param foo {
         });
     }
 
+    // https://github.com/Azure/bicep/issues/13531
+    [TestMethod]
+    public void Test_Issue13531()
+    {
+        var result = CompilationHelper.CompileParams(
+            ("parameters.bicepparam", """
+using 'main.bicep'
+
+param location = location
+"""),
+            ("main.bicep", """
+#disable-next-line no-unused-params
+param location string
+"""));
+
+        result.Should().HaveDiagnostics(new[]
+        {
+            ("BCP079", DiagnosticLevel.Error, """This expression is referencing its own declaration, which is not allowed."""),
+        });
+    }
+
     [TestMethod]
     public void Functions_can_be_imported_in_bicepparam_files()
     {
@@ -5823,5 +5844,58 @@ var startAndEndBracketInString = 'x[]y'
                 """));
 
         result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+    }
+
+    // https://github.com/Azure/bicep/issues/13534
+    [TestMethod]
+    public void Test_Issue13534()
+    {
+        var result = CompilationHelper.Compile("""
+            var username = ''
+            var password = ''
+            var fileshareConnection = {
+              name: ''
+              authType: ''
+              rootfolder: ''
+              odgw: {
+                name: ''
+                resourceGroup: ''
+              }
+            }
+
+            var general = {
+              location: ''
+            }
+
+            resource resFileshareConnection 'Microsoft.Web/connections@2016-06-01' = {
+              name: fileshareConnection.name
+              location: general.location
+              kind: 'V2'
+              properties: {
+                displayName: fileshareConnection.name
+                customParameterValues: {}
+                parameterValues: {
+                  rootfolder: fileshareConnection.rootfolder
+                  authType: fileshareConnection.authType
+                  gateway: {
+                    name: fileshareConnection.odgw.name
+                    id: resourceId(fileshareConnection.odgw.resourceGroup, 'Microsoft.Web/connectionGateways', fileshareConnection.odgw.name)
+                    type: 'Microsoft.Web/connectionGateways'
+                  }
+                  username: username
+                  password: password
+                }
+                api: {
+                  id: subscriptionResourceId('Microsoft.Web/locations/managedApis', general.location, 'filesystem')
+                }
+              }
+            }
+            """);
+
+        result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
+        {
+             ("BCP187", DiagnosticLevel.Warning, """The property "kind" does not exist in the resource or type definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team."""),
+             ("BCP036", DiagnosticLevel.Warning, """The property "gateway" expected a value of type "string" but the provided value is of type "object"."""),
+        });
     }
 }

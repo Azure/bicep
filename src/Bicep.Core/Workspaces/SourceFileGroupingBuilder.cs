@@ -10,7 +10,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Providers;
 using Bicep.Core.Utils;
@@ -25,12 +24,8 @@ namespace Bicep.Core.Workspaces
         private readonly IReadOnlyWorkspace workspace;
 
         private readonly Dictionary<Uri, ResultWithDiagnostic<ISourceFile>> fileResultByUri;
-        // For each .bicep file key, a dictionary (keyed by 'module' or other syntax statement in the .bicep file) of the resolved URI for that syntax statement
-        private readonly Dictionary<BicepSourceFile, Dictionary<IArtifactReferenceSyntax, Result<Uri, UriResolutionError>>> uriResultByBicepSourceFileByArtifactReferenceSyntax;
-        // For each .bicep file key, a dictionary (keyed by implicit provider artifact references in the scope of the .bicep file) of the resolved URI for the provider types data file
-        private readonly Dictionary<BicepSourceFile, Dictionary<ArtifactReference, Result<Uri, UriResolutionError>>> uriResultByBicepSourceFileByArtifactReference;
-        // For each .bicep file key, the bundle of resource type provider artifact descriptors of both explicit and implicit provider
-        private readonly Dictionary<BicepSourceFile, ProviderDescriptorBundleBuilder> providerDescriptorBundleBuilderBySourceFile;
+        private readonly Dictionary<IArtifactReferenceSyntax, ArtifactResolutionInfo> artifactLookup;
+        private readonly HashSet<ArtifactResolutionInfo> implicitArtifacts;
         private readonly bool forceRestore;
 
         private SourceFileGroupingBuilder(
@@ -42,9 +37,8 @@ namespace Bicep.Core.Workspaces
             this.fileResolver = fileResolver;
             this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
-            this.uriResultByBicepSourceFileByArtifactReferenceSyntax = new();
-            this.uriResultByBicepSourceFileByArtifactReference = new();
-            this.providerDescriptorBundleBuilderBySourceFile = new();
+            this.artifactLookup = new();
+            this.implicitArtifacts = new();
             this.fileResultByUri = new();
             this.forceRestore = forceModulesRestore;
         }
@@ -59,10 +53,9 @@ namespace Bicep.Core.Workspaces
             this.fileResolver = fileResolver;
             this.dispatcher = moduleDispatcher;
             this.workspace = workspace;
-            this.uriResultByBicepSourceFileByArtifactReferenceSyntax = new(current.FileUriResultByBicepSourceFileByArtifactReferenceSyntax.Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToDictionary(p => p.Key, p => p.Value))));
-            this.uriResultByBicepSourceFileByArtifactReference = new(current.FileUriResultByBicepSourceFileByArtifactReference.Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToDictionary(p => p.Key, p => p.Value))));
-            this.providerDescriptorBundleBuilderBySourceFile = new(current.ProvidersToRestoreByFileResult.Select(kvp => KeyValuePair.Create(kvp.Key, new ProviderDescriptorBundleBuilder(kvp.Value.ImplicitProviders, kvp.Value.ExplicitProviderLookup))));
-            this.fileResultByUri = current.FileResultByUri.Where(x => x.Value.TryUnwrap() is not null).ToDictionary(x => x.Key, x => x.Value);
+            this.artifactLookup = current.ArtifactLookup.Where(x => x.Value.Result.IsSuccess()).ToDictionary();
+            this.implicitArtifacts = current.ImplicitArtifacts.ToHashSet();
+            this.fileResultByUri = current.SourceFileLookup.ToDictionary();
             this.forceRestore = forceArtifactRestore;
         }
 
@@ -73,24 +66,27 @@ namespace Bicep.Core.Workspaces
             return builder.Build(entryFileUri, featuresFactory, configurationManager);
         }
 
-        public static SourceFileGrouping Rebuild(IFeatureProviderFactory featuresFactory, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IReadOnlyWorkspace workspace, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(IFileResolver fileResolver, IFeatureProviderFactory featuresFactory, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IReadOnlyWorkspace workspace, SourceFileGrouping current)
         {
-            var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current);
-            var isParamsFile = current.EntryPoint is BicepParamFile;
-            var artifactsToRestore = current.GetExplicitArtifactsToRestore().ToHashSet();
+            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, current);
+            var artifactsToRestore = current.GetArtifactsToRestore();
 
-            foreach (var (module, sourceFile) in artifactsToRestore)
+            foreach (var artifact in artifactsToRestore)
             {
-                builder.uriResultByBicepSourceFileByArtifactReferenceSyntax[sourceFile].Remove(module);
+                if (artifact.Syntax is {})
+                {
+                    builder.artifactLookup.Remove(artifact.Syntax);
+                }
+                else
+                {
+                    builder.implicitArtifacts.Remove(artifact);
+                }
             }
 
             // Rebuild source files that contain external artifact references restored during the initial build.
-            var sourceFilesToRebuild = current.SourceFiles.OfType<BicepSourceFile>()
-                .Where(sourceFile
-                    => GetArtifactReferenceDeclarations(sourceFile)
-                        .Any(moduleDeclaration
-                            => artifactsToRestore.Contains(new ArtifactResolutionInfo(moduleDeclaration, sourceFile))))
-                .ToImmutableHashSet()
+            var sourceFilesToRebuild = artifactsToRestore
+                .Select(artifact => artifact.Origin)
+                .Distinct()
                 .SelectMany(current.GetFilesDependingOn)
                 .ToImmutableHashSet();
 
@@ -101,23 +97,27 @@ namespace Bicep.Core.Workspaces
         {
             var fileResult = this.PopulateRecursive(entryFileUri, null, sourceFilesToRebuild, featuresFactory, configurationManager);
 
-            if (!fileResult.IsSuccess(out _, out var errorBuilder))
+            if (!fileResult.IsSuccess(out var entryFile, out var errorBuilder))
             {
                 var diagnostic = errorBuilder(ForDocumentStart());
 
                 throw new ErrorDiagnosticException(diagnostic);
             }
 
-            var sourceFileDependencies = this.ReportFailuresForCycles();
+            if (entryFile is not BicepSourceFile bicepSourceFile)
+            {
+                throw new InvalidOperationException($"Unexpected entry source file {entryFile.FileUri}");
+            }
 
-            return new SourceFileGrouping(
-                fileResolver,
-                entryFileUri,
-                fileResultByUri.ToImmutableDictionary(),
-                providerDescriptorBundleBuilderBySourceFile.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.Build()),
-                uriResultByBicepSourceFileByArtifactReferenceSyntax.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutableDictionary()),
-                uriResultByBicepSourceFileByArtifactReference.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutableDictionary()),
-                sourceFileDependencies.InvertLookup().ToImmutableDictionary());
+            var sourceFileGraph = this.ReportFailuresForCycles();
+
+            return new(
+                bicepSourceFile,
+                fileResultByUri.Values.Select(x => x.TryUnwrap()).WhereNotNull().ToImmutableArray(),
+                sourceFileGraph.InvertLookup().ToImmutableDictionary(),
+                artifactLookup.ToImmutableDictionary(),
+                implicitArtifacts.ToImmutableArray(),
+                fileResultByUri.ToImmutableDictionary());
         }
 
         private ResultWithDiagnostic<ISourceFile> GetFileResolutionResult(Uri fileUri, ArtifactReference? moduleReference)
@@ -137,20 +137,20 @@ namespace Bicep.Core.Workspaces
             return new(sourceFile);
         }
 
-        private ResultWithDiagnostic<ISourceFile> GetFileResolutionResultWithCaching(Uri fileUri, ArtifactReference? moduleReference)
+        private ResultWithDiagnostic<ISourceFile> GetFileResolutionResultWithCaching(Uri fileUri, ArtifactReference? reference)
         {
             if (!fileResultByUri.TryGetValue(fileUri, out var resolutionResult))
             {
-                resolutionResult = GetFileResolutionResult(fileUri, moduleReference);
+                resolutionResult = GetFileResolutionResult(fileUri, reference);
                 fileResultByUri[fileUri] = resolutionResult;
             }
 
             return resolutionResult;
         }
 
-        private ResultWithDiagnostic<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild, IFeatureProviderFactory featuresFactory, IConfigurationManager configurationManager)
+        private ResultWithDiagnostic<ISourceFile> PopulateRecursive(Uri fileUri, ArtifactReference? reference, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild, IFeatureProviderFactory featuresFactory, IConfigurationManager configurationManager)
         {
-            var fileResult = GetFileResolutionResultWithCaching(fileUri, moduleReference);
+            var fileResult = GetFileResolutionResultWithCaching(fileUri, reference);
             if (fileResult.TryUnwrap() is BicepSourceFile bicepSource)
             {
                 PopulateRecursive(bicepSource, featuresFactory, configurationManager, sourceFilesToRebuild);
@@ -161,58 +161,106 @@ namespace Bicep.Core.Workspaces
 
         private void PopulateRecursive(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild)
         {
-            var featureProvider = featureProviderFactory.GetFeatureProvider(file.FileUri);
-            if (featureProvider.ExtensibilityEnabled)
+            var config = configurationManager.GetConfiguration(file.FileUri);
+
+            // process "implicit" providers (providers defined in bicepconfig.json)
+            foreach (var providerName in config.ImplicitProvidersConfig.GetImplicitProviderNames())
             {
-                PopulateProviderDeclarations(file, featureProviderFactory, configurationManager);
+                if (TryGetImplicitProvider(providerName, file, config) is { } implicitProvider)
+                {
+                    implicitArtifacts.Add(implicitProvider);
+                }
             }
 
-            foreach (var restorable in file.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>().Where(x => x is not ProviderDeclarationSyntax))
+            // process all artifact references - modules & providers
+            foreach (var restorable in GetArtifactReferences(file.ProgramSyntax))
             {
-                var (childArtifactReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
-                if (!uriResultByBicepSourceFileByArtifactReferenceSyntax.TryGetValue(file, out var uriResultByArtifactReferenceSyntaxLookup))
+                if (restorable is ProviderDeclarationSyntax providerDeclaration)
                 {
-                    uriResultByArtifactReferenceSyntaxLookup = [];
-                    uriResultByBicepSourceFileByArtifactReferenceSyntax[file] = uriResultByArtifactReferenceSyntaxLookup;
-                }
-                uriResultByArtifactReferenceSyntaxLookup[restorable] = uriResult;
+                    var isBuiltInProvider = providerDeclaration.Specification switch {
+                        LegacyProviderSpecification => true,
+                        ConfigurationManagedProviderSpecification configSpec => config.ProvidersConfig.IsSysOrBuiltIn(configSpec.NamespaceIdentifier),
+                        _ => false,
+                    };
 
-                if (!uriResult.IsSuccess(out var artifactUri))
-                {
+                    if (isBuiltInProvider)
+                    {
+                        // built-in provider - no restoration required
+                        continue;
+                    }
+
+                    artifactLookup[restorable] = GetArtifactRestoreResult(file, restorable);
+
+                    // recursion not needed for provider declarations
                     continue;
                 }
 
+                var resolutionInfo = GetArtifactRestoreResult(file, restorable);
+                artifactLookup[restorable] = resolutionInfo;
+                if (!resolutionInfo.Result.IsSuccess(out var artifactUri))
+                {
+                    // recursion not possible
+                    continue;
+                }
+
+                // recurse into child modules, to ensure we have an exhaustive list of restorable artifacts for the full compilation
                 if (!fileResultByUri.TryGetValue(artifactUri, out var childResult) ||
                     (childResult.IsSuccess(out var childFile) && sourceFilesToRebuild is not null && sourceFilesToRebuild.Contains(childFile)))
                 {
                     // only recurse if we've not seen this file before - to avoid infinite loops
-                    childResult = PopulateRecursive(artifactUri, childArtifactReference, sourceFilesToRebuild, featureProviderFactory, configurationManager);
+                    childResult = PopulateRecursive(artifactUri, resolutionInfo.Reference, sourceFilesToRebuild, featureProviderFactory, configurationManager);
                 }
                 fileResultByUri[artifactUri] = childResult;
             }
         }
 
-        private (ArtifactReference? reference, Result<Uri, UriResolutionError> result) GetArtifactRestoreResult(Uri parentFileUri, IArtifactReferenceSyntax referenceSyntax)
+        private ArtifactResolutionInfo? TryGetImplicitProvider(string providerName, BicepSourceFile file, RootConfiguration config)
         {
-            if (!dispatcher.TryGetArtifactReference(referenceSyntax, parentFileUri).IsSuccess(out var artifactReference, out var referenceResolutionError))
+            if (!config.ProvidersConfig.TryGetProviderSource(providerName).IsSuccess(out var providerEntry, out var errorBuilder))
             {
-                // module reference is not valid
-                return (null, new(new UriResolutionError(referenceResolutionError, RequiresRestore: false)));
+                return new(file, null, null, new(errorBuilder), RequiresRestore: false);
             }
-            return (artifactReference, GetArtifactRestoreResult(artifactReference));
+
+            if (providerEntry.BuiltIn)
+            {
+                return null;
+            }
+
+            if (!OciArtifactReference.TryParse(ArtifactType.Provider, null, providerEntry.Path, config, file.FileUri).IsSuccess(out var artifactReference, out errorBuilder))
+            {
+                // reference is not valid
+                return new(file, null, null, new(errorBuilder), RequiresRestore: false);
+            }
+
+            var (result, requiresRestore) = GetArtifactRestoreResult(artifactReference);
+            return new(file, null, artifactReference, result, RequiresRestore: requiresRestore);
         }
 
-        private Result<Uri, UriResolutionError> GetArtifactRestoreResult(ArtifactReference artifactReference)
+        private ArtifactResolutionInfo GetArtifactRestoreResult(BicepSourceFile sourceFile, IArtifactReferenceSyntax referenceSyntax)
+        {
+            if (!dispatcher.TryGetArtifactReference(referenceSyntax, sourceFile.FileUri).IsSuccess(out var artifactReference, out var errorBuilder))
+            {
+                // artifact reference is not valid
+                return new(sourceFile, referenceSyntax, null, new(errorBuilder), RequiresRestore: false);
+            }
+
+            var (result, requiresRestore) = GetArtifactRestoreResult(artifactReference);
+
+            return new(sourceFile, referenceSyntax, artifactReference, result, RequiresRestore: requiresRestore);
+        }
+
+        private (ResultWithDiagnostic<Uri> result, bool requiresRestore) GetArtifactRestoreResult(ArtifactReference artifactReference)
         {
             if (!dispatcher.TryGetLocalArtifactEntryPointUri(artifactReference).IsSuccess(out var artifactFileUri, out var artifactGetPathFailureBuilder))
             {
-                return new(new UriResolutionError(artifactGetPathFailureBuilder, RequiresRestore: false));
+                // invalid artifact reference - exit early to show the user the diagnostic
+                return (new(artifactGetPathFailureBuilder), requiresRestore: false);
             }
 
             if (forceRestore)
             {
                 //override the status to force restore
-                return new(new UriResolutionError(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference), RequiresRestore: true));
+                return (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true);
             }
 
             var restoreStatus = dispatcher.GetArtifactRestoreStatus(artifactReference, out var restoreErrorBuilder);
@@ -220,15 +268,17 @@ namespace Bicep.Core.Workspaces
             {
                 case ArtifactRestoreStatus.Unknown:
                     // we have not yet attempted to restore the module, so let's do it
-                    return new(new UriResolutionError(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference), RequiresRestore: true));
+                    return (new(x => x.ArtifactRequiresRestore(artifactReference.FullyQualifiedReference)), requiresRestore: true);
                 case ArtifactRestoreStatus.Failed:
                     // the module has not yet been restored or restore failed
                     // in either case, set the error
-                    return new(new UriResolutionError(restoreErrorBuilder ?? (x => x.ArtifactRestoreFailed(artifactReference.FullyQualifiedReference)), RequiresRestore: false));
+                    restoreErrorBuilder ??= new(x => x.ArtifactRestoreFailed(artifactReference.FullyQualifiedReference));
+                    return (new(restoreErrorBuilder), requiresRestore: false);
                 default:
                     break;
             }
-            return new(artifactFileUri);
+
+            return (new(artifactFileUri), requiresRestore: false);
         }
 
         private ILookup<ISourceFile, ISourceFile> ReportFailuresForCycles()
@@ -236,216 +286,45 @@ namespace Bicep.Core.Workspaces
             var sourceFileGraph = this.fileResultByUri.Values
                 .Select(x => x.TryUnwrap())
                 .WhereNotNull()
-                .SelectMany(sourceFile => GetReferenceSourceNodes(sourceFile)
-                    .SelectMany(moduleDeclaration
-                        => this.uriResultByBicepSourceFileByArtifactReferenceSyntax.Values.Select(
-                            f => f.TryGetValue(moduleDeclaration)?.TryUnwrap()))
+                .SelectMany(sourceFile => GetArtifactReferenceDeclarations(sourceFile)
+                    .Select(x => this.artifactLookup.TryGetValue(x)?.Result.TryUnwrap())
                     .WhereNotNull()
-                    .Select(fileUri => this.fileResultByUri[fileUri].TryUnwrap())
+                    .Select(uri => this.fileResultByUri.TryGetValue(uri)?.TryUnwrap())
                     .WhereNotNull()
                     .Distinct()
                     .Select(referencedFile => (sourceFile, referencedFile)))
                 .ToLookup(x => x.sourceFile, x => x.referencedFile);
 
             var cycles = CycleDetector<ISourceFile>.FindCycles(sourceFileGraph);
-            foreach (var (file, uriResultByModuleForFile) in uriResultByBicepSourceFileByArtifactReferenceSyntax)
+            foreach (var (statement, info) in artifactLookup)
             {
-                foreach (var (statement, urlResult) in uriResultByModuleForFile)
+                if (statement.GetArtifactType() == ArtifactType.Module &&
+                    info.Result.IsSuccess(out var fileUri) &&
+                    fileResultByUri[fileUri].IsSuccess(out var sourceFile) &&
+                    cycles.TryGetValue(sourceFile, out var cycle))
                 {
-                    if (statement.GetArtifactType() == ArtifactType.Module &&
-                        urlResult.IsSuccess(out var fileUri) &&
-                        fileResultByUri[fileUri].IsSuccess(out var sourceFile) &&
-                        cycles.TryGetValue(sourceFile, out var cycle))
-                    {
-                        if (cycle.Length == 1)
-                        {
-                            uriResultByModuleForFile[statement] = cycle[0] switch
-                            {
-                                BicepParamFile => new(new UriResolutionError(x => x.CyclicParametersSelfReference(), false)),
-                                _ => new(new UriResolutionError(x => x.CyclicModuleSelfReference(), false)),
-                            };
-                        }
-                        else
-                        {
-                            // the error message is generic so it should work for either bicep module or params
-                            uriResultByModuleForFile[statement] = new(new UriResolutionError(x => x.CyclicFile(cycle.Select(u => u.FileUri.LocalPath)), false));
-                        }
-                    }
+                    ResultWithDiagnostic<Uri> result = cycle switch {
+                        { Length: 1 } when cycle[0] is BicepParamFile paramFile => new(x => x.CyclicParametersSelfReference()),
+                        { Length: 1 } => new(x => x.CyclicModuleSelfReference()),
+                        // the error message is generic so it should work for either bicep module or params
+                        _ => new(x => x.CyclicFile(cycle.Select(u => u.FileUri.LocalPath))),
+                    };
+
+                    // overwrite to add the cycle error
+                    artifactLookup[statement] = info with { Result = result };
                 }
             }
 
             return sourceFileGraph;
         }
 
-        /// <remarks>
-        /// This method only looks at top-level statements. If nested syntax nodes can be foreign template references at any point in the future,
-        /// a SyntaxAggregator will need to be used in place of the <code>sourceFile.ProgramSyntax.Children</code> expressions.
-        /// </remarks>
-        private static IEnumerable<IArtifactReferenceSyntax> GetReferenceSourceNodes(ISourceFile sourceFile) => sourceFile switch
+        private static IEnumerable<IArtifactReferenceSyntax> GetArtifactReferenceDeclarations(ISourceFile sourceFile) => sourceFile switch
         {
-            BicepFile bicepFile => bicepFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>().Where(x => x is not ProviderDeclarationSyntax),
-            BicepParamFile paramsFile => paramsFile.ProgramSyntax.Children.OfType<IArtifactReferenceSyntax>().Where(x => x is not ProviderDeclarationSyntax),
-            _ => Enumerable.Empty<IArtifactReferenceSyntax>(),
+            BicepSourceFile x => GetArtifactReferences(x.ProgramSyntax),
+            _ => [],
         };
 
-        private static IEnumerable<IArtifactReferenceSyntax> GetArtifactReferenceDeclarations(BicepSourceFile sourceFile)
-            => sourceFile.ProgramSyntax.Declarations.OfType<IArtifactReferenceSyntax>();
-
-        private void PopulateProviderDeclarations(BicepSourceFile file, IFeatureProviderFactory featureProviderFactory, IConfigurationManager configurationManager)
-        {
-            var featureProvider = featureProviderFactory.GetFeatureProvider(file.FileUri);
-            var config = configurationManager.GetConfiguration(file.FileUri);
-
-            if (!this.providerDescriptorBundleBuilderBySourceFile.TryGetValue(file, out var providerBundleBuilder))
-            {
-                this.providerDescriptorBundleBuilderBySourceFile[file] = providerBundleBuilder = new ProviderDescriptorBundleBuilder();
-
-            }
-            if (featureProvider.DynamicTypeLoadingEnabled || featureProvider.ProviderRegistryEnabled)
-            {
-                ProcessImplicitProviderDeclarations(file, providerBundleBuilder, config);
-                var descriptor = ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
-                        SystemNamespaceType.BuiltInName,
-                        ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
-                        file.FileUri);
-                providerBundleBuilder.AddImplicitProvider(new(descriptor));
-            }
-
-            foreach (var restorable in file.ProgramSyntax.Children.OfType<ProviderDeclarationSyntax>())
-            {
-                var (childArtifactReference, uriResult) = GetArtifactRestoreResult(file.FileUri, restorable);
-
-                if (!uriResultByBicepSourceFileByArtifactReferenceSyntax.TryGetValue(file, out var uriResultByArtifactReferenceSyntaxLookup))
-                {
-                    uriResultByArtifactReferenceSyntaxLookup = [];
-                    uriResultByBicepSourceFileByArtifactReferenceSyntax[file] = uriResultByArtifactReferenceSyntaxLookup;
-                }
-
-                uriResultByArtifactReferenceSyntaxLookup[restorable] = uriResult;
-                var descriptor = TryGetDescriptorForProviderDeclarationSyntax(restorable, childArtifactReference, uriResult, featureProvider, config, file);
-
-                providerBundleBuilder.AddOrUpdateExplicitProvider(restorable, descriptor);
-            }
-        }
-
-        private ResultWithDiagnostic<ResourceTypesProviderDescriptor> TryGetDescriptorForConfigManagedProvider(string providerName, BicepSourceFile file, RootConfiguration config)
-        {
-            if (!config.ProvidersConfig.TryGetProviderSource(providerName).IsSuccess(out var providerEntry, out var errorBuilder))
-            {
-                return new(errorBuilder);
-            }
-
-            if (providerEntry.BuiltIn)
-            {
-                return new(ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
-                    providerName,
-                    ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
-                    file.FileUri));
-            }
-
-            if (!OciArtifactReference.TryParse(ArtifactType.Provider, null, $"{providerEntry.Source}:{providerEntry.Version}", config, file.FileUri).IsSuccess(out var artifactReference, out errorBuilder))
-            {
-                return new(errorBuilder);
-            }
-
-            if (!uriResultByBicepSourceFileByArtifactReference.TryGetValue(file, out var uriResultByArtifactReferenceLookup))
-            {
-                uriResultByArtifactReferenceLookup = [];
-                uriResultByBicepSourceFileByArtifactReference[file] = uriResultByArtifactReferenceLookup;
-            }
-            uriResultByArtifactReferenceLookup[artifactReference] = GetArtifactRestoreResult(artifactReference);
-
-            if (!dispatcher.TryGetLocalArtifactEntryPointUri(artifactReference).IsSuccess(out var typesTgzUri, out var artifactGetPathFailureBuilder))
-            {
-                return new(artifactGetPathFailureBuilder);
-            }
-
-            if (artifactReference.Tag is null)
-            {
-                return new(x => x.UnrecognizedProvider(providerName));
-            }
-
-            return new(ResourceTypesProviderDescriptor.CreateDynamicallyLoadedProviderDescriptor(
-                artifactReference.Repository.Split('/')[^1],
-                artifactReference.Tag,
-                file.FileUri,
-                artifactReference,
-                typesTgzUri,
-                providerName));
-        }
-
-
-
-        private ResultWithDiagnostic<ResourceTypesProviderDescriptor> TryGetDescriptorForProviderDeclarationSyntax(
-            ProviderDeclarationSyntax providerDeclarationSyntax,
-            ArtifactReference? artifactReference,
-            Result<Uri, UriResolutionError> uriResult,
-            IFeatureProvider featureProvider,
-            RootConfiguration config,
-            BicepSourceFile file)
-        {
-            if (!featureProvider.ExtensibilityEnabled)
-            {
-                return new(x => x.ProvidersAreDisabled());
-            }
-
-            if (providerDeclarationSyntax.Specification is LegacyProviderSpecification { } legacySpecification)
-            {
-                if (!featureProvider.DynamicTypeLoadingEnabled && !featureProvider.ProviderRegistryEnabled)
-                {
-                    return new(ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
-                        legacySpecification.NamespaceIdentifier,
-                        legacySpecification.Version,
-                        file.FileUri,
-                        providerDeclarationSyntax.Alias?.IdentifierName));
-                }
-                return new(x => x.ExpectedProviderSpecification());
-            }
-
-            if (!featureProvider.DynamicTypeLoadingEnabled && !featureProvider.ProviderRegistryEnabled)
-            {
-                return new(x => x.UnrecognizedProvider(providerDeclarationSyntax.Specification.NamespaceIdentifier));
-            }
-
-            if (providerDeclarationSyntax.Specification is InlinedProviderSpecification { } inlinedSpecification)
-            {
-                if (!uriResult.IsSuccess(out var typesTgzUri, out var uriResolutionError))
-                {
-                    return new(uriResolutionError.ErrorBuilder);
-                }
-                return new(ResourceTypesProviderDescriptor.CreateDynamicallyLoadedProviderDescriptor(
-                    inlinedSpecification.NamespaceIdentifier,
-                    inlinedSpecification.Version,
-                    file.FileUri,
-                    artifactReference,
-                    typesTgzUri,
-                    providerDeclarationSyntax.Alias?.IdentifierName));
-            }
-
-            // The provider is configuration managed, fetch the provider source & version from the configuration
-            var configLookupValue = providerDeclarationSyntax.Specification.NamespaceIdentifier;
-
-            // Special case the "sys" provider for backwards compatibility
-            if (configLookupValue == SystemNamespaceType.BuiltInName)
-            {
-                return new(ResourceTypesProviderDescriptor.CreateBuiltInProviderDescriptor(
-                    SystemNamespaceType.BuiltInName,
-                    ResourceTypesProviderDescriptor.LegacyVersionPlaceholder,
-                    file.FileUri));
-            }
-            return TryGetDescriptorForConfigManagedProvider(configLookupValue, file, config);
-        }
-
-        private void ProcessImplicitProviderDeclarations(BicepSourceFile bicepFile, ProviderDescriptorBundleBuilder bundleBuilder, RootConfiguration rootConfig)
-        {
-            foreach (var providerName in rootConfig.ImplicitProvidersConfig.GetImplicitProviderNames())
-            {
-                var descriptor = providerName == SystemNamespaceType.BuiltInName
-                    ? new(x => x.UnrecognizedProvider(providerName))
-                    : TryGetDescriptorForConfigManagedProvider(providerName, bicepFile, rootConfig);
-
-                bundleBuilder.AddImplicitProvider(descriptor);
-            }
-        }
+        private static IEnumerable<IArtifactReferenceSyntax> GetArtifactReferences(ProgramSyntax program)
+            => program.Declarations.OfType<IArtifactReferenceSyntax>();
     }
 }

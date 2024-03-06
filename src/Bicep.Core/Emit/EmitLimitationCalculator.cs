@@ -513,6 +513,13 @@ namespace Bicep.Core.Emit
 
             foreach (var symbol in GetTopologicallySortedSymbols(referencesInValues))
             {
+                if (symbol.Type is ErrorType)
+                {
+                    // no point evaluating if we're already reporting an error
+                    erroredSymbols.Add(symbol);
+                    continue;
+                }
+
                 var referencedValueHasError = false;
                 foreach (var referenced in referencesInValues[symbol])
                 {
@@ -544,13 +551,6 @@ namespace Bicep.Core.Emit
 
                 if (symbol is not ParameterAssignmentSymbol parameter)
                 {
-                    continue;
-                }
-
-                if (parameter.Type is ErrorType)
-                {
-                    // no point evaluating if we're already reporting an error
-                    erroredSymbols.Add(parameter);
                     continue;
                 }
 

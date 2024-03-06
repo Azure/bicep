@@ -7,6 +7,7 @@ using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
@@ -378,7 +379,8 @@ namespace Bicep.LanguageServer
                         }
 
                         // this completes immediately
-                        this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.GetExplicitArtifactsToRestore().OfType<ArtifactResolutionInfo>());
+                        var artifactsToRestore = ArtifactHelper.GetValidArtifactReferences(context.Compilation.SourceFileGrouping.GetArtifactsToRestore());
+                        this.scheduler.RequestModuleRestore(this, documentUri, artifactsToRestore);
 
                         var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;
                         var output = workspace.UpsertSourceFiles(sourceFiles);

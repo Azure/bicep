@@ -39,14 +39,13 @@ namespace Bicep.LanguageServer.Registry
         /// Does not wait for the operation to complete and returns immediately.
         /// </summary>
         /// <param name="compilationManager"></param>
-        /// <param name="modules">The module references</param>
+        /// <param name="artifacts">The artifacts</param>
         /// <param name="documentUri">The document URI that needs to be recompiled once restore completes asynchronously</param>
-        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ArtifactResolutionInfo> modules)
+        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ArtifactReference> artifacts)
         {
             this.CheckDisposed();
 
-            var moduleReferences = this.moduleDispatcher.GetValidArtifactReferences(modules).ToImmutableArray();
-            var item = new QueueItem(compilationManager, documentUri, moduleReferences);
+            var item = new QueueItem(compilationManager, documentUri, artifacts.ToImmutableArray());
             lock (this.queue)
             {
                 this.queue.Enqueue(item);

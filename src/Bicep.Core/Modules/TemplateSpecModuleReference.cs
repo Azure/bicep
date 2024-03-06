@@ -20,7 +20,7 @@ namespace Bicep.Core.Modules
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private TemplateSpecModuleReference(string subscriptionId, string resourceGroupName, string templateSpecName, string version, Uri parentModuleUri)
-            : base(ModuleReferenceSchemes.TemplateSpecs, parentModuleUri)
+            : base(ArtifactReferenceSchemes.TemplateSpecs, parentModuleUri)
         {
             this.SubscriptionId = subscriptionId;
             this.ResourceGroupName = resourceGroupName;
@@ -126,7 +126,7 @@ namespace Bicep.Core.Modules
 
             return new(new TemplateSpecModuleReference(subscriptionId, resourceGroupName, templateSpecName, version, parentModuleUri));
         }
-        private static string FullyQualify(string referenceValue) => $"{ModuleReferenceSchemes.TemplateSpecs}:{referenceValue}";
+        private static string FullyQualify(string referenceValue) => $"{ArtifactReferenceSchemes.TemplateSpecs}:{referenceValue}";
 
         private static string GetBoundVariable(UriTemplateMatch match, string variableName) =>
             match.BoundVariables[variableName] ?? throw new InvalidOperationException($"Could not get bound variable \"{variableName}\".");

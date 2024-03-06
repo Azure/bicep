@@ -62,7 +62,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             var fileUri = documentUri.ToUriEncoded();
 
-            SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(
                 this.fileResolver,
                 this.moduleDispatcher,
                 this.configurationManager,
@@ -71,17 +71,10 @@ namespace Bicep.LanguageServer.Handlers
                 featureProviderFactory);
 
             // Ignore modules to restore logic, include all modules to be restored
-            var artifactsToRestore = sourceFileGrouping.GetExplicitArtifactsToRestore(force: true);
-
-            var artifactUris = sourceFileGrouping
-                .FileUriResultByBicepSourceFileByArtifactReferenceSyntax.SelectMany(x => x.Value)
-                .Select(x => x.Value.TryUnwrap())
-                .WhereNotNull()
-                .Distinct();
+            var artifactsToRestore = sourceFileGrouping.GetArtifactsToRestore(force: true);
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in outputs and logging
-            var artifactReferencesToRestore = this.moduleDispatcher.GetValidArtifactReferences(artifactsToRestore)
-                .Distinct()
+            var artifactReferencesToRestore = ArtifactHelper.GetValidArtifactReferences(artifactsToRestore)
                 .OrderBy(key => key.FullyQualifiedReference)
                 .ToArray();
 
@@ -102,6 +95,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // refresh all compilations with a reference to this file or cached artifacts
+            var artifactUris = artifactsToRestore.Select(x => x.Result.TryUnwrap()).WhereNotNull();
             compilationManager.RefreshChangedFiles(artifactUris.Concat(documentUri.ToUriEncoded()));
             return $"Restore (force) summary: {sbRestoreSummary}";
         }

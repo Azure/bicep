@@ -338,10 +338,7 @@ namespace Bicep.Core.IntegrationTests
             // }
             services = services.WithConfigurationPatch(c => c.WithProvidersConfiguration($$"""
             {
-                "az": {
-                    "source": "{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/providers/az",
-                    "version": "{{BicepTestConstants.BuiltinAzProviderVersion}}"
-                }
+                "az": "br:{{LanguageConstants.BicepPublicMcrRegistry}}/bicep/providers/az:{{BicepTestConstants.BuiltinAzProviderVersion}}"
             }
             """));
             var result = await CompilationHelper.RestoreAndCompile(services, ("main.bicep", @$"
@@ -358,9 +355,7 @@ namespace Bicep.Core.IntegrationTests
             // Built-In Config contains the following entries:
             // {
             //   "providers": {
-            //     "az": {
-            //       "builtIn": true
-            //     }
+            //     "az": "builtin:"
             //   },
             //   "implicitProviders": ["az"]
             // }
@@ -384,10 +379,7 @@ namespace Bicep.Core.IntegrationTests
                 ThirdPartyTypeHelper.GetTypesTgzBytesFromFiles(("index.json", """{"resources": {}, "resourceFunctions": {}}""")));
             services = services.WithConfigurationPatch(c => c.WithProvidersConfiguration($$"""
             {
-                "az": {
-                    "source": "{{artifactRegistryAddress.RegistryAddress}}/{{artifactRegistryAddress.RepositoryPath}}",
-                    "version": "{{artifactRegistryAddress.ProviderVersion}}"
-                }
+                "az": "{{artifactRegistryAddress.ToSpecificationString(':')}}"
             }
             """));
             //ACT
