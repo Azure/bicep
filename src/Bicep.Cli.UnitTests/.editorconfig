@@ -1,5 +1,0 @@
-#### .NET Coding Conventions ####
-[*.{cs,csx,cake,vb}]
-
-# Possible multiple enumerations of IEnumerable collection
-dotnet_diagnostic.CA1851.severity = suggestion

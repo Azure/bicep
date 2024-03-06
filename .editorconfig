@@ -243,6 +243,9 @@ dotnet_diagnostic.VSTHRD200.severity = none
 # Possible multiple enumerations of IEnumerable collection
 dotnet_diagnostic.CA1851.severity = warning
 
+# Override code quality rules for test projects
+[{src/Bicep.Core.Samples/*.cs,src/*Test*/*.cs}]
+dotnet_diagnostic.CA1851.severity = suggestion
 
 [*.{ts,tsx,js}]
 indent_style = space

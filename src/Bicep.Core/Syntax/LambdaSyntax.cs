@@ -26,12 +26,12 @@ namespace Bicep.Core.Syntax
 
         public SyntaxBase Body { get; }
 
-        public IEnumerable<LocalVariableSyntax> GetLocalVariables()
+        public ImmutableArray<LocalVariableSyntax> GetLocalVariables()
             => VariableSection switch
             {
-                LocalVariableSyntax var => var.AsEnumerable(),
+                LocalVariableSyntax var => [var],
                 VariableBlockSyntax vars => vars.Arguments,
-                _ => Enumerable.Empty<LocalVariableSyntax>(),
+                _ => [],
             };
 
         public override TextSpan Span => TextSpan.Between(this.VariableSection, this.Body);
