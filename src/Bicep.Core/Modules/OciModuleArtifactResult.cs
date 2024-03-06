@@ -15,19 +15,19 @@ namespace Bicep.Core.Modules
             base(manifestBits, manifestDigest, layers)
         {
             var manifest = this.Manifest;
-            if (manifest.ArtifactType is not null && !manifest.ArtifactType.Equals(BicepModuleMediaTypes.BicepModuleArtifactType, MediaTypeComparison))
+            if (manifest.ArtifactType is not null && !manifest.ArtifactType.Equals(BicepMediaTypes.BicepModuleArtifactType, MediaTypeComparison))
             {
                 throw new InvalidArtifactException(
-                   $"Expected OCI manifest artifactType value of '{BicepModuleMediaTypes.BicepModuleArtifactType}' but found '{manifest.ArtifactType}'. {NewerVersionMightBeRequired}",
+                   $"Expected OCI manifest artifactType value of '{BicepMediaTypes.BicepModuleArtifactType}' but found '{manifest.ArtifactType}'. {NewerVersionMightBeRequired}",
                    InvalidArtifactExceptionKind.WrongArtifactType);
             }
-            if (manifest.Config.MediaType is not null && !manifest.Config.MediaType.Equals(BicepModuleMediaTypes.BicepModuleConfigV1, MediaTypeComparison))
+            if (manifest.Config.MediaType is not null && !manifest.Config.MediaType.Equals(BicepMediaTypes.BicepModuleConfigV1, MediaTypeComparison))
             {
                 throw new InvalidArtifactException($"Did not expect config media type \"{manifest.Config.MediaType}\". {NewerVersionMightBeRequired}");
             }
 
             // Ignore layers we don't recognize for now.
-            var expectedLayerMediaType = BicepModuleMediaTypes.BicepModuleLayerV1Json;
+            var expectedLayerMediaType = BicepMediaTypes.BicepModuleLayerV1Json;
             var mainLayers = this.Layers.Where(l => l.MediaType.Equals(expectedLayerMediaType, MediaTypeComparison)).ToArray();
 
             this.mainLayer = mainLayers.Length switch

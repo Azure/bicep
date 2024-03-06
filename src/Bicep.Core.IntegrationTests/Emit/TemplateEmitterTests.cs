@@ -124,7 +124,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             emitResult.Status.Should().Be(EmitStatus.Succeeded);
             emitResult.SourceMap.Should().NotBeNull();
 
-            // Here we simplfy verify that the format of the baseline file looks correct.
+            // Here we simply verify that the format of the baseline file looks correct.
             var sourceMapJson = JToken.FromObject(emitResult.SourceMap!);
             sourceMapFile.WriteToOutputFolder(sourceMapJson.ToString());
             sourceMapFile.ShouldHaveExpectedJsonValue();
