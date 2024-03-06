@@ -377,7 +377,6 @@ namespace Bicep.Core.Registry
                     //  (https://github.com/Azure/bicep/issues/11900)
                     this.FileResolver.Write(this.GetArtifactFileUri(reference, ArtifactFileType.Source), sourceData.ToStream());
                 }
-
             }
 
             // write metadata

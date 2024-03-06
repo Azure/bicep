@@ -219,7 +219,7 @@ namespace Bicep.Cli.IntegrationTests
         [DataTestMethod]
         [DataRow(true)]
         [DataRow(false)]
-        public async Task Format_WithInsertFinalNewlineOverride_SetsFinalNewlineAccordlingly(bool insertFinalNewline)
+        public async Task Format_WithInsertFinalNewlineOverride_SetsFinalNewlineAccordingly(bool insertFinalNewline)
         {
             var fileContentWithoutFinalNewline = """
                 var obj = {
