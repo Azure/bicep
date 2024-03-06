@@ -407,7 +407,7 @@ namespace Bicep.Core.Syntax
         public static Token CreateNewLineWithIndent(string indent) => GetNewlineToken(
             trailingTrivia: new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, indent).AsEnumerable());
 
-        public static LambdaSyntax CreateLambdaSyntax(IList<string> parameterNames, SyntaxBase functionExpression)
+        public static LambdaSyntax CreateLambdaSyntax(IReadOnlyList<string> parameterNames, SyntaxBase functionExpression)
         {
             SyntaxBase variableBlock = parameterNames.Count switch
             {
