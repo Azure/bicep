@@ -495,8 +495,7 @@ namespace Bicep.LanguageServer
                     {
                         errorsCount++;
                     }
-
-                    if (diagnostic.Severity == DiagnosticSeverity.Warning)
+                    else if (diagnostic.Severity == DiagnosticSeverity.Warning)
                     {
                         warningsCount++;
                     }
