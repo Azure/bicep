@@ -245,11 +245,11 @@ namespace Bicep.Core.Registry
         {
             // This needs to be valid JSON, otherwise there may be compatibility issues.
             // NOTE: Bicep v0.20 and earlier will throw on this, so it's a breaking change.
-            var config = new Oci.OciDescriptor("{}", BicepModuleMediaTypes.BicepModuleConfigV1);
+            var config = new Oci.OciDescriptor("{}", BicepMediaTypes.BicepModuleConfigV1);
 
             List<Oci.OciDescriptor> layers = new()
             {
-                new(compiledArmTemplate, BicepModuleMediaTypes.BicepModuleLayerV1Json, new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
+                new(compiledArmTemplate, BicepMediaTypes.BicepModuleLayerV1Json, new OciManifestAnnotationsBuilder().WithTitle("Compiled ARM template").Build())
             };
 
             if (bicepSources is { } && features.PublishSourceEnabled)
@@ -257,7 +257,7 @@ namespace Bicep.Core.Registry
                 layers.Add(
                     new(
                         bicepSources,
-                        BicepModuleMediaTypes.BicepSourceV1Layer,
+                        BicepMediaTypes.BicepSourceV1Layer,
                         new OciManifestAnnotationsBuilder().WithTitle("Source files").Build()));
             }
 
@@ -273,7 +273,7 @@ namespace Bicep.Core.Registry
                     reference,
                     // Technically null should be fine for mediaType, but ACR guys recommend OciImageManifest for safer compatibility
                     ManifestMediaType.OciImageManifest.ToString(),
-                    BicepModuleMediaTypes.BicepModuleArtifactType,
+                    BicepMediaTypes.BicepModuleArtifactType,
                     config,
                     layers,
                     annotations);
@@ -366,7 +366,7 @@ namespace Bicep.Core.Registry
             if (result is OciModuleArtifactResult moduleArtifact)
             {
                 // write source archive file
-                if (result.TryGetSingleLayerByMediaType(BicepModuleMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
+                if (result.TryGetSingleLayerByMediaType(BicepMediaTypes.BicepSourceV1Layer) is BinaryData sourceData)
                 {
                     // CONSIDER: Write all layers as separate binary files instead of separate files for source.tgz and provider files.
                     // We should do this rather than writing individual files we know about,
@@ -377,7 +377,6 @@ namespace Bicep.Core.Registry
                     //  (https://github.com/Azure/bicep/issues/11900)
                     this.FileResolver.Write(this.GetArtifactFileUri(reference, ArtifactFileType.Source), sourceData.ToStream());
                 }
-
             }
 
             // write metadata

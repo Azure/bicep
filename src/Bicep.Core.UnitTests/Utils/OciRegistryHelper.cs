@@ -120,7 +120,7 @@ namespace Bicep.Core.UnitTests.Utils
                 artifactReference: moduleReference,
                 mediaType: mediaType,
                 artifactType: artifactType,
-                config: new OciDescriptor(configContents ?? string.Empty, BicepModuleMediaTypes.BicepModuleConfigV1),
+                config: new OciDescriptor(configContents ?? string.Empty, BicepMediaTypes.BicepModuleConfigV1),
                 layers: layers.Select(layer => new OciDescriptor(layer.contents, layer.mediaType)),
                 new OciManifestAnnotationsBuilder()
             );

@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Registry
 
         public IDictionary<string, OciManifest> ModuleManifestObjects =>
             ManifestObjects
-            .Where(kvp => kvp.Value.ArtifactType == BicepModuleMediaTypes.BicepModuleArtifactType)
+            .Where(kvp => kvp.Value.ArtifactType == BicepMediaTypes.BicepModuleArtifactType)
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
         public override async Task<Response<DownloadRegistryBlobResult>> DownloadBlobContentAsync(string digest, CancellationToken cancellationToken = default)
