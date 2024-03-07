@@ -51,9 +51,9 @@
       },
       "Microsoft.Test.Apex.VisualStudio": {
         "type": "Direct",
-        "requested": "[17.9.34607.119, )",
-        "resolved": "17.9.34607.119",
-        "contentHash": "ELHLHoy2KUe79eLFHV3yNbHNDiBxr13E+1uDtBHwwDjqVc/RE2yTxuhwM6ZA+xcIeSCjABav/r9B9hiOfycgLA==",
+        "requested": "[17.9.34701.34, )",
+        "resolved": "17.9.34701.34",
+        "contentHash": "jUpqt3cjbXlcmyDUH4cuS+ZR6p3AHV5Uvoo5YQ27wmkjOmH827gfUVV+hJaaNOt6Kgo13asTzKfFHPwfefQoLQ==",
         "dependencies": {
           "MSTest.TestAdapter": "3.0.3",
           "MSTest.TestFramework": "3.0.3"
@@ -1093,7 +1093,7 @@
         "dependencies": {
           "Bicep.VSLanguageServerClient": "[1.0.0, )",
           "Microsoft.NET.Test.Sdk": "[17.9.0, )",
-          "Microsoft.Test.Apex.VisualStudio": "[17.6.33619.290, )",
+          "Microsoft.Test.Apex.VisualStudio": "[17.9.34701.34, )",
           "Microsoft.VisualStudio.Composition": "[17.7.40, )",
           "Microsoft.VisualStudio.Editor": "[17.2.3194, )",
           "Microsoft.VisualStudio.Shell.Framework": "[17.2.32505.113, )",

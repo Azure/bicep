@@ -41,12 +41,12 @@
       },
       "Microsoft.Test.Apex.VisualStudio": {
         "type": "Direct",
-        "requested": "[17.6.33619.290, )",
-        "resolved": "17.6.33619.290",
-        "contentHash": "R6hqRMiRxYoeiVN6Xk3szO9Pr7dKnCgb4tsNvL4Ki0NaFhcyCpH1qXLewTrzX4McrBW/f9BWhymhYYz49/aB7g==",
+        "requested": "[17.9.34701.34, )",
+        "resolved": "17.9.34701.34",
+        "contentHash": "jUpqt3cjbXlcmyDUH4cuS+ZR6p3AHV5Uvoo5YQ27wmkjOmH827gfUVV+hJaaNOt6Kgo13asTzKfFHPwfefQoLQ==",
         "dependencies": {
-          "MSTest.TestAdapter": "1.2.0",
-          "MSTest.TestFramework": "1.2.0"
+          "MSTest.TestAdapter": "3.0.3",
+          "MSTest.TestFramework": "3.0.3"
         }
       },
       "Microsoft.VisualStudio.Composition": {
@@ -642,13 +642,13 @@
       },
       "MSTest.TestAdapter": {
         "type": "Transitive",
-        "resolved": "1.2.0",
-        "contentHash": "n0xgVkGNisHCHJNTfDBQBWsp3pdFMEkvex3ah7ybAa4NEIXc+rp1Kpa4tsScTNZKH0uzpR6BZ14sJvtwPm4VgQ=="
+        "resolved": "3.0.3",
+        "contentHash": "k2LRhIKbgc0HQQvTYZVsBby3I1V9q4h+xbXP3A0yQuB1jEeMze/JnJb3UCyUUElSx1CAfmyMazuTfbYaZwqZGw=="
       },
       "MSTest.TestFramework": {
         "type": "Transitive",
-        "resolved": "1.2.0",
-        "contentHash": "8MLtlVC0UrqrMeE7V4VmSEFiApgvtUHLizJv0W1DTCOrxyY4YPhlbcClUkLtw4I5sD5P/YWP2S+rL3/MW2pM3Q=="
+        "resolved": "3.0.3",
+        "contentHash": "7EN6HmpSuNBnk3UP/FHvg3VeL13Gwc/D5vtZ+SFIkzDO99avVm8oYqbe19JCht4wy9cY13dpNA4gssCE8hp08Q=="
       },
       "Nerdbank.Streams": {
         "type": "Transitive",
