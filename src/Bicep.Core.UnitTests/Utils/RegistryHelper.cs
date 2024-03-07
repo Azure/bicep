@@ -3,10 +3,13 @@
 
 using System.Collections.Immutable;
 using System.IO.Abstractions;
+using System.Linq;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Providers;
 using Bicep.Core.SourceCode;
+using Bicep.Core.UnitTests.Extensions;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Registry;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +38,8 @@ public static class RegistryHelper
         return containerRegistryFactoryBuilder.Build();
     }
 
-    public static async Task PublishModuleToRegistry(IContainerRegistryClientFactory clientFactory, string moduleName, string target, string moduleSource, bool publishSource, string? documentationUri = null)
+    // Example target: br:mockregistry.io/test/module1:v1
+    public static async Task PublishModuleToRegistryAsync(IContainerRegistryClientFactory clientFactory, string moduleName, string target, string moduleSource, bool publishSource, string? documentationUri = null)
     {
         var featureProviderFactory = BicepTestConstants.CreateFeatureProviderFactory(new FeatureProviderOverrides(PublishSourceEnabled: publishSource));
         var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
@@ -56,6 +60,55 @@ public static class RegistryHelper
         var features = featureProviderFactory.GetFeatureProvider(result.BicepFile.FileUri);
         BinaryData? sourcesStream = publishSource ? BinaryData.FromStream(SourceArchive.PackSourcesIntoStream(dispatcher, result.Compilation.SourceFileGrouping, features.CacheRootDirectory)) : null;
         await dispatcher.PublishModule(targetReference, BinaryData.FromString(result.Template.ToString()), sourcesStream, documentationUri);
+    }
+
+    // Example target: br:mockregistry.io/test/module1:v1
+    // Module name is automatically extracted from target (in this case, "module1")
+    public static async Task PublishModuleToRegistryAsync(IContainerRegistryClientFactory clientFactory, string target, string source, bool withSource)
+    {
+        await PublishModuleToRegistryAsync(
+              clientFactory,
+              target.Substring(target.LastIndexOf('/')),
+              target,
+              source,
+              publishSource: withSource);
+    }
+
+    // Creates a new registry client factory and publishes the specified modules to the registry.
+    // Example usage:
+    // var clientFactory = await PublishModules([                
+    //    ("br:mockregistry.io/test/module1:v1", "param p1 bool", withSource: true),
+    //    ("br:mockregistry.io/test/module2:v1", "param p2 string", withSource: true),
+    //    ("br:mockregistry.io/test/module1:v2", "param p12 string", withSource: false),
+    // ]);
+    public static async Task<IContainerRegistryClientFactory> PublishMultipleModulesToRegistryAsync(params (string target, string source, bool withSource)[] modules)
+    {
+        var repos = new List<(string registry, string repo)>();
+
+        foreach (var module in modules)
+        {
+            var (registry, repo) = module.target.ExtractRegexGroups(
+                "^br:(?<registry>.+?)/(?<repo>.+?)[:@](?<tag>.+?)$",
+                [ "registry", "repo" ]);
+
+            if (!repos.Contains((registry, repo)))
+            {
+                repos.Add((registry, repo));
+            }
+        }
+
+        var clientFactory = CreateMockRegistryClients(repos.ToArray()).factoryMock;
+
+        foreach (var module in modules)
+        {
+            await PublishModuleToRegistryAsync(
+                  clientFactory,
+                  module.target,
+                  module.source,
+                  module.withSource);
+        }
+
+        return clientFactory;
     }
 
     public static async Task PublishProviderToRegistryAsync(IDependencyHelper services, string pathToIndexJson, string target)

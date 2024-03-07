@@ -122,7 +122,7 @@ namespace Bicep.Core.Samples
         {
             foreach (var (moduleName, publishInfo) in registryModules)
             {
-                await RegistryHelper.PublishModuleToRegistry(clientFactory, moduleName, publishInfo.Metadata.Target, publishInfo.ModuleSource, publishSource, null);
+                await RegistryHelper.PublishModuleToRegistryAsync(clientFactory, moduleName, publishInfo.Metadata.Target, publishInfo.ModuleSource, publishSource, null);
             }
         }
 

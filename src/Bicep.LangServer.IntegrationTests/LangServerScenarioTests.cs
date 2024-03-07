@@ -66,7 +66,7 @@ param foo: string
 
         var clientFactory = RegistryHelper.CreateMockRegistryClient("mockregistry.io", "test/foo");
         async Task publish(string source)
-            => await RegistryHelper.PublishModuleToRegistry(
+            => await RegistryHelper.PublishModuleToRegistryAsync(
                 clientFactory,
                 "modulename",
                 "br:mockregistry.io/test/foo:1.1",

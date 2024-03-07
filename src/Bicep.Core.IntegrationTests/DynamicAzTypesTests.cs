@@ -171,7 +171,7 @@ namespace Bicep.Core.IntegrationTests
                 .WithFeatureOverrides(new(ExtensibilityEnabled: true, DynamicTypeLoadingEnabled: true))
                 .WithContainerRegistryClientFactory(clientFactory);
 
-            await RegistryHelper.PublishModuleToRegistry(
+            await RegistryHelper.PublishModuleToRegistryAsync(
                 clientFactory,
                 moduleName: "az",
                 target: testArtifact.ToSpecificationString(':'),
