@@ -1,4 +1,4 @@
-provider 'microsoftGraph@1.0.0'
+provider microsoftGraph
 
 resource resourceApp 'Microsoft.Graph/applications@beta' existing = {
   uniqueName: 'resourceApp'

@@ -1766,9 +1766,9 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
 
             var fileWithCursors = @"
             |
-            provider 'ns1@1.0.0' |
-            provider 'ns2@1.0.0' a|
-            provider 'ns3@1.0.0' as|
+            provider ns1 |
+            provider ns2 a|
+            provider ns3 as|
             provider |
             provider a|
             ";
@@ -1778,8 +1778,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().Equal($"'az@{BicepTestConstants.BuiltinAzProviderVersion}'", "'kubernetes@1.0.0'", "'sys@1.0.0'"),
-                    c => c!.Select(x => x.Label).Should().BeEmpty()
+                    c => c!.Select(x => x.Label).Should().Equal($"az", "kubernetes", "sys"),
+                    c => c!.Select(x => x.Label).Should().Equal($"az", "kubernetes", "sys")
                 ),
                 '|');
 
@@ -1800,7 +1800,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             {
                 var fileWithCursors = @"
-provider 'kubernetes@1.0.0' with | as k8s
+provider kubernetes with | as k8s
 ";
 
                 var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
@@ -1812,7 +1812,7 @@ provider 'kubernetes@1.0.0' with | as k8s
 
                 var updatedFile = file.ApplyCompletion(completions, "required-properties");
                 updatedFile.Should().HaveSourceText(@"
-provider 'kubernetes@1.0.0' with {
+provider kubernetes with {
   kubeConfig: $1
   namespace: $2
 }| as k8s
@@ -1821,7 +1821,7 @@ provider 'kubernetes@1.0.0' with {
 
             {
                 var fileWithCursors = @"
-provider 'kubernetes@1.0.0' with {
+provider kubernetes with {
   |
 }
 ";
@@ -1835,7 +1835,7 @@ provider 'kubernetes@1.0.0' with {
 
                 var updatedFile = file.ApplyCompletion(completions, "kubeConfig");
                 updatedFile.Should().HaveSourceText(@"
-provider 'kubernetes@1.0.0' with {
+provider kubernetes with {
   kubeConfig:|
 }
 ");
