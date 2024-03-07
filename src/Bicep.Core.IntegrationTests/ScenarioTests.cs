@@ -5683,7 +5683,7 @@ param foo2 string[]
                 .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true))
                 .WithConfigurationPatch(x => x.WithAnalyzers(x.Analyzers.SetValue("core.rules.use-recent-api-versions.level", "error"))),
             ("main.bicep", """
-                provider 'kubernetes@1.0.0' with {
+                provider kubernetes with {
                   kubeConfig: 'config'
                   namespace: ''
                 } as k8s
@@ -5721,7 +5721,7 @@ param foo2 string[]
                 }
                 """));
 
-        result.ExcludingLinterDiagnostics().ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
+        result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
     }
 
     // https://github.com/Azure/bicep/issues/13250

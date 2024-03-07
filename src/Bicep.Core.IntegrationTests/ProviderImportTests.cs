@@ -72,13 +72,13 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
-        public async Task Imports_are_disabled_unless_feature_is_enabled()
+        public async Task Providers_are_disabled_unless_feature_is_enabled()
         {
             var services = new ServiceBuilder();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider 'az@1.0.0'
+            provider az
             """);
-            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using provider statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
                 // BCP084 is raised because BCP203 prevented the compiler from binding a namespace to the `az` symbol (an ErrorType was bound instead).
                 ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\"."),
@@ -106,9 +106,9 @@ provider
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider 'sys@1.0.0' blahblah
+            provider sys blahblah
             """);
-            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
             });
         }
@@ -118,9 +118,9 @@ provider
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider 'kubernetes@1.0.0' with
+            provider kubernetes with
             """);
-            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
             });
         }
@@ -130,12 +130,12 @@ provider
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider 'kubernetes@1.0.0' with {
+            provider kubernetes with {
                 kubeConfig: 'foo'
                 namespace: 'bar'
             } something
             """);
-            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
             });
         }
@@ -145,12 +145,12 @@ provider
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider 'kubernetes@1.0.0' with {
+            provider kubernetes with {
                 kubeConfig: 'foo'
                 namespace: 'bar'
             } as
             """);
-            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
         }
@@ -160,9 +160,9 @@ provider
         {
             var services = await GetServices();
             var result = await CompilationHelper.RestoreAndCompile(services, """
-            provider 'sys@1.0.0' as
+            provider sys as
             """);
-            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected a provider alias name at this location."),
             });
         }
@@ -173,18 +173,17 @@ provider
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
             import 'az@1.0.0' as foo
             """);
-            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP381", DiagnosticLevel.Warning, "Declaring provider namespaces with the \"import\" keyword has been deprecated. Please use the \"provider\" keyword instead."),
+                ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
             });
         }
 
-        [DataRow("az")]
-        [DataRow("sys")]
         [TestMethod]
-        public async Task Using_legacy_import_syntax_raises_warning_for_az_provider(string providerName)
+        public async Task Using_legacy_import_syntax_raises_warning_for_az_provider()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), $"""
-            provider '{providerName}@1.0.0' as {providerName}
+            provider 'az@1.0.0' as az
             """);
 
             result.Should().HaveDiagnostics(new[] {
@@ -196,11 +195,11 @@ provider
         public async Task Import_configuration_is_blocked_by_default()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider 'az@1.0.0' with {
+            provider az with {
               foo: 'bar'
             }
             """);
-            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP205", DiagnosticLevel.Error, "Provider namespace \"az\" does not support configuration."),
             });
         }
@@ -220,7 +219,7 @@ provider 'madeUpNamespace@1.0.0'
         public async Task Using_import_statements_frees_up_the_namespace_symbol()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider 'az@1.0.0' as newAz
+            provider az as newAz
 
             var az = 'Fake AZ!'
             var myRg = newAz.resourceGroup()
@@ -229,15 +228,15 @@ provider 'madeUpNamespace@1.0.0'
             output rgLocation string = myRg.location
             """);
 
-            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
+            result.Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public async Task You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider 'az@1.0.0' as sys
-            provider 'sys@1.0.0' as az
+            provider az as sys
+            provider sys as az
 
             var myRg = sys.resourceGroup()
 
@@ -246,7 +245,7 @@ provider 'madeUpNamespace@1.0.0'
             """);
 
             result.Should().GenerateATemplate();
-            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
+            result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs.rgLocation.metadata.description", "why on earth would you do this?");
         }
 
@@ -254,7 +253,7 @@ provider 'madeUpNamespace@1.0.0'
         public async Task Overwriting_single_built_in_namespace_with_import_is_prohibited()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider 'az@1.0.0' as sys
+            provider az as sys
 
             var myRg = sys.resourceGroup()
 
@@ -268,14 +267,14 @@ provider 'madeUpNamespace@1.0.0'
         public async Task Singleton_imports_cannot_be_used_multiple_times()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider 'az@1.0.0' as az1
-            provider 'az@1.0.0' as az2
+            provider az as az1
+            provider az as az2
 
-            provider 'sys@1.0.0' as sys1
-            provider 'sys@1.0.0' as sys2
+            provider sys as sys1
+            provider sys as sys2
             """);
 
-            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is declared multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is declared multiple times. Remove the duplicates."),
@@ -287,14 +286,14 @@ provider 'madeUpNamespace@1.0.0'
         public async Task Import_names_must_not_conflict_with_other_symbols()
         {
             var result = await CompilationHelper.RestoreAndCompile(await GetServices(), """
-            provider 'az@1.0.0'
-            provider 'kubernetes@1.0.0' with {
+            provider az
+            provider kubernetes with {
             kubeConfig: ''
             namespace: ''
             } as az
             """);
 
-            result.ExcludingDiagnostics("BCP395").Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
             });
@@ -409,7 +408,7 @@ provider 'madeUpNamespace@1.0.0'
         [TestMethod]
         public async Task MicrosoftGraph_imports_succeed_with_preview_feature_enabled()
         {
-            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"provider 'microsoftGraph@1.0.0' as graph");
+            var result = await CompilationHelper.RestoreAndCompile(await GetServices(), @"provider microsoftGraph as graph");
 
             result.Should().HaveDiagnostics(new[] {
                 ("BCP204", DiagnosticLevel.Error, "Provider namespace \"microsoftGraph\" is not recognized."),
@@ -418,9 +417,9 @@ provider 'madeUpNamespace@1.0.0'
             var serviceWithPreview = new ServiceBuilder()
                 .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: true));
 
-            result = await CompilationHelper.RestoreAndCompile(serviceWithPreview, @"provider 'microsoftGraph@1.0.0' as graph");
+            result = await CompilationHelper.RestoreAndCompile(serviceWithPreview, @"provider microsoftGraph as graph");
 
-            result.ExcludingDiagnostics("BCP395").Should().NotHaveAnyDiagnostics();
+            result.Should().NotHaveAnyDiagnostics();
         }
     }
 }

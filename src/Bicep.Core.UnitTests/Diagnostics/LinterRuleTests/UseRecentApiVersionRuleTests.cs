@@ -1891,7 +1891,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             public void LinterIgnoresNotAzureResources()
             {
                 CompileAndTestWithFakeDateAndTypes(@"
-                        provider 'kubernetes@1.0.0' with {
+                        provider kubernetes with {
                           namespace: 'default'
                           kubeConfig: ''
                         }

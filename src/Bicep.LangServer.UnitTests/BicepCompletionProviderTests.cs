@@ -410,16 +410,15 @@ output length int =
         [TestMethod]
         public async Task CompletionsShouldContainMicrosoftGraphWhenPreviewFeatureEnabled()
         {
-            var codeFragment = @"provider 'microsoftGraph@1.0.0' as graph";
+            var (contents, cursor) = ParserHelper.GetFileWithSingleCursor("provider m| as graph");
+
             var completionProvider = CreateProvider();
-            var offset = 9;
             var featureOverrides = new FeatureProviderOverrides(ExtensibilityEnabled: true, MicrosoftGraphPreviewEnabled: true);
             var serviceWithGraph = new ServiceBuilder().WithFeatureOverrides(featureOverrides);
 
-            var compilationWithMSGraph = serviceWithGraph.BuildCompilation(codeFragment);
-            compilationWithMSGraph.GetEntrypointSemanticModel().GetAllDiagnostics().Where(d => !d.Code.Equals("BCP395")).Should().BeEmpty();
+            var compilationWithMSGraph = serviceWithGraph.BuildCompilation(contents);
             var features = new OverriddenFeatureProvider(new FeatureProvider(BicepTestConstants.BuiltInConfiguration), featureOverrides);
-            var completionsWithMSGraph = await completionProvider.GetFilteredCompletions(compilationWithMSGraph, BicepCompletionContext.Create(features, compilationWithMSGraph, offset), CancellationToken.None);
+            var completionsWithMSGraph = await completionProvider.GetFilteredCompletions(compilationWithMSGraph, BicepCompletionContext.Create(features, compilationWithMSGraph, cursor), CancellationToken.None);
 
             completionsWithMSGraph.Should().Contain(c => c.Label.Contains("microsoftGraph"));
         }

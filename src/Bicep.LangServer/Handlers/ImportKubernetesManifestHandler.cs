@@ -62,7 +62,7 @@ namespace Bicep.LanguageServer.Handlers
                 new ProviderDeclarationSyntax(
                     [],
                     SyntaxFactory.ProviderKeywordToken,
-                    SyntaxFactory.CreateStringLiteralWithTextSpan($"'{K8sNamespaceType.BuiltInName}@{K8sNamespaceType.BuiltInVersion}'"),
+                    SyntaxFactory.CreateIdentifierWithTrailingSpace(K8sNamespaceType.BuiltInName),
                     new ProviderWithClauseSyntax(
                         SyntaxFactory.CreateToken(TokenType.WithKeyword),
                         SyntaxFactory.CreateObject(

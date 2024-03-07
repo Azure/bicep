@@ -39,7 +39,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
                     file,
-                    diagnostics.Where(d => !IsPermittedMissingTypeDiagnostic(d)).Where(d => !d.Code.Equals("BCP395")),
+                    diagnostics.Where(d => !IsPermittedMissingTypeDiagnostic(d)),
                     diagnostics =>
                     {
                         diagnostics.Should().BeEmpty("{0} should not have warnings or errors", file.FileUri.LocalPath);
