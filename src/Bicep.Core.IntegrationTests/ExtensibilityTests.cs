@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
@@ -458,6 +459,32 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2020-01-01\" does not have types available."),
                 ("BCP210", DiagnosticLevel.Error, "Resource type belonging to namespace \"stg\" cannot have a parent resource type belonging to different namespace \"az\"."),
             });
+        }
+
+        [TestMethod]
+        public void LegacyProvider_codefix_works()
+        {
+            var originalFile = @"
+provider 'bar@0.0.1' with {
+  connectionString: 'asdf'
+} as stg
+";
+
+            var result = CompilationHelper.Compile(Services, originalFile);
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP395", DiagnosticLevel.Warning, "Declaring provider namespaces using the '<providerName>@<version>' expression has been deprecated. Please use an identifier instead."),
+            });
+            
+            var diagnostic = result.Diagnostics.OfType<IFixable>().Single();
+            var fix = diagnostic.Fixes.Single();
+
+            fix.Kind.Should().Be(CodeFixKind.QuickFix);
+            fix.Should().HaveResult(originalFile, @"
+provider bar with {
+  connectionString: 'asdf'
+} as stg
+");
         }
 
         [TestMethod]
