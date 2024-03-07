@@ -811,7 +811,7 @@
     "triple-beam": "^1.4.1",
     "vscode-languageclient": "^9.0.1",
     "vscode-nls": "^5.2.0",
-    "winston": "^3.11.0",
+    "winston": "^3.12.0",
     "winston-transport": "^4.7.0"
   },
   "extensionDependencies": [
